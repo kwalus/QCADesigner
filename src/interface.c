@@ -766,6 +766,9 @@ void create_main_window (main_W *main_window){
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->calculate_ground_state_menu_item);
 	gtk_widget_add_accelerator (main_window->calculate_ground_state_menu_item, "activate", main_window->accel_group, GDK_g, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	
+	// *********** remove when finished **************** //
+	gtk_widget_set_sensitive (GTK_WIDGET (main_window->calculate_ground_state_menu_item), FALSE);
+	
 	// create and add the animate_test_simulation menu item to the simulation menu //
 	main_window->animate_test_simulation_menu_item = gtk_menu_item_new_with_label (_("Animate Test Simulation"));
 	gtk_widget_ref (main_window->animate_test_simulation_menu_item);
@@ -773,7 +776,10 @@ void create_main_window (main_W *main_window){
 	gtk_widget_show (main_window->animate_test_simulation_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->animate_test_simulation_menu_item);
 	gtk_widget_add_accelerator (main_window->animate_test_simulation_menu_item, "activate", main_window->accel_group, GDK_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-
+	
+	// *********** remove when finished **************** //
+	gtk_widget_set_sensitive (GTK_WIDGET (main_window->animate_test_simulation_menu_item), FALSE);
+	
 	// create and add a seperator to the simulation menu //
 	main_window->separator12 = gtk_menu_item_new ();
 	gtk_widget_ref (main_window->separator12);

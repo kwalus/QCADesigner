@@ -807,12 +807,16 @@ char *pszBrowser =
 if (NULL == pszBrowser) return ;
 
 #ifdef WIN32
-pszCmdLine = g_strdup_printf ("%s ..%cshare%cdoc%cQCADesigner%cmanual%cindex.html",
-  pszBrowser, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
+pszCmdLine = g_strdup_printf ("%s file://%s%c..%cshare%cdoc%cQCADesigner%cmanual%cindex.html",
+  pszBrowser, getenv ("MY_PATH"), G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, 
+  G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
+//pszCmdLine = g_strdup_printf ("%s file://..\\share\\doc\\QCADesigner\\manual\\index.html", pszBrowser) ;
 #else
-pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner%cmanual%cindex.html",
+pszCmdLine = g_strdup_printf ("%s file://%s%cdoc%cQCADesigner%cmanual%cindex.html",
   pszBrowser, PACKAGE_DATA_DIR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
 #endif
+
+fprintf (stderr, "Proceeding with command line |%s|\n", pszCmdLine) ;
 
 argv = CmdLineToArgv (pszCmdLine, &argc) ;
 
@@ -859,7 +863,7 @@ void rotate_selection_menu_item_activate (GtkWidget *widget, gpointer user_data)
   
   move_selected_cells_to_pointer () ;
   }
-
+/*
 static void layer_selected (GtkWidget *widget, gpointer data)
   {
   LAYER *layer = (LAYER *)g_object_get_data (G_OBJECT (widget), "layer") ;
@@ -897,7 +901,7 @@ static void layer_selected (GtkWidget *widget, gpointer data)
     }
   gtk_widget_queue_draw (main_window.toolbar) ;
   }
-
+*/
 void action_button_clicked (GtkWidget *widget, gpointer data)
   {
   int Nix ;

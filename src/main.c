@@ -143,7 +143,11 @@ int main (int argc, char *argv[])
       szMyPath[Nix] = 0 ;
       break ;
       }
-      
+
+  psz = g_strdup_printf ("MY_PATH=%s", szMyPath) ;
+  putenv (psz) ;
+  g_free (psz) ;
+
   psz = g_strdup_printf ("%s%spixmaps", szMyPath, G_DIR_SEPARATOR_S) ;
   add_pixmap_directory (psz) ;
   g_free (psz) ;

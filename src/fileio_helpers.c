@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <glib.h>
 #include "fileio_helpers.h"
 
 #define DBG_FIOH(s)
@@ -47,4 +48,73 @@ char *base_name (char *pszFile)
     if (*pszRet == '/' || *pszRet == '\\')
       return pszRet + 1 ;
   return pszFile ;
+  }
+
+char *CreateUserFName (char *pszBaseName)
+  {
+  char *pszHome = getenv ("HOME"), *psz = NULL, *pszRet = NULL ;
+  psz = g_strdup_printf ("%s%s.QCADesigner", pszHome,
+    G_DIR_SEPARATOR == pszHome[strlen (pszHome) - 1] ? "" : G_DIR_SEPARATOR_S) ;
+#ifndef WIN32
+  mkdir (psz, 07777) ;
+#else
+  mkdir (psz) ;
+#endif
+  pszRet = g_strdup_printf ("%s%c%s", psz, G_DIR_SEPARATOR, pszBaseName) ;
+  g_free (psz) ;
+  return pszRet ;
+  }
+
+// Turn a string into an argv-style array
+char **CmdLineToArgv (char *pszTmp, int *pargc)
+  {
+  char **argv = NULL, *psz = g_strdup_printf ("%s", pszTmp), *pszAt = psz, *pszStart = psz ;
+  gboolean bString = FALSE ;
+  
+  (*pargc) = 0 ;
+  
+  for (pszAt = psz ; ; pszAt++)
+    {
+    if (0 == (*pszAt)) break ;
+    if (' ' == (*pszAt))
+      {
+      if (!bString)
+        {
+        (*pszAt) = 0 ;
+        argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
+        argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
+        pszAt++ ;
+        while (' ' == (*pszAt))
+          pszAt++ ;
+        pszStart = pszAt ;
+        }
+      }
+    
+    if ('\"' == (*pszAt))
+      {
+      if (!bString)
+        pszStart = pszAt = pszAt + 1 ;
+      else
+        {
+        (*pszAt) = 0 ;
+        argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
+        argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
+        pszAt++ ;
+        while (' ' == (*pszAt))
+          pszAt++ ;
+        pszStart = pszAt ;
+        }
+      bString = !bString ;
+      }
+    }
+
+  argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
+  argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
+  argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
+  argv[(*pargc) - 1] = NULL ;
+  
+  (*pargc)-- ;
+  
+  g_free (psz) ;
+  return argv ;
   }

@@ -38,6 +38,7 @@
 #include "bistable_simulation.h"
 #include "recent_files.h"
 #include "vector_table.h"
+#include "fileio_helpers.h"
 #include "init.h"
 
 #define NO_CONSOLE
@@ -58,12 +59,6 @@ static void QCADesigner_static_init () ;
   // Can't use WinMain without Win32
   #undef NO_CONSOLE
 #endif  /* ifndef WIN32 */
-
-#ifdef WIN32
-#ifdef NO_CONSOLE
-static char **CmdLineToArgv (char *pszCmdLine, int *pargc) ;
-#endif /* ifdef NO_CONSOLE */
-#endif /* ifdef WIN32 */
 
 #ifdef NO_CONSOLE
 // Use WinMain and set argc and argv to reasonable values
@@ -215,62 +210,3 @@ static void QCADesigner_static_init ()
   {
   cad_init () ;
   }
-
-#ifdef WIN32
-#ifdef NO_CONSOLE
-// Turn a string into an argv-style array
-char **CmdLineToArgv (char *pszTmp, int *pargc)
-  {
-  char **argv = NULL, *psz = g_strdup_printf ("%s", pszTmp), *pszAt = psz, *pszStart = psz ;
-  gboolean bString = FALSE ;
-  
-  (*pargc) = 0 ;
-  
-  for (pszAt = psz ; ; pszAt++)
-    {
-    if (0 == (*pszAt)) break ;
-    if (' ' == (*pszAt))
-      {
-      if (!bString)
-        {
-        (*pszAt) = 0 ;
-        argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-        argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
-        pszAt++ ;
-        while (' ' == (*pszAt))
-          pszAt++ ;
-        pszStart = pszAt ;
-        }
-      }
-    
-    if ('\"' == (*pszAt))
-      {
-      if (!bString)
-        pszStart = pszAt = pszAt + 1 ;
-      else
-        {
-        (*pszAt) = 0 ;
-        argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-        argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
-        pszAt++ ;
-        while (' ' == (*pszAt))
-          pszAt++ ;
-        pszStart = pszAt ;
-        }
-      bString = !bString ;
-      }
-    }
-
-  argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-  argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
-  argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-  argv[(*pargc) - 1] = NULL ;
-  
-  (*pargc)-- ;
-  
-  g_free (psz) ;
-  return argv ;
-  }
-#endif /* NO_CONSOLE */
-#endif /* ifdef WIN32 */
-

@@ -16,117 +16,39 @@
 
 #define DBG_PP(s)
 
-typedef struct
-  {
-  char *pszCmdLine ;
-  char *pszFName ;
-  } PREVIEW_THREAD_PARAMS ;
+//typedef struct
+//  {
+//  char *pszCmdLine ;
+//  char *pszFName ;
+//  } PREVIEW_THREAD_PARAMS ;
 
-static char *CreateUserFName (char *pszBaseName) ;
-static void RunPreviewer (char *pszCmdLine, char *pszFName) ;
-static gpointer PreviewerThread (gpointer) ;
+//static void RunPreviewer (char *pszCmdLine, char *pszFName) ;
+//static gpointer PreviewerThread (gpointer) ;
 
-static char *CreateUserFName (char *pszBaseName)
-  {
-  char *pszHome = getenv ("HOME"), *psz = NULL, *pszRet = NULL ;
-  psz = g_strdup_printf ("%s%s.QCADesigner", pszHome,
-    G_DIR_SEPARATOR == pszHome[strlen (pszHome) - 1] ? "" : G_DIR_SEPARATOR_S) ;
-#ifndef WIN32
-  mkdir (psz, 07777) ;
-#else
-  mkdir (psz) ;
-#endif
-  pszRet = g_strdup_printf ("%s%c%s", psz, G_DIR_SEPARATOR, pszBaseName) ;
-  g_free (psz) ;
-  return pszRet ;
-  }
+static void ChildPreRun (gpointer p) ;
 
 void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFunction fcnPrint)
   {
-  char *pszWinTitle = "Please Select PostScript Viewer" ;
   char *pszPrintString = ppo->pszPrintString ;
   gboolean bPrintFile = ppo->bPrintFile ;
-  FILE *pfile = NULL ;
-  int ic = 0, Nix, fd = -1 ;
-  char *pszCfgFile = NULL, *pszPreviewer = NULL, *pszFromFile = NULL, *pszFName = NULL ;
+  int fd = -1 ;
+  char *pszCfgFile = NULL, *pszPreviewer = NULL, *pszFName = NULL, *pszCmdLine = NULL ;
+  char **argv ;
+  int argc = -1 ;
+  GError *err = NULL ;
+  GPid child_pid = -1 ;
 #ifdef WIN32
   char szBuf[MAX_PATH] = "" ;
 #endif
   
-  pszCfgFile = CreateUserFName ("previewer") ;
-  if (NULL == (pfile = fopen (pszCfgFile, "r")))
-    pszPreviewer = get_file_name_from_user (parent, pszWinTitle, "", FALSE) ;
-  else
-    {
-    if (NULL == (pszFromFile = ReadLine (pfile, 0)))
-      {
-      fclose (pfile) ;
-      pszPreviewer = get_file_name_from_user (parent, pszWinTitle, "", FALSE) ;
-      }
-    else
-      pszPreviewer = g_strdup_printf ("%s", pszFromFile) ;
-    fclose (pfile) ;
-    }
-
-  if (NULL == pszPreviewer)
-    {
-    ppo->pszPrintString = pszPrintString ;
-    ppo->bPrintFile = bPrintFile ;
-    return ;
-    }
-
-  if (0 == pszPreviewer[0]) /* grabbed empty string from file */
-    {
-    g_free (pszPreviewer) ;
-    pszPreviewer = get_file_name_from_user (parent, pszWinTitle, "", FALSE) ;
-    }
-  /* The user must have cancelled out of the file selection box */
-  if (NULL == pszPreviewer)
-    {
-    ppo->pszPrintString = pszPrintString ;
-    ppo->bPrintFile = bPrintFile ;
-    return ;
-    }
-
-
-  if (0 == pszPreviewer[0])
-    {
-    /* After much effort, a command line for a previewer could not be conjured up.
-       Give the user the bad news */
-    GtkWidget *msg = NULL ;
-    gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (parent, 
-      GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-      "Unable to find previewer !"))) ;
-    gtk_widget_hide (msg) ;
-    gtk_widget_destroy (msg) ;
-    g_free (pszPreviewer) ;
-    ppo->pszPrintString = pszPrintString ;
-    ppo->bPrintFile = bPrintFile ;
-    return ;
-    }
-
-  ic = strlen (pszPreviewer) ;
-  for (Nix = 0 ; Nix < ic ; Nix++)
-    if ('\r' == pszPreviewer[Nix] || '\n' == pszPreviewer[Nix])
-      pszPreviewer[Nix] = 0 ;
-
-  /* Save the previewer to the config file */
-  if (NULL != (pfile = fopen (pszCfgFile, "w")))
-    {
-    fprintf (pfile, "%s\n", pszPreviewer) ;
-    fclose (pfile) ;
-    }
-
 #ifdef WIN32
-  /* In Windoze, we need to perform the extra step of grabbing
-     the DOS-style path corresponding to the previewer path */
-  GetShortPathName (pszPreviewer, szBuf, MAX_PATH) ;
-  g_free (pszPreviewer) ;
-  pszPreviewer = g_strdup_printf ("%s", szBuf) ;
+  pszPreviewer = get_external_app (parent, "Please Select PostScript Viewer", "previewer", "C:\\Program Files\\Ghostgum\\gsview\\gsview32.exe", FALSE) ;
+#else
+  pszPreviewer = get_external_app (parent, "Please Select PostScript Viewer", "previewer", "/usr/bin/ggv", FALSE) ;
 #endif
-
-/* At this point, we have the command line for the previewer.
-   Now, let's concentrate on the temporary file name for the preview. */
+  
+  if (NULL == pszPreviewer)
+    return ;
 
   ppo->pszPrintString = CreateUserFName ("previewXXXXXX") ;
 #ifdef WIN32
@@ -170,12 +92,29 @@ void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFuncti
   ppo->pszPrintString = pszPrintString ;
   ppo->bPrintFile = bPrintFile ;
 
+  pszCmdLine = g_strdup_printf ("%s %s", pszPreviewer, pszFName) ;
+
+  g_free (pszPreviewer) ;
+  g_free (pszFName) ;
+  argv = CmdLineToArgv (pszCmdLine, &argc) ;
+
   /* RunPreviewer takes care of freeing pszPreviewer and pszFName */
-  RunPreviewer (pszPreviewer, pszFName) ;
+//  RunPreviewer (pszPreviewer, pszFName) ;
 
+  if (!g_spawn_async (NULL, argv, NULL, 
+    G_SPAWN_SEARCH_PATH | 
+    G_SPAWN_STDOUT_TO_DEV_NULL |
+    G_SPAWN_STDERR_TO_DEV_NULL,
+    ChildPreRun, NULL, &child_pid, &err))
+    
+    fprintf (stderr, "Failed to execute command line\"%s\"!\n", pszCmdLine) ;
+
+  g_free (pszCmdLine) ;
   g_free (pszCfgFile) ;
-  }
 
+  fprintf (stderr, "Returning from do_print_preview\n") ;
+  }
+/*
 static void RunPreviewer (char *pszCmdLine, char *pszFName)
   {
   PREVIEW_THREAD_PARAMS *pptp = (PREVIEW_THREAD_PARAMS *)malloc (sizeof (PREVIEW_THREAD_PARAMS)) ;
@@ -218,3 +157,6 @@ static gpointer PreviewerThread (gpointer p)
   
   return NULL ;
   }
+*/
+
+static void ChildPreRun (gpointer p) {}

@@ -709,12 +709,11 @@ void create_main_window (main_W *main_window){
 //	main_window->help_menu_menu_accels = gtk_menu_ensure_uline_accel_group (GTK_MENU (main_window->help_menu_menu));
 	
 	// create and add the contents menu item to the help menu 
-	main_window->contents_menu_item = gtk_menu_item_new_with_label (_("Contents"));
+	main_window->contents_menu_item = gtk_image_menu_item_new_with_label (_("Contents"));
 	gtk_widget_show (main_window->contents_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->help_menu_menu), main_window->contents_menu_item);
-	
-	// *********** remove when finished ****************//
-	gtk_widget_set_sensitive (GTK_WIDGET (main_window->contents_menu_item), FALSE);
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (main_window->contents_menu_item),
+          gtk_image_new_from_stock (GTK_STOCK_HELP, GTK_ICON_SIZE_MENU)) ;
 	
 	// create and add the search menu item to the help menu //
 	main_window->search_menu_item = gtk_menu_item_new_with_label (_("Search"));

@@ -21,6 +21,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "support.h"
 #include "file_selection_window.h"
@@ -58,6 +59,84 @@ gchar *get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszF
     g_signal_handler_disconnect (G_OBJECT (GTK_FILE_SELECTION (file_selection)->ok_button), handlerID) ;
 
   return pszRet ;
+  }
+
+gchar *get_external_app (GtkWindow *parent, char *pszWinTitle, char *pszCfgFName, char *pszDefaultContents, gboolean bForceNew)
+  {
+  char *pszRet = NULL ;
+  char *pszUserFName = NULL ;
+  char *pszLine = NULL ;
+  FILE *pfile = NULL ;
+  int Nix, ic ;
+#ifdef WIN32
+  char szBuf[MAX_PATH] = "" ;
+#endif
+
+  pszUserFName = CreateUserFName (pszCfgFName) ;
+  if (NULL == (pfile = fopen (pszUserFName, "r")))
+    pszRet = get_file_name_from_user (parent, pszWinTitle, pszDefaultContents, FALSE) ;
+  else
+    {
+    if (NULL == (pszLine = ReadLine (pfile, 0)))
+      {
+      fclose (pfile) ;
+      pszRet = get_file_name_from_user (parent, pszWinTitle, pszDefaultContents, FALSE) ;
+      }
+    else
+      pszRet = g_strdup (pszLine) ;
+    fclose (pfile) ;
+    }
+
+  if (NULL == pszRet)
+    return NULL ;
+
+  if (0 == pszRet[0]) // grabbed empty string from file
+    {
+    g_free (pszRet) ;
+    pszRet = get_file_name_from_user (parent, pszWinTitle, pszDefaultContents, FALSE) ;
+    }
+
+  if (NULL == pszRet) // User clicked cancel
+    return NULL ;
+
+  if (0 == pszRet[0])
+    {
+    // After much effort, a command line could not be conjured up.
+    // Give the user the bad news.
+    GtkWidget *msg = NULL ;
+    gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (parent, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR,
+      GTK_BUTTONS_OK, "Unable to locate path!"))) ;
+    gtk_widget_hide (msg) ;
+    gtk_widget_destroy (msg) ;
+    g_free (pszRet) ;
+    return NULL ;
+    }
+
+  ic = strlen (pszRet) ;
+
+  for (Nix = 0 ; Nix < ic ; Nix++)
+    if ('\r' == pszRet[Nix] || '\n' == pszRet[Nix])
+      {
+      pszRet[Nix] = 0 ;
+      break ;
+      }
+
+#ifdef WIN32
+  // In Windoze, we need to perform the extra step of grabbing
+  // the DOS-style path corresponding to the previewer path
+  GetShortPathName (pszRet, szBuf, MAX_PATH) ;
+  g_free (pszRet) ;
+  pszRet = g_strdup_printf ("%s", szBuf) ;
+#endif
+
+  /* Save the previewer to the config file */
+  if (NULL != (pfile = fopen (pszUserFName, "w")))
+    {
+    fprintf (pfile, "%s\n", pszRet) ;
+    fclose (pfile) ;
+    }
+
+  return pszRet ; 
   }
 
 static gboolean filesel_ok_button_activate (GtkWidget *widget, GdkEventButton *ev, gpointer data)

@@ -787,7 +787,19 @@ void on_animate_test_simulation_menu_item_activate(GtkMenuItem *menuitem, gpoint
 
 void on_contents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-  DBG_CB_HERE (fprintf (stderr, "Entering on_contents_menu_item_activate\n")) ;
+#ifdef WIN32
+char *pszBrowser = 
+  get_external_app (main_window.main_window, "Please Select Web Browser", "browser", 
+    "C:\\Program Files\\Internet Explorer\\iexplore.exe", FALSE) ;
+#else
+char *pszBrowser = 
+  get_external_app (main_window.main_window, "Please Select Web Browser", "browser", 
+    "/usr/bin/mozilla", FALSE) ;
+#endif
+
+if (NULL == pszBrowser) return ;
+
+  
 }
 void on_search_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
@@ -1097,7 +1109,7 @@ static gboolean SaveDirtyUI (GtkWindow *parent, char *szMsg)
     {
     GtkWidget *msg = NULL ;
     msg = gtk_message_dialog_new (parent, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, szMsg) ;
-    gtk_dialog_add_action_widget (GTK_DIALOG (msg), gtk_button_new_with_stock_image (GTK_STOCK_NO, _("Don's save")), GTK_RESPONSE_NO) ;
+    gtk_dialog_add_action_widget (GTK_DIALOG (msg), gtk_button_new_with_stock_image (GTK_STOCK_NO, _("Don't save")), GTK_RESPONSE_NO) ;
     gtk_dialog_add_button (GTK_DIALOG (msg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
     gtk_widget_grab_default (gtk_dialog_add_button (GTK_DIALOG (msg), GTK_STOCK_SAVE, GTK_RESPONSE_YES)) ;
     

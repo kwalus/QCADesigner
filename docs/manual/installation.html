@@ -1,0 +1,120 @@
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    <title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="1">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo.gif" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+
+<!--
+This is the table with the tree of documents
+-->
+<table border="0" bgcolor="#224262" cellspacing="1">
+<tr><td>
+<table border="0" bgcolor="#ffffff">
+<tr><td>
+	<table border="0" cellspacing="1">
+		<tr><td colspan="2"><a href="index.html">Home</a></td><tr>
+		<tr><td colspan="2">User&nbsp;Interface</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="moving_around.html">Moving&nbsp;Around</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="adding_cells.html">Adding&nbsp;Cells</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="manipulating_cells.html">Manipulating&nbsp;Cells</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="cell_functions.html">Cell&nbsp;Functions</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="clocking.html">Clocking</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="print_dialog.html">Printing</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="create_import_block.html">Create/Import&nbsp;Block</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Type</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="exhaustive_verification.html">Exhaustive&nbsp;Verification</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="vector_table.html">Vector&nbsp;Table</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Engines</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="coherence_vector_engine.html">Coherence&nbsp;Vector</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="bistable_simulation_engine.html">Bistable</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="nonlinear_approximation_engine.html">Nonlinear&nbsp;Approximation</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="digital_simulation_engine.html">Digital</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Results</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="graph_dialog.html">Graph&nbsp;Dialog</a></td><tr>
+	</table>
+</td></tr>
+</table>
+</td></tr>
+</table>
+<!--
+End of tree
+-->
+</td>
+<td align="left" valign="top">
+
+<h1>QCADesigner Documentation</h1>
+
+<h2>Installation</h2>
+These instructions should guide you through he installation procedure.
+
+<h3>Under Microsoft Windows</h3>
+
+<p>In order to run QCADesigner under Microsoft Windows you will require an extra package called GTK+. Download and install the GTK Runtime Environment from <a href="http://dropline.net/gtk">http://dropline.net/gtk</a>. Once you have installed the runtime environment download the QCADesigner self-extracting executable from the <a href="http://www.qcadesigner.ca/download.html">download page</a> and install it. This should be all you will require to run QCADesigner under Windows.
+
+<h3>RPM Based Systems</h3>
+<p>Note: you will require the root password. 
+
+<p>Download the RPM version of QCADesigner for your particular architecture from the <a href="http://www.qcadesigner.ca/download.html">download page</a>. Login as root and go to the directory where the downloaded RPM is located. To install the RPM type:
+
+<p><i>rpm -Uhv QCADesigner[version you downloaded].rpm</i> 
+
+<p>That should be all you need. Now run QCADesigner with the command 
+
+<p><i>QCADesigner</i>
+
+<a name="source">
+<h3>From Source</h3>
+<p>Download the source from the <a href="http://www.qcadesigner.ca/download.html">download page</a>. Extract the package to a known directory by typing
+
+<p><i>tar -xzvf QCADesigner[version you downloaded].tar.gz</i>  <== For tar.gz sources.
+<p><i>tar -xjvf QCADesigner[version you downloaded].tar.bz2</i>  <== For tar.bz2 sources.
+
+<p>Switch to the new directory
+
+<p><i>cd QCADesigner[version you downloaded]</i>
+
+<p>Prepare the program for compiling by typing 
+
+<p><i>./autogen.sh</i>
+
+<p>NOTE: the following command can be left out if you wish to install the program system wide. In that case, you will require a root password. Otherwise, the following command allows you to choose the installation path. If you make this path somewhere in your home directory, you will not require the root password.
+
+<p><i> ./configure --prefix=/home/your_account/your_install_location</i>
+
+<p>Compile the program with
+
+<p><i>make</i>
+
+<p>Install the program with 
+
+<p><i>make install</i>
+
+<p>Run QCADesigner with 
+
+<p><i>QCADesigner &</i>
+
+<p>Voila!
+
+<h3>Under Mac OS X</h3>
+QCADesigner will run under Mac OS X, however, you will require several other packages to do this. Basically, these packages will allow you to run Unix applications on you Mac. First you will need to install <a href="http://fink.sourceforge.net">Fink</a>. When you choose your packages make sure to include the package GTK+. As well you will require the <a href="http://www.apple.com/macosx/features/x11/download">X11 server</a>. Once you have these packages you should be able to download and install QCADesigner <a href="#source">from source</a>. Sorry that this is not a step-by-step guide, but fink is constantly evolving, so I could end up leading you down the wrong path. You should read the installation instructions carefully on the Fink site. 
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+</body></html>
+<p>

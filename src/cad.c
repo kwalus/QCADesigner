@@ -216,6 +216,8 @@ void redraw_world(GdkDrawable *dWnd, GdkGC *gcWnd, GQCell *first_cell, gboolean 
   if (NULL != pm)
     gc = gdk_gc_new (d = GDK_DRAWABLE (pm)) ;
   
+  gdk_window_clear (dWnd) ;
+  
   DBG_CAD (fprintf (stderr, "redraw_world\n")) ;
   draw_subs(d, gc);
   if(bShowGrid)draw_grid(d, gc);

@@ -20,13 +20,13 @@
 #include "gqcell.h"
 #include "simulation.h"
 #include "stdqcell.h"
-#include "coherence_simulation.h"
+#include "coherence_vector.h"
 #include "nonlinear_approx.h"
 #include "command_history.h"
 #include "cad.h"
 
 //!Options for the bistable simulation engine
-coherence_OP coherence_options = {300, 6.5828e-14, 1e-15, 1e-13, 100e-3 * 1.602e-19, 40e-3 * 1.602e-19} ;
+coherence_OP coherence_options = {300, 6.5828e-14, 1e-15, 1e-13, 100e-3 * 1.602e-19, 40e-3 * 1.602e-19, 60, 12.9} ;
 
 typedef struct{
 	int number_of_neighbours;
@@ -226,7 +226,7 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	// -- this is done so that majority gates are evalulated last -- //
 	// -- to ensure that all the signals have arrived first -- //
 	// -- kept getting wrong answers without this -- //
-	qsort (sorted_cells, total_cells, sizeof (GQCell *), compareBistableQCells) ;
+	qsort (sorted_cells, total_cells, sizeof (GQCell *), compareCoherenceQCells) ;
 	
 	// Reset all the cell polarizations to their associated steady state values //
 	cell = first_cell;
@@ -276,10 +276,10 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 		}
 
 		// -- run the iteration with the given clock value -- //
-		run_bistable_iteration (j, total_cells, sorted_cells, options, sim_data);
+		run_coherence_iteration (j, total_cells, sorted_cells, options, sim_data);
 		
 		// -- Set the cell polarizations to the lambda_z value -- //
-		for(i = 0; i < number_sorted_cells; i++){
+		for(i = 0; i < total_cells; i++){
 			// don't simulate the input and fixed cells //
 			if(sorted_cells[i]->is_input || sorted_cells[i]->is_fixed)continue;
 			gqcell_set_polarization(sorted_cells[i], ((coherence_model *)sorted_cells[i]->cell_model)->lambda_z);
@@ -323,11 +323,12 @@ static void run_coherence_iteration (int sample_number, int number_of_sorted_cel
 	double lambda_y_new;
 	double lambda_z_new;
 	double PEk;
+	double t;
 	
 	t = options->time_step * sample_number;
 	
 	// loop through all the cells in the design //
-	for(i = 0; i < number_sorted_cells; i++){
+	for(i = 0; i < number_of_sorted_cells; i++){
 		
 		// don't simulate the input and fixed cells //
 		if(sorted_cells[i]->is_input || sorted_cells[i]->is_fixed)continue;
@@ -367,7 +368,7 @@ static void run_coherence_iteration (int sample_number, int number_of_sorted_cel
 // -- refreshes the array of Ek values for each cell in the design this is done to speed up the simulation
 // since we can assume no design changes durring the simulation we can precompute all the Ek values then
 // use them as necessary throughout the simulation -- //
-static void coherence_refresh_all_Ek (GQCell *cell, bistable_OP *options){
+static void coherence_refresh_all_Ek (GQCell *cell, coherence_OP *options){
     int icNeighbours = 0 ;
 	coherence_model *cell_model = NULL ;
 	GQCell *first_cell = cell ;
@@ -384,7 +385,7 @@ static void coherence_refresh_all_Ek (GQCell *cell, bistable_OP *options){
 		
 		// select all neighbours within the provided radius //
 		cell_model->number_of_neighbours = icNeighbours = 
-		  select_cells_in_radius (first_cell, cell, ((bistable_OP *)options)->radius_of_effect, &(cell_model->neighbours));
+		  select_cells_in_radius (first_cell, cell, ((coherence_OP *)options)->radius_of_effect, &(cell_model->neighbours));
 		
 		if (icNeighbours > 0){
 			cell_model->Ek = malloc (sizeof (double) * icNeighbours);
@@ -398,7 +399,7 @@ static void coherence_refresh_all_Ek (GQCell *cell, bistable_OP *options){
 			for (k = 0; k < icNeighbours; k++){
 			
 			// set the Ek of this cell and its neighbour //
-			cell_model->Ek[k] = bistable_determine_Ek (cell, cell_model->neighbours[k], options);
+			cell_model->Ek[k] = coherence_determine_Ek (cell, cell_model->neighbours[k], options);
 			
 			}
 		}
@@ -412,7 +413,7 @@ static void coherence_refresh_all_Ek (GQCell *cell, bistable_OP *options){
 //-------------------------------------------------------------------//
 // Determines the Kink energy of one cell with respect to another this is defined as the energy of those
 // cells having opposite polarization minus the energy of those two cells having the same polarization -- //
-static double coherence_determine_Ek (GQCell * cell1, GQCell * cell2, bistable_OP *options){
+static double coherence_determine_Ek (GQCell * cell1, GQCell * cell2, coherence_OP *options){
 
 	int k;
 	int j;
@@ -424,7 +425,7 @@ static double coherence_determine_Ek (GQCell * cell1, GQCell * cell2, bistable_O
 	double charge2[4] = { HALF_QCHARGE, -HALF_QCHARGE, HALF_QCHARGE, -HALF_QCHARGE };
 	
 	double Ek = 0;
-	double E = 0;
+	double Energy = 0;
 	
 	g_assert (cell1 != NULL && cell2 != NULL);
 	g_assert (cell1 != cell2);
@@ -437,13 +438,13 @@ static double coherence_determine_Ek (GQCell * cell1, GQCell * cell2, bistable_O
 			g_assert (distance != 0);
 	            
 			Ek += Constant * (charge1[k] * charge2[j]) / (distance*1e-9);
-			E += Constant * (charge1[k] * charge1[j]) / (distance*1e-9);
+			Energy += Constant * (charge1[k] * charge1[j]) / (distance*1e-9);
 			
 		}//for other dots
 	
 	}//for these dots
 	
-	return Ek - E;
+	return Ek - Energy;
 
 }// bistable_determine_Ek
 

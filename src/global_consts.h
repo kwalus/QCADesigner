@@ -48,6 +48,7 @@
 #define BISTABLE 2
 #define DIGITAL_SIM 3
 #define SCQCA 4
+#define COHERENCE_VECTOR 5
 
 //!Simulation Types
 #define EXHAUSTIVE_VERIFICATION 0

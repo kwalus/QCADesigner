@@ -70,6 +70,7 @@ QCADesigner_SOURCES = \
 	cell.cpp cell.h ptr_comp.h \
 	cell_info.cpp cell_neighbor.cpp \
 	bistable_simulation.c bistable_simulation.h \
+	coherence_vector.c coherence_vector.h \
 	nonlinear_approx.c nonlinear_approx.h \
 	scqca_simulation.c scqca_simulation.h scqca_constants.h scqca_math.c scqca_math.h
 

@@ -26,6 +26,7 @@
 #include <stdio.h>
 
 #include "nonlinear_approx.h"
+#include "coherence_vector.h"
 #include "stdqcell.h"
 #include "simulation.h"
 #include "bistable_simulation.h"
@@ -36,6 +37,7 @@
 extern bistable_OP bistable_options ;
 extern nonlinear_approx_OP nonlinear_approx_options ;
 extern scqca_OP scqca_options;
+extern coherence_OP coherence_options;
 extern VectorTable *pvt ;
 
 // -- this is the main simulation procedure -- //
@@ -51,6 +53,9 @@ simulation_data *run_simulation (int sim_engine, int sim_type, GQCell *first_cel
 	
 	case SCQCA:
       return run_scqca_simulation(sim_type, first_cell, &scqca_options, pvt);
+	
+	case COHERENCE_VECTOR:
+      return run_coherence_simulation(sim_type, first_cell, &coherence_options, pvt);
 			
     case DIGITAL_SIM:
       return run_digital_simulation(sim_type, first_cell, NULL, pvt);

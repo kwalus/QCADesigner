@@ -32,6 +32,7 @@
 #include "bistable_properties_dialog.h"
 #include "scqca_properties_dialog.h"
 #include "nonlinear_approx_properties_dialog.h"
+#include "coherence_vector_properties_dialog.h"
 
 typedef struct{
   	GtkWidget *sim_engine_setup_dialog;
@@ -42,19 +43,22 @@ typedef struct{
   	GtkWidget *bistable_radio;
 	GtkWidget *digital_radio;
 	GtkWidget *scqca_radio;
+	GtkWidget *coherence_radio;
   	GtkWidget *dialog_action_area1;
   	GtkWidget *hbox1;
   	GtkWidget *nonlinear_approximation_options_button;
   	GtkWidget *bistable_options_button;
   	GtkWidget *scqca_options_button;
+	GtkWidget *coherence_options_button;
   	GtkWidget *sim_engine_ok_button;
   	GtkWidget *sim_engine_cancel_button;
-        GtkWidget *options_button ;
+    GtkWidget *options_button ;
 }sim_engine_setup_D;
 
 extern bistable_OP bistable_options ;
 extern nonlinear_approx_OP nonlinear_approx_options ;
 extern scqca_OP scqca_options ;
+extern coherence_OP coherence_options;
 
 static sim_engine_setup_D sim_engine_setup_dialog = {NULL} ;
 
@@ -84,6 +88,11 @@ void get_sim_engine_from_user (GtkWindow *parent, int *piSimEng)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.scqca_radio), TRUE) ;
     gtk_widget_set_sensitive (sim_engine_setup_dialog.options_button, TRUE) ;
     }
+  else if (COHERENCE_VECTOR == *piSimEng)
+    {
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.coherence_radio), TRUE) ;
+    gtk_widget_set_sensitive (sim_engine_setup_dialog.options_button, TRUE) ;
+    }
   else
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.digital_radio), TRUE) ;
 
@@ -95,7 +104,8 @@ void get_sim_engine_from_user (GtkWindow *parent, int *piSimEng)
       *piSimEng = 
         gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.mean_field_radio)) ? NONLINEAR_APPROXIMATION :
         gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.bistable_radio)) ? BISTABLE : 
-        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.digital_radio)) ? DIGITAL_SIM : SCQCA ;
+        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.digital_radio)) ? DIGITAL_SIM : 
+		gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.coherence_radio)) ? COHERENCE_VECTOR : SCQCA ;
 
   gtk_widget_hide (sim_engine_setup_dialog.sim_engine_setup_dialog) ;
   }
@@ -151,6 +161,15 @@ static void create_sim_engine_dialog (sim_engine_setup_D *dialog){
   gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->scqca_radio, 1, 2, 4, 5,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+					
+  dialog->coherence_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, "Coherence Vector");
+  g_object_set_data (G_OBJECT (dialog->coherence_radio), "which_options", (gpointer)COHERENCE_VECTOR) ;
+  dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->coherence_radio));
+  gtk_widget_show (dialog->coherence_radio);
+  g_object_set_data (G_OBJECT (dialog->coherence_radio), "options_button", dialog->coherence_options_button) ;
+  gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->coherence_radio, 1, 2, 5, 6,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
   // Options
   dialog->options_button = gtk_button_new ();
@@ -175,6 +194,7 @@ static void create_sim_engine_dialog (sim_engine_setup_D *dialog){
   gtk_signal_connect (GTK_OBJECT (dialog->mean_field_radio), "toggled", GTK_SIGNAL_FUNC (engine_toggled), dialog->options_button) ;
   gtk_signal_connect (GTK_OBJECT (dialog->digital_radio), "toggled", GTK_SIGNAL_FUNC (engine_toggled), dialog->options_button) ;
   gtk_signal_connect (GTK_OBJECT (dialog->scqca_radio), "toggled", GTK_SIGNAL_FUNC (engine_toggled), dialog->options_button) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->coherence_radio), "toggled", GTK_SIGNAL_FUNC (engine_toggled), dialog->options_button) ;
 }
 
 static void options_button_clicked(GtkButton *button, gpointer user_data){
@@ -192,6 +212,10 @@ static void options_button_clicked(GtkButton *button, gpointer user_data){
 
     case SCQCA:
       get_scqca_properties_from_user (GTK_WINDOW (user_data), &scqca_options) ;
+      break ;
+	
+	case COHERENCE_VECTOR:
+      get_coherence_properties_from_user (GTK_WINDOW (user_data), &coherence_options) ;
       break ;
 
     case DIGITAL_SIM:

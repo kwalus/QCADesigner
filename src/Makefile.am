@@ -8,7 +8,7 @@ QCADesigner_SOURCES = \
 	main.c \
 	recent_files.c recent_files.h \
 	support.c support.h \
-	globals.c globals.h \
+	globals.c globals.h qcell.h \
 	interface.c interface.h \
 	about.c about.h \
 	fileio.c fileio.h \

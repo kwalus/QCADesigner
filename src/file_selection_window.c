@@ -23,11 +23,14 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "support.h"
 #include "fileio.h"
 #include "file_selection_window.h"
 #include "blocking_dialog.h"
+
+#define DBG_FSW(s)
 
 typedef struct{
 	GtkWidget *fileselection;
@@ -49,6 +52,7 @@ void get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFNa
   gtk_window_set_transient_for (GTK_WINDOW (file_selection_dialog.fileselection), parent) ;
   gtk_file_selection_set_filename (GTK_FILE_SELECTION (file_selection_dialog.fileselection), NULL != pszFName ? pszFName : "") ;
   gtk_window_set_title (GTK_WINDOW (file_selection_dialog.fileselection), pszWinTitle) ;
+  DBG_FSW (fprintf (stderr, "Setting pszFName to 0x%08X\n", (int)pszFName)) ;
   gtk_object_set_data (GTK_OBJECT (file_selection_dialog.fileselection), "pszFName", pszFName) ;
   gtk_object_set_data (GTK_OBJECT (file_selection_dialog.fileselection), "pcb", &cb) ;
   show_dialog_blocking (file_selection_dialog.fileselection) ;
@@ -82,6 +86,9 @@ void file_selection_ok_button_clicked(GtkWidget *widget, gpointer data)
   GtkObject *pobj = GTK_OBJECT (data) ;
   char *pszFName = gtk_object_get_data (pobj, "pszFName") ;
   int *pcb = gtk_object_get_data (pobj, "pcb") ;
+  
+  DBG_FSW (fprintf (stderr, "pszFName = 0x%08X\n", (int)pszFName)) ;
+  
   g_snprintf (pszFName, *pcb, "%s", gtk_file_selection_get_filename (GTK_FILE_SELECTION (data))) ;
   gtk_widget_hide (GTK_WIDGET (data)) ;
   }

@@ -28,11 +28,13 @@
 #include <assert.h>
 #include <string.h>
 
-#include "globals.h"
+//#include "globals.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "fileio.h"
 #include "stdqcell.h"
+
+#define DBG_FIO(s)
 
 // ---------------------------------------------------------------------------------------- //
 
@@ -46,7 +48,7 @@ char *get_identifier(char *buffer);
 // ---------------------------------------------------------------------------------------- //
 
 // creates a file and stores all the cells in the simulation //
-gboolean create_file(gchar *file_name){
+gboolean create_file(gchar *file_name, qcell *first_cell){
 	FILE *project_file = NULL ;
 	int total_cells =0;
 	qcell *cell = first_cell;
@@ -61,7 +63,7 @@ gboolean create_file(gchar *file_name){
 	
 	// -- open the project file -- //
 	if((project_file = fopen(file_name, "w")) == NULL){
-		printf("Cannot open that file\n");
+		printf("Cannot open file %s\n", file_name);
 		return FALSE;
 	}
       	
@@ -80,7 +82,7 @@ gboolean create_file(gchar *file_name){
 // ---------------------------------------------------------------------------------------- //
 
 
-void export_block(gchar *file_name){
+void export_block(gchar *file_name, qcell **selected_cells, int number_of_selected_cells){
 	
 	int j ;
 	FILE *block_file = NULL;
@@ -169,16 +171,22 @@ void write_single_cell (FILE *project_file, qcell *cell)
   fprintf(project_file, "[#QCELL]\n");
   }
 
-int import_block(gchar *file_name){
+qcell *import_block(gchar *file_name, qcell ***p_selected_cells, int *p_number_of_selected_cells, qcell **p_last_cell){
 	
 	int number_of_cells;
+	qcell qc = {NULL} ;
+	qcell *qc_start = &qc ;
 	// -- file from which to import -- //
 	FILE *import_file = fopen(file_name, "r");
 	
 	// -- free up any currently selected cells -- //
-	number_of_selected_cells = 0;
-	free(selected_cells);
-	selected_cells = NULL;
+	
+	if (!(NULL == (*p_selected_cells) && 0 == (*p_number_of_selected_cells)))
+	  {
+	  (*p_number_of_selected_cells) = 0;
+	  free((*p_selected_cells));
+	  (*p_selected_cells) = NULL;
+	  }
 	
 	if(import_file == NULL){
 		g_print("cannot open that file!\n");
@@ -190,28 +198,36 @@ int import_block(gchar *file_name){
 			printf("It appears that the import file has no cells to import\n");
 			printf("When creating import files it is important to include and set the total_number_of_cells\n");
 			printf("within the [DESIGN_PROPERTIES] tags\n");
-			return 0;
+			return NULL;
 		}
-		
-		selected_cells = calloc(number_of_cells, sizeof(qcell *)); 
-				
-		// -- Reset the file pointer so as to start reading from the first cell -- /
-		rewind(import_file);
-		
-		// -- Read in all the cells in the project file -- //
-		while(!feof(import_file) && number_of_selected_cells < number_of_cells){
-			if((selected_cells[number_of_selected_cells] = read_next_qcell(import_file))==NULL){
-				break;
-			}
-			number_of_selected_cells++;
-		}
-				
+		else
+		  {
+		  (*p_selected_cells) = calloc(number_of_cells, sizeof(qcell *)); 
+
+		  // -- Reset the file pointer so as to start reading from the first cell -- /
+		  rewind(import_file);
+
+		  // -- Read in all the cells in the project file -- //
+		  while(!feof(import_file) && (*p_number_of_selected_cells) < number_of_cells)
+      	      	    if(((*p_selected_cells)[number_of_selected_cells] = qc_start->next = read_next_qcell(import_file))==NULL)
+		      break;
+		    else
+		      {
+		      qc_start->next->previous = qc_start ;
+		      qc_start->next->next = NULL ;
+		      qc_start = qc_start->next ;
+    		      (*p_number_of_selected_cells)++;
+		      }
+
+		  (*p_last_cell)->next = qc.next ;
+		  if (NULL != qc.next) qc.next->previous = (*p_last_cell) ;
+		  (*p_last_cell) = (qc_start == &qc ? NULL : qc_start) ;
+		  }
+		  
 	}
 	
-	if(number_of_selected_cells > 0)
-	  window_move_selected_cell = selected_cells[0];
-	  
-	return number_of_selected_cells ;
+	
+	return qc.next ;
 	
 	fclose(import_file);
 
@@ -220,17 +236,16 @@ int import_block(gchar *file_name){
 // ---------------------------------------------------------------------------------------- //
 
 // opens a selected file //
-gboolean open_project_file(gchar *file_name){
+qcell *open_project_file(gchar *file_name, qcell **p_first_cell, qcell **p_last_cell){
 	FILE *project_file = NULL ;
 	project_file = fopen(file_name, "r");
+	qcell qc = {NULL} ;
+	qcell *pqc = &qc ;
 	
 	if(project_file == NULL){
 		g_print("cannot open that file!\n");
-		return FALSE ;
+		return NULL ;
 	}else{
-		
-		// -- Clear all the cells in the current design -- //
-		clear_all_cells();
 		
 		// -- Read in the design options from the project file -- //
 		read_options(project_file);
@@ -240,15 +255,25 @@ gboolean open_project_file(gchar *file_name){
 		
 		// -- Read in all the cells in the project file -- //
 		while(!feof(project_file)){
-			read_next_qcell(project_file);
+			if (NULL == (pqc->next = read_next_qcell(project_file)))
+			  break ;
+			else
+			  {
+			  pqc->next->previous = pqc ;
+			  pqc->next->next = NULL ;
+			  pqc = pqc->next ;
+			  }
 		}
+		if (NULL != qc.next) qc.next->previous = NULL ;
+		(*p_first_cell) = qc.next ;
+		(*p_last_cell) = (&qc == pqc ? NULL : pqc) ;
 				
 	}
 	
 	fclose(project_file);
 	
 	printf("Finished opening the project file\n");
-	return TRUE ;
+	return (*p_first_cell) ;
 	
 }//open_project_file
 
@@ -468,6 +493,7 @@ qcell *read_next_qcell(FILE *project_file){
 	}
 	
 	// -- fill in the pointers for the linked list of cells -- //
+	/*
 	if(first_cell == NULL){
 		first_cell = cell;
 		last_cell = cell;
@@ -483,7 +509,7 @@ qcell *read_next_qcell(FILE *project_file){
 		last_cell = cell;
 			
 	}//else 
-	
+	*/
 	return cell;
 
 }//read_design

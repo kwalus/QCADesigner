@@ -127,6 +127,16 @@ void VectorTable_fill (VectorTable *pvt, qcell *first_cell)
   pvtp->vt.num_of_vectors = 0 ;
   }
 
+void VectorTable_add_inputs (VectorTable *pvt, qcell *first_cell)
+  {
+  while (NULL != first_cell)
+    {
+    if (first_cell->is_input)
+      VectorTable_add_input (pvt, first_cell) ;
+    first_cell = first_cell->next ;
+    }
+  }
+
 void VectorTable_add_input (VectorTable *pvt, qcell *new_input)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;

@@ -118,6 +118,7 @@ void setup_rulers () ;
 void gcs_set_rop (GdkFunction func) ;
 void set_selected_action (int action, int cell_type) ;
 void set_ruler_scale (GtkRuler *ruler, double dXLower, double dYLower) ;
+gboolean do_save () ;
 
 // This function gets called during a resize
 gboolean main_window_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
@@ -1012,6 +1013,7 @@ gboolean button_press_event(GtkWidget * widget, GdkEventButton * event, gpointer
 	    if (cellp != NULL) {
 		if (cellp->is_input == TRUE) {
 		    char szName[256] = "" ;
+		    g_snprintf (szName, 256, "%s", cellp->label) ;
 		    if (get_name_from_user (GTK_WINDOW (main_window.main_window), szName, 256))
 		      {
 		      set_cell_label (cellp, szName) ;
@@ -1177,7 +1179,10 @@ void file_operations (GtkWidget *widget, gpointer user_data)
         {
 	case OPEN_RECENT:
 	case OPEN:
-	  if (open_project_file(szFName))
+	  // -- Clear all the cells in the current design -- //
+	  clear_all_cells();
+	  
+	  if (NULL != open_project_file(szFName, &first_cell, &last_cell))
 	    {
 	    VectorTable_fill (pvt, first_cell) ;
 	    add_to_recent_files (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
@@ -1198,16 +1203,23 @@ void file_operations (GtkWidget *widget, gpointer user_data)
 	  break ;
 	
 	case IMPORT:
-          if (import_block (szFName) > 0)
+	  {
+	  qcell *pqc = NULL ;
+	  
+          if (NULL != (pqc = import_block (szFName, &selected_cells, &number_of_selected_cells, &last_cell)))
 	    {
+	    VectorTable_add_inputs (pvt, pqc) ;
+      	    window_move_selected_cell = selected_cells[0];
 	    set_selected_action (MOVE_CELL, -1);
 	    INVALID_MOVE = TRUE;
 	    listen_motion = TRUE;
 	    }
 	  break ;
+	  }
+
 	
 	case EXPORT:
-	  export_block (szFName) ;
+	  export_block (szFName, selected_cells, number_of_selected_cells) ;
 	  break ;
 	}
       }
@@ -1731,14 +1743,15 @@ gboolean do_save ()
   char szFName[PATH_LENGTH] = "" ;
   
   if (0 == current_file_name[0])
-    get_file_name_from_user (GTK_WINDOW (main_window.main_window), "Save Project As", "Select File", szFName, PATH_LENGTH) ;
-  
-  if (0 == szFName[0]) return FALSE ;
-  
-  if (create_file(szFName))
     {
-    add_to_recent_files (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
+    get_file_name_from_user (GTK_WINDOW (main_window.main_window), "Save Project As", szFName, PATH_LENGTH) ;
+    if (0 == szFName[0]) return FALSE ;
     g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
+    }
+
+  if (create_file(current_file_name, first_cell))
+    {
+    add_to_recent_files (main_window.recent_files_menu, current_file_name, file_operations, (gpointer)OPEN_RECENT) ;
     bDesignAltered = FALSE ;
     return TRUE ;
     }

@@ -13,13 +13,13 @@
 #define _FILEIO_H_
 
 #include <gtk/gtk.h>
-#include "globals.h"
+#include "qcell.h"
 
 // -- Prototypes -- //
-gboolean create_file(gchar * file_name);
-gboolean open_project_file(gchar *file_name);
-void export_block(gchar *file_name);
-int import_block(gchar *file_name);
+gboolean create_file(gchar *file_name, qcell *first_cell);
+qcell *open_project_file(gchar *file_name, qcell **p_first_cell, qcell **p_last_cell);
+void export_block(gchar *file_name, qcell **selected_cells, int number_of_selected_cells);
+qcell *import_block(gchar *file_name, qcell ***p_selected_cells, int *p_number_of_selected_cells, qcell **p_last_cell) ;
 char *base_name (char *pszFile) ;
 
 void create_vector_file();

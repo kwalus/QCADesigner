@@ -22,26 +22,32 @@ int CountActiveVTInputs (VectorTable *pvt) ;
 
 static simulation_data *sim_data = NULL ;
 
-simulation_data * run_digital_simulation(int sim_type, qcell * my_cell, void *p, VectorTable *pvt) {
+simulation_data * run_digital_simulation(int sim_type, GQCell * my_cell, void *p, VectorTable *pvt) {
+#ifndef WIN32
 	struct timeval start, end;
 	long elapsed_time;
+#endif
 	if (my_cell == NULL) {
 		return NULL;
 	}
+#ifndef WIN32
 	gettimeofday(&start, NULL);
+#endif
         qcaSim my_sim("who cares?", sim_type, my_cell, pvt);
+#ifndef WIN32
 	gettimeofday(&end, NULL);
+#endif
 	if (my_sim.simulationWasSuccessful()) {
 		printf("Simulation complete\n");
 	}
 	else {
 		printf("Simulation failed\n");
 	}
-
+#ifndef WIN32
 	// NOT WORKING AND I DON'T KNOW WHY!
 	elapsed_time = (long)(((double)end.tv_usec - (double)start.tv_usec) / 1000.0);
 	printf("Elapsed time: %ld msec\n", elapsed_time);
-
+#endif
         return sim_data;
 }
 
@@ -50,7 +56,7 @@ simulation_data * run_digital_simulation(int sim_type, qcell * my_cell, void *p,
 #endif
 
 // Load the cells and ask the user for the values of the inputs
-qcaSim::qcaSim(string nm, const int sim_type, const qcell * my_cell, VectorTable *pvtIn) : component(nm) {
+qcaSim::qcaSim(string nm, const int sim_type, const GQCell * my_cell, VectorTable *pvtIn) : component(nm) {
 
 	error = false;
 	SIMULATION_TYPE = sim_type ;
@@ -87,7 +93,7 @@ void qcaSim::handleParcel(parcel *p) {
 }
 
 // Load the cell data into my Cell class
-void qcaSim::loadCells(const qcell * my_cell) {
+void qcaSim::loadCells(const GQCell * my_cell) {
 	cells = new CellSet;
 	inputs = new CellSet;
 	outputs = new CellSet;

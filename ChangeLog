@@ -1,50 +1,37 @@
-2002-11-12  gettextize  <bug-gnu-gettext@gnu.org>
+ChangeLog for next release -- 1.3.
 
-	* Makefile.am (SUBDIRS): Add m4.
-	(SUBDIRS): Remove intl.
-	(ACLOCAL_AMFLAGS): New variable.
-	(EXTRA_DIST): Add config.rpath mkinstalldirs.
-	* configure.in (AC_OUTPUT): Add m4/Makefile.
+Completed Changes/Bug Fixes/Additions:
 
-Version 1.20
+ -- Started gtk2 port (available via the gtk2 tag: cvs co -r gtk2 QCADesigner)
 
-New Features
+ -- Created gtk2 version of the scrolling message widget, because under
+    GTK2 multiline text is done waaaay differently.  Factored out the 
+    process of writing messages to the widget into a printf()-like 
+    function.
+ -- Save first boxes added.
+ -- Digital Simulation engine made available.
+ -- Created new vector table library and struct to replace old vector_table and
+    active_inputs structures.
+ -- Moved all simulation engines to this new vector table structure
+ -- Removed globals "vector_table" and "active_inputs" and their respective
+    structures
+ -- Created new user interface for specifying vector tables
+ -- Added basic Undo/Redo capabilities for creating cells
+ -- Fixed clipping bug occurring with toolbar pixmaps
+ -- Rotate cells now can rotate all selected cells if they are selected prior
+    to pushing the rotate button.
+ -- Added view menu item to remove pixmaps from the toolbar. Useful feature
+    for small screen laptops.
+ -- Mirror cells now mirrors all the properties of the cells including type and
+    input/output names.
+ -- Added menu item under tools to rotate block of selected cells by 90 degrees.
+ -- Added Hotkeys for "Increment Cell Clocks" (Ctrl+I)
 
-- Added bistable simulation engine which uses the Jacobi algorithm to calculte eigenvalues/vectors of Hamiltonian.
-- Added ability to run a real-time animated simulation.
-- Added ability to calculate and show ground state of the cells (ignores clocks).
-- Cells now show and retain their polarization.
-- Array tool now draws the cells instead of just a line where the cells would be.
-- Now able to save/load vector tables to/from file.
-- Mouse wheel now works. (up/down with no modifier, left/right with ctrl)
-- Mouse pan works with left mouse button and ctrl modifier.
-- Tool bar buttons are now toggle buttons and stay on while tool is in use.
-- Added print capabilities which allows to print ps to file or send to printer(Great work by Gabriel Schulhof).
-- Added recent files menu item.
-- Implemented the rulers which were there before but did not function.
+Desired Changes:
 
-Bug Fixes
+Bugs to Fix:
+-- Some weird vector table behaviour with the bistable engine
 
-- Higher contrast colours for the various clocks.
-  Only the colour for clock 2 needed changing (now cyan).
-- Fixed focus bug where panning with the arrow keys would change the focus.
-- Cleaned up all the dialogs.
-- Eliminated some of the screen flashing with many of the tools.
-
-Changes
-
-- Changed some of the simulation options default values.
-
-Version 1.10
-
-New Features
-- Added ability to place 2 different cell types with configurable paprameters(ie, cell width, height, dot diameter).
-- Added ability to test circuit from a vector table.
-- Re-coded the file structure, now in ASCII text format and will work between platforms.
-
-Bug Fixes
-- Fixed the problem with the wacky grid points when zooming to far.
-- Slight speed improvment with the drawing (ie. less flashing).
-- Fixed problem when drawing arrays with grid spacing smaller then the width of the cell, cells do not overlap anymore.
-- Fixed problem with closing dialogs using the "x".
-- Some others that I forget now.
+Long Range Changes:
+ -- XML File format (tdysart currently working on)
+	

@@ -35,7 +35,6 @@
 
 #include "support.h"
 #include "stdqcell.h"
-#include "blocking_dialog.h"
 #include "random_fault_setup_dialog.h"
 
 typedef struct{
@@ -57,8 +56,7 @@ typedef struct{
 
 random_fault_setup_D random_fault_setup = {NULL} ;
 
-void create_random_fault_setup_dialog (random_fault_setup_D *dialog) ;
-void on_random_fault_setup_dialog_ok_button_clicked(GtkButton *button, gpointer user_data);
+static void create_random_fault_setup_dialog (random_fault_setup_D *dialog) ;
 
 void get_random_fault_params_from_user (GtkWindow *parent, float *pfMaxResponseShift, float *pfAffectedCellProb)
   {
@@ -78,10 +76,16 @@ void get_random_fault_params_from_user (GtkWindow *parent, float *pfMaxResponseS
   g_snprintf(szText, 16, "%1.2f", *pfAffectedCellProb);
   gtk_entry_set_text(GTK_ENTRY (random_fault_setup.percent_entry), szText);
 
-  show_dialog_blocking (random_fault_setup.random_fault_setup_dialog) ;
+  if (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (random_fault_setup.random_fault_setup_dialog)))
+    {
+    *(float *)pfMaxResponseShift = CLAMP (atof(gtk_entry_get_text((GtkEntry *)random_fault_setup.shift_entry)), 0, 1) ;
+    *(float *)pfAffectedCellProb = CLAMP (atof(gtk_entry_get_text((GtkEntry *)random_fault_setup.percent_entry)), 0, 1) ;
+    }
+  
+  gtk_widget_hide (random_fault_setup.random_fault_setup_dialog) ;
   }
 
-void create_random_fault_setup_dialog (random_fault_setup_D *dialog){
+static void create_random_fault_setup_dialog (random_fault_setup_D *dialog){
 
   dialog->random_fault_setup_dialog = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (dialog->random_fault_setup_dialog), "random_fault_setup_dialog", dialog->random_fault_setup_dialog);
@@ -94,17 +98,11 @@ void create_random_fault_setup_dialog (random_fault_setup_D *dialog){
   gtk_widget_show (dialog->dialog_vbox1);
   
   dialog->tblMain = gtk_table_new (2, 2, FALSE) ;
-  gtk_widget_ref (dialog->tblMain) ;
-  gtk_object_set_data_full (GTK_OBJECT (dialog->random_fault_setup_dialog), "tblMain", dialog->tblMain,
-      	      	      	    (GtkDestroyNotify) gtk_widget_unref) ;
   gtk_widget_show (dialog->tblMain) ;
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->tblMain, TRUE, TRUE, 0) ;
   gtk_container_set_border_width (GTK_CONTAINER (dialog->tblMain), 2) ;
 
   dialog->shift_label = gtk_label_new ("Max Response Function Shift (0.0 - 1.0):");
-  gtk_widget_ref (dialog->shift_label);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->random_fault_setup_dialog), "shift_label", dialog->shift_label,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->shift_label);
   gtk_table_attach (GTK_TABLE (dialog->tblMain), dialog->shift_label, 0, 1, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
@@ -112,9 +110,6 @@ void create_random_fault_setup_dialog (random_fault_setup_D *dialog){
   gtk_label_set_justify (GTK_LABEL (dialog->shift_label), GTK_JUSTIFY_RIGHT) ;
 
   dialog->label3 = gtk_label_new ("Probability To Affected Cell:");
-  gtk_widget_ref (dialog->label3);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->random_fault_setup_dialog), "label3", dialog->label3,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->label3);
   gtk_table_attach (GTK_TABLE (dialog->tblMain), dialog->label3, 0, 1, 1, 2,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
@@ -122,17 +117,11 @@ void create_random_fault_setup_dialog (random_fault_setup_D *dialog){
   gtk_label_set_justify (GTK_LABEL (dialog->label3), GTK_JUSTIFY_RIGHT) ;
 
   dialog->shift_entry = gtk_entry_new ();
-  gtk_widget_ref (dialog->shift_entry);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->random_fault_setup_dialog), "shift_entry", dialog->shift_entry,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->shift_entry);
   gtk_table_attach (GTK_TABLE (dialog->tblMain), dialog->shift_entry, 1, 2, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
 
   dialog->percent_entry = gtk_entry_new ();
-  gtk_widget_ref (dialog->percent_entry);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->random_fault_setup_dialog), "percent_entry", dialog->percent_entry,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->percent_entry);
   gtk_table_attach (GTK_TABLE (dialog->tblMain), dialog->percent_entry, 1, 2, 1, 2,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
@@ -142,53 +131,9 @@ void create_random_fault_setup_dialog (random_fault_setup_D *dialog){
   gtk_widget_show (dialog->dialog_action_area1);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->dialog_action_area1), 0);
 
-  dialog->hbox1 = gtk_hbutton_box_new ();
-  gtk_widget_ref (dialog->hbox1);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->random_fault_setup_dialog), "hbox1", dialog->hbox1,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (dialog->hbox1);
-  gtk_box_pack_start (GTK_BOX (dialog->dialog_action_area1), dialog->hbox1, TRUE, TRUE, 0);
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog->hbox1), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing (GTK_BUTTON_BOX (dialog->hbox1), 0);
-  gtk_button_box_set_child_ipadding (GTK_BUTTON_BOX (dialog->hbox1), 0, 0);
-
-  dialog->random_fault_setup_dialog_ok_button = gtk_button_new_with_label ("OK");
-  gtk_widget_ref (dialog->random_fault_setup_dialog_ok_button);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->random_fault_setup_dialog), "random_fault_setup_dialog_ok_button", dialog->random_fault_setup_dialog_ok_button,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (dialog->random_fault_setup_dialog_ok_button);
-  gtk_container_add (GTK_CONTAINER (dialog->hbox1), dialog->random_fault_setup_dialog_ok_button) ;
-  GTK_WIDGET_SET_FLAGS (dialog->random_fault_setup_dialog_ok_button, GTK_CAN_DEFAULT) ;
-
-  dialog->random_fault_setup_dialog_cancel_button = gtk_button_new_with_label ("Cancel");
-  gtk_widget_ref (dialog->random_fault_setup_dialog_cancel_button);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->random_fault_setup_dialog), "random_fault_setup_dialog_cancel_button", dialog->random_fault_setup_dialog_cancel_button,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (dialog->random_fault_setup_dialog_cancel_button);
-  gtk_container_add (GTK_CONTAINER (dialog->hbox1), dialog->random_fault_setup_dialog_cancel_button) ;
-  GTK_WIDGET_SET_FLAGS (dialog->random_fault_setup_dialog_cancel_button, GTK_CAN_DEFAULT) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->random_fault_setup_dialog_ok_button), "clicked",
-                      GTK_SIGNAL_FUNC (on_random_fault_setup_dialog_ok_button_clicked),
-                      dialog->random_fault_setup_dialog);
-  gtk_signal_connect_object (GTK_OBJECT (dialog->random_fault_setup_dialog_cancel_button), "clicked",
-                      GTK_SIGNAL_FUNC (gtk_widget_hide),
-                      GTK_OBJECT (dialog->random_fault_setup_dialog));
-
-  // connect the delete_event function for when the user clicks the "x" to close the window //
-  gtk_signal_connect_object (GTK_OBJECT (dialog->random_fault_setup_dialog), "delete_event",
-                      GTK_SIGNAL_FUNC (gtk_widget_hide),
-		      GTK_OBJECT (dialog->random_fault_setup_dialog));
-
+  dialog->random_fault_setup_dialog_cancel_button = 
+    gtk_dialog_add_button (GTK_DIALOG (dialog->random_fault_setup_dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
+  dialog->random_fault_setup_dialog_ok_button = 
+    gtk_dialog_add_button (GTK_DIALOG (dialog->random_fault_setup_dialog), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
+  gtk_dialog_set_default_response (GTK_DIALOG (dialog->random_fault_setup_dialog), GTK_RESPONSE_OK) ;
 }
-
-void on_random_fault_setup_dialog_ok_button_clicked(GtkButton *button, gpointer user_data)
-  {
-  random_fault_setup_D *fault = (random_fault_setup_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog");
-  *(float *)gtk_object_get_data (GTK_OBJECT (user_data), "pfMaxResponseShift") =
-    CLAMP (atof(gtk_entry_get_text((GtkEntry *)fault->shift_entry)), 0, 1) ;
-  *(float *)gtk_object_get_data (GTK_OBJECT (user_data), "pfAffectedCellProb") =
-    CLAMP (atof(gtk_entry_get_text((GtkEntry *)fault->percent_entry)), 0, 1) ;
-    
-  gtk_widget_hide(GTK_WIDGET(fault->random_fault_setup_dialog));
-  }

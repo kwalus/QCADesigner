@@ -20,39 +20,44 @@
 #include <string.h>
 #include <math.h>
 
-#include "globals.h"
 #include "print.h"
+#include "print_util.h"
 #include "cad.h"
 #include "stdqcell.h"
 
-void AddQCellToPage (qcell *pqc, qcell ***pppPage, int *picOnPage) ;
-void GetPrintRange (print_OP *pPO, double *pdxMin, double *pdyMin, double *pdxMax, double *pdyMax) ;
-void PrintPages (print_OP *pPO, qcell ***pppqcPages, int *pcCellsOnPage, int icCells,
-  double dxMinNm, double dyMinNm, double dxMaxNm, double dyMaxNm, double dxDiffMinNm, double dyDiffMinNm) ;
-void PrintProlog (FILE *pfile, print_OP *pPO, double dxMinNm, double dyMinNm, double dxDiffMinNm,
-  double dyDiffMinNm, double dCYPageNm) ;
-void PlaceQCellsOnPage (qcell *first_cell, qcell ***pppqcPages, int *pcCellsOnPage, int *picCells, double dPageWidthNm,
-  double dPageHeightNm, int iCXPages, int iCYPages, double dXOffsetNm, double dYOffsetNm, gboolean bRowMajor) ;
-void PrintSinglePage (FILE *pfile, print_OP *pPO, qcell ***pppqcPage, int *picQC,
-  double dCXPageNm, double dCYPageNm, int idx, int idxX, int idxY, double dXMedian, double dYMedian) ;
-void PrintSingleCell (FILE *pfile, qcell *pqc, double xOffset, double yOffset, double dXMedian,
-  double dYMedian, gboolean bColour) ;
-void PrintCellColour (FILE *pfile, qcell *pqc, gboolean bPrintColour) ;
-void PrintCellSides (FILE *pfile, qcell *pqc, double xOffset, double yOffset) ;
-void PrintCellLabel (FILE *pfile, qcell *pqc, double dXMedian, double dYMedian, double xOffset, double yOffset) ;
+#define DBG_P(s)
 
-void print_world (print_OP *pPO, qcell *first_cell)
+static void AddQCellToPage (GQCell *pqc, GQCell ***pppPage, int *picOnPage) ;
+static void GetPrintRange (GQCell *first_cell, print_design_OP *pPO, double *pdxMin, double *pdyMin, double *pdxMax, double *pdyMax) ;
+static void PrintPages (print_design_OP *pPO, GQCell ***pppqcPages, int *pcCellsOnPage, int icCells,
+  double dxMinNm, double dyMinNm, double dxMaxNm, double dyMaxNm, double dxDiffMinNm, double dyDiffMinNm) ;
+static void PrintProlog (FILE *pfile, print_design_OP *pPO, double dxMinNm, double dyMinNm, double dxDiffMinNm,
+  double dyDiffMinNm, double dCYPageNm) ;
+static void PlaceQCellsOnPage (GQCell *first_cell, GQCell ***pppqcPages, int *pcCellsOnPage, int *picCells, double dPageWidthNm,
+  double dPageHeightNm, int iCXPages, int iCYPages, double dXOffsetNm, double dYOffsetNm, gboolean bRowMajor) ;
+static void PrintSinglePage (FILE *pfile, print_design_OP *pPO, GQCell ***pppqcPage, int *picQC,
+  double dCXPageNm, double dCYPageNm, int idx, int idxX, int idxY, double dXMedian, double dYMedian) ;
+static void PrintSingleCell (FILE *pfile, GQCell *pqc, double xOffset, double yOffset, double dXMedian,
+  double dYMedian, gboolean bColour) ;
+static void PrintCellColour (FILE *pfile, GQCell *pqc, gboolean bPrintColour) ;
+static void PrintCellSides (FILE *pfile, GQCell *pqc, double xOffset, double yOffset) ;
+static void PrintCellLabel (FILE *pfile, GQCell *pqc, double dXMedian, double dYMedian, double xOffset, double yOffset) ;
+
+extern double subs_width ;
+extern double subs_height ;
+
+void print_world (print_design_OP *pPO, GQCell *first_cell)
   {
   double 
     dxMinNm = 0, dyMinNm = 0, dxMaxNm = 0, dyMaxNm = 0, dxDiffMinNm = 0, dyDiffMinNm = 0,
-    dEffPageCXPts = pPO->dPaperWidth - pPO->dLeftMargin - pPO->dRightMargin,
-    dEffPageCYPts = pPO->dPaperHeight - pPO->dTopMargin - pPO->dBottomMargin ;
-  qcell ***pppqcPages = NULL ;
+    dEffPageCXPts = pPO->po.dPaperCX - pPO->po.dLMargin - pPO->po.dRMargin,
+    dEffPageCYPts = pPO->po.dPaperCY - pPO->po.dTMargin - pPO->po.dBMargin ;
+  GQCell ***pppqcPages = NULL ;
   int *pcCellsOnPage = NULL ;
   int iPages = 0 ;
   int icCells = 0 ;
   
-  GetPrintRange (pPO, &dxMinNm, &dyMinNm, &dxMaxNm, &dyMaxNm) ;
+  GetPrintRange (first_cell, pPO, &dxMinNm, &dyMinNm, &dxMaxNm, &dyMaxNm) ;
   
   if (pPO->bCenter)
     {
@@ -67,7 +72,7 @@ void print_world (print_OP *pPO, qcell *first_cell)
   if (pPO->pbPrintedObjs[PRINTED_OBJECTS_CELLS])
     {
     int Nix ;
-    pppqcPages = malloc (iPages * sizeof (qcell *)) ;
+    pppqcPages = malloc (iPages * sizeof (GQCell *)) ;
     pcCellsOnPage = malloc (iPages * sizeof (int)) ;
     
     for (Nix = 0 ; Nix < iPages ; Nix++)
@@ -84,10 +89,10 @@ void print_world (print_OP *pPO, qcell *first_cell)
   PrintPages (pPO, pppqcPages, pcCellsOnPage, icCells, dxMinNm, dyMinNm, dxMaxNm, dyMaxNm, dxDiffMinNm, dyDiffMinNm) ;
   }
 
-void PlaceQCellsOnPage (qcell *first_cell, qcell ***pppqcPages, int *pcCellsOnPage, int *picCells, double dPageWidthNm, 
+static void PlaceQCellsOnPage (GQCell *first_cell, GQCell ***pppqcPages, int *pcCellsOnPage, int *picCells, double dPageWidthNm, 
   double dPageHeightNm, int iCXPages, int iCYPages, double dXOffsetNm, double dYOffsetNm, gboolean bRowMajor)
   {
-  qcell *pqc = NULL ;
+  GQCell *pqc = NULL ;
   int Nix, Nix1 ;
   int idxX1 = -1, idxY1 = -1, idxX2 = -1, idxY2 = 1, idx = -1 ;
 
@@ -124,18 +129,20 @@ void PlaceQCellsOnPage (qcell *first_cell, qcell ***pppqcPages, int *pcCellsOnPa
     }
   }
 
-void AddQCellToPage (qcell *pqc, qcell ***pppPage, int *picOnPage)
+static void AddQCellToPage (GQCell *pqc, GQCell ***pppPage, int *picOnPage)
   {
-  (*pppPage) = realloc ((*pppPage), ++(*picOnPage) * sizeof (qcell *)) ;
+  (*pppPage) = realloc ((*pppPage), ++(*picOnPage) * sizeof (GQCell *)) ;
   (*pppPage)[(*picOnPage) - 1] = pqc ;
   }
 
-void GetPrintRange (print_OP *pPO, double *pdxMin, double *pdyMin, double *pdxMax, double *pdyMax)
+static void GetPrintRange (GQCell *first_cell, print_design_OP *pPO, double *pdxMin, double *pdyMin, double *pdxMax, double *pdyMax)
   {
   *pdxMin = *pdyMin = *pdxMax = *pdyMax = 0 ;
   
   if (pPO->pbPrintedObjs[PRINTED_OBJECTS_CELLS])
-    get_extents (pdxMin, pdyMin, pdxMax, pdyMax) ;
+    get_extents (first_cell, pdxMin, pdyMin, pdxMax, pdyMax) ;
+  
+  DBG_P (fprintf (stderr, "get_extents returned (%lf,%lf)->(%lf,%lf)\n", (*pdxMin), (*pdyMin), (*pdxMax), (*pdyMax))) ;
 
   if (pPO->pbPrintedObjs[PRINTED_OBJECTS_DIE])
     {
@@ -146,24 +153,19 @@ void GetPrintRange (print_OP *pPO, double *pdxMin, double *pdyMin, double *pdxMa
     }
   }
 
-void PrintPages (print_OP *pPO, qcell ***pppqcPages, int *pcCellsOnPage, int icCells,
+static void PrintPages (print_design_OP *pPO, GQCell ***pppqcPages, int *pcCellsOnPage, int icCells,
   double dxMinNm, double dyMinNm, double dxMaxNm, double dyMaxNm, double dxDiffMinNm, double dyDiffMinNm)
   {
   FILE *pfile = NULL ;
   int Nix[2] = {0, 0}, limit[2] = {pPO->iCXPages, pPO->iCYPages}, inner = -1, outer = -1, idx = 0 ;
-  double dPageWidthNm = (pPO->dPaperWidth - pPO->dLeftMargin - pPO->dRightMargin) / pPO->dPointsPerNano,
-         dPageHeightNm = (pPO->dPaperHeight - pPO->dTopMargin - pPO->dBottomMargin) / pPO->dPointsPerNano,
+  double dPageWidthNm =  (pPO->po.dPaperCX - pPO->po.dLMargin - pPO->po.dRMargin) / pPO->dPointsPerNano,
+         dPageHeightNm = (pPO->po.dPaperCY - pPO->po.dTMargin - pPO->po.dBMargin) / pPO->dPointsPerNano,
 	 dXMedian = 0, dYMedian = 0 ;
   
   inner = pPO->bPrintOrderOver ? 0 : 1 ;
   outer = pPO->bPrintOrderOver ? 1 : 0 ;
   
-  if (pPO->bPrintFile)
-    pfile = fopen (pPO->szPrintString, "w") ;
-  else
-    pfile = popen (pPO->szPrintString, "w") ;
-  
-  if (NULL == pfile)
+  if (NULL == (pfile = OpenPrintStream ((print_OP *)pPO)))
     {
     fprintf (stderr, "Failed to open file/command for writing.\n") ;
     return ;
@@ -177,8 +179,8 @@ void PrintPages (print_OP *pPO, qcell ***pppqcPages, int *pcCellsOnPage, int icC
     "%%........................................................\n"
     "%%%%Creator: QCADesigner\n"
     "%%%%EndComments\n",
-    (int)(pPO->dPaperWidth), (int)(pPO->dPaperHeight),
-    0.0, 0.0, pPO->dPaperWidth, pPO->dPaperHeight) ;
+    (int)(pPO->po.dPaperCX), (int)(pPO->po.dPaperCY),
+    0.0, 0.0, pPO->po.dPaperCX, pPO->po.dPaperCY) ;
   
   PrintProlog (pfile, pPO, dxMinNm, dyMinNm, dxDiffMinNm, dyDiffMinNm, dPageHeightNm) ;
   
@@ -199,13 +201,13 @@ void PrintPages (print_OP *pPO, qcell ***pppqcPages, int *pcCellsOnPage, int icC
     "%%%%EOF\n",
     pPO->iCXPages * pPO->iCYPages) ;
 
-  if (pPO->bPrintFile)
+  if (pPO->po.bPrintFile)
     fclose (pfile) ;
   else
     pclose (pfile) ;
   }
 
-void PrintProlog (FILE *pfile, print_OP *pPO, double dxMinNm, double dyMinNm, double dxDiffMinNm,
+static void PrintProlog (FILE *pfile, print_design_OP *pPO, double dxMinNm, double dyMinNm, double dxDiffMinNm,
   double dyDiffMinNm, double dCYPageNm)
   {
   fprintf (pfile,
@@ -214,17 +216,22 @@ void PrintProlog (FILE *pfile, print_OP *pPO, double dxMinNm, double dyMinNm, do
     "/nmx { %f sub %f mul %f add %f add} def\n"
     "/nmy { %f sub %f sub -1 mul %f mul %f add %f sub } def\n"
     "/labelfontsize 12 nm def\n"
-    "/txtleftcenter   { gsave dup 0 labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
-    "/txttopcenter    { gsave dup stringwidth pop 2 div -1 mul 0 rmoveto show grestore } def\n"
-    "/txtrightcenter  { gsave dup stringwidth exch -1 mul exch pop labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtbottomcenter { gsave dup stringwidth exch 2 div -1 mul exch pop labelfontsize -1 mul rmoveto show grestore } def\n"
+    "/txtlt { gsave dup 0 -1 labelfontsize mul rmoveto show grestore } def\n"
+    "/txtlm { gsave dup 0 labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
+    "/txtlb { gsave dup 0 0 rmoveto show grestore } def\n"
+    "/txtct { gsave dup stringwidth exch 2 div -1 mul exch pop labelfontsize -1 mul rmoveto show grestore } def\n"
+    "/txtcm { gsave dup stringwidth exch 2 div -1 mul exch pop labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
+    "/txtcb { gsave dup stringwidth pop 2 div -1 mul 0 rmoveto show grestore } def\n"
+    "/txtrt { gsave dup stringwidth exch -1 mul exch pop labelfontsize -1 mul rmoveto show grestore } def\n"
+    "/txtrm { gsave dup stringwidth exch -1 mul exch pop labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
+    "/txtrt { gsave dup stringwidth exch -1 mul exch pop 0 rmoveto show grestore } def\n"
     "%%%%EndProlog\n",
     pPO->dPointsPerNano,
-    dxMinNm, pPO->dPointsPerNano, pPO->dLeftMargin, dxDiffMinNm * pPO->dPointsPerNano,
-    dCYPageNm, dyMinNm, pPO->dPointsPerNano, pPO->dTopMargin, dyDiffMinNm * pPO->dPointsPerNano) ;
+    dxMinNm, pPO->dPointsPerNano, pPO->po.dLMargin, dxDiffMinNm * pPO->dPointsPerNano,
+    dCYPageNm, dyMinNm, pPO->dPointsPerNano, pPO->po.dTMargin, dyDiffMinNm * pPO->dPointsPerNano) ;
   }
 
-void PrintSinglePage (FILE *pfile, print_OP *pPO, qcell ***pppqcPage, int *picQC, double dCXPageNm,
+static void PrintSinglePage (FILE *pfile, print_design_OP *pPO, GQCell ***pppqcPage, int *picQC, double dCXPageNm,
   double dCYPageNm, int idx, int idxX, int idxY, double dXMedian, double dYMedian)
   {
   int Nix ;
@@ -241,10 +248,10 @@ void PrintSinglePage (FILE *pfile, print_OP *pPO, qcell ***pppqcPage, int *picQC
     "%f %f lineto\n"
     "closepath eoclip\n\n",
     idx + 1, idx + 1,
-    pPO->dLeftMargin, pPO->dBottomMargin,
-    pPO->dLeftMargin, pPO->dPaperHeight - pPO->dTopMargin,
-    pPO->dPaperWidth - pPO->dRightMargin, pPO->dPaperHeight - pPO->dTopMargin,
-    pPO->dPaperWidth - pPO->dRightMargin, pPO->dBottomMargin) ;
+    pPO->po.dLMargin, pPO->po.dBMargin,
+    pPO->po.dLMargin, pPO->po.dPaperCY - pPO->po.dTMargin,
+    pPO->po.dPaperCX - pPO->po.dRMargin, pPO->po.dPaperCY - pPO->po.dTMargin,
+    pPO->po.dPaperCX - pPO->po.dRMargin, pPO->po.dBMargin) ;
 
 /*
   fprintf (pfile,
@@ -287,7 +294,7 @@ void PrintSinglePage (FILE *pfile, print_OP *pPO, qcell ***pppqcPage, int *picQC
     "%%%%PageTrailer\n") ;
   }
 
-void PrintCellCorner (FILE *pfile, qcell *pqc, double xOffset, double yOffset, double dArcOffset, int iCorner)
+void PrintCellCorner (FILE *pfile, GQCell *pqc, double xOffset, double yOffset, double dArcOffset, int iCorner)
   {
   if (0 == dArcOffset) return ;
 
@@ -313,7 +320,7 @@ void PrintCellCorner (FILE *pfile, qcell *pqc, double xOffset, double yOffset, d
       dArcOffset * (iCorner >= 1 && iCorner <= 2 ? (1) : (-1))) ;
   }
 
-void PrintCellSides (FILE *pfile, qcell *pqc, double xOffset, double yOffset)
+static void PrintCellSides (FILE *pfile, GQCell *pqc, double xOffset, double yOffset)
   {
   double dArcOffset = 0 ;
 
@@ -340,7 +347,7 @@ void PrintCellSides (FILE *pfile, qcell *pqc, double xOffset, double yOffset)
 //  PrintCellCorner (pfile, pqc, xOffset, yOffset, dArcOffset, 0) ;
   }
 
-void PrintSingleCell (FILE *pfile, qcell *pqc, double xOffset, double yOffset, double dXMedian,
+static void PrintSingleCell (FILE *pfile, GQCell *pqc, double xOffset, double yOffset, double dXMedian,
   double dYMedian, gboolean bColour)
   {
   int Nix ;
@@ -389,7 +396,7 @@ void PrintSingleCell (FILE *pfile, qcell *pqc, double xOffset, double yOffset, d
   fprintf (pfile, "%%End Cell\n") ;
   }
 
-void PrintCellColour (FILE *pfile, qcell *pqc, gboolean bPrintColour)
+static void PrintCellColour (FILE *pfile, GQCell *pqc, gboolean bPrintColour)
   {
   float clr[4][3] = {
     {0.0, 0.5, 0.0}, /* dark green */
@@ -397,24 +404,24 @@ void PrintCellColour (FILE *pfile, qcell *pqc, gboolean bPrintColour)
     {0.0, 0.5, 0.5}, /* turquoise */
     {1.0, 1.0, 1.0}  /* white */
     } ;
-  float gray[4] = {0.15, 0.50, 0.85, 1.00} ; /* equivalent gray values in lieu of colours */
+  float gray[4] = {0.45, 0.65, 0.85, 1.00} ; /* equivalent gray values in lieu of colours */
 
   if (!bPrintColour)
     fprintf (pfile, "%f setgray fill\n", gray[pqc->clock]) ;
   else
     {
     if (pqc->is_fixed)
-      fprintf (pfile, "0.83 0.44 0 setrgbcolor\n") ; /* dark orange */
+      fprintf (pfile, "%s setrgbcolor\n", PS_ORANGE) ; /* dark orange */
     else if (pqc->is_input)
-      fprintf (pfile, "0.21 0.39 0.70 setrgbcolor\n") ; /* dark azure blue */
+      fprintf (pfile, "%s setrgbcolor\n", PS_BLUE) ; /* dark azure blue */
     else if (pqc->is_output)
-      fprintf (pfile, "0.66 0.66 0 setrgbcolor\n") ; /* maroonish yellow */
+      fprintf (pfile, "%s setrgbcolor\n", PS_YELLOW) ; /* maroonish yellow */
     else
       fprintf (pfile, "%f %f %f setrgbcolor\n", clr[pqc->clock][0], clr[pqc->clock][1], clr[pqc->clock][2]) ;
     }
   }
 
-void PrintCellLabel (FILE *pfile, qcell *pqc, double dXMedian, double dYMedian, double xOffset, double yOffset)
+static void PrintCellLabel (FILE *pfile, GQCell *pqc, double dXMedian, double dYMedian, double xOffset, double yOffset)
   {
   char szLabel[256] = "" ;
 
@@ -423,7 +430,7 @@ void PrintCellLabel (FILE *pfile, qcell *pqc, double dXMedian, double dYMedian, 
   fprintf (pfile, "(Courier) findfont labelfontsize scalefont setfont\n") ;
 
   if (pqc->is_fixed)
-    g_snprintf (szLabel, 256, "(%1.2f)", calculate_polarization (pqc)) ;
+    g_snprintf (szLabel, 256, "(%1.2f)", gqcell_calculate_polarization (pqc)) ;
   else
     g_snprintf (szLabel, 256, "(%s)", pqc->label) ;
 
@@ -433,7 +440,7 @@ void PrintCellLabel (FILE *pfile, qcell *pqc, double dXMedian, double dYMedian, 
       "%f nmx %f nmy moveto\n"
       "%s %s\n",
       pqc->x + (2 + pqc->cell_width / 2) * (dXMedian > pqc->x ? -1 : 1) - xOffset, pqc->y - yOffset,
-      szLabel, (dXMedian > pqc->x ? "txtrightcenter" : "txtleftcenter")) ;
+      szLabel, (dXMedian > pqc->x ? "txtrm" : "txtlm")) ;
     }
   else
     {
@@ -441,6 +448,6 @@ void PrintCellLabel (FILE *pfile, qcell *pqc, double dXMedian, double dYMedian, 
       "%f nmx %f nmy 2 add moveto\n"
       "%s %s\n",
       pqc->x - xOffset, pqc->y + (2 + pqc->cell_height / 2) * (dYMedian > pqc->y ? -1 : 1) - yOffset,
-      szLabel, (dYMedian > pqc->y ? "txttopcenter" : "txtbottomcenter")) ;
+      szLabel, (dYMedian > pqc->y ? "txtcb" : "txtct")) ;
     }
   }

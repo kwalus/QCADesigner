@@ -25,89 +25,140 @@
 // Standard includes //
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
-#include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <math.h>
 
 // QCADesigner includes //
-#include "globals.h"
 #include "stdqcell.h"
 #include "simulation.h"
 #include "cad.h"
+#include "cad_util.h"
 #include "callbacks.h"
+#include "init.h"
 
-void fill_background();
-void draw_stdqcell(qcell *cell);
-void redraw_all_cells();
-void draw_subs();
-void zoom_previous();
-void draw_cell_dots_showing_polarization(qcell *cell);
-void draw_temp_stdqcell(double x, double y);
+#define DBG_CAD(s)
+
+static int world_to_real_x (float x) ;
+static int world_to_real_y (float y) ;
+static float real_to_world_x (int x) ;
+static float real_to_world_y (int y) ;
+static int world_to_real_cx (float cx) ;
+static int world_to_real_cy (float cy) ;
+static float real_to_world_cx (int cx) ;
+//static float real_to_world_cy (int cy) ;
+static void redraw_all_cells(GdkDrawable *d, GdkGC *gc, GQCell *first_cell);
+static void draw_subs(GdkDrawable *d, GdkGC *gc) ;
+static void draw_cell_dots_showing_polarization(GdkDrawable *d, GdkGC *gc, GQCell *cell);
+static void draw_temp_stdqcell (GdkDrawable *d, GdkGC *gc, int cell_type, double x, double y);
 
 //!previous scale multiplier used when going to previous view.
 static double previous_scale = 0;
 static double previous_subs_top_x=0; 
 static double previous_subs_top_y=0;
 static GdkFont *global_font = NULL ;
+static GdkColor clrBlack  = {0, 0x0000, 0x0000, 0x0000} ;
+static GdkColor clrWhite  = {0, 0xFFFF, 0xFFFF, 0xFFFF} ;
+static GdkColor clrBlue   = {0, 0x0000, 0x0000, 0xFFFF} ;
+static GdkColor clrCyan   = {0, 0x0000, 0xFFFF, 0xFFFF} ;
+
+// -- current top coords of the substrate relative to top corner of drawing area -- //
+static double subs_top_x = 100;
+static double subs_top_y = 100;
+
+//!scale multiplier in nanometers.
+static double scale = 1; // [pixel/ nm]
+
 extern cell_OP cell_options ;
 
-//!Redraws all the design cells to the screen.
-void redraw_all_cells(){
+//!Substrate height.
+double subs_height = 3000;
+//!Substrate width.
+double subs_width = 6000;
 
-	qcell *cell = first_cell;
+//!grid spacing measured in nanometers.
+double grid_spacing = 10;  
+
+// -- Drawing Area width and height -- //
+int AREA_WIDTH = 0;
+int AREA_HEIGHT = 0;
+
+// Initialize all module-level static variables that cannot be initialized at load-time
+// Read:  GdkColor and GdkFont stuff ...
+void cad_init ()
+  {
+  GdkColormap *clrmSys = gdk_colormap_get_system () ;
+  
+  global_font = gdk_font_load (QCAD_GDKFONT) ;
+  gdk_color_alloc (clrmSys, &clrBlack) ;
+  gdk_color_alloc (clrmSys, &clrWhite) ;
+  gdk_color_alloc (clrmSys, &clrBlue) ;
+  gdk_color_alloc (clrmSys, &clrCyan) ;
+  }
+
+//!Redraws all the design cells to the screen.
+static void redraw_all_cells(GdkDrawable *d, GdkGC *gc, GQCell *first_cell){
+
+	GQCell *cell = first_cell;
 	
 	while(cell != NULL){
-		draw_stdqcell(cell);
+		draw_stdqcell(d, gc, cell);
 		cell = cell->next;
 	}
 	
 }//redraw_all_cells
 
 //!Redraws all selected cells
-void redraw_selected_cells(){
+void redraw_selected_cells(GdkDrawable *d, GdkGC *gc, GQCell **selected_cells, int number_of_selected_cells){
 
-	int i;
-	for(i=0;i<number_of_selected_cells;i++)draw_stdqcell(selected_cells[i]);
+  int i;
+  for(i=0;i<number_of_selected_cells;i++)
+    if (NULL != selected_cells[i])
+      draw_stdqcell (d, gc, selected_cells[i]);
 	
-	
-}//redraw_all_cells
+}//redraw_selected_cells
 
 //-------------------------------------------------------------------//
-
-//!Fills the drawing area with a white background if PRINT_PREVIEW is set else make it black 
-void fill_background(){
-
-	if(!PRINT_PREVIEW){
-		gdk_draw_rectangle(main_window.drawing_area->window, main_window.drawing_area->style->black_gc, TRUE, 0, 0, AREA_WIDTH, AREA_HEIGHT);
-	}else{
-		gdk_draw_rectangle(main_window.drawing_area->window, main_window.drawing_area->style->white_gc, TRUE, 0, 0, AREA_WIDTH, AREA_HEIGHT);
+void scale_design(GQCell *first_cell, double scale){
+	
+	GQCell *cell = first_cell;
+	
+	while(cell != NULL){
+		gqcell_scale(cell, scale);
+		cell = cell->next;
 	}
+}
 
-}//fill_background
 
 
 //-------------------------------------------------------------------//
 
 //!Draws a rectangle representing the substrate onto the drawing area.
-void draw_subs(){
-
-	gdk_draw_rectangle(main_window.drawing_area->window, main_window.drawing_area->style->white_gc, FALSE, subs_top_x, subs_top_y, subs_width*scale, subs_height*scale);
-
-}//draw_subs
+static void draw_subs(GdkDrawable *d, GdkGC *gc)
+  {
+  int x_real = world_to_real_x (0),
+      y_real = world_to_real_y (0),
+      cx_real = world_to_real_x (subs_width) - x_real,
+      cy_real = world_to_real_y (subs_height) - y_real ;
+  
+  gdk_gc_set_foreground (gc, &clrWhite) ;
+  
+  gdk_draw_rectangle (d, gc, FALSE, x_real, y_real, cx_real, cy_real) ;
+  }//draw_subs
 
 
 //-------------------------------------------------------------------//
 
 //!Draws the grid onto the screen.
-void draw_grid(){
+void draw_grid(GdkDrawable *d, GdkGC *gc){
 	
 	double i;
 	double j;
 	int k;
 	int number_of_points;
-	double width = subs_width * scale;
-	double height = subs_height * scale;
+	double width = world_to_real_cx (subs_width);
+	double height = world_to_real_cy (subs_height);
 	double spacing = grid_spacing * scale;
 	GdkPoint *grid;
 	
@@ -121,7 +172,9 @@ void draw_grid(){
 	
 	// Estimate the total number of points to be drawn
 	number_of_points = (width/spacing)*(height/spacing) + 1;
-	
+        
+        if (number_of_points <= 0) return ;
+        
 	grid = malloc(number_of_points*sizeof(GdkPoint));
 	
 	//Fill the array of grid points
@@ -142,8 +195,8 @@ void draw_grid(){
 			
 			}
 			
-				
-	gdk_draw_points(main_window.drawing_area->window, main_window.drawing_area->style->white_gc, grid, k);
+	gdk_gc_set_foreground (gc, &clrWhite) ;
+	gdk_draw_points(d, gc, grid, k);
 	
 	//Free the memory from the pixelarray
 	free(grid);
@@ -155,94 +208,41 @@ void draw_grid(){
 //-------------------------------------------------------------------//
 
 //!Calls all the redraw functions to regenerate the image.
-void redraw_world(){
-
-	fill_background();
-	draw_subs();
-	if(SHOW_GRID)draw_grid();
-	redraw_all_cells();
-	
-}//redraw_world
-
-//-------------------------------------------------------------------//
-
-//!Redraws all the contents but not the background
-//Useful when nothing in the design has changed ex. when a zoom window is being drawn.
-void redraw_contents(int tmp_shift_x, int tmp_shift_y){
-
-	subs_top_x += tmp_shift_x ;
-	subs_top_y += tmp_shift_y ;
-	
-	draw_subs();
-	if(SHOW_GRID)draw_grid();
-	redraw_all_cells();
-	
-	subs_top_x -= tmp_shift_x ;
-	subs_top_y -= tmp_shift_y ;
-}//redraw_contents
+void redraw_world(GdkDrawable *dWnd, GdkGC *gcWnd, GQCell *first_cell, gboolean bShowGrid)
+  {
+  GdkGC *gc = gcWnd ;
+  GdkPixmap *pm = gdk_pixmap_new (dWnd, AREA_WIDTH, AREA_HEIGHT, -1) ;
+  GdkDrawable *d = dWnd ;
+  if (NULL != pm)
+    gc = gdk_gc_new (d = GDK_DRAWABLE (pm)) ;
+  
+  DBG_CAD (fprintf (stderr, "redraw_world\n")) ;
+  draw_subs(d, gc);
+  if(bShowGrid)draw_grid(d, gc);
+  redraw_all_cells(d, gc, first_cell);
+  
+  if (NULL != pm)
+    {
+    gdk_draw_drawable (dWnd, gcWnd, GDK_DRAWABLE (pm), 0, 0, 0, 0, -1, -1) ;
+    g_object_unref (G_OBJECT (gc)) ;
+    g_object_unref (G_OBJECT (pm)) ;
+    }
+  }//redraw_world
 
 //-------------------------------------------------------------------//
 
-//!Pans the design window to the left.
-void pan_left(int steps){
-	subs_top_x += PAN_STEP*steps*scale;
-	redraw_world();
-}//pan_left
-
-//-------------------------------------------------------------------//
-
-//!Pans the design window to the right.
-void pan_right(int steps){
-	subs_top_x -= PAN_STEP*steps*scale;
-	redraw_world();
-}//pan_right
-
-//-------------------------------------------------------------------//
-
-//!Pans the design window up.
-void pan_up(int steps){
-	subs_top_y += PAN_STEP*steps*scale;
-	redraw_world();
-}//pan_up
-
-//-------------------------------------------------------------------//
-
-//!Pans the design window down.
-void pan_down(int steps){
-	subs_top_y -= PAN_STEP*steps*scale;
-	redraw_world();
-}//pan_down
-
-//-------------------------------------------------------------------//
-
-//!Zooms the design window to the previous zoom scale //
-void zoom_previous(){
-
-	double ftemp;
-	double itemp;
-	
-	ftemp = scale;
-	scale = previous_scale;
-	previous_scale = ftemp;
-	
-	itemp = subs_top_x;
-	subs_top_x = previous_subs_top_x;
-	previous_subs_top_x = itemp;
-	
-	itemp = subs_top_y;
-	subs_top_y = previous_subs_top_y;
-	previous_subs_top_y = itemp;
-	
-	redraw_world();
-
-}//zoom_previous
+void pan (int cx, int cy)
+  {
+  subs_top_x += cx ;
+  subs_top_y += cy ;
+  }
 
 //-------------------------------------------------------------------//
 
 //Calculates bounding box around cells //
-void get_extents(double *pmin_x, double *pmin_y, double *pmax_x, double *pmax_y){
+void get_extents(GQCell *first_cell, double *pmin_x, double *pmin_y, double *pmax_x, double *pmax_y){
 	
-	qcell *cell = first_cell;
+	GQCell *cell = first_cell;
 		
 	// if there are no cells then extents makes no sense so we zoom to fit the die //	
 	if(first_cell == NULL){
@@ -254,29 +254,29 @@ void get_extents(double *pmin_x, double *pmin_y, double *pmax_x, double *pmax_y)
 	
 	} else {
 	
-	*pmax_x = cell->x;
-	*pmax_y = cell->y;
+	*pmax_x = cell->x + cell->cell_width / 2;
+	*pmax_y = cell->y + cell->cell_height / 2 ;
 	
-	*pmin_x = cell->x;
-	*pmin_y = cell->y;
+	*pmin_x = cell->x - cell->cell_width / 2;
+	*pmin_y = cell->y - cell->cell_height / 2;
 	
 	cell = cell->next;
 	
 	// -- find the true mins and maxes //
 	while(cell != NULL){
-		if(cell->x <= *pmin_x) *pmin_x = cell->x;
-		if(cell->x >= *pmax_x) *pmax_x = cell->x;
-		if(cell->y <= *pmin_y) *pmin_y = cell->y;
-		if(cell->y >= *pmax_y) *pmax_y = cell->y;
+		if(cell->x - cell->cell_width / 2 <= *pmin_x) *pmin_x = cell->x - cell->cell_width / 2;
+		if(cell->x + cell->cell_width / 2 >= *pmax_x) *pmax_x = cell->x + cell->cell_width / 2;
+		if(cell->y - cell->cell_height / 2 <= *pmin_y) *pmin_y = cell->y - cell->cell_height / 2;
+		if(cell->y + cell->cell_height / 2 >= *pmax_y) *pmax_y = cell->y + cell->cell_height / 2;
 		cell = cell->next;
 	}
 	
 	// -- make some extra room -- //
 	
-	*pmin_x -= PAN_STEP;
-	*pmin_y -= PAN_STEP;
-	*pmax_x += PAN_STEP;
-	*pmax_y += PAN_STEP;
+//	*pmin_x -= PAN_STEP;
+//	*pmin_y -= PAN_STEP;
+//	*pmax_x += PAN_STEP;
+//	*pmax_y += PAN_STEP;
 	
 	}
 	
@@ -291,8 +291,12 @@ void get_extents(double *pmin_x, double *pmin_y, double *pmax_x, double *pmax_y)
 //-------------------------------------------------------------------//
 
 //!Zooms such that all cells fit on the screen //
-void zoom_extents(){
-  double min_x, min_y, max_x, max_y ;
+void zoom_extents(GQCell *first_cell){
+  double 
+    min_x, min_y, max_x, max_y,
+    dcxArea = AREA_WIDTH, dcyArea = AREA_HEIGHT,
+    dxFit = 0, dyFit = 0, dcxFit = 0, dcyFit = 0, dcxNano, dcyNano ;
+  
   
   if (NULL == first_cell)
     {
@@ -300,17 +304,17 @@ void zoom_extents(){
     subs_top_y = 0 ;
     }
 
-  get_extents (&min_x, &min_y, &max_x, &max_y) ;
+  get_extents (first_cell, &min_x, &min_y, &max_x, &max_y) ;
   
-  //fprintf (stderr, "get_extents returns %d, %d, %d, %d\n",min_x, min_y, max_x, max_y) ;
+  dcxFit = dcxNano = max_x - min_x ;
+  dcyFit = dcyNano = max_y - min_y ;
   
-  min_x = (min_x*scale + subs_top_x);
-  min_y = (min_y*scale + subs_top_y);
-  max_x = (max_x*scale + subs_top_x);
-  max_y = (max_y*scale + subs_top_y);
+  fit_rect_inside_rect (dcxArea, dcyArea, &dxFit, &dyFit, &dcxFit, &dcyFit) ;
   
-  zoom_window(min_x, min_y, max_x, max_y);
-	
+  scale = (0 == dxFit ? AREA_WIDTH / dcxNano : AREA_HEIGHT / dcyNano) ;
+
+  subs_top_x = dxFit - min_x * scale ;
+  subs_top_y = dyFit - min_y * scale ;
 }//zoom_extents
 
 //-------------------------------------------------------------------//
@@ -326,7 +330,6 @@ void zoom_die(){
 	}else{
 		scale = (float)AREA_HEIGHT / (float)(subs_height+2 * PAN_STEP);
 	}
-	redraw_world();
 
 }//zoom_die
 
@@ -336,286 +339,133 @@ void zoom_die(){
 void zoom_out(){
 	
 	zoom_window(-30, -30, AREA_WIDTH + 30, AREA_HEIGHT + 30);
-	redraw_world();
-
 }//zoom_out
 
 //-------------------------------------------------------------------//
 
 //!Zooms in a little
 void zoom_in(){
-	
 	zoom_window(30, 30, AREA_WIDTH - 30, AREA_HEIGHT - 30);
-		
-	redraw_world();
-
 }//zoom_in
 
 
 //-------------------------------------------------------------------//
 
-//!Zooms to the provide window dimensions.
+//!Zooms to the provided window dimensions.
 void zoom_window(int top_x, int top_y, int bot_x, int bot_y){
 
-	int act_top_x;
-	int act_top_y;
-	double width;
-	double height;
-	double scale_factor;
-	
-	if(top_x == bot_x || top_y == bot_y){
-		return;
-	}
-	
-	//fprintf (stderr, "Zooming window to top_x = %d, top_y = %d, bot_x = %d, bot_y = %d\n",top_x, top_y, bot_x, bot_y) ;
-	
-	previous_scale = scale;
-	previous_subs_top_x = subs_top_x;
-	previous_subs_top_y = subs_top_y;
-	
-	// -- determine which x value is furthest to the left //
-	if(top_x > bot_x){
-		act_top_x = bot_x;
-	}else{
-		act_top_x = top_x;
-	}
-	
-	// -- determine which y value is furthest to the top //
-	if(top_y > bot_y){
-		act_top_y = bot_y;
-	}else{
-		act_top_y = top_y;
-	}
-	
-	width = fabs(top_x - bot_x);
-	height = fabs(top_y - bot_y);
-	
-	if(width > height){
-		
-		scale_factor = (double)AREA_WIDTH/(double)width;
-		scale *= scale_factor;
-		
-		subs_top_x = (subs_top_x - act_top_x)*scale_factor;
-		subs_top_y = (subs_top_y - act_top_y)*scale_factor;	
-	
-	}else{
-		
-		scale_factor = (double)AREA_HEIGHT/(double)height;
-		scale *= scale_factor;
-		
-		subs_top_x = (subs_top_x - act_top_x)*scale_factor;
-		subs_top_y = (subs_top_y - act_top_y)*scale_factor;
-		
-		
-	}
-	
-	redraw_world();
-
+  int xMin, yMin, xMax, yMax, cxWindow, cyWindow ;
+  double 
+    dcxWindow = (double)(cxWindow = (xMax = MAX (top_x, bot_x)) - (xMin = MIN (top_x, bot_x))),
+    dcyWindow = (double)(cyWindow = (yMax = MAX (top_y, bot_y)) - (yMin = MIN (top_y, bot_y))),
+    dx = 0, dy = 0,
+    dcxArea = (double)AREA_WIDTH, 
+    dcyArea = (double)AREA_HEIGHT,
+    scale_factor = 0;
+  
+  previous_scale = scale ;
+  previous_subs_top_x = subs_top_x ;
+  previous_subs_top_y = subs_top_y ;
+  
+  fit_rect_inside_rect (dcxArea, dcyArea, &dx, &dy, &dcxWindow, &dcyWindow) ;
+  
+  scale_factor = dcxWindow / (double)cxWindow ;
+  
+  pan (
+    dx - ((xMin - subs_top_x) * scale_factor + subs_top_x), 
+    dy - ((yMin - subs_top_y) * scale_factor + subs_top_y)) ;
+  
+  scale *= scale_factor ;
 }//zoom_window
 
 //-------------------------------------------------------------------//
-
-//!Sets the global GTK color object to the desired color.
-void set_colors(int color){
-
-	if(global_colormap == NULL){
-		global_colormap = gdk_colormap_get_system();
-		global_gc = gdk_gc_new(main_window.drawing_area->window);
-	}
-	
-	switch(color){
-		
-	case WHITE:
-		global_color.red = 0xFFFF;
-		global_color.green = 0xFFFF;
-		global_color.blue = 0xFFFF;
-		break;
-	
-	case BLACK:
-		global_color.red = 0x0000;
-		global_color.green = 0x0000;
-		global_color.blue = 0x0000;
-		break;
-	
-	case GREEN:
-		global_color.red = 0;
-		global_color.green = 0xFFFF;
-		global_color.blue = 0;
-		break;
-	
-	case GREEN1:
-		global_color.red = 0xF000;
-		global_color.green = 0x0FFF;
-		global_color.blue = 0xF000;
-		break;
-	
-	case GREEN2:
-		global_color.red = 0x00;
-		global_color.green = 0xFFFF;
-		global_color.blue = 0xFFFF;
-		break;
-	
-	case GREEN3:
-		global_color.red = 0xFFF0;
-		global_color.green = 0xFFFF;
-		global_color.blue = 0xFFF0;
-		break;
-	
-	case ORANGE:
-		global_color.red = 0xFFFF;
-		global_color.green = 0x6000;
-		global_color.blue = 0x5000;
-		break;
-			
-	case RED:
-		global_color.red = 0xFFFF;
-		global_color.green = 0;
-		global_color.blue = 0;
-		break;
-		
-	case BLUE:
-		global_color.red = 0;
-		global_color.green = 0;
-		global_color.blue = 0xFFFF;
-		break;
-		
-	case YELLOW:
-		global_color.red = 0xFFFF;
-		global_color.green = 0xFFFF;
-		global_color.blue = 0;
-		break;
-	}
-	
-	gdk_color_alloc(global_colormap, &global_color);
-	gdk_gc_set_foreground(global_gc, &global_color);
-	gdk_gc_set_background(global_gc, &global_color);
-
-}//set_colors
-
-//-------------------------------------------------------------------//
 //!Draws a ruler to the screen showing the distance between the two coordinates
-void draw_ruler(int dist_x0, int dist_y0, int dist_x1, int dist_y1){
+void draw_ruler(GdkDrawable *d, GdkGC *gc, int dist_x0, int dist_y0, int dist_x1, int dist_y1)
+  {
+  int i, j;
+  char distance[20];
 
-	int i, j;
-	char distance[20];
+  // set up the color //
+  gdk_gc_set_function (gc, GDK_XOR);
 
-	// set up the color //
-	global_colormap = gdk_colormap_get_system();
-	global_gc = gdk_gc_new(main_window.drawing_area->window);
+  gdk_gc_set_foreground(gc, &clrCyan);
+  gdk_gc_set_background(gc, &clrCyan);
 
-	gdk_gc_set_function(global_gc, GDK_XOR);
+  // -- Draw a Horizantle Ruler -- //
+  if (abs(dist_x0 - dist_x1) >= abs(dist_y0 - dist_y1))
+    {
+    gdk_draw_line (d, gc, dist_x0, dist_y0, dist_x1, dist_y0);
 
-	global_color.red = 0;
-	global_color.green = 0xFFFF;
-	global_color.blue = 0xFFFF;
+    j = 0;
 
-	gdk_color_alloc(global_colormap, &global_color);
-	gdk_gc_set_foreground(global_gc, &global_color);
-	gdk_gc_set_background(global_gc, &global_color);
+    g_snprintf(distance, 20, "%f nm", real_to_world_cx (abs(dist_x0 - dist_x1)));
 
+    gdk_draw_string(d, global_font, gc, dist_x1, dist_y0 - 10, distance);
 
-
-	// -- Draw a Horizantle Ruler -- //
-	if (abs(dist_x0 - dist_x1) >= abs(dist_y0 - dist_y1)) {
-	gdk_draw_line(main_window.drawing_area->window, global_gc, dist_x0, dist_y0,
-			  dist_x1, dist_y0);
-
-	j = 0;
-
-	global_font =
-		gdk_font_load
-		("-adobe-courier-medium-r-normal--12-*-*-*-*-*-*");
-
-	g_snprintf(distance, 20, "%f nm",
-		calc_world_dist(abs(dist_x0 - dist_x1)));
-
-	gdk_draw_string(main_window.drawing_area->window, global_font, global_gc,
-			dist_x1, dist_y0 - 10, distance);
-
-	if (dist_x0 - dist_x1 < 0) {
-		for (i = 0; i < abs(dist_x0 - dist_x1);
-		 i += grid_spacing) {
-		if (j % 2 == 0) {
-			gdk_draw_line(main_window.drawing_area->window, global_gc,
-				  dist_x0 + i, dist_y0 - 5,
-				  dist_x0 + i, dist_y0 + 5);
-		} else {
-			gdk_draw_line(main_window.drawing_area->window, global_gc,
-				  dist_x0 + i, dist_y0 - 2,
-				  dist_x0 + i, dist_y0 + 2);
-		}
-		j++;
-		}
-	} else {
-		for (i = 0; i > -abs(dist_x0 - dist_x1);
-		 i -= grid_spacing) {
-		if (j % 2 == 0) {
-			gdk_draw_line(main_window.drawing_area->window, global_gc,
-				  dist_x0 + i, dist_y0 - 5,
-				  dist_x0 + i, dist_y0 + 5);
-		} else {
-			gdk_draw_line(main_window.drawing_area->window, global_gc,
-				  dist_x0 + i, dist_y0 - 2,
-				  dist_x0 + i, dist_y0 + 2);
-		}
-		j++;
-		}
+    if (dist_x0 - dist_x1 < 0)
+      {
+      for (i = 0; i < abs(dist_x0 - dist_x1); i += grid_spacing)
+        {
+        if (j % 2 == 0)
+	  gdk_draw_line(d, gc, dist_x0 + i, dist_y0 - 5, dist_x0 + i, dist_y0 + 5);
+        else
+	  gdk_draw_line(d, gc, dist_x0 + i, dist_y0 - 2, dist_x0 + i, dist_y0 + 2);
+        j++;
+        }
+      } 
+    else 
+      {
+      for (i = 0; i > -abs(dist_x0 - dist_x1); i -= grid_spacing)
+        {
+	if (j % 2 == 0)
+	  gdk_draw_line(d, gc, dist_x0 + i, dist_y0 - 5, dist_x0 + i, dist_y0 + 5);
+	else
+	  gdk_draw_line(d, gc, dist_x0 + i, dist_y0 - 2, dist_x0 + i, dist_y0 + 2);
+	j++;
 	}
+      }
 
-	// -- Draw a Vertical Ruler -- //
-	} else {
-	gdk_draw_line(main_window.drawing_area->window, global_gc, dist_x0, dist_y0,
-			  dist_x0, dist_y1);
+    // -- Draw a Vertical Ruler -- //
+    }
+  else
+    {
+    gdk_draw_line(d, gc, dist_x0, dist_y0, dist_x0, dist_y1);
 
-	j = 0;
+    j = 0;
 
-	global_font =
-		gdk_font_load
-		("-adobe-courier-medium-r-normal--12-*-*-*-*-*-*");
+    g_snprintf(distance, 20, "%f nm", real_to_world_cx (abs(dist_y0 - dist_y1)));
 
-	g_snprintf(distance, 20, "%f nm",
-		calc_world_dist(abs(dist_y0 - dist_y1)));
+    gdk_draw_string(d, global_font, gc, dist_x0 + 10, dist_y1, distance);
 
-	gdk_draw_string(main_window.drawing_area->window, global_font, global_gc,
-			dist_x0 + 10, dist_y1, distance);
-
-	if (dist_y0 - dist_y1 < 0) {
-		for (i = 0; i < abs(dist_y0 - dist_y1);
-		 i += grid_spacing) {
-		if (j % 2 == 0) {
-			gdk_draw_line(main_window.drawing_area->window, global_gc,
-				  dist_x0 - 5, dist_y0 + i,
-				  dist_x0 + 5, dist_y0 + i);
-		} else {
-			gdk_draw_line(main_window.drawing_area->window, global_gc,
-				  dist_x0 - 2, dist_y0 + i,
-				  dist_x0 + 2, dist_y0 + i);
-		}
-		j++;
-		}
-	} else {
-		for (i = 0; i > -abs(dist_y0 - dist_y1);
-		 i -= grid_spacing) {
-		if (j % 2 == 0) {
-			gdk_draw_line(main_window.drawing_area->window, global_gc,
-				  dist_x0 - 5, dist_y0 + i,
-				  dist_x0 + 5, dist_y0 + i);
-		} else {
-			gdk_draw_line(main_window.drawing_area->window, global_gc,
-				  dist_x0 - 2, dist_y0 + i,
-				  dist_x0 + 2, dist_y0 + i);
-		}
-		j++;
-		}
-	}
-	}
-
-}//draw_ruler
+    if (dist_y0 - dist_y1 < 0)
+      {
+      for (i = 0; i < abs (dist_y0 - dist_y1) ; i += grid_spacing)
+        {
+        if (j % 2 == 0)
+          gdk_draw_line(d, gc, dist_x0 - 5, dist_y0 + i, dist_x0 + 5, dist_y0 + i);
+        else
+	  gdk_draw_line(d, gc, dist_x0 - 2, dist_y0 + i, dist_x0 + 2, dist_y0 + i);
+        j++;
+        }
+      }
+    else
+      {
+      for (i = 0; i > -abs(dist_y0 - dist_y1); i -= grid_spacing)
+        {
+        if (j % 2 == 0)
+          gdk_draw_line(d, gc, dist_x0 - 5, dist_y0 + i, dist_x0 + 5, dist_y0 + i);
+        else
+	  gdk_draw_line(d, gc, dist_x0 - 2, dist_y0 + i, dist_x0 + 2, dist_y0 + i);
+        j++;
+        }
+      }
+    }
+  }//draw_ruler
 
 //-------------------------------------------------------------------//
 
 //!Draws a temporary array of cells to show the user how many cells will be created in the arrray  //
-void draw_temp_array(double x0, double y0, double x1, double y1){
+void draw_temp_array(GdkDrawable *d, GdkGC *gc, int cell_type, double x0, double y0, double x1, double y1){
 
     double x=0;
     double y=0;
@@ -628,93 +478,79 @@ void draw_temp_array(double x0, double y0, double x1, double y1){
 
 		if(x1>x0)for (x = calc_world_x(x0), i=0; x <= calc_world_x(x1); x += grid_spacing, i++) {
 
-			if (SNAP_TO_GRID) {
-				x = grid_world_x(x);
-				y = grid_world_y(calc_world_y(y0));
-			} else {
-				y = calc_world_y(y0);
-			}
+			x = grid_world_x(x);
+			y = grid_world_y(calc_world_y(y0));
 
 			// make sure that the cell does not overlab with previous array cell //
-			if(i !=0 && selected_cell_type == TYPE_1){
+			if(i !=0 && cell_type == TYPE_1){
 				if (x < oldx + cell_options.type_1_cell_width)continue;
-			}else if(i != 0 && selected_cell_type == TYPE_2){
+			}else if(i != 0 && cell_type == TYPE_2){
 				if (x < oldx + cell_options.type_2_cell_width)continue;
 			}
 
 			oldx=x;
 			oldy=y;
 
-			draw_temp_stdqcell(x,y);
+			draw_temp_stdqcell (d, gc, cell_type, x, y);
 		}
 
 		if(x0>x1)for (x = calc_world_x(x0), i=0; x >= calc_world_x(x1); x -= grid_spacing, i++) {
 	
 			//printf("x0=%f x1=%f x=%f\n",calc_world_x(x0),calc_world_x(x1),x);
 			
-			if (SNAP_TO_GRID) {
-				x = grid_world_x(x);
-				y = grid_world_y(calc_world_y(y0));
-			} else {
-				y = calc_world_y(y0);
-			}
+			x = grid_world_x(x);
+			y = grid_world_y(calc_world_y(y0));
 			
 			// make sure that the cell does not overlap with previous array cell //
-			if(i !=0 && selected_cell_type == TYPE_1){
+			if(i !=0 && cell_type == TYPE_1){
 				if (x > oldx - cell_options.type_1_cell_width)continue;		
-			}else if(i != 0 && selected_cell_type == TYPE_2){
+			}else if(i != 0 && cell_type == TYPE_2){
 				if (x > oldx - cell_options.type_2_cell_width)continue;
 			}
 			
 			oldx=x;
 			oldy=y;
 
-			draw_temp_stdqcell(x,y);
+			draw_temp_stdqcell (d, gc, cell_type, x, y);
 		}
 
 	// if the user drew a vertical line //
     } else if ((x0 - x1) == 0) {
 		
 		if(y1>y0)for (y = calc_world_y(y0), i=0; y <= calc_world_y(y1); y += grid_spacing, i++) {
-			if (SNAP_TO_GRID) {
-				x = grid_world_x(calc_world_x(x0));
-				y = grid_world_y(y);
-			} else {
-				x = calc_world_x(x0);
-			}
+
+			x = grid_world_x(calc_world_x(x0));
+			y = grid_world_y(y);
 	
 			// make sure that the cell does not overlab with previous array cell //
-			if(i !=0 && selected_cell_type == TYPE_1){
+			if(i !=0 && cell_type == TYPE_1){
 				if (y < oldy + cell_options.type_1_cell_width)continue;
-			}else if(i != 0 && selected_cell_type == TYPE_2){
+			}else if(i != 0 && cell_type == TYPE_2){
 				if (y < oldy + cell_options.type_2_cell_width)continue;
 			}
 			
 			oldx=x;
 			oldy=y;
 			
-			draw_temp_stdqcell(x,y);
+			draw_temp_stdqcell (d, gc, cell_type, x, y);
 		}
 		
 		if(y0>y1)for (y = calc_world_y(y0), i=0; y >= calc_world_y(y1); y -= grid_spacing, i++) {
-			if (SNAP_TO_GRID) {
+
 				x = grid_world_x(calc_world_x(x0));
 				y = grid_world_y(y);
-			} else {
-				x = calc_world_x(x0);
-			}
 	
 			// make sure that the cell does not overlab with previous array cell //
-			if(i !=0 && selected_cell_type == TYPE_1){
+			if(i !=0 && cell_type == TYPE_1){
 				if (y > oldy - cell_options.type_1_cell_width)continue;
-			}else if(i != 0 && selected_cell_type == TYPE_2){
+			}else if(i != 0 && cell_type == TYPE_2){
 				if (y > oldy - cell_options.type_2_cell_width)continue;
 			}
 			
 			oldx=x;
 			oldy=y;
 			
-			draw_temp_stdqcell(x,y);
+			draw_temp_stdqcell (d, gc, cell_type, x, y);
 		}
     }
 
@@ -724,274 +560,236 @@ void draw_temp_array(double x0, double y0, double x1, double y1){
 //-------------------------------------------------------------------//
 
 //!Draws a temporary QCA cell to the drawing area at the given coordinates.
-void draw_temp_stdqcell(double x, double y){
-
-	float top_corner_x = 0;
-	float top_corner_y = 0;
-	
-	if(selected_cell_type == TYPE_1){
-		top_corner_x = subs_top_x + (x - cell_options.type_1_cell_width/2)*scale;
-		top_corner_y = subs_top_y + (y - cell_options.type_1_cell_height/2)*scale;
-			
-		// -- Dont need to draw the cell if it does not appear on the screen anyway -- //
-		//if(top_corner_x + cell_options.type_1_cell_width * scale < 0 || top_corner_y + cell_options.type_1_cell_height * scale < 0)return;
-	
-	}
-	
-	if(selected_cell_type == TYPE_2){
-		top_corner_x = subs_top_x + (x - cell_options.type_2_cell_width/2)*scale;
-		top_corner_y = subs_top_y + (y - cell_options.type_2_cell_height/2)*scale;
-			
-		// -- Dont need to draw the cell if it does not appear on the screen anyway -- //
-		if(top_corner_x + cell_options.type_2_cell_width * scale < 0 || top_corner_y + cell_options.type_2_cell_height * scale < 0)return;
-	}
-	
-	// -- Dont need to draw the cell if it does not appear on the screen anyway -- //
-	//if(top_corner_x > AREA_WIDTH || top_corner_y > AREA_HEIGHT)return;
-	
-	
+static void draw_temp_stdqcell (GdkDrawable *d, GdkGC *gc, int cell_type, double x, double y){
+        double cxWorld = -1, cyWorld = -1 ;
+        int x_top = -1, y_top = -1, cx = -1, cy = -1 ;
+        
+        if (TYPE_1 == cell_type)
+          {
+          cxWorld = cell_options.type_1_cell_width ;
+          cyWorld = cell_options.type_1_cell_height ;
+          }
+        else
+          {
+          cxWorld = cell_options.type_2_cell_width ;
+          cyWorld = cell_options.type_2_cell_height ;
+          }
+        
+        x_top = world_to_real_x (x - cxWorld / 2) ;
+        y_top = world_to_real_y (y - cyWorld / 2) ;
+        cx = world_to_real_cx (cxWorld) ;
+        cy = world_to_real_cy (cyWorld) ;
+        
+        if (x_top > AREA_WIDTH || y_top > AREA_HEIGHT || x_top + cx < 0 || y_top + cy < 0) return ;
+        
 	// -- Set the color object to the cells color -- //
 	// -- I use a global color object to speed up drawing, no other benefit. -- //
-	set_colors(BLUE);
-	gdk_gc_set_function(global_gc, GDK_XOR);
-		
-
-		if(selected_cell_type == TYPE_1){
-			//gdk_draw_rectangle(main_window.drawing_area->window, global_gc, TRUE, top_corner_x, top_corner_y, cell_options.type_1_cell_width * scale, cell_options.type_1_cell_height * scale);
-			gdk_draw_rectangle(main_window.drawing_area->window, global_gc, FALSE, top_corner_x, top_corner_y, cell_options.type_1_cell_width * scale, cell_options.type_1_cell_height * scale);
-		}
-		
-		if(selected_cell_type == TYPE_2){
-			//gdk_draw_rectangle(main_window.drawing_area->window, global_gc, TRUE, top_corner_x, top_corner_y, cell_options.type_2_cell_width * scale, cell_options.type_2_cell_height * scale);
-			gdk_draw_rectangle(main_window.drawing_area->window, global_gc, FALSE, top_corner_x, top_corner_y, cell_options.type_2_cell_width * scale, cell_options.type_2_cell_height * scale);
-		}
+        
+        gdk_gc_set_foreground (gc, &clrBlue) ;
+        
+	gdk_gc_set_function (gc, GDK_XOR);
 	
-	
-	
-	
+        gdk_draw_rectangle (d, gc, FALSE, x_top, y_top, cx, cy) ;
 }//draw_temp_stdqcell
 
 //-------------------------------------------------------------------//
 
 //!Draws a QCA cell to the drawing area at the coords provided by the argument pointer.
-void draw_stdqcell(qcell *cell){
+void draw_stdqcell(GdkDrawable *d, GdkGC *gc, GQCell *cell){
       
-	float top_corner_x = subs_top_x + (cell->x - cell->cell_width/2)*scale;
-	float top_corner_y = subs_top_y + (cell->y - cell->cell_height/2)*scale;
+	int top_corner_x = world_to_real_x (cell->x - cell->cell_width/2),
+	    top_corner_y = world_to_real_y (cell->y - cell->cell_height/2),
+            real_cx = world_to_real_cx (cell->cell_width), 
+            real_cy = world_to_real_cy (cell->cell_height) ;
 	
-	assert(cell != NULL);
-	
-	// -- Dont need to draw the cell if it does not appear on the screen anyway -- //
-	if(top_corner_x > AREA_WIDTH || top_corner_y > AREA_HEIGHT)return;
-	if(top_corner_x + cell->cell_width * scale < 0 || top_corner_y + cell->cell_height * scale < 0)return;
+	// -- Don't need to draw the cell if it does not appear on the screen anyway -- //
+	if(top_corner_x > AREA_WIDTH || top_corner_y > AREA_HEIGHT || 
+           top_corner_x + real_cx < 0 || top_corner_y + real_cy < 0) return;
 	
 	
 	// -- Set the color object to the cells color -- //
 	// -- I use a global color object to speed up drawing, no other benefit. -- //
-	set_colors(cell->color);
-		
+	gdk_gc_set_foreground (gc, cell->color) ;
+
 	// -- draw the rectangle that is the outline of the cell -- //
-	if(!PRINT_PREVIEW){
-		gdk_draw_rectangle(main_window.drawing_area->window, global_gc, FALSE, top_corner_x, top_corner_y, cell->cell_width * scale, cell->cell_height * scale);
-	}else{
-		switch(cell->clock){
-			
-			case 0:
-				global_color.red = 0x20FF;
-				global_color.green = 0x20FF;
-				global_color.blue = 0x20FF;
-				break;
-			case 1:
-				global_color.red = 0x64FF;
-				global_color.green = 0x64FF;
-				global_color.blue = 0x64FF;
-				break;
-			case 2:
-				global_color.red = 0xC8FF;
-				global_color.green = 0xC8FF;
-				global_color.blue = 0xC8FF;
-				break;
-			case 3:
-				global_color.red = 0xFFFF;
-				global_color.green = 0xFFFF;
-				global_color.blue = 0xFFFF;
-				break;
-			}
-			
-		gdk_color_alloc(global_colormap, &global_color);
-		gdk_gc_set_foreground(global_gc, &global_color);
-		gdk_gc_set_background(global_gc, &global_color);
-			
-		
-		gdk_draw_rectangle(main_window.drawing_area->window, global_gc, TRUE, top_corner_x, top_corner_y, cell->cell_width * scale, cell->cell_height * scale);
-		
-		global_color.red = 0x0000;
-		global_color.green = 0x0000;
-		global_color.blue = 0x0000;
-		
-		gdk_color_alloc(global_colormap, &global_color);
-		gdk_gc_set_foreground(global_gc, &global_color);
-		gdk_gc_set_background(global_gc, &global_color);
-		
-		
-		gdk_draw_rectangle(main_window.drawing_area->window, global_gc, FALSE, top_corner_x, top_corner_y, cell->cell_width * scale, cell->cell_height * scale);
-		
-		
-	}
+	gdk_draw_rectangle(d, gc, FALSE, top_corner_x, top_corner_y, real_cx, real_cy);
 	
-	
-	/*for(i = 0; i < cell->number_of_dots; i++){
-		// draw every even dot solid //
-		if(i % 2 == 0){
-			if(!PRINT_PREVIEW){
-				gdk_draw_arc(main_window.drawing_area->window, global_gc, FALSE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2)*scale, cell->cell_dots[i].diameter*scale, cell->cell_dots[i].diameter*scale, 0, 360 * 64);
-			}else{
-				global_color.red = 0xFFFF;
-				global_color.green = 0xFFFF;
-				global_color.blue = 0xFFFF;
+	draw_cell_dots_showing_polarization (d, gc, cell);
 		
-				gdk_color_alloc(global_colormap, &global_color);
-				gdk_gc_set_foreground(global_gc, &global_color);
-				gdk_gc_set_background(global_gc, &global_color);
-				
-				gdk_draw_arc(main_window.drawing_area->window, global_gc, TRUE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2)*scale, cell->cell_dots[i].diameter*scale, cell->cell_dots[i].diameter*scale, 0, 360 * 64);
-				
-				global_color.red = 0x0000;
-				global_color.green = 0x0000;
-				global_color.blue = 0x0000;
-		
-				gdk_color_alloc(global_colormap, &global_color);
-				gdk_gc_set_foreground(global_gc, &global_color);
-				gdk_gc_set_background(global_gc, &global_color);
-				
-				gdk_draw_arc(main_window.drawing_area->window, global_gc, FALSE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2)*scale, cell->cell_dots[i].diameter*scale, cell->cell_dots[i].diameter*scale, 0, 360 * 64);
-			}
-		
-		}else{
-			
-			gdk_draw_arc(main_window.drawing_area->window, global_gc, TRUE, subs_top_x + (cell->cell_dots[i].x -
-			cell->cell_dots[i].diameter/2)*scale, subs_top_y +(cell->cell_dots[i].y - cell->cell_dots[i].diameter/2)*scale, cell->cell_dots[i].diameter*scale, cell->cell_dots[i].diameter*scale, 0, 360 * 64);
-				
-		}
-	
-	
-	}
-	*/
-	
-	draw_cell_dots_showing_polarization(cell);
-	
-		
-	if(!PRINT_PREVIEW){
-	if(cell->is_fixed == TRUE){
-		char text[10] = "" ;
-		global_font = gdk_font_load("-adobe-courier-medium-r-normal--12-*-*-*-*-*-*");
-		g_snprintf(text, 10, "%1.2f", calculate_polarization(cell));
-		gdk_draw_string(main_window.drawing_area->window, global_font, global_gc, top_corner_x, top_corner_y - 10, text);
-	}
-	
-	if(cell->is_input == TRUE || cell->is_output == TRUE){
-		global_font = gdk_font_load("-adobe-courier-medium-r-normal--12-*-*-*-*-*-*");
-		gdk_draw_string(main_window.drawing_area->window, global_font, global_gc, top_corner_x, top_corner_y - 10, cell->label);
-		
-	}
-	
+	if(cell->is_fixed){
+	  char text[10] = "" ;
+	  g_snprintf(text, 10, "%1.2f", gqcell_calculate_polarization(cell));
+	  gdk_draw_string(d, global_font, gc, top_corner_x, top_corner_y - 10, text);
 	}
 
+        if(cell->is_input || cell->is_output)
+          gdk_draw_string(d, global_font, gc, top_corner_x, top_corner_y - 10, cell->label);
 }//draw_stdqcell
 
 //! Function to redraw the cell dots according to the cells polarization//
 // used with the real-time animations or when showing the ground state //
 
-void draw_cell_dots_showing_polarization(qcell *cell){
-	
+static void draw_cell_dots_showing_polarization (GdkDrawable *d, GdkGC *gc, GQCell *cell){
 	int i;
-	float top_corner_x = subs_top_x + (cell->x - cell->cell_width/2)*scale;
-	float top_corner_y = subs_top_y + (cell->y - cell->cell_height/2)*scale;
-	
-	assert(cell != NULL);
+	int top_corner_x = world_to_real_x (cell->x - cell->cell_width/2),
+	    top_corner_y = world_to_real_y (cell->y - cell->cell_height/2),
+            real_cx = world_to_real_cx (cell->cell_width), 
+            real_cy = world_to_real_cy (cell->cell_height) ;
 	
 	// -- Dont need to draw the cell if it does not appear on the screen anyway -- //
 	if(top_corner_x > AREA_WIDTH || top_corner_y > AREA_HEIGHT)return;
-	if(top_corner_x + cell->cell_width * scale < 0 || top_corner_y + cell->cell_height * scale < 0)return;
+	if(top_corner_x + real_cx < 0 || real_cy < 0)return;
 	
 	
 	// -- Set the color object to the cells color -- //
 	// -- I use a global color object to speed up drawing, no other benefit. -- //
-	set_colors(cell->color);
 			
-	for(i = 0; i < cell->number_of_dots; i++){
-			
-			if(!PRINT_PREVIEW){
-				gdk_draw_arc(main_window.drawing_area->window, main_window.drawing_area->style->black_gc, TRUE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2)*scale, cell->cell_dots[i].diameter*scale, cell->cell_dots[i].diameter*scale, 0, 360 * 64);
-				gdk_draw_arc(main_window.drawing_area->window, global_gc, FALSE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2)*scale, cell->cell_dots[i].diameter*scale, cell->cell_dots[i].diameter*scale, 0, 360 * 64);
-				gdk_draw_arc(main_window.drawing_area->window, global_gc, TRUE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2*cell->cell_dots[i].charge/QCHARGE)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2*cell->cell_dots[i].charge/QCHARGE)*scale, cell->cell_dots[i].diameter*cell->cell_dots[i].charge/QCHARGE*scale, cell->cell_dots[i].diameter*scale*cell->cell_dots[i].charge/QCHARGE, 0, 360 * 64);
-			}else{
-				global_color.red = 0xFFFF;
-				global_color.green = 0xFFFF;
-				global_color.blue = 0xFFFF;
-		
-				gdk_color_alloc(global_colormap, &global_color);
-				gdk_gc_set_foreground(global_gc, &global_color);
-				gdk_gc_set_background(global_gc, &global_color);
-				
-				gdk_draw_arc(main_window.drawing_area->window, main_window.drawing_area->style->white_gc, TRUE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2)*scale, cell->cell_dots[i].diameter*scale, cell->cell_dots[i].diameter*scale, 0, 360 * 64);
-				gdk_draw_arc(main_window.drawing_area->window, global_gc, TRUE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2*cell->cell_dots[i].charge/QCHARGE)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2*cell->cell_dots[i].charge/QCHARGE)*scale, cell->cell_dots[i].diameter*cell->cell_dots[i].charge/QCHARGE*scale, cell->cell_dots[i].diameter*cell->cell_dots[i].charge/QCHARGE*scale, 0, 360 * 64);
-				
-				global_color.red = 0x0000;
-				global_color.green = 0x0000;
-				global_color.blue = 0x0000;
-		
-				gdk_color_alloc(global_colormap, &global_color);
-				gdk_gc_set_foreground(global_gc, &global_color);
-				gdk_gc_set_background(global_gc, &global_color);
-				
-				gdk_draw_arc(main_window.drawing_area->window, main_window.drawing_area->style->white_gc, TRUE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2)*scale, cell->cell_dots[i].diameter*scale, cell->cell_dots[i].diameter*scale, 0, 360 * 64);
-				gdk_draw_arc(main_window.drawing_area->window, global_gc, TRUE, subs_top_x + (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2*cell->cell_dots[i].charge/QCHARGE)*scale, subs_top_y + (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2*cell->cell_dots[i].charge/QCHARGE)*scale, cell->cell_dots[i].diameter*cell->cell_dots[i].charge/QCHARGE*scale, cell->cell_dots[i].diameter*cell->cell_dots[i].charge/QCHARGE*scale, 0, 360 * 64);
-			}
-
-		
-
-				
-		}
-
-
-	
+	for(i = 0; i < cell->number_of_dots; i++)
+          {
+          gdk_gc_set_foreground (gc, &clrBlack) ;
+	  gdk_draw_arc (d, gc, TRUE, 
+            world_to_real_x (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2), 
+            world_to_real_y (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2), 
+            world_to_real_cx (cell->cell_dots[i].diameter), 
+            world_to_real_cy (cell->cell_dots[i].diameter), 0, 360 * 64);
+          gdk_gc_set_foreground (gc, cell->color) ;
+	  gdk_draw_arc (d, gc, FALSE, 
+            world_to_real_x (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2), 
+            world_to_real_y (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2), 
+            world_to_real_cx (cell->cell_dots[i].diameter), 
+            world_to_real_cy (cell->cell_dots[i].diameter), 0, 360 * 64);
+	  gdk_draw_arc (d, gc, TRUE,  
+            world_to_real_x (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2*cell->cell_dots[i].charge/QCHARGE), 
+            world_to_real_y (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2*cell->cell_dots[i].charge/QCHARGE), 
+            world_to_real_cx (cell->cell_dots[i].diameter*cell->cell_dots[i].charge/QCHARGE), 
+            world_to_real_cy (cell->cell_dots[i].diameter*cell->cell_dots[i].charge/QCHARGE), 0, 360 * 64);
+          }
 }//draw_cell_dots
 
 //-------------------------------------------------------------------//
 
 //!Resets all cell colors to the natural values determined by the cell type. 
 //!Will clear any user changes such as those caused by cell selection.
-void clean_up_colors(){
+void clean_up_colors(GQCell *first_cell){
+  GQCell *cell = first_cell;
 
-	qcell *cell = first_cell;
-
-	// -- reset the colors of the previously selected cells -- //
-	while(cell != NULL){
-				
-		if(cell->is_input == TRUE){
-			cell->color = BLUE;
-		}else if(cell->is_output == TRUE){
-			cell->color = YELLOW;
-		}else if(cell->is_fixed){
-			cell->color = ORANGE;
-		}else{
-			if(cell->clock == 0){cell->color = GREEN;}
-			else if(cell->clock == 1){cell->color = GREEN1;}
-			else if(cell->clock == 2){cell->color = GREEN2;}
-			else if(cell->clock == 3){cell->color = GREEN3;}
-		}
-		
-		cell = cell->next;
-		
-	}
-	
+  // -- reset the colors of the previously selected cells -- //
+  while(cell != NULL){
+    gqcell_reset_colour (cell) ;
+    cell = cell->next;
+  }
 }//clean_up_colors
 
 //-------------------------------------------------------------------//
 
+// Add cells to an existing selection
+void add_cells_to_selection(GQCell *first_cell, GQCell ***pselected_cells, int *pnumber_of_selected_cells, int top_x, int top_y, int bot_x, int bot_y)
+  {
+  GQCell *cell = first_cell ;
+  double 
+    topxWorld = real_to_world_x (MIN (top_x, bot_x)), 
+    topyWorld = real_to_world_y (MIN (top_y, bot_y)), 
+    botxWorld = real_to_world_x (MAX (top_x, bot_x)), 
+    botyWorld = real_to_world_y (MAX (top_y, bot_y)) ;
+  int Nix ;
+  
+  if (top_x == bot_x && top_y == bot_y)
+    {
+    GQCell *cell_here = select_cell_at_coords (first_cell, topxWorld, topyWorld) ;
+    
+    if (NULL != cell_here)
+      {
+      for (Nix = 0 ; Nix < (*pnumber_of_selected_cells) ; Nix++)  
+        if (cell_here == (*pselected_cells)[Nix])
+          break ;
+      if ((*pnumber_of_selected_cells) == Nix)
+        {
+        (*pselected_cells) = realloc ((*pselected_cells), ++(*pnumber_of_selected_cells) * sizeof (GQCell *)) ;
+        gqcell_select (cell_here) ;
+        (*pselected_cells)[(*pnumber_of_selected_cells) - 1] = cell_here ;
+        }
+      }
+    }
+  
+  while (NULL != cell)
+    {
+    for (Nix = 0 ; Nix < (*pnumber_of_selected_cells) ; Nix++)  
+      if (cell == (*pselected_cells)[Nix])
+        break ;
+    if ((*pnumber_of_selected_cells) == Nix)
+      {
+      if (cell->x >= topxWorld && cell->x <= botxWorld &&
+          cell->y >= topyWorld && cell->y <= botyWorld)
+        {
+        (*pselected_cells) = realloc ((*pselected_cells), ++(*pnumber_of_selected_cells) * sizeof (GQCell *)) ;
+        gqcell_select (cell) ;
+        (*pselected_cells)[(*pnumber_of_selected_cells) - 1] = cell ;
+        }
+      }
+    cell = cell->next ;
+    }
+  }
+
+// Remove cells from an existing selection
+void remove_cells_from_selection(GQCell *first_cell, GQCell ***pselected_cells, int *pnumber_of_selected_cells, GdkDrawable *window, GdkGC *gc, int top_x, int top_y, int bot_x, int bot_y)
+  {
+  GQCell *cell = first_cell ;
+  double 
+    topxWorld = real_to_world_x (MIN (top_x, bot_x)), 
+    topyWorld = real_to_world_y (MIN (top_y, bot_y)), 
+    botxWorld = real_to_world_x (MAX (top_x, bot_x)), 
+    botyWorld = real_to_world_y (MAX (top_y, bot_y)) ;
+  int Nix ;
+  
+  if (top_x == bot_x && top_y == bot_y)
+    {
+    GQCell *cell_here = select_cell_at_coords (first_cell, topxWorld, topyWorld) ;
+    
+    fprintf (stderr, "Deselecting single cell\n") ;
+    
+    if (NULL != cell_here)
+      {
+      fprintf (stderr, "Found single cell for deselection\n") ;
+      for (Nix = 0 ; Nix < (*pnumber_of_selected_cells) ; Nix++)  
+        if (cell_here == (*pselected_cells)[Nix])
+          break ;
+      
+      fprintf (stderr, "The single cell is idx %d in selected_cells\n", Nix) ;
+      
+      if (Nix < (*pnumber_of_selected_cells))
+        {
+        gqcell_reset_colour ((*pselected_cells)[Nix]) ;
+        draw_stdqcell (window, gc, (*pselected_cells)[Nix]) ;
+        if (Nix < (*pnumber_of_selected_cells) - 1)
+          memmove (&((*pselected_cells)[Nix]), &((*pselected_cells)[Nix + 1]), ((*pnumber_of_selected_cells) - Nix - 1) * sizeof (GQCell *)) ;
+        (*pselected_cells) = realloc ((*pselected_cells), --(*pnumber_of_selected_cells) * sizeof (GQCell *)) ;
+        }
+      }
+    }
+  
+  while (NULL != cell)
+    {
+    for (Nix = 0 ; Nix < (*pnumber_of_selected_cells) ; Nix++)
+      if (cell == (*pselected_cells)[Nix])
+        break ;
+    if (Nix < (*pnumber_of_selected_cells))
+      {
+      if (cell->x >= topxWorld && cell->x <= botxWorld &&
+          cell->y >= topyWorld && cell->y <= botyWorld)
+        {
+        gqcell_reset_colour ((*pselected_cells)[Nix]) ;
+        draw_stdqcell (window, gc, (*pselected_cells)[Nix]) ;
+        if (Nix < (*pnumber_of_selected_cells) - 1)
+          memmove (&((*pselected_cells)[Nix]), &((*pselected_cells)[Nix + 1]), ((*pnumber_of_selected_cells) - Nix - 1) * sizeof (GQCell *)) ;
+        (*pselected_cells) = realloc ((*pselected_cells), --(*pnumber_of_selected_cells) * sizeof (GQCell *)) ;
+        }
+      }
+    cell = cell->next ;
+    }
+  }
+
 //!Selects all the cells which have centers within the given coordinates.
-void select_cells_in_window(int top_x, int top_y, int bot_x, int bot_y){
+void select_cells_in_window(GQCell *first_cell, GQCell ***pselected_cells, int *pnumber_of_selected_cells, int top_x, int top_y, int bot_x, int bot_y){
 	
 	float world_top_x;
 	float world_top_y;
@@ -999,52 +797,52 @@ void select_cells_in_window(int top_x, int top_y, int bot_x, int bot_y){
 	float world_bot_y;
 	float temp;
 	int i;
-	qcell *cell;
+	GQCell *cell;
 	
 	// -- determine the world coords of the selected window -- //
-	world_top_x = calc_world_x(top_x);
-	world_top_y = calc_world_y(top_y);
-	world_bot_x = calc_world_x(bot_x);
-	world_bot_y = calc_world_y(bot_y);
+	world_top_x = real_to_world_x (top_x);
+	world_top_y = real_to_world_y (top_y);
+	world_bot_x = real_to_world_x (bot_x);
+	world_bot_y = real_to_world_y (bot_y);
 	
 	// make sure the top is at the top //
 	if(world_top_x > world_bot_x){
-		temp = world_top_x;
-		world_top_x = world_bot_x;
-		world_bot_x = temp;
+	  temp = world_top_x;
+	  world_top_x = world_bot_x;
+	  world_bot_x = temp;
 	}
 	
 	if(world_top_y > world_bot_y){
-		temp = world_top_y;
-		world_top_y = world_bot_y;
-		world_bot_y = temp;
+	  temp = world_top_y;
+	  world_top_y = world_bot_y;
+	  world_bot_y = temp;
 	}
 	
 	// -- free up any previously selected cells -- //
-	free(selected_cells);
-	selected_cells = NULL;
-	number_of_selected_cells = 0;	
+//	free ((*pselected_cells));
+//	(*pselected_cells) = NULL;
+//	(*pnumber_of_selected_cells) = 0;	
 	
 	// clear the color of any previously selected_cells //
-	clean_up_colors();
+//	clean_up_colors(first_cell);
 	
 	// -- if the user simply clicked a point -- //
 	if(top_x == bot_x || top_y == bot_y){
 		
 		// if there is no cell at the point then leave //
-		if(select_cell_at_coords(world_bot_x, world_bot_y) == NULL) return;
+		if(select_cell_at_coords(first_cell, world_bot_x, world_bot_y) == NULL) return;
 		
 		// otherwise allocate the memory //
-		selected_cells = malloc(sizeof(qcell *));
+		(*pselected_cells) = malloc(sizeof(GQCell *));
 		
-		if(selected_cells == NULL){
+		if((*pselected_cells) == NULL){
 			printf("memory allocation error in select_cells_in_window()\n");
 			exit(1);
 		}
 		
-		selected_cells[0] = select_cell_at_coords(world_bot_x, world_bot_y);
-		number_of_selected_cells = 1;
-		selected_cells[0]->color = RED;
+		(*pselected_cells)[0] = select_cell_at_coords(first_cell, world_bot_x, world_bot_y);
+		(*pnumber_of_selected_cells) = 1;
+		gqcell_select ((*pselected_cells)[0]);
 		
 		return;
 	}
@@ -1058,14 +856,14 @@ void select_cells_in_window(int top_x, int top_y, int bot_x, int bot_y){
 		// -- find all the cells that have centers within the window -- //
 		if(world_top_x < cell->x && world_top_y < cell->y){
 			if(world_bot_x > cell->x && world_bot_y > cell->y){
-				number_of_selected_cells++;
+				(*pnumber_of_selected_cells)++;
 			}
 		}
 		
 		cell = cell->next;
 	}
 	
-	selected_cells = malloc(sizeof(qcell *) * number_of_selected_cells);
+	(*pselected_cells) = malloc(sizeof(GQCell *) * (*pnumber_of_selected_cells));
 	i = 0;
 	
 	cell = first_cell;
@@ -1074,9 +872,9 @@ void select_cells_in_window(int top_x, int top_y, int bot_x, int bot_y){
 		// -- find all the cells that have centers within the window -- //
 		if(world_top_x < cell->x && world_top_y < cell->y){
 			if(world_bot_x > cell->x && world_bot_y > cell->y){
-				selected_cells[i] = cell;
+				(*pselected_cells)[i] = cell;
 				i++;
-				cell->color = RED;
+				gqcell_select (cell) ;
 			}
 		}
 		
@@ -1085,67 +883,25 @@ void select_cells_in_window(int top_x, int top_y, int bot_x, int bot_y){
 	
 }// select_cells_in_window
 
-//-------------------------------------------------------------------//
-
-//!Selects cell at the given coords if there is one there otherwise returns NULL.
-qcell *select_cell_at_coords(float world_x, float world_y){
-	
-	qcell *cell = first_cell;
-	
-	while(cell != NULL){
-	
-		if(world_x >= cell->top_x && world_x <= cell->bot_x)
-			if(world_y >= cell->top_y && world_y <= cell->bot_y){
-				
-				return cell;
-				
-			}
-		
-		cell = cell->next;
-	
-	}
-	
-	
-	// if nothing was found return null pointer //
-	return NULL;
-
-}// select_cell_at_coords 
-
-//-------------------------------------------------------------------//
-
 //!Selects cell at the given coords if there is one and is not the one passed in the argument.
-qcell *select_cell_at_coords_but_not_this_one(float world_x, float world_y, qcell *this_cell){
-	
-	qcell *cell = first_cell;
-	
-	while(cell != NULL){
-		
-		if(cell == this_cell){
-			cell = cell->next;
-			continue;
-		}
-				
-		if(world_x >= cell->top_x && world_x <= cell->bot_x)
-			if(world_y >= cell->top_y && world_y <= cell->bot_y){
-				
-				return cell;
-				
-			}
-		
-		cell = cell->next;
-	
-	}
-	
-	
-	// -- if none are found return null pointer -- //
-	return NULL;
+GQCell *select_cell_at_coords (GQCell *first_cell, float world_x, float world_y){
 
+  GQCell *cell = first_cell ;
+
+  while (NULL != cell)
+    {
+    if (gqcell_point_in_cell (cell, world_x, world_y))
+      return cell ;
+    cell = cell->next ;
+    }
+
+  return NULL ;
 }// select_cell_at_coords
 
 //-------------------------------------------------------------------//
 
 //!Returns the closest X grid point to the passed coordinate.
-inline int grid_world_x(float x){
+inline float grid_world_x(float x){
 	// integer casting will do what is required //
 	if(x>=0)return (int)( ((float)x+grid_spacing/2) /grid_spacing) * grid_spacing;
 	if(x<0)return (int)( ((float)x-grid_spacing/2) /grid_spacing) * grid_spacing;
@@ -1155,7 +911,7 @@ inline int grid_world_x(float x){
 //-------------------------------------------------------------------//
 
 //!Returns the closest Y grid point to the passed coordinate.
-inline int grid_world_y(float y){
+inline float grid_world_y(float y){
 	// integer casting will do what is required //
 	if(y>=0)return (int)(((float)y+grid_spacing/2)/grid_spacing) * grid_spacing;
 	if(y<0)return (int)(((float)y-grid_spacing/2)/grid_spacing) * grid_spacing;	
@@ -1185,13 +941,13 @@ inline float calc_world_dist(int dist){
 
 //-------------------------------------------------------------------//
 //!Finds all cells within a specified radius and sets the selected cells array//
-int select_cells_in_radius (qcell * cell, float world_radius, qcell ***p_selected_cells){
+int select_cells_in_radius (GQCell *first_cell, GQCell *cell, float world_radius, GQCell ***p_selected_cells){
 
-	qcell *loop_cell = first_cell;
+	GQCell *loop_cell = first_cell;
 	int j;
 	int number_of_selected_cells = 0 ;
 	
-	assert (cell != NULL);
+	g_assert (cell != NULL);
 	
 	// free up selected cells //
 //	number_of_selected_cells = 0;
@@ -1211,7 +967,7 @@ int select_cells_in_radius (qcell * cell, float world_radius, qcell ***p_selecte
 	loop_cell = first_cell;
 	
 	if (number_of_selected_cells > 0){
-		(*p_selected_cells) = malloc (sizeof (qcell *) * number_of_selected_cells);
+		(*p_selected_cells) = malloc (sizeof (GQCell *) * number_of_selected_cells);
 		
 		// catch any memory allocation errors //
 		if ((*p_selected_cells) == NULL){
@@ -1241,7 +997,7 @@ int select_cells_in_radius (qcell * cell, float world_radius, qcell ***p_selecte
 //-------------------------------------------------------------------//
 
 // -- determine the distance between the centers of two qdots in different cells **** [IN nm]****** -- //
-double determine_distance(qcell * cell1, qcell * cell2, int dot_cell_1, int dot_cell_2){
+double determine_distance(GQCell * cell1, GQCell * cell2, int dot_cell_1, int dot_cell_2){
 
   double x, y;
 
@@ -1249,4 +1005,13 @@ double determine_distance(qcell * cell1, qcell * cell2, int dot_cell_1, int dot_
   y = fabs (cell1->cell_dots[dot_cell_1].y - cell2->cell_dots[dot_cell_2].y);
 
   return sqrt (x * x + y * y);
-}				//determine_distance
+}//determine_distance
+
+static int world_to_real_x (float x) {return (int)(scale * x + subs_top_x) ;}
+static int world_to_real_y (float y) {return (int)(scale * y + subs_top_y) ;}
+static float real_to_world_x (int x) {return (float)((x - subs_top_x) / scale) ;}
+static float real_to_world_y (int y) {return (float)((y - subs_top_y) / scale) ;}
+static int world_to_real_cx (float cx) {return (int)(cx * scale) ;} 
+static int world_to_real_cy (float cy) {return (int)(cy * scale) ;} 
+static float real_to_world_cx (int cx) {return (int)(cx / scale) ;} 
+// static float real_to_world_cy (int cy) {return (int)(cy / scale) ;}

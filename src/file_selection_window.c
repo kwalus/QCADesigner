@@ -18,97 +18,71 @@
 // to contribute to the project.                        //
 //////////////////////////////////////////////////////////
 
-
-
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
-#include <assert.h>
 #include <stdio.h>
 
 #include "support.h"
-#include "fileio.h"
 #include "file_selection_window.h"
-#include "blocking_dialog.h"
+#include "fileio_helpers.h"
+#include "custom_widgets.h"
 
-#define DBG_FSW(s)
+#define DBG_FSW(s) s
 
-typedef struct{
-	GtkWidget *fileselection;
-	GtkWidget *ok_button;
-	GtkWidget *cancel_button;
-}file_select;
+static gboolean filesel_ok_button_activate (GtkWidget *widget, GdkEventButton *ev, gpointer data) ;
 
-//!File selection dialog for opening/saving/importing/exporting files.
-static file_select file_selection_dialog = {NULL};
+static GtkWidget *file_selection = NULL ;
 
-void create_file_selection_dialog(file_select *select) ;
-void file_selection_ok_button_clicked(GtkWidget *widget, gpointer data);
-void file_selection_cancel_button_clicked(GtkWidget *widget, gpointer data);
-
-gboolean get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFName, int cb)
+gchar *get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFName, gboolean bOverwritePrompt)
   {
-  gboolean bRet = FALSE ;
+  gchar *pszRet = NULL ;
+  gulong handlerID = -1 ;
+
+  if (NULL == file_selection)
+    file_selection = gtk_file_selection_new (pszWinTitle) ;
+
+  gtk_window_set_transient_for (GTK_WINDOW (file_selection), parent) ;
+  gtk_window_set_title (GTK_WINDOW (file_selection), pszWinTitle) ;
+  if (NULL != pszFName)
+    gtk_file_selection_set_filename (GTK_FILE_SELECTION (file_selection), pszFName) ;
   
-  if (NULL == file_selection_dialog.fileselection)
-    create_file_selection_dialog (&file_selection_dialog) ;
-  gtk_window_set_transient_for (GTK_WINDOW (file_selection_dialog.fileselection), parent) ;
-  gtk_file_selection_set_filename (GTK_FILE_SELECTION (file_selection_dialog.fileselection), NULL != pszFName ? pszFName : "") ;
-  gtk_window_set_title (GTK_WINDOW (file_selection_dialog.fileselection), pszWinTitle) ;
-  DBG_FSW (fprintf (stderr, "Setting pszFName to 0x%08X\n", (int)pszFName)) ;
-  gtk_object_set_data (GTK_OBJECT (file_selection_dialog.fileselection), "pszFName", pszFName) ;
-  gtk_object_set_data (GTK_OBJECT (file_selection_dialog.fileselection), "pcb", &cb) ;
-  gtk_object_set_data (GTK_OBJECT (file_selection_dialog.fileselection), "pbRet", &bRet) ;
-  show_dialog_blocking (file_selection_dialog.fileselection) ;
-  return bRet ;
+  if (bOverwritePrompt)
+    handlerID = g_signal_connect (G_OBJECT (GTK_FILE_SELECTION (file_selection)->ok_button),
+      "button_release_event", G_CALLBACK (filesel_ok_button_activate), file_selection) ;
+
+  if ((GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (file_selection))))
+    pszRet = g_strdup_printf ("%s", gtk_file_selection_get_filename (GTK_FILE_SELECTION (file_selection))) ;
+  gtk_widget_hide (file_selection) ;
+  
+  if (bOverwritePrompt)
+    g_signal_handler_disconnect (G_OBJECT (GTK_FILE_SELECTION (file_selection)->ok_button), handlerID) ;
+
+  return pszRet ;
   }
 
-void create_file_selection_dialog(file_select *select){
-	if (NULL != select->fileselection) return ;
-
-	select->fileselection = gtk_file_selection_new("Select File");
-	gtk_window_set_modal (GTK_WINDOW (select->fileselection), TRUE) ;
-	
-	select->ok_button = GTK_FILE_SELECTION(select->fileselection)->ok_button;
-	select->cancel_button = GTK_FILE_SELECTION(select->fileselection)->cancel_button;
-	
-	gtk_file_selection_set_filename(GTK_FILE_SELECTION(select->fileselection), "project.qca");
-	
-	gtk_widget_show(select->fileselection);
-
-	gtk_signal_connect_object (GTK_OBJECT(select->fileselection), "delete_event",
-	(GtkSignalFunc)gtk_widget_hide, GTK_OBJECT (select->fileselection));
-	
-	gtk_signal_connect (GTK_OBJECT(select->cancel_button), "clicked",
-	(GtkSignalFunc)file_selection_cancel_button_clicked, GTK_OBJECT (select->fileselection));
-
-	gtk_signal_connect (GTK_OBJECT(select->ok_button), "clicked",
-	(GtkSignalFunc)file_selection_ok_button_clicked, GTK_OBJECT (select->fileselection));
-}
-
-void file_selection_ok_button_clicked(GtkWidget *widget, gpointer data)
+static gboolean filesel_ok_button_activate (GtkWidget *widget, GdkEventButton *ev, gpointer data)
   {
-  GtkObject *pobj = GTK_OBJECT (data) ;
-  char *pszFName = gtk_object_get_data (pobj, "pszFName") ;
-  int *pcb = gtk_object_get_data (pobj, "pcb") ;
-  gboolean *pbRet = gtk_object_get_data (pobj, "pbRet") ;
-  char *pszFileSel = gtk_file_selection_get_filename (GTK_FILE_SELECTION (data)) ;
+  char *pszFName = g_strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (data))) ;
   
-  DBG_FSW (fprintf (stderr, "pszFName = 0x%08X\n", (int)pszFName)) ;
+  if (g_file_test (pszFName, G_FILE_TEST_EXISTS))
+    {
+    int resp = GTK_RESPONSE_CANCEL ;
+    GtkWidget *msg = gtk_message_dialog_new (GTK_WINDOW (data), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, "A file named \"%s\" already exists.\nDo you want to replace it with the one you are saving ?", pszFName) ;
+    
+    gtk_dialog_add_button (GTK_DIALOG (msg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
+    gtk_dialog_add_action_widget (GTK_DIALOG (msg), gtk_button_new_with_stock_image (GTK_STOCK_REFRESH, "Replace"), GTK_RESPONSE_OK) ;
+    resp = gtk_dialog_run (GTK_DIALOG (msg)) ;
+    gtk_widget_hide (msg) ;
+    gtk_widget_destroy (msg) ;
+    
+    if (GTK_RESPONSE_OK != resp)
+      gtk_button_released (GTK_BUTTON (widget)) ;
+    else
+      gtk_button_clicked (GTK_BUTTON (widget)) ;
+    g_free (pszFName) ;
+    return (GTK_RESPONSE_OK != resp) ;
+    }
   
-  g_snprintf (pszFName, *pcb, "%s", pszFileSel) ;
-  *pbRet = TRUE ;
-  gtk_widget_hide (GTK_WIDGET (data)) ;
-  }
-
-void file_selection_cancel_button_clicked(GtkWidget *widget, gpointer data)
-  {
-  GtkObject *pobj = GTK_OBJECT (data) ;
-  char *pszFName = gtk_object_get_data (pobj, "pszFName") ;
-  int *pcb = gtk_object_get_data (pobj, "pcb") ;
-  gboolean *pbRet = gtk_object_get_data (pobj, "pbRet") ;
-  
-  if (*pcb > 0)
-  pszFName[0] = 0 ; /* Kill whatever string was stored in the user-provided buffer */
-  *pbRet = FALSE ;
-  gtk_widget_hide (GTK_WIDGET (data)) ;
+  g_free (pszFName) ;
+  return FALSE ;
   }

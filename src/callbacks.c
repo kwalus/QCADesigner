@@ -25,12 +25,10 @@
 #endif
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-#include "globals.h"
 #include "callbacks.h"
 #include "interface.h"
 #include "support.h"
@@ -38,10 +36,14 @@
 #include "simulation.h"
 #include "cad.h"
 #include "fileio.h"
+#include "fileio_helpers.h"
 #include "print_preview.h"
 #include "print.h"
 #include "recent_files.h"
 #include "vector_table.h"
+#include "undo_redo.h"
+#include "undo_create.h"
+#include "callback_helpers.h"
 
 // dialogs and windows used //
 #include "about.h"
@@ -49,1602 +51,851 @@
 #include "project_properties_dialog.h"
 #include "cell_properties_dialog.h"
 #include "grid_spacing_dialog.h"
+#include "scale_dialog.h"
 #include "print_properties_dialog.h"
 #include "sim_engine_setup_dialog.h"
-#include "fixed_polarization_dialog.h"
 #include "clock_select_dialog.h"
-#include "name_dialog.h"
 #include "sim_type_setup_dialog.h"
 #include "graph_dialog.h"
 #include "random_fault_setup_dialog.h"
-#include "message_box.h"
 #include "command_history.h"
+#include "custom_widgets.h"
+#include "scale_dialog.h"
+#include "cell_function_dialog.h"
 
-#define DBG_CB(s) s
+#define DBG_CB(s)
+#define DBG_CB_HERE(s)
 
 #define NUMBER_OF_RULER_SUBDIVISIONS 3
 
-static int show_grid_backup ;
+// Store the graphics context globally and pass it to each drawing function
+static GdkGC *global_gc = NULL;
 
-//!Currently selection action to perform by the CAD interface (ex Move Cell)
-static int selected_action = SELECT_CELL;
+static DESIGN design = {NULL, NULL} ;
 
-//!Wether or not to listen to the motion of the mouse.
-static gint listen_motion = FALSE;
+// This is turned off during panning
+static gboolean bSynchRulers = TRUE ;
 
-//!If cells are moved onto other cells this flag will be set.
-static int INVALID_MOVE = FALSE;
-
-//!Current simulation engine.
-static int SIMULATION_ENGINE = BISTABLE;
-
-//!The top X coordinate of the selection window.
-static int window_top_x;
-
-//!The top Y coordinate of the selction window.
-static int window_top_y;
-
-//!Used to keep track of the old top x position of the seletion window
-static int prev_window_top_x;
-
-//!Used to keep track of the old top y position of the seletion window
-static int prev_window_top_y;
-
-//!The width of the selction window.
-static int window_width;
-
-//!The height of the selction window.
-static int window_height;
-
-//!Maximum random response function shift.
-static float max_response_shift = 0.0;
-
-//!Probability that a design cell will be affected by the random response function shift.
-static float affected_cell_probability = 0.0;
-
-static int current_button = 0 ;
-
-//!Has the design been altered ?
-static gboolean bDesignAltered = FALSE ;
-
-//!Current project file name.
-char current_file_name[PATH_LENGTH] = "" ;
-
+static print_design_OP print_options =
+  {{612, 792, 72, 72, 72, 72, TRUE, NULL}, 3, TRUE, FALSE, TRUE, NULL, 0, 1, 1} ;
+  
 VectorTable *pvt = NULL ;
 
-extern print_OP print_options ;
 extern cell_OP cell_options ;
+extern double subs_width ;
+extern double subs_height ;
+extern main_W main_window ;
+extern double grid_spacing ;
+extern int AREA_WIDTH ;
+extern int AREA_HEIGHT ;
 
-void draw_pan_arrow (int x1, int y1, int x2, int y2) ;
-void get_arrow_head_coords (int x1, int y1, int x2, int y2, int length, int *px, int *py, int deg) ;
+static project_OP project_options =
+  {
+  {0, 0x0000, 0xffff, 0xffff},   // clrCyan
+  {0, 0xffff, 0xffff, 0xffff},   // clrWhite
+//!Currently selection action to perform by the CAD interface (ex Move Cell)
+  ACTION_DEFAULT,           // selected_action
+//!Current simulation engine.
+  BISTABLE,                 // SIMULATION_ENGINE
+//!Maximum random response function shift.
+  0.0,                      // max_response_shift
+//!Probability that a design cell will be affected by the random response function shift.
+  0.0,                      // affected_cell_probability
+//!Has the design been altered ?
+  FALSE,                    // bDesignAltered
+//!Currently selected cell type
+  1,                        // selected_cell_type
+//!General CAD options
+  TRUE,                     // SHOW_GRID
+  TRUE,                     // SNAP_TO_GRID
+//!Current project file name.
+  NULL,                     // pszCurrentFName
+//!Pointer to the cell which was clicked on when moving many cells.
+//!This is the cell that is kept under the pointer when many are moved.
+  NULL,                     // window_move_selected_cell
+// an area of selected cells used in window selection and also in simulation for all cells within a radius //
+  NULL,                     // selected_cells
+  0,                        // number_of_selected_cells
+//!Current simulation type.
+  EXHAUSTIVE_VERIFICATION,
+// When copying cells or importing a block, the newly created cells must first be placed
+// before they can be added to the undo stack.  Upon dropping them onto the design without
+// overlap, when set, this variable causes a "Create" event to be added to the undo stack,
+// rather than a "Move" event.
+  FALSE,
+// The vector table
+  NULL
+  } ;
+
 void setup_rulers () ;
-void gcs_set_rop (GdkFunction func) ;
-void set_selected_action (int action, int cell_type) ;
-void set_ruler_scale (GtkRuler *ruler, double dXLower, double dYLower) ;
-gboolean do_save () ;
+static void set_ruler_scale (GtkRuler *ruler, double dXLower, double dYLower) ;
+static void tabula_rasa (GtkWindow *wndMain) ; /* "Clean slate" - reset QCADesigner for a new project */
+static void move_selected_cells_to_pointer () ;
+void release_selection () ;
+static void set_clock_for_selected_cells(int selected_clock) ;
+static gboolean DoSave (GtkWindow *parent, gboolean bSaveAs) ;
+static gboolean SaveDirtyUI (GtkWindow *parent, char *szMsg) ;
+static void fill_layers_combo (main_W *wndMain, DESIGN *pDesign) ;
+static void remove_single_item (GtkWidget *item, gpointer data) ;
+static GtkWidget *add_layer_to_combo (GtkCombo *combo, LAYER *layer) ;
+static void layer_status_change (GtkWidget *widget, gpointer data) ;
+static void layer_selected (GtkWidget *widget, gpointer data) ;
+static gboolean redraw_async_cb (GtkWidget *widget) ;
+void redraw_async (GtkWidget *widget) ;
+static gboolean bHaveIdler = FALSE ;
+static void change_cursor (GtkWidget *widget, GdkCursor *new_cursor) ;
+
+void main_window_show (GtkWidget *widget, gpointer data)
+  {
+  global_gc = gdk_gc_new (main_window.drawing_area->window) ;
+  
+  // This vector table is NEVER CLEARED ! Attach the appropriate signal and clear it there
+  // (like destory_event, or hide, or something)
+  pvt = project_options.pvt = VectorTable_new () ;
+
+  fill_recent_files_menu (main_window.recent_files_menu, GTK_SIGNAL_FUNC (file_operations), (gpointer)FILEOP_OPEN_RECENT) ;
+
+  gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrWhite)) ;
+  gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrCyan)) ;
+  print_options.pbPrintedObjs = malloc (3 * sizeof (gboolean)) ;
+  print_options.icPrintedObjs = 3 ;
+  print_options.pbPrintedObjs[PRINTED_OBJECTS_CELLS] = TRUE ;
+  print_options.pbPrintedObjs[PRINTED_OBJECTS_DIE] = FALSE ;
+  print_options.pbPrintedObjs[PRINTED_OBJECTS_COLOURS] = TRUE ;
+  
+  // Initialize the design
+  design.first_layer = malloc (sizeof (LAYER)) ;
+  design.first_layer->type = LAYER_TYPE_CELLS ;
+  design.first_layer->status = LAYER_STATUS_ACTIVE ;
+  design.first_layer->pszDescription = g_strdup_printf ("%s", "Main Cell Layer") ;
+  design.first_layer->first_obj = 
+  design.first_layer->last_obj = NULL ;
+  design.first_layer->prev = NULL ;
+  design.first_layer->next =
+  design.last_layer = malloc (sizeof (LAYER)) ;
+  design.last_layer->type = LAYER_TYPE_CLOCKING ;
+  design.last_layer->status = LAYER_STATUS_ACTIVE ;
+  design.last_layer->pszDescription = g_strdup_printf ("%s", "Main Clocking Layer") ;
+  design.last_layer->first_obj = 
+  design.last_layer->last_obj = NULL ;
+  design.last_layer->prev = design.first_layer ;
+  design.last_layer->next = NULL ;
+
+  fill_layers_combo (&main_window, &design) ;
+  
+  action_button_clicked (main_window.default_action_button, (gpointer)run_action_DEFAULT) ;
+  
+  gtk_paned_set_position (GTK_PANED (main_window.vpaned1), gtk_paned_get_position (GTK_PANED (main_window.vpaned1))) ;
+  }
 
 // This function gets called during a resize
 gboolean main_window_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
   {
+  DBG_CB_HERE (fprintf (stderr, "Entering main_window_configure_event\n")) ;
   setup_rulers () ;
   // This function needs to return a value.
   // this is the source of one of the compiler warnings.
-  return TRUE;
+  return FALSE;
   }
 
-// motion notify is called whenever the mouse is moved above the drawing area //
-// used to track all mouse motion in the drawing area //
-gboolean motion_notify_event(GtkWidget * widget, GdkEventMotion * event, gpointer user_data){
+gboolean synchronize_rulers (GtkWidget *widget, GdkEventMotion *event, gpointer user_data)
+  {
+  if (!bSynchRulers) return FALSE ;
+  propagate_motion_to_rulers (widget, event) ;
+  return FALSE;
+  }
 
-    int x;
-    int y;
-    int top_x;
-    int top_y;
-
-    float offset_x;
-    float offset_y;
-    
-    int i;
-
-    GdkModifierType state;
-    
-    GdkEventMotion *pevVRule = NULL ;
-    GdkEventMotion *pevHRule = NULL ;
-    
-	// listen_motion is triggered whenever the mouse needs to be tracked //
-	// example: when the user wants to zoom window the user clicks and holds the middle mouse button //
-	// when this button is clicked the listen_motion flag is set and the mouse is tracked //
-	// when the user releases the middle mouse button the flag is released and the mouse is no longer tracked //
-
-    if (listen_motion) {
-		
-		// get the current mouse position variables and its state ie which buttons are pressed //
-		gdk_window_get_pointer(event->window, &x, &y, &state);
-		
-		if (1 == current_button) {
-	
-		// switch acording to the current selected action //
-		switch (selected_action) {
-	
-		case MOVE_CELL:
-	
-			// -- if there are cells selected for move -- //
-			if (number_of_selected_cells > 0) {
-			
-			gcs_set_rop(GDK_XOR);
-			redraw_selected_cells();
-			gcs_set_rop(GDK_COPY);	
-				
-			assert(selected_cells != NULL && window_move_selected_cell != NULL);
-	
-			if (SNAP_TO_GRID) {
-				offset_x = grid_world_x(calc_world_x(x)) - window_move_selected_cell->x;
-				offset_y = grid_world_y(calc_world_y(y)) -
-				window_move_selected_cell->y;
-			} else {
-				offset_x = calc_world_x(x) - window_move_selected_cell->x;
-				offset_y = calc_world_y(y) - window_move_selected_cell->y;
-			}
-	
-			for (i = 0; i < number_of_selected_cells; i++)
-				move_cell_by_offset(selected_cells[i], offset_x, offset_y);
-			}
-	
-			gcs_set_rop(GDK_XOR);
-			redraw_selected_cells();
-			gcs_set_rop(GDK_COPY);
-			
-			break;
-	
-	
-		case SELECT_CELL:
-	
-			// -- draw the selection window as the mouse is being moved -- //
-	
-			// In order to speed up redrawing I do not redraw the entire background //
-			// Instead i draw a black rectangle over where the previous window was then redraw the contents of the design //
-			// with a new white window in the current mouse position //
-			gdk_draw_rectangle(widget->window, widget->style->black_gc,
-					   FALSE, prev_window_top_x, prev_window_top_y,
-					   window_width, window_height);
-	
-			// Determine the true top coords, because the user could have stretched the window upward not downward.
-			if (x < window_top_x) {
-			top_x = x;
-			x = window_top_x;
-			} else {
-			top_x = window_top_x;
-			}
-	
-			if (y < window_top_y) {
-			top_y = y;
-			y = window_top_y;
-	
-			} else {
-			top_y = window_top_y;
-			}
-	
-			// record the window parameters that the black window can be drawn next iteration.
-			prev_window_top_x = top_x;
-			prev_window_top_y = top_y;
-			window_width = x - top_x;
-			window_height = y - top_y;
-	
-			// Draw the white selection window
-			gdk_draw_rectangle(widget->window, widget->style->white_gc,
-					   FALSE, top_x, top_y, window_width,
-					   window_height);
-	
-			redraw_contents(0, 0);
-	
-			break;
-	
-		case DRAW_CELL_ARRAY:
-	
-			// set up the color //
-			global_colormap = gdk_colormap_get_system();
-			global_gc = gdk_gc_new(widget->window);
-	
-			global_color.red = 0;
-			global_color.green = 0xFFFF;
-			global_color.blue = 0xFFFF;
-	
-			gdk_color_alloc(global_colormap, &global_color);
-			gdk_gc_set_foreground(global_gc, &global_color);
-			gdk_gc_set_background(global_gc, &global_color);
-	
-			// draw over the old coords with GDK_XOR to erase the old array cells //
-			if(!(array_x0 == array_x1 && array_y0 == array_y1)){
-				if (abs(array_x0 - array_x1) >= abs(array_y0 - array_y1)) {
-					
-					array_y1 = array_y0;
-					draw_temp_array(array_x0, array_y0, array_x1, array_y0);
-		
-				} else {
-					
-					array_x1 = array_x0;
-					draw_temp_array(array_x0, array_y0, array_x0, array_y1);
-		
-				}
-			}
-			
-			// set the second point of the line to the current mouse position //
-			array_x1 = event->x;
-			array_y1 = event->y;
-	
-			// -- draw a temporary horizontal array -- //
-			if (abs(array_x0 - array_x1) >= abs(array_y0 - array_y1)) {
-				
-				array_y1 = array_y0;
-				draw_temp_array(array_x0, array_y0, array_x1, array_y0);
-	
-			// -- Draw a temporary vertical array -- //
-			} else {
-				
-				array_x1 = array_x0;
-				draw_temp_array(array_x0, array_y0, array_x0, array_y1);
-	
-			}
-	
-			break;
-	
-		case MIRROR_CELLS:
-	
-			// set up the color //
-			global_colormap = gdk_colormap_get_system();
-			global_gc = gdk_gc_new(widget->window);
-	
-			global_color.red = 0;
-			global_color.green = 0xFFFF;
-			global_color.blue = 0xFFFF;
-	
-			gdk_color_alloc(global_colormap, &global_color);
-			gdk_gc_set_foreground(global_gc, &global_color);
-			gdk_gc_set_background(global_gc, &global_color);
-	
-			// set the second point of the line to the current mouse position //
-			mirror_x1 = event->x;
-			mirror_y1 = event->y;
-	
-			// -- Draw a Horizontal Line -- //
-			if (abs(mirror_x0 - mirror_x1) >= abs(mirror_y0 - mirror_y1)) {
-			gdk_draw_line(widget->window, global_gc, mirror_x0,
-					  mirror_y0, mirror_x1, mirror_y0);
-	
-	
-			// -- Draw a Vertical Line -- //
-			} else {
-			gdk_draw_line(widget->window, global_gc, mirror_x0,
-					  mirror_y0, mirror_x0, mirror_y1);
-	
-			}
-	
-			break;
-	
-		case MEASURE_DISTANCE:
-	
-			//redraw_world();
-			
-			//draw over the old ruler with XOR
-			if(!(dist_x0 == dist_x1 && dist_y0 == dist_y1))draw_ruler(dist_x0, dist_y0, dist_x1, dist_y1);
-			
-			// set the second point of the line to the current mouse position //
-			dist_x1 = event->x;
-			dist_y1 = event->y;
-			
-			//draw the new ruler
-			draw_ruler(dist_x0, dist_y0, dist_x1, dist_y1);
-			
-			
-			break;
-		
-		case PAN:
-		  draw_pan_arrow (dist_x0, dist_y0, dist_x1, dist_y1) ;
-		  
-//		  fprintf (stderr, "dist_x1 - dist_x0 = %d\ndist_y1 - dist_y0 = %d\n",
-//		    dist_x1 - dist_x0, dist_y1 - dist_y0) ;
-		  
-//		  redraw_contents (dist_x1 - dist_x0, dist_y1 - dist_y0) ;
-		  dist_x1 = event->x ;
-		  dist_y1 = event->y ;
-//		  redraw_contents (dist_x1 - dist_x0, dist_y1 - dist_y0) ;
-		  draw_pan_arrow (dist_x0, dist_y0, dist_x1, dist_y1) ;
-		  break ;
-	
-		default:
-	
-			// In order to speed up redrawing I do not redraw the entire background //
-			// Instead i draw a black rectangle over where the previous window was then redraw the contents of the design //
-			// with a new white window in the current mouse position //
-			gdk_draw_rectangle(widget->window, widget->style->black_gc,
-					   FALSE, prev_window_top_x, prev_window_top_y,
-					   window_width, window_height);
-	
-			// Determine the true top coords, because the user could have stretched the window upward not downward.
-			if (x < window_top_x) {
-			top_x = x;
-			x = window_top_x;
-			} else {
-			top_x = window_top_x;
-			}
-	
-			if (y < window_top_y) {
-			top_y = y;
-			y = window_top_y;
-	
-			} else {
-			top_y = window_top_y;
-			}
-	
-			// record the window parameters that the black window can be drawn next iteration.
-			prev_window_top_x = top_x;
-			prev_window_top_y = top_y;
-			window_width = x - top_x;
-			window_height = y - top_y;
-	
-			// Draw the white selection window
-			gdk_draw_rectangle(widget->window, widget->style->white_gc,
-					   FALSE, top_x, top_y, window_width,
-					   window_height);
-	
-			redraw_contents(0, 0);
-		}
-		} // if (1 == current_button)
-		else if (2 == current_button)
-			{
-			// In order to speed up redrawing I do not redraw the entire background //
-			// Instead i draw a black rectangle over where the previous window was then redraw the contents of the design //
-			// with a new white window in the current mouse position //
-			gdk_draw_rectangle(widget->window, widget->style->black_gc,
-					   FALSE, prev_window_top_x, prev_window_top_y,
-					   window_width, window_height);
-	
-			// Determine the true top coords, because the user could have stretched the window upward not downward.
-			if (x < window_top_x) {
-			top_x = x;
-			x = window_top_x;
-			} else {
-			top_x = window_top_x;
-			}
-	
-			if (y < window_top_y) {
-			top_y = y;
-			y = window_top_y;
-	
-			} else {
-			top_y = window_top_y;
-			}
-	
-			// record the window parameters that the black window can be drawn next iteration.
-			prev_window_top_x = top_x;
-			prev_window_top_y = top_y;
-			window_width = x - top_x;
-			window_height = y - top_y;
-	
-			// Draw the white selection window
-			gdk_draw_rectangle(widget->window, widget->style->white_gc,
-					   FALSE, top_x, top_y, window_width,
-					   window_height);
-	
-			redraw_contents(0, 0);
-			} // if (2 == current_button)
-    }				//if listen_motion
-
-    // Pass this motion event onto the two rulers
-    
-    pevVRule = (GdkEventMotion *)gdk_event_copy ((GdkEvent *)event) ;
-    pevVRule->window = (main_window.vertical_ruler)->window ;
-    
-    pevHRule = (GdkEventMotion *)gdk_event_copy ((GdkEvent *)event) ;
-    pevHRule->window = (main_window.horizontal_ruler)->window ;
-    
-    gtk_main_do_event ((GdkEvent *)pevVRule) ;
-    gtk_main_do_event ((GdkEvent *)pevHRule) ;
-    return FALSE;
-}
-
-gboolean button_release_event(GtkWidget * widget, GdkEventButton * event, gpointer user_data)
-{
-
-    float offset_x;
-    float offset_y;
-    int i, j;
-
- current_button = 0;
-    if (event->button == 1) {
-      switch (selected_action)
-        {
-	case MOVE_CELL:
-
-	  listen_motion = FALSE;
-
-	  if (number_of_selected_cells > 0) {
-
-	      if (SNAP_TO_GRID) {
-		  	offset_x = grid_world_x(calc_world_x(event->x)) - window_move_selected_cell->x;
-		  	offset_y = grid_world_y(calc_world_y(event->y)) - window_move_selected_cell->y;
-	      } else {
-		  	offset_x = calc_world_x(event->x) - window_move_selected_cell->x;
-		  	offset_y = calc_world_y(event->y) - window_move_selected_cell->y;
-	      }
-
-
-	      for (j = 0; j < number_of_selected_cells; j++) {
-
-		  assert(selected_cells[j] != NULL);
-
-		  // check to make sure that we are not moving a cell onto another cell //                
-		  if (select_cell_at_coords_but_not_this_one (offset_x + selected_cells[j]->x, offset_y + selected_cells[j]->y, selected_cells[j]) != NULL) {
-		      // write message to the command history window //
-      	      	      command_history_message ("Cannot move this group of cells to this location, due to exact overlap of at least one of the cells\n") ;
-
-		      listen_motion = TRUE;
-
-		      INVALID_MOVE = TRUE;
-
-		      return 0;
-		  }
-	      }
-
-	      // move all the selected cells by the offset value //           
-	      for (i = 0; i < number_of_selected_cells; i++)
-		  move_cell_by_offset(selected_cells[i], offset_x, offset_y);
-
-	      clean_up_colors();
-
-	      number_of_selected_cells = 0;
-	      window_move_selected_cell = NULL;
-
-	      free(selected_cells);
-	      selected_cells = NULL;
-	      bDesignAltered = TRUE ;
-	      redraw_world();
-	}			//if number_selected_cells > 0
-      	  break ;
-    
-    case PAN:
-      {
-      set_selected_action (SELECT_CELL, selected_cell_type) ;
-      draw_pan_arrow (dist_x0, dist_y0, dist_x1, dist_y1) ;
-//      redraw_contents (dist_x1 - dist_x0, dist_y1 - dist_y0) ;
-//      redraw_contents (event->x - dist_x0, event->y - dist_y0) ;
-      gcs_set_rop (GDK_COPY) ;
-      listen_motion = FALSE ;
-      subs_top_x += (event->x - dist_x0) ;
-      subs_top_y += (event->y - dist_y0) ;
-      setup_rulers () ;
-      SHOW_GRID = show_grid_backup ;
-      redraw_world () ;
-      break ;
-      }
-
-    case DRAW_CELL_ARRAY:
-		
-	set_colors(GREEN);
-	gdk_gc_set_function(global_gc, GDK_COPY);	
-	
-	create_array_of_cells(array_x0, array_y0, array_x1, array_y1);
-
-	listen_motion = FALSE;
-//	set_selected_action (SELECT_CELL, selected_cell_type) ;
-	bDesignAltered = TRUE ;
-	redraw_world();
-	break ;
-
-
-    case MIRROR_CELLS:
-    
-	listen_motion = FALSE;
-	set_selected_action (SELECT_CELL, selected_cell_type) ;
-
-	if (abs(mirror_x0 - mirror_x1) >= abs(mirror_y0 - mirror_y1)) {
-	    mirror_cells_about_line(mirror_x0, mirror_y0, mirror_x1,
-				    mirror_y0);
-	} else {
-	    mirror_cells_about_line(mirror_x0, mirror_y0, mirror_x0,
-				    mirror_y1);
-	}
-	bDesignAltered = TRUE ;
-	redraw_world();
-	break ;
-
-    case MEASURE_DISTANCE:
-
-	listen_motion = FALSE;
-	set_selected_action (SELECT_CELL, selected_cell_type) ;
-	redraw_world();
-	break ;
-
-    case SELECT_CELL:
-
-	listen_motion = FALSE;
-	select_cells_in_window(zoom_top_x, zoom_top_y, event->x, event->y);
-	if (number_of_selected_cells > 0)
-          update_clock_select_dialog (get_clock_from_selected_cells ()) ;
-	redraw_world();
-	break ;
+gboolean scroll_event(GtkWidget *widget, GdkEventScroll *event, gpointer user_data)
+  {
+  DBG_CB_HERE (fprintf (stderr, "Entering scroll_event\n")) ;
+  if (GDK_SCROLL_UP == event->direction) /* Mouse wheel clicked away from the user */
+    {
+    if (event->state & GDK_CONTROL_MASK)
+      pan (10 * PAN_STEP, 0) ;
+    else
+      pan (0, 10 * PAN_STEP) ;
+    redraw_async (widget) ;
+    setup_rulers () ;
     }
-  } else if ((event->button == 1 || event->button == 3)
-	       && selected_action == CLEAR) {
-
-	set_selected_action (SELECT_CELL, selected_cell_type) ;
-
-    } else if (event->button == 2) {
-	listen_motion = FALSE;
-	zoom_bottom_x = event->x;
-	zoom_bottom_y = event->y;
-	zoom_window(zoom_top_x, zoom_top_y, zoom_bottom_x, zoom_bottom_y);
-	setup_rulers () ;
-
+  else if (GDK_SCROLL_DOWN == event->direction) /* Mouse wheel clicked towards the user */
+    {
+    if (event->state & GDK_CONTROL_MASK)
+      pan (-10 * PAN_STEP, 0) ;
+    else
+      pan (0, -10 * PAN_STEP) ;
+    redraw_async (widget) ;
+    setup_rulers () ;
     }
+  return FALSE ;
+  }
+
+gboolean expose_event(GtkWidget * widget, GdkEventExpose *event, gpointer user_data)
+{
+    DBG_CB_HERE (fprintf (stderr, "Entering expose_event\n")) ;
     
-    else if (event->button == 4) /* Mouse wheel clicked away from the user */
-      {
-      if (event->state & GDK_CONTROL_MASK)
-        pan_left (10) ;
-      else
-        pan_up (10) ;
-      setup_rulers () ;
-      }
-    else if (event->button == 5) /* Mouse wheel clicked towards the user */
-      {
-      if (event->state & GDK_CONTROL_MASK)
-        pan_right (10) ;
-      else
-        pan_down (10) ;
-      setup_rulers () ;
-      }
-
-    return FALSE;
-}
-
-gboolean key_press_event(GtkWidget * widget, GdkEventKey * event, gpointer user_data)
-{
-
-    int i;
-    switch (event->keyval) {
-    case GDK_Delete:
-
-	if (number_of_selected_cells > 0) {
-	    for (i = 0; i < number_of_selected_cells; i++)
-	      	{
-		if (selected_cells[i]->is_input)
-		  VectorTable_del_input (pvt, selected_cells[i]) ;
-		delete_stdqcell(selected_cells[i]);
-		}
-
-
-	    free(selected_cells);
-	    selected_cells = NULL;
-	    number_of_selected_cells = 0;
-	    bDesignAltered = TRUE ;
-	    redraw_world();
-	}
-
-	break;
-
-    case GDK_Left:
-	pan_left(1);
-	setup_rulers () ;
-	break;
-
-    case GDK_Up:
-	pan_up(1);
-	setup_rulers () ;
-	break;
-
-    case GDK_Down:
-	pan_down(1);
-	setup_rulers () ;
-	break;
-
-    case GDK_Right:
-	pan_right(1);
-	setup_rulers () ;
-	break;
-	
-	case GDK_w:
-	printf("w");
-	zoom_in();
-	setup_rulers () ;
-	break;
-	
-	case GDK_q:
-
-	zoom_out();
-	setup_rulers () ;
-	break;
-
-    }
-
-    return TRUE;
-}
-
-gboolean button_press_event(GtkWidget * widget, GdkEventButton * event, gpointer user_data)
-{
-    int i = 0, j;
-    int TAG;
-    float offset_x;
-    float offset_y;
-    qcell cell;
-    qcell *cellp;
-		current_button = event->button ;
-    if (event->button == 1) {
-	switch (selected_action) {
-
-	case NONE:
-	    set_selected_action (CLEAR, selected_cell_type) ;
-	    break;
-
-	case DIAG_CELL:
-
-	    if (SNAP_TO_GRID) {
-			cell.x = grid_world_x(calc_world_x(event->x));
-			cell.y = grid_world_y(calc_world_y(event->y));
-	    } else {
-			cell.x = calc_world_x(event->x);
-			cell.y = calc_world_y(event->y);
-	    }
-
-	    add_stdqcell(&cell, TRUE, selected_cell_type);
-	    bDesignAltered = TRUE ;
-      	    clean_up_colors () ;
-	    redraw_world();
-
-	    break;
-
-	case CUSTOM_CELL:
-
-	    if (SNAP_TO_GRID) {
-		cell.x = grid_world_x(calc_world_x(event->x));
-		cell.y = grid_world_y(calc_world_y(event->y));
-	    } else {
-		cell.x = calc_world_x(event->x);
-		cell.y = calc_world_y(event->y);
-	    }
-
-	    // -- create custom dimensions -- //
-	    // *** Default cell is used until I create the custom cell dialog *** //
-	    cell.cell_width = 0;
-	    cell.cell_height = 0;
-	    cell.number_of_dots = 0;
-
-	    add_stdqcell(&cell, TRUE, selected_cell_type);
-      	    clean_up_colors () ;
-	    redraw_world();
-	    bDesignAltered = TRUE ;
-	    break;
-
-	case CELL_PROPERTIES:
-	    set_selected_action (CLEAR, selected_cell_type) ;
-	    break;
-
-	case MOVE_CELL:
-
-	    if (INVALID_MOVE) {
-
-		// turn off the motion listen //
-		listen_motion = FALSE;
-
-		if (number_of_selected_cells > 0) {
-
-		    // debug //
-		    assert(window_move_selected_cell != NULL);
-		    assert(selected_cells != NULL);
-
-		    if (SNAP_TO_GRID) {
-			offset_x =
-			    grid_world_x(calc_world_x(event->x)) -
-			    window_move_selected_cell->x;
-			offset_y =
-			    grid_world_y(calc_world_y(event->y)) -
-			    window_move_selected_cell->y;
-		    } else {
-			offset_x =
-			    calc_world_x(event->x) -
-			    window_move_selected_cell->x;
-			offset_y =
-			    calc_world_y(event->y) -
-			    window_move_selected_cell->y;
-		    }
-
-		    // check if any of the cells will fall on other cells in the design //
-		    for (j = 0; j < number_of_selected_cells; j++) {
-
-			if (select_cell_at_coords_but_not_this_one
-			    (offset_x + selected_cells[j]->x,
-			     offset_y + selected_cells[j]->y,
-			     selected_cells[j]) != NULL) {
-			     
-			     command_history_message ("Cannot move this group of cells to this location, due to exact overlap of at least one of the cells\n") ;
-			    // write message to the command history window //               
-
-			    listen_motion = TRUE;
-
-			    INVALID_MOVE = TRUE;
-
-			    return FALSE;
-			}
-		    }
-
-
-		    // move all the selected cells //
-		    for (i = 0; i < number_of_selected_cells; i++)
-			move_cell_by_offset(selected_cells[i], offset_x, offset_y);
-		    bDesignAltered = TRUE ;
-					
-
-
-		}
-		clean_up_colors();
-
-		free(selected_cells);
-		selected_cells = NULL;
-		number_of_selected_cells = 0;
-		window_move_selected_cell = NULL;
-
-		listen_motion = FALSE;
-		INVALID_MOVE = FALSE;
-		set_selected_action (CLEAR, selected_cell_type) ;
-		redraw_world();
-		return FALSE;
-
-	    }			//if INVALID_MOVE
-
-	    // if no cells have been selected then select the cell at the currnt x,y for moving //
-	    if (number_of_selected_cells == 0) {
-
-		// check to see if there actually is a cell at these coords //
-		if (select_cell_at_coords
-		    (calc_world_x(event->x),
-		     calc_world_y(event->y)) == NULL) return FALSE;
-
-		selected_cells = malloc(sizeof(qcell *));
-		number_of_selected_cells = 1;
-		selected_cells[0] =
-		    select_cell_at_coords(calc_world_x(event->x),
-					  calc_world_y(event->y));
-		selected_cells[0]->color = WHITE;
-		window_move_selected_cell = selected_cells[0];
-
-	    } else {
-
-		window_move_selected_cell =
-		    select_cell_at_coords(calc_world_x(event->x),
-					  calc_world_y(event->y));
-
-		// check to see if the user has actually selected a cell from the selection to move //                                   
-		if (window_move_selected_cell == NULL) {
-		    set_selected_action (SELECT_CELL, selected_cell_type) ;
-		    number_of_selected_cells = 0;
-		    free(selected_cells);
-		    selected_cells = NULL;
-		    set_selected_action (CLEAR, selected_cell_type) ;
-		    clean_up_colors();
-		    redraw_world();
-		    return 0;
-		}
-
-		TAG = TRUE;
-
-		// check to make sure that the selected cell is within all the window selected cells //
-		for (i = 0; i < number_of_selected_cells; i++) {
-		    selected_cells[i]->color = WHITE;
-		    if (selected_cells[i] == window_move_selected_cell) {
-			TAG = FALSE;
-		    }
-		}
-
-		if (TAG == TRUE) {
-		    set_selected_action (SELECT_CELL, selected_cell_type) ;
-		    free(selected_cells);
-		    selected_cells = NULL;
-		    number_of_selected_cells = 0;
-		    window_move_selected_cell = NULL;
-		    set_selected_action (CLEAR, selected_cell_type) ;
-		    clean_up_colors();
-		    redraw_world();
-		    return 0;
-		}
-	    }
-
-	    listen_motion = TRUE;
-
-	    break;
-
-	case MIRROR_CELLS:
-
-	    mirror_x0 = event->x;
-	    mirror_y0 = event->y;
-
-	    listen_motion = TRUE;
-
-	    break;
-	    
-	case MEASURE_DISTANCE:
-
-	    dist_x0 = event->x;
-	    dist_y0 = event->y;
-		dist_x1 = event->x;
-	    dist_y1 = event->y;
-
-	    listen_motion = TRUE;
-
-	    break;
-
-	case DRAW_CELL_ARRAY:
-
-	    array_x0 = event->x;
-	    array_y0 = event->y;
-	    array_x1 = array_x0;
-	    array_y1 = array_y0;
-	
-	    listen_motion = TRUE;
-	    break;
-
-	case SELECT_CELL:
-      	  if (!(event->state & GDK_CONTROL_MASK))
-	    {
-	    free(selected_cells);
-	    selected_cells = NULL;
-	    number_of_selected_cells = 0;
-	    window_move_selected_cell = NULL;
-
-	    window_top_x = event->x;
-	    window_top_y = event->y;
-
-
-	    // reusing the zoom variables should be changed later //
-	    zoom_top_x = event->x;
-	    zoom_top_y = event->y;
-
-	    listen_motion = TRUE;
-	    break;
-	    }
-	  else
-	    set_selected_action (PAN, selected_cell_type) ;
-	    // ... and keep going on to "case PAN:" below ...
-
-        case PAN:
-	    {
-	    if (GDK_2BUTTON_PRESS == event->type || GDK_3BUTTON_PRESS == event->type) break ;
-	    show_grid_backup = SHOW_GRID ;
-	    SHOW_GRID = FALSE ;
-	    dist_x0 = dist_x1 = event->x;
-	    dist_y0 = dist_y1 = event->y;
-	    
-	    gcs_set_rop (GDK_XOR) ;
-//	    draw_grid () ;
-	    draw_pan_arrow (dist_x0, dist_y0, dist_x1, dist_y1) ;
-
-	    listen_motion = TRUE;
-	    break ;
-	    }
-
-	case ROTATE_CELL:
-
-	    cellp =
-		select_cell_at_coords(calc_world_x(event->x),
-				      calc_world_y(event->y));
-
-	    if (cellp != NULL) {
-		rotate_cell(cellp, 3.14159 / 4.0);
-		bDesignAltered = TRUE ;
-		redraw_world();
-
-	    }
-
-	    break;
-
-
-
-	case SELECT_CELL_AS_FIXED:
-
-	    cellp =
-		select_cell_at_coords(calc_world_x(event->x),
-				      calc_world_y(event->y));
-
-	    if (cellp != NULL) {
-	      	double dPolarization = calculate_polarization (cellp) ;
-		get_fixed_polarization_from_user (GTK_WINDOW (main_window.main_window), &dPolarization) ;
-		
-		set_cell_polarization(cellp, dPolarization);
-		set_cell_as_fixed(cellp);
-	
-		set_selected_action (CLEAR, selected_cell_type) ;
-		bDesignAltered = TRUE ;
-		clean_up_colors();
-		redraw_world();
-
-
-	    }
-
-
-	    break;
-
-	case SELECT_CELL_AS_INPUT:
-
-	    cellp = NULL;
-	    cellp =
-		select_cell_at_coords(calc_world_x(event->x),
-				      calc_world_y(event->y));
-
-	    if (cellp != NULL) {
-	        char szName[256] = "" ;
-
-		// write message to the command history window //
-      	      	command_history_message ("Selected cell for input\n") ;
-
-		// set the cell as an input and make its index its input number //
-
-      	      	if (get_name_from_user (GTK_WINDOW (main_window.main_window), szName, 256))
-		  {
-		  set_cell_label (cellp, szName) ;
-		  set_cell_as_input(cellp);
-		  VectorTable_add_input (pvt, cellp) ;
-		  bDesignAltered = TRUE ;
-		  }
-		
-		set_selected_action (CLEAR, selected_cell_type) ;
-		clean_up_colors();
-		redraw_world();
-
-
-	    }
-	    break;
-
-
-
-	case SELECT_CELL_AS_OUTPUT:
-
-	    cellp =
-		select_cell_at_coords(calc_world_x(event->x),
-				      calc_world_y(event->y));
-
-	    if (cellp != NULL) {
-	      	char szName[256] = "" ;
-
-		// write message to the command history window //               
-	        command_history_message ("Selected cell for output\n") ;
-
-      	      	if (get_name_from_user (GTK_WINDOW (main_window.main_window), szName, 256))
-		  {
-  		  set_cell_as_output(cellp);
-  		  set_cell_label (cellp, szName) ;
-		  bDesignAltered = TRUE ;
-		  }
-
-		set_selected_action (CLEAR, selected_cell_type) ;
-		clean_up_colors();
-		redraw_world();
-
-
-	    }
-	    break;
-
-	case CHANGE_INPUT_PROPERTIES:
-
-	    cellp =
-		select_cell_at_coords(calc_world_x(event->x),
-				      calc_world_y(event->y));
-
-	    if (cellp != NULL) {
-		if (cellp->is_input == TRUE) {
-		    char szName[256] = "" ;
-		    g_snprintf (szName, 256, "%s", cellp->label) ;
-		    if (get_name_from_user (GTK_WINDOW (main_window.main_window), szName, 256))
-		      {
-		      set_cell_label (cellp, szName) ;
-		      bDesignAltered = TRUE ;
-		      }
-
-		    set_selected_action (CLEAR, selected_cell_type) ;
-		    redraw_world();
-		}
-
-
-	    }
-	    break;
-
-	case DELETE_CELL:
-
-	    cellp =
-		select_cell_at_coords(calc_world_x(event->x),
-				      calc_world_y(event->y));
-
-	    if (cellp != NULL) {
-	      	if (cellp->is_input)
-		  VectorTable_del_input (pvt, cellp) ;
-		delete_stdqcell(cellp);
-		bDesignAltered = TRUE ;
-		redraw_world();
-	    }
-	    break;
-
-	}			//switch
-
-    }				//if
-
-
-    if (event->button == 2) {
-	listen_motion = TRUE;
-
-	window_top_x = event->x;
-	window_top_y = event->y;
-
-	zoom_top_x = event->x;
-	zoom_top_y = event->y;
-
-    }				//if
-
-    if (event->button == 3) {
-	set_selected_action (CLEAR, selected_cell_type) ;
-    }
-
-
-
-    return FALSE;
-}
-
-gboolean expose_event(GtkWidget * widget, GdkEvent * event,
-		      gpointer user_data)
-{
-//    fprintf (stderr, "expose_event\n") ;
-
     AREA_WIDTH = (int) widget->allocation.width;
     AREA_HEIGHT = (int) widget->allocation.height;
-    redraw_world();
+    
+    gdk_window_begin_paint_region (widget->window, event->region) ;
+    redraw_world (widget->window, global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+    gdk_window_end_paint (widget->window) ;
+    
     return FALSE;
 }
 
-gboolean configure_event(GtkWidget * widget, GdkEvent * event,
-			 gpointer user_data)
+gboolean configure_event(GtkWidget * widget, GdkEvent * event, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering configure_event\n")) ;
     setup_rulers () ;
     return FALSE;
 }
 
 void on_preview_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
-  init_print_options (&print_options, first_cell) ;
-  do_print_preview (&print_options, GTK_WINDOW (main_window.main_window), first_cell) ;
+  DBG_CB_HERE (fprintf (stderr, "Entering on_preview_menu_item_activate\n")) ;
+  init_print_design_options (&print_options, (GQCell *)(design.first_layer->first_obj)) ;
+  do_print_preview ((print_OP *)(&print_options), GTK_WINDOW (main_window.main_window), (void *)(GQCell *)(design.first_layer->first_obj), (PrintFunction)print_world) ;
   }
 
 void on_grid_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_grid_properties_menu_item_activate\n")) ;
   get_grid_spacing_from_user (GTK_WINDOW (main_window.main_window), &grid_spacing) ;
-  redraw_world () ;
+  redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+}
+
+void on_scale_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
+{
+  static double scale = 1.0;
+  GQCell **cell_array = NULL, *cell = NULL ;
+  int icCells = 0, idx = 0 ;
+	
+  DBG_CB_HERE (fprintf (stderr, "Entering on_scale_menu_item_activate\n")) ;
+  get_scale_from_user (GTK_WINDOW (main_window.main_window), &scale) ;
+  
+  if (1.0 == scale) return ;
+  
+  cell = (GQCell *)(design.first_layer->first_obj) ;
+  
+  while (NULL != cell)
+    {
+    icCells++ ;
+    cell = cell->next ;
+    }
+  
+  cell_array = malloc (icCells * sizeof (GQCell *)) ;
+  cell = (GQCell *)(design.first_layer->first_obj) ;
+  
+  while (NULL != cell)
+    {
+    cell_array[idx] = cell ;
+    idx++ ;
+    if (idx == icCells)
+      break ; // We should never get here (tm)
+    cell = cell->next ;
+    }
+  scale_design ((GQCell *)(design.first_layer->first_obj), scale) ;
+
+  gui_add_to_undo (Undo_CreateAction_CellParamChange (cell_array, icCells)) ;
+  
+  free (cell_array) ;
 }
 
 void on_snap_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_snap_properties_menu_item_activate\n")) ;
   }
 
-void on_cell_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
+void on_cell_properties_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data)
   {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_cell_properties_menu_item_activate\n")) ;
   get_cell_properties_from_user (GTK_WINDOW (main_window.main_window), &cell_options) ;
   }
 
 void on_window_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_window_properties_menu_item_activate\n")) ;
   }
 
 void on_layer_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_layer_properties_menu_item_activate\n")) ;
+  }
+
+void on_show_tb_icons_menu_item_activate (GtkMenuItem * menuitem, gpointer user_data)
+  {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_show_tb_icons_menu_item_activate\n")) ;
+  gtk_toolbar_set_style (GTK_TOOLBAR (main_window.toolbar),
+    gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem)) ? 
+    GTK_TOOLBAR_BOTH_HORIZ : GTK_TOOLBAR_TEXT) ;
   }
 
 // toggle the snap to grid option //
 void on_snap_to_grid_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
-  SNAP_TO_GRID = ((GtkCheckMenuItem *) menuitem)->active;
+  DBG_CB_HERE (fprintf (stderr, "Entering on_snap_to_grid_menu_item_activate\n")) ;
+  project_options.SNAP_TO_GRID = ((GtkCheckMenuItem *) menuitem)->active;
   }
 
 // toggle the show grid option //
 void on_show_grid_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
-  SHOW_GRID = ((GtkCheckMenuItem *) menuitem)->active;
-  redraw_world();
+  DBG_CB_HERE (fprintf (stderr, "Entering on_show_grid_menu_item_activate\n")) ;
+  project_options.SHOW_GRID = ((GtkCheckMenuItem *) menuitem)->active;
+  redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
   }
 
 void file_operations (GtkWidget *widget, gpointer user_data)
   {
-  char szFName[PATH_LENGTH] = "project.qca" ;
+  char *pszFName = NULL, *pszCurrent = (NULL == project_options.pszCurrentFName ? "" : project_options.pszCurrentFName) ;
   int fFileOp = (int)user_data ;
-  gboolean bRedraw = FALSE ;
-  
-  if ((OPEN == fFileOp || OPEN_RECENT == fFileOp) && bDesignAltered)
+
+  if (FILEOP_SAVE == fFileOp || FILEOP_SAVE_AS == fFileOp)
     {
-    MBButton mbb = message_box (GTK_WINDOW (main_window.main_window), (MBButton)(MB_YES | MB_NO | MB_CANCEL), "Project Modified",
-      "You have altered your design.  If you open another one, you will lose your changes.  Save first ?") ;
-    if (MB_YES == mbb)
-      {
-      if (!do_save ()) return ;
-      }
-    else if (MB_CANCEL == mbb)
+    DoSave (GTK_WINDOW (main_window.main_window), (FILEOP_SAVE_AS == fFileOp)) ;
+    return ;
+    }
+
+  if (FILEOP_OPEN == fFileOp || FILEOP_OPEN_RECENT == fFileOp || FILEOP_NEW == fFileOp || FILEOP_CLOSE == fFileOp)
+    if (!(SaveDirtyUI (GTK_WINDOW (main_window.main_window),
+      FILEOP_OPEN_RECENT == fFileOp || 
+             FILEOP_OPEN == fFileOp ? "You have made changes to your design.  Opening another design will discard those changes. Save first ?" :
+              FILEOP_NEW == fFileOp ? "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?" :
+                                      "You have made changes to your design.  Closing your design will discard those changes.  Save first ?")))
+      return ;
+  
+  if (!(FILEOP_OPEN     == fFileOp || 
+        FILEOP_IMPORT   == fFileOp || 
+        FILEOP_EXPORT   == fFileOp || 
+        FILEOP_CMDLINE  == fFileOp))
+    tabula_rasa (GTK_WINDOW (main_window.main_window)) ;
+    
+  if (FILEOP_NEW == fFileOp || FILEOP_CLOSE == fFileOp)
+    {
+    redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+    return ;
+    }
+
+  if (FILEOP_OPEN_RECENT == fFileOp)
+    pszFName = g_strdup_printf ("%s", (char *)gtk_object_get_data (GTK_OBJECT (widget), "file")) ;
+  else 
+  if (FILEOP_CMDLINE == fFileOp)
+    pszFName = g_strdup_printf ("%s", (char *)widget) ;
+  else
+    {
+    if (NULL == (pszFName = get_file_name_from_user (GTK_WINDOW (main_window.main_window),
+        FILEOP_OPEN == fFileOp ? "Open Design" :
+      FILEOP_IMPORT == fFileOp ? "Import Block" :
+      FILEOP_EXPORT == fFileOp ? "Export Block" : "????????", pszCurrent, FALSE)))
       return ;
     }
-
-  if (OPEN_RECENT != fFileOp)
+  
+  if (g_file_test (pszFName, G_FILE_TEST_EXISTS) && 
+    !(g_file_test (pszFName, G_FILE_TEST_IS_REGULAR) || 
+      g_file_test (pszFName, G_FILE_TEST_IS_SYMLINK)))
     {
-    if (!get_file_name_from_user (GTK_WINDOW (main_window.main_window), 
-      OPEN == fFileOp ? "Open Project" :
-      SAVE == fFileOp ? "Save Project As" :
-      IMPORT == fFileOp ? "Import Block" :
-      EXPORT == fFileOp ? "Export Block" :
-      "Select File",
-      szFName, PATH_LENGTH)) return ;
+    GtkWidget *msg = NULL ;
+    
+    gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (GTK_WINDOW (main_window.main_window), GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+      "The file \"%s\" is not a regular file.  Maybe it's a directory, or a device file.  Please choose a regular file.", pszFName))) ;
+    gtk_widget_hide (msg) ;
+    gtk_widget_destroy (msg) ;
+    g_free (pszFName) ;
+    return ;
+    }
+  
+  if (FILEOP_OPEN == fFileOp || FILEOP_OPEN_RECENT == fFileOp || FILEOP_CMDLINE == fFileOp)
+    {
+    change_cursor (main_window.main_window, gdk_cursor_new (GDK_WATCH)) ;
+    if (NULL != open_project_file(pszFName, 
+      (GQCell **)(&((design.first_layer->first_obj))), 
+      (GQCell **)(&((design.first_layer->last_obj))), 
+      &grid_spacing))
+      {
+      char *pszTitle = NULL ;
+      VectorTable_fill (pvt, (GQCell *)(design.first_layer->first_obj)) ;
+      add_to_recent_files (main_window.recent_files_menu, pszFName, GTK_SIGNAL_FUNC (file_operations), (gpointer)FILEOP_OPEN_RECENT) ;
+      gtk_window_set_title (GTK_WINDOW (main_window.main_window),
+        pszTitle = g_strdup_printf ("%s - %s", base_name (pszFName), MAIN_WND_BASE_TITLE)) ;
+      g_free (pszTitle) ;
+      if (NULL != project_options.pszCurrentFName)
+        g_free (project_options.pszCurrentFName) ;
+      project_options.pszCurrentFName = pszFName ;
+      if (FILEOP_CMDLINE != fFileOp)
+        redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+      }
+    else
+      {
+      GtkWidget *msg = NULL ;
+      gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (GTK_WINDOW (main_window.main_window), GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+        "Failed to open file \"%s\"!", pszFName))) ;
+      gtk_widget_hide (msg) ;
+      gtk_widget_destroy (msg) ;
+      remove_recent_file (main_window.recent_files_menu, pszFName, GTK_SIGNAL_FUNC (file_operations), (gpointer)FILEOP_OPEN_RECENT) ;
+      g_free (pszFName) ;
+      }
+    change_cursor (main_window.main_window, NULL) ;
+    return ;
     }
   else
-    g_snprintf (szFName, PATH_LENGTH, "%s", (char *)gtk_object_get_data (GTK_OBJECT (widget), "file")) ;
-    
-  if (szFName[0] != 0 && *(base_name (szFName)) != 0)
+  if (FILEOP_EXPORT == fFileOp)
     {
-    switch (fFileOp)
-      {
-      case OPEN_RECENT:
-      case OPEN:
-	// -- Clear all the cells in the current design -- //
-	clear_all_cells();
-	
-	if (NULL != open_project_file(szFName, &first_cell, &last_cell))
-	  {
-	  VectorTable_fill (pvt, first_cell) ;
-	  add_to_recent_files (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
-	  g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
-	  bRedraw = TRUE ;
-	  }
-	else
-	  {
-	  message_box (GTK_WINDOW (main_window.main_window), MB_OK, "Error", "File %s failed to open !", base_name (szFName)) ;
-	  remove_recent_file (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
-	  }
-	break ;
-
-      case SAVE:
-	g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
-	if (!do_save ())
-	  message_box (GTK_WINDOW (main_window.main_window), MB_OK, "Error", "Failed to create file %s !", base_name (szFName)) ;
-	break ;
-
-      case IMPORT:
-	{
-	qcell *pqc = NULL ;
-
-        if (NULL != (pqc = import_block (szFName, &selected_cells, &number_of_selected_cells, &last_cell)))
-	  {
-	  VectorTable_add_inputs (pvt, pqc) ;
-      	  window_move_selected_cell = selected_cells[0];
-	  set_selected_action (MOVE_CELL, -1);
-	  INVALID_MOVE = TRUE;
-	  listen_motion = TRUE;
-	  }
-	break ;
-	}
-
-      case EXPORT:
-	export_block (szFName, selected_cells, number_of_selected_cells) ;
-	break ;
-      }
+    change_cursor (main_window.main_window, gdk_cursor_new (GDK_WATCH)) ;
+    export_block (pszFName, project_options.selected_cells, project_options.number_of_selected_cells, grid_spacing) ;
+    change_cursor (main_window.main_window, NULL) ;
+    g_free (pszFName) ;
+    return ;
     }
-  if (bRedraw) redraw_world () ;
+  else
+  if (FILEOP_IMPORT == fFileOp)
+    {
+    GQCell *pqc = NULL ;
+
+    release_selection () ;
+
+    change_cursor (main_window.main_window, gdk_cursor_new (GDK_WATCH)) ;
+    if (NULL != (pqc = import_block (pszFName, &(project_options.selected_cells), &(project_options.number_of_selected_cells), 
+      (GQCell **)(&((design.first_layer->last_obj))))))
+      {
+      int Nix ;
+
+      for (Nix = 0 ; Nix < project_options.number_of_selected_cells ; Nix++)
+        if (NULL != project_options.selected_cells[Nix])
+          gqcell_select (project_options.selected_cells[Nix]) ;
+
+      if (NULL == (GQCell *)(design.first_layer->first_obj))
+        (GQCell *)(design.first_layer->first_obj) = pqc ;
+      VectorTable_add_inputs (pvt, pqc) ;
+      move_selected_cells_to_pointer () ;
+      project_options.drop_new_cells = TRUE ;
+      move_selected_cells_to_pointer () ;
+      }
+    else
+      {
+      GtkWidget *msg = NULL ;
+      gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (GTK_WINDOW (main_window.main_window), GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+        "Failed to import block from file \"%s\"!", pszFName))) ;
+      gtk_widget_hide (msg) ;
+      gtk_widget_destroy (msg) ;
+      }
+    change_cursor (main_window.main_window, NULL) ;
+    g_free (pszFName) ;
+    return ;
+    }
   }
 
-// allow the user to select an input cell //
-void on_create_input_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-    command_history_message ("Select the cell to be marked as input\n") ;
-    set_selected_action (SELECT_CELL_AS_INPUT, selected_cell_type) ;
-}
-
-void on_input_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-    command_history_message ("Select the cell to edit\n");
-    set_selected_action (CHANGE_INPUT_PROPERTIES, selected_cell_type) ;
-}
-
-void on_connect_output_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-    command_history_message ("Select the cell to be marked as output\n") ;
-    set_selected_action (SELECT_CELL_AS_OUTPUT, selected_cell_type) ;
-}
+void on_cell_function_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data)
+  {
+  command_history_message ("Please select cell to edit...") ;
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.cell_properties_button), TRUE) ;
+  }
 
 void on_clock_select_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-  gtk_widget_show (create_clock_select_dialog(GTK_WINDOW (main_window.main_window))) ;
+  DBG_CB_HERE (fprintf (stderr, "Entering on_clock_select_menu_item_activate\n")) ;
+  gtk_widget_show (create_clock_select_dialog (GTK_WINDOW (main_window.main_window), set_clock_for_selected_cells)) ;
 }
 
-void on_clock_increment_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data){
+void on_clock_increment_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
+{
 
     int i;
 
-    if (number_of_selected_cells > 0) {
-		
-		// -- increment the clock for each of the selected cells -- //
-		for (i = 0; i < number_of_selected_cells; i++) {
-			assert(selected_cells[i] != NULL);
-			
-			selected_cells[i]->clock++;
-			selected_cells[i]->clock %= 4 ;
-		}
-		bDesignAltered = TRUE ;
-		// -- deselect the cells and clean up selected colors -- //
-		clean_up_colors();
-		free(selected_cells);
-		selected_cells = NULL;
-		number_of_selected_cells = 0;
-		redraw_world();
+  DBG_CB_HERE (fprintf (stderr, "Entering on_clock_increment_menu_item_activate\n")) ;
+    if (project_options.number_of_selected_cells > 0) {
+      // -- increment the clock for each of the selected cells -- //
+      for (i = 0; i < project_options.number_of_selected_cells; i++) {
+        g_assert(project_options.selected_cells[i] != NULL);
+
+        project_options.selected_cells[i]->clock++;
+        project_options.selected_cells[i]->clock %= 4 ;
+        
+      }
+      update_clock_select_dialog (get_clock_from_selected_cells (project_options.selected_cells, project_options.number_of_selected_cells)) ;
+      gui_add_to_undo (Undo_CreateAction_CellParamChange (project_options.selected_cells, project_options.number_of_selected_cells)) ;
+      project_options.bDesignAltered = TRUE ;
+    redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
     }
 
 }//on_clock_increment_menu_item_activate
 
-void on_fixed_polarization_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-    command_history_message ("Select the cell whose polarization is to be fixed\n");
-    set_selected_action (SELECT_CELL_AS_FIXED, selected_cell_type) ;
-}
-
-void on_measure_distance_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-    set_selected_action (MEASURE_DISTANCE, selected_cell_type) ;
-}
-
 void on_measurement_preferences1_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_measurement_preferences1_activate\n")) ;
 }
 void on_draw_dimensions_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_draw_dimensions_menu_item_activate\n")) ;
 }
 void on_dimension_properties1_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_dimension_properties1_activate\n")) ;
 }
 void on_draw_text_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_draw_text_menu_item_activate\n")) ;
 }
 void on_text_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_text_properties_menu_item_activate\n")) ;
 }
 void on_draw_arrow_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_draw_arrow_menu_item_activate\n")) ;
 }
 void on_arrow_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_arrow_properties_menu_item_activate\n")) ;
 }
 void on_draw_line_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_draw_line_menu_item_activate\n")) ;
 }
 void on_line_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_line_properties_menu_item_activate\n")) ;
 }
 void on_draw_rectangle_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_draw_rectangle_menu_item_activate\n")) ;
 }
 void on_rectangle_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_rectangle_properties_menu_item_activate\n")) ;
 }
 void on_save_output_to_file_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_save_output_to_file_menu_item_activate\n")) ;
 }
 void on_logging_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_logging_properties_menu_item_activate\n")) ;
 }
 
 void on_simulation_type_setup_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-  get_sim_type_from_user (GTK_WINDOW (main_window.main_window), &SIMULATION_TYPE, pvt) ;
+  DBG_CB_HERE (fprintf (stderr, "Entering on_simulation_type_setup_menu_item_activate\n")) ;
+  get_sim_type_from_user (GTK_WINDOW (main_window.main_window), &(project_options.SIMULATION_TYPE), pvt) ;
 }  //on_simulation_properties_menu_item_activate
 
 void on_simulation_engine_setup_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-get_sim_engine_from_user (GTK_WINDOW (main_window.main_window), &SIMULATION_ENGINE) ;
+  DBG_CB_HERE (fprintf (stderr, "Entering on_simulation_engine_setup_menu_item_activate\n")) ;
+get_sim_engine_from_user (GTK_WINDOW (main_window.main_window), &(project_options.SIMULATION_ENGINE)) ;
 }  //on_simulation_engine_setup_menu_item_activate
 
-void on_zoom_in_menu_item_activate(GtkMenuItem * menuitem,
-				   gpointer user_data)
+void on_zoom_in_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_zoom_in_menu_item_activate\n")) ;
     zoom_in(main_window.drawing_area);
     setup_rulers () ;
+    redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
 }
 
-void on_zoom_out_menu_item_activate(GtkMenuItem * menuitem,
-				    gpointer user_data)
+void on_zoom_out_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_zoom_out_menu_item_activate\n")) ;
     zoom_out(main_window.drawing_area);
     setup_rulers () ;
+    redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
 }
 
 // when activated will zoom to fit the entire die in the window
 void on_zoom_die_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-  zoom_die(main_window.drawing_area);
+  DBG_CB_HERE (fprintf (stderr, "Entering on_zoom_die_menu_item_activate\n")) ;
+  zoom_die ();
   setup_rulers () ;
+  redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
 }
 
 void on_zoom_extents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-  zoom_extents () ;
+  DBG_CB_HERE (fprintf (stderr, "Entering on_zoom_extents_menu_item_activate\n")) ;
+  zoom_extents ((GQCell *)(design.first_layer->first_obj)) ;
   setup_rulers () ;
-}
-
-// when clicked start placing cells each button click //
-void on_insert_type_1_cell_button_clicked(GtkButton * button, gpointer user_data)
-{
-    set_selected_action (DIAG_CELL, selected_cell_type = TYPE_1) ;
-}
-
-void on_insert_type_2_cell_button_clicked(GtkButton * button, gpointer user_data)
-{
-    set_selected_action (DIAG_CELL, selected_cell_type = TYPE_2) ;
-}
-
-void on_insert_cell_array_button_clicked(GtkButton * button, gpointer user_data)
-{
-    set_selected_action (DRAW_CELL_ARRAY, selected_cell_type) ;
+  redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
 }
 
 void on_copy_cell_button_clicked(GtkButton * button, gpointer user_data)
 {
-
-    qcell new_cell;
-    qcell *cell;
     int i;
+    
+  DBG_CB_HERE (fprintf (stderr, "Entering on_copy_cell_button_clicked\n")) ;
+    if (project_options.number_of_selected_cells > 0) {
 
-    if (number_of_selected_cells > 0) {
+      g_assert(project_options.selected_cells != NULL);
+  
+      for (i = 0; i < project_options.number_of_selected_cells; i++) {
+          gqcell_reset_colour (project_options.selected_cells[i]) ;
+          draw_stdqcell (main_window.drawing_area->window, global_gc, project_options.selected_cells[i]) ;
+          project_options.selected_cells[i] = add_stdqcell(
+            (GQCell **)(&((design.first_layer->first_obj))), 
+            (GQCell **)(&((design.first_layer->last_obj))), 
+            project_options.selected_cells[i], FALSE, project_options.selected_cells[i]->x, project_options.selected_cells[i]->y, &cell_options, TYPE_USECELL);
+          gqcell_select (project_options.selected_cells[i]) ;
 
-	assert(selected_cells != NULL);
+          if (project_options.selected_cells[i] == NULL) {
+            printf ("memory allocation error in on_copy_cell_button_clicked\n");
+            exit(1);
+          }
 
-	for (i = 0; i < number_of_selected_cells; i++) {
-
-	    new_cell.x = 0;
-	    new_cell.y = 0;
-
-	    // force default cell //
-	    new_cell.number_of_dots = 0;
-	    new_cell.cell_width = 0;
-	    new_cell.cell_height = 0;
-
-	    cell = add_stdqcell(&new_cell, FALSE, selected_cell_type);
-
-	    if (cell == NULL) {
-		printf ("memory allocation error in on_copy_cell_button_clicked\n");
-		exit(1);
-	    }
-
-	    assert(selected_cells[i] != NULL);
-
-	    cell_copy(cell, selected_cells[i]);
-	    selected_cells[i] = cell;
-	}
-
-	redraw_world();
-	window_move_selected_cell = selected_cells[0];
-	set_selected_action (MOVE_CELL, selected_cell_type) ;
-	INVALID_MOVE = TRUE;
-	listen_motion = TRUE;
-
-    }
-}
-
-void on_move_cell_button_clicked(GtkButton * button, gpointer user_data)
-{
-    set_selected_action (MOVE_CELL, selected_cell_type) ;
-}
-
-void on_rotate_cell_button_clicked(GtkButton * button, gpointer user_data)
-{
-    set_selected_action (ROTATE_CELL, selected_cell_type) ;
-}
-
-void on_mirror_button_clicked(GtkButton * button, gpointer user_data)
-{
-    set_selected_action (MIRROR_CELLS, selected_cell_type) ;
-}
-
-void on_delete_cells_button_clicked(GtkButton * button, gpointer user_data)
-{
-
-    int i;
-
-    // -- if there are cells already selected delete them first -- //
-    if (number_of_selected_cells > 0) {
-	for (i = 0; i < number_of_selected_cells; i++)
-	    {
-	    if (selected_cells[i]->is_input)
-	      VectorTable_del_input (pvt, selected_cells[i]) ;
-	    delete_stdqcell(selected_cells[i]);
-	    bDesignAltered = TRUE ;
-	    }
-
-	// free up the memory from the selected cell array of pointers //
-	free(selected_cells);
-	selected_cells = NULL;
-	number_of_selected_cells = 0 ;
-	window_move_selected_cell = NULL;
-
-	// -- redraw so that the deleted cells disappear from the screen -- //
-	redraw_world();
+          g_assert(project_options.selected_cells[i] != NULL);
     }
 
-    set_selected_action (DELETE_CELL, selected_cell_type) ;
+//    gui_add_to_undo (Undo_CreateAction_CreateCells (project_options.selected_cells, project_options.number_of_selected_cells)) ;
+
+    move_selected_cells_to_pointer () ;
+    project_options.drop_new_cells = TRUE ;
+    }
 }
 
 void on_command_entry_changed(GtkEditable * editable, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_command_entry_changed\n")) ;
 }
-
-void on_new_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-    if (bDesignAltered)
-      {
-      MBButton mbb = message_box (GTK_WINDOW (main_window.main_window), (MBButton)(MB_YES | MB_NO | MB_CANCEL), "Project Modified",
-	"You have altered your design.  If you start a new one, you will lose your changes.  Save first ?") ;
-      if (MB_YES == mbb)
-      	{
-	if (!do_save ()) return ;
-	}
-      else if (MB_CANCEL == mbb)
-      	return ;
-      }
-    current_file_name[0] = 0 ;
-    clear_all_cells();
-    redraw_world();
-    VectorTable_fill (pvt, first_cell) ;
-    bDesignAltered = FALSE ;
-}
-
-void on_save_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-  {
-  do_save () ;
-  }
 
 void on_print_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
-  if (get_print_properties_from_user (GTK_WINDOW (main_window.main_window), &print_options, first_cell))
-    print_world (&print_options, first_cell) ;
+  DBG_CB_HERE (fprintf (stderr, "Entering on_print_menu_item_activate\n")) ;
+  if (get_print_design_properties_from_user (GTK_WINDOW (main_window.main_window), &print_options, (GQCell *)(design.first_layer->first_obj)))
+    print_world (&print_options, (GQCell *)(design.first_layer->first_obj)) ;
   }
 
 void on_project_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_project_properties_menu_item_activate\n")) ;
   get_project_properties_from_user (GTK_WINDOW (main_window.main_window), &subs_width, &subs_height) ;
-  redraw_world () ;
+  redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
   }
 
-void on_close_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{    
-  if (bDesignAltered)
-    {
-      MBButton mbb = message_box (GTK_WINDOW (main_window.main_window), (MBButton)(MB_YES | MB_NO | MB_CANCEL), "Project Modified",
-				  "You have altered your design.  If you close this design, you will lose your changes.  Save first ?") ;
-      if (MB_YES == mbb)
-      	{
-	if (!do_save ()) return ;
-	}
-      else if (MB_CANCEL == mbb)
-      	return ;
-      }
-
-    clear_all_cells () ;
-    redraw_world () ;
-    current_file_name[0] = 0 ;
-    bDesignAltered = FALSE;
-}
-
 // quit QCADesigner selected from menu //
-void on_quit_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-    if (bDesignAltered)
-      {
-      MBButton mbb = message_box (GTK_WINDOW (main_window.main_window), (MBButton)(MB_YES | MB_NO | MB_CANCEL), "Project Modified",
-	"You have altered your design.  If you exit QCADesigner, you will lose your changes.  Save first ?") ;
-      if (MB_YES == mbb)
-      	{
-	if (!do_save ()) return ;
-	}
-      else if (MB_CANCEL == mbb)
-      	return ;
-      }
+gboolean on_quit_menu_item_activate(GtkWidget *main_window, gpointer user_data)
+  {
+  if (!SaveDirtyUI (GTK_WINDOW (main_window),
+    "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"))
+      return TRUE ;
+  else
     gtk_main_quit () ;
-}
+  return FALSE ;
+  }
 
 
 void on_undo_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_undo_menu_item_activate\n")) ;
+  release_selection () ;
+  Undo_Undo () ;
+  gtk_widget_set_sensitive (GTK_WIDGET (menuitem), Undo_CanUndo ()) ;
+  gtk_widget_set_sensitive (main_window.redo_menu_item, Undo_CanRedo ()) ;
+  redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
 }
 void on_redo_meu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_redo_menu_item_activate\n")) ;
+  release_selection () ;
+  Undo_Redo () ;
+  gtk_widget_set_sensitive (GTK_WIDGET (menuitem), Undo_CanRedo ()) ;
+  gtk_widget_set_sensitive (main_window.undo_menu_item, Undo_CanUndo ()) ;
+  redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
 }
 void on_copy_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_copy_menu_item_activate\n")) ;
 }
 void on_cut_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_cut_menu_item_activate\n")) ;
 }
 void on_paste_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_paste_menu_item_activate\n")) ;
 }
+
+void on_delete_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
+{
+  DBG_CB_HERE (fprintf (stderr, "Entering on_delete_menu_item_activate\n")) ;
+  	gui_add_to_undo (Undo_CreateAction_DeleteCells (project_options.selected_cells, project_options.number_of_selected_cells)) ;
+    
+  	// -- if there are cells already selected delete them first -- //
+    gui_delete_cells (project_options.selected_cells, project_options.number_of_selected_cells) ;
+
+    // free up the memory from the selected cell array of pointers //
+    release_selection () ;
+
+    // -- redraw so that the deleted cells disappear from the screen -- //
+    redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+
+}
+
 void on_preferences_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_preferences_menu_item_activate\n")) ;
 }
 void on_start_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-  simulation_data *sim_data = run_simulation(SIMULATION_ENGINE, SIMULATION_TYPE);
+  simulation_data *sim_data = NULL ;
+  
+  DBG_CB_HERE (fprintf (stderr, "Entering on_start_simulation_menu_item_activate\n")) ;
+  change_cursor (main_window.main_window, gdk_cursor_new (GDK_WATCH)) ;
+
+  sim_data = run_simulation(project_options.SIMULATION_ENGINE, project_options.SIMULATION_TYPE, (GQCell *)(design.first_layer->first_obj));
+  
+  change_cursor (main_window.main_window, NULL) ;
+  
   if (NULL != sim_data)
     show_graph_dialog (GTK_WINDOW (main_window.main_window), sim_data) ;
 }
 
 void on_random_fault_setup_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-  get_random_fault_params_from_user (GTK_WINDOW (main_window.main_window), &max_response_shift, &affected_cell_probability) ;
+  DBG_CB_HERE (fprintf (stderr, "Entering on_random_fault_setup_menu_item_activate\n")) ;
+  get_random_fault_params_from_user (GTK_WINDOW (main_window.main_window),
+    &(project_options.max_response_shift), &(project_options.affected_cell_probability)) ;
 }
 
 void on_pause_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_pause_simulation_menu_item_activate\n")) ;
 }
 void on_stop_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_stop_simulation_menu_item_activate\n")) ;
 }
 void on_reset_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_reset_simulation_menu_item_activate\n")) ;
 }
 
 void on_calculate_ground_state_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data){
-	calculate_ground_state(SIMULATION_ENGINE);
+  DBG_CB_HERE (fprintf (stderr, "Entering on_calculate_ground_state_menu_item_activate\n")) ;
+  calculate_ground_state(project_options.SIMULATION_ENGINE);
 }
 
 void on_animate_test_simulation_menu_item_activate(GtkMenuItem *menuitem, gpointer user_data){
+  DBG_CB_HERE (fprintf (stderr, "Entering on_animate_test_simulation_menu_item_activate\n")) ;
 /*
-	nonlinear_approx_options.animate_simulation = 1;
-	run_simulation(SIMULATION_ENGINE);
-	nonlinear_approx_options.animate_simulation = 0;
+  nonlinear_approx_options.animate_simulation = 1;
+  run_simulation(project_options.SIMULATION_ENGINE);
+  nonlinear_approx_options.animate_simulation = 0;
 */
 }
 
 void on_contents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_contents_menu_item_activate\n")) ;
 }
 void on_search_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_search_menu_item_activate\n")) ;
 }
 void on_about_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+  DBG_CB_HERE (fprintf (stderr, "Entering on_about_menu_item_activate\n")) ;
 show_about_dialog (GTK_WINDOW (main_window.main_window), FALSE) ;
 }
+
+void rotate_selection_menu_item_activate (GtkWidget *widget, gpointer user_data)
+  {
+  int Nix ;
+  
+  DBG_CB_HERE (fprintf (stderr, "Entering rotate_selection_item_activate\n")) ;
+  gdk_gc_set_function (global_gc, GDK_XOR) ;
+  redraw_selected_cells (main_window.drawing_area->window, global_gc, 
+    project_options.selected_cells, project_options.number_of_selected_cells) ;
+  gdk_gc_set_function (global_gc, GDK_COPY) ;
+
+  if (project_options.number_of_selected_cells > 0)
+    for (Nix = 0 ; Nix < project_options.number_of_selected_cells ; Nix++)
+      if (NULL != project_options.selected_cells[Nix])
+        gqcell_move_to_location (project_options.selected_cells[Nix], (-1) * project_options.selected_cells[Nix]->y, project_options.selected_cells[Nix]->x) ;
+  
+  
+  move_selected_cells_to_pointer () ;
+  }
+
+static void layer_selected (GtkWidget *widget, gpointer data)
+  {
+  LAYER *layer = (LAYER *)g_object_get_data (G_OBJECT (widget), "layer") ;
+
+  if (NULL == layer) return ;
+
+  if (LAYER_TYPE_CELLS == layer->type)
+    {
+    gtk_widget_hide (main_window.oval_zone_button) ;
+    gtk_widget_hide (main_window.polygon_zone_button) ;
+
+    gtk_widget_show (main_window.insert_type_1_cell_button) ;
+    gtk_widget_show (main_window.insert_type_2_cell_button) ;
+    gtk_widget_show (main_window.cell_properties_button) ;
+    gtk_widget_show (main_window.insert_cell_array_button) ;
+    gtk_widget_show (main_window.copy_cell_button) ;
+    gtk_widget_show (main_window.rotate_cell_button) ;
+    gtk_widget_show (main_window.mirror_button) ;
+    gtk_widget_show (main_window.delete_cells_button) ;
+    }
+  else
+  if (LAYER_TYPE_CLOCKING == layer->type)
+    {
+    gtk_widget_show (main_window.oval_zone_button) ;
+    gtk_widget_show (main_window.polygon_zone_button) ;
+
+    gtk_widget_hide (main_window.insert_type_1_cell_button) ;
+    gtk_widget_hide (main_window.insert_type_2_cell_button) ;
+    gtk_widget_hide (main_window.cell_properties_button) ;
+    gtk_widget_hide (main_window.insert_cell_array_button) ;
+    gtk_widget_hide (main_window.copy_cell_button) ;
+    gtk_widget_hide (main_window.rotate_cell_button) ;
+    gtk_widget_hide (main_window.mirror_button) ;
+    gtk_widget_hide (main_window.delete_cells_button) ;
+    }
+  gtk_widget_queue_draw (main_window.toolbar) ;
+  }
+
+void action_button_clicked (GtkWidget *widget, gpointer data)
+  {
+  static MOUSE_HANDLERS mh = {-1, -1, -1} ;
+  int new_action = (int)data ;
+  
+  if (NULL != widget)
+    {
+    if (GTK_IS_TOGGLE_BUTTON (widget))
+      if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
+        return ;
+    }
+  
+  change_cursor (main_window.drawing_area,
+    run_action_PAN == (ActionHandler)data ? gdk_cursor_new (GDK_FLEUR) : NULL) ;
+  
+  bSynchRulers = (run_action_PAN != (ActionHandler)data) ;
+  
+  if (run_action_DELETE == (ActionHandler)data && project_options.number_of_selected_cells > 0)
+    {
+    gui_add_to_undo (Undo_CreateAction_DeleteCells (project_options.selected_cells, project_options.number_of_selected_cells)) ;
+    gui_delete_cells (project_options.selected_cells, project_options.number_of_selected_cells) ;
+    release_selection () ;
+    redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, 
+      (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+    }
+  
+  if (-1 != mh.lIDButtonPressed)  g_signal_handler_disconnect (main_window.drawing_area, mh.lIDButtonPressed) ;
+  if (-1 != mh.lIDMotionNotify)   g_signal_handler_disconnect (main_window.drawing_area, mh.lIDMotionNotify) ;
+  if (-1 != mh.lIDButtonReleased) g_signal_handler_disconnect (main_window.drawing_area, mh.lIDButtonReleased) ;
+
+  project_options.selected_cell_type =
+    main_window.insert_type_1_cell_button == widget ? TYPE_1 :
+    main_window.insert_type_2_cell_button == widget ? TYPE_2 : 
+    project_options.selected_cell_type ;
+  
+  // Connect the appropriate mouse handlers
+  (*((ActionHandler)(data))) (&mh, main_window.drawing_area, global_gc, &design, &project_options, &main_window) ;
+
+  project_options.selected_action = new_action ;
+  }
 
 ///////////////////////////////////////////////////////////////////
 ///////////////////////// HELPERS /////////////////////////////////
 ///////////////////////////////////////////////////////////////////
-
-void draw_pan_arrow (int x1, int y1, int x2, int y2)
-  {
-  int x1_1 = 0, y1_1 = 0, x1_2 = 0, y1_2 = 0 ;
-  GdkWindow *pwnd = main_window.drawing_area->window ;
-  GdkGC *pgc = main_window.drawing_area->style->white_gc ;
-  
-  gdk_draw_arc (pwnd, pgc, FALSE, x1 - 5, y1 - 5, 11, 11, 0, 360 * 64) ;
-  gdk_draw_line (pwnd, pgc, x1, y1, x2, y2) ;
-  if (!(x1 == x2 && y1 == y2))
-    {
-    get_arrow_head_coords (x1, y1, x2, y2, 10, &x1_1, &y1_1, -30) ;
-    get_arrow_head_coords (x1, y1, x2, y2, 10, &x1_2, &y1_2, 30) ;
-    gdk_draw_line (pwnd, pgc, x1_1, y1_1, x2, y2) ;
-//  gdk_draw_line (pwnd, pgc, x1_2, y1_2, x2, y2) ;
-    }
-  }
-
-void get_arrow_head_coords (int xRef, int yRef, int xTip, int yTip, int length, int *px, int *py, int deg)
-/* returns coordinates such that xTip and yTip are the origin,
-   the line (xRef,yRef) <-> (xTip,yTip) is the positive x axis,
-   the angle [(*px,*py),(xTip,yTip),(xRef,yRef)] is deg degrees, 
-   and the line (*px,*py) <-> (xTip,yTip) is length pixels long */
-  {
-  double angle, angOffset = deg * M_PI / 180.0 ;
-
-  if (yRef < yTip)
-    deg *= -1 ;
-  
-  angle = acos ((xTip - xRef) / (sqrt (((xTip - xRef) * (xTip - xRef)) + ((yTip - yRef) * (yTip - yRef))))) ;
-  *px = xTip - length * cos (angle - angOffset) ;
-  *py = yTip + (length * sin (angle - angOffset)) * ((yTip > yRef) ? -1.0 : 1.0) ;
-  }
 
 void setup_rulers ()
   {
@@ -1675,102 +926,432 @@ void setup_rulers ()
 
   gtk_ruler_set_range (GTK_RULER (main_window.horizontal_ruler), world_x1, world_x2, world_x, world_x2) ;
   gtk_ruler_set_range (GTK_RULER (main_window.vertical_ruler), world_y1, world_y2, world_y, world_y2) ;
+  
+  gdk_flush () ;
   }
 
-void set_ruler_scale (GtkRuler *ruler, double dLower, double dUpper)
+void gui_add_to_undo (void *p)
   {
+  DBG_CB_HERE (fprintf (stderr, "Entering gui_add_to_undo\n")) ;
+  Undo_AddAction (p) ;
+  gtk_widget_set_sensitive (main_window.undo_menu_item, Undo_CanUndo ()) ;
+  gtk_widget_set_sensitive (main_window.redo_menu_item, Undo_CanRedo ()) ;
+  }
+
+void gui_create_cells (GQCell **ppqc, int ic)
+  {
+  int Nix ;
+  
+  DBG_CB_HERE (fprintf (stderr, "Entering gui_create_cells\n")) ;
+  for (Nix = 0 ; Nix < ic ; Nix++)
+    if (NULL != ppqc[Nix])
+      {
+      gqcell_link (ppqc[Nix], (GQCell *)(((design.first_layer->last_obj))), NULL) ;
+
+      if (NULL == design.first_layer->first_obj)
+        ((GQCell *)(design.first_layer->first_obj)) = ppqc[Nix] ;
+
+      ((GQCell *)(((design.first_layer->last_obj)))) = ppqc[Nix] ;
+
+      if (ppqc[Nix]->is_input)
+        VectorTable_add_input (pvt, ppqc[Nix]) ;
+
+      project_options.bDesignAltered = TRUE ;
+      }
+  clean_up_colors ((GQCell *)(design.first_layer->first_obj)) ;
+  redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+  }
+
+void gui_delete_cells (GQCell **ppqc, int ic)
+  {
+  int Nix ;
+  
+  DBG_CB_HERE (fprintf (stderr, "Entering gui_delete_cells\n")) ;
+  for (Nix = 0 ; Nix < ic ; Nix++)
+    if (ppqc[Nix] != NULL)
+      {
+      delete_stdqcell (ppqc[Nix], pvt, 
+        (GQCell **)(&((design.first_layer->first_obj))), 
+        (GQCell **)(&((design.first_layer->last_obj)))) ;
+      project_options.bDesignAltered = TRUE ;
+      }
+  redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+  }
+
+void release_selection ()
+  {
+  int Nix ;
+  
+  DBG_CB_HERE (fprintf (stderr, "Entering release_selection\n")) ;
+  if (0 == project_options.number_of_selected_cells || NULL == project_options.selected_cells)
+    return ;
+  
+  for (Nix = 0 ; Nix < project_options.number_of_selected_cells ; Nix++)
+    {
+    gqcell_reset_colour (project_options.selected_cells[Nix]) ;
+    draw_stdqcell (main_window.drawing_area->window, global_gc, project_options.selected_cells[Nix]) ;
+    }
+  // free up the memory from the selected cell array of pointers //
+  free(project_options.selected_cells);
+  project_options.selected_cells = NULL;
+  project_options.number_of_selected_cells = 0 ;
+  project_options.window_move_selected_cell = NULL;
+  gdk_flush () ;
+  }
+
+void propagate_motion_to_rulers (GtkWidget *widget, GdkEventMotion *event)
+  {
+  GdkEventMotion *pevVRule = NULL ;
+  GdkEventMotion *pevHRule = NULL ;
+  
+  pevVRule = (GdkEventMotion *)gdk_event_copy ((GdkEvent *)event) ;
+  pevVRule->window = (main_window.vertical_ruler)->window ;
+
+  pevHRule = (GdkEventMotion *)gdk_event_copy ((GdkEvent *)event) ;
+  pevHRule->window = (main_window.horizontal_ruler)->window ;
+
+  gtk_main_do_event ((GdkEvent *)pevVRule) ;
+  gtk_main_do_event ((GdkEvent *)pevHRule) ;
+
+  pevHRule->window = pevVRule->window = widget->window ;
+
+  gdk_event_free ((GdkEvent *)pevHRule) ;
+  gdk_event_free ((GdkEvent *)pevVRule) ;
+  }
+
+void redraw_async (GtkWidget *widget)
+  {
+  if (!bHaveIdler)
+    {
+    bHaveIdler = TRUE ;
+    g_idle_add ((GSourceFunc)redraw_async_cb, widget) ;
+    }
+  }
+
+///////////////////////////////////////////////////////////////////
+///////////////////// STATIC HELPERS //////////////////////////////
+///////////////////////////////////////////////////////////////////
+
+static gboolean redraw_async_cb (GtkWidget *widget)
+  {
+  GdkRectangle rc = {0, 0, 0, 0} ;
+
+  gdk_window_get_size (widget->window, &(rc.width), &(rc.height)) ;
+
+  gdk_window_begin_paint_rect (widget->window, &rc) ;
+  redraw_world (widget->window, global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+  gdk_window_end_paint (widget->window) ;
+  
+  return (bHaveIdler = FALSE) ;
+  }
+
+static void set_ruler_scale (GtkRuler *ruler, double dLower, double dUpper)
+  {
+#ifdef WIN32
+  return ;
+  }
+#else
   double dRange = dUpper - dLower ;
   int iPowerOfTen = ceil (log10 (dRange)), Nix = 0, iPowerOfDivisor = 0 ;
   double dScale = pow (10, iPowerOfTen) ;
-  double dTmp = 0 ;
-  
+
+  DBG_CB_HERE (fprintf (stderr, "Entering set_ruler_scale\n")) ;
+
   if (dRange < dScale / 2)
     {
     dScale /= 2 ;
     iPowerOfDivisor = 1 ;
     }
-  
+
   for (Nix = 9 ; Nix > -1 ; Nix--)
     {
     ruler->metric->ruler_scale[Nix] = floor (dScale / ((double)(1 << iPowerOfDivisor))) ;
     iPowerOfDivisor++ ;
     iPowerOfDivisor %= NUMBER_OF_RULER_SUBDIVISIONS ;
     if (0 == iPowerOfDivisor)
-      dScale = pow (10, dTmp = floor (log10 (dScale / NUMBER_OF_RULER_SUBDIVISIONS))) ;
+      dScale = pow (10, floor (log10 (dScale / NUMBER_OF_RULER_SUBDIVISIONS))) ;
     }
   }
+#endif /* WIN32 => Don't set_ruler_scale */
 
-void gcs_set_rop (GdkFunction func)
+static gboolean SaveDirtyUI (GtkWindow *parent, char *szMsg)
   {
-  if (NULL != global_gc)
-    gdk_gc_set_function (global_gc, func) ;
-  if (NULL != main_window.drawing_area->style->white_gc)
-    gdk_gc_set_function (main_window.drawing_area->style->white_gc, func) ;
-  if (NULL != main_window.drawing_area->style->black_gc)
-    gdk_gc_set_function (main_window.drawing_area->style->black_gc, func) ;
-  }
-
-void set_selected_action (int action, int cell_type)
-  {
-  gtk_signal_handler_block_by_func (GTK_OBJECT (main_window.insert_type_1_cell_button), on_insert_type_1_cell_button_clicked, NULL) ;
-  gtk_toggle_button_set_active (
-    GTK_TOGGLE_BUTTON (main_window.insert_type_1_cell_button),
-    DIAG_CELL == action &&  TYPE_1 == cell_type) ;
-  gtk_signal_handler_unblock_by_func (GTK_OBJECT (main_window.insert_type_1_cell_button), on_insert_type_1_cell_button_clicked, NULL) ;
-  
-  gtk_signal_handler_block_by_func (GTK_OBJECT (main_window.insert_type_2_cell_button), on_insert_type_2_cell_button_clicked, NULL) ;
-  gtk_toggle_button_set_active (
-    GTK_TOGGLE_BUTTON (main_window.insert_type_2_cell_button),
-    DIAG_CELL == action &&  TYPE_2 == cell_type) ;
-  gtk_signal_handler_unblock_by_func (GTK_OBJECT (main_window.insert_type_2_cell_button), on_insert_type_2_cell_button_clicked, NULL) ;
-  
-  gtk_signal_handler_block_by_func (GTK_OBJECT (main_window.insert_cell_array_button), on_insert_cell_array_button_clicked, NULL) ;
-  gtk_toggle_button_set_active (
-    GTK_TOGGLE_BUTTON (main_window.insert_cell_array_button),
-    DRAW_CELL_ARRAY == action) ;
-  gtk_signal_handler_unblock_by_func (GTK_OBJECT (main_window.insert_cell_array_button), on_insert_cell_array_button_clicked, NULL) ;
-  
-  gtk_signal_handler_block_by_func (GTK_OBJECT (main_window.move_cell_button), on_move_cell_button_clicked, NULL) ;
-  gtk_toggle_button_set_active (
-    GTK_TOGGLE_BUTTON (main_window.move_cell_button),
-    MOVE_CELL == action) ;
-  gtk_signal_handler_unblock_by_func (GTK_OBJECT (main_window.move_cell_button), on_move_cell_button_clicked, NULL) ;
-  
-  gtk_signal_handler_block_by_func (GTK_OBJECT (main_window.rotate_cell_button), on_rotate_cell_button_clicked, NULL) ;
-  gtk_toggle_button_set_active (
-    GTK_TOGGLE_BUTTON (main_window.rotate_cell_button),
-    ROTATE_CELL == action) ;
-  gtk_signal_handler_unblock_by_func (GTK_OBJECT (main_window.rotate_cell_button), on_rotate_cell_button_clicked, NULL) ;
-  
-  gtk_signal_handler_block_by_func (GTK_OBJECT (main_window.delete_cells_button), on_delete_cells_button_clicked, NULL) ;
-  gtk_toggle_button_set_active (
-    GTK_TOGGLE_BUTTON (main_window.delete_cells_button),
-    DELETE_CELL == action) ;
-  gtk_signal_handler_unblock_by_func (GTK_OBJECT (main_window.delete_cells_button), on_delete_cells_button_clicked, NULL) ;
-  selected_action = action ;
-  }
-
-gboolean do_save ()
-  {
-  char szFName[PATH_LENGTH] = "" ;
-  
-  g_snprintf (szFName, PATH_LENGTH, "%s", current_file_name) ;
-  
-  if (0 == szFName[0])
+  int msgVal = GTK_RESPONSE_CANCEL ;
+  if (project_options.bDesignAltered)
     {
-    if (!get_file_name_from_user (GTK_WINDOW (main_window.main_window), "Save Project As", szFName, PATH_LENGTH)) return FALSE ;
-    if (0 == szFName[0] || 0 == base_name (szFName)) return FALSE ;
+    GtkWidget *msg = NULL ;
+    msg = gtk_message_dialog_new (parent, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, szMsg) ;
+    gtk_dialog_add_action_widget (GTK_DIALOG (msg), gtk_button_new_with_stock_image (GTK_STOCK_NO, _("Don's save")), GTK_RESPONSE_NO) ;
+    gtk_dialog_add_button (GTK_DIALOG (msg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
+    gtk_widget_grab_default (gtk_dialog_add_button (GTK_DIALOG (msg), GTK_STOCK_SAVE, GTK_RESPONSE_YES)) ;
+    
+    msgVal = gtk_dialog_run (GTK_DIALOG (msg)) ;
+
+    gtk_widget_hide (msg) ;
+    gtk_widget_destroy (msg) ;
+
+    if (GTK_RESPONSE_YES == msgVal)
+      return DoSave (parent, FALSE) ;
+    else
+    if (GTK_RESPONSE_NO != msgVal)
+      return FALSE ;
     }
+  return TRUE ;
+  }
 
-  if (create_file(szFName, first_cell))
+static gboolean DoSave (GtkWindow *parent, gboolean bSaveAs)
+  {
+  char *pszFName = project_options.pszCurrentFName, *pszCurrent = (NULL == project_options.pszCurrentFName ? "" : project_options.pszCurrentFName) ;
+  
+  if ((NULL == project_options.pszCurrentFName) || bSaveAs)
+    if (NULL == (pszFName = get_file_name_from_user (parent, "Save As", pszCurrent, TRUE)))
+      return FALSE ;
+  
+  if (create_file (pszFName, (GQCell *)(design.first_layer->first_obj), grid_spacing))
     {
-    add_to_recent_files (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
-    bDesignAltered = FALSE ;
-    g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
+    char *pszTitle = NULL ;
+    project_options.bDesignAltered = FALSE ;
+    gtk_window_set_title (parent, pszTitle = g_strdup_printf ("%s - %s", base_name (pszFName), MAIN_WND_BASE_TITLE)) ;
+    g_free (pszTitle) ;
+    add_to_recent_files (main_window.recent_files_menu, pszFName, GTK_SIGNAL_FUNC (file_operations), (gpointer)FILEOP_OPEN_RECENT) ;
+    if (NULL != project_options.pszCurrentFName && project_options.pszCurrentFName != pszFName)
+      g_free (project_options.pszCurrentFName) ;
+    project_options.pszCurrentFName = pszFName ;
     return TRUE ;
     }
   else
-    message_box (GTK_WINDOW (main_window.main_window), MB_OK, "Error", "Failed to create file %s !", base_name (szFName)) ;
-  
+    {
+    GtkWidget *msg = NULL ;
+    gtk_dialog_run (GTK_DIALOG (
+      msg = gtk_message_dialog_new (parent, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+        "Failed to create file \"%s\" !", pszFName))) ;
+    gtk_widget_hide (msg) ;
+    gtk_widget_destroy (msg) ;
+    }
+  if (pszFName != project_options.pszCurrentFName) g_free (pszFName) ;
   return FALSE ;
+  }
+
+/* Cleans out the linked list of cells, clears the undo stack, and does whatever else must
+   be done to restore QCADesigner to its initial, pristine state */
+static void tabula_rasa (GtkWindow *wndMain)
+  {
+  DBG_CB_HERE (fprintf (stderr, "Entering tabula_rasa\n")) ;
+  release_selection () ;
+  clear_all_cells ((GQCell **)(&((design.first_layer->first_obj))), (GQCell **)(&((design.first_layer->last_obj)))) ;
+  project_options.bDesignAltered = FALSE ;
+  g_free (project_options.pszCurrentFName) ;
+  project_options.pszCurrentFName = NULL ;
+  gtk_window_set_title (wndMain, "Untitled - " MAIN_WND_BASE_TITLE) ;
+  Undo_Clear () ;
+  gtk_widget_set_sensitive (main_window.undo_menu_item, Undo_CanUndo ()) ;
+  gtk_widget_set_sensitive (main_window.redo_menu_item, Undo_CanRedo ()) ;
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
+  }
+
+static void move_selected_cells_to_pointer ()
+  {
+  int i, x, y ;
+  double x_offset, y_offset ;
+  GdkModifierType state ;
+  int xScreen, yScreen ;
+  
+  if (project_options.number_of_selected_cells <= 0) return ;
+
+  DBG_CB_HERE (fprintf (stderr, "Entering move_selected_cells_to_pointer\n")) ;
+  project_options.window_move_selected_cell = project_options.selected_cells[0];
+  
+  gdk_window_get_pointer(main_window.drawing_area->window, &x, &y, &state);
+  
+  gdk_window_get_origin (main_window.drawing_area->window, &xScreen, &yScreen) ;
+  
+  x_offset = grid_world_x (calc_world_x (x)) ;
+  y_offset = grid_world_y (calc_world_y (y)) ;
+  
+  x_offset -= project_options.window_move_selected_cell->x ;
+  y_offset -= project_options.window_move_selected_cell->y ;
+  
+  for (i = 0 ; i < project_options.number_of_selected_cells ; i++)
+    gqcell_move_by_offset (project_options.selected_cells[i], x_offset, y_offset) ;
+
+  gdk_gc_set_function (global_gc, GDK_XOR) ;
+  redraw_selected_cells (main_window.drawing_area->window, global_gc, 
+    project_options.selected_cells, project_options.number_of_selected_cells) ;
+  gdk_gc_set_function (global_gc, GDK_COPY) ;
+  
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
+  
+  run_action_DEFAULT_sel_changed () ;
+  }
+
+static void set_clock_for_selected_cells (int selected_clock)
+{
+
+    int i;
+
+  DBG_CB_HERE (fprintf (stderr, "Entering set_clock_for_selected_cells\n")) ;
+    g_assert(selected_clock < 4 && selected_clock >= 0);
+
+    for (i = 0; i < project_options.number_of_selected_cells; i++) {
+
+	g_assert(project_options.selected_cells[i] != NULL);
+
+	project_options.selected_cells[i]->clock = selected_clock;
+        
+        gqcell_reset_colour (project_options.selected_cells[i]) ;
+        
+    }
+  gui_add_to_undo (Undo_CreateAction_CellParamChange (project_options.selected_cells, project_options.number_of_selected_cells)) ;
+  release_selection () ;
+} //set_clock_for_selected_cells
+
+static void fill_layers_combo (main_W *wndMain, DESIGN *pDesign)
+  {
+  LAYER *layer = pDesign->first_layer ;
+  int icLayers = 0 ;
+  GtkWidget *first_layer_item = NULL ;
+  
+  gtk_container_foreach (GTK_CONTAINER (GTK_COMBO (wndMain->layers_combo)->list), (GtkCallback)remove_single_item, GTK_COMBO (wndMain->layers_combo)->list) ;
+  
+  if (NULL != layer)
+    {
+    gtk_list_item_select (GTK_LIST_ITEM (
+      first_layer_item = add_layer_to_combo (GTK_COMBO (wndMain->layers_combo), layer))) ;
+    layer = layer->next ;
+    icLayers++ ;
+    }
+
+  while (NULL != layer)
+    {
+    add_layer_to_combo (GTK_COMBO (wndMain->layers_combo), layer) ;
+    layer = layer->next ;
+    icLayers++ ;
+    }
+
+  if (1 == icLayers)
+    {
+    GtkWidget 
+      *chkVisible = g_object_get_data (G_OBJECT (first_layer_item), "chkVisible"),
+      *chkActive = g_object_get_data (G_OBJECT (first_layer_item), "chkActivate") ;
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkVisible), TRUE) ;
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActive), TRUE) ;
+    
+    gtk_widget_set_sensitive (chkVisible, FALSE) ;
+    gtk_widget_set_sensitive (chkActive, FALSE) ;
+    }
+  }
+
+static void remove_single_item (GtkWidget *item, gpointer data)
+  {
+  GtkContainer *container = GTK_CONTAINER (data) ;
+  
+  gtk_container_remove (container, item) ;
+  }
+
+static GtkWidget *add_layer_to_combo (GtkCombo *combo, LAYER *layer)
+  {
+  GtkWidget *item = NULL, *chkVisible = NULL, *chkActive = NULL, *vsep = NULL, *lbl = NULL, *tbl = NULL ;
+  
+  item = gtk_list_item_new () ;
+  gtk_widget_show (item) ;
+  g_object_set_data (G_OBJECT (item), "layer", layer) ;
+  g_object_set_data (G_OBJECT (item), "combo", combo) ;
+  
+  tbl = gtk_table_new (1, 4, FALSE) ;
+  gtk_widget_show (tbl) ;
+  gtk_container_add (GTK_CONTAINER (item), tbl) ;
+  
+  chkVisible = gtk_check_button_new_with_label ("Visible") ;
+  g_object_set_data (G_OBJECT (item), "chkVisible", chkVisible) ;
+  gtk_widget_show (chkVisible) ;
+  gtk_table_attach (GTK_TABLE (tbl), chkVisible, 0, 1, 0, 1,
+    (GtkAttachOptions)(0),
+    (GtkAttachOptions)(0), 2, 2) ;
+  
+  chkActive = gtk_check_button_new_with_label ("Active") ;
+  g_object_set_data (G_OBJECT (item), "chkActivate", chkActive) ;
+  gtk_widget_show (chkActive) ;
+  gtk_table_attach (GTK_TABLE (tbl), chkActive, 1, 2, 0, 1,
+    (GtkAttachOptions)(0),
+    (GtkAttachOptions)(0), 2, 2) ;
+
+  vsep = gtk_vseparator_new () ;
+  gtk_widget_show (vsep) ;
+  gtk_table_attach (GTK_TABLE (tbl), vsep, 2, 3, 0, 1,
+    (GtkAttachOptions)(0),
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+
+  lbl = gtk_label_new (_(NULL == layer->pszDescription ? "" : layer->pszDescription)) ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (tbl), lbl, 3, 4, 0, 1,
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+    (GtkAttachOptions)(0), 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;    
+  
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkVisible),
+    (LAYER_STATUS_ACTIVE == layer->status || LAYER_STATUS_VISIBLE == layer->status)) ;
+
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActive), (LAYER_STATUS_ACTIVE == layer->status)) ;
+
+  g_object_set_data (G_OBJECT (chkVisible), "bWasActive", (gpointer)(LAYER_STATUS_ACTIVE == layer->status)) ;
+
+  g_signal_connect (G_OBJECT (chkVisible),    "toggled", (GCallback)layer_status_change, item) ;
+  g_signal_connect (G_OBJECT (chkActive),     "toggled", (GCallback)layer_status_change, item) ;
+  g_signal_connect (G_OBJECT (item),          "select",  (GCallback)layer_selected,      item) ;
+  
+  gtk_container_add (GTK_CONTAINER (combo->list), item) ;
+  
+  gtk_combo_set_item_string (combo, GTK_ITEM (item), NULL == layer->pszDescription ? "" : layer->pszDescription) ;
+  return item ;
+  }
+
+static void layer_status_change (GtkWidget *widget, gpointer data)
+  {
+  GtkWidget 
+    *chkActivate = GTK_WIDGET (g_object_get_data (G_OBJECT (data), "chkActivate")),
+    *chkVisible  = GTK_WIDGET (g_object_get_data (G_OBJECT (data), "chkVisible")) ;
+  LAYER *layer = (LAYER *)g_object_get_data (G_OBJECT (data), "layer") ;
+  gboolean bActive = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)) ;
+  
+  if (NULL == layer) return ;
+  
+  if (chkVisible == widget)
+    {
+    if (bActive)
+      {
+      layer->status = LAYER_STATUS_VISIBLE ;
+      gtk_widget_set_sensitive (chkActivate, TRUE) ;
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActivate),
+        (gboolean)g_object_get_data (G_OBJECT (widget), "bWasActive")) ;
+      }
+    else
+      {
+      layer->status = LAYER_STATUS_HIDDEN ;
+      g_object_set_data (G_OBJECT (widget), "bWasActive",
+        (gpointer)gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chkActivate))) ;
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActivate), FALSE) ;
+      gtk_widget_set_sensitive (chkActivate, FALSE) ;
+      }
+    }
+  else
+  if (chkActivate == widget)
+    layer->status = bActive ? LAYER_STATUS_ACTIVE : LAYER_STATUS_VISIBLE ;
+  }
+
+// Set the cursor for the drawing area
+static void change_cursor (GtkWidget *widget, GdkCursor *new_cursor)
+  {
+  GdkCursor *old_cursor = (GdkCursor *)g_object_get_data (G_OBJECT (widget), "old_cursor") ;
+  
+  gdk_window_set_cursor (widget->window, new_cursor) ;
+  gdk_flush () ;
+
+  if (NULL != old_cursor)
+    {
+    gdk_cursor_unref (old_cursor) ;
+    old_cursor = NULL ;
+    }
+
+  g_object_set_data (G_OBJECT (widget), "old_cursor", new_cursor) ;
   }

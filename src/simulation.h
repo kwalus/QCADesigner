@@ -12,6 +12,8 @@
 #ifndef _SIMULATION_H_
 #define _SIMULATION_H_
 
+#include "gqcell.h"
+
 struct TRACEDATA {
     
 	// array containing the labels for each trace //
@@ -40,7 +42,8 @@ typedef struct{
 	struct TRACEDATA *clock_data ;
 }simulation_data;
 
-simulation_data *run_simulation (int sim_engine, int sim_type);
+simulation_data *run_simulation (int sim_engine, int sim_type, GQCell *first_cell);
 void calculate_ground_state (int sim_engine) ;
+void tracedata_get_min_max (struct TRACEDATA *trace, int idxStart, int idxEnd, double *pdMin, double *pdMax) ;
 
 #endif /* _SIMULATION_H_ */

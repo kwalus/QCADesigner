@@ -30,7 +30,7 @@ protected:
 	VectorTable *pvt ;
 
 public:
-	qcaSim(string nm, const int sim_type, const qcell * my_cell, VectorTable *pvtIn);
+	qcaSim(string nm, const int sim_type, const GQCell * my_cell, VectorTable *pvtIn);
 	~qcaSim();
 	void init();
 	void calculateNumZones();
@@ -39,7 +39,7 @@ public:
 	virtual void postTic();
 	virtual void finish() {printf("Finish does nothing!\n");}
 	virtual void handleParcel(parcel *p);
-	void loadCells(const qcell * my_cell);
+	void loadCells(const GQCell * my_cell);
 	void prepareInitialParcels();
 	bool simulationWasSuccessful() {return !error;}
 	bool is_exhaustive;

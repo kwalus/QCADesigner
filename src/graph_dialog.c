@@ -17,10 +17,11 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include "support.h"
-#include "globals.h"
 #include "graph_options_dialog.h"
-#include "blocking_dialog.h"
 #include "graph_dialog.h"
+#include "print.h"
+#include "print_preview.h"
+#include "print_graph_properties_dialog.h"
 
 #define GRAPH_CX 1000
 #define GRAPH_X_PADDING 10
@@ -33,7 +34,6 @@
 #define GRAPH_TRACE_MINMAX_GAP 3
 #define GRAPH_LABEL_TEXT_LEFT_INDENT 3
 #define GRAPH_TEXT_CLEARANCE 2
-#define FONT_STRING "-adobe-courier-medium-r-normal--12-*-*-*-*-*-*"
 
 #define DBG_GD(s)
 
@@ -50,6 +50,7 @@ typedef struct
   GtkWidget *btnZoomOut;
   GtkWidget *btnZoomIn;
   GtkWidget *btnPreview;
+  GtkWidget *btnPrint;
   GtkWidget *btnClose;
   GtkWidget *btnReset ;
   } graph_D ;
@@ -73,25 +74,26 @@ typedef struct
   } DRAW_PARAMS ;
 
 static graph_D graph = {NULL} ;
+static print_graph_OP poGraphs = {{792, 612, 72, 72, 72, 72, TRUE, NULL}, TRUE, FALSE, FALSE, 1, 1} ;
 
-void create_graph_dialog (graph_D *dialog) ;
-gboolean daGraphs_expose (GtkWidget *widget, GdkEventExpose *ev, gpointer user_data) ;
-gboolean daGraphs_configure (GtkWidget *widget, GdkEventConfigure *ev, gpointer user_data) ;
-gboolean daGraphs_mousedown (GtkWidget *widget, GdkEventButton *ev, gpointer user_data) ;
-gboolean daGraphs_mousemove (GtkWidget *widget, GdkEventMotion *ev, gpointer user_data) ;
-gboolean daGraphs_mouseup (GtkWidget *widget, GdkEventButton *ev, gpointer user_data) ;
-void show_graph_options (GtkWidget *widget, gpointer user_data) ;
-void graph_zoom_inc (GtkWidget *widget, gpointer user_data) ;
-void graph_zoom_dec (GtkWidget *widget, gpointer user_data) ;
-void reset_graph_params (GtkWidget *widget, gpointer user_data) ;
-void toggle_preview_mode (GtkWidget *widget, gpointer user_data) ;
-void CalculateDrawingArea (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZoomDen, int *pcx, int *pcy) ;
-void paint_graph_window (GtkWidget *da, DRAW_PARAMS *pdp, simulation_data *sim_data, gboolean bPreview, GdkRectangle *prcClip) ;
-void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRACEDATA *trace, int idx, gboolean bPreview, int icSamples) ;
-gboolean set_current_colour (GdkColor *pclr, int iClr, int iClrMask) ;
-void get_min_max (struct TRACEDATA *trace, int idxStart, int idxEnd, double *pdMin, double *pdMax) ;
-void CacheDrawingParams (DRAW_PARAMS *pdp, int cx, int cy, int iZoomNum, int iZoomDen) ;
-void RedoGraph (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZoomDen, DRAW_PARAMS *pdp) ;
+static void create_graph_dialog (graph_D *dialog) ;
+static gboolean daGraphs_expose (GtkWidget *widget, GdkEventExpose *ev, gpointer user_data) ;
+static gboolean daGraphs_configure (GtkWidget *widget, GdkEventConfigure *ev, gpointer user_data) ;
+static gboolean daGraphs_mousedown (GtkWidget *widget, GdkEventButton *ev, gpointer user_data) ;
+static gboolean daGraphs_mousemove (GtkWidget *widget, GdkEventMotion *ev, gpointer user_data) ;
+static gboolean daGraphs_mouseup (GtkWidget *widget, GdkEventButton *ev, gpointer user_data) ;
+static void btnPrint_clicked (GtkWidget *widget, gpointer user_data) ;
+static void show_graph_options (GtkWidget *widget, gpointer user_data) ;
+static void graph_zoom_inc (GtkWidget *widget, gpointer user_data) ;
+static void graph_zoom_dec (GtkWidget *widget, gpointer user_data) ;
+static void reset_graph_params (GtkWidget *widget, gpointer user_data) ;
+static void btnPreview_clicked (GtkWidget *widget, gpointer user_data) ;
+static void CalculateDrawingArea (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZoomDen, int *pcx, int *pcy) ;
+static void paint_graph_window (GtkWidget *da, DRAW_PARAMS *pdp, simulation_data *sim_data, GdkRectangle *prcClip) ;
+static void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRACEDATA *trace, int idx, int icSamples) ;
+static gboolean set_current_colour (GdkColor *pclr, int iClr, int iClrMask) ;
+static void CacheDrawingParams (DRAW_PARAMS *pdp, int cx, int cy, int iZoomNum, int iZoomDen) ;
+static void RedoGraph (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZoomDen, DRAW_PARAMS *pdp) ;
 
 void show_graph_dialog (GtkWindow *parent, simulation_data *sim_data)
   {
@@ -125,10 +127,11 @@ void show_graph_dialog (GtkWindow *parent, simulation_data *sim_data)
   
   gtk_widget_set_usize (graph.daGraphs, cx, cy) ;
   
-  show_dialog_blocking (graph.dlgGraphs) ;
+  gtk_dialog_run (GTK_DIALOG (graph.dlgGraphs)) ;
+  gtk_widget_hide (graph.dlgGraphs) ;
   }
 
-void create_graph_dialog (graph_D *dialog)
+static void create_graph_dialog (graph_D *dialog)
   {
   /* The window */
   dialog->dlgGraphs = gtk_dialog_new ();
@@ -136,7 +139,7 @@ void create_graph_dialog (graph_D *dialog)
   gtk_widget_set_usize (dialog->dlgGraphs, 800, 600);
   gtk_window_set_title (GTK_WINDOW (dialog->dlgGraphs), _("Simulation Results"));
   gtk_window_set_modal (GTK_WINDOW (dialog->dlgGraphs), TRUE);
-  gtk_window_set_policy (GTK_WINDOW (dialog->dlgGraphs), TRUE, TRUE, FALSE);
+  gtk_window_set_policy (GTK_WINDOW (dialog->dlgGraphs), TRUE, TRUE, TRUE);
 
   dialog->dialog_vbox1 = GTK_DIALOG (dialog->dlgGraphs)->vbox;
   gtk_object_set_data (GTK_OBJECT (dialog->dlgGraphs), "dialog_vbox1", dialog->dialog_vbox1);
@@ -144,97 +147,59 @@ void create_graph_dialog (graph_D *dialog)
 
   /* The graphing area widgets */
   dialog->swndGraphs = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_ref (dialog->swndGraphs);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "swndGraphs", dialog->swndGraphs,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->swndGraphs);
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->swndGraphs, TRUE, TRUE, 0);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (dialog->swndGraphs), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
   dialog->vpGraphs = gtk_viewport_new (NULL, NULL);
-  gtk_widget_ref (dialog->vpGraphs);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "vpGraphs", dialog->vpGraphs,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->vpGraphs);
   gtk_container_add (GTK_CONTAINER (dialog->swndGraphs), dialog->vpGraphs);
 
   dialog->daGraphs = gtk_drawing_area_new ();
-  gtk_widget_ref (dialog->daGraphs);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "daGraphs", dialog->daGraphs,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->daGraphs);
   gtk_container_add (GTK_CONTAINER (dialog->vpGraphs), dialog->daGraphs);
   gtk_widget_set_usize (dialog->daGraphs, 640, 480);
 
   /* The button containers */
   dialog->dialog_action_area1 = GTK_DIALOG (dialog->dlgGraphs)->action_area;
-  gtk_object_set_data (GTK_OBJECT (dialog->dlgGraphs), "dialog_action_area1", dialog->dialog_action_area1);
   gtk_widget_show (dialog->dialog_action_area1);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->dialog_action_area1), 0);
 
-  dialog->hbuttonbox1 = gtk_hbutton_box_new ();
-  gtk_widget_ref (dialog->hbuttonbox1);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "hbuttonbox1", dialog->hbuttonbox1,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (dialog->hbuttonbox1);
-  gtk_box_pack_start (GTK_BOX (dialog->dialog_action_area1), dialog->hbuttonbox1, TRUE, TRUE, 0);
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog->hbuttonbox1), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing (GTK_BUTTON_BOX (dialog->hbuttonbox1), 0);
-  gtk_button_box_set_child_ipadding (GTK_BUTTON_BOX (dialog->hbuttonbox1), 0, -1);
-
   /* The buttons */
   dialog->btnReset = gtk_button_new_with_label (_("Reset"));
-  gtk_widget_ref (dialog->btnReset);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "btnReset", dialog->btnReset,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->btnReset);
-  gtk_container_add (GTK_CONTAINER (dialog->hbuttonbox1), dialog->btnReset);
+  gtk_container_add (GTK_CONTAINER (dialog->dialog_action_area1), dialog->btnReset);
   GTK_WIDGET_SET_FLAGS (dialog->btnReset, GTK_CAN_DEFAULT);
 
   dialog->btnOptions = gtk_button_new_with_label (_("Options"));
-  gtk_widget_ref (dialog->btnOptions);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "btnOptions", dialog->btnOptions,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->btnOptions);
-  gtk_container_add (GTK_CONTAINER (dialog->hbuttonbox1), dialog->btnOptions);
+  gtk_container_add (GTK_CONTAINER (dialog->dialog_action_area1), dialog->btnOptions);
   GTK_WIDGET_SET_FLAGS (dialog->btnOptions, GTK_CAN_DEFAULT);
 
-  dialog->btnZoomOut = gtk_button_new_with_label (_("Zoom Out"));
-  gtk_widget_ref (dialog->btnZoomOut);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "btnZoomOut", dialog->btnZoomOut,
-                            (GtkDestroyNotify) gtk_widget_unref);
+  dialog->btnZoomOut = gtk_button_new_from_stock (GTK_STOCK_ZOOM_OUT);
   gtk_widget_show (dialog->btnZoomOut);
-  gtk_container_add (GTK_CONTAINER (dialog->hbuttonbox1), dialog->btnZoomOut);
+  gtk_container_add (GTK_CONTAINER (dialog->dialog_action_area1), dialog->btnZoomOut);
   GTK_WIDGET_SET_FLAGS (dialog->btnZoomOut, GTK_CAN_DEFAULT);
 
-  dialog->btnZoomIn = gtk_button_new_with_label (_("Zoom In"));
-  gtk_widget_ref (dialog->btnZoomIn);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "btnZoomIn", dialog->btnZoomIn,
-                            (GtkDestroyNotify) gtk_widget_unref);
+  dialog->btnZoomIn = gtk_button_new_from_stock (GTK_STOCK_ZOOM_IN);
   gtk_widget_show (dialog->btnZoomIn);
-  gtk_container_add (GTK_CONTAINER (dialog->hbuttonbox1), dialog->btnZoomIn);
+  gtk_container_add (GTK_CONTAINER (dialog->dialog_action_area1), dialog->btnZoomIn);
   GTK_WIDGET_SET_FLAGS (dialog->btnZoomIn, GTK_CAN_DEFAULT);
 
-  dialog->btnPreview = gtk_toggle_button_new_with_label (_("Preview"));
-  gtk_widget_ref (dialog->btnPreview);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "btnPreview", dialog->btnPreview,
-                            (GtkDestroyNotify) gtk_widget_unref);
+//  dialog->btnPreview = gtk_toggle_button_new_with_label (_("Preview Mode"));
+  dialog->btnPreview = gtk_button_new_from_stock (GTK_STOCK_PRINT_PREVIEW) ;
   gtk_widget_show (dialog->btnPreview);
-  gtk_container_add (GTK_CONTAINER (dialog->hbuttonbox1), dialog->btnPreview);
+  gtk_container_add (GTK_CONTAINER (dialog->dialog_action_area1), dialog->btnPreview);
   GTK_WIDGET_SET_FLAGS (dialog->btnPreview, GTK_CAN_DEFAULT);
 
-  dialog->btnClose = gtk_button_new_with_label (_("Close"));
-  gtk_widget_ref (dialog->btnClose);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "btnClose", dialog->btnClose,
-      	      	      	    (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (dialog->btnClose);
-  gtk_container_add (GTK_CONTAINER (dialog->hbuttonbox1), dialog->btnClose);
-  GTK_WIDGET_SET_FLAGS (dialog->btnClose, GTK_CAN_DEFAULT);
+  dialog->btnPrint = gtk_button_new_from_stock (GTK_STOCK_PRINT) ;
+  gtk_widget_show (dialog->btnPrint);
+  gtk_container_add (GTK_CONTAINER (dialog->dialog_action_area1), dialog->btnPrint);
+  GTK_WIDGET_SET_FLAGS (dialog->btnPrint, GTK_CAN_DEFAULT);
 
-  /* The cancel signals */
-  gtk_signal_connect_object (GTK_OBJECT (dialog->dlgGraphs), "delete_event", GTK_SIGNAL_FUNC (gtk_widget_hide), GTK_OBJECT (dialog->dlgGraphs)) ;
-  gtk_signal_connect_object (GTK_OBJECT (dialog->btnClose), "clicked", GTK_SIGNAL_FUNC (gtk_widget_hide), GTK_OBJECT (dialog->dlgGraphs)) ;
-  
+  dialog->btnClose = gtk_dialog_add_button (GTK_DIALOG (dialog->dlgGraphs), GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE) ;
+  gtk_dialog_set_default_response (GTK_DIALOG (dialog->dlgGraphs), GTK_RESPONSE_CLOSE) ;
+
   /* Manipulating and drawing the graphs */
   gtk_signal_connect (GTK_OBJECT (dialog->daGraphs), "expose_event", GTK_SIGNAL_FUNC (daGraphs_expose), dialog->dlgGraphs) ;
   gtk_signal_connect (GTK_OBJECT (dialog->dlgGraphs), "configure_event", GTK_SIGNAL_FUNC (daGraphs_configure), dialog->dlgGraphs) ;
@@ -245,9 +210,10 @@ void create_graph_dialog (graph_D *dialog)
   /* The various buttons */
   gtk_signal_connect (GTK_OBJECT (dialog->btnZoomIn), "clicked", GTK_SIGNAL_FUNC (graph_zoom_inc), dialog->dlgGraphs) ;
   gtk_signal_connect (GTK_OBJECT (dialog->btnZoomOut), "clicked", GTK_SIGNAL_FUNC (graph_zoom_dec), dialog->dlgGraphs) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->btnPreview), "clicked", GTK_SIGNAL_FUNC (toggle_preview_mode), dialog->dlgGraphs) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->btnPreview), "clicked", GTK_SIGNAL_FUNC (btnPreview_clicked), dialog->dlgGraphs) ;
   gtk_signal_connect (GTK_OBJECT (dialog->btnOptions), "clicked", GTK_SIGNAL_FUNC (show_graph_options), dialog->dlgGraphs) ;
   gtk_signal_connect (GTK_OBJECT (dialog->btnReset), "clicked", GTK_SIGNAL_FUNC (reset_graph_params), dialog->dlgGraphs) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->btnPrint), "clicked", GTK_SIGNAL_FUNC (btnPrint_clicked), dialog->dlgGraphs) ;
 
   gtk_widget_set_events (GTK_WIDGET (dialog->daGraphs), GDK_EXPOSURE_MASK
 		       | GDK_LEAVE_NOTIFY_MASK
@@ -257,7 +223,7 @@ void create_graph_dialog (graph_D *dialog)
 		       | GDK_POINTER_MOTION_MASK);
   }
 
-void show_graph_options (GtkWidget *widget, gpointer user_data)
+static void show_graph_options (GtkWidget *widget, gpointer user_data)
   {
   graph_D *dialog = (graph_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   simulation_data *sim_data = (simulation_data *)gtk_object_get_data (GTK_OBJECT (user_data), "sim_data") ;
@@ -270,18 +236,17 @@ void show_graph_options (GtkWidget *widget, gpointer user_data)
   RedoGraph (dialog, sim_data, iZoomNum, iZoomDen, pdp) ;
   }
 
-gboolean daGraphs_expose (GtkWidget *widget, GdkEventExpose *ev, gpointer user_data)
+static gboolean daGraphs_expose (GtkWidget *widget, GdkEventExpose *ev, gpointer user_data)
   {
   graph_D *dialog = (graph_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   simulation_data *sim_data = (simulation_data *)gtk_object_get_data (GTK_OBJECT (user_data), "sim_data") ;
   DRAW_PARAMS *pdp = (DRAW_PARAMS *)gtk_object_get_data (GTK_OBJECT (user_data), "pdp") ;
   
-  paint_graph_window (dialog->daGraphs, pdp, sim_data,
-    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->btnPreview)), (NULL != ev) ? &(ev->area) : NULL) ;
+  paint_graph_window (dialog->daGraphs, pdp, sim_data, (NULL != ev) ? &(ev->area) : NULL) ;
   return TRUE ;
   }
 
-gboolean daGraphs_configure (GtkWidget *widget, GdkEventConfigure *ev, gpointer user_data)
+static gboolean daGraphs_configure (GtkWidget *widget, GdkEventConfigure *ev, gpointer user_data)
   {
   graph_D *dialog = (graph_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   simulation_data *sim_data = (simulation_data *)gtk_object_get_data (GTK_OBJECT (user_data), "sim_data") ;
@@ -297,7 +262,7 @@ gboolean daGraphs_configure (GtkWidget *widget, GdkEventConfigure *ev, gpointer 
   return FALSE ;
   }
 
-gboolean daGraphs_mousedown (GtkWidget *widget, GdkEventButton *ev, gpointer user_data)
+static gboolean daGraphs_mousedown (GtkWidget *widget, GdkEventButton *ev, gpointer user_data)
   {
   DRAW_PARAMS *pdp = (DRAW_PARAMS *)gtk_object_get_data (GTK_OBJECT (user_data), "pdp") ;
   int x = (int)ev->x ;
@@ -316,7 +281,7 @@ gboolean daGraphs_mousedown (GtkWidget *widget, GdkEventButton *ev, gpointer use
   return TRUE ;
   }
 
-gboolean daGraphs_mousemove (GtkWidget *widget, GdkEventMotion *ev, gpointer user_data)
+static gboolean daGraphs_mousemove (GtkWidget *widget, GdkEventMotion *ev, gpointer user_data)
   {
   DRAW_PARAMS *pdp = (DRAW_PARAMS *)gtk_object_get_data (GTK_OBJECT (user_data), "pdp") ;
   int x = (int)ev->x ;
@@ -362,7 +327,7 @@ gboolean daGraphs_mousemove (GtkWidget *widget, GdkEventMotion *ev, gpointer use
   return TRUE ;
   }
 
-gboolean daGraphs_mouseup (GtkWidget *widget, GdkEventButton *ev, gpointer user_data)
+static gboolean daGraphs_mouseup (GtkWidget *widget, GdkEventButton *ev, gpointer user_data)
   {
   graph_D *dialog = (graph_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   simulation_data *sim_data = (simulation_data *)gtk_object_get_data (GTK_OBJECT (user_data), "sim_data") ;
@@ -409,10 +374,14 @@ gboolean daGraphs_mouseup (GtkWidget *widget, GdkEventButton *ev, gpointer user_
   return TRUE ;
   }
 
-void toggle_preview_mode (GtkWidget *widget, gpointer user_data)
-  {daGraphs_expose (NULL, NULL, user_data) ;}
+static void btnPreview_clicked (GtkWidget *widget, gpointer user_data)
+  {
+  graph_D *dialog = (graph_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
+  simulation_data *sim_data = (simulation_data *)gtk_object_get_data (GTK_OBJECT (user_data), "sim_data") ;
+  do_print_preview ((print_OP *)&poGraphs, GTK_WINDOW (dialog->dlgGraphs), sim_data, (PrintFunction)print_graphs) ;
+  }
 
-void reset_graph_params (GtkWidget *widget, gpointer user_data)
+static void reset_graph_params (GtkWidget *widget, gpointer user_data)
   {
   graph_D *dialog = (graph_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   simulation_data *sim_data = (simulation_data *)gtk_object_get_data (GTK_OBJECT (user_data), "sim_data") ;
@@ -431,7 +400,7 @@ void reset_graph_params (GtkWidget *widget, gpointer user_data)
   gtk_object_set_data (GTK_OBJECT (user_data), "iZoomDen", (gpointer)iZoomDen) ;
   }
 
-void graph_zoom_inc (GtkWidget *widget, gpointer user_data)
+static void graph_zoom_inc (GtkWidget *widget, gpointer user_data)
   {
   graph_D *dialog = (graph_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   simulation_data *sim_data = (simulation_data *)gtk_object_get_data (GTK_OBJECT (user_data), "sim_data") ;
@@ -448,7 +417,7 @@ void graph_zoom_inc (GtkWidget *widget, gpointer user_data)
   RedoGraph (dialog, sim_data, iZoomNum, iZoomDen, pdp) ;
   }
 
-void graph_zoom_dec (GtkWidget *widget, gpointer user_data)
+static void graph_zoom_dec (GtkWidget *widget, gpointer user_data)
   {
   graph_D *dialog = (graph_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   simulation_data *sim_data = (simulation_data *)gtk_object_get_data (GTK_OBJECT (user_data), "sim_data") ;
@@ -465,7 +434,14 @@ void graph_zoom_dec (GtkWidget *widget, gpointer user_data)
   RedoGraph (dialog, sim_data, iZoomNum, iZoomDen, pdp) ;
   }
 
-void CacheDrawingParams (DRAW_PARAMS *pdp, int cx, int cy, int iZoomNum, int iZoomDen)
+static void btnPrint_clicked (GtkWidget *widget, gpointer user_data)
+  {
+  simulation_data *sim_data = (simulation_data *)gtk_object_get_data (GTK_OBJECT (user_data), "sim_data") ;
+  if (get_print_graph_properties_from_user (GTK_WINDOW (user_data), &poGraphs, sim_data))
+    print_graphs (&poGraphs, sim_data) ;
+  }
+
+static void CacheDrawingParams (DRAW_PARAMS *pdp, int cx, int cy, int iZoomNum, int iZoomDen)
   {
   /* When the window is resized, these parameters can be precalculated */
   pdp->cx = cx ;
@@ -482,7 +458,7 @@ void CacheDrawingParams (DRAW_PARAMS *pdp, int cx, int cy, int iZoomNum, int iZo
   pdp->dIncrem = (double)(pdp->iTraceRight - pdp->iTraceLeft + 1) / (double)(pdp->idxEnd - pdp->idxBeg) ;
   }
 
-void CalculateDrawingArea (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZoomDen, int *pcx, int *pcy)
+static void CalculateDrawingArea (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZoomDen, int *pcx, int *pcy)
   {
   int Nix, cx, cy ;
   double dZoom = (double)iZoomNum / (double)iZoomDen ;
@@ -490,7 +466,7 @@ void CalculateDrawingArea (graph_D *dialog, simulation_data *sim_data, int iZoom
   /* Calculate the size of the drawing window based on the zoom, the size of the traces and the #defined width @ zoom 1:1 */
   
   *pcx = GRAPH_CX * dZoom ;
-  *pcy = GRAPH_Y_PADDING + gdk_string_height (gdk_font_load (FONT_STRING), "Xg") + 2 * GRAPH_TEXT_CLEARANCE ;
+  *pcy = GRAPH_Y_PADDING + gdk_string_height (gdk_font_load (QCAD_GDKFONT), "Xg") + 2 * GRAPH_TEXT_CLEARANCE ;
   
   if (NULL != sim_data->trace && 0 != sim_data->number_of_traces)
     for (Nix = 0 ; Nix < sim_data->number_of_traces ; Nix++)
@@ -509,14 +485,14 @@ void CalculateDrawingArea (graph_D *dialog, simulation_data *sim_data, int iZoom
     }
   }
 
-void paint_graph_window (GtkWidget *da, DRAW_PARAMS *pdp, simulation_data *sim_data, gboolean bPreview, GdkRectangle *prcClip)
+static void paint_graph_window (GtkWidget *da, DRAW_PARAMS *pdp, simulation_data *sim_data, GdkRectangle *prcClip)
   {
   int Nix = 0 ;
   int idxSample = 0 ;
   char *szText = "Simulation Results" ;
   GdkRectangle rc = {0, 0, pdp->cx, pdp->cy} ;
-  GdkGC *pgc = bPreview ? da->style->white_gc : da->style->black_gc ;
-  GdkFont *pfont = gdk_font_load (FONT_STRING) ;
+  GdkGC *pgc = da->style->black_gc ;
+  GdkFont *pfont = gdk_font_load (QCAD_GDKFONT) ;
   GdkColor clr ;
   
   /* Set the clipping rectangle for the background gc to speed up drawing */
@@ -531,7 +507,7 @@ void paint_graph_window (GtkWidget *da, DRAW_PARAMS *pdp, simulation_data *sim_d
   if (NULL != prcClip)
     gdk_gc_set_clip_rectangle (pgc, prcClip) ;
   
-  set_current_colour (&clr, GREEN, bPreview ? 0x0000 : 0xFFFF) ;
+  set_current_colour (&clr, GREEN, 0xFFFF) ;
   
   gdk_gc_set_foreground (pgc, &clr) ;
   
@@ -545,25 +521,25 @@ void paint_graph_window (GtkWidget *da, DRAW_PARAMS *pdp, simulation_data *sim_d
   if (!(NULL == sim_data->trace || 0 == sim_data->number_of_traces))
     for (Nix = 0 ; Nix < sim_data->number_of_traces ; Nix++)
       if (sim_data->trace[Nix].drawtrace)
-        draw_single_trace (da, pgc, pdp, &sim_data->trace[Nix], idxSample++, bPreview, sim_data->number_samples) ;
+        draw_single_trace (da, pgc, pdp, &sim_data->trace[Nix], idxSample++, sim_data->number_samples) ;
   
   /* Draw each clock */
   if (NULL != sim_data->clock_data)
     for (Nix = 0 ; Nix < 4 ; Nix++)
       if (sim_data->clock_data[Nix].drawtrace)
-        draw_single_trace (da, pgc, pdp, &sim_data->clock_data[Nix], idxSample++, bPreview, sim_data->number_samples) ;
+        draw_single_trace (da, pgc, pdp, &sim_data->clock_data[Nix], idxSample++, sim_data->number_samples) ;
   
   gdk_gc_unref (pgc) ;
   }
 
-void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRACEDATA *trace, int idx, gboolean bPreview, int icSamples)
+static void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRACEDATA *trace, int idx, int icSamples)
   {
-  int iClrMask = bPreview ? 0x0000 : 0xFFFF ;
+  int iClrMask = 0xFFFF ;
   GdkColor clr = {0, 0, 0, 0} ;
   int iInc, Nix, y = 0, yOld = 0 ;
   double dMin = 0, dMax = 0, dSampleMin = 0, dSampleMax = 0 ;
   char szText[32] = "" ;
-  GdkFont *pfont = gdk_font_load(FONT_STRING);
+  GdkFont *pfont = gdk_font_load(QCAD_GDKFONT);
   int cyFont = gdk_string_height (pfont, "X")/*, iCXString*/ ;
   int iBoxTop, iTraceTop, iTraceOffset1, iTraceOffset2 ;
   
@@ -572,7 +548,7 @@ void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRAC
   iTraceOffset1 = iTraceTop + 0.5 * pdp->iTraceCY ;
   iTraceOffset2 = iTraceTop + pdp->iTraceCY ;
 
-  DBG_GD (fprintf (stderr, "Graphing trace |%s|\n", trace->data_labels)) ;
+  DBG_GD (fprintf (stderr, "Graphing trace |%s| between indices %d and %d\n", trace->data_labels, pdp->idxBeg, pdp->idxEnd)) ;
 
   set_current_colour (&clr, GREEN, iClrMask) ;
   gdk_gc_set_foreground (pgc, &clr) ;
@@ -590,14 +566,14 @@ void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRAC
   gdk_gc_set_line_attributes(pgc, 1, GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
   
   /* Get the vertical scale */
-  get_min_max (trace, 0, icSamples - 1, &dMin, &dMax) ;
+  tracedata_get_min_max (trace, 0, icSamples - 1, &dMin, &dMax) ;
   if (0 == pdp->idxBeg && icSamples - 1 == pdp->idxEnd)
     {
     dSampleMin = dMin ;
     dSampleMax = dMax ;
     }
   else
-    get_min_max (trace, pdp->idxBeg, pdp->idxEnd, &dSampleMin, &dSampleMax) ;
+    tracedata_get_min_max (trace, pdp->idxBeg, pdp->idxEnd, &dSampleMin, &dSampleMax) ;
   
   
   set_current_colour (&clr, trace->trace_color, iClrMask) ;
@@ -605,10 +581,10 @@ void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRAC
   gdk_gc_set_background (pgc, &clr) ;
 
   /* Fill in the trace label */  
-  g_snprintf (szText, 32, "max:%s%1.1f", dSampleMax > 0 ? " " : "", dSampleMax) ;
+  g_snprintf (szText, 32, "max:%s%1.2f", dSampleMax > 0 ? " " : "", dSampleMax) ;
   gdk_draw_string (da->window, pfont, pgc, pdp->iTextLeft, iBoxTop + cyFont + GRAPH_TEXT_CLEARANCE + 1, szText) ;
   gdk_draw_string (da->window, pfont, pgc, pdp->iTextLeft, iTraceOffset1 + 0.5 * cyFont, trace->data_labels) ;
-  g_snprintf (szText, 32, "min:%s%1.1f", dSampleMin > 0 ? " " : "", dSampleMin) ;
+  g_snprintf (szText, 32, "min:%s%1.2f", dSampleMin > 0 ? " " : "", dSampleMin) ;
   gdk_draw_string (da->window, pfont, pgc, pdp->iTextLeft, iBoxTop + pdp->iBoxCY - GRAPH_TEXT_CLEARANCE, szText) ;
 
   /* If there are no samples, or the sample range is too narrow, return */
@@ -626,32 +602,7 @@ void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRAC
     }
   }
 
-void get_min_max (struct TRACEDATA *trace, int idxStart, int idxEnd, double *pdMin, double *pdMax)
-  {
-  int Nix ;
-  
-  DBG_GD (fprintf (stderr, "Getting min and max for trace 0x%08X between %d <-> %d\n", (int)trace, idxStart, idxEnd)) ;
-  
-  if (NULL == trace) return ;
-  
-  *pdMin = *pdMax = trace->data[idxStart] ;
-  
-  for (Nix = idxStart + 1 ; Nix <= idxEnd ; Nix++)
-    {
-    DBG_GD (fprintf (stderr, "Comparing *pdMin:%lf <-> %lf <-> %lf:*pdMax\n", *pdMin, trace->data[Nix], *pdMax)) ;
-    if (trace->data[Nix] < *pdMin) *pdMin = trace->data[Nix] ;
-    if (trace->data[Nix] > *pdMax) *pdMax = trace->data[Nix] ;
-    }
-  
-  /* If there is no range, use default range */
-  if (*pdMin == *pdMax)
-    {
-    *pdMin = -1 ;
-    *pdMax =  1 ;
-    }
-  }
-
-void RedoGraph (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZoomDen, DRAW_PARAMS *pdp)
+static void RedoGraph (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZoomDen, DRAW_PARAMS *pdp)
   {
   int cx = 0, cy = 0 ;
   
@@ -661,11 +612,10 @@ void RedoGraph (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZ
   
   gtk_widget_queue_clear (dialog->vpGraphs) ;
   
-  paint_graph_window (dialog->daGraphs, pdp, sim_data,
-    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->btnPreview)), NULL) ;
+  paint_graph_window (dialog->daGraphs, pdp, sim_data, NULL) ;
   }
 
-gboolean set_current_colour (GdkColor *pclr, int iClr, int iClrMask)
+static gboolean set_current_colour (GdkColor *pclr, int iClr, int iClrMask)
   {
   GdkColormap *pgcm = gdk_colormap_get_system () ;
   

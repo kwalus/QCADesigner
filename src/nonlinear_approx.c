@@ -24,32 +24,48 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
-#include <unistd.h>
+//#include <unistd.h>
 
-#include "qcell.h"
+#include "gqcell.h"
 #include "vector_table.h"
 #include "nonlinear_approx.h"
 #include "simulation.h"
 #include "stdqcell.h"
+#include "command_history.h"
 #include "cad.h"
 #include "command_history.h"
 
+typedef struct{
+	int number_of_neighbours;
+	struct GQCell **neighbours;
+	int is_faulted;
+	float response_shift;
+	double *Ek;
+	
+}nonlinear_approx_model;
 
-void run_nonlinear_approx_iteration(int sample_number, qcell **sorted_cells, int number_of_sorted_cells, simulation_data *sim_data);
-int compareNonlinearQCells (const void *p1, const void *p2) ;
+
+//!Options for the nonlinear approximation engine
+nonlinear_approx_OP nonlinear_approx_options = {3200, 12.9, 1e-20, 3e-34, FALSE} ;
+
+static double determine_Ek(GQCell * cell1, GQCell * cell2, nonlinear_approx_OP *options);
+static void refresh_all_Ek(GQCell *cell, nonlinear_approx_OP *options);
+//void calculate_ground_state(nonlinear_approx_OP *options);
+
+static void run_nonlinear_approx_iteration(int sample_number, GQCell **sorted_cells, int number_of_sorted_cells, simulation_data *sim_data);
+static int compareNonlinearQCells (const void *p1, const void *p2) ;
 
 //-------------------------------------------------------------------//
 // -- this is the main simulation procedure -- //
 //-------------------------------------------------------------------//
-simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, nonlinear_approx_OP *options, VectorTable *pvt){
+simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, GQCell *first_cell, nonlinear_approx_OP *options, VectorTable *pvt){
 	
 	int i, j, total_cells;
-	qcell *cell;
-	qcell **input_cells = NULL;
-	qcell **output_cells = NULL;
-	qcell **sorted_cells ;
+	GQCell *cell;
+	GQCell **input_cells = NULL;
+	GQCell **output_cells = NULL;
+	GQCell **sorted_cells ;
 	int total_number_of_inputs = 0;
 	int total_number_of_outputs = 0;
 	double input = 0;
@@ -105,8 +121,8 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 	command_history_message ("Simulation found %d inputs %d outputs %d total cells\n", total_number_of_inputs, total_number_of_outputs, total_cells);
 
   	// -- allocate memory for array of pointers to the input and output cells in the design -- //
-  	input_cells = calloc (total_number_of_inputs, sizeof (qcell *));
-  	output_cells = calloc (total_number_of_outputs, sizeof (qcell *));
+  	input_cells = calloc (total_number_of_inputs, sizeof (GQCell *));
+  	output_cells = calloc (total_number_of_outputs, sizeof (GQCell *));
 
 
   	// -- filling in the input and output pointer arrays -- //
@@ -140,7 +156,8 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 	
 	// -- Initialize the simualtion data structure -- //
   	sim_data->number_of_traces = total_number_of_inputs + total_number_of_outputs;
-  	sim_data->number_samples = 3200;
+        // This value was so far hard-coded at 3200.  Let's find out why.
+  	sim_data->number_samples = options->number_of_samples;
   	sim_data->trace = malloc (sizeof (struct TRACEDATA) * sim_data->number_of_traces);
 
   	// create and initialize the inputs into the sim data structure //      
@@ -173,20 +190,20 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
     	sim_data->clock_data[i].data = malloc (sizeof (double) * sim_data->number_samples);
   
     	if(SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)for (j = 0; j < sim_data->number_samples; j++){
-    		sim_data->clock_data[i].data[j] = cos (((double) pow (2, total_number_of_inputs)) * (double) j * 4.0 * PI / (double) sim_data->number_samples - PI * i / 2) + 0.1;
-    		if (sim_data->clock_data[i].data[j] > 0.6)
-    			sim_data->clock_data[i].data[j] = 0.6;
-    		if (sim_data->clock_data[i].data[j] < 0.000000001)
-    			sim_data->clock_data[i].data[j] = 0.000000001;
-    	}
-		
-		if(SIMULATION_TYPE == VECTOR_TABLE)for (j = 0; j < sim_data->number_samples; j++){
-    		sim_data->clock_data[i].data[j] = cos (((double)pvt->num_of_vectors) * (double) j * 2.0 * PI / (double) sim_data->number_samples - PI * i / 2) + 0.1;
-    		if (sim_data->clock_data[i].data[j] > 0.6)
-    			sim_data->clock_data[i].data[j] = 0.6;
-    		if (sim_data->clock_data[i].data[j] < 0.000000001)
-    			sim_data->clock_data[i].data[j] = 0.000000001;
-    	}
+    		  sim_data->clock_data[i].data[j] = (options->clock_high - options->clock_low) * cos (((double) pow (2, total_number_of_inputs)) * (double) j * 4.0 * PI / (double) sim_data->number_samples - PI * i / 2) + (options->clock_high + options->clock_low)/2;
+    		  if (sim_data->clock_data[i].data[j] > options->clock_high)
+    			  sim_data->clock_data[i].data[j] = options->clock_high;
+    		  if (sim_data->clock_data[i].data[j] < options->clock_low)
+    			  sim_data->clock_data[i].data[j] = options->clock_low;
+    	  }
+
+		  if(SIMULATION_TYPE == VECTOR_TABLE)for (j = 0; j < sim_data->number_samples; j++){
+    		  sim_data->clock_data[i].data[j] = (options->clock_high - options->clock_low) * cos (((double)pvt->num_of_vectors) * (double) j * 2.0 * PI / (double) sim_data->number_samples - PI * i / 2) + (options->clock_high + options->clock_low)/2;
+    		  if (sim_data->clock_data[i].data[j] > options->clock_high)
+    			  sim_data->clock_data[i].data[j] = options->clock_high;
+    		  if (sim_data->clock_data[i].data[j] < options->clock_low)
+    			  sim_data->clock_data[i].data[j] = options->clock_low;
+    	  }
   
 	}
   	
@@ -194,7 +211,7 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 	refresh_all_Ek (first_cell, options);
 
 //	neighbour_count = calloc (total_cells, sizeof (int));
-	sorted_cells = calloc (total_cells, sizeof (qcell *));
+	sorted_cells = calloc (total_cells, sizeof (GQCell *));
 
   	i = 0;
   	cell = first_cell;
@@ -210,7 +227,7 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 	// -- this is done so that majority gates are evalulated last -- //
 	// -- to ensure that all the signals have arrived first -- //
 	// -- kept getting wrong answers without this -- //
-	qsort (sorted_cells, total_cells, sizeof (qcell *), compareNonlinearQCells) ;
+	qsort (sorted_cells, total_cells, sizeof (GQCell *), compareNonlinearQCells) ;
 //	uglysort (sorted_cells, neighbour_count, total_cells);
 
 	// perform the iterations over all samples //
@@ -239,7 +256,7 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 		  input = pvt->vectors[(j*pvt->num_of_vectors) / sim_data->number_samples][i] ? 1 : -1 ;
 
 	      	// -- set the inputs cells with the input data -- //
-	      	set_cell_polarization (input_cells[i], input);
+	      	gqcell_set_polarization (input_cells[i], input);
 	      	sim_data->trace[i].data[j] = input;
 		}
 
@@ -263,7 +280,7 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 		// -- collect all the output data from the simulation -- //
 		for (i = 0; i < total_number_of_outputs; i++){
 			sim_data->trace[total_number_of_inputs + i].data[j] =
-			calculate_polarization (output_cells[i]);
+			gqcell_calculate_polarization (output_cells[i]);
 		}
 	}//for number of samples
 
@@ -290,7 +307,7 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 
 
 // -- completes one simuolation iteration performs the approximations untill the entire design has stabalized -- //
-void run_nonlinear_approx_iteration (int sample_number, qcell **sorted_cells, int number_of_sorted_cells, simulation_data *sim_data){
+static void run_nonlinear_approx_iteration (int sample_number, GQCell **sorted_cells, int number_of_sorted_cells, simulation_data *sim_data){
 
 	int j = 0, q = 0;
   	int stable = FALSE;
@@ -309,15 +326,15 @@ void run_nonlinear_approx_iteration (int sample_number, qcell **sorted_cells, in
 
 			if (sorted_cells[j]->is_input == FALSE && sorted_cells[j]->is_fixed == FALSE){
 
-	      		old_polarization = calculate_polarization (sorted_cells[j]);
+	      		old_polarization = gqcell_calculate_polarization (sorted_cells[j]);
 
 	      		drive = 0;
 	     		for (q = 0; q < ((nonlinear_approx_model *)sorted_cells[j]->cell_model)->number_of_neighbours; q++){
 
-		  			assert (((nonlinear_approx_model *)sorted_cells[j]->cell_model)->neighbours[q] != NULL);
+		  			g_assert (((nonlinear_approx_model *)sorted_cells[j]->cell_model)->neighbours[q] != NULL);
 
 		  			drive += (((nonlinear_approx_model *)sorted_cells[j]->cell_model)->Ek[q] / sim_data->clock_data[sorted_cells[j]->clock].data[sample_number]) * 
-		  			(calculate_polarization(((nonlinear_approx_model *)sorted_cells[j]->cell_model)->neighbours[q]));
+		  			(gqcell_calculate_polarization(((nonlinear_approx_model *)sorted_cells[j]->cell_model)->neighbours[q]));
 		
 					}
 
@@ -325,7 +342,7 @@ void run_nonlinear_approx_iteration (int sample_number, qcell **sorted_cells, in
 	      		new_polarization = drive / sqrt (1 + drive * drive);
 
 	      		// -- set the polarization of this cell -- //
-	      		set_cell_polarization (sorted_cells[j], new_polarization);
+	      		gqcell_set_polarization (sorted_cells[j], new_polarization);
 				
 				// -- check if it really is stable -- //
 	      		//printf("tolerance = %f\n", new_polarization - old_polarization);
@@ -347,10 +364,11 @@ void run_nonlinear_approx_iteration (int sample_number, qcell **sorted_cells, in
 // -- refreshes the array of Ek values for each cell in the design this is done to speed up the simulation
 // since we can assume no design changes durring the simulation we can precompute all the Ek values then
 // use them as necessary throughout the simulation -- //
-void refresh_all_Ek (qcell *cell, nonlinear_approx_OP *options){
+static void refresh_all_Ek (GQCell *cell, nonlinear_approx_OP *options){
 
   	int k, icNeighbours = 0;
 	nonlinear_approx_model *cell_model = NULL ;
+	GQCell *first_cell = cell ;
 
   	// calculate the Ek for each cell //
   	while (cell != NULL){
@@ -364,7 +382,7 @@ void refresh_all_Ek (qcell *cell, nonlinear_approx_OP *options){
 	cell_model->Ek = NULL;
 
       	cell_model->number_of_neighbours = icNeighbours =
-	  select_cells_in_radius (cell, 70.0, &(cell_model->neighbours));
+	  select_cells_in_radius (first_cell, cell, 70.0, &(cell_model->neighbours));
 
       	if (icNeighbours > 0)
       	  {
@@ -387,44 +405,38 @@ void refresh_all_Ek (qcell *cell, nonlinear_approx_OP *options){
 //-------------------------------------------------------------------//
 // Determines the Kink energy of one cell with respect to another this is defined as the energy of those
 // cells having opposite polarization minus the energy of those two cells having the same polarization -- //
-double determine_Ek (qcell * cell1, qcell * cell2, nonlinear_approx_OP *options){
+static double determine_Ek (GQCell * cell1, GQCell * cell2, nonlinear_approx_OP *options){
 
-  int k;
-  int j;
-
-  double distance = 0;
-
-  double charge1[4] = { -1, 1, -1, 1 };
-  double charge2[4] = { 1, -1, 1, -1 };
-
-  double Ek = 0;
-  double E = 0;
-
-  assert (cell1 != NULL && cell2 != NULL);
-  assert (cell1 != cell2);
-
-  for (k = 0; k < cell1->number_of_dots; k++)
-    {
-      for (j = 0; j < cell2->number_of_dots; j++)
-	{
-
-	  // determine the distance between the dots //
-	  distance = determine_distance (cell1, cell2, k, j);
-	  assert (distance != 0);
-
-	  //printf("dist = %lf\n", distance);             
-	  Ek +=
-	    options->K * (charge1[k] * charge2[j]) / pow (distance, options->decay_exponent);
-	  E += options->K * (charge1[k] * charge1[j]) / pow (distance, options->decay_exponent);
-	  //printf("Ek = .. %lf\n", Ek);
-
-	}			//for other dots
-
-    }				//for these dots
-
-  //printf("Cell[%d] -> Cell[%d] has Ek-E == %f \n", index1, index2, 10000*(Ek-E));
-
-  return Ek - E;
+	int k;
+	int j;
+	
+	double distance = 0;
+	double Constant = 1/(4*PI*EPSILON*options->epsilonR);
+	
+	double charge1[4] = { -HALF_QCHARGE, HALF_QCHARGE, -HALF_QCHARGE, HALF_QCHARGE };
+	double charge2[4] = { HALF_QCHARGE, -HALF_QCHARGE, HALF_QCHARGE, -HALF_QCHARGE };
+	
+	double Ek = 0;
+	double E = 0;
+	
+	g_assert (cell1 != NULL && cell2 != NULL);
+	g_assert (cell1 != cell2);
+	
+	for (k = 0; k < cell1->number_of_dots; k++){
+		for (j = 0; j < cell2->number_of_dots; j++){
+		
+			// determine the distance between the dots //
+			distance = determine_distance (cell1, cell2, k, j);
+			g_assert (distance != 0);
+	            
+			Ek += Constant * (charge1[k] * charge2[j]) / (distance*1e-9);
+			E += Constant * (charge1[k] * charge1[j]) / (distance*1e-9);
+			
+		}//for other dots
+	
+	}//for these dots
+	
+	return Ek - E;
 
 }// determine_Ek
 
@@ -432,7 +444,7 @@ double determine_Ek (qcell * cell1, qcell * cell2, nonlinear_approx_OP *options)
 /*void calculate_ground_state(nonlinear_approx_OP *options){
 	
 	int i,j,total_cells;
-	qcell *cell;
+	GQCell *cell;
 	int *neighbour_count;
 
  
@@ -477,7 +489,7 @@ double determine_Ek (qcell * cell1, qcell * cell2, nonlinear_approx_OP *options)
 	refresh_all_Ek (options);
 
 	neighbour_count = calloc (total_cells, sizeof (int));
-	sorted_cells = calloc (total_cells, sizeof (qcell *));
+	sorted_cells = calloc (total_cells, sizeof (GQCell *));
 
   	i = 0;
   	cell = first_cell;
@@ -516,38 +528,11 @@ double determine_Ek (qcell * cell1, qcell * cell2, nonlinear_approx_OP *options)
 */
 
 //!Compare two instances of sortstruct to determine which has more neighbours
-int compareNonlinearQCells (const void *p1, const void *p2)
+static int compareNonlinearQCells (const void *p1, const void *p2)
   {
   return
-    ((nonlinear_approx_model *)((*((qcell **)(p1)))->cell_model))->number_of_neighbours > 
-    ((nonlinear_approx_model *)((*((qcell **)(p2)))->cell_model))->number_of_neighbours ?  1 :
-    ((nonlinear_approx_model *)((*((qcell **)(p1)))->cell_model))->number_of_neighbours < 
-    ((nonlinear_approx_model *)((*((qcell **)(p2)))->cell_model))->number_of_neighbours ? -1 : 0 ;
+    ((nonlinear_approx_model *)((*((GQCell **)(p1)))->cell_model))->number_of_neighbours > 
+    ((nonlinear_approx_model *)((*((GQCell **)(p2)))->cell_model))->number_of_neighbours ?  1 :
+    ((nonlinear_approx_model *)((*((GQCell **)(p1)))->cell_model))->number_of_neighbours < 
+    ((nonlinear_approx_model *)((*((GQCell **)(p2)))->cell_model))->number_of_neighbours ? -1 : 0 ;
   }//compareSortStructs
-
-//!Sorts a list of cells according to the number of neighbours
-/*
-inline void uglysort (qcell **sorted_cells, int *number_of_neighbours, int NumberElements){
-
-  int Nix;
-
-  SORTSTRUCT *pss =
-    (SORTSTRUCT *) malloc (NumberElements * sizeof (SORTSTRUCT));
-  for (Nix = 0; Nix < NumberElements; Nix++)
-    {
-      pss[Nix].cell = sorted_cells[Nix];
-      pss[Nix].number_of_neighbours = number_of_neighbours[Nix];
-    }
-
-  qsort (pss, NumberElements, sizeof (SORTSTRUCT), compareSortStructs);
-
-  for (Nix = 0; Nix < NumberElements; Nix++)
-    {
-      sorted_cells[Nix] = pss[Nix].cell;
-      number_of_neighbours[Nix] = pss[Nix].number_of_neighbours;
-    }
-
-  free (pss);
-	pss = NULL;
-}//uglysort
-*/

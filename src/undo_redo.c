@@ -1,69 +1,138 @@
-//////////////////////////////////////////////////////////
-// QCADesigner                                          //
-// Copyright 2002 Konrad Walus                          //
-// All Rights Reserved                                  //
-// Author: Konrad Walus                                 //
-// Email: walus@atips.ca                                //
-// WEB: http://www.atips.ca/projects/qcadesigner/       //
-//////////////////////////////////////////////////////////
-//******************************************************//
-//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
-//******************************************************//
-// If your editor wraps long lines disable it or don't  //
-// save the core files that way.                        //
-// Any independent files you generate format as you wish//
-//////////////////////////////////////////////////////////
-// Please use complete names in variables and fucntions //
-// This will reduce ramp up time for new people trying  //
-// to contribute to the project.                        //
-//////////////////////////////////////////////////////////
+#include <stdio.h>
+#include <stdlib.h>
+#include "undo_redo.h"
+#include "undo_actions.h"
+#include "undo_structs.h"
+#include "undo_create.h"
+#include "undo_destroy.h"
 
-#define MAX_UNDOS 10
+#define DBG_UR(s)
 
-undo_struct undo_stack[MAX_UNDOS_REDOS]={{NULL}};
-int num_undo = 0;
+typedef struct
+  {
+  int icEntries ;
+  void **pStart ;
+  int idx ;
+  } UNDO_STACK ;
 
-typedef void (* undo_function)(void *undo_args) UNDO_FUNCTION ;
+static void DestroyAction (void *p) ;
+static void UndoAction (void *p) ;
+static void RedoAction (void *p) ;
 
-typedef struct{	
-	void *undo_args;
-	UNDO_FUNCTION fn;
-}undo_struct;
+static UNDO_STACK ur = {0, NULL, -1} ;
 
-typedef struct{
-	
-	qcell **moved_cells;
-	double *x;
-	double *y;
+gboolean Undo_CanUndo ()
+  {
+  return (ur.idx > -1) ;
+  }
 
-}move_args;
+gboolean Undo_CanRedo ()
+  {
+  gboolean bRet = (ur.idx < ur.icEntries - 1) ;
 
-typedef struct{
-	qcell **deleted_cells;
-}delete_args;
+  if (bRet) bRet = bRet && (NULL != ur.pStart[ur.idx + 1]) ;
 
-// problems when pointers to cells are used becuse any steps that end in delete will 
-// not be reversable. The first step would be a create and the cell might not be in the
-// same memory location so all the undo steps before that would have dangling pointers.
+  return bRet ;
+  }
 
-void add_to_undo(UNDO_FUNCTION fn, void *undo_args){
-		undo_stack[num_undo].fn = fn;
-		undo_stack[num_undo].undo_args = undo_args;
-//if the undo is about to wrap and the last function was a delete then the cells 
-//must be actually deleted to avoid a memory leak.	
-		num_undo++;
-		num_undo%=MAX_UNDOS;	
-}//add_to_undo
+void Undo_Undo ()
+  {
+  if (-1 == ur.idx) return ;
+  UndoAction (ur.pStart[ur.idx]) ;
+  ur.idx-- ;
+  }
 
-void undo(){
-	(* (undo_stack[num_undo-1].fn))(undo_stack[num_undo-1].undo_args);
-	num_undo--;
-	if(num_undo<0)num_undo=MAX_UNDOS-1;
-}//undo
+void Undo_Redo ()
+  {
+  ur.idx++ ;
+  if (ur.icEntries == ur.idx) return ;
+  RedoAction (ur.pStart[ur.idx]) ;
+  }
 
-void redo(){
-	(* (undo_stack[num_undo-1].fn))(undo_stack[num_undo-1].undo_args);
-	num_undo++;
-	num_undo%=MAX_UNDOS;
-}//redo
-	
+void Undo_AddAction (void *p)
+  {
+  int Nix ;
+  
+  DBG_UR (fprintf (stderr, "Entering Undo_AddAction ()\n")) ;
+  
+  if (ur.idx == ur.icEntries - 1)
+    {
+    DBG_UR (fprintf (stderr, "ur.idx has reached ur.icEntries, so reallocating\n")) ;
+    ur.pStart = realloc (ur.pStart, (++(ur.icEntries)) * sizeof (void *)) ;
+    ur.pStart[ur.icEntries - 1] = NULL ;
+    }
+  
+  DBG_UR (fprintf (stderr, "About to destroy event indices %d through %d\n", ur.idx + 1, ur.icEntries - 1)) ;
+  
+  for (Nix = ++(ur.idx) ; Nix < ur.icEntries ; Nix++)
+    {
+    DestroyAction (ur.pStart[Nix]) ;
+    ur.pStart[Nix] = NULL ;
+    }
+  
+  DBG_UR (fprintf (stderr, "Setting entry %d (ur.icEntries = %d) to the event\n", ur.idx, ur.icEntries)) ;
+  
+  ur.pStart[ur.idx] = p ;
+  }
+
+void Undo_Clear ()
+  {
+  int Nix ;
+  
+  for (Nix = 0 ; Nix < ur.icEntries ; Nix++)
+    if (NULL != ur.pStart[Nix])
+      {
+      DestroyAction (ur.pStart[Nix]) ;
+      ur.pStart[Nix] = NULL ;
+      }
+  ur.idx = -1 ;
+  }
+
+static void DestroyAction (void *p)
+  {
+  if (NULL == p) return ;
+  switch (((UNDO_ACTION *)p)->fActionType)
+    {
+    case UA_CREATE_CELLS:
+      DestroyAction_CreateCells (p) ;
+      break ;
+    
+    case UA_CELL_PARAM_CHANGE:
+      DestroyAction_CellParamChange (p) ;
+      break ;
+    }
+  }
+
+static void UndoAction (void *p)
+  {
+  DBG_UR (fprintf (stderr, "In UndoAction: ((UNDO_ACTION *)p)->fActionType = %d\n", ((UNDO_ACTION *)p)->fActionType)) ;
+  switch (((UNDO_ACTION *)p)->fActionType)
+    {
+    case UA_CREATE_CELLS:
+      DBG_UR (fprintf (stderr, "In UndoAction: Calling UndoAction_CreateCells\n")) ;
+      UndoAction_CreateCells (p) ;
+      break ;
+    
+    case UA_CELL_PARAM_CHANGE:
+      DBG_UR (fprintf (stderr, "In UndoAction: Calling UndoAction_CellParamChange\n")) ;
+      UndoAction_CellParamChange (p) ;
+      break ;
+    }
+  }
+
+static void RedoAction (void *p)
+  {
+  DBG_UR (fprintf (stderr, "In RedoAction: ((UNDO_ACTION *)p)->fActionType = %d\n", ((UNDO_ACTION *)p)->fActionType)) ;
+  switch (((UNDO_ACTION *)p)->fActionType)
+    {
+    case UA_CREATE_CELLS:
+      DBG_UR (fprintf (stderr, "In RedoAction: Calling RedoAction_CreateCells\n")) ;
+      RedoAction_CreateCells (p) ;
+      break ;
+    
+    case UA_CELL_PARAM_CHANGE:
+      DBG_UR (fprintf (stderr, "In RedoAction: Calling RedoAction_CellParamChange\n")) ;
+      RedoAction_CellParamChange (p) ;
+      break ;
+    }
+  }

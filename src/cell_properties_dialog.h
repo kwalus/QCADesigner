@@ -1,7 +1,8 @@
 #ifndef _CELL_PROPERTIES_DIALOG_H_
 #define _CELL_PROPERTIES_DIALOG_H_
 
-#include "globals.h"
+#include <gtk/gtk.h>
+#include "gqcell.h"
 
 void get_cell_properties_from_user (GtkWindow *parent, cell_OP *pco) ;
 

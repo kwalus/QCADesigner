@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "vector_table.h"
+#include "fileio_helpers.h"
 
 #define DBG_VT(s)
 
@@ -30,12 +31,11 @@ typedef struct
 
 static char *pszMagicCookie = "%%VECTOR TABLE%%" ;
 
-int CountInputs (qcell *first_cell) ;
-void FillInputs (VectorTable *pvt, qcell *first_cell) ;
-void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors) ;
-gboolean CheckMagic (FILE *pfile) ;
-char *ReadLine (FILE *pfile) ;
-int ReadVector (FILE *pfile, gboolean *pVector, int ic) ;
+static int CountInputs (GQCell *first_cell) ;
+static void FillInputs (VectorTable *pvt, GQCell *first_cell) ;
+static void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors) ;
+static gboolean CheckMagic (FILE *pfile) ;
+static int ReadVector (FILE *pfile, gboolean *pVector, int ic) ;
 
 VectorTable *VectorTable_new ()
   {
@@ -69,8 +69,8 @@ VectorTable *VectorTable_copy (VectorTable *pvt)
   
   if (pvtp->vt.num_of_inputs > 0)
     {
-    pvtpNew->vt.inputs = malloc (pvtp->vt.num_of_inputs * sizeof (qcell *)) ;
-    memcpy (pvtpNew->vt.inputs, pvtp->vt.inputs, pvtp->vt.num_of_inputs * sizeof (qcell *)) ;
+    pvtpNew->vt.inputs = malloc (pvtp->vt.num_of_inputs * sizeof (GQCell *)) ;
+    memcpy (pvtpNew->vt.inputs, pvtp->vt.inputs, pvtp->vt.num_of_inputs * sizeof (GQCell *)) ;
     pvtpNew->vt.active_flag = malloc (pvtp->vt.num_of_inputs * sizeof (gboolean)) ;
     memcpy (pvtpNew->vt.active_flag, pvtp->vt.active_flag, pvtp->vt.num_of_inputs * sizeof (gboolean)) ;
     }
@@ -122,7 +122,7 @@ VectorTable *VectorTable_clear (VectorTable *pvt)
 
 /* Replace the inputs in the vector table with those in the linked list starting
    with first_cell, and clean out the vectors */
-void VectorTable_fill (VectorTable *pvt, qcell *first_cell)
+void VectorTable_fill (VectorTable *pvt, GQCell *first_cell)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
   int icInputs = CountInputs (first_cell) ;
@@ -132,7 +132,7 @@ void VectorTable_fill (VectorTable *pvt, qcell *first_cell)
   if (icInputs > pvtp->icIRoom)
     {
     pvtp->icIRoom = icInputs ;
-    pvtp->vt.inputs = realloc (pvtp->vt.inputs, icInputs * sizeof (qcell *)) ;
+    pvtp->vt.inputs = realloc (pvtp->vt.inputs, icInputs * sizeof (GQCell *)) ;
     pvtp->vt.active_flag = realloc (pvtp->vt.active_flag, icInputs * sizeof (gboolean)) ;
     }
 
@@ -147,7 +147,7 @@ void VectorTable_fill (VectorTable *pvt, qcell *first_cell)
 
 /* Grab all the inputs out of the linked list starting at first_cell, and append
    them to the array of inputs */
-void VectorTable_add_inputs (VectorTable *pvt, qcell *first_cell)
+void VectorTable_add_inputs (VectorTable *pvt, GQCell *first_cell)
   {
   while (NULL != first_cell)
     {
@@ -158,7 +158,7 @@ void VectorTable_add_inputs (VectorTable *pvt, qcell *first_cell)
   }
 
 /* Append a single input to the array and pad its corresponding vectors with 0s */
-void VectorTable_add_input (VectorTable *pvt, qcell *new_input)
+void VectorTable_add_input (VectorTable *pvt, GQCell *new_input)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
   int idx = pvtp->vt.num_of_inputs ;
@@ -171,7 +171,7 @@ void VectorTable_add_input (VectorTable *pvt, qcell *new_input)
   if (pvtp->vt.num_of_inputs == pvtp->icIRoom)
     {
     pvtp->icIRoom = pvtp->icIRoom * 2 + 1 ;
-    pvtp->vt.inputs = realloc (pvtp->vt.inputs, pvtp->icIRoom * sizeof (qcell *)) ;
+    pvtp->vt.inputs = realloc (pvtp->vt.inputs, pvtp->icIRoom * sizeof (GQCell *)) ;
     pvtp->vt.active_flag = realloc (pvtp->vt.active_flag, pvtp->icIRoom * sizeof (gboolean)) ;
     
     for (Nix = 0 ; Nix < pvtp->icVRoom ; Nix++)
@@ -180,7 +180,7 @@ void VectorTable_add_input (VectorTable *pvt, qcell *new_input)
   
   if (idx < pvtp->vt.num_of_inputs)
     {
-    memmove (&(pvtp->vt.inputs[idx + 1]), &(pvtp->vt.inputs[idx]), (pvtp->vt.num_of_inputs - idx) * sizeof (qcell *)) ;
+    memmove (&(pvtp->vt.inputs[idx + 1]), &(pvtp->vt.inputs[idx]), (pvtp->vt.num_of_inputs - idx) * sizeof (GQCell *)) ;
     memmove (&(pvtp->vt.active_flag[idx + 1]), &(pvtp->vt.active_flag[idx]), (pvtp->vt.num_of_inputs - idx) * sizeof (gboolean)) ;
     for (Nix = 0 ; Nix < pvtp->vt.num_of_vectors ; Nix++)
       memmove (&(pvtp->vt.vectors[Nix][idx + 1]), &(pvtp->vt.vectors[Nix][idx]), (pvtp->vt.num_of_inputs - idx) * sizeof (gboolean)) ;
@@ -198,7 +198,7 @@ void VectorTable_add_input (VectorTable *pvt, qcell *new_input)
   }
 
 /* Delete an input, all its vector components, and make the vector table narrower */
-void VectorTable_del_input (VectorTable *pvt, qcell *old_input)
+void VectorTable_del_input (VectorTable *pvt, GQCell *old_input)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
   int idx = -1 ;
@@ -217,7 +217,7 @@ void VectorTable_del_input (VectorTable *pvt, qcell *old_input)
   
   if (idx < pvtp->vt.num_of_inputs - 1)
     {
-    memmove (&(pvtp->vt.inputs[idx]), &(pvtp->vt.inputs[idx + 1]), (pvtp->vt.num_of_inputs - idx - 1) * sizeof (qcell *)) ;
+    memmove (&(pvtp->vt.inputs[idx]), &(pvtp->vt.inputs[idx + 1]), (pvtp->vt.num_of_inputs - idx - 1) * sizeof (GQCell *)) ;
     memmove (&(pvtp->vt.active_flag[idx]), &(pvtp->vt.active_flag[idx + 1]), (pvtp->vt.num_of_inputs - idx - 1) * sizeof (gboolean)) ;
     for (Nix = 0 ; Nix < pvtp->vt.num_of_vectors ; Nix++)
       memmove (&(pvtp->vt.vectors[Nix][idx]), &(pvtp->vt.vectors[Nix][idx + 1]), (pvtp->vt.num_of_inputs - idx - 1) * sizeof (gboolean)) ;
@@ -384,12 +384,13 @@ VTL_RESULT VectorTable_load (VectorTable *pvt)
   for (Nix = 0 ; Nix < icVectors ; Nix++)
     {
     DBG_VT (fprintf (stderr, "Reading vector %d\n", Nix)) ;
-    if ((idxNext = ReadVector (pfile, pvtp->vt.vectors[Nix], pvtp->vt.num_of_inputs), pvtp->vt.num_of_inputs) < pvtp->vt.num_of_inputs)
+    if ((idxNext = ReadVector (pfile, pvtp->vt.vectors[Nix], pvtp->vt.num_of_inputs)) < pvtp->vt.num_of_inputs)
       {
       DBG_VT (fprintf (stderr, "ReadVector has returned %d\n", idxNext)) ;
       for (Nix1 =  idxNext ; Nix1 < pvtp->vt.num_of_inputs ; Nix1++)
         pvtp->vt.vectors[Nix][Nix1] = FALSE ;
       }
+    DBG_VT (fprintf (stderr, "idxNext = %d vs. pvtp->vt.num_of_inputs = %d\n", idxNext, pvtp->vt.num_of_inputs)) ;
     }
   
   fclose (pfile) ;
@@ -429,8 +430,23 @@ void VectorTable_dump (VectorTable *pvt, FILE *pfile)
   fprintf (pfile, "pvtp->icVRoom = %d\n", pvtp->icVRoom) ;
   }
 
+void VectorTable_update_inputs (VectorTable *pvt, GQCell *pqc)
+  {
+  int Nix ;
+  
+  for (Nix = 0 ; Nix < pvt->num_of_inputs ; Nix++)
+    if (pvt->inputs[Nix] == pqc && !pqc->is_input)
+      {
+      VectorTable_del_input (pvt, pqc) ;
+      return ;
+      }
+  
+  if (Nix == pvt->num_of_inputs && pqc->is_input)
+    VectorTable_add_input (pvt, pqc) ;
+  }
+
 /* Walk the linked list and count the inputs */
-int CountInputs (qcell *first_cell)
+static int CountInputs (GQCell *first_cell)
   {
   int ic = 0 ;
 
@@ -453,7 +469,7 @@ int CountInputs (qcell *first_cell)
 
 /* Assuming a big enough array to hold them, fill the array with those inputs as
    you walk the linked list */
-void FillInputs (VectorTable *pvt, qcell *first_cell)
+static void FillInputs (VectorTable *pvt, GQCell *first_cell)
   {
   int idx = 0 ;
 
@@ -475,7 +491,7 @@ void FillInputs (VectorTable *pvt, qcell *first_cell)
   }
 
 /* Check the magic string at the top of the vector file, without moving the file pointer */
-gboolean CheckMagic (FILE *pfile)
+static gboolean CheckMagic (FILE *pfile)
   {
   int cb = ftell (pfile) ;
   char *psz = NULL ;
@@ -483,56 +499,25 @@ gboolean CheckMagic (FILE *pfile)
   
   fseek (pfile, 0, SEEK_SET) ;
   
-  psz = ReadLine (pfile) ;
+  psz = ReadLine (pfile, '#') ;
   
   bRet = !strcmp (psz, pszMagicCookie) ;
-  
-  free (psz) ;
   
   fseek (pfile, cb, SEEK_SET) ;
   
   return bRet ;
   }
 
-/* Allocate a buffer to hold a line of string, stripping comments. Return the buffer */
-char *ReadLine (FILE *pfile)
-  {
-  int idxBeg = ftell (pfile), idxEnd = idxBeg ;
-  char c = 0, *pszRet = NULL ;
-  int Nix, strl = 0 ;
-  
-  while ('\n' != c && !feof (pfile))
-    fread (&c, 1, 1, pfile) ;
-    
-  idxEnd = ftell (pfile) ;
-  
-  if (idxEnd == idxBeg) return NULL ;
-  
-  pszRet = malloc ((strl = idxEnd - idxBeg) + 1) ;
-  pszRet[idxEnd - idxBeg] = 0 ;
-  fseek (pfile, idxBeg, SEEK_SET) ;
-  fread (pszRet, idxEnd - idxBeg, 1, pfile) ;
-  if ('\n' == pszRet[idxEnd - idxBeg - 1])
-    pszRet[--strl] = 0 ;
-  
-  for (Nix = 0 ; Nix < strl ; Nix++)
-   if ('#' == pszRet[Nix])
-     pszRet[Nix] = 0 ;
-  
-  return pszRet ;
-  }
-
 /* Run through the file, measure the width of vectors, and count them */
-void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
+static void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
   {
   int Nix ;
   int cb = ftell (pfile) ;
   char *psz = NULL ;
   
-  DBG_VT (psz = ReadLine (pfile)) ;
+  DBG_VT (psz = ReadLine (pfile, '#')) ;
   DBG_VT (fprintf (stderr, "File is at line '%s'\n", psz)) ;
   DBG_VT (fseek (pfile, cb, SEEK_SET)) ;
-  DBG_VT (free (psz)) ;
 
   fseek (pfile, 0, SEEK_SET) ;
   
@@ -541,13 +526,12 @@ void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
   /* Count the inputs */
   while (!feof (pfile))
     {
-    if (NULL == (psz = ReadLine (pfile))) break ;
+    if (NULL == (psz = ReadLine (pfile, '#'))) break ;
     
     for (Nix = 0 ; Nix < strlen (psz) ; Nix++)
       if ('0' == psz[Nix] || '1' == psz[Nix])
         (*picInputs)++ ;
 
-    free (psz) ;
     if (0 != *picInputs)
       break ;
     }
@@ -555,7 +539,7 @@ void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
   /* Count the vectors */
   while (!feof (pfile))
     {
-    if (NULL == (psz = ReadLine (pfile))) break ;
+    if (NULL == (psz = ReadLine (pfile, '#'))) break ;
     
     for (Nix = 0 ; Nix < strlen (psz) ; Nix++)
       if ('0' == psz[Nix] || '1' == psz[Nix])
@@ -563,28 +547,26 @@ void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
 	(*picVectors)++ ;
 	break ;
 	}
-    free (psz) ;
     }
   
   fseek (pfile, cb, SEEK_SET) ;
   }
 
 /* Read in a single vector from the file */
-int ReadVector (FILE *pfile, gboolean *pVector, int ic)
+static int ReadVector (FILE *pfile, gboolean *pVector, int ic)
   {
   int idx = -1 ;
   int Nix ;
   char *psz ;
   DBG_VT (int cb = ftell (pfile)) ;
-  DBG_VT (psz = ReadLine (pfile)) ;
+  DBG_VT (psz = ReadLine (pfile, '#')) ;
   DBG_VT (fprintf (stderr, "File is at line '%s'\n", psz)) ;
   DBG_VT (fseek (pfile, cb, SEEK_SET)) ;
-  DBG_VT (free (psz)) ;
 
   while (!feof (pfile))
     {
     DBG_VT (fprintf (stderr, "Entering non-EOF loop\n")) ;
-    if (NULL == (psz = ReadLine (pfile))) return 0 ;
+    if (NULL == (psz = ReadLine (pfile, '#'))) return 0 ;
     DBG_VT (fprintf (stderr, "ReadVector: Have retrieved the following line:\n%s\n", psz)) ;
     
     for (Nix = 0 ; Nix < strlen (psz) && idx < ic - 1 ; Nix++)
@@ -593,10 +575,8 @@ int ReadVector (FILE *pfile, gboolean *pVector, int ic)
         pVector[++idx] = ('1' == psz[Nix]) ;
       }
     
-    free (psz) ;
-	
     if (-1 != idx) break ;
     }
-  DBG_VT (fprintf (stderr, "ReadVector returning idx = %d\n", idx)) ;
-  return idx ;
+  DBG_VT (fprintf (stderr, "ReadVector returning idx = %d. There're supposed to be %d inputs.\n", idx + 1, ic)) ;
+  return ++idx ;
   }

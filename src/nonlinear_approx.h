@@ -8,6 +8,17 @@
 // **** functions. This will reduce ramp up time for new//
 // **** people trying to contribute to the project.     //
 //////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way.                        //
+// Any independent files you generate format as you wish//
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
 
 #ifndef _NONLINEAR_APPROX_H_
 #define _NONLINEAR_APPROX_H_
@@ -19,35 +30,20 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "qcell.h"
+#include "gqcell.h"
 #include "vector_table.h"
 #include "simulation.h"
 
 typedef struct{
 
 	int number_of_samples;
-	float K ;
-	float decay_exponent ;
+	double epsilonR ;
+	double clock_high ;
+	double clock_low ;
 	gboolean animate_simulation;
 
 }nonlinear_approx_OP;
 
-typedef struct{
-	int number_of_neighbours;
-	struct qcell **neighbours;
-	int is_faulted;
-	float response_shift;
-	double *Ek;
-	
-}nonlinear_approx_model;
-
-simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, nonlinear_approx_OP *options, VectorTable *pvt);
-int CountActiveInputs (VectorTable *pvt) ;
-inline void uglysort(qcell ** sorted_cells, int *number_of_neighbours, int NumberElements);
-int compareSortStructs(const void *p1, const void *p2);
-double determine_Ek(qcell * cell1, qcell * cell2, nonlinear_approx_OP *options);
-void refresh_all_Ek(qcell *cell, nonlinear_approx_OP *options);
-//void calculate_ground_state(nonlinear_approx_OP *options);
-void animate_test_simulation();
+simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, GQCell *first_cell, nonlinear_approx_OP *options, VectorTable *pvt);
 
 #endif /* NONLINEAR_APPROX_H_ */

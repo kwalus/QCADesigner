@@ -18,40 +18,40 @@
 // to contribute to the project.                        //
 //////////////////////////////////////////////////////////
 
-
 // -- includes -- //
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
-#include <assert.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-//#include "globals.h"
-#include "stdio.h"
-#include "stdlib.h"
 #include "fileio.h"
 #include "stdqcell.h"
+#include "gqcell.h"
+#include "undo_create.h"
+#include "fileio_helpers.h"
 
 #define DBG_FIO(s)
 
 // ---------------------------------------------------------------------------------------- //
 
-void read_options(FILE *project_file);
-int read_properties(FILE *project_file);
-qcell *read_next_qcell(FILE *project_file);
-void write_header (FILE *pfile, double dVersion, double dGridSpacing, int icCells) ;
-void write_single_cell (FILE *project_file, qcell *cell) ;
-char *get_identifier(char *buffer);
+static void read_options(FILE *project_file, double *pgrid_spacing);
+static int read_properties(FILE *project_file);
+static void write_header (FILE *pfile, double dVersion, double dGridSpacing, int icCells) ;
+static char *get_identifier(char *buffer);
+
+static double qcadesigner_version = 1.3 ;
 
 // ---------------------------------------------------------------------------------------- //
 
 // creates a file and stores all the cells in the simulation //
-gboolean create_file(gchar *file_name, qcell *first_cell){
+gboolean create_file(gchar *file_name, GQCell *first_cell, double grid_spacing){
 	FILE *project_file = NULL ;
 	int total_cells =0;
-	qcell *cell = first_cell;
+	GQCell *cell = first_cell;
 	
 		// -- count the number of cells -- //
 	while(cell != NULL){
@@ -70,7 +70,7 @@ gboolean create_file(gchar *file_name, qcell *first_cell){
 	write_header (project_file, qcadesigner_version, grid_spacing, total_cells) ;
 
 	while(cell != NULL){
-      	      	write_single_cell (project_file, cell) ;
+      	      	gqcell_serialize (cell, project_file) ;
 		cell = cell->next;
 	}
 
@@ -82,7 +82,7 @@ gboolean create_file(gchar *file_name, qcell *first_cell){
 // ---------------------------------------------------------------------------------------- //
 
 
-void export_block(gchar *file_name, qcell **selected_cells, int number_of_selected_cells){
+void export_block(gchar *file_name, GQCell **selected_cells, int number_of_selected_cells, double grid_spacing){
 	
 	int j ;
 	FILE *block_file = NULL;
@@ -100,14 +100,14 @@ void export_block(gchar *file_name, qcell **selected_cells, int number_of_select
 	write_header (block_file, qcadesigner_version, grid_spacing, number_of_selected_cells) ;
 
 	for (j = 0 ; j < number_of_selected_cells ; j++)
-      	  write_single_cell (block_file, selected_cells[j]) ;
+      	  gqcell_serialize (selected_cells[j], block_file) ;
 
 	printf("saved block as %s\n", file_name);
 	fclose(block_file);
 
 }//export_block
 
-void write_header (FILE *project_file, double dVersion, double dGridSpacing, int icCells)
+static void write_header (FILE *project_file, double dVersion, double dGridSpacing, int icCells)
   {
   // -- Write the software version to file -- //
   fprintf(project_file, "[VERSION]\n");
@@ -125,60 +125,16 @@ void write_header (FILE *project_file, double dVersion, double dGridSpacing, int
   fprintf(project_file, "[#DESIGN_PROPERTIES]\n");
   }
 
-void write_single_cell (FILE *project_file, qcell *cell)
-  {
-  int i ;
-  fprintf(project_file, "[QCELL]\n");
-
-  fprintf(project_file, "x=%e\n",cell->x);
-  fprintf(project_file, "y=%e\n",cell->y);
-
-  fprintf(project_file, "top_x=%e\n",cell->top_x);
-  fprintf(project_file, "top_y=%e\n",cell->top_y);
-  fprintf(project_file, "bot_x=%e\n",cell->bot_x);
-  fprintf(project_file, "bot_y=%e\n",cell->bot_y);
-
-  fprintf(project_file, "cell_width=%e\n",cell->cell_width);
-  fprintf(project_file, "cell_height=%e\n",cell->cell_height);
-
-  fprintf(project_file, "orientation=%d\n", cell->orientation);
-
-  fprintf(project_file, "color=%d\n", cell->color);
-  fprintf(project_file, "clock=%d\n", cell->clock);
-
-  fprintf(project_file, "is_input=%d\n", cell->is_input);
-  fprintf(project_file, "is_output=%d\n", cell->is_output);
-  fprintf(project_file, "is_fixed=%d\n", cell->is_fixed);
-
-  if(cell->label[strlen(cell->label)-1] != '\n')fprintf(project_file, "label=%s\n", cell->label);
-  if(cell->label[strlen(cell->label)-1] == '\n')fprintf(project_file, "label=%s", cell->label);
-
-  fprintf(project_file, "number_of_dots=%d\n", cell->number_of_dots);
-
-
-  // -- write the dots to the file -- //
-  for(i = 0; i < cell->number_of_dots; i++){
-	  fprintf(project_file, "[QDOT]\n");
-	  fprintf(project_file, "x=%e\n",cell->cell_dots[i].x);
-	  fprintf(project_file, "y=%e\n",cell->cell_dots[i].y);
-	  fprintf(project_file, "diameter=%e\n",cell->cell_dots[i].diameter);
-	  fprintf(project_file, "charge=%e\n",cell->cell_dots[i].charge);
-	  fprintf(project_file, "spin=%e\n",cell->cell_dots[i].spin);
-	  fprintf(project_file, "potential=%e\n",cell->cell_dots[i].potential);
-	  fprintf(project_file, "[#QDOT]\n");
-	  }
-
-  fprintf(project_file, "[#QCELL]\n");
-  }
-
-qcell *import_block(gchar *file_name, qcell ***p_selected_cells, int *p_number_of_selected_cells, qcell **p_last_cell){
+GQCell *import_block(gchar *file_name, GQCell ***p_selected_cells, int *p_number_of_selected_cells, GQCell **p_last_cell){
 	
 	int number_of_cells;
-	qcell qc = {NULL} ;
-	qcell *qc_start = &qc ;
+	GQCell qc ;
+	GQCell *qc_start = &qc ;
 	// -- file from which to import -- //
 	FILE *import_file = fopen(file_name, "r");
 	
+        DBG_FIO (fprintf (stderr, "Importing block file %s\n", file_name)) ;
+        
 	// -- free up any currently selected cells -- //
 	
 	if (!(NULL == (*p_selected_cells) && 0 == (*p_number_of_selected_cells)))
@@ -202,26 +158,29 @@ qcell *import_block(gchar *file_name, qcell ***p_selected_cells, int *p_number_o
 		}
 		else
 		  {
-		  (*p_selected_cells) = calloc(number_of_cells, sizeof(qcell *)); 
+		  (*p_selected_cells) = calloc(number_of_cells, sizeof(GQCell *)); 
 
 		  // -- Reset the file pointer so as to start reading from the first cell -- /
 		  rewind(import_file);
 
 		  // -- Read in all the cells in the project file -- //
 		  while(!feof(import_file) && (*p_number_of_selected_cells) < number_of_cells)
-      	      	    if(((*p_selected_cells)[number_of_selected_cells] = qc_start->next = read_next_qcell(import_file))==NULL)
+      	      	    if(((*p_selected_cells)[(*p_number_of_selected_cells)] = qc_start->next = gqcell_new_from_stream (import_file))==NULL)
 		      break;
 		    else
 		      {
-		      qc_start->next->previous = qc_start ;
+		      qc_start->next->prev = qc_start ;
 		      qc_start->next->next = NULL ;
 		      qc_start = qc_start->next ;
     		      (*p_number_of_selected_cells)++;
 		      }
-
-		  (*p_last_cell)->next = qc.next ;
-		  if (NULL != qc.next) qc.next->previous = (*p_last_cell) ;
-		  (*p_last_cell) = (qc_start == &qc ? NULL : qc_start) ;
+                  
+                  if (NULL != (*p_last_cell))
+  		    (*p_last_cell)->next = qc.next ;
+		  if (NULL != qc.next)
+                    qc.next->prev = (*p_last_cell) ;
+                  if (qc_start != &qc)
+                    (*p_last_cell) = qc_start ;
 		  }
 		  
 	}
@@ -236,35 +195,39 @@ qcell *import_block(gchar *file_name, qcell ***p_selected_cells, int *p_number_o
 // ---------------------------------------------------------------------------------------- //
 
 // opens a selected file //
-qcell *open_project_file(gchar *file_name, qcell **p_first_cell, qcell **p_last_cell){
+GQCell *open_project_file(gchar *file_name, GQCell **p_first_cell, GQCell **p_last_cell, double *pgrid_spacing){
 	FILE *project_file = NULL ;
-	qcell qc = {NULL} ;
-	qcell *pqc = &qc ;
+	GQCell qc ;
+	GQCell *pqc = &qc ;
 	project_file = fopen(file_name, "r");
 	
 	if(project_file == NULL){
 		g_print("cannot open that file!\n");
 		return NULL ;
 	}else{
-		
+		DBG_FIO (fprintf (stderr, "Attempting to open project file \"%s\"\n", file_name)) ;
 		// -- Read in the design options from the project file -- //
-		read_options(project_file);
+		read_options(project_file, pgrid_spacing);
+		DBG_FIO (fprintf (stderr, "After read_options\n")) ;
 				
 		// -- Reset the file pointer so as to start reading from the first cell -- /
 		rewind(project_file);
 		
 		// -- Read in all the cells in the project file -- //
 		while(!feof(project_file)){
-			if (NULL == (pqc->next = read_next_qcell(project_file)))
+			DBG_FIO (fprintf (stderr, "Calling qcell_new_from_stream\n")) ;
+			if (NULL == (pqc->next = gqcell_new_from_stream (project_file)))
 			  break ;
 			else
 			  {
-			  pqc->next->previous = pqc ;
+                          InitUndoHistory (pqc->next) ;
+			  pqc->next->prev = pqc ;
 			  pqc->next->next = NULL ;
 			  pqc = pqc->next ;
 			  }
+			DBG_FIO (fprintf (stderr, "Called qcell_new_from_stream\n")) ;
 		}
-		if (NULL != qc.next) qc.next->previous = NULL ;
+		if (NULL != qc.next) qc.next->prev = NULL ;
 		(*p_first_cell) = qc.next ;
 		(*p_last_cell) = (&qc == pqc ? NULL : pqc) ;
 				
@@ -277,253 +240,14 @@ qcell *open_project_file(gchar *file_name, qcell **p_first_cell, qcell **p_last_
 	
 }//open_project_file
 
-// ---------------------------------------------------------------------------------------- //
-
-//!Reads in a cell from a .qca file and returns a pointer to it
-qcell *read_next_qcell(FILE *project_file){
-
-	char *identifier = NULL;
-
-	//The file read buffer is 80 characters long any lines in the file longer then this will
-	//result in unexpected outputs.
-	char *buffer = calloc(80, sizeof(char));
-	
-	qcell *cell = NULL;
-	
-	// -- The dot that is currently being read to -- //
-	int current_dot = 0;
-	
-	// -- make sure the file is not NULL -- //
-	if(project_file == NULL){
-		printf("Cannot extract the design from a NULL file\n");
-		printf("The pointer to the project file was passed as NULL to read_design()\n");
-		return NULL;
-	}
-	
-	// -- read the first line in the file to the buffer -- //
-	fgets(buffer, 80, project_file);
-	
-	// -- check whether that was the end of the file -- //
-	if(feof(project_file)){
-		//printf("Premature end of file reached your design may not have been loaded\n");
-		return NULL;
-		}
-	
-	// -- find the design [DESIGN_OPTIONS] tag -- //	
-	while(strcmp(buffer, "[QCELL]\n") != 0){
-		fgets(buffer, 80, project_file);
-		
-		if(feof(project_file)){
-			printf("Premature end of file reached your design may not have been loaded\n");
-			printf("End of file reached while searching for the opening [QCELL] tag\n");
-			return NULL;
-			}
-	}//while ![QCELL]
-	
-	//Allocate memory for the cell
-	cell = malloc(sizeof(qcell));
-	cell->cell_dots = NULL;
-			
-	// -- read in the first option --//
-	fgets(buffer, 80, project_file);
-		
-	// -- keep reading in lines of the file until the end tag is reached -- //
-	while(strcmp(buffer, "[#QCELL]\n") != 0){
-		
-		// -- get the identifier from the buffer --//
-		if((identifier = get_identifier(buffer)) != NULL){
-				
-				// -- Find and set the appropriate property of the cell from the buffer -- //
-				if(!strncmp(identifier, "x", sizeof("x"))){
-					cell->x = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "y", sizeof("y"))){
-					cell->y = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "top_x", sizeof("top_x"))){
-					cell->top_x = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "top_y", sizeof("top_y"))){
-					cell->top_y = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "bot_x", sizeof("bot_x"))){
-					cell->bot_x = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "bot_y", sizeof("bot_y"))){
-					cell->bot_y = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "cell_width", sizeof("cell_width"))){
-					cell->cell_width = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "cell_height", sizeof("cell_height"))){
-					cell->cell_height = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "orientation", sizeof("orientation"))){
-					cell->orientation = atoi(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "clock", sizeof("clock"))){
-					cell->clock = atoi(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "color", sizeof("color"))){
-					cell->color = atoi(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "is_input", sizeof("is_input"))){
-					cell->is_input = atoi(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "is_output", sizeof("is_output"))){
-					cell->is_output = atoi(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "is_fixed", sizeof("is_fixed"))){
-					cell->is_fixed = atoi(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "number_of_dots", sizeof("number_of_dots"))){
-					cell->number_of_dots = atoi(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "label", sizeof("label"))){
-					cell->label = calloc(80, sizeof(char));
-					// copy the label except for the \n character which shows up as a little box when drawing the label //
-					strncpy(cell->label, strchr(buffer,'=')+sizeof(char), strlen(strchr(buffer,'=')+sizeof(char)) - 1);
-				}
-				
-				free(identifier);
-				identifier = NULL;				
-		
-		// -- else check if this the opening tag for a QDOT -- //
-		}else if(strcmp(buffer, "[QDOT]\n") == 0){
-			
-			// -- allocate the memory for the cell dots -- //
-			if(cell->cell_dots == NULL){
-				if(cell->number_of_dots <= 0 ){
-					printf("Error attempting to load the dots into a cell: number_of_dots <=0\n");
-					printf("Possibly due to having [QDOT] definition before number_of_dots definition\n");
-					printf("The file has failed to load\n");
-					clear_all_cells();
-					return NULL;
-				}
-				cell->cell_dots = malloc(sizeof(qdot) * cell->number_of_dots);
-				current_dot = 0;
-			}
-			
-			fgets(buffer, 80, project_file);
-			
-			// -- extract all the data within the [QDOT] tags -- //
-			while(strcmp(buffer, "[#QDOT]\n") != 0){
-			
-				// -- get the identifier from the buffer --//
-				if((identifier = get_identifier(buffer)) != NULL){
-				
-				
-				// -- Find and set the appropriate property of the cell from the buffer -- //
-				if(!strncmp(identifier, "x", sizeof("x"))){
-					cell->cell_dots[current_dot].x = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "y", sizeof("y"))){
-					cell->cell_dots[current_dot].y = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "diameter", sizeof("diameter"))){
-					cell->cell_dots[current_dot].diameter = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "charge", sizeof("charge"))){
-					cell->cell_dots[current_dot].charge = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "spin", sizeof("spin"))){
-					cell->cell_dots[current_dot].spin = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				if(!strncmp(identifier, "potential", sizeof("potenital"))){
-					cell->cell_dots[current_dot].potential = atof(strchr(buffer,'=')+sizeof(char));
-				}
-				
-				free(identifier);
-				identifier = NULL;
-				}
-				
-				if(feof(project_file)){
-					printf("Premature end of file reached while trying to locate the [#QDOT] tag\n");
-					return NULL;
-					}
-			
-				fgets(buffer, 80, project_file);
-			
-			}//while not [#QDOT]
-			
-			// -- Increment the dot counter and check if it is out of the bounds set by number_of_dots -- //
-			if(++current_dot > cell->number_of_dots){
-				printf("There appear to be more [QDOTS] then the set number_of_dots in one of the cells\n");
-				printf("The file has failed to load\n");
-				clear_all_cells();
-				return NULL;
-			}
-		}
-		
-		// -- Make sure that the terminating [#QCELL] tag was found prior to the end of the file -- //		
-		if(feof(project_file)){
-			printf("Premature end of file reached while trying to locate the [#QCELL] tag\n");
-			return NULL;
-			}
-			
-		fgets(buffer, 80, project_file);
-	}
-	
-	// -- Make sure that the dots within the cell have been initalized -- //
-	if(cell->cell_dots == NULL){
-		printf("QCELL appears to have been loaded without any dots\n");
-		printf("Edit the project file and check for [QDOT] tags\n");
-		clear_all_cells();
-		return NULL;
-	}
-	
-	// -- fill in the pointers for the linked list of cells -- //
-	/*
-	if(first_cell == NULL){
-		first_cell = cell;
-		last_cell = cell;
-				
-		cell->previous = NULL;
-		cell->next = NULL;
-				
-	}else{
-	
-		cell->previous = last_cell;
-		cell->previous->next = cell;
-		cell->next = NULL;
-		last_cell = cell;
-			
-	}//else 
-	*/
-	return cell;
-
-}//read_design
-
-// ---------------------------------------------------------------------------------------- //
-
 //!Reads the project options from the project file
-void read_options(FILE *project_file){
+static void read_options(FILE *project_file, double *pgrid_spacing){
 
 	char *identifier = NULL;
 
 	//The file read buffer is 80 characters long any lines in the file longer then this will
 	//result in unexpected outputs.
-	char *buffer = calloc(80, sizeof(char));
+	char *buffer = NULL ;
 	
 	// start from the beginning of the file //
 	rewind(project_file);
@@ -536,7 +260,7 @@ void read_options(FILE *project_file){
 	}
 	
 	// -- read the first line in the file to the buffer -- //
-	fgets(buffer, 80, project_file);
+        buffer = ReadLine (project_file, 0) ;
 	
 	// -- check whether that was the end of the file -- //
 	if(feof(project_file)){
@@ -546,8 +270,8 @@ void read_options(FILE *project_file){
 		}
 	
 	// -- find the design [DESIGN_OPTIONS] tag -- //	
-	while(strcmp(buffer, "[DESIGN_OPTIONS]\n") != 0){
-		fgets(buffer, 80, project_file);
+	while(strcmp(buffer, "[DESIGN_OPTIONS]") != 0){
+                buffer = ReadLine (project_file, 0) ;
 		
 		if(feof(project_file)){
 			printf("Premature end of file reached your options may not have been loaded\n");
@@ -557,16 +281,16 @@ void read_options(FILE *project_file){
 	}
 		
 	// -- read in the first option --//
-	fgets(buffer, 80, project_file);
+        buffer = ReadLine (project_file, 0) ;
 		
 	// -- keep reading in lines of the file until the end tag is reached -- //
-	while(strcmp(buffer, "[#DESIGN_OPTIONS]\n") != 0){
+	while(strcmp(buffer, "[#DESIGN_OPTIONS]") != 0){
 		
 		// -- get the identifier from the buffer --//
 		if((identifier = get_identifier(buffer)) != NULL){
 				
 				if(!strncmp(identifier, "grid_spacing", sizeof("grid_spacing"))){
-					grid_spacing = atof(strchr(buffer,'=')+sizeof(char));
+					(*pgrid_spacing) = atof(strchr(buffer,'=')+sizeof(char));
 					}
 				
 				free(identifier);
@@ -577,8 +301,8 @@ void read_options(FILE *project_file){
 			printf("Premature end of file reached while trying to locate the [#DESIGN_OPTIONS] tag\n");
 			return;
 			}
-			
-		fgets(buffer, 80, project_file);
+		
+                buffer = ReadLine (project_file, 0) ;	
 	}
 	
 	
@@ -588,16 +312,14 @@ void read_options(FILE *project_file){
 // ---------------------------------------------------------------------------------------- //
 
 //!Reads the project properties from the project file; returns the number of cells saved in the file.
-int read_properties(FILE *project_file){
+static int read_properties(FILE *project_file){
 
 	char *identifier = NULL;
 	
 	int total_number_of_cells = 0;
+        
+        char *buffer = NULL ;
 
-	//The file read buffer is 80 characters long any lines in the file longer then this will
-	//result in unexpected outputs.
-	char *buffer = calloc(80, sizeof(char));
-	
 	// start from the beginning of the file //
 	rewind(project_file);
 	
@@ -609,7 +331,10 @@ int read_properties(FILE *project_file){
 	}
 	
 	// -- read the first line in the file to the buffer -- //
-	fgets(buffer, 80, project_file);
+        
+        buffer = ReadLine (project_file, 0) ;
+        
+        DBG_FIO (fprintf (stderr, "Retrieved buffer |%s| from file\n", buffer)) ;
 	
 	// -- check whether that was the end of the file -- //
 	if(feof(project_file)){
@@ -619,8 +344,8 @@ int read_properties(FILE *project_file){
 		}
 	
 	// -- find the design [DESIGN_OPTIONS] tag -- //	
-	while(strcmp(buffer, "[DESIGN_PROPERTIES]\n") != 0){
-		fgets(buffer, 80, project_file);
+	while(strcmp(buffer, "[DESIGN_PROPERTIES]") != 0){
+		buffer = ReadLine (project_file, 0) ;
 		
 		if(feof(project_file)){
 			printf("Premature end of file reached your design properties may not have been loaded\n");
@@ -630,10 +355,10 @@ int read_properties(FILE *project_file){
 	}
 		
 	// -- read in the first option --//
-	fgets(buffer, 80, project_file);
+        buffer = ReadLine (project_file, 0) ;
 		
 	// -- keep reading in lines of the file until the end tag is reached -- //
-	while(strcmp(buffer, "[#DESIGN_PROPERTIES]\n") != 0){
+	while(strcmp(buffer, "[#DESIGN_PROPERTIES]") != 0){
 		
 		// -- get the identifier from the buffer --//
 		if((identifier = get_identifier(buffer)) != NULL){
@@ -650,8 +375,8 @@ int read_properties(FILE *project_file){
 			printf("Premature end of file reached while trying to locate the [#DESIGN_PROPERTIES] tag\n");
 			return 0;
 			}
-			
-		fgets(buffer, 80, project_file);
+		
+                buffer = ReadLine (project_file, 0) ;	
 	}
 	
 	return total_number_of_cells;
@@ -662,7 +387,7 @@ int read_properties(FILE *project_file){
 // ---------------------------------------------------------------------------------------- //
 
 //!Gets the variable identifier from a text string
-char *get_identifier(char *buffer){
+static char *get_identifier(char *buffer){
 	int i = 0;
 	char *identifier = NULL;
 	int passed = FALSE;
@@ -686,79 +411,3 @@ char *get_identifier(char *buffer){
 		
 	return identifier;
 }//get_identifier
-
-// ---------------------------------------------------------------------------------------- //
-
-// creates a file and stores the vector table //
-void create_vector_file(gchar *file_name){
-	
-	FILE *vector_file;
-	
-	// -- open the vector file -- //
-	if((vector_file = fopen(file_name, "w")) == NULL){
-		printf("Cannot open that file\n");
-		return;
-		}
-
-	fprintf(vector_file, "$$VECTOR_TABLE$$\n");	
-	fprintf(vector_file, gtk_editable_get_chars(GTK_EDITABLE(vector_table_options.vector_table_textbox),0,-1));
-		
-	printf("saved vector table as %s\n", file_name);
-	
-	fclose(vector_file);
-	
-}//create_vector_file
-
-// opens a file and loads a vector table //
-void open_vector_file(gchar *file_name){
-	
-	FILE *vector_file;
-	gint position=0;
-	
-	//The file read buffer is 80 characters long any lines in the file longer then this will
-	//result in unexpected outputs.
-	char *buffer = calloc(80, sizeof(char));
-	
-	// -- open the vector table file -- //
-	if((vector_file = fopen(file_name, "r")) == NULL){
-		printf("Cannot open that file\n");
-		return;
-		}
-
-	// start from the beginning of the file //
-	rewind(vector_file);	
-		
-	// -- read the first line in the file to the buffer -- //
-	fgets(buffer, 80, vector_file);
-	
-	if(strcmp(buffer, "$$VECTOR_TABLE$$\n") != 0){
-		printf("It does not appear that this is a valid vector table file\nA valid vector table file begins with $$VECTOR_TABLE$$\n");
-		fclose(vector_file);
-		return;
-	}
-
-	// -- check whether that was the end of the file -- //
-	if(feof(vector_file)){
-		printf("Premature end of vector file reached\n");
-		printf("End of file reached after reading in the first line of the file\n");
-		fclose(vector_file);
-		return;
-		}	
-		
-	while(!feof(vector_file)){
-		fgets(buffer, 80, vector_file);
-		gtk_editable_insert_text(GTK_EDITABLE(vector_table_options.vector_table_textbox), buffer, strlen(buffer), &position);
-	}		
-		
-	fclose(vector_file);	
-	
-}//open_vector_file
-
-char *base_name (char *pszFile)
-  {
-  char *pszRet = &(pszFile[strlen (pszFile)]) ;
-  while (--pszRet > pszFile)
-    if (*pszRet == '/')
-      return pszRet + 1 ;
-  return pszFile ;
-  }

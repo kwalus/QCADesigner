@@ -3,6 +3,6 @@
 
 #include <gtk/gtk.h>
 #include "print.h"
-void do_print_preview (print_OP *pPrintOp, GtkWindow *parent, qcell *first_cell) ;
+void do_print_preview (print_OP *pPrintOp, GtkWindow *parent, void *data, PrintFunction fcnPrint) ;
 
 #endif /* _PRINT_PREVIEW_H_ */

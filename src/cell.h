@@ -10,7 +10,7 @@ using namespace std;
 #include "enkidu.h"
 #include "cell_neighbor.h"
 #include "ptr_comp.h"
-#include "globals.h"
+#include "gqcell.h"
 
 #define RANGE 30.1  // Max distance between interacting cells
 
@@ -47,7 +47,7 @@ typedef set<Cell *, ptr_comp<Cell> > CellSet;
 
 class Cell : public component {
 public:
-	Cell(const qcell * c);
+	Cell(const GQCell * c);
 	Cell(const Cell & c);
 	~Cell();
 	void setClockZone(const int a);
@@ -62,7 +62,7 @@ public:
 	void printNeighbors() const;
 	bool operator<(const Cell a) const;
 	CellNeighborSet * extractNeighbors(CellSet * set_of_cells);
-	const qcell * getMyqcell() const;
+	const GQCell * getMyqcell() const;
 	float getX() const;
 	float getY() const;
 	int getOrientation() const;
@@ -87,7 +87,7 @@ public:
 	void sendParcelsToNeighbors(const int old_state, const int new_state);
 	void sendParcelsToNeighbors(const int old_state, const int new_state, const int dest_orientation, const Cell * src_cell);
 protected:
-	const qcell * my_qcell;
+	const GQCell * my_qcell;
 	int state, clock_zone;
 	bool is_potential_maj;
 	bool is_waiting;

@@ -30,13 +30,14 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <errno.h>
+#include <unistd.h>
 #include "recent_files.h"
-#include "fileio.h"
-#include "message_box.h"
+#include "fileio_helpers.h"
 #include "vector_table.h"
-#include "globals.h"
 
 #define MAX_RECENT_FILES 10
+
+#define DBG_RF(s)
 
 static char **ppszRecentFiles = NULL ;
 static int icRecentFiles = 0 ;
@@ -45,10 +46,10 @@ static char szPath[PATH_LENGTH] = "" ;
 extern char current_file_name[PATH_LENGTH] ;
 extern VectorTable *pvt ;
 
-void ScrollRecentFiles (char **ppszRecentFiles, int idxStart, int idxEnd) ;
-void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data) ;
-void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles) ;
-void RemoveRecentFile (char *pszFName) ;
+static void ScrollRecentFiles (char **ppszRecentFiles, int idxStart, int idxEnd) ;
+static void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data) ;
+static void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles) ;
+static void RemoveRecentFile (char *pszFName) ;
 
 /* Initialize the menu widget from the file */
 void fill_recent_files_menu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
@@ -56,18 +57,29 @@ void fill_recent_files_menu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
   char *pszHome = getenv ("HOME"), *pszFile = NULL ;
   FILE *pfile = NULL ;
   char szFName[PATH_LENGTH] = "" ;
-  
-  g_snprintf (szPath, PATH_LENGTH, "%s%s.QCADesigner", pszHome,
-    ('/' != pszHome[strlen (pszHome) - 1]) ? "/" : "") ;
+  int iRet_mkdir = -1 ;
 
-  if (-1 == mkdir (szPath, 07777))
+  DBG_RF (fprintf (stderr, "Entering fill_recent_files_menu\n")) ;
+
+  g_snprintf (szPath, PATH_LENGTH, "%s%s.QCADesigner", pszHome,
+    (G_DIR_SEPARATOR != pszHome[strlen (pszHome) - 1]) ? G_DIR_SEPARATOR_S : "") ;
+
+  DBG_RF (fprintf (stderr, "szPath = %s\n", szPath)) ;
+
+#ifndef WIN32
+  iRet_mkdir = mkdir (szPath, 07777) ;
+#else
+  iRet_mkdir = mkdir (szPath) ;
+#endif
+
+  if (-1 == iRet_mkdir)
     {
     if (EEXIST != errno)
       return ;
     }
   
   g_snprintf (szPath, PATH_LENGTH, "%s%s.QCADesigner/recent", pszHome,
-    ('/' != pszHome[strlen (pszHome) - 1]) ? "/" : "") ;
+    (G_DIR_SEPARATOR != pszHome[strlen (pszHome) - 1]) ? G_DIR_SEPARATOR_S : "") ;
   
   if (NULL == (pfile = fopen (szPath, "r")))
     return ;
@@ -132,7 +144,7 @@ void remove_recent_file (GtkWidget *menu, char *pszFName, GtkSignalFunc pfn, gpo
 
 /* Need to crunch recent files together if one happens to be deleted from the middle
    or a middle one becomes most recent, etc. */
-void ScrollRecentFiles (char **ppszRecentFiles, int idxStart, int idxEnd)
+static void ScrollRecentFiles (char **ppszRecentFiles, int idxStart, int idxEnd)
   {
   int Nix ;
   for (Nix = idxEnd ; Nix > idxStart - 1 ; Nix--)
@@ -140,7 +152,7 @@ void ScrollRecentFiles (char **ppszRecentFiles, int idxStart, int idxEnd)
   }
 
 /* Build the menu from the list of strings */
-void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
+static void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
   {
   int Nix ;
   char *pszBaseName = NULL ;
@@ -163,7 +175,7 @@ void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
   }
 
 /* Create ~/.qcadesigner/recent */
-void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles)
+static void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles)
   {
   FILE *pfile ;
   int Nix ;
@@ -177,7 +189,7 @@ void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles)
   }
 
 /* Remove a recent file from the array */
-void RemoveRecentFile (char *pszFName)
+static void RemoveRecentFile (char *pszFName)
   {
   int Nix ;
   

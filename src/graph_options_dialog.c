@@ -27,8 +27,6 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include "support.h"
-#include "blocking_dialog.h"
-#include "message_box.h"
 #include "graph_options_dialog.h"
 
 /* minumum number of traces to be visible in the list */
@@ -44,7 +42,6 @@ typedef struct
   GtkWidget *vpTraceList;
   GtkWidget *vbTraceList;
   GtkWidget *chkTraceList;
-  GtkWidget *aadlgGraphOptions;
   GtkWidget *hbboxOKCancel;
   GtkWidget *btnOK;
   GtkWidget *btnCancel;
@@ -56,8 +53,7 @@ typedef struct
 
 static graph_options_D graph_options = {NULL} ;
 
-void create_graph_options_dialog (graph_options_D *dialog) ;
-void graph_options_btnOK_clicked (GtkWidget *widget, gpointer user_data) ;
+static void create_graph_options_dialog (graph_options_D *dialog) ;
 
 /* The main function */
 void get_graph_options_from_user (GtkWindow *parent, struct TRACEDATA *traces, int icTraces, struct TRACEDATA *clocks, int icClocks)
@@ -70,7 +66,10 @@ void get_graph_options_from_user (GtkWindow *parent, struct TRACEDATA *traces, i
       (0 == icTraces && 0 == icClocks))
     {
     /* We should never get here(tm) */
-    message_box (parent, MB_OK, "What Graph Options ?", "There are no traces available for selection !") ;
+    GtkWidget *msg = NULL ;
+    gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (parent, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "There are no available traces !"))) ;
+    gtk_widget_hide (msg) ;
+    gtk_widget_destroy (msg) ;
     return ;
     }
   
@@ -78,27 +77,7 @@ void get_graph_options_from_user (GtkWindow *parent, struct TRACEDATA *traces, i
     create_graph_options_dialog (&graph_options) ;
   
   gtk_window_set_transient_for (GTK_WINDOW (graph_options.dlgGraphOptions), parent) ;
-  gtk_object_set_data (GTK_OBJECT (graph_options.dlgGraphOptions), "dialog", &graph_options) ;
-  gtk_object_set_data (GTK_OBJECT (graph_options.dlgGraphOptions), "traces", traces) ;
-  gtk_object_set_data (GTK_OBJECT (graph_options.dlgGraphOptions), "picTraces", &icTraces) ;
-  gtk_object_set_data (GTK_OBJECT (graph_options.dlgGraphOptions), "clocks", clocks) ;
-  gtk_object_set_data (GTK_OBJECT (graph_options.dlgGraphOptions), "picClocks", &icClocks) ;
 
-  /* Clean out old traces */
-  if (0 != graph_options.icTraces && NULL != graph_options.pchkTraces)
-    {
-    for (Nix = 0 ; Nix < graph_options.icTraces ; Nix++)
-      gtk_widget_destroy (graph_options.pchkTraces[Nix]) ;
-    free (graph_options.pchkTraces) ;
-    }
-  /* Clean out old clocks */
-  if (0 != graph_options.icClocks && NULL != graph_options.pchkClocks)
-    {
-    for (Nix = 0 ; Nix < graph_options.icClocks ; Nix++)
-      gtk_widget_destroy (graph_options.pchkClocks[Nix]) ;
-    free (graph_options.pchkClocks) ;
-    }
-  
   /* Add checkboxen for all the traces */
   if (0 != icTraces && NULL != traces)
     {
@@ -126,17 +105,48 @@ void get_graph_options_from_user (GtkWindow *parent, struct TRACEDATA *traces, i
       gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (graph_options.pchkClocks[Nix]), clocks[Nix].drawtrace) ;
       }
     }
+
+  if (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (graph_options.dlgGraphOptions)))
+    {
+    if (NULL != traces && 0 != icTraces)
+      for (Nix = 0 ; Nix < graph_options.icTraces ; Nix++)
+        traces[Nix].drawtrace = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (graph_options.pchkTraces[Nix])) ;
+    if (NULL != clocks && 0 != icClocks)
+      for (Nix = 0 ; Nix < graph_options.icClocks ; Nix++)
+        clocks[Nix].drawtrace = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (graph_options.pchkClocks[Nix])) ;
+    }
+
+  /* Clean out traces */
+  if (0 != graph_options.icTraces && NULL != graph_options.pchkTraces)
+    {
+    for (Nix = 0 ; Nix < graph_options.icTraces ; Nix++)
+      gtk_container_remove (GTK_CONTAINER (graph_options.vbTraceList), graph_options.pchkTraces[Nix]) ;
+    free (graph_options.pchkTraces) ;
+    }
+
+  /* Clean out clocks */
+  if (0 != graph_options.icClocks && NULL != graph_options.pchkClocks)
+    {
+    for (Nix = 0 ; Nix < graph_options.icClocks ; Nix++)
+      gtk_container_remove (GTK_CONTAINER (graph_options.vbTraceList), graph_options.pchkClocks[Nix]) ;
+    free (graph_options.pchkClocks) ;
+    }
   
-  show_dialog_blocking (graph_options.dlgGraphOptions) ;
+  graph_options.pchkClocks = NULL ;
+  graph_options.icClocks = 0 ;
+  graph_options.pchkTraces = NULL ;
+  graph_options.icTraces = 0 ;
+  
+  gtk_widget_hide (graph_options.dlgGraphOptions) ;
   }
 
-void create_graph_options_dialog (graph_options_D *dialog)
+static void create_graph_options_dialog (graph_options_D *dialog)
   {
   /* The dialog */
   dialog->dlgGraphOptions = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (dialog->dlgGraphOptions), "dlgGraphOptions", dialog->dlgGraphOptions);
   gtk_window_set_title (GTK_WINDOW (dialog->dlgGraphOptions), _("Graph Options"));
-  GTK_WINDOW (dialog->dlgGraphOptions)->type = GTK_WINDOW_DIALOG;
+//  GTK_WINDOW (dialog->dlgGraphOptions)->type = GTK_WINDOW_DIALOG;
   gtk_window_set_modal (GTK_WINDOW (dialog->dlgGraphOptions), TRUE);
   gtk_window_set_policy (GTK_WINDOW (dialog->dlgGraphOptions), FALSE, FALSE, FALSE);
   gtk_widget_set_usize (dialog->dlgGraphOptions, 300, 200) ;
@@ -147,17 +157,11 @@ void create_graph_options_dialog (graph_options_D *dialog)
 
   /* The main table */
   dialog->tblMain = gtk_table_new (2, 1, FALSE);
-  gtk_widget_ref (dialog->tblMain);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphOptions), "tblMain", dialog->tblMain,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->tblMain);
   gtk_box_pack_start (GTK_BOX (dialog->vbdlgGraphOptions), dialog->tblMain, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->tblMain), 2);
 
   dialog->lblGraphOptions = gtk_label_new (_("Please select which traces to plot:"));
-  gtk_widget_ref (dialog->lblGraphOptions);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphOptions), "lblGraphOptions", dialog->lblGraphOptions,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->lblGraphOptions);
   gtk_table_attach (GTK_TABLE (dialog->tblMain), dialog->lblGraphOptions, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -166,9 +170,6 @@ void create_graph_options_dialog (graph_options_D *dialog)
 
   /* The trace list containers */
   dialog->swndTraceList = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_ref (dialog->swndTraceList);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphOptions), "swndTraceList", dialog->swndTraceList,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->swndTraceList);
   gtk_table_attach (GTK_TABLE (dialog->tblMain), dialog->swndTraceList, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -176,76 +177,16 @@ void create_graph_options_dialog (graph_options_D *dialog)
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (dialog->swndTraceList), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
   dialog->vpTraceList = gtk_viewport_new (NULL, NULL);
-  gtk_widget_ref (dialog->vpTraceList);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphOptions), "vpTraceList", dialog->vpTraceList,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->vpTraceList);
   gtk_container_add (GTK_CONTAINER (dialog->swndTraceList), dialog->vpTraceList);
 
   /* The trace list vbox (which will contain all the checkboxen */
   dialog->vbTraceList = gtk_vbox_new (FALSE, 0);
-  gtk_widget_ref (dialog->vbTraceList);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphOptions), "vbTraceList", dialog->vbTraceList,
-                            (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dialog->vbTraceList);
   gtk_container_add (GTK_CONTAINER (dialog->vpTraceList), dialog->vbTraceList);
 
-  /* The main button containers */
-  dialog->aadlgGraphOptions = GTK_DIALOG (dialog->dlgGraphOptions)->action_area;
-  gtk_object_set_data (GTK_OBJECT (dialog->dlgGraphOptions), "aadlgGraphOptions", dialog->aadlgGraphOptions);
-  gtk_widget_show (dialog->aadlgGraphOptions);
-  gtk_container_set_border_width (GTK_CONTAINER (dialog->aadlgGraphOptions), 0) ;
-
-  dialog->hbboxOKCancel = gtk_hbutton_box_new ();
-  gtk_widget_ref (dialog->hbboxOKCancel);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphOptions), "hbboxOKCancel", dialog->hbboxOKCancel,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (dialog->hbboxOKCancel);
-  gtk_box_pack_start (GTK_BOX (dialog->aadlgGraphOptions), dialog->hbboxOKCancel, TRUE, TRUE, 0);
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog->hbboxOKCancel), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing (GTK_BUTTON_BOX (dialog->hbboxOKCancel), 0);
-  gtk_button_box_set_child_ipadding (GTK_BUTTON_BOX (dialog->hbboxOKCancel), 0, -1);
-
-  /* The buttons */
-  dialog->btnOK = gtk_button_new_with_label (_("OK"));
-  gtk_widget_ref (dialog->btnOK);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphOptions), "btnOK", dialog->btnOK,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (dialog->btnOK);
-  gtk_container_add (GTK_CONTAINER (dialog->hbboxOKCancel), dialog->btnOK);
-  GTK_WIDGET_SET_FLAGS (dialog->btnOK, GTK_CAN_DEFAULT);
-
-  dialog->btnCancel = gtk_button_new_with_label (_("Cancel"));
-  gtk_widget_ref (dialog->btnCancel);
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphOptions), "btnCancel", dialog->btnCancel,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (dialog->btnCancel);
-  gtk_container_add (GTK_CONTAINER (dialog->hbboxOKCancel), dialog->btnCancel);
-  GTK_WIDGET_SET_FLAGS (dialog->btnCancel, GTK_CAN_DEFAULT);
+  dialog->btnCancel = gtk_dialog_add_button (GTK_DIALOG (dialog->dlgGraphOptions), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+  dialog->btnOK = gtk_dialog_add_button (GTK_DIALOG (dialog->dlgGraphOptions), GTK_STOCK_OK, GTK_RESPONSE_OK);
   
-  /* The default hiding behaviour */
-  gtk_signal_connect_object (GTK_OBJECT (dialog->dlgGraphOptions), "delete_event", (GtkSignalFunc)gtk_widget_hide, GTK_OBJECT (dialog->dlgGraphOptions)) ;
-  gtk_signal_connect_object (GTK_OBJECT (dialog->btnCancel), "clicked", (GtkSignalFunc)gtk_widget_hide, GTK_OBJECT (dialog->dlgGraphOptions)) ;
-  /* The OK button */
-  gtk_signal_connect (GTK_OBJECT (dialog->btnOK), "clicked", (GtkSignalFunc)graph_options_btnOK_clicked, dialog->dlgGraphOptions) ;
-  }
-
-/* (Re)set the "drawtrace" flag for all traces based on the state of the checkboxen */
-void graph_options_btnOK_clicked (GtkWidget *widget, gpointer user_data)
-  {
-  int Nix ;
-  graph_options_D *dialog = (graph_options_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
-  struct TRACEDATA *traces = (struct TRACEDATA *)gtk_object_get_data (GTK_OBJECT (user_data), "traces") ;
-  struct TRACEDATA *clocks = (struct TRACEDATA *)gtk_object_get_data (GTK_OBJECT (user_data), "clocks") ;
-  int *picTraces = (int *)gtk_object_get_data (GTK_OBJECT (user_data), "picTraces") ;
-  int *picClocks = (int *)gtk_object_get_data (GTK_OBJECT (user_data), "picClocks") ;
-  
-  if (NULL != traces && 0 != *picTraces)
-    for (Nix = 0 ; Nix < dialog->icTraces ; Nix++)
-      traces[Nix].drawtrace = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->pchkTraces[Nix])) ;
-  if (NULL != clocks && 0 != *picClocks)
-    for (Nix = 0 ; Nix < dialog->icClocks ; Nix++)
-      clocks[Nix].drawtrace = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->pchkClocks[Nix])) ;
-
-  gtk_widget_hide (dialog->dlgGraphOptions) ;
+  gtk_dialog_set_default_response (GTK_DIALOG (dialog->dlgGraphOptions), GTK_RESPONSE_OK) ;
   }

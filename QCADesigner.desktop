@@ -1,0 +1,14 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.3.2
+Name=QCADesigner
+Name[en]=QCADesigner
+Comment=Design and Simulate QCA Circuits
+Comment[en]=Design and Simulate QCA Circuits
+Type=Application
+TryExec=
+X-GNOME-DocPath=
+Terminal=false
+GenericName=
+GenericName[en_CA]=
+Categories=Application;Development;

@@ -1,28 +1,38 @@
 #ifndef _PRINT_H_
 #define _PRINT_H_
 
-#include "globals.h"
+#include "simulation.h"
+#include "print_dialog.h"
+#include "gqcell.h"
 
 typedef struct
   {
+  print_OP po ;
   /* Units are in points == 1/72 inches */
-  double dPaperWidth ;
-  double dPaperHeight ;
-  double dLeftMargin ;
-  double dTopMargin ;
-  double dRightMargin ;
-  double dBottomMargin ;
   double dPointsPerNano ;
   gboolean bPrintOrderOver ;
   gboolean bCenter ;
+  gboolean bFit ;
   gboolean *pbPrintedObjs ;
   int icPrintedObjs ;
-  gboolean bPrintFile ;
-  char szPrintString[PATH_LENGTH] ;
   int iCXPages ;
   int iCYPages ;
-  } print_OP ;
+  } print_design_OP ;
 
-void print_world (print_OP *pPrintOpts, qcell *first_cell) ;
+typedef struct
+  {
+  print_OP po ;
+  /* Units are in points == 1/72 inches */
+  gboolean bPrintOrderOver ;
+  gboolean bCenter ;
+  gboolean bPrintClr ;
+  int iCXPages ;
+  int iCYPages ;
+  } print_graph_OP ;
+
+typedef void (*PrintFunction) (print_OP *pPO, void *data) ;
+
+void print_world (print_design_OP *pPrintOpts, GQCell *first_cell) ;
+void print_graphs (print_graph_OP *pPrintOpts, simulation_data *sim_data) ;
 
 #endif /*_PRINT_H_*/

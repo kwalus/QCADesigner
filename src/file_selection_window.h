@@ -3,6 +3,6 @@
 
 #include <gtk/gtk.h>
 
-gboolean get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFName, int cb) ;
+gchar *get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFName, gboolean bOverwritePrompt) ;
 
 #endif /* _FILE_SELECTION_WINDOW_H_ */

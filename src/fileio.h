@@ -13,17 +13,13 @@
 #define _FILEIO_H_
 
 #include <gtk/gtk.h>
-#include "qcell.h"
+#include "gqcell.h"
 
 // -- Prototypes -- //
-gboolean create_file(gchar *file_name, qcell *first_cell);
-qcell *open_project_file(gchar *file_name, qcell **p_first_cell, qcell **p_last_cell);
-void export_block(gchar *file_name, qcell **selected_cells, int number_of_selected_cells);
-qcell *import_block(gchar *file_name, qcell ***p_selected_cells, int *p_number_of_selected_cells, qcell **p_last_cell) ;
-char *base_name (char *pszFile) ;
-
-void create_vector_file();
-void open_vector_file();
+gboolean create_file(gchar *file_name, GQCell *first_cell, double grid_spacing);
+GQCell *open_project_file(gchar *file_name, GQCell **p_first_cell, GQCell **p_last_cell, double *pgrid_spacing);
+void export_block(gchar *file_name, GQCell **selected_cells, int number_of_selected_cells, double grid_spacing);
+GQCell *import_block(gchar *file_name, GQCell ***p_selected_cells, int *p_number_of_selected_cells, GQCell **p_last_cell) ;
 
 ///////////////////////////////////////////////////////////////////////////////
 // These next two structures were used in the first version of QCADesigner  ///

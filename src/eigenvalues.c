@@ -19,8 +19,9 @@
 //////////////////////////////////////////////////////////
 
 #include <math.h>
+// For g_assert
+#include <glib.h>
 #include <stdlib.h>
-#include <assert.h>
 #include "nrutil.h"
 #define ROTATE(a,i,j,k,l) g=a[i][j]; h=a[k][l]; a[i][j]=g-s*(h+g*tau); a[k][l]=h+s*(g-h*tau);
 
@@ -40,7 +41,7 @@ void jacobi(float **a, int n, float *d, float **v, int *nrot){
 	b=vector(0,n-1);
 	z=vector(0,n-1);
 
-	assert(v!=NULL);
+	g_assert(v!=NULL);
 	// Initialize to the identity matrix.
 	for (ip = 0; ip < n; ip++){ 
 		for (iq = 0; iq < n; iq++)v[ip][iq]=0.0; 

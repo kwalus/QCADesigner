@@ -29,7 +29,7 @@ Cell::Cell() : component("NO NAME") {
 */
 
 // Create a Cell with the data from c
-Cell::Cell(const qcell * c) : component(c->label), my_qcell(c) {
+Cell::Cell(const GQCell * c) : component(c->label), my_qcell(c) {
 	setClockZone(c->clock);
 	setState(LOW);
 	setIsPotentialMaj(false);
@@ -224,7 +224,7 @@ CellNeighborSet * Cell::extractNeighbors(CellSet * set_of_cells) {
 	return n;
 }
 
-const qcell * Cell::getMyqcell() const {
+const GQCell * Cell::getMyqcell() const {
 	return my_qcell;
 }
 

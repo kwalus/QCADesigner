@@ -3,9 +3,12 @@
 # Run this to generate all the initial makefiles, etc.
 
 #Ask for the appropriate automake/autoconf versions
-export WANT_AUTOMAKE=1.6
-export WANT_AUTOCONF_2_5=1
-export CFLAGS="${CFLAGS} -O3"
+WANT_AUTOMAKE=1.6
+export WANT_AUTOMAKE
+WANT_AUTOCONF_2_5=1
+export WANT_AUTOCONF_2_5
+CFLAGS="${CFLAGS} -O3"
+export CFLAGS
 
 # Hacky test for Windoze follows :o)
 if [ "" != "$WINDIR" ]; then

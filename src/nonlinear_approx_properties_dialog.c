@@ -177,11 +177,13 @@ if (NULL != dialog->nonlinear_approx_properties_dialog) return ;
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->clock_low_dialog_entry), TRUE) ;
 
-  dialog->chkAnimate = gtk_check_button_new_with_label ("Animate") ;
+  dialog->chkAnimate = gtk_check_button_new_with_label (_("Animate")) ;
   gtk_widget_show (dialog->chkAnimate) ;
   gtk_table_attach (GTK_TABLE (table), dialog->chkAnimate, 0, 2, 4, 5,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  // Not yet available
+  gtk_widget_set_sensitive (dialog->chkAnimate, FALSE) ;
 
   gtk_dialog_add_button (GTK_DIALOG (dialog->nonlinear_approx_properties_dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
   gtk_dialog_add_button (GTK_DIALOG (dialog->nonlinear_approx_properties_dialog), GTK_STOCK_OK, GTK_RESPONSE_OK) ;

@@ -5,6 +5,7 @@
 #include "undo_create.h"
 
 #define DBG_UC(s)
+#define DBG_UC_CLR(s) s
 
 static void *DoCreateCells (GQCell **ppqc, int ic, gboolean bInverse) ;
 static void CreateCellsAction (UNDO_ACTION_CELLS *puac, GQCell **ppqc, int ic) ;
@@ -118,6 +119,7 @@ static void AddHistoryItem (GQCell *gqc)
     phistack->history[(phistack->idx)].cell_dots[Nix].potential = gqc->cell_dots[Nix].potential ;
     }
 
+  DBG_UC_CLR(fprintf (stderr, "AddHistoryItem: Adding item with colour %d\n", gqc->color)) ;
   phistack->history[(phistack->idx)].color = gqc->color ;
   phistack->history[(phistack->idx)].clock = gqc->clock ;
   phistack->history[(phistack->idx)].is_input = gqc->is_input ;

@@ -156,7 +156,11 @@ static void create_sim_engine_dialog (sim_engine_setup_D *dialog){
   dialog->scqca_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, "Split Current QCA");
   g_object_set_data (G_OBJECT (dialog->scqca_radio), "which_options", (gpointer)SCQCA) ;
   dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->scqca_radio));
-  gtk_widget_show (dialog->scqca_radio);
+  
+  //***SCQCA  is disabled for the 1.4.0 release
+//  gtk_widget_show (dialog->scqca_radio);
+  gtk_widget_set_sensitive (dialog->scqca_radio, FALSE) ;
+
   g_object_set_data (G_OBJECT (dialog->scqca_radio), "options_button", dialog->scqca_options_button) ;
   gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->scqca_radio, 1, 2, 4, 5,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),

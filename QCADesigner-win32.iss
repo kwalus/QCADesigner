@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=QCADesigner
-AppVerName=QCADesigner 1.3.2
+AppVerName=QCADesigner 1.4.0
 AppPublisher=University of Calgary
 AppPublisherURL=qcadesigner.ca
 AppSupportURL=qcadesigner.ca

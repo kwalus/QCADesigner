@@ -454,7 +454,7 @@ msgstr ""
 msgid "Random Fault Setup..."
 msgstr ""
 
-msgid "Recent Files"
+msgid "_Recent Files"
 msgstr ""
 
 msgid "Rectangle Properties"

@@ -29,6 +29,7 @@
 #define VTTBL_V_PAD 0
 
 #define DBG_NVTO(s)
+#define DBG_VTO_UI(s)
 
 typedef struct
   {
@@ -305,8 +306,9 @@ static void CreateIdxLabel (vector_table_options_D *dialog, int idx)
   gtk_container_add (GTK_CONTAINER (dialog->pIdx[idx].eb), dialog->pIdx[idx].lbl) ;
   gtk_label_set_justify (GTK_LABEL (dialog->pIdx[idx].lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (dialog->pIdx[idx].lbl), 2, 0.5) ;
-  
-  gtk_signal_connect (GTK_OBJECT (dialog->pIdx[idx].eb), "button_press_event", GTK_SIGNAL_FUNC (Vector_buttondown), dialog->dlgVectorTable) ;
+
+  DBG_VTO_UI (fprintf (stderr, "CreateIdxLabel:Connecting button_press_event\n")) ;
+  g_signal_connect (G_OBJECT (dialog->pIdx[idx].eb), "button_press_event", (GCallback)Vector_buttondown, dialog->dlgVectorTable) ;
   }
 
 static void DestroyIdxLabel (vector_table_options_D *dialog, int idx)
@@ -350,8 +352,9 @@ static void CreateVectorToggle (vector_table_options_D *dialog, gboolean bValue,
   gtk_widget_show (dialog->ppBit[idxRow][idxCol].tblbl) ;
   gtk_container_add (GTK_CONTAINER (dialog->ppBit[idxRow][idxCol].tb), dialog->ppBit[idxRow][idxCol].tblbl) ;
   
-  gtk_signal_connect (GTK_OBJECT (dialog->ppBit[idxRow][idxCol].tb), "toggled", GTK_SIGNAL_FUNC (click_bit_button), dialog->ppBit[idxRow][idxCol].tblbl) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->ppBit[idxRow][idxCol].tb), "button_press_event", GTK_SIGNAL_FUNC (Bit_buttondown), dialog->dlgVectorTable) ;
+  DBG_VTO_UI (fprintf (stderr, "CreateVectorToggle:Connecting toggled and button_press_event\n")) ;
+  g_signal_connect (G_OBJECT (dialog->ppBit[idxRow][idxCol].tb), "toggled", (GCallback)click_bit_button, dialog->ppBit[idxRow][idxCol].tblbl) ;
+  g_signal_connect (G_OBJECT (dialog->ppBit[idxRow][idxCol].tb), "button_press_event", (GCallback)Bit_buttondown, dialog->dlgVectorTable) ;
   }
 
 static void ReuseVectorToggle (vector_table_options_D *dialog, gboolean bValue, int idxRow, int idxCol)
@@ -435,10 +438,11 @@ static void CreateInputHeading (vector_table_options_D *dialog, VectorTable *pvt
 //  gtk_widget_show (GTK_COMBO (dialog->pInput[idx].cb)->popwin) ;
   gtk_object_set_data (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), "idx", (gpointer)idx) ;
 
-  gtk_signal_connect (GTK_OBJECT (dialog->pInput[idx].tb), "toggled", GTK_SIGNAL_FUNC (ActiveFlag_toggled), dialog->dlgVectorTable) ;
-  gtk_signal_connect (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->entry), "changed", GTK_SIGNAL_FUNC (InputCBEntry_changed), dialog->dlgVectorTable) ;
-  gtk_signal_connect (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), "show", GTK_SIGNAL_FUNC (InputCBPopwin_show), dialog->dlgVectorTable) ;
-  gtk_signal_connect (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), "hide", GTK_SIGNAL_FUNC (InputCBPopwin_hide), dialog->dlgVectorTable) ;
+  DBG_VTO_UI (fprintf (stderr, "CreateInputHeading:Connecting various events\n")) ;
+  g_signal_connect (G_OBJECT (dialog->pInput[idx].tb), "toggled", (GCallback)ActiveFlag_toggled, dialog->dlgVectorTable) ;
+  g_signal_connect (G_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->entry), "changed", (GCallback)InputCBEntry_changed, dialog->dlgVectorTable) ;
+  g_signal_connect (G_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), "show", (GCallback)InputCBPopwin_show, dialog->dlgVectorTable) ;
+  g_signal_connect (G_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), "hide", (GCallback)InputCBPopwin_hide, dialog->dlgVectorTable) ;
   }
 
 static void ReuseInputHeading (vector_table_options_D *dialog, VectorTable *pvt, int idx)
@@ -510,7 +514,9 @@ static void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_widget_show (dialog->tblOps);
   gtk_container_add (GTK_CONTAINER (dialog->fmVTOps), dialog->tblOps);
 
-  dialog->lblMsg = gtk_label_new (_("Note: Right-click the vector table for more options."));
+  dialog->lblMsg = gtk_label_new (NULL);
+  gtk_label_set_markup (GTK_LABEL (dialog->lblMsg), 
+    _("<big><span foreground=\"red\"><b>Note:</b></span> Right-click the vector table for adding/removing vectors.</big>")) ;
   gtk_widget_show (dialog->lblMsg);
   gtk_table_attach (GTK_TABLE (dialog->tblOps), dialog->lblMsg, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -621,17 +627,23 @@ static void create_vector_table_options_dialog (vector_table_options_D *dialog)
   dialog->btnOK = gtk_dialog_add_button (GTK_DIALOG (dialog->dlgVectorTable), GTK_STOCK_OK, GTK_RESPONSE_OK);
   gtk_dialog_set_default_response (GTK_DIALOG (dialog->dlgVectorTable), GTK_RESPONSE_OK) ;
   
-  gtk_signal_connect (GTK_OBJECT (dialog->btnLoad), "clicked", GTK_SIGNAL_FUNC (load_vector_table), GTK_OBJECT (dialog->dlgVectorTable)) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->btnSave), "clicked", GTK_SIGNAL_FUNC (save_vector_table), GTK_OBJECT (dialog->dlgVectorTable)) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->btnSaveAs), "clicked", GTK_SIGNAL_FUNC (save_vector_table), GTK_OBJECT (dialog->dlgVectorTable)) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->ebVT), "button_press_event", GTK_SIGNAL_FUNC (VT_buttondown), dialog->dlgVectorTable) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->mnuInsBefore), "activate", GTK_SIGNAL_FUNC (create_vector), dialog->dlgVectorTable) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->ebInsBefore), "motion_notify_event", GTK_SIGNAL_FUNC (mnusp_enter_notify), dialog->dlgVectorTable) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->mnuInsAfter), "activate", GTK_SIGNAL_FUNC (create_vector), dialog->dlgVectorTable) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->mnuAdd), "activate", GTK_SIGNAL_FUNC (create_vector), dialog->dlgVectorTable) ;
-  gtk_signal_connect (GTK_OBJECT (dialog->mnuDel), "activate", GTK_SIGNAL_FUNC (delete_vector), dialog->dlgVectorTable) ;
-  
-  gtk_widget_add_events (dialog->ebInsBefore, GDK_ALL_EVENTS_MASK) ;
+  DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Connecting various events\n")) ;
+  g_signal_connect (G_OBJECT (dialog->btnLoad), "clicked", (GCallback)load_vector_table, GTK_OBJECT (dialog->dlgVectorTable)) ;
+  DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->btnLoad\n")) ;
+  g_signal_connect (G_OBJECT (dialog->btnSave), "clicked", (GCallback)save_vector_table, GTK_OBJECT (dialog->dlgVectorTable)) ;
+  DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->btnSave\n")) ;
+  g_signal_connect (G_OBJECT (dialog->btnSaveAs), "clicked", (GCallback)save_vector_table, GTK_OBJECT (dialog->dlgVectorTable)) ;
+  DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->btnSaveAs\n")) ;
+  g_signal_connect (G_OBJECT (dialog->ebVT), "button_press_event", (GCallback)VT_buttondown, dialog->dlgVectorTable) ;
+  DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->ebVT\n")) ;
+  g_signal_connect (G_OBJECT (dialog->mnuInsBefore), "activate", (GCallback)create_vector, dialog->dlgVectorTable) ;
+  DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->mnuInsBefore\n")) ;
+  g_signal_connect (G_OBJECT (dialog->mnuInsAfter), "activate", (GCallback)create_vector, dialog->dlgVectorTable) ;
+  DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->mnuInsAfter\n")) ;
+  g_signal_connect (G_OBJECT (dialog->mnuAdd), "activate", (GCallback)create_vector, dialog->dlgVectorTable) ;
+  DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->mnuAdd\n")) ;
+  g_signal_connect (G_OBJECT (dialog->mnuDel), "activate", (GCallback)delete_vector, dialog->dlgVectorTable) ;
+  DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->mnuDel\n")) ;
   }
 
 static void mnusp_enter_notify (GtkWidget *widget, GdkEventCrossing *ev, gpointer data)

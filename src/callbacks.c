@@ -96,7 +96,7 @@ static project_OP project_options =
 //!Currently selection action to perform by the CAD interface (ex Move Cell)
   ACTION_DEFAULT,           // selected_action
 //!Current simulation engine.
-  BISTABLE,                 // SIMULATION_ENGINE
+  COHERENCE_VECTOR,         // SIMULATION_ENGINE
 //!Maximum random response function shift.
   0.0,                      // max_response_shift
 //!Probability that a design cell will be affected by the random response function shift.
@@ -135,11 +135,11 @@ void release_selection () ;
 static void set_clock_for_selected_cells(int selected_clock) ;
 static gboolean DoSave (GtkWindow *parent, gboolean bSaveAs) ;
 static gboolean SaveDirtyUI (GtkWindow *parent, char *szMsg) ;
-static void fill_layers_combo (main_W *wndMain, DESIGN *pDesign) ;
-static void remove_single_item (GtkWidget *item, gpointer data) ;
-static GtkWidget *add_layer_to_combo (GtkCombo *combo, LAYER *layer) ;
-static void layer_status_change (GtkWidget *widget, gpointer data) ;
-static void layer_selected (GtkWidget *widget, gpointer data) ;
+//static void fill_layers_combo (main_W *wndMain, DESIGN *pDesign) ;
+//static void remove_single_item (GtkWidget *item, gpointer data) ;
+//static GtkWidget *add_layer_to_combo (GtkCombo *combo, LAYER *layer) ;
+//static void layer_status_change (GtkWidget *widget, gpointer data) ;
+//static void layer_selected (GtkWidget *widget, gpointer data) ;
 static gboolean redraw_async_cb (GtkWidget *widget) ;
 void redraw_async (GtkWidget *widget) ;
 static gboolean bHaveIdler = FALSE ;
@@ -181,7 +181,7 @@ void main_window_show (GtkWidget *widget, gpointer data)
   design.last_layer->prev = design.first_layer ;
   design.last_layer->next = NULL ;
 
-  fill_layers_combo (&main_window, &design) ;
+//  fill_layers_combo (&main_window, &design) ;
   
   action_button_clicked (main_window.default_action_button, (gpointer)run_action_DEFAULT) ;
   
@@ -309,11 +309,6 @@ void on_scale_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   
   free (cell_array) ;
 }
-
-void on_snap_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-  {
-  DBG_CB_HERE (fprintf (stderr, "Entering on_snap_properties_menu_item_activate\n")) ;
-  }
 
 void on_cell_properties_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data)
   {
@@ -863,6 +858,7 @@ static void layer_selected (GtkWidget *widget, gpointer data)
 
 void action_button_clicked (GtkWidget *widget, gpointer data)
   {
+  int Nix ;
   static MOUSE_HANDLERS mh = {-1, -1, -1} ;
   int new_action = (int)data ;
   
@@ -880,11 +876,22 @@ void action_button_clicked (GtkWidget *widget, gpointer data)
   
   if (run_action_DELETE == (ActionHandler)data && project_options.number_of_selected_cells > 0)
     {
+    //Delete selected cells before switching action handlers
     gui_add_to_undo (Undo_CreateAction_DeleteCells (project_options.selected_cells, project_options.number_of_selected_cells)) ;
     gui_delete_cells (project_options.selected_cells, project_options.number_of_selected_cells) ;
     release_selection () ;
     redraw_world (GDK_DRAWABLE (main_window.drawing_area->window), global_gc, 
       (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
+    }
+  else
+  if (run_action_ROTATE == (ActionHandler)data && project_options.number_of_selected_cells > 0)
+    {
+    // Rotate dots inside all selected cells before switching action handlers
+    for (Nix = 0 ; Nix < project_options.number_of_selected_cells ; Nix++)
+      gqcell_rotate (project_options.selected_cells[Nix], 3.14159 / 4.0);
+    gui_add_to_undo (Undo_CreateAction_CellParamChange (project_options.selected_cells, 
+      project_options.number_of_selected_cells)) ;
+    redraw_async (main_window.drawing_area) ;
     }
   
   if (-1 != mh.lIDButtonPressed)  g_signal_handler_disconnect (main_window.drawing_area, mh.lIDButtonPressed) ;
@@ -1214,6 +1221,7 @@ static void set_clock_for_selected_cells (int selected_clock)
   release_selection () ;
 } //set_clock_for_selected_cells
 
+/*
 static void fill_layers_combo (main_W *wndMain, DESIGN *pDesign)
   {
   LAYER *layer = pDesign->first_layer ;
@@ -1347,6 +1355,7 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
   if (chkActivate == widget)
     layer->status = bActive ? LAYER_STATUS_ACTIVE : LAYER_STATUS_VISIBLE ;
   }
+*/
 
 // Set the cursor for the drawing area
 static void change_cursor (GtkWidget *widget, GdkCursor *new_cursor)

@@ -10,7 +10,6 @@
 #define GAP_PERCENT 0.01
 #define TRACE_GAP_PERCENT 0.005
 #define FONT_SIZE 12 /* points */
-#define MAX_SLOPE_DIFF 0.1
 
 #define OBJ_TYPE_PATH 0
 
@@ -39,7 +38,6 @@ static void PlaceSingleTrace (print_graph_OP *pPO, PAGES *pPages, struct TRACEDA
 static void PrintSingleGraphPage (print_graph_OP *pPO, FILE *pfile, PAGEDATA *pPage, int idx) ;
 static int GetPageIndex (double dCoord, int icPages, double dEffectiveLength) ;
 static void CreateTrace (print_graph_OP *pPO, PAGES *pPages, struct TRACEDATA *ptd, double dxMin, double dyMin, double dxMax, double dyMax, int icSamples) ;
-static inline gboolean LineSegmentCanBeSkipped (double dx0, double dy0, double dx1, double dy1, double dx2, double dy2) ;
 
 void print_graphs (print_graph_OP *pPrintOpts, simulation_data *sim_data)
   {
@@ -680,14 +678,4 @@ static void CreateTrace (print_graph_OP *pPO, PAGES *pPages, struct TRACEDATA *p
       ++(pPages->pdPages[idxPg].icObjects) * sizeof (gchar *)) ;
     pPages->pdPages[idxPg].ppObjects[idxStr] = psz ;
     }
-  }
-
-static inline gboolean LineSegmentCanBeSkipped (double dx0, double dy0, double dx1, double dy1, double dx2, double dy2)
-  {
-  if (dx0 == dx1 && dx1 == dx2) return TRUE ;
-  if (dy0 == dy1 && dy1 == dy2) return TRUE ;
-  
-  DBG_PG (fprintf (stderr, "slope diff: %lf\n", fabs ((dy1 - dy0) / (dx1 - dx0) - (dy2 - dy1) / (dx2 - dx1)))) ;
-  
-  return (fabs ((dy1 - dy0) / (dx1 - dx0) - (dy2 - dy1) / (dx2 - dx1)) < MAX_SLOPE_DIFF) ;
   }

@@ -72,7 +72,7 @@ void create_main_window (main_W *main_window){
     main_window->main_menubar = gtk_menu_bar_new ();
     gtk_widget_show (main_window->main_menubar);
     gtk_box_pack_start (GTK_BOX (main_window->vbox1), main_window->main_menubar, FALSE, FALSE, 0);
-    
+/*
     // Layers toolbar
     main_window->layers_toolbar = gtk_toolbar_new () ;
     gtk_widget_show (main_window->layers_toolbar) ;
@@ -94,7 +94,7 @@ void create_main_window (main_W *main_window){
       NULL,
       NULL,
       NULL) ;
-
+*/
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////// FILE MENU ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +175,7 @@ void create_main_window (main_W *main_window){
     gtk_container_add (GTK_CONTAINER (main_window->file_menu_menu), main_window->mnuSepPreRecentFiles);
     gtk_widget_set_sensitive (main_window->mnuSepPreRecentFiles, FALSE);
     
-    main_window->recent_files_menu_item = gtk_menu_item_new_with_label (_("Recent Files")) ;
+    main_window->recent_files_menu_item = gtk_menu_item_new_with_mnemonic (_("_Recent Files")) ;
     gtk_widget_show (main_window->recent_files_menu_item) ;
     gtk_container_add (GTK_CONTAINER (main_window->file_menu_menu), main_window->recent_files_menu_item) ;
 
@@ -236,7 +236,7 @@ void create_main_window (main_W *main_window){
     main_window->copy_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_COPY, main_window->accel_group);
     gtk_widget_show (main_window->copy_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->edit_menu_menu), main_window->copy_menu_item);
-    gtk_widget_add_accelerator (main_window->copy_menu_item, "activate", main_window->accel_group, GDK_c, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+//    gtk_widget_add_accelerator (main_window->copy_menu_item, "activate", main_window->accel_group, GDK_c, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     // *********** remove when finished ****************//
     gtk_widget_set_sensitive (GTK_WIDGET (main_window->copy_menu_item), FALSE);
@@ -245,7 +245,7 @@ void create_main_window (main_W *main_window){
     main_window->cut_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_CUT, main_window->accel_group);
     gtk_widget_show (main_window->cut_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->edit_menu_menu), main_window->cut_menu_item);
-    gtk_widget_add_accelerator (main_window->cut_menu_item, "activate", main_window->accel_group, GDK_x, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+//    gtk_widget_add_accelerator (main_window->cut_menu_item, "activate", main_window->accel_group, GDK_x, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     // *********** remove when finished ****************//
     gtk_widget_set_sensitive (GTK_WIDGET (main_window->cut_menu_item), FALSE);
@@ -254,13 +254,13 @@ void create_main_window (main_W *main_window){
     main_window->paste_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_PASTE, main_window->accel_group);
     gtk_widget_show (main_window->paste_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->edit_menu_menu), main_window->paste_menu_item);
-    gtk_widget_add_accelerator (main_window->paste_menu_item, "activate", main_window->accel_group, GDK_v, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+//    gtk_widget_add_accelerator (main_window->paste_menu_item, "activate", main_window->accel_group, GDK_v, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	
 	// create and add the delete item to the edit menu //
-    main_window->delete_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_PASTE, main_window->accel_group);
+    main_window->delete_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_DELETE, main_window->accel_group);
     gtk_widget_show (main_window->delete_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->edit_menu_menu), main_window->delete_menu_item);
-    gtk_widget_add_accelerator (main_window->delete_menu_item, "activate", main_window->accel_group, GDK_Delete, 0, 0);
+    gtk_widget_add_accelerator (main_window->delete_menu_item, "activate", main_window->accel_group, GDK_Delete, 0, GTK_ACCEL_VISIBLE);
 
     // *********** remove when finished ****************//
     gtk_widget_set_sensitive (GTK_WIDGET (main_window->paste_menu_item), FALSE);
@@ -275,14 +275,6 @@ void create_main_window (main_W *main_window){
     main_window->grid_properties_menu_item = gtk_menu_item_new_with_label (_("Grid Properties..."));
     gtk_widget_show (main_window->grid_properties_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->edit_menu_menu), main_window->grid_properties_menu_item);
-
-	// create and add the snap properties menu item to the edit menu //
-    main_window->snap_properties_menu_item = gtk_menu_item_new_with_label (_("Snap Properties..."));
-    gtk_widget_show (main_window->snap_properties_menu_item);
-    gtk_container_add (GTK_CONTAINER (main_window->edit_menu_menu), main_window->snap_properties_menu_item);
-
-    // *********** remove when finished ****************//
-    gtk_widget_set_sensitive (GTK_WIDGET (main_window->snap_properties_menu_item), FALSE);
 
 	// create and add the cell properties menu item to the edit menu //
     main_window->cell_properties_menu_item = gtk_menu_item_new_with_label (_("Cell Properties..."));
@@ -481,6 +473,7 @@ void create_main_window (main_W *main_window){
     main_window->draw_menu = gtk_menu_item_new_with_mnemonic (_("_Draw"));
     gtk_widget_show (main_window->draw_menu);
     gtk_container_add (GTK_CONTAINER (main_window->main_menubar), main_window->draw_menu);
+    gtk_widget_set_sensitive (main_window->draw_menu, FALSE) ;
 
     main_window->draw_menu_menu = gtk_menu_new ();
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (main_window->draw_menu), main_window->draw_menu_menu);
@@ -609,7 +602,7 @@ void create_main_window (main_W *main_window){
 	gtk_widget_show (img) ;
 	gtk_widget_show (main_window->start_simulation_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->start_simulation_menu_item);
-	gtk_widget_add_accelerator (main_window->start_simulation_menu_item, "activate", main_window->accel_group, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+//	gtk_widget_add_accelerator (main_window->start_simulation_menu_item, "activate", main_window->accel_group, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	
 	//create and add the stop simulation menu item to the simulation menu //
 	main_window->stop_simulation_menu_item = gtk_menu_item_new_with_label (_("Stop Simulation"));
@@ -877,7 +870,7 @@ void create_main_window (main_W *main_window){
             _("Click on this button to delete your selection.  Afterwards, click on individual cells to delete them."),
             create_pixmap (main_window->main_window, "eraser.xpm"),
             GTK_SIGNAL_FUNC (action_button_clicked), (gpointer)run_action_DELETE) ;
-
+/*
 	// CLOCKING LAYER MANIPULATION BUTTONS
 	// create and add the circular clocking zone button to the toolbar //
 	main_window->oval_zone_button = 
@@ -902,7 +895,7 @@ void create_main_window (main_W *main_window){
             _("Creates a polygonal clocking zone."),
             create_pixmap (main_window->main_window, "clocking_polygon.xpm"),
             GTK_SIGNAL_FUNC (action_button_clicked), (gpointer)CLOCKING_ZONE) ;
-
+*/
         // This will separate layer-specific commands from generic ones like zoom & pan
         gtk_toolbar_append_space (GTK_TOOLBAR (main_window->toolbar)) ;
 		
@@ -1045,7 +1038,6 @@ void create_main_window (main_W *main_window){
     g_signal_connect ((gpointer)(main_window->paste_menu_item), "activate", GTK_SIGNAL_FUNC (on_paste_menu_item_activate), NULL);
 	g_signal_connect ((gpointer)(main_window->delete_menu_item), "activate", GTK_SIGNAL_FUNC (on_delete_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->grid_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_grid_properties_menu_item_activate), NULL);
-    g_signal_connect ((gpointer)(main_window->snap_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_snap_properties_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->cell_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_cell_properties_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->window_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_window_properties_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->layer_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_layer_properties_menu_item_activate), NULL);

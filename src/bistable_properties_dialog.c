@@ -231,6 +231,8 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog){
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 7, 8,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  // Not yet available
+  gtk_widget_set_sensitive (dialog->chkAnimate, FALSE) ;
 
   gtk_dialog_add_button (GTK_DIALOG (dialog->bistable_properties_dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
   gtk_dialog_add_button (GTK_DIALOG (dialog->bistable_properties_dialog), GTK_STOCK_OK, GTK_RESPONSE_OK) ;

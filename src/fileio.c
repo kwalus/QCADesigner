@@ -43,7 +43,7 @@ static int read_properties(FILE *project_file);
 static void write_header (FILE *pfile, double dVersion, double dGridSpacing, int icCells) ;
 static char *get_identifier(char *buffer);
 
-static double qcadesigner_version = 1.3 ;
+static double qcadesigner_version = 1.4 ;
 
 // ---------------------------------------------------------------------------------------- //
 

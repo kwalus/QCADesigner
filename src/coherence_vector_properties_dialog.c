@@ -121,11 +121,6 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_widget_set_sensitive (dialog->chkAnimate, FALSE) ;
 
-  gtk_table_attach (GTK_TABLE (dialog->table), hsep = gtk_hseparator_new (), 0, 3, 8, 9,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_widget_show (hsep) ;
-
   g_signal_connect (G_OBJECT (dialog->T_entry), "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->relaxation_entry), "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->time_step_entry), "changed", (GCallback)properties_changed, dialog) ;

@@ -454,8 +454,8 @@ msgstr "Raza de efect [nm]:"
 msgid "Random Fault Setup..."
 msgstr ""
 
-msgid "Recent Files"
-msgstr "Fişiere recente"
+msgid "_Recent Files"
+msgstr "Fişiere _Recente"
 
 msgid "Rectangle Properties"
 msgstr "Caracteristicile dreptunghiului"

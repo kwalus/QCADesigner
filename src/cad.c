@@ -62,6 +62,7 @@ static GdkColor clrBlack  = {0, 0x0000, 0x0000, 0x0000} ;
 static GdkColor clrWhite  = {0, 0xFFFF, 0xFFFF, 0xFFFF} ;
 static GdkColor clrBlue   = {0, 0x0000, 0x0000, 0xFFFF} ;
 static GdkColor clrCyan   = {0, 0x0000, 0xFFFF, 0xFFFF} ;
+static GdkColor clrRed    = {0, 0xFFFF, 0x0000, 0x0000} ;
 
 // -- current top coords of the substrate relative to top corner of drawing area -- //
 static double subs_top_x = 100;
@@ -95,6 +96,7 @@ void cad_init ()
   gdk_colormap_alloc_color (clrmSys, &clrWhite, FALSE, TRUE) ;
   gdk_colormap_alloc_color (clrmSys, &clrBlue, FALSE, TRUE) ;
   gdk_colormap_alloc_color (clrmSys, &clrCyan, FALSE, TRUE) ;
+  gdk_colormap_alloc_color (clrmSys, &clrRed, FALSE, TRUE) ;
   }
 
 //!Redraws all the design cells to the screen.
@@ -614,7 +616,7 @@ void draw_stdqcell(GdkDrawable *d, GdkGC *gc, GQCell *cell){
 	
 	// -- Set the color object to the cells color -- //
 	// -- I use a global color object to speed up drawing, no other benefit. -- //
-	gdk_gc_set_foreground (gc, cell->color) ;
+	gdk_gc_set_foreground (gc, cell->bSelected ? &clrRed : cell->color) ;
 
 	// -- draw the rectangle that is the outline of the cell -- //
 	gdk_draw_rectangle(d, gc, FALSE, top_corner_x, top_corner_y, real_cx, real_cy);
@@ -657,7 +659,7 @@ static void draw_cell_dots_showing_polarization (GdkDrawable *d, GdkGC *gc, GQCe
             world_to_real_y (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2), 
             world_to_real_cx (cell->cell_dots[i].diameter), 
             world_to_real_cy (cell->cell_dots[i].diameter), 0, 360 * 64);
-          gdk_gc_set_foreground (gc, cell->color) ;
+          gdk_gc_set_foreground (gc, cell->bSelected ? &clrRed : cell->color) ;
 	  gdk_draw_arc (d, gc, FALSE, 
             world_to_real_x (cell->cell_dots[i].x - cell->cell_dots[i].diameter/2), 
             world_to_real_y (cell->cell_dots[i].y - cell->cell_dots[i].diameter/2), 

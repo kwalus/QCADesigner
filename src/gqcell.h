@@ -78,6 +78,9 @@ typedef struct GQCell
   // the clock that this cell is linked to //
   int clock ;
 
+  // Is this cell selected ?
+  gboolean bSelected ;
+
   // cell type flags //
   gint is_input ;
   gint is_output ;

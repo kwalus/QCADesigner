@@ -71,6 +71,7 @@ static void gqcell_class_init (GObjectClass *klass, gpointer data)
 
 static void gqcell_instance_init (GObject *object, gpointer data)
   {
+  GQCELL (object)->bSelected = FALSE ;
   }
 
 static void gqcell_instance_finalize (GObject *object)
@@ -254,11 +255,12 @@ void gqcell_unlink (GQCell *gqc)
 
 void gqcell_select (GQCell *gqc)
   {
-  gqc->color = &clrRed ;
+  gqc->bSelected = TRUE ;
   }
 
 void gqcell_reset_colour (GQCell *gqc)
   {
+  gqc->bSelected = FALSE ;
   gqc->color =
     gqc->is_input   ? &clrBlue :
     gqc->is_output  ? &clrYellow :

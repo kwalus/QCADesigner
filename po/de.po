@@ -456,8 +456,8 @@ msgstr "Effektradius [nm]:"
 # msgid "Random Fault Setup..."
 # msgstr ""
 
-msgid "Recent Files"
-msgstr "Zuletzt geöffnete Dateien"
+msgid "_Recent Files"
+msgstr "_Zuletzt geöffnete Dateien"
 
 msgid "Rectangle Properties"
 msgstr "Rechteckeinstellungen"
@@ -589,7 +589,7 @@ msgstr "Fenstereinstellungen"
 # msgstr ""
 
 msgid "Zoom Extents"
-msgstr "Auf Gesamptdesign zoomen"
+msgstr "Auf Gesamtdesign zoomen"
 
 msgid "Zoom In"
 msgstr "Heranzoomen"

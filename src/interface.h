@@ -49,7 +49,6 @@ typedef struct
     GtkWidget *delete_menu_item;
     GtkWidget *separator6;
     GtkWidget *grid_properties_menu_item;
-    GtkWidget *snap_properties_menu_item;
     GtkWidget *cell_properties_menu_item;
     GtkWidget *window_properties_menu_item;
     GtkWidget *layer_properties_menu_item;

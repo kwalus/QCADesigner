@@ -1,10 +1,10 @@
 Summary: A QCA design and simulation tool
 Name: QCADesigner
-Version: 1.3.2
+Version: 1.4.0
 Release: 1
 Copyright: GPL
 Group: Development/Tools
-Source: http://qcadesigner.ca/QCADesigner/releases/1.3.2/QCADesigner-1.3.2-src.tar.gz
+Source: http://qcadesigner.ca/QCADesigner/releases/1.4.0/QCADesigner-1.4.0-src.tar.gz
 BuildRoot: /var/tmp/%{name}-buildroot
 Vendor: Konrad Walus <walus@atips.ca> University of Calgary
 Packager: Gabriel Schulhof <schulhof@atips.ca> University of Calgary

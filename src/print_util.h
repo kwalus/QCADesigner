@@ -13,4 +13,6 @@
 
 FILE *OpenPrintStream (print_OP *pPO) ;
 
+inline gboolean LineSegmentCanBeSkipped (double dx0, double dy0, double dx1, double dy1, double dx2, double dy2) ;
+
 #endif /* _PRINT_UTIL_H_ */

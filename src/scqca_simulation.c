@@ -32,10 +32,10 @@
 scqca_OP scqca_options = {100, FALSE, 1e-11, 1e-12, 0.01, 100, 10, 10, 100, 1e-6, 293, 0.1,
 0.0285 * P_E, 0.1, 0.0,0,0,0,0} ;
 
-static void run_scqca_iteration(int sample_number, int number_of_sorted_cells, GQCell **sorted_cells, scqca_OP *options, simulation_data *sim_data) ;
+static void run_scqca_iteration(int sample_number, int number_of_sorted_cells, int total_number_of_inputs, unsigned long int number_samples, GQCell **sorted_cells, scqca_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt);
 static void scqca_refresh_all_neighbors (GQCell *cell, scqca_OP *options) ;
 static int compareSCQCAQCells (const void *p1, const void *p2) ;
-
+inline double calculate_scqca_clock_value(unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const scqca_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
 simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, scqca_OP *options, VectorTable *pvt)
   {
   
@@ -43,20 +43,34 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 	GQCell *cell;
 	GQCell **input_cells = NULL;
 	GQCell **output_cells = NULL;
-        GQCell **sorted_cells = NULL ;
+    GQCell **sorted_cells = NULL ;
 	int total_number_of_inputs = 0;
 	int total_number_of_outputs = 0;
 	double input = 0;
+	unsigned long int number_samples;
+	//number of points to record in simulation results //
+	//simulations can have millions of points and there is no need to plot them all //
+	unsigned long int number_recorded_samples = 3000;
+	unsigned long int record_interval;
 	gchar* filename; 
 	FILE* data_file = NULL;
-	
-        time_t start_time, end_time;
+	time_t start_time, end_time;
 	
 	// -- get the starting time for the simulation -- //
-        if((start_time = time (NULL)) < 0) {
+    if((start_time = time (NULL)) < 0) {
     	fprintf(stderr, "Could not get start time, exiting\n");
     	exit(1);
   	}
+	
+	// determine the number of samples from the user options //
+	number_samples = options->number_of_samples;
+	if(number_recorded_samples >= number_samples){
+		number_recorded_samples = number_samples;
+		record_interval = 1;
+	}else{
+		record_interval = (unsigned long int)ceil((double)number_samples/(double)(number_recorded_samples-1));
+	}
+	
 	
 	// -- open the data file to store the intermediate results in case of QCADesigner crash -- //
 	if((data_file = fopen(filename=g_strdup_printf("SIMULATION_DATA_%d", (int)time(NULL)), "w")) == NULL){
@@ -168,7 +182,7 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 	// -- Initialize the simualtion data structure -- //
   	sim_data->number_of_traces = total_number_of_inputs + 2*total_number_of_outputs;
         // This values was so far hard-coded at 3200 - Let's find out why.
-  	sim_data->number_samples = options->number_of_samples;
+  	sim_data->number_samples = number_recorded_samples;
   	sim_data->trace = malloc (sizeof (struct TRACEDATA) * sim_data->number_of_traces);
 
   	// create and initialize the inputs into the sim data structure //      
@@ -205,24 +219,13 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
     	  g_snprintf (sim_data->clock_data[i].data_labels, 10, "CLOCK %d", i);
     	  sim_data->clock_data[i].drawtrace = 1;
     	  sim_data->clock_data[i].trace_color = RED;
+		if((sim_data->clock_data[i].data = calloc (sim_data->number_samples, sizeof (double))) == NULL)printf("Could not allocate memory for clock data\n");
 
-    	  sim_data->clock_data[i].data = malloc (sizeof (double) * sim_data->number_samples);
-
-    	  if(SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)for (j = 0; j < sim_data->number_samples; j++){
-    		  sim_data->clock_data[i].data[j] = 0.3 * cos (((double) pow (2, total_number_of_inputs)) * (double) j * 4.0 * PI / (double) sim_data->number_samples - PI * i / 2) + 0.05;
-    		  if (sim_data->clock_data[i].data[j] > options->clock_high)
-    			  sim_data->clock_data[i].data[j] = options->clock_high;
-    		  if (sim_data->clock_data[i].data[j] < options->clock_low)
-    			  sim_data->clock_data[i].data[j] = options->clock_low;
-    	  }
-
-		  if(SIMULATION_TYPE == VECTOR_TABLE)for (j = 0; j < sim_data->number_samples; j++){
-    		  sim_data->clock_data[i].data[j] = 0.3 * cos (((double)pvt->num_of_vectors) * (double) j * 2.0 * PI / (double) sim_data->number_samples - PI * i / 2) + 0.05;
-    		  if (sim_data->clock_data[i].data[j] > options->clock_high)
-    			  sim_data->clock_data[i].data[j] = options->clock_high;
-    		  if (sim_data->clock_data[i].data[j] < options->clock_low)
-    			  sim_data->clock_data[i].data[j] = options->clock_low;
-    	  }
+    	  // fill in the clock data for the simulation results //
+		for(j = 0; j<sim_data->number_samples; j++){
+		//printf("j=%d, j*record_interval = %d\n",j,j*record_interval);
+		sim_data->clock_data[i].data[j] = calculate_scqca_clock_value(i, j*record_interval, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
+		}
   
 	}
 	
@@ -247,12 +250,12 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 //	uglysort (sorted_cells, neighbour_count, total_cells);
 	
 	// perform the iterations over all samples //
-	for (j = 0; j < sim_data->number_samples; j++){
+	for (j = 0; j < number_samples; j++){
 		
 		// change this for larger sample simulations//
 		if (j % PROGRESS_INTERVAL == 0){
 			// write the completion percentage to the command history window //
-			command_history_message ("%3.0f%% complete\n", 100 * (float) j / (float) sim_data->number_samples) ;
+			command_history_message ("%3.0f%% complete\n", 100 * (float) j / (float) number_samples) ;
 	    }
 	  
 	  	// -- for each of the inputs -- //
@@ -262,7 +265,7 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 				// -- create a square wave at a given frequency then double the frequency for each input -- //
 				// -- this way we cover the entire input space for proper digital verification -- //
 				input = 0;
-				if (-1 * sin (((double) pow (2, i)) * (double) j * 4.0 * PI / (double) sim_data->number_samples) > 0){
+				if (-1 * sin (((double) pow (2, i)) * (double) j * 4.0 * PI / (double) number_samples) > 0){
 					input = 1;
 				}else{
 					input = -1;
@@ -270,16 +273,18 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 			}
 			
 		else if(SIMULATION_TYPE == VECTOR_TABLE)
-		  input = pvt->vectors[(j*pvt->num_of_vectors) / sim_data->number_samples][i] ? 1 : -1 ;
+		  input = pvt->vectors[(j*pvt->num_of_vectors) / number_samples][i] ? 1 : -1 ;
 
 	      	// -- set the inputs cells with the input data -- //
 	      	scqca_set_polarization (input_cells[i], input, options);
-	      	sim_data->trace[i].data[j] = input;
+	      	
+			if(0==j%record_interval){
+					sim_data->trace[i].data[j/record_interval] = input; 
+			}
 		}
 
 		// -- run the iteration with the given clock value -- //
-		run_scqca_iteration (j, total_cells, sorted_cells, options, sim_data);
-		
+		run_scqca_iteration (j, total_cells, total_number_of_inputs, number_samples, sorted_cells, options, sim_data, SIMULATION_TYPE, pvt);
 		/*
 		if(options->animate_simulation){
 		
@@ -296,7 +301,7 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 		}
 		*/
 		// -- collect all the output data from the simulation -- //
-		for (i = 0; i < 2*total_number_of_outputs; i+=2){
+		if(0==j%record_interval)for (i = 0; i < 2*total_number_of_outputs; i+=2){
 			sim_data->trace[total_number_of_inputs + i].data[j] = scqca_calculate_polarization (output_cells[i >> 1]);
 			sim_data->trace[total_number_of_inputs + i + 1].data[j] = scqca_calculate_quality (output_cells[i >> 1]);
 			
@@ -319,7 +324,7 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
     	exit(1);
   	}
   
-        printf("Total time: %g s\n", (double)(end_time - start_time));
+    printf("Total time: %g s\n", (double)(end_time - start_time));
 
 	free (sorted_cells);
 //	free (neighbour_count);
@@ -340,7 +345,7 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 
   }
 
-static void run_scqca_iteration(int sample_number, int number_of_sorted_cells, GQCell **sorted_cells, scqca_OP *options, simulation_data *sim_data){
+static void run_scqca_iteration(int sample_number, int number_of_sorted_cells, int total_number_of_inputs, unsigned long int number_samples, GQCell **sorted_cells, scqca_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt){
 
 	int iteration=0;
 	int stable = FALSE;
@@ -416,7 +421,7 @@ static void run_scqca_iteration(int sample_number, int number_of_sorted_cells, G
 								scqca_calculate_current((((scqca_model *)sorted_cells[j]->cell_model)->internal_delta[i] + 
 									((scqca_model *)sorted_cells[j]->cell_model)->external_delta[i]) *
 							          ((scqca_model *)sorted_cells[j]->cell_model)->current[i] * options->electron_lifetime, 
-							sim_data->clock_data[sorted_cells[j]->clock].data[sample_number], 
+							calculate_scqca_clock_value(sorted_cells[j]->clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt), 
 							(sorted_cells[j]->cell_dots[0].diameter/2)*(sorted_cells[j]->cell_dots[0].diameter/2)* 1e-18 * PI, options);
 	  						
 							//
@@ -501,3 +506,32 @@ static int compareSCQCAQCells (const void *p1, const void *p2)
     ((scqca_model *)((*((GQCell **)(p1)))->cell_model))->number_of_neighbours < 
     ((scqca_model *)((*((GQCell **)(p2)))->cell_model))->number_of_neighbours ? -1 : 0 ;
   }//compareSortStructs
+  
+
+
+//-------------------------------------------------------------------//
+// Calculates the clock data at a particular sample
+inline double calculate_scqca_clock_value(unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const scqca_OP *options, int SIMULATION_TYPE, VectorTable *pvt){
+
+	double clock = 0;
+	
+	if(SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION){
+		clock = 0.3 * cos (((double) pow (2, total_number_of_inputs)) * (double) sample * 4.0 * PI / (double) (double)number_samples - PI * (double)clock_num * 0.5) + 0.05;
+    		  if (clock > options->clock_high)
+    			  clock = options->clock_high;
+    		  if (clock < options->clock_low)
+    			  clock = options->clock_low;
+    	  }
+
+	if(SIMULATION_TYPE == VECTOR_TABLE){
+    	clock = 0.3 * cos (((double)pvt->num_of_vectors) * (double) sample * 2.0 * PI / (double) number_samples - PI * (double)clock_num * 0.5) + 0.05;
+    		  if (clock > options->clock_high)
+    			  clock = options->clock_high;
+    		  if (clock < options->clock_low)
+    			  clock = options->clock_low;
+    }
+	
+	return clock;
+}
+// calculate clock value
+  

@@ -1,0 +1,74 @@
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+    	<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    	<title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="1">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo.gif" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+
+<table border="0" bgcolor="#224262" cellspacing="1">
+<tr><td>
+
+<table border="0" bgcolor="#ffffff">
+<tr><td>
+
+<table border="0" cellspacing="0" cellpadding="0">
+<tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"><br></td><td><a href="/index.html">Home</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=dl/dl.phpinc">Download</a></td></td></tr></table></td></tr>
+<tr bgcolor="#cad6e2"><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><a href="http://qcadesigner.ca/?page=doc/home.phpinc"><img border="0" src="images/tree-collapse.png" hspace="3" alt="-"></a></td><td><a href="http://qcadesigner.ca/?page=doc/home.phpinc">Documentation</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=doc/gui.phpinc"><img border="0" src="images/tree-expand.png" hspace="3" alt="+"></a></td><td><a href="http://qcadesigner.ca/?page=doc/gui.phpinc">User&nbsp;Interface</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=doc/engines.phpinc"><img border="0" src="images/tree-expand.png" hspace="3" alt="+"></a></td><td><a href="http://qcadesigner.ca/?page=doc/engines.phpinc">Engines</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=screenshots.phpinc">Screenshots</a></td></td></tr>
+</table>
+</td></tr>
+</table>
+
+</td></tr>
+</table>
+</td>
+<td align="left" valign="top">
+
+<h1>QCADesigner Documentation</h1>
+
+<h2>Vector Table</h2>
+
+<p>The vector table simulation type allows you to specify the input vectors, as well as the order in which they are applied to the inputs of your circuit. The vector table simulation is only available if you already have cells designated as inputs in your circuit. For each available input you can specify a binary value in each vector. To select the Vector Table simulation type click Simulation->Simulation Type Setup, and make sure that Vector Table is selected as shown below, and click Options.
+
+<p><center><img src="images/vector_table_select.png"></center>
+
+<p>When the options window pops up, you will notice that all the inputs in your design are indicated with their associated names. Each of the inputs is Active by default. You can make any input Inactive by toggling the Active button. When an input is Inactive it is simulated as if it were just a regular cell in the design; i.e. it is allowed to switch with the influence of its neighbors. You can also sort the inputs according to your own preference by opening the pull-down menu on each input and selecting what you wish that input to be, as illustrated below:
+
+<p><center><img src="images/resort_vectors.png"></center>
+
+<p>To add vectors simply right click anywhere below the vector names and click Add Vector:
+
+<p><center><img src="images/vector_table_add_vector.png"></center>
+
+<p>You can also insert a new vector between two existing vectors by right-clicking an existing vector and clicking Insert Before or Insert After. Once you have added the required number of vectors you can set the binary values of each bit in each vector by toggling the individual bits as shown.
+
+<p><center><img src="images/vector_table_click_bits.png"></center>
+
+<p>When you have completed your vector table you may save it using the buttons at the bottom
+
+<p><center><img src="images/vector_table_save_vectors.png"></center>
+
+<p>or you may just click OK and your vector table will be stored in memory. The next simulation you perform will be based on the chosen vectors. Note: if you add or remove inputs to your design, make sure to go back and edit your vector table.
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+</body></html>
+<p>

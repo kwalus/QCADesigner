@@ -1,0 +1,86 @@
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+    	<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    	<title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="1">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo.gif" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+
+<table border="0" bgcolor="#224262" cellspacing="1">
+<tr><td>
+
+<table border="0" bgcolor="#ffffff">
+<tr><td>
+
+<table border="0" cellspacing="0" cellpadding="0">
+<tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"><br></td><td><a href="/index.html">Home</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=dl/dl.phpinc">Download</a></td></td></tr></table></td></tr>
+<tr bgcolor="#cad6e2"><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><a href="http://qcadesigner.ca/?page=doc/home.phpinc"><img border="0" src="images/tree-collapse.png" hspace="3" alt="-"></a></td><td><a href="http://qcadesigner.ca/?page=doc/home.phpinc">Documentation</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=doc/gui.phpinc"><img border="0" src="images/tree-expand.png" hspace="3" alt="+"></a></td><td><a href="http://qcadesigner.ca/?page=doc/gui.phpinc">User&nbsp;Interface</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=doc/engines.phpinc"><img border="0" src="images/tree-expand.png" hspace="3" alt="+"></a></td><td><a href="http://qcadesigner.ca/?page=doc/engines.phpinc">Engines</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=screenshots.phpinc">Screenshots</a></td></td></tr>
+</table>
+</td></tr>
+</table>
+
+</td></tr>
+</table>
+</td>
+<td align="left" valign="top">
+
+<h1>QCADesigner Documentation</h1>
+
+<h2>Graph Dialog</h2>
+
+<p>The graph dialog shown below displays the results of your simulation. The dialog will show the input traces, output traces, and the clocking traces.
+
+<p><center><img src="images/graph_dialog.png"></center>
+
+<p>The input traces are shown in blue to match the color of the input cells in the design. The outputs are shown in yellow, and the clock signals are shown in red.
+
+<h3>Reset</h3>
+
+<p>The Reset button will reset the zoom level of the displayed traces.
+
+<h3>Traces</h3>
+
+<p>This button will bring up the traces dialog which allows you to choose which traces are to be drawn to the graph dialog as illustrated below. Check all the traces that you wish to appear in the graph dialog.
+
+<p><center><img src="images/traces_dialog.png"></center>
+
+<h3>Zoom In</h3>
+
+<p>Zooms in the current traces. You can also zoom in by clicking on the graph and dragging accross to define your zoom window as shown in the figure below.
+
+
+<p><center><img src="images/graph_dialog_zoom_in.png"></center>
+
+
+<h3>Zoom Out</h3>
+
+<p>Zooms out the current traces.
+
+<h3>Print Preview</h3>
+<p>Allows you to preview the graphs prior to printing. Note:This may not allways reflect what is printed. Some PostScript previewers handle this differently.
+
+<h3>Print</h3>
+<p>Brings up the <a href="print_dialog.html">print dialog</a> and allows you to print the traces to a file or directly to printer.
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+</body></html>
+<p>

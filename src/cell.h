@@ -14,10 +14,13 @@ using namespace std;
 
 #define RANGE 30.1  // Max distance between interacting cells
 
+
+// Flip hold and relax for testing...
 #define SWITCH 0
-#define HOLD 1
+#define HOLD 3
 #define RELEASE 2
-#define RELAX 3
+#define RELAX 1
+
 
 // The simulation assumes LOW < UND < HIGH
 // and LOW and HIGH are even numbers with equal distance from UND
@@ -26,15 +29,15 @@ using namespace std;
 #define UND 0
 
 const float TWO_PI = 2*PI;
-const float PI_OVER_TWO = PI/2;
+const float PI_OVER_TWO = PI/2.0;
 
 // Angles and Thresholds for determining whether cells interact and in what way
-const float NORMALTHRESHOLD = PI/8;
-const float INVANGLE = PI/4;
-const float INVTHRESHOLD = PI/8;
+const float NORMALTHRESHOLD = PI/8.0;
+const float INVANGLE = PI/4.0;
+const float INVTHRESHOLD = PI/8.0;
 const float RIPANGLE1 = atan((double)0.5);
 const float RIPANGLE2 = atan((double)2);
-const float RIPTHRESHOLD = RIPANGLE1/2;
+const float RIPTHRESHOLD = RIPANGLE1/2.0;
 const float CROSSTHRESHOLD = RIPANGLE1-RIPTHRESHOLD;
 
 const float OTHRESHOLD = 0.01; // Threshold for saying that two positions are equal

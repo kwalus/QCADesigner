@@ -547,8 +547,7 @@ int ReadVector (FILE *pfile, gboolean *pVector, int ic)
       }
     
     free (psz) ;
-    
-    DBG_VT () ;
+	
     if (-1 != idx) break ;
     }
   DBG_VT (fprintf (stderr, "ReadVector returning idx = %d\n", idx)) ;

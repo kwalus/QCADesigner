@@ -123,6 +123,7 @@ gboolean main_window_configure_event(GtkWidget *widget, GdkEventConfigure *event
   setup_rulers () ;
   // This function needs to return a value.
   // this is the source of one of the compiler warnings.
+  return TRUE;
   }
 
 // motion notify is called whenever the mouse is moved above the drawing area //

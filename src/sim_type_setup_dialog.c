@@ -34,7 +34,6 @@
 #include "globals.h"
 #include "support.h"
 #include "blocking_dialog.h"
-#include "vector_table_options_dialog.h"
 #include "new_vector_table_options_dialog.h"
 #include "sim_type_setup_dialog.h"
 #include "vector_table.h"

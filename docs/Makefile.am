@@ -1,8 +1,4 @@
-docdir = $(datadir)/doc/QCADesigner
-
-# doc_DATA = manual
-
-# EXTRA_DIST = $(doc_DATA)
+docdir = $(datadir)/doc/@PACKAGE@-@VERSION@
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdir)

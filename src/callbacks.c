@@ -803,18 +803,13 @@ char *pszBrowser =
 if (NULL == pszBrowser) return ;
 
 #ifdef WIN32
-pszCmdLine = g_strdup_printf ("%s file://%s%c..%cshare%cdoc%cQCADesigner%cmanual%cindex.html",
+pszCmdLine = g_strdup_printf ("%s file://%s%c..%cshare%cdoc%cQCADesigner-%s%cmanual%cindex.html",
   pszBrowser, getenv ("MY_PATH"), G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, 
-  G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
+  VERSION, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
 //pszCmdLine = g_strdup_printf ("%s file://..\\share\\doc\\QCADesigner\\manual\\index.html", pszBrowser) ;
 #else
-#ifdef RPM
-pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner-%s%cmanual%cindex.html",
-  pszBrowser, PACKAGE_DATA_DIR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, VERSION, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
-else
-pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner%cmanual%cindex.html",
-  pszBrowser, PACKAGE_DATA_DIR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
-#endif
+pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner-%s%cmanual%cindex.html", pszBrowser,
+  PACKAGE_DATA_DIR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, VERSION, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
 #endif
 
 // fprintf (stderr, "Proceeding with command line |%s|\n", pszCmdLine) ;

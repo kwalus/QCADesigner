@@ -11,20 +11,20 @@ AM_PROG_CC_STDC
 AM_PROG_CC_C_O
 AC_HEADER_STDC
 
-AC_ARG_ENABLE(rpm, 
- [  --enable-rpm  build as RPM ],
- [ rpm=yes
- ])
+dnl AC_ARG_ENABLE(rpm, 
+dnl  [  --enable-rpm  build as RPM ],
+dnl  [ rpm=yes
+dnl  ])
 
-if test -z "$rpm"; then
-  rpm=no
-fi
+dnl if test -z "$rpm"; then
+dnl   rpm=no
+dnl fi
 
-if test "$rpm" = yes; then
-  AC_DEFINE(RPM,1)
-fi
+dnl if test "$rpm" = yes; then
+dnl   AC_DEFINE(RPM,1)
+dnl fi
 
-echo checking whether this will be an RPM... $rpm
+dnl echo checking whether this will be an RPM... $rpm
 
 pkg_modules="gtk+-2.0 >= 2.0.0"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])

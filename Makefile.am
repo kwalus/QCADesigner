@@ -1,11 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
-filesdir = $(datadir)/QCADesigner
+docdir = $(datadir)/doc/@PACKAGE@-@VERSION@
 appdir = $(datadir)/applications
 
 SUBDIRS = src po pixmaps docs
 
-files_DATA = \
+doc_DATA = \
   AUTHORS \
   COPYING \
   ChangeLog \
@@ -14,4 +14,4 @@ files_DATA = \
 
 app_DATA = QCADesigner.desktop
 
-EXTRA_DIST = $(files_DATA) $(app_DATA)
+EXTRA_DIST = $(doc_DATA) $(app_DATA)

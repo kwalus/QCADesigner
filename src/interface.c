@@ -17,7 +17,7 @@
 // This will reduce ramp up time for new people trying  //
 // to contribute to the project.                        //
 //////////////////////////////////////////////////////////
-
+//
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>

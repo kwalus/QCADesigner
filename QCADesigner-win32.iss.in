@@ -5,14 +5,14 @@ somname=Nix
 
 [Setup]
 AppName=QCADesigner
-AppVerName=QCADesigner 1.4.0
+AppVerName=QCADesigner 1.4.1
 AppPublisher=University of Calgary
 AppPublisherURL=qcadesigner.ca
 AppSupportURL=qcadesigner.ca
 AppUpdatesURL=qcadesigner.ca
 DefaultDirName={pf}\QCADesigner
 DefaultGroupName=QCADesigner
-LicenseFile=C:\cygwin\home\nix\QCADesigner-distrib\share\doc\QCADesigner-1.4.0\COPYING
+LicenseFile=C:\cygwin\home\nix\QCADesigner-distrib\share\doc\QCADesigner-1.4.1\COPYING
 ChangesAssociations=yes
 
 [Tasks]

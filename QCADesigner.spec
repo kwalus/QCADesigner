@@ -1,6 +1,6 @@
 Summary: A QCA design and simulation tool
 Name: QCADesigner
-Version: 1.4.0
+Version: 1.4.1
 Release: 1
 Copyright: GPL
 Group: Development/Tools

@@ -1510,10 +1510,23 @@ void on_project_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer u
   }
 
 void on_close_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
+{    
+  if (bDesignAltered)
+    {
+      MBButton mbb = message_box (GTK_WINDOW (main_window.main_window), (MBButton)(MB_YES | MB_NO | MB_CANCEL), "Project Modified",
+				  "You have altered your design.  If you close this design, you will lose your changes.  Save first ?") ;
+      if (MB_YES == mbb)
+      	{
+	if (!do_save ()) return ;
+	}
+      else if (MB_CANCEL == mbb)
+      	return ;
+      }
+
     clear_all_cells () ;
     redraw_world () ;
     current_file_name[0] = 0 ;
+    bDesignAltered = FALSE;
 }
 
 // quit QCADesigner selected from menu //

@@ -49,7 +49,6 @@
 main_W main_window = {NULL} ;
 
 void create_main_window (main_W *main_window){
-    char *psz = NULL ;
     GtkWidget *img = NULL ;
     GtkRcStyle *rcstyle = NULL ;
     char *psz = NULL ;

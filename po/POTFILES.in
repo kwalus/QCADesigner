@@ -1,6 +1,21 @@
-# List of source files containing translatable strings.
-
-src/main.c
-src/interface.c
+src/about.c
+src/bistable_properties_dialog.c
 src/callbacks.c
+src/cell_function_dialog.c
+src/cell_properties_dialog.c
+src/clock_select_dialog.c
+src/coherence_vector_properties_dialog.c
+src/graph_dialog.c
+src/graph_options_dialog.c
+src/grid_spacing_dialog.c
+src/interface.c
+src/nonlinear_approx_properties_dialog.c
+src/print_dialog.c
+src/print_properties_dialog_interface.c
+src/project_properties_dialog.c
+src/scale_dialog.c
+src/scqca_properties_dialog.c
+src/sim_engine_setup_dialog.c
+src/sim_type_setup_dialog.c
 src/support.c
+src/vector_table_options_dialog.c

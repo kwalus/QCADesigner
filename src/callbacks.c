@@ -315,7 +315,7 @@ void on_cell_properties_menu_item_activate (GtkMenuItem *menuitem, gpointer user
   DBG_CB_HERE (fprintf (stderr, "Entering on_cell_properties_menu_item_activate\n")) ;
   get_cell_properties_from_user (GTK_WINDOW (main_window.main_window), &cell_options) ;
   }
-
+/*
 void on_window_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
   DBG_CB_HERE (fprintf (stderr, "Entering on_window_properties_menu_item_activate\n")) ;
@@ -325,7 +325,7 @@ void on_layer_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer use
   {
   DBG_CB_HERE (fprintf (stderr, "Entering on_layer_properties_menu_item_activate\n")) ;
   }
-
+*/
 void on_show_tb_icons_menu_item_activate (GtkMenuItem * menuitem, gpointer user_data)
   {
   DBG_CB_HERE (fprintf (stderr, "Entering on_show_tb_icons_menu_item_activate\n")) ;

@@ -5,7 +5,7 @@
 #include "undo_create.h"
 
 #define DBG_UC(s)
-#define DBG_UC_CLR(s) s
+#define DBG_UC_CLR(s)
 
 static void *DoCreateCells (GQCell **ppqc, int ic, gboolean bInverse) ;
 static void CreateCellsAction (UNDO_ACTION_CELLS *puac, GQCell **ppqc, int ic) ;

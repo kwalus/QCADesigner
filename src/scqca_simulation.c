@@ -52,8 +52,8 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 	//simulations can have millions of points and there is no need to plot them all //
 	unsigned long int number_recorded_samples = 2000;
 	unsigned long int record_interval;
-	gchar* filename; 
-	FILE* data_file = NULL;
+//	gchar* filename; 
+//	FILE* data_file = NULL;
 	time_t start_time, end_time;
 	
 	// -- get the starting time for the simulation -- //

@@ -23,8 +23,8 @@ gboolean configure_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 void on_preview_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
 void on_grid_properties_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
 void on_cell_properties_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
-void on_window_properties_menu_item_activate(GtkMenuItem *menuitem, gpointer user_data);
-void on_layer_properties_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
+//void on_window_properties_menu_item_activate(GtkMenuItem *menuitem, gpointer user_data);
+//void on_layer_properties_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
 void on_show_tb_icons_menu_item_activate (GtkMenuItem * menuitem, gpointer user_data) ;
 void on_snap_to_grid_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
 void on_show_grid_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);

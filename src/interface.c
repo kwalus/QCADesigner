@@ -280,13 +280,13 @@ void create_main_window (main_W *main_window){
     main_window->cell_properties_menu_item = gtk_menu_item_new_with_label (_("Cell Properties..."));
     gtk_widget_show (main_window->cell_properties_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->edit_menu_menu), main_window->cell_properties_menu_item);
-
+/*
 	// create and add the window properties menu item to the edit menu //
     main_window->window_properties_menu_item = gtk_menu_item_new_with_label (_("Window Properties"));
     gtk_widget_show (main_window->window_properties_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->edit_menu_menu), main_window->window_properties_menu_item);
 
-    // *********** remove when finished ****************//
+    // *********** remove when finished **************** //
     gtk_widget_set_sensitive (GTK_WIDGET (main_window->window_properties_menu_item), FALSE);
 
 	// create and add the layer properties menu item to the edit menu //
@@ -294,9 +294,9 @@ void create_main_window (main_W *main_window){
     gtk_widget_show (main_window->layer_properties_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->edit_menu_menu), main_window->layer_properties_menu_item);
 
-    // *********** remove when finished ****************//
+    // *********** remove when finished **************** //
     gtk_widget_set_sensitive (GTK_WIDGET (main_window->layer_properties_menu_item), FALSE);
-
+*/
 	// create and add the preferences menu item to the edit menu //
     main_window->preferences_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES, main_window->accel_group);
     gtk_widget_show (main_window->preferences_menu_item);
@@ -1039,8 +1039,8 @@ void create_main_window (main_W *main_window){
 	g_signal_connect ((gpointer)(main_window->delete_menu_item), "activate", GTK_SIGNAL_FUNC (on_delete_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->grid_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_grid_properties_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->cell_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_cell_properties_menu_item_activate), NULL);
-    g_signal_connect ((gpointer)(main_window->window_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_window_properties_menu_item_activate), NULL);
-    g_signal_connect ((gpointer)(main_window->layer_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_layer_properties_menu_item_activate), NULL);
+//    g_signal_connect ((gpointer)(main_window->window_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_window_properties_menu_item_activate), NULL);
+//    g_signal_connect ((gpointer)(main_window->layer_properties_menu_item), "activate", GTK_SIGNAL_FUNC (on_layer_properties_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->preferences_menu_item), "activate", GTK_SIGNAL_FUNC (on_preferences_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->show_tb_icons_menu_item), "activate", GTK_SIGNAL_FUNC (on_show_tb_icons_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->snap_to_grid_menu_item), "activate", GTK_SIGNAL_FUNC (on_snap_to_grid_menu_item_activate), NULL);

@@ -50,7 +50,7 @@ static coherence_properties_D coherence_properties = {NULL};
 
 static void create_coherence_properties_dialog (coherence_properties_D *dialog) ;
 static void coherence_OP_to_dialog (coherence_OP *psco, coherence_properties_D *dialog) ;
-static void coherence_OP_to_dialog_ro (coherence_OP *psco, coherence_properties_D *dialog) ;
+//static void coherence_OP_to_dialog_ro (coherence_OP *psco, coherence_properties_D *dialog) ;
 static void dialog_to_coherence_OP (coherence_OP *psco, coherence_properties_D *dialog) ;
 static void create_coherence_properties_line (GtkWidget *table, int idx, GtkWidget **plabel, GtkWidget **pentry, GtkWidget **plblUnits, char *pszLabel, char *pszUnits, gboolean bEnableEntry) ;
 static void properties_changed (GtkWidget *widget, gpointer user_data) ;
@@ -78,7 +78,6 @@ void get_coherence_properties_from_user (GtkWindow *parent, coherence_OP *pbo)
 
 static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   {
-  GtkWidget *hsep = NULL ;
   GtkWidget *label = NULL ;
   GtkWidget *lblunits = NULL ;  
   if (NULL != dialog->coherence_properties_dialog) return ;
@@ -145,7 +144,7 @@ static void properties_changed (GtkWidget *widget, gpointer user_data)
   
   dialog_to_coherence_OP (&sco, dialog) ;
   
-  coherence_OP_to_dialog_ro (&sco, dialog) ;
+//  coherence_OP_to_dialog_ro (&sco, dialog) ;
   }
 
 static void create_coherence_properties_line (GtkWidget *table, int idx, GtkWidget **plabel, GtkWidget **pentry, GtkWidget **plblUnits, char *pszLabel, char *pszUnits, gboolean bEnableEntry)
@@ -209,15 +208,15 @@ static void coherence_OP_to_dialog (coherence_OP *psco, coherence_properties_D *
   g_snprintf (sz, 16, "%lf", psco->epsilonR) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->epsilonR_entry), sz) ;
   
-  coherence_OP_to_dialog_ro (psco, dialog) ;
+//  coherence_OP_to_dialog_ro (psco, dialog) ;
   }
-
+/*
 static void coherence_OP_to_dialog_ro (coherence_OP *psco, coherence_properties_D *dialog)
   {
   char sz[16] = "" ;
 
   }
-
+*/
 static void dialog_to_coherence_OP (coherence_OP *psco, coherence_properties_D *dialog)
   {
   psco->T = atof (gtk_entry_get_text (GTK_ENTRY (dialog->T_entry))) ;

@@ -8,7 +8,7 @@
 #include "../undo_create.h"
 #include "command_history.h"
 
-#define DBG_DF(s) s
+#define DBG_DF(s)
 
 extern cell_OP cell_options ;
 

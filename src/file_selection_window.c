@@ -27,7 +27,7 @@
 #include "fileio_helpers.h"
 #include "custom_widgets.h"
 
-#define DBG_FSW(s) s
+#define DBG_FSW(s)
 
 static gboolean filesel_ok_button_activate (GtkWidget *widget, GdkEventButton *ev, gpointer data) ;
 

@@ -31,6 +31,7 @@
 #include "nonlinear_approx.h"
 #include "eigenvalues.h"
 #include "cad.h"
+#include "command_history.h"
 
 int compareBistableQCells (const void *p1, const void *p2) ;
 
@@ -47,14 +48,13 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, qcell *first_cell,
 	int total_number_of_outputs = 0;
 	double input = 0;
 //	int *neighbour_count = NULL;
-	char text[100] = "" ;
 	simulation_data *sim_data = malloc(sizeof(simulation_data));
  
 	cell = first_cell;
 	
 	// -- check if there are cells to simulate -- //
 	if (cell == NULL){
-		printf ("There are no cells available for simulation\n");
+		command_history_message ("There are no cells available for simulation\n");
 		return NULL;
 		}
   
@@ -97,8 +97,7 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, qcell *first_cell,
 	  }
 	
 	// write message to the command history window //
-	g_snprintf (text, 100, "Simulation found %d inputs %d outputs %d total cells\n", total_number_of_inputs, total_number_of_outputs, total_cells);
-  	gtk_text_insert (GTK_TEXT (main_window.command_history), NULL, NULL, NULL, text, strlen (text));
+	command_history_message ("Simulation found %d inputs %d outputs %d total cells\n", total_number_of_inputs, total_number_of_outputs, total_cells);
 
   	// -- allocate memory for array of pointers to the input and output cells in the design -- //
   	input_cells = calloc (total_number_of_inputs, sizeof (qcell *));
@@ -214,8 +213,7 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, qcell *first_cell,
 		
 		if (j % 100 == 0){
 			// write the completion percentage to the command history window //
-			g_snprintf(text, 100, "%3.0f%% complete\n", 100 * (float) j / (float) sim_data->number_samples);
-			gtk_text_insert(GTK_TEXT(main_window.command_history), NULL, NULL, NULL,text, strlen(text));
+			command_history_message ("%3.0f%% complete\n", 100 * (float) j / (float) sim_data->number_samples);
 	    }
 	  
 	  	// -- for each of the inputs -- //

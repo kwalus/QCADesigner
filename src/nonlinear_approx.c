@@ -34,6 +34,7 @@
 #include "simulation.h"
 #include "stdqcell.h"
 #include "cad.h"
+#include "command_history.h"
 
 
 void run_nonlinear_approx_iteration(int sample_number, qcell **sorted_cells, int number_of_sorted_cells, simulation_data *sim_data);
@@ -54,13 +55,12 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 	double input = 0;
 //	int *neighbour_count = NULL;
 	simulation_data *sim_data = malloc(sizeof(simulation_data));
-	char text[100] = "" ;
  
 	cell = first_cell;
 
 	// -- check if there are cells to simulate -- //
 	if (cell == NULL){
-		printf ("There are no cells available for simulation\n");
+		command_history_message ("There are no cells available for simulation\n");
 		return NULL;
 		}
   
@@ -102,8 +102,7 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 	  }
 	
 	// write message to the command history window //
-	g_snprintf (text, 100, "Simulation found %d inputs %d outputs %d total cells\n", total_number_of_inputs, total_number_of_outputs, total_cells);
-  	gtk_text_insert (GTK_TEXT (main_window.command_history), NULL, NULL, NULL, text, strlen (text));
+	command_history_message ("Simulation found %d inputs %d outputs %d total cells\n", total_number_of_inputs, total_number_of_outputs, total_cells);
 
   	// -- allocate memory for array of pointers to the input and output cells in the design -- //
   	input_cells = calloc (total_number_of_inputs, sizeof (qcell *));
@@ -219,8 +218,7 @@ simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, no
 		
 		if (j % 100 == 0){
 			// write the completion percentage to the command history window //
-			g_snprintf(text, 100, "%3.0f%% complete\n", 100 * (float) j / (float) sim_data->number_samples);
-			gtk_text_insert(GTK_TEXT(main_window.command_history), NULL, NULL, NULL,text, strlen(text));
+			command_history_message ("%3.0f%% complete\n", 100 * (float) j / (float) sim_data->number_samples);
 	    }
 	  
 	  	// -- for each of the inputs -- //

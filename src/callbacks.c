@@ -58,6 +58,7 @@
 #include "graph_dialog.h"
 #include "random_fault_setup_dialog.h"
 #include "message_box.h"
+#include "command_history.h"
 
 #define DBG_CB(s) s
 
@@ -474,9 +475,8 @@ gboolean button_release_event(GtkWidget * widget, GdkEventButton * event, gpoint
 
 		  // check to make sure that we are not moving a cell onto another cell //                
 		  if (select_cell_at_coords_but_not_this_one (offset_x + selected_cells[j]->x, offset_y + selected_cells[j]->y, selected_cells[j]) != NULL) {
-      	      	      char *pszCmdHistMsg = "Cannot move this group of cells to this location, due to exact overlap of at least one of the cells\n" ;
 		      // write message to the command history window //
-	      	      gtk_text_insert(GTK_TEXT(main_window.command_history), NULL, NULL, NULL, pszCmdHistMsg, strlen(pszCmdHistMsg));
+      	      	      command_history_message ("Cannot move this group of cells to this location, due to exact overlap of at least one of the cells\n") ;
 
 		      listen_motion = TRUE;
 
@@ -663,7 +663,6 @@ gboolean key_press_event(GtkWidget * widget, GdkEventKey * event, gpointer user_
 gboolean button_press_event(GtkWidget * widget, GdkEventButton * event, gpointer user_data)
 {
     int i = 0, j;
-    char *text;
     int TAG;
     float offset_x;
     float offset_y;
@@ -757,11 +756,8 @@ gboolean button_press_event(GtkWidget * widget, GdkEventButton * event, gpointer
 			     offset_y + selected_cells[j]->y,
 			     selected_cells[j]) != NULL) {
 			     
-			     text = "Cannot move this group of cells to this location, due to exact overlap of at least one of the cells\n" ;
-
+			     command_history_message ("Cannot move this group of cells to this location, due to exact overlap of at least one of the cells\n") ;
 			    // write message to the command history window //               
-			    gtk_text_insert(GTK_TEXT(main_window.command_history), NULL, NULL,
-					    NULL, text, strlen(text));
 
 			    listen_motion = TRUE;
 
@@ -975,10 +971,9 @@ gboolean button_press_event(GtkWidget * widget, GdkEventButton * event, gpointer
 
 	    if (cellp != NULL) {
 	        char szName[256] = "" ;
-      	      	text = "Selected cell for input\n" ;
 
-		// write message to the command history window //               
-		gtk_text_insert(GTK_TEXT(main_window.command_history), NULL, NULL, NULL, text, strlen(text));
+		// write message to the command history window //
+      	      	command_history_message ("Selected cell for input\n") ;
 
 		// set the cell as an input and make its index its input number //
 
@@ -1008,10 +1003,9 @@ gboolean button_press_event(GtkWidget * widget, GdkEventButton * event, gpointer
 
 	    if (cellp != NULL) {
 	      	char szName[256] = "" ;
-	        text = "Selected cell for output\n" ;
 
 		// write message to the command history window //               
-		gtk_text_insert(GTK_TEXT(main_window.command_history), NULL, NULL, NULL, text, strlen(text));
+	        command_history_message ("Selected cell for output\n") ;
 
       	      	if (get_name_from_user (GTK_WINDOW (main_window.main_window), szName, 256))
 		  {
@@ -1238,22 +1232,19 @@ void file_operations (GtkWidget *widget, gpointer user_data)
 // allow the user to select an input cell //
 void on_create_input_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-    char *text = "Select the cell to be marked as input\n" ;
-    gtk_text_insert(GTK_TEXT (main_window.command_history), NULL, NULL, NULL, text, strlen(text));
+    command_history_message ("Select the cell to be marked as input\n") ;
     set_selected_action (SELECT_CELL_AS_INPUT, selected_cell_type) ;
 }
 
 void on_input_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-    char *text = "Select the cell to edit\n";
-    gtk_text_insert(GTK_TEXT (main_window.command_history), NULL, NULL, NULL, text, strlen(text));
+    command_history_message ("Select the cell to edit\n");
     set_selected_action (CHANGE_INPUT_PROPERTIES, selected_cell_type) ;
 }
 
 void on_connect_output_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-    char *text = "Select the cell to be marked as output\n" ;
-    gtk_text_insert(GTK_TEXT (main_window.command_history), NULL, NULL, NULL, text, strlen(text));
+    command_history_message ("Select the cell to be marked as output\n") ;
     set_selected_action (SELECT_CELL_AS_OUTPUT, selected_cell_type) ;
 }
 
@@ -1288,8 +1279,7 @@ void on_clock_increment_menu_item_activate(GtkMenuItem * menuitem, gpointer user
 
 void on_fixed_polarization_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-    char *text = "Select the cell whose polarization is to be fixed\n";
-    gtk_text_insert(GTK_TEXT (main_window.command_history), NULL, NULL, NULL, text, strlen(text));
+    command_history_message ("Select the cell whose polarization is to be fixed\n");
     set_selected_action (SELECT_CELL_AS_FIXED, selected_cell_type) ;
 }
 

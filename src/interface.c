@@ -41,6 +41,7 @@
 #include "callbacks.h"
 #include "interface.h"
 #include "custom_widgets.h"
+#include "command_history.h"
 
 // -- creates the main application window and returns a pointer to it -- //
 
@@ -1043,20 +1044,12 @@ void create_main_window (main_W *main_window){
 	gtk_ruler_set_metric (GTK_RULER (main_window->vertical_ruler), GTK_PIXELS) ;
 	gtk_ruler_set_range (GTK_RULER (main_window->vertical_ruler), 0, 100, 0, 1);
 
-	// create and add a scroll window in which to put the command history //
-	main_window->scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
-	gtk_widget_ref (main_window->scrolledwindow1);
-	gtk_object_set_data_full (GTK_OBJECT (main_window->main_window), "scrolledwindow1", main_window->scrolledwindow1, (GtkDestroyNotify) gtk_widget_unref);
-	gtk_widget_show (main_window->scrolledwindow1);
-	gtk_paned_pack2 (GTK_PANED (main_window->vpaned1), main_window->scrolledwindow1, FALSE, TRUE);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (main_window->scrolledwindow1), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-	
 	// create and add the command history text box to the scrolled window //
-	main_window->command_history = gtk_text_new (NULL, NULL);
+	main_window->command_history = command_history_create ();
 	gtk_widget_ref (main_window->command_history);
 	gtk_object_set_data_full (GTK_OBJECT (main_window->main_window), "command_history", main_window->command_history, (GtkDestroyNotify) gtk_widget_unref);
 	gtk_widget_show (main_window->command_history);
-	gtk_container_add (GTK_CONTAINER (main_window->scrolledwindow1), main_window->command_history);
+	gtk_paned_pack2 (GTK_PANED (main_window->vpaned1), main_window->command_history, FALSE, TRUE);
 	
 	// create and add the command entry to the main window //
 	main_window->command_entry = gtk_entry_new ();

@@ -22,6 +22,7 @@ QCADesigner_SOURCES = \
 	graph_options_dialog.c graph_options_dialog.h \
 	grid_spacing_dialog.c grid_spacing_dialog.h \
 	name_dialog.c name_dialog.h \
+	command_history.c command_history.h \
 	project_properties_dialog.c project_properties_dialog.h \
 	cell_properties_dialog.c cell_properties_dialog.h \
 	nonlinear_approx_properties_dialog.c nonlinear_approx_properties_dialog.h \

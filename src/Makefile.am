@@ -57,6 +57,7 @@ QCADesigner_SOURCES = \
 	nonlinear_approx_properties_dialog.c nonlinear_approx_properties_dialog.h \
 	bistable_properties_dialog.c bistable_properties_dialog.h \
 	scqca_properties_dialog.c scqca_properties_dialog.h \
+	coherence_vector_properties_dialog.c coherence_vector_properties_dialog.h \
 	random_fault_setup_dialog.c random_fault_setup_dialog.h \
 	graph_dialog.c graph_dialog.h \
 	graph_options_dialog.c graph_options_dialog.h \

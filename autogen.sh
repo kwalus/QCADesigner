@@ -5,6 +5,7 @@
 #Ask for the appropriate automake/autoconf versions
 export WANT_AUTOMAKE=1.6
 export WANT_AUTOCONF_2_5=1
+export CFLAGS="${CFLAGS} -O3"
 
 # Hacky test for Windoze follows :o)
 if [ "" != "$WINDIR" ]; then

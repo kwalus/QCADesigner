@@ -42,6 +42,7 @@ typedef struct{
 	double clock_low;
 	double radius_of_effect;
 	double epsilonR;
+	gboolean animate_simulation;
 }coherence_OP;
 
 simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cell, coherence_OP *options, VectorTable *pvt);

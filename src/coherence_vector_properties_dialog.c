@@ -79,7 +79,8 @@ void get_coherence_properties_from_user (GtkWindow *parent, coherence_OP *pbo)
 static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   {
   GtkWidget *hsep = NULL ;
-
+  GtkWidget *label = NULL ;
+  GtkWidget *lblunits = NULL ;  
   if (NULL != dialog->coherence_properties_dialog) return ;
     
   dialog->coherence_properties_dialog = gtk_dialog_new ();
@@ -90,76 +91,49 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   dialog->dialog_vbox1 = GTK_DIALOG (dialog->coherence_properties_dialog)->vbox;
   gtk_widget_show (dialog->dialog_vbox1);
 
-  dialog->table = gtk_table_new (7, 2, FALSE);
+  dialog->table = gtk_table_new (16, 3, FALSE);
   gtk_widget_show (dialog->table);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->table), 2);
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->table, TRUE, TRUE, 0);
 
-  create_coherence_properties_line (dialog->table, 0, &(dialog->label1), &(dialog->number_of_samples_entry), NULL, 
-    "Number of Samples:", NULL, TRUE) ;
-  create_coherence_properties_line (dialog->table, 1, &(dialog->label2), &(dialog->circuit_convergence_tolerance_entry), NULL,
-    "Circuit Convergence Tolerance:", NULL, TRUE) ;
-  create_coherence_properties_line (dialog->table, 2, &(dialog->label2), &(dialog->dot_convergence_tolerance_entry), NULL,
-    "Dot Convergence Tolerance:", NULL, TRUE) ;
-  create_coherence_properties_line (dialog->table, 3, &(dialog->label2), &(dialog->cell_convergence_tolerance_entry), NULL,
-    "Cell Convergence Tolerance:", NULL, TRUE) ;
-  create_coherence_properties_line (dialog->table, 4, &(dialog->label3), &(dialog->radius_of_effect_entry), &(dialog->label2),
-    "Radius of Effect:", "nm", TRUE) ;
-  create_coherence_properties_line (dialog->table, 5, &(dialog->label3), &(dialog->max_iterations_per_sample_entry), NULL,
-    "Maximum Iterations Per Sample:", NULL, TRUE) ;
-  create_coherence_properties_line (dialog->table, 6, &(dialog->lblMaxCellLoops), &(dialog->max_cell_loops_entry), NULL,
-    "Maximum Loops Per Cell:", NULL, TRUE) ;
-  create_coherence_properties_line (dialog->table, 7, &(dialog->lblMaxDotLoops), &(dialog->max_dot_loops_entry), NULL,
-    "Maximum Loops Per Dot:", NULL, TRUE) ;
-  create_coherence_properties_line (dialog->table, 8, &(dialog->label2), &(dialog->gamma_entry), &(dialog->label2),
-    "Gamma:", "eV", TRUE) ;
-  create_coherence_properties_line (dialog->table, 9, &(dialog->lblInputCellCurrent), &(dialog->input_cell_current_entry), &(dialog->label2),
-    "Input Cell Current:", "A", TRUE) ;
-  create_coherence_properties_line (dialog->table, 10, &(dialog->label2), &(dialog->temperature_entry), &(dialog->label2),
+  create_coherence_properties_line (dialog->table, 0, &(label), &(dialog->T_entry), &lblunits, 
     "Temperature:", "K", TRUE) ;
-  create_coherence_properties_line (dialog->table, 11, &(dialog->label2), &(dialog->device_voltage_entry), &(dialog->label2),
-    "Device Voltage:", "V", TRUE) ;
-  create_coherence_properties_line (dialog->table, 12, &(dialog->label2), &(dialog->clock_high_entry), &(dialog->label2),
-    "Clock High:", "V", TRUE) ;
-  create_coherence_properties_line (dialog->table, 13, &(dialog->label2), &(dialog->clock_low_entry), &(dialog->label2),
-    "Clock Low:", "V", TRUE) ;
-  
+  create_coherence_properties_line (dialog->table, 1, &(label), &(dialog->relaxation_entry), &lblunits,
+    "Relaxation Time:", "s", TRUE) ;
+  create_coherence_properties_line (dialog->table, 2, &(label), &(dialog->time_step_entry), &lblunits,
+    "Time Step:", "s", TRUE) ;
+  create_coherence_properties_line (dialog->table, 3, &(label), &(dialog->duration_entry), &lblunits,
+    "Total Simulation Time:", "s", TRUE) ;
+  create_coherence_properties_line (dialog->table, 4, &(label), &(dialog->clock_high_entry), &lblunits,
+    "Clock High:", "J", TRUE) ;
+  create_coherence_properties_line (dialog->table, 5, &(label), &(dialog->clock_low_entry), &lblunits,
+    "Clock Low:", "J", TRUE) ;
+  create_coherence_properties_line (dialog->table, 6, &(label), &(dialog->radius_of_effect_entry), &lblunits,
+    "Radius of Effect:", "nm", TRUE) ;
+  create_coherence_properties_line (dialog->table, 7, &(label), &(dialog->epsilonR_entry), NULL,
+    "Relative Permittivity:", NULL, TRUE) ;
+    
   // Animate ?
   dialog->chkAnimate = gtk_check_button_new_with_label (_("Animate")) ;
   gtk_widget_show (dialog->chkAnimate) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 14, 15,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 8, 9,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_widget_set_sensitive (dialog->chkAnimate, FALSE) ;
 
-  gtk_table_attach (GTK_TABLE (dialog->table), hsep = gtk_hseparator_new (), 0, 3, 15, 16,
+  gtk_table_attach (GTK_TABLE (dialog->table), hsep = gtk_hseparator_new (), 0, 3, 8, 9,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_widget_show (hsep) ;
 
-  create_coherence_properties_line (dialog->table, 16, &(dialog->label2), &(dialog->Epk1_entry), &(dialog->label2),
-    "Epk1:", "eV", FALSE) ;
-  create_coherence_properties_line (dialog->table, 17, &(dialog->label2), &(dialog->Epk2_entry), &(dialog->label2),
-    "Epk2:", "eV", FALSE) ;
-  create_coherence_properties_line (dialog->table, 18, &(dialog->label2), &(dialog->U_entry), &(dialog->label2),
-    "U:", "eV", FALSE) ;
-  create_coherence_properties_line (dialog->table, 19, &(dialog->label2), &(dialog->electron_lifetime_entry), &(dialog->label2),
-    "Electron Lifetime:", "s", FALSE) ;
-    
-  g_signal_connect (G_OBJECT (dialog->max_iterations_per_sample_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->number_of_samples_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->circuit_convergence_tolerance_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->dot_convergence_tolerance_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->cell_convergence_tolerance_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->radius_of_effect_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->max_cell_loops_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->max_dot_loops_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->input_cell_current_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->temperature_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->device_voltage_entry), "changed", (GCallback)properties_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->gamma_entry), "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->T_entry), "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->relaxation_entry), "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->time_step_entry), "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->duration_entry), "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->clock_high_entry), "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->clock_low_entry), "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->radius_of_effect_entry), "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->epsilonR_entry), "changed", (GCallback)properties_changed, dialog) ;
 
   gtk_dialog_add_button (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
   gtk_dialog_add_button (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
@@ -214,49 +188,31 @@ static void coherence_OP_to_dialog (coherence_OP *psco, coherence_properties_D *
   {
   char sz[16] = "" ;
 
-  g_snprintf (sz, 16, "%d", psco->number_of_samples) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->number_of_samples_entry), sz) ;
+  g_snprintf (sz, 16, "%f", psco->T) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->T_entry), sz) ;
 
-  g_snprintf (sz, 16, "%d", psco->max_iterations_per_sample) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->max_iterations_per_sample_entry), sz) ;
+  g_snprintf (sz, 16, "%e", psco->relaxation) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->relaxation_entry), sz) ;
 
-  g_snprintf (sz, 16, "%d", psco->max_cell_loops) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->max_cell_loops_entry), sz) ;
+  g_snprintf (sz, 16, "%e", psco->time_step) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->time_step_entry), sz) ;
 
-  g_snprintf (sz, 16, "%d", psco->max_dot_loops) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->max_dot_loops_entry), sz) ;
+  g_snprintf (sz, 16, "%e", psco->duration) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->duration_entry), sz) ;
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->chkAnimate), psco->animate_simulation) ;
 
-  g_snprintf (sz, 16, "%e", psco->circuit_convergence_tolerance) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->circuit_convergence_tolerance_entry), sz) ;
-
-  g_snprintf (sz, 16, "%e", psco->cell_convergence_tolerance) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->cell_convergence_tolerance_entry), sz) ;
-
-  g_snprintf (sz, 16, "%e", psco->dot_convergence_tolerance) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->dot_convergence_tolerance_entry), sz) ;
-
-  g_snprintf (sz, 16, "%lf", psco->device_voltage) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->device_voltage_entry), sz) ;
-
-  g_snprintf (sz, 16, "%e", psco->input_cell_current) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->input_cell_current_entry), sz) ;
-
-  g_snprintf (sz, 16, "%lf", psco->gamma / P_E) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->gamma_entry), sz) ;
-
-  g_snprintf (sz, 16, "%lf", psco->clock_high) ;
+  g_snprintf (sz, 16, "%e", psco->clock_high) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->clock_high_entry), sz) ;
 
-  g_snprintf (sz, 16, "%lf", psco->clock_low) ;
+  g_snprintf (sz, 16, "%e", psco->clock_low) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->clock_low_entry), sz) ;
-
-  g_snprintf (sz, 16, "%lf", psco->temperature) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->temperature_entry), sz) ;
 
   g_snprintf (sz, 16, "%lf", psco->radius_of_effect) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->radius_of_effect_entry), sz) ;
+
+  g_snprintf (sz, 16, "%lf", psco->epsilonR) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->epsilonR_entry), sz) ;
   
   coherence_OP_to_dialog_ro (psco, dialog) ;
   }
@@ -265,47 +221,16 @@ static void coherence_OP_to_dialog_ro (coherence_OP *psco, coherence_properties_
   {
   char sz[16] = "" ;
 
-  // Uneditable quantities
-  g_snprintf (sz, 16, "%lf", psco->Epk1 / P_E) ;
-  DBG_RO (fprintf (stderr, "Setting Epk1 = %s\n", sz)) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->Epk1_entry), sz) ;
-
-  g_snprintf (sz, 16, "%lf", psco->Epk2 / P_E) ;
-  DBG_RO (fprintf (stderr, "Setting Epk2 = %s\n", sz)) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->Epk2_entry), sz) ;
-
-  g_snprintf (sz, 16, "%lf", psco->U / P_E) ;
-  DBG_RO (fprintf (stderr, "Setting U = %s\n", sz)) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->U_entry), sz) ;
-
-  g_snprintf (sz, 16, "%e", psco->electron_lifetime) ;
-  DBG_RO (fprintf (stderr, "Setting electron_lifetime = %s\n", sz)) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog->electron_lifetime_entry), sz) ;
   }
 
 static void dialog_to_coherence_OP (coherence_OP *psco, coherence_properties_D *dialog)
   {
-  psco->max_iterations_per_sample = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->max_iterations_per_sample_entry))) ;
-  psco->number_of_samples = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->number_of_samples_entry))) ;
-  psco->max_cell_loops = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->max_cell_loops_entry))) ;
-  psco->max_dot_loops = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->max_dot_loops_entry))) ;
-  psco->circuit_convergence_tolerance = atof (gtk_entry_get_text (GTK_ENTRY (dialog->circuit_convergence_tolerance_entry))) ;
-  psco->dot_convergence_tolerance = atof (gtk_entry_get_text (GTK_ENTRY (dialog->dot_convergence_tolerance_entry))) ;
-  psco->cell_convergence_tolerance = atof (gtk_entry_get_text (GTK_ENTRY (dialog->cell_convergence_tolerance_entry))) ;
-  psco->radius_of_effect = atof (gtk_entry_get_text (GTK_ENTRY (dialog->radius_of_effect_entry))) ;
-  psco->input_cell_current = atof (gtk_entry_get_text (GTK_ENTRY (dialog->input_cell_current_entry))) ;
-  psco->temperature = atof (gtk_entry_get_text (GTK_ENTRY (dialog->temperature_entry))) ;
-  psco->gamma = atof (gtk_entry_get_text (GTK_ENTRY (dialog->gamma_entry))) * P_E ;
+  psco->T = atof (gtk_entry_get_text (GTK_ENTRY (dialog->T_entry))) ;
+  psco->relaxation = atof (gtk_entry_get_text (GTK_ENTRY (dialog->relaxation_entry))) ;
+  psco->time_step = atof (gtk_entry_get_text (GTK_ENTRY (dialog->time_step_entry))) ;
+  psco->duration = atof (gtk_entry_get_text (GTK_ENTRY (dialog->duration_entry))) ;
   psco->clock_high = atof (gtk_entry_get_text (GTK_ENTRY (dialog->clock_high_entry))) ;
   psco->clock_low = atof (gtk_entry_get_text (GTK_ENTRY (dialog->clock_low_entry))) ;
-  psco->device_voltage = atof (gtk_entry_get_text (GTK_ENTRY (dialog->device_voltage_entry))) ;
-  psco->animate_simulation = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkAnimate)) ;
-  
-  psco->Epk2 = 0.2 * P_E;
-  psco->Epk1 = psco->Epk2 - P_E * psco->device_voltage / 3;
-  psco->U = 2 * (psco->Epk1 - P_E * psco->device_voltage / 3);
-  
-  // Make sure we don't divide by 0
-  if (0 != psco->gamma)
-    psco->electron_lifetime = P_HBAR / psco->gamma;
+  psco->radius_of_effect = atof (gtk_entry_get_text (GTK_ENTRY (dialog->radius_of_effect_entry))) ;
+  psco->epsilonR = atof (gtk_entry_get_text (GTK_ENTRY (dialog->epsilonR_entry))) ;
   }

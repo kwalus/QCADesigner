@@ -26,7 +26,7 @@
 #include "cad.h"
 
 //!Options for the bistable simulation engine
-coherence_OP coherence_options = {300, 6.5828e-14, 1e-15, 1e-13, 100e-3 * 1.602e-19, 40e-3 * 1.602e-19, 60, 12.9} ;
+coherence_OP coherence_options = {300, 6.5828e-14, 1e-15, 1e-13, 100e-3 * 1.602e-19, 40e-3 * 1.602e-19, 60, 12.9, FALSE} ;
 
 typedef struct{
 	int number_of_neighbours;
@@ -230,6 +230,10 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	
 	// Reset all the cell polarizations to their associated steady state values //
 	cell = first_cell;
+	
+	printf("Ek = %e Clock Low = %e \n", ((coherence_model *)cell->cell_model)->Ek[0]/(1.602e-19), options->clock_low/(1.602e-19));
+	
+	
 	while (cell != NULL){
 		PEk = 0;
 		// Calculate the sum of neighboring polarizations * the kink energy between them//

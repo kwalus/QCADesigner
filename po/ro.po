@@ -175,8 +175,8 @@ msgstr "Scădeţi magnificaţia să obţineţi o perspectivă mai largă"
 msgid "Decrease The Magnification"
 msgstr "Scădează magnificaţia"
 
-# msgid "Default Cell Properties..."
-# msgstr ""
+msgid "Cell Properties..."
+msgstr "Caracteristicile Celulelor..."
 
 # msgid "Default Clock:"
 # msgstr ""
@@ -529,14 +529,14 @@ msgstr "Arată grilajul"
 msgid "Show project properties"
 msgstr "Arată caracteristicile proiectului"
 
-# msgid "Simulation Engine Setup..."
-# msgstr ""
+msgid "Simulation Engine Setup..."
+msgstr "Setările Motorului de Simulaţie..."
 
 msgid "Simulation Results"
 msgstr "Rezultatele simulaţiei"
 
 msgid "Simulation Type Setup..."
-msgstr "Setările tipului de simulaţie"
+msgstr "Setările tipului de simulaţie..."
 
 # msgid "Snap Properties..."
 # msgstr ""
@@ -645,3 +645,9 @@ msgstr "Longevitatea electronului:"
 
 msgid "Input Cell Current:"
 msgstr "Curentul celulei input:"
+
+msgid "Please Select Web Browser"
+msgstr "Selectaţi Un Browser"
+
+# msgid "Please Select PostScript Viewer"
+# msgstr ""

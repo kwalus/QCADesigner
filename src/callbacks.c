@@ -491,7 +491,7 @@ void file_operations (GtkWidget *widget, gpointer user_data)
 
 void on_cell_function_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data)
   {
-  command_history_message ("Please select cell to edit...") ;
+  command_history_message (_("Please select cell to edit...")) ;
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.cell_properties_button), TRUE) ;
   }
 
@@ -791,11 +791,11 @@ void on_contents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 char *pszCmdLine = NULL ;
 #ifdef WIN32
 char *pszBrowser = 
-  get_external_app (GTK_WINDOW (main_window.main_window), "Please Select Web Browser", "browser", 
+  get_external_app (GTK_WINDOW (main_window.main_window), _("Please Select Web Browser"), "browser", 
     "C:\\Program Files\\Internet Explorer\\iexplore.exe", FALSE) ;
 #else
 char *pszBrowser = 
-  get_external_app (GTK_WINDOW (main_window.main_window), "Please Select Web Browser", "browser", 
+  get_external_app (GTK_WINDOW (main_window.main_window), _("Please Select Web Browser"), "browser", 
     "/usr/bin/mozilla", FALSE) ;
 #endif
 
@@ -1181,13 +1181,16 @@ static gboolean DoSave (GtkWindow *parent, gboolean bSaveAs)
    be done to restore QCADesigner to its initial, pristine state */
 static void tabula_rasa (GtkWindow *wndMain)
   {
+  char *psz = NULL ;
   DBG_CB_HERE (fprintf (stderr, "Entering tabula_rasa\n")) ;
   release_selection () ;
   clear_all_cells ((GQCell **)(&((design.first_layer->first_obj))), (GQCell **)(&((design.first_layer->last_obj)))) ;
   project_options.bDesignAltered = FALSE ;
   g_free (project_options.pszCurrentFName) ;
   project_options.pszCurrentFName = NULL ;
-  gtk_window_set_title (wndMain, "Untitled - " MAIN_WND_BASE_TITLE) ;
+  psz = g_strdup_printf ("%s - %s", _("Untitled"), MAIN_WND_BASE_TITLE) ;
+  gtk_window_set_title (wndMain, psz) ;
+  g_free (psz) ;
   Undo_Clear () ;
   gtk_widget_set_sensitive (main_window.undo_menu_item, Undo_CanUndo ()) ;
   gtk_widget_set_sensitive (main_window.redo_menu_item, Undo_CanRedo ()) ;

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gtk/gtk.h>
+#include "support.h"
 #include "file_selection_window.h"
 #include "print.h"
 #include "print_preview.h"
@@ -28,9 +29,9 @@ void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFuncti
 #endif
   
 #ifdef WIN32
-  pszPreviewer = get_external_app (parent, "Please Select PostScript Viewer", "previewer", "C:\\Program Files\\Ghostgum\\gsview\\gsview32.exe", FALSE) ;
+  pszPreviewer = get_external_app (parent, _("Please Select PostScript Viewer"), "previewer", "C:\\Program Files\\Ghostgum\\gsview\\gsview32.exe", FALSE) ;
 #else
-  pszPreviewer = get_external_app (parent, "Please Select PostScript Viewer", "previewer", "/usr/bin/ggv", FALSE) ;
+  pszPreviewer = get_external_app (parent, _("Please Select PostScript Viewer"), "previewer", "/usr/bin/ggv", FALSE) ;
 #endif
   
   if (NULL == pszPreviewer)

@@ -51,6 +51,7 @@ main_W main_window = {NULL} ;
 void create_main_window (main_W *main_window){
     GtkWidget *img = NULL ;
     GtkRcStyle *rcstyle = NULL ;
+    char *psz = NULL ;
     // All the objects that appear in the main window //
 
     main_window->tooltips = gtk_tooltips_new ();
@@ -61,7 +62,9 @@ void create_main_window (main_W *main_window){
     main_window->main_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_object_set_data (GTK_OBJECT (main_window->main_window), "main_window", main_window->main_window);
     gtk_window_set_default_size (GTK_WINDOW (main_window->main_window), 1024, 768);
-    gtk_window_set_title (GTK_WINDOW (main_window->main_window), _("Untitled - " MAIN_WND_BASE_TITLE));
+    psz = g_strdup_printf ("%s - %s", _("Untitled"), MAIN_WND_BASE_TITLE) ;
+    gtk_window_set_title (GTK_WINDOW (main_window->main_window), psz);
+    g_free (psz) ;
 
     // create the vertical box and add it to the main window //
     main_window->vbox1 = gtk_vbox_new (FALSE, 0);
@@ -606,7 +609,7 @@ void create_main_window (main_W *main_window){
 	
 	//create and add the stop simulation menu item to the simulation menu //
 	main_window->stop_simulation_menu_item = gtk_menu_item_new_with_label (_("Stop Simulation"));
-	gtk_widget_show (main_window->stop_simulation_menu_item);
+//	gtk_widget_show (main_window->stop_simulation_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->stop_simulation_menu_item);
 	gtk_widget_add_accelerator (main_window->stop_simulation_menu_item, "activate", main_window->accel_group, GDK_t, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	
@@ -615,7 +618,7 @@ void create_main_window (main_W *main_window){
 	
 	// create and add the pause simulation menu item to the simulatio menu //
 	main_window->pause_simulation_menu_item = gtk_menu_item_new_with_label (_("Pause Simulation"));
-	gtk_widget_show (main_window->pause_simulation_menu_item);
+//	gtk_widget_show (main_window->pause_simulation_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->pause_simulation_menu_item);
 	gtk_widget_add_accelerator (main_window->pause_simulation_menu_item, "activate", main_window->accel_group, GDK_p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	
@@ -624,7 +627,7 @@ void create_main_window (main_W *main_window){
 	
 	// create and add the reset simulation menu item to the simulation menu //
 	main_window->reset_simulation_menu_item = gtk_menu_item_new_with_label (_("Reset Simulation"));
-	gtk_widget_show (main_window->reset_simulation_menu_item);
+//	gtk_widget_show (main_window->reset_simulation_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->reset_simulation_menu_item);
 	gtk_widget_add_accelerator (main_window->reset_simulation_menu_item, "activate", main_window->accel_group, GDK_r, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	
@@ -633,7 +636,7 @@ void create_main_window (main_W *main_window){
 
 	// create and add the calculate ground state menu item to the simulation menu //
 	main_window->calculate_ground_state_menu_item = gtk_menu_item_new_with_label (_("Calculate Ground State"));
-	gtk_widget_show (main_window->calculate_ground_state_menu_item);
+//	gtk_widget_show (main_window->calculate_ground_state_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->calculate_ground_state_menu_item);
 	gtk_widget_add_accelerator (main_window->calculate_ground_state_menu_item, "activate", main_window->accel_group, GDK_g, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	
@@ -642,7 +645,7 @@ void create_main_window (main_W *main_window){
 
 	// create and add the animate_test_simulation menu item to the simulation menu //
 	main_window->animate_test_simulation_menu_item = gtk_menu_item_new_with_label (_("Animate Test Simulation"));
-	gtk_widget_show (main_window->animate_test_simulation_menu_item);
+//	gtk_widget_show (main_window->animate_test_simulation_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->animate_test_simulation_menu_item);
 	gtk_widget_add_accelerator (main_window->animate_test_simulation_menu_item, "activate", main_window->accel_group, GDK_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
         
@@ -657,7 +660,7 @@ void create_main_window (main_W *main_window){
 	
 	// create and add save output to file menu item to the simulation menu //
 	main_window->save_output_to_file_menu_item = gtk_menu_item_new_with_label (_("Save Output To File"));
-	gtk_widget_show (main_window->save_output_to_file_menu_item);
+//	gtk_widget_show (main_window->save_output_to_file_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->save_output_to_file_menu_item);
 	
 	// *********** remove when finished ****************//
@@ -665,13 +668,13 @@ void create_main_window (main_W *main_window){
 	
 	// create and add a seperator to the simulation menu //
 	main_window->separator13 = gtk_menu_item_new ();
-	gtk_widget_show (main_window->separator13);
+//	gtk_widget_show (main_window->separator13);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->separator13);
 	gtk_widget_set_sensitive (main_window->separator13, FALSE);
 	
 	// create and add the logging properties menu item to the simulation menu //
 	main_window->logging_properties_menu_item = gtk_menu_item_new_with_label (_("Logging Properties"));
-	gtk_widget_show (main_window->logging_properties_menu_item);
+//	gtk_widget_show (main_window->logging_properties_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->simulation_menu_menu), main_window->logging_properties_menu_item);
 	
 	// *********** remove when finished ****************//

@@ -175,8 +175,8 @@ msgstr "A választásbol tükrözött másolatot építeni."
 msgid "Decrease The Magnification"
 msgstr "Nagyítást csökkenteni"
 
-msgid "Default Cell Properties..."
-msgstr "Cella Alapbeállítások..."
+msgid "Cell Properties..."
+msgstr "Cella Beállítások..."
 
 msgid "Default Clock:"
 msgstr "Alapórajel:"
@@ -647,3 +647,9 @@ msgstr "Elektron élettartama:"
 
 msgid "Input Cell Current:"
 msgstr "Input cella áram:"
+
+msgid "Please Select Web Browser"
+msgstr "Internet Kereső Kiválasztás"
+
+msgid "Please Select PostScript Viewer"
+msgstr "PostScript Nézőke Kiválasztás"

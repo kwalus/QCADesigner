@@ -177,8 +177,8 @@ msgstr "Verringern Sie die Vergrösserung um das ganze Bild zu sehen."
 msgid "Decrease The Magnification"
 msgstr "Vergrösserung verringern"
 
-msgid "Default Cell Properties..."
-msgstr "Standardeinstellungen der Zellen..."
+msgid "Cell Properties..."
+msgstr "Zelleneinstellungen..."
 
 msgid "Default Clock:"
 msgstr "Standardtakt:"
@@ -531,8 +531,8 @@ msgstr "Raster anzeigen"
 msgid "Show project properties"
 msgstr "Projekteinstellungen zeigen"
 
-# msgid "Simulation Engine Setup..."
-# msgstr ""
+msgid "Simulation Engine Setup..."
+msgstr "Simulation-Engine Einstellungen..."
 
 msgid "Simulation Results"
 msgstr "Simulatioinsresultate"
@@ -647,3 +647,9 @@ msgstr "Lebensdauer des Elektrons:"
 
 msgid "Input Cell Current:"
 msgstr "Input Zellstrom:"
+
+msgid "Please Select Web Browser"
+msgstr "Browser Auswählen"
+
+msgid "Please Select PostScript Viewer"
+msgstr "PostScript Betrachter Auswählen"

@@ -645,3 +645,9 @@ msgstr ""
 
 msgid "Input Cell Current:"
 msgstr ""
+
+msgid "Please Select Web Browser"
+msgstr ""
+
+msgid "Please Select PostScript Viewer"
+msgstr ""

@@ -1,0 +1,115 @@
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+    	<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    	<title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="1">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo.gif" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+
+<table border="0" bgcolor="#224262" cellspacing="1">
+<tr><td>
+
+<table border="0" bgcolor="#ffffff">
+<tr><td>
+
+<table border="0" cellspacing="0" cellpadding="0">
+<tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"><br></td><td><a href="/index.html">Home</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=dl/dl.phpinc">Download</a></td></td></tr></table></td></tr>
+<tr bgcolor="#cad6e2"><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><a href="http://qcadesigner.ca/?page=doc/home.phpinc"><img border="0" src="images/tree-collapse.png" hspace="3" alt="-"></a></td><td><a href="http://qcadesigner.ca/?page=doc/home.phpinc">Documentation</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=doc/gui.phpinc"><img border="0" src="images/tree-expand.png" hspace="3" alt="+"></a></td><td><a href="http://qcadesigner.ca/?page=doc/gui.phpinc">User&nbsp;Interface</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=doc/engines.phpinc"><img border="0" src="images/tree-expand.png" hspace="3" alt="+"></a></td><td><a href="http://qcadesigner.ca/?page=doc/engines.phpinc">Engines</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=screenshots.phpinc">Screenshots</a></td></td></tr>
+</table>
+</td></tr>
+</table>
+
+</td></tr>
+</table>
+</td>
+<td align="left" valign="top">
+
+<h1>QCADesigner Documentation</h1>
+
+<h2>Nonlinear Approximation Engine</h2>
+
+<p>The nonlinear approximation simulation engine is built on a nonlinear approximation to the cell-to-cell response function. It has been shown that two cells have a nonlinear cell-to-cell response function shown in below<a href="#1">[1]</a>.
+ 
+<p><center><img src="images/cellcellresponse.png"></center>
+
+<p>This approximation excludes the quantum mechanical correlations between cells. The system is assumed to switch adiabatically, always remaining very close to the ground state. The polarization state of each of the cells is computed using
+
+<p><center><img src="images/nonlinear_approx_formula.png"></center>
+
+<p>where <i>P<sub>i</sub></i> is the polarization state of the cell, and <i>P<sub>j</sub></i> is the polarization state of the neighboring cells. <i>E<sup>k</sup><sub>i,j</sub></i> is the kink energy between cells <i>i</i>, and <i>j</i> and represents the energy cost of oppositely polarized cells. &gamma; is the tunneling potential and is used to clock the circuit, as described in <a href="#2">[2]</a>. Since experimentally determined switching times are not available, the simulation does not include any timing information. Using this response function the simulation engine calculates the state of each cell with respect to other cells within a preset <a href="#radius_of_effect">effective radius</a>. This calculation is iterated until the entire system converges within a <a href="#convergence_tolerance">predetermined tolerance</a>. Once the circuit has converged, the output is recorded and new input values are set.It is believed that although this approximation is sufficient to verify the logical functionality of a design it cannot be extended to include valid dynamic simulation; but, as a result of its simplicity this simulation engine is able to simulate a large number of cells very rapidly, and therefore provides a good, in process, check of a design. For a more accurate simulation the <a href="bistable_simulation_engine.html">bistable simulation</a> engine is required. For dynamical simulations refer to the <a href="coherence_vector_engine.html">coherence vector simulation</a>.
+
+<h2>Kink Energy</h2>
+<p>The kink energy <i>E<sup>k</sup><sub>i,j</sub></i> represents the energy cost of cells <i>i</i> and <i>j</i> having opposite polarization. It is calculated simply from the electrostatic interaction between all the charges (mobile/immobile). That is, for each dot in cell <i>i</i> we calculate the electrostatic interaction between this dot and each dot in cell <i>j</i> as
+
+<p><center><img src="images/electrostatic_energy.png"></center>
+
+<p>here &epsilon;<sub>0</sub> is the permittivity of free space and &epsilon;<sub>r</sub> is the <a href="#relative_permittivity">relative permittivity</a> of the material system. This is summed over all <i>i</i> and <i>j</i>. To find the kink energy we first compute this electrostatic energy when the cells have opposite polarization, then again when the cells have the same polarization and subtract them.
+
+<p>Because the cell is charge neutral (immobile positive charges cancel the charged electrons) the cells interact through a quadrupole-quadrupole interaction which decays inversely as a power of five of the distance between cells. Therefore the kink energy will decay rapidly with distance and the <a href="#radius_of_effect">effective neighborhood</a> of interacting cells can be made small.
+
+<a name="engine_options">
+<h2>Engine Options</h2>
+
+<center><img src="images/bistable_options.png" alt="Bistable Simulation Options"></center>
+
+<a name="number_of_samples">
+<h3>Number of Samples</h3>
+
+<p>The total simulation is divided by the number of samples. For each sample, the simulation engine looks at each cell and calculates its polarization based on the polarization of its effective neighbors (determined by the radius of effect). The larger this number the longer the simulation will take to complete. However, if you choose too small a number you may not get the expected results, because there will not be sufficient samples during input transitions. If you suspect that your results should be something other than what they are, I recommend that you try to increase this number.
+
+<a name="convergence_tolerance">
+<h3>Convergence Tolerance</h3>
+
+<p>During each sample, each cell is converged by the simulation engine. The sample will complete when the polarization of each cell has changed by less then this number; i.e. loop while any design cell has (old_polarization - new_polarization) > convergence_tolerance. 
+
+<a name="radius_of_effect">
+<h3>Radius of Effect</h3>
+
+<p>Because the interaction effect of one cell onto another decays inversely with the fifth power of the distance between cells, we do not need to consider each cell to affect every other cell. This number determines how far each cell will look to find its neighbors. Make sure that at least the next-to-nearest neighbors are included in this radius. If you only allow for the nearest neighbor then I would not expect designs with coplanar crossovers to work. The following figure should help clear this up.
+
+<p><center><img src="images/radius_of_effect.png"></center>
+
+<a name="relative_permittivity">
+<h3>Relative Permittivity</h3>
+
+<p>The relative permittivity of the material system you want to simulate. For GaAs/AlGaAs it is roughly 12.9 which is the default value. This is only used in calculating the kink energy. 
+
+<a name="clock_low">
+<a name="clock_high">
+<h3>Clock High/Clock Low</h3>
+
+<p>Clock low and high values are tied directly to the tunneling energy in the Hamiltonian. When the clock is high the cell is unlatched. When it is low the cell is latched. The defaults seem to work in most cases, however, you may wish to play with them.
+
+<a name="maximum_iterations_per_sample">
+<h3>Maximum Iterations Per Sample</h3>
+<p>If the design does not converge in this number of iterations, then the simulation will move on to the next sample point. For complex designs you may wish to increase this. 
+
+<h3>References</h3>
+<a name="1">
+<p>[1] G. Toth, "Correlation and coherence in quantum-dot cellular automata", <i>Ph.D. Thesis</i>, University of Notre Dame, pp. 56-63, 2000.
+
+<a name="2">
+<p>[2]I. Amlani <i>et al.</i>, "Digital logic using quantum-dot cellular automata", <i>Science</i>, vol. 284, pp. 289-291, 1999.
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+</body></html>
+<p>

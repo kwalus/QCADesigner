@@ -112,7 +112,7 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	while (cell != NULL){
 		
 		// Clear the polarization of each cell. This way each simulation starts from 0 rather then what the last simulation ended  //
-		gqcell_set_polarization(cell, 0);
+		if(!cell->is_input && !cell->is_fixed)gqcell_set_polarization(cell, 0);
 		
 		if (cell->is_input){
 			total_number_of_inputs++;
@@ -269,7 +269,11 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 		cell = first_cell;
 		while (cell != NULL){
 			
-			if(cell->is_input || cell->is_fixed)cell = cell->next;
+			if(cell->is_input || cell->is_fixed){
+				cell = cell->next;
+				continue;
+				}
+	
 		
 			PEk = 0;
 			// Calculate the sum of neighboring polarizations * the kink energy between them//

@@ -50,7 +50,7 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 	unsigned long int number_samples;
 	//number of points to record in simulation results //
 	//simulations can have millions of points and there is no need to plot them all //
-	unsigned long int number_recorded_samples = 3000;
+	unsigned long int number_recorded_samples = 2000;
 	unsigned long int record_interval;
 	gchar* filename; 
 	FILE* data_file = NULL;
@@ -63,24 +63,24 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
   	}
 	
 	// determine the number of samples from the user options //
-	number_samples = options->number_of_samples;
+	number_samples = (unsigned long int)options->number_of_samples;
 	if(number_recorded_samples >= number_samples){
 		number_recorded_samples = number_samples;
 		record_interval = 1;
 	}else{
-		record_interval = (unsigned long int)ceil((double)number_samples/(double)(number_recorded_samples-1));
+		record_interval = (unsigned long int)ceil((double)(number_samples-1)/(double)(number_recorded_samples));
 	}
 	
-	
+		
 	// -- open the data file to store the intermediate results in case of QCADesigner crash -- //
-	if((data_file = fopen(filename=g_strdup_printf("SIMULATION_DATA_%d", (int)time(NULL)), "w")) == NULL){
+	/*if((data_file = fopen(filename=g_strdup_printf("SIMULATION_DATA_%d", (int)time(NULL)), "w")) == NULL){
 		printf("Cannot open file %s\n", filename);
 		g_free(filename);
 		return FALSE;
 	}
-	
+	*/
 	// -- free the filename as it is no longer in use -- //
-	g_free(filename);
+	//g_free(filename);
 	// initialize the device parameters //
 	
 	options->Epk2 = 0.2*P_E;
@@ -181,9 +181,11 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 	
 	// -- Initialize the simualtion data structure -- //
   	sim_data->number_of_traces = total_number_of_inputs + 2*total_number_of_outputs;
-        // This values was so far hard-coded at 3200 - Let's find out why.
+    
+	// set the number of simulation samples to keep only a certain number of samples. The simulation will simulated at all samples but only keep this number for graphing purposes //
   	sim_data->number_samples = number_recorded_samples;
-  	sim_data->trace = malloc (sizeof (struct TRACEDATA) * sim_data->number_of_traces);
+  	
+	sim_data->trace = malloc (sizeof (struct TRACEDATA) * sim_data->number_of_traces);
 
   	// create and initialize the inputs into the sim data structure //      
   	for (i = 0; i < total_number_of_inputs; i++){
@@ -191,7 +193,7 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
       	  strcpy (sim_data->trace[i].data_labels, input_cells[i]->label);
       	  sim_data->trace[i].drawtrace = TRUE;
       	  sim_data->trace[i].trace_color = BLUE;
-      	  sim_data->trace[i].data = malloc (sizeof (double) * sim_data->number_samples);
+      	  sim_data->trace[i].data = calloc (sim_data->number_samples, sizeof (double));
       	}
 
   	// create and initialize the outputs into the sim data structure //     
@@ -207,8 +209,8 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
       	  sim_data->trace[i + total_number_of_inputs].trace_color = YELLOW;
 		  sim_data->trace[i + 1 + total_number_of_inputs].trace_color = YELLOW;
 		  
-      	  sim_data->trace[i + total_number_of_inputs].data = malloc (sizeof (double) * sim_data->number_samples);
-		  sim_data->trace[i + 1 + total_number_of_inputs].data = malloc (sizeof (double) * sim_data->number_samples);
+      	  sim_data->trace[i + total_number_of_inputs].data = calloc(sim_data->number_samples, sizeof (double));
+		  sim_data->trace[i + 1 + total_number_of_inputs].data = calloc (sim_data->number_samples, sizeof (double));
       	}
 
   	// create and initialize the clock data //
@@ -301,12 +303,15 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 		}
 		*/
 		// -- collect all the output data from the simulation -- //
-		if(0==j%record_interval)for (i = 0; i < 2*total_number_of_outputs; i+=2){
-			sim_data->trace[total_number_of_inputs + i].data[j] = scqca_calculate_polarization (output_cells[i >> 1]);
-			sim_data->trace[total_number_of_inputs + i + 1].data[j] = scqca_calculate_quality (output_cells[i >> 1]);
+		
+		if(0==j%record_interval){
+			command_history_message ("About to record outputs to sample #%d in simulation data of length %d\n", j/record_interval, sim_data->number_samples) ;
+			for (i = 0; i < 2*total_number_of_outputs; i+=2){
+				sim_data->trace[total_number_of_inputs + i].data[j/record_interval] = scqca_calculate_polarization (output_cells[i >> 1]);
+				sim_data->trace[total_number_of_inputs + i + 1].data[j/record_interval] = scqca_calculate_quality (output_cells[i >> 1]);
 			
 		}
-		
+		}
 		//print the inputs and outputs to file for the majority gate
 		//if(total_number_of_inputs==3&&total_number_of_outputs>=1)
 			//fprintf(data_file,"%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n", sim_data->clock_data[0].data[j],sim_data->clock_data[1].data[j],sim_data->clock_data[2].data[j],sim_data->clock_data[3].data[j],sim_data->trace[0].data[j],sim_data->trace[1].data[j],sim_data->trace[2].data[j],sim_data->trace[3].data[j],sim_data->trace[4].data[j]);
@@ -516,7 +521,7 @@ inline double calculate_scqca_clock_value(unsigned int clock_num, unsigned long 
 	double clock = 0;
 	
 	if(SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION){
-		clock = 0.3 * cos (((double) pow (2, total_number_of_inputs)) * (double) sample * 4.0 * PI / (double) (double)number_samples - PI * (double)clock_num * 0.5) + 0.05;
+		clock = 0.3 * cos (((double) pow (2, total_number_of_inputs)) * (double) sample * 4.0 * PI / (double)number_samples - PI * (double)clock_num * 0.5) + 0.05;
     		  if (clock > options->clock_high)
     			  clock = options->clock_high;
     		  if (clock < options->clock_low)

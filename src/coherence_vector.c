@@ -91,7 +91,7 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 		number_recorded_samples = number_samples;
 		record_interval = 1;
 	}else{
-		record_interval = (unsigned long int)ceil((double)number_samples/(double)(number_recorded_samples-1));
+		record_interval = (unsigned long int)ceil((double)(number_samples-1)/(double)(number_recorded_samples));
 	}
 	
 	command_history_message ("About to start the coherence vector simulation with %d samples\n", number_samples);

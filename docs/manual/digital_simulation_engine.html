@@ -1,0 +1,58 @@
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+    	<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    	<title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="1">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo.gif" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+
+<table border="0" bgcolor="#224262" cellspacing="1">
+<tr><td>
+
+<table border="0" bgcolor="#ffffff">
+<tr><td>
+
+<table border="0" cellspacing="0" cellpadding="0">
+<tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"><br></td><td><a href="/index.html">Home</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=dl/dl.phpinc">Download</a></td></td></tr></table></td></tr>
+<tr bgcolor="#cad6e2"><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><a href="http://qcadesigner.ca/?page=doc/home.phpinc"><img border="0" src="images/tree-collapse.png" hspace="3" alt="-"></a></td><td><a href="http://qcadesigner.ca/?page=doc/home.phpinc">Documentation</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=doc/gui.phpinc"><img border="0" src="images/tree-expand.png" hspace="3" alt="+"></a></td><td><a href="http://qcadesigner.ca/?page=doc/gui.phpinc">User&nbsp;Interface</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=doc/engines.phpinc"><img border="0" src="images/tree-expand.png" hspace="3" alt="+"></a></td><td><a href="http://qcadesigner.ca/?page=doc/engines.phpinc">Engines</a></td></td></tr></table></td></tr>
+<tr><td><table border="0" cellspacing="0" cellpadding="0"><tr><td><img border="0" src="images/tree-null.png" hspace="3" alt="&nbsp;"></td><td><a href="http://qcadesigner.ca/?page=screenshots.phpinc">Screenshots</a></td></td></tr>
+</table>
+</td></tr>
+</table>
+
+</td></tr>
+</table>
+</td>
+<td align="left" valign="top">
+
+<h1>QCADesigner Documentation</h1>
+
+<h2>Nonlinear Approximation Engine</h2>
+
+<p>The digital simulation engine is a binary logic simulator within QCADesigner. This engine considers each cell to be in one of three states: null, logical one, or logical zero. With these three states and the appropriate clocking zone information for each cell, a design can be quickly simulated to ensure that for a given set of inputs, the correct set of outputs will be produced. This allows the logic designer to determine if the structure that has been laid out in QCADesigner corresponds to the desired logic function.
+
+<p>The simulator functions by first assigning values to the inputs of the design. Then, for each change in the clock, only cells about to switch are considered. The system clocking is considered in more detail in Section IV. Cells in the release and relax states are given a null value. Any cells about to switch are processed by assigning them values based on the QCA interaction rules and the polarization of cells in their neighborhood. After all switching cells have been processed, their values are examined to ensure that none are null which ensures that the system will operate on all cells. Upon completing this check, the clock cycle is finished and the next cycle begins. This simulation will continue until all input combinations are exhausted and the last input vector has traversed the system. Since each cell can only receive input/output from its immediate neighbors in this engine, most QCA structures are able to be handled. 
+
+<p>The advantage of this simulator is that a designer can quickly see if the logic functionality of a system corresponds to what is desired.
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+</body></html>
+<p>

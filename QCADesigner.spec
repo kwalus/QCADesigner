@@ -25,6 +25,7 @@ make
 
 %install
 make DESTDIR=%buildroot install
+[ "/" != %buildroot ] && rm -rf %buildroot/share/doc
 
 %clean
 [ "/" != $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT
@@ -32,9 +33,10 @@ make DESTDIR=%buildroot install
 %files
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog CurrentVerChangeLog INSTALL README TODO
+%doc docs/manual
 
 /usr/bin/QCADesigner
-/usr/share/QCADesigner
+/usr/share
 
 %changelog
 * Sat Oct 11 2003 Gabriel Schulhof <schulhof@atips.ca> 

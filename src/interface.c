@@ -1174,7 +1174,7 @@ void create_main_window (main_W *main_window){
     gtk_signal_connect(GTK_OBJECT (main_window->main_window), "configure_event", (GtkSignalFunc) main_window_configure_event, NULL);
 
     // -- Connect the shutdown callback signal to the main window -- //
-    gtk_signal_connect(GTK_OBJECT(main_window->main_window), "destroy", GTK_SIGNAL_FUNC (on_quit_menu_item_activate), NULL);
+    gtk_signal_connect(GTK_OBJECT(main_window->main_window), "delete_event", GTK_SIGNAL_FUNC (on_quit_menu_item_activate), NULL);
 
 // activate the necessary events for the drawing area such as expose, mouse motion, mouse click, etc //
     gtk_widget_set_events (GTK_WIDGET (main_window->drawing_area), GDK_EXPOSURE_MASK

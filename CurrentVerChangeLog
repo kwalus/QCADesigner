@@ -3,11 +3,17 @@ ChangeLog for next release -- 1.3.
 Completed Changes/Bug Fixes/Additions:
  -- Save first boxes added.
  -- Digital Simulation engine made available.
-	
+ -- Created new vector table library and struct to replace old vector_table and
+    active_inputs structures.
+ -- Moved all simulation engines to this new vector table structure
+ -- Removed globals "vector_table" and "active_inputs" and their respective
+    structures
+ -- Created new user interface for specifying vector tables
+
 Desired Changes:
 
 Bugs to Fix:
-
+-- Some weird vector table behaviour with the bistable engine
 
 Long Range Changes:
  -- XML File format (tdysart currently working on)

@@ -1,4 +1,4 @@
-  //////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 // QCADesigner                                          //
 // Copyright 2002 Konrad Walus                          //
 // All Rights Reserved                                  //
@@ -127,9 +127,3 @@ qcell **sorted_cells = NULL;
 
 //!Simulation log file
 FILE *sim_log_file = NULL;
-
-//!Vector table activated list
-activated_input_list active_inputs;
-
-//!Vector table data
-vector_data vector_table;

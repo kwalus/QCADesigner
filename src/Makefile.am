@@ -30,7 +30,6 @@ QCADesigner_SOURCES = \
 	sim_engine_setup_dialog.c sim_engine_setup_dialog.h \
 	random_fault_setup_dialog.c random_fault_setup_dialog.h \
 	new_vector_table_options_dialog.c new_vector_table_options_dialog.h \
-	vector_table_options_dialog.c dialog_boxes.h \
 	print_properties_dialog.c print_properties_dialog.h\
 	print.c print.h \
 	print_preview.c print_preview.h \

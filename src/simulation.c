@@ -50,7 +50,7 @@ simulation_data *run_simulation (int sim_engine, int sim_type)
       return run_bistable_simulation(sim_type, first_cell, &bistable_options, pvt);
 			
     case DIGITAL_SIM:
-      return run_digital_simulation(first_cell);
+      return run_digital_simulation(sim_type, first_cell, NULL, pvt);
     }
   return NULL ;
 }//run_simualtion

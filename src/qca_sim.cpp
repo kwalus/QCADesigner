@@ -7,6 +7,7 @@
 #include "qca_sim.h"
 #include "cell_info.h"
 #include "run_dig_sim.h"
+#include "vector_table.h"
 
 #include <sys/time.h>
 
@@ -16,16 +17,19 @@ int pow(int , int );
 extern "C" {
 #endif
 
+// Count the number of active inputs in a vector table
+int CountActiveVTInputs (VectorTable *pvt) ;
+
 static simulation_data *sim_data = NULL ;
 
-simulation_data * run_digital_simulation(qcell * my_cell) {
+simulation_data * run_digital_simulation(int sim_type, qcell * my_cell, void *p, VectorTable *pvt) {
 	struct timeval start, end;
 	long elapsed_time;
 	if (my_cell == NULL) {
 		return NULL;
 	}
 	gettimeofday(&start, NULL);
-        qcaSim my_sim("who cares?", my_cell);
+        qcaSim my_sim("who cares?", sim_type, my_cell, pvt);
 	gettimeofday(&end, NULL);
 	if (my_sim.simulationWasSuccessful()) {
 		printf("Simulation complete\n");
@@ -35,7 +39,7 @@ simulation_data * run_digital_simulation(qcell * my_cell) {
 	}
 
 	// NOT WORKING AND I DON'T KNOW WHY!
-	elapsed_time = ((long)end.tv_usec - start.tv_usec) / 1000;
+	elapsed_time = (long)(((double)end.tv_usec - (double)start.tv_usec) / 1000.0);
 	printf("Elapsed time: %ld msec\n", elapsed_time);
 
         return sim_data;
@@ -46,9 +50,11 @@ simulation_data * run_digital_simulation(qcell * my_cell) {
 #endif
 
 // Load the cells and ask the user for the values of the inputs
-qcaSim::qcaSim(string nm, const qcell * my_cell) : component(nm) {
+qcaSim::qcaSim(string nm, const int sim_type, const qcell * my_cell, VectorTable *pvtIn) : component(nm) {
 
 	error = false;
+	SIMULATION_TYPE = sim_type ;
+	pvt = pvtIn ;
 
 	loadCells(my_cell);
 	if (error) {
@@ -89,12 +95,14 @@ void qcaSim::loadCells(const qcell * my_cell) {
 
 	if (SIMULATION_TYPE == VECTOR_TABLE) {
 		// Add all the activated inputs for vector table mode
-		for (int i = 0; i < active_inputs.num_activated; i++) {
-			Cell * new_cell = new Cell(active_inputs.activated_cells[i]);
-			cells->insert(new_cell);
-			inputs->insert(new_cell);
-			activated_inputs->push_back(new_cell);
-		}
+		for (int i = 0; i < pvt->num_of_inputs; i++)
+			// Fish out the active inputs
+			if (pvt->active_flag[i]) {
+				Cell * new_cell = new Cell(pvt->inputs[i]);
+				cells->insert(new_cell);
+				inputs->insert(new_cell);
+				activated_inputs->push_back(new_cell);
+			}
 	}
 	while (my_cell != NULL) {
 		Cell * new_cell = new Cell(my_cell);
@@ -103,8 +111,8 @@ void qcaSim::loadCells(const qcell * my_cell) {
 			// If this is a vector table sim, check if this input is active
 			// If it is, then we already added it above
 			if (SIMULATION_TYPE == VECTOR_TABLE) {
-				for (int i = 0; i < active_inputs.num_activated; i++) {
-					if (my_cell == active_inputs.activated_cells[i]) {
+				for (int i = 0; i < pvt->num_of_inputs; i++) {
+					if (my_cell == pvt->inputs[i] && pvt->active_flag[i]) {
 						activated = true;
 						delete new_cell;
 						break;
@@ -272,7 +280,7 @@ void qcaSim::init() {
 		sim_data->number_samples = pow(2,inputs->size()+2) + num_zones + EXTRACYCLES;
 	}
 	else if (SIMULATION_TYPE == VECTOR_TABLE) {
-		sim_data->number_samples = 4*vector_table.num_of_vectors + num_zones + EXTRACYCLES;
+		sim_data->number_samples = 4*pvt->num_of_vectors + num_zones + EXTRACYCLES;
 	}
 #ifdef STAND_ALONE_VERSION
 	else if (SIMULATION_TYPE == USER_INPUT) {
@@ -366,10 +374,10 @@ void qcaSim::preTic() {
 		for (CellSet::iterator iter = inputs->begin(); iter != inputs->end(); iter++) {
 			(*iter)->setState(LOW);
 		}
-		if (vector_table.num_of_vectors > (cycle()/4)) {
+		if (pvt->num_of_vectors > (cycle()/4)) {
 			// each input that is not activated will be set to low
 			// if the vector table size is messed up, all inputs will be set to low
-			if (activated_inputs->size() != (unsigned int)vector_table.num_of_bits) {
+			if (activated_inputs->size() != (unsigned int)CountActiveVTInputs (pvt)) {
 				printf("ERROR: NUMBER OF ACTIVE INPUTS DOES NOT MATCH NUMBER OF BITS IN VECTOR TABLE\n");
 				printf("DIGITAL SIMULATION CANNOT PROCEED\n");
 				error = true;
@@ -377,9 +385,11 @@ void qcaSim::preTic() {
 				// The inputs have all been set to 0 so the API won't croak.
 				return;
 			}
-			int i = 0;
+			int i = 0, idx = 0;
 			for (list<Cell *>::iterator iter = activated_inputs->begin(); iter != activated_inputs->end(); iter++, i++) {
-				(*iter)->setState((vector_table.data[(cycle()/4)][i] == 1) ? HIGH : LOW);
+				// Skip over inactive inputs and line up the indices in the vector table with those in the list
+				while (!pvt->active_flag[idx++]) ;
+				(*iter)->setState((pvt->vectors[(cycle()/4)][idx - 1] == 1) ? HIGH : LOW);
 			}
 		}
 	}
@@ -465,6 +475,16 @@ void qcaSim::postTic() {
 #endif
 	}
 }
+
+int CountActiveVTInputs (VectorTable *pvt)
+	{
+	int Nix, ic = 0 ;
+	
+	for (Nix = 0 ; Nix < pvt->num_of_inputs ; Nix++)
+		if (pvt->active_flag[Nix])
+			ic++ ;
+	return ic ;
+	}
 
 // Why is there no standard definition of an integer to an integer power???
 int pow(int b, int e) {

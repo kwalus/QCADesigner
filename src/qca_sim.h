@@ -11,6 +11,7 @@ using namespace std;
 #include "enkidu.h"
 #include "cell.h"
 #include "cell_neighbor.h"
+#include "vector_table.h"
 
 #define EXTRACYCLES 4
 
@@ -24,9 +25,12 @@ protected:
 	int cur_cycle;
 	int current_input_combo;
 	int num_zones;
+	
+	int SIMULATION_TYPE ;
+	VectorTable *pvt ;
 
 public:
-	qcaSim(string nm, const qcell * my_cell);
+	qcaSim(string nm, const int sim_type, const qcell * my_cell, VectorTable *pvtIn);
 	~qcaSim();
 	void init();
 	void calculateNumZones();

@@ -263,27 +263,6 @@ typedef struct
 ///////////////////////// SIMULATION ENGINE TYPDEF //////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
-//!Is used to make a list of activated inputs to be used in vector table simulations.
-typedef struct{
-	
-	int num_activated;
-	int num_available;
-	qcell **activated_cells;
-	qcell **available_cells;
-	int activated_selected_row;
-	int available_selected_row;
-	
-}activated_input_list;
-
-//!contains the vector table data
-typedef struct{
-	
-	int num_of_vectors;
-	int num_of_bits;
-	int **data;
-
-}vector_data;
-
 /////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// DIALOG TYPDEFS /////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
@@ -441,12 +420,6 @@ extern float max_response_shift;
 //!Probability that a design cell will be affected by the random response function shift.
 extern float affected_cell_probability;
 
-//!Vector table activated list
-extern activated_input_list active_inputs;
-
-//!Vector table data
-extern vector_data vector_table;
-
 //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// GRAPHING TYPEDEFS /////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -490,23 +463,3 @@ extern GtkAdjustment *available_adjust;
 extern GtkAdjustment *activated_adjust;
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

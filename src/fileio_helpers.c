@@ -92,7 +92,7 @@ static gpointer RunCmdLineAsyncThread (gpointer p)
     CloseHandle (pi.hThread) ;
     }
 #else
-  system (pszCmdLine) ;
+  system (prclap->pszCmdLine) ;
 #endif
   g_free (prclap->pszCmdLine) ;
   if (NULL != prclap->pszTmpFName)

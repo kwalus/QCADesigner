@@ -182,10 +182,10 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 
   	// create and initialize the outputs into the sim data structure //     
 	for (i = 0; i < 2*total_number_of_outputs; i+=2){
-	  sim_data->trace[i + total_number_of_inputs].data_labels = malloc (sizeof (char) * (strlen (output_cells[i]->label) + 1));
+	  sim_data->trace[i + total_number_of_inputs].data_labels = malloc (sizeof (char) * (strlen (output_cells[i >> 1]->label) + 1));
 	  sim_data->trace[i + 1 + total_number_of_inputs].data_labels = malloc (sizeof (char) * (strlen ("Quality") + 1));
       	  
-		  strcpy (sim_data->trace[i + total_number_of_inputs].data_labels, output_cells[i]->label);
+		  strcpy (sim_data->trace[i + total_number_of_inputs].data_labels, output_cells[i >> 1]->label);
 		  strcpy (sim_data->trace[i + 1 + total_number_of_inputs].data_labels, "Quality");
 		  
       	  sim_data->trace[i + total_number_of_inputs].drawtrace = TRUE;
@@ -297,8 +297,8 @@ simulation_data *run_scqca_simulation(int SIMULATION_TYPE, GQCell *first_cell, s
 		*/
 		// -- collect all the output data from the simulation -- //
 		for (i = 0; i < 2*total_number_of_outputs; i+=2){
-			sim_data->trace[total_number_of_inputs + i].data[j] = scqca_calculate_polarization (output_cells[i]);
-			sim_data->trace[total_number_of_inputs + i + 1].data[j] = scqca_calculate_quality (output_cells[i]);
+			sim_data->trace[total_number_of_inputs + i].data[j] = scqca_calculate_polarization (output_cells[i >> 1]);
+			sim_data->trace[total_number_of_inputs + i + 1].data[j] = scqca_calculate_quality (output_cells[i >> 1]);
 			
 		}
 		

@@ -24,7 +24,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "globals.h"
+#include "qcell.h"
 #include "simulation.h"
 #include "stdqcell.h"
 #include "bistable_simulation.h"

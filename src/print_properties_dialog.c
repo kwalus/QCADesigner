@@ -17,7 +17,12 @@
 // This will reduce ramp up time for new people trying  //
 // to contribute to the project.                        //
 //////////////////////////////////////////////////////////
-
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@vlsi.enel.ucalgary.ca). It implements a    //
+// (fairly) complete print settings dialog with mar-    //
+// gins, Center Page, paper size, user-selectable units //
+// (cm/in/pt), etc.                                     //
+//////////////////////////////////////////////////////////
 
 #include <stdlib.h>
 #include <string.h>
@@ -78,6 +83,7 @@ void browse_dialog_ok (GtkWidget *widget, gpointer user_data) ;
 void check_scale (print_properties_D *dialog) ;
 gboolean check_status (print_properties_D *dialog) ;
 
+/* The main function */
 gboolean get_print_properties_from_user (GtkWindow *parent, print_OP *ppo, qcell *first_cell)
   {
   gboolean bOK = FALSE ;
@@ -92,10 +98,12 @@ gboolean get_print_properties_from_user (GtkWindow *parent, print_OP *ppo, qcell
   return bOK ;
   }
 
+/* Create it */
 void create_print_properties_dialog (print_properties_D *dialog){
 
   if (NULL != dialog->dlgPrintProps) return ;
   
+  /* The dialog window */
   dialog->dlgPrintProps = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (dialog->dlgPrintProps), "dlgPrintProps", dialog->dlgPrintProps);
   gtk_window_set_title (GTK_WINDOW (dialog->dlgPrintProps), _("Printer Setup"));
@@ -106,6 +114,7 @@ void create_print_properties_dialog (print_properties_D *dialog){
   gtk_object_set_data (GTK_OBJECT (dialog->dlgPrintProps), "vbMain", dialog->vbMain);
   gtk_widget_show (dialog->vbMain);
   
+  /* The main table */
   dialog->tblMain = gtk_table_new (2, 3, FALSE) ;
   gtk_widget_ref (dialog->tblMain) ;
   gtk_object_set_data_full (GTK_OBJECT (dialog->dlgPrintProps), "tblMain", dialog->tblMain,
@@ -114,6 +123,7 @@ void create_print_properties_dialog (print_properties_D *dialog){
   gtk_box_pack_start (GTK_BOX (dialog->vbMain), dialog->tblMain, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->tblMain), 2);
   
+  /* Preferred units combo and menu */
   dialog->cbPrefUnits = gtk_option_menu_new () ;
   gtk_widget_ref (dialog->cbPrefUnits) ;
   gtk_object_set_data_full (GTK_OBJECT (dialog->dlgPrintProps), "cbPrefUnits", dialog->cbPrefUnits,
@@ -148,6 +158,7 @@ void create_print_properties_dialog (print_properties_D *dialog){
   gtk_label_set_justify (GTK_LABEL (dialog->label2), GTK_JUSTIFY_RIGHT);
   gtk_misc_set_alignment (GTK_MISC (dialog->label2), 1, 0.5);
   
+  /* The tabs */
   dialog->notebook = gtk_notebook_new ();
   gtk_widget_ref (dialog->notebook);
   gtk_object_set_data_full (GTK_OBJECT (dialog->dlgPrintProps), "notebook", dialog->notebook,
@@ -873,108 +884,46 @@ void create_print_properties_dialog (print_properties_D *dialog){
   gtk_container_add (GTK_CONTAINER (dialog->hbox2), dialog->btnCancel) ;
   GTK_WIDGET_SET_FLAGS (dialog->btnCancel, GTK_CAN_DEFAULT);
 
-  gtk_signal_connect (GTK_OBJECT (dialog->btnOK), "clicked",
-                      GTK_SIGNAL_FUNC (on_print_properties_dialog_btnOK_clicked),
-                      GTK_OBJECT (dialog->dlgPrintProps));
-		      
-  gtk_signal_connect (GTK_OBJECT (dialog->btnPreview), "clicked",
-                      GTK_SIGNAL_FUNC (on_print_properties_dialog_btnPreview_clicked),
-                      GTK_OBJECT (dialog->dlgPrintProps));
-		      
-  gtk_signal_connect_object (GTK_OBJECT (dialog->btnCancel), "clicked",
-                      GTK_SIGNAL_FUNC (gtk_widget_hide),
-                      GTK_OBJECT (dialog->dlgPrintProps));
-
-  // connect the destroy function for when the user clicks the "x" to close the window //
-  gtk_signal_connect_object (GTK_OBJECT (dialog->dlgPrintProps), "delete_event",
-      	      	      GTK_SIGNAL_FUNC (gtk_widget_hide),
-		      GTK_OBJECT (dialog->dlgPrintProps));
+  /* The main buttons */
+  gtk_signal_connect (GTK_OBJECT (dialog->btnOK), "clicked", GTK_SIGNAL_FUNC (on_print_properties_dialog_btnOK_clicked), GTK_OBJECT (dialog->dlgPrintProps));
+  gtk_signal_connect (GTK_OBJECT (dialog->btnPreview), "clicked", GTK_SIGNAL_FUNC (on_print_properties_dialog_btnPreview_clicked), GTK_OBJECT (dialog->dlgPrintProps));
+  gtk_signal_connect_object (GTK_OBJECT (dialog->btnCancel), "clicked", GTK_SIGNAL_FUNC (gtk_widget_hide), GTK_OBJECT (dialog->dlgPrintProps));
   
-  gtk_signal_connect (GTK_OBJECT (dialog->cbmPUCentis), "activate",
-      	      	      GTK_SIGNAL_FUNC (change_preferred_units), 
-		      dialog->dlgPrintProps) ;
+  /* Changing units */
+  gtk_signal_connect (GTK_OBJECT (dialog->cbmPUCentis), "activate", GTK_SIGNAL_FUNC (change_preferred_units),  dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->cbmPUInches), "activate", GTK_SIGNAL_FUNC (change_preferred_units), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->cbmPUPoints), "activate", GTK_SIGNAL_FUNC (change_preferred_units), dialog->dlgPrintProps) ;
 
-  gtk_signal_connect (GTK_OBJECT (dialog->cbmPUInches), "activate",
-      	      	      GTK_SIGNAL_FUNC (change_preferred_units),
-		      dialog->dlgPrintProps) ;
+  /* The various spin buttons */  
+  gtk_signal_connect (GTK_OBJECT (dialog->adjPaperWidth), "value_changed", GTK_SIGNAL_FUNC (validate_value_change), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->adjPaperHeight), "value_changed", GTK_SIGNAL_FUNC (validate_value_change), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->adjLeftMargin), "value_changed", GTK_SIGNAL_FUNC (validate_value_change), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->adjTopMargin), "value_changed", GTK_SIGNAL_FUNC (validate_value_change), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->adjRightMargin), "value_changed", GTK_SIGNAL_FUNC (validate_value_change), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->adjBottomMargin), "value_changed", GTK_SIGNAL_FUNC (validate_value_change), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->adjNanoToUnits), "value_changed", GTK_SIGNAL_FUNC (validate_value_change), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->adjCXPages), "value_changed", GTK_SIGNAL_FUNC (validate_value_change), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->adjCYPages), "value_changed", GTK_SIGNAL_FUNC (validate_value_change), dialog->dlgPrintProps) ;
 
-  gtk_signal_connect (GTK_OBJECT (dialog->cbmPUPoints), "activate",
-      	      	      GTK_SIGNAL_FUNC (change_preferred_units),
-		      dialog->dlgPrintProps) ;
+  /* Painting the preview window */
+  gtk_signal_connect (GTK_OBJECT (dialog->daPreview), "expose_event", GTK_SIGNAL_FUNC (on_daPreview_expose), dialog->dlgPrintProps) ;
 
-  gtk_signal_connect (GTK_OBJECT (dialog->adjPaperWidth), "value_changed",
-      	      	      GTK_SIGNAL_FUNC (validate_value_change),
-		      dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->tbtnPrintOrder), "toggled", GTK_SIGNAL_FUNC (on_tbtnPrintOrder_toggled), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->tbtnCenter), "toggled", GTK_SIGNAL_FUNC (on_tbtnCenter_toggled), dialog->dlgPrintProps) ;
 
-  gtk_signal_connect (GTK_OBJECT (dialog->adjPaperHeight), "value_changed",
-      	      	      GTK_SIGNAL_FUNC (validate_value_change),
-		      dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->rbFixedScale), "toggled", GTK_SIGNAL_FUNC (toggle_scale_mode), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->rbFitPages), "toggled", GTK_SIGNAL_FUNC (toggle_scale_mode), dialog->dlgPrintProps) ;
 
-  gtk_signal_connect (GTK_OBJECT (dialog->adjLeftMargin), "value_changed",
-      	      	      GTK_SIGNAL_FUNC (validate_value_change),
-		      dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->rbPrintFile), "toggled", GTK_SIGNAL_FUNC (toggle_print_mode), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->rbPrintPipe), "toggled", GTK_SIGNAL_FUNC (toggle_print_mode), dialog->dlgPrintProps) ;
 
-  gtk_signal_connect (GTK_OBJECT (dialog->adjTopMargin), "value_changed",
-      	      	      GTK_SIGNAL_FUNC (validate_value_change),
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->adjRightMargin), "value_changed",
-      	      	      GTK_SIGNAL_FUNC (validate_value_change), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->adjBottomMargin), "value_changed",
-      	      	      GTK_SIGNAL_FUNC (validate_value_change),
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->adjNanoToUnits), "value_changed",
-      	      	      GTK_SIGNAL_FUNC (validate_value_change),
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->adjCXPages), "value_changed",
-      	      	      GTK_SIGNAL_FUNC (validate_value_change), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->adjCYPages), "value_changed",
-      	      	      GTK_SIGNAL_FUNC (validate_value_change), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->daPreview), "expose_event",
-      	      	      GTK_SIGNAL_FUNC (on_daPreview_expose), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->tbtnPrintOrder), "toggled",
-      	      	      GTK_SIGNAL_FUNC (on_tbtnPrintOrder_toggled), 
-		      dialog->dlgPrintProps) ;
-		      
-  gtk_signal_connect (GTK_OBJECT (dialog->tbtnCenter), "toggled",
-      	      	      GTK_SIGNAL_FUNC (on_tbtnCenter_toggled), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->rbFixedScale), "toggled",
-      	      	      GTK_SIGNAL_FUNC (toggle_scale_mode), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->rbFitPages), "toggled",
-      	      	      GTK_SIGNAL_FUNC (toggle_scale_mode), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->rbPrintFile), "toggled",
-      	      	      GTK_SIGNAL_FUNC (toggle_print_mode), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->rbPrintPipe), "toggled",
-      	      	      GTK_SIGNAL_FUNC (toggle_print_mode), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->btnFNBrowse), "clicked",
-      	      	      GTK_SIGNAL_FUNC (browse_for_output), 
-		      dialog->dlgPrintProps) ;
-
-  gtk_signal_connect (GTK_OBJECT (dialog->btnPipeCmdBrowse), "clicked",
-      	      	      GTK_SIGNAL_FUNC (browse_for_output), 
-		      dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->btnFNBrowse), "clicked", GTK_SIGNAL_FUNC (browse_for_output), dialog->dlgPrintProps) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->btnPipeCmdBrowse), "clicked", GTK_SIGNAL_FUNC (browse_for_output), dialog->dlgPrintProps) ;
+  // connect the destroy function for when the user clicks the "x" to close the window //
+  gtk_signal_connect_object (GTK_OBJECT (dialog->dlgPrintProps), "delete_event", GTK_SIGNAL_FUNC (gtk_widget_hide), GTK_OBJECT (dialog->dlgPrintProps));
   }
 
+/* initialize the dialog - whether to display it, or to simply ensure correct print_op values */
 void init_print_properties_dialog (print_properties_D *dialog, print_OP *print_op, GtkWindow *parent, qcell *first_cell, gboolean *pbOK)
   {
   int Nix ;
@@ -983,6 +932,7 @@ void init_print_properties_dialog (print_properties_D *dialog, print_OP *print_o
   if (NULL == dialog->dlgPrintProps)
     create_print_properties_dialog (dialog) ;
     
+  /* The static data needs to be set right away, because signals will come up empty */
   gtk_object_set_data (GTK_OBJECT (dialog->dlgPrintProps), "first_cell", first_cell) ;
   gtk_object_set_data (GTK_OBJECT (dialog->dlgPrintProps), "pbOK", pbOK) ;
   gtk_object_set_data (GTK_OBJECT (dialog->dlgPrintProps), "ppo", print_op) ;
@@ -996,6 +946,7 @@ void init_print_properties_dialog (print_properties_D *dialog, print_OP *print_o
   
   factor = get_conversion_factor (dialog->cbmPUPoints, old_preferred_units_menu_item, dialog) ;
 
+  /* Fill in the dialog from the print_op values */
   bSpinButtonsDoNotReact = TRUE ;
   gtk_spin_button_set_value (GTK_SPIN_BUTTON (dialog->spnPaperWidth), print_op->dPaperWidth * factor) ;
   gtk_spin_button_set_value (GTK_SPIN_BUTTON (dialog->spnPaperHeight), print_op->dPaperHeight * factor) ;
@@ -1046,6 +997,7 @@ void chkPrintedObj_toggled (GtkWidget *widget, gpointer user_data)
   print_properties_D *dialog = (print_properties_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   int Nix ;
   
+  /* Ensure that there's always /something/ to print */
   if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->ppPrintedObjs[PRINTED_OBJECTS_DIE])))
     {
     for (Nix = 0 ; Nix < dialog->icPrintedObjs ; Nix++)
@@ -1173,6 +1125,9 @@ gboolean check_status (print_properties_D *dialog)
   return STATUS_OK ;
   }
 
+/* Used when the print properties dialog is to be initialized but not displayed - like
+   when the user clicks "Preview" before ever having used the dialog.  Also used for
+   filling out the print_OP structure */
 void init_print_options (print_OP *pPrintOp, qcell *first_cell)
   {
   double dFactor ;
@@ -1350,6 +1305,7 @@ void calc_world_size (qcell *first_cell, int *piWidth, int *piHeight, print_prop
   *piHeight = yMax - yMin ;
   }
 
+/* So far, there are only 3 hardcoded layers */
 void fill_printed_objects_list (GtkWidget *ls, print_properties_D *dialog)
   {
   if (NULL == dialog->ppPrintedObjs)
@@ -1412,6 +1368,7 @@ void toggle_scale_mode (GtkWidget *widget, gpointer user_data)
   bSpinButtonsDoNotReact = FALSE ;
   }
 
+/* Make sure the margins do not overlap */
 void check_margins (print_properties_D *dialog, double dLRatio, double dRRatio, double dTRatio, double dBRatio)
   {
   double
@@ -1443,6 +1400,7 @@ void check_margins (print_properties_D *dialog, double dLRatio, double dRRatio, 
     }
   }
 
+/* Make sure the scale and the number of pages tall/wide agree */
 void check_scale (print_properties_D *dialog)
   {
   int iWidthNano = 0, iHeightNano = 0 ;
@@ -1500,6 +1458,7 @@ void check_scale (print_properties_D *dialog)
       }
     }
 
+  /* There is no print order if there is only one page */
   bEnablePrintOrder = 
     gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (dialog->spnCXPages)) > 1 ||
     gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (dialog->spnCYPages)) > 1 ;
@@ -1507,6 +1466,7 @@ void check_scale (print_properties_D *dialog)
   gtk_widget_set_sensitive (dialog->lblPrintOrder, bEnablePrintOrder) ;
   }
 
+/* Ask the user for a filename/pipeline to print to */
 void browse_for_output (GtkWidget *widget, gpointer user_data)
   {
   print_properties_D *dialog = (print_properties_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
@@ -1526,6 +1486,7 @@ void browse_for_output (GtkWidget *widget, gpointer user_data)
     }
   }
 
+/* Make sure all spin buttons everywhere always have correct values */
 void validate_value_change (GtkAdjustment *adj_changed, gpointer user_data)
   {
   print_properties_D *dialog = (print_properties_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
@@ -1598,6 +1559,7 @@ void on_print_properties_dialog_btnPreview_clicked(GtkButton *button, gpointer u
   free (po.pbPrintedObjs) ;
   }
 
+/* General-purpose function to scale one rectangle until it is inscribed in another rectangle */
 void fit_rect_inside_rect (double dWidth, double dHeight, double *px, double *py, double *pdRectWidth, double *pdRectHeight)
   {
   double dAspectRatio, dRectAspectRatio ;

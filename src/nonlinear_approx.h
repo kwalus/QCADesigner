@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "globals.h"
+#include "qcell.h"
 #include "vector_table.h"
 #include "simulation.h"
 

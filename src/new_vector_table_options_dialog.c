@@ -1,3 +1,19 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: walus@atips.ca                                //
+// **** Please use complete names in variables and      //
+// **** functions. This will reduce ramp up time for new//
+// **** people trying to contribute to the project.     //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@vlsi.enel.ucalgary.ca).  It is an alterna- //
+// tive interface for specifying vector tables, which   //
+// works with the new vector table library              //
+//////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

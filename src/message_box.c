@@ -1,3 +1,18 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: walus@atips.ca                                //
+// **** Please use complete names in variables and      //
+// **** functions. This will reduce ramp up time for new//
+// **** people trying to contribute to the project.     //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@vlsi.enel.ucalgary.edu).  It is a rudimen- //
+// tary message box implementation.                     //
+//////////////////////////////////////////////////////////
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <gtk/gtk.h>

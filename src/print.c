@@ -1,3 +1,19 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: walus@atips.ca                                //
+// **** Please use complete names in variables and      //
+// **** functions. This will reduce ramp up time for new//
+// **** people trying to contribute to the project.     //
+//////////////////////////////////////////////////////////
+// This file written by Gabriel Schulhof                //
+// (schulhof@vlsi.enel.ucalgary.edu).  It implements    //
+// a PostScript printer for QCADesigner.                //
+// Completion Date: June 2003                           //
+//////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>

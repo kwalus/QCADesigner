@@ -1,3 +1,28 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: walus@atips.ca                                //
+// WEB: http://www.atips.ca/projects/qcadesigner/       //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way.                        //
+// Any independent files you generate format as you wish//
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@vlsi.enel.ucalgary.ca).  It implements a   //
+// recent files menu based on a file containing the     //
+// list of files considered recent by the program, and  //
+// a GtkMenu widget.                                    //
+//////////////////////////////////////////////////////////
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -25,6 +50,7 @@ void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data) ;
 void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles) ;
 void RemoveRecentFile (char *pszFName) ;
 
+/* Initialize the menu widget from the file */
 void fill_recent_files_menu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
   {
   char *pszHome = getenv ("HOME"), *pszFile = NULL ;
@@ -65,6 +91,7 @@ void fill_recent_files_menu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
   BuildRecentFilesMenu (menu, pfn, data) ;
   }
 
+/* Called upon all successful opens and saves */
 void add_to_recent_files (GtkWidget *menu, char *pszFName, GtkSignalFunc pfn, gpointer data)
   {
   int Nix ;
@@ -96,12 +123,15 @@ void add_to_recent_files (GtkWidget *menu, char *pszFName, GtkSignalFunc pfn, gp
   SaveRecentFiles (ppszRecentFiles, icRecentFiles) ;
   }
 
+/* If it fails to open ... */
 void remove_recent_file (GtkWidget *menu, char *pszFName, GtkSignalFunc pfn, gpointer data)
   {
   RemoveRecentFile (pszFName) ;
   BuildRecentFilesMenu (menu, pfn, data) ;
   }
-  
+
+/* Need to crunch recent files together if one happens to be deleted from the middle
+   or a middle one becomes most recent, etc. */
 void ScrollRecentFiles (char **ppszRecentFiles, int idxStart, int idxEnd)
   {
   int Nix ;
@@ -109,6 +139,7 @@ void ScrollRecentFiles (char **ppszRecentFiles, int idxStart, int idxEnd)
     strcpy (ppszRecentFiles[Nix + 1], ppszRecentFiles[Nix]) ;
   }
 
+/* Build the menu from the list of strings */
 void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
   {
   int Nix ;
@@ -131,6 +162,7 @@ void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
     }
   }
 
+/* Create ~/.qcadesigner/recent */
 void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles)
   {
   FILE *pfile ;
@@ -144,6 +176,7 @@ void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles)
   fclose (pfile) ;
   }
 
+/* Remove a recent file from the array */
 void RemoveRecentFile (char *pszFName)
   {
   int Nix ;

@@ -28,7 +28,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "globals.h"
+#include "qcell.h"
 #include "vector_table.h"
 #include "nonlinear_approx.h"
 #include "simulation.h"

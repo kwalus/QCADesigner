@@ -1,3 +1,18 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: walus@atips.ca                                //
+// **** Please use complete names in variables and      //
+// **** functions. This will reduce ramp up time for new//
+// **** people trying to contribute to the project.     //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@vlsi.enel.ucalgary.ca).  It is a leaner,   //
+// cleaner implementation of the graph dialog.          //
+//////////////////////////////////////////////////////////
+
 #include <stdlib.h>
 #include <string.h>
 #include <gtk/gtk.h>
@@ -562,16 +577,19 @@ void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRAC
   set_current_colour (&clr, GREEN, iClrMask) ;
   gdk_gc_set_foreground (pgc, &clr) ;
   gdk_gc_set_background (pgc, &clr) ;
-  
+
+  /* The 2 boxen that make up the trace */  
   gdk_draw_rectangle (da->window, pgc, FALSE, GRAPH_X_PADDING,    iBoxTop, pdp->iLabelCX,    pdp->iBoxCY) ;
   gdk_draw_rectangle (da->window, pgc, FALSE, pdp->iTraceBoxLeft, iBoxTop, pdp->iTraceBoxCX, pdp->iBoxCY) ;
 
+  /* The min, mid and max lines */
   gdk_gc_set_line_attributes(pgc, 1, GDK_LINE_ON_OFF_DASH, GDK_CAP_BUTT, GDK_JOIN_MITER);
   gdk_draw_line (da->window, pgc, pdp->iTraceLeft, iTraceTop,     pdp->iTraceRight, iTraceTop) ;
   gdk_draw_line (da->window, pgc, pdp->iTraceLeft, iTraceOffset1, pdp->iTraceRight, iTraceOffset1) ;
   gdk_draw_line (da->window, pgc, pdp->iTraceLeft, iTraceOffset2, pdp->iTraceRight, iTraceOffset2) ;
   gdk_gc_set_line_attributes(pgc, 1, GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
   
+  /* Get the vertical scale */
   get_min_max (trace, 0, icSamples - 1, &dMin, &dMax) ;
   if (0 == pdp->idxBeg && icSamples - 1 == pdp->idxEnd)
     {
@@ -581,18 +599,22 @@ void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRAC
   else
     get_min_max (trace, pdp->idxBeg, pdp->idxEnd, &dSampleMin, &dSampleMax) ;
   
+  
   set_current_colour (&clr, trace->trace_color, iClrMask) ;
   gdk_gc_set_foreground (pgc, &clr) ;
   gdk_gc_set_background (pgc, &clr) ;
-  
+
+  /* Fill in the trace label */  
   g_snprintf (szText, 32, "max:%s%1.1f", dSampleMax > 0 ? " " : "", dSampleMax) ;
   gdk_draw_string (da->window, pfont, pgc, pdp->iTextLeft, iBoxTop + cyFont + GRAPH_TEXT_CLEARANCE + 1, szText) ;
   gdk_draw_string (da->window, pfont, pgc, pdp->iTextLeft, iTraceOffset1 + 0.5 * cyFont, trace->data_labels) ;
   g_snprintf (szText, 32, "min:%s%1.1f", dSampleMin > 0 ? " " : "", dSampleMin) ;
   gdk_draw_string (da->window, pfont, pgc, pdp->iTextLeft, iBoxTop + pdp->iBoxCY - GRAPH_TEXT_CLEARANCE, szText) ;
 
+  /* If there are no samples, or the sample range is too narrow, return */
   if (icSamples <= 1 || pdp->idxEnd == pdp->idxBeg) return ;
   
+  /* Plot the trace */
   yOld = iTraceOffset2 - (((trace->data[pdp->idxBeg] - dMin) / (dMax - dMin)) * pdp->iTraceCY) ;
   for (Nix = pdp->idxBeg + 1, iInc = 1 ; Nix <= pdp->idxEnd ; Nix++, iInc++)
     {
@@ -619,6 +641,13 @@ void get_min_max (struct TRACEDATA *trace, int idxStart, int idxEnd, double *pdM
     DBG_GD (fprintf (stderr, "Comparing *pdMin:%lf <-> %lf <-> %lf:*pdMax\n", *pdMin, trace->data[Nix], *pdMax)) ;
     if (trace->data[Nix] < *pdMin) *pdMin = trace->data[Nix] ;
     if (trace->data[Nix] > *pdMax) *pdMax = trace->data[Nix] ;
+    }
+  
+  /* If there is no range, use default range */
+  if (*pdMin == *pdMax)
+    {
+    *pdMin = -1 ;
+    *pdMax =  1 ;
     }
   }
 

@@ -1,3 +1,19 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: walus@atips.ca                                //
+// **** Please use complete names in variables and      //
+// **** functions. This will reduce ramp up time for new//
+// **** people trying to contribute to the project.     //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@vlsi.enel.ucalgary.ca).  It is the imple-  //
+// mentation of a vector table structure, together with //
+// a set of functions to manipulate the structure more  //
+// easily                                               //
+//////////////////////////////////////////////////////////
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -104,6 +120,8 @@ VectorTable *VectorTable_clear (VectorTable *pvt)
   return NULL ;
   }
 
+/* Replace the inputs in the vector table with those in the linked list starting
+   with first_cell, and clean out the vectors */
 void VectorTable_fill (VectorTable *pvt, qcell *first_cell)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
@@ -127,6 +145,8 @@ void VectorTable_fill (VectorTable *pvt, qcell *first_cell)
   pvtp->vt.num_of_vectors = 0 ;
   }
 
+/* Grab all the inputs out of the linked list starting at first_cell, and append
+   them to the array of inputs */
 void VectorTable_add_inputs (VectorTable *pvt, qcell *first_cell)
   {
   while (NULL != first_cell)
@@ -137,6 +157,7 @@ void VectorTable_add_inputs (VectorTable *pvt, qcell *first_cell)
     }
   }
 
+/* Append a single input to the array and pad its corresponding vectors with 0s */
 void VectorTable_add_input (VectorTable *pvt, qcell *new_input)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
@@ -176,6 +197,7 @@ void VectorTable_add_input (VectorTable *pvt, qcell *new_input)
   DBG_VT (VectorTable_dump (pvt, stderr)) ;
   }
 
+/* Delete an input, all its vector components, and make the vector table narrower */
 void VectorTable_del_input (VectorTable *pvt, qcell *old_input)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
@@ -207,6 +229,8 @@ void VectorTable_del_input (VectorTable *pvt, qcell *old_input)
   DBG_VT (VectorTable_dump (pvt, stderr)) ;
   }
 
+/* Add a vector at idxWanted - cause idxWanted to become the new vector - meaning that the vector currently
+   at idxWanted moves down one */
 int VectorTable_add_vector (VectorTable *pvt, int idxWanted)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
@@ -243,6 +267,7 @@ int VectorTable_add_vector (VectorTable *pvt, int idxWanted)
   return idx ;
   }
 
+/* Delete a vector, and bring the vectors below it up by one */
 void VectorTable_del_vector (VectorTable *pvt, int idx)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
@@ -263,6 +288,7 @@ void VectorTable_del_vector (VectorTable *pvt, int idx)
   pvtp->vt.num_of_vectors-- ;
   }
 
+/* Write the vector table to the file whose name is contained in the VectorTable structure */
 gboolean VectorTable_save (VectorTable *pvt)
   {
   int Nix, Nix1 ;
@@ -309,6 +335,8 @@ gboolean VectorTable_save (VectorTable *pvt)
   return TRUE ;
   }
 
+/* Fill in the VectorTable structure passed to me from the file whose name
+   is contained within the structure */
 VTL_RESULT VectorTable_load (VectorTable *pvt)
   {
   int icInputs = 0, icVectors = 0, idxNext = -1, Nix, Nix1 ;
@@ -317,8 +345,6 @@ VTL_RESULT VectorTable_load (VectorTable *pvt)
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
   
   DBG_VT (fprintf (stderr, "Entering VectorTable_load\n")) ;
-
-
   
   if (NULL == pfile) return VTL_FILE_FAILED ;
   
@@ -373,6 +399,7 @@ VTL_RESULT VectorTable_load (VectorTable *pvt)
   return ret ;
   }
 
+/* Make the vector table structure appear in pfile - mostly for debugging */
 void VectorTable_dump (VectorTable *pvt, FILE *pfile)
   {
   VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
@@ -402,6 +429,7 @@ void VectorTable_dump (VectorTable *pvt, FILE *pfile)
   fprintf (pfile, "pvtp->icVRoom = %d\n", pvtp->icVRoom) ;
   }
 
+/* Walk the linked list and count the inputs */
 int CountInputs (qcell *first_cell)
   {
   int ic = 0 ;
@@ -423,6 +451,8 @@ int CountInputs (qcell *first_cell)
   return ic ;
   }
 
+/* Assuming a big enough array to hold them, fill the array with those inputs as
+   you walk the linked list */
 void FillInputs (VectorTable *pvt, qcell *first_cell)
   {
   int idx = 0 ;
@@ -444,6 +474,7 @@ void FillInputs (VectorTable *pvt, qcell *first_cell)
 
   }
 
+/* Check the magic string at the top of the vector file, without moving the file pointer */
 gboolean CheckMagic (FILE *pfile)
   {
   int cb = ftell (pfile) ;
@@ -463,6 +494,7 @@ gboolean CheckMagic (FILE *pfile)
   return bRet ;
   }
 
+/* Allocate a buffer to hold a line of string, stripping comments. Return the buffer */
 char *ReadLine (FILE *pfile)
   {
   int idxBeg = ftell (pfile), idxEnd = idxBeg ;
@@ -490,6 +522,7 @@ char *ReadLine (FILE *pfile)
   return pszRet ;
   }
 
+/* Run through the file, measure the width of vectors, and count them */
 void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
   {
   int Nix ;
@@ -505,6 +538,7 @@ void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
   
   *picInputs = *picVectors = 0 ;
   
+  /* Count the inputs */
   while (!feof (pfile))
     {
     if (NULL == (psz = ReadLine (pfile))) break ;
@@ -518,6 +552,7 @@ void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
       break ;
     }
   
+  /* Count the vectors */
   while (!feof (pfile))
     {
     if (NULL == (psz = ReadLine (pfile))) break ;
@@ -534,6 +569,7 @@ void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
   fseek (pfile, cb, SEEK_SET) ;
   }
 
+/* Read in a single vector from the file */
 int ReadVector (FILE *pfile, gboolean *pVector, int ic)
   {
   int idx = -1 ;

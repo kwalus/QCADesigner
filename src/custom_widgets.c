@@ -1,5 +1,21 @@
-// GTK includes //
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: walus@atips.ca                                //
+// **** Please use complete names in variables and      //
+// **** functions. This will reduce ramp up time for new//
+// **** people trying to contribute to the project.     //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@vlsi.enel.ucalgary.ca).  It is a place to  //
+// store widgets that are too complex to be maintained  //
+// within the various user interface elements and have  //
+// a high chance of being reused.                       //
+//////////////////////////////////////////////////////////
 
+// GTK includes //
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
@@ -8,6 +24,7 @@
 
 void switch_pix (GtkWidget *tbtn, gpointer user_data) ;
 
+/* Creates a button whose label is a pixmap */
 GtkWidget *create_pixmap_button (GtkWidget *pixmap, gchar *text, gboolean bToggle)
   {
   GtkWidget *btn ;
@@ -41,6 +58,10 @@ GtkWidget *create_pixmap_button (GtkWidget *pixmap, gchar *text, gboolean bToggl
   return btn ;
   }
 
+/* Creates a toggle button with a "down" pixmap and an "up" pixmap
+   both pixmaps are added to a vbox, but one of them is always hidden.  A signal
+   handler is connected to the "toggled" signal to hide the visible pixmap and
+   unhide the hidden one */
 GtkWidget *create_two_pixmap_toggle_button (GtkPixmap *pix1, GtkPixmap *pix2, gchar *pszLbl)
   {
   GtkWidget *btn ;

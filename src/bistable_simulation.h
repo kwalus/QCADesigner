@@ -25,8 +25,8 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "globals.h"
 #include "vector_table.h"
+#include "qcell.h"
 #include "simulation.h"
 
 typedef struct{

@@ -26,7 +26,7 @@
 #include "cad.h"
 
 //!Options for the bistable simulation engine
-coherence_OP coherence_options = {300, 1.34344e-11, 1e-14, 6.71719e-11, 41e-5 * 1.602e-19, 40e-5 * 1.602e-19, 60, 12.9, FALSE} ;
+coherence_OP coherence_options = {1, 1.34344e-11, 1e-15, 6.71719e-11, 45e-5 * 1.602e-19, 40e-5 * 1.602e-19, 60, 12.9, FALSE} ;
 
 typedef struct{
 	int number_of_neighbours;
@@ -84,6 +84,9 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
   	// -- count the total number of cells, inputs, and outputs -- //
   	total_cells = 0;
 	while (cell != NULL){
+		
+		// Clear the polarization of each cell //
+		gqcell_set_polarization(cell, 0);
 		
 		if (cell->is_input){
 			total_number_of_inputs++;
@@ -228,10 +231,8 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	// -- kept getting wrong answers without this -- //
 	qsort (sorted_cells, total_cells, sizeof (GQCell *), compareCoherenceQCells) ;
 	
-	// Reset all the cell polarizations to their associated steady state values //
-	cell = first_cell;
 	
-	printf("Ek = %e Clock Low = %e \n", ((coherence_model *)cell->cell_model)->Ek[0]/(1.602e-19), options->clock_low/(1.602e-19));
+	
 	
 	// -- Set the inital input values so that the steady state vector can be calculated correctly -- //
 	for (i = 0; i < total_number_of_inputs; i++){
@@ -249,8 +250,13 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	      		sim_data->trace[i].data[j] = input;
 		}
 	
+	// Reset all the cell polarizations to their associated steady state values //
+	cell = first_cell;
+	printf("Ek = %e Clock Low = %e \n", ((coherence_model *)cell->cell_model)->Ek[0]/(1.602e-19), options->clock_low/(1.602e-19));
 	
 	while (cell != NULL){
+		
+		
 		PEk = 0;
 		// Calculate the sum of neighboring polarizations * the kink energy between them//
 		for (q = 0; q < ((coherence_model *)cell->cell_model)->number_of_neighbours; q++){

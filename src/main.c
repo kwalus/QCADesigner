@@ -129,7 +129,7 @@ int main (int argc, char *argv[])
   bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
   textdomain (PACKAGE);
 #endif
-	
+
 	gtk_set_locale ();
 	gtk_init (&argc, &argv);
 
@@ -149,15 +149,16 @@ int main (int argc, char *argv[])
       break ;
       }
       
-  psz = g_strdup_printf ("%s\\pixmaps", szMyPath) ;
+  psz = g_strdup_printf ("%s%spixmaps", szMyPath, G_DIR_SEPARATOR_S) ;
   add_pixmap_directory (psz) ;
   g_free (psz) ;
-  psz = g_strdup_printf ("%s\\..\\pixmaps", szMyPath) ;
+  psz = g_strdup_printf ("%s%s..%sshare%spixmaps%sQCADesigner", szMyPath,
+    G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S) ;
   add_pixmap_directory (psz) ;
   g_free (psz) ;
 #else /* ifndef WIN32 */
   // -- Pixmaps used by the buttons in the main window -- //
-	add_pixmap_directory (PACKAGE_DATA_DIR "/QCADesigner/pixmaps");
+	add_pixmap_directory (PACKAGE_DATA_DIR "/pixmaps/QCADesigner");
 	add_pixmap_directory (PACKAGE_SOURCE_DIR "/pixmaps");
 #endif /* ifdef WIN32 */           
 

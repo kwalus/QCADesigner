@@ -10,7 +10,7 @@ AppSupportURL=qcadesigner.ca
 AppUpdatesURL=qcadesigner.ca
 DefaultDirName={pf}\QCADesigner
 DefaultGroupName=QCADesigner
-LicenseFile=C:\cygwin\home\nix\source\QCADesigner\COPYING
+LicenseFile=C:\cygwin\home\Konrad\source\QCADesigner\COPYING
 ChangesAssociations=yes
 
 [Tasks]
@@ -20,7 +20,7 @@ Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "A
 [Registry]
 ; This adds the GTK+ libraries to QCADesigner.exe's path
 Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\App Paths\QCADesigner.exe"; Flags: uninsdeletekeyifempty
-Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\App Paths\QCADesigner.exe"; ValueType: string; ValueData: "{app}\QCADesigner.exe"; Flags: uninsdeletevalue
+Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\App Paths\QCADesigner.exe"; ValueType: string; ValueData: "{app}\bin\QCADesigner.exe"; Flags: uninsdeletevalue
 Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\App Paths\QCADesigner.exe"; ValueType: string; ValueName: "Path"; ValueData: "{app};{code:GetGtkPath}\lib"; Flags: uninsdeletevalue
 ; File associations
 Root: HKCR; SubKey: ".qca"; Flags: uninsdeletekey
@@ -30,25 +30,26 @@ Root: HKCR; SubKey: "QCADesigner.File"; ValueType: string; ValueName: ""; ValueD
 Root: HKCR; SubKey: "QCADesigner.File"; ValueType: dword; ValueName: "BrowserFlags"; ValueData: 8; Flags: uninsdeletevalue
 Root: HKCR; SubKey: "QCADesigner.File"; ValueType: dword; ValueName: "EditFlags"; ValueData: 0; Flags: uninsdeletevalue
 Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; Flags: uninsdeletekey
-Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
-Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
+Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\share\pixmaps\QCADesigner\QCADesigner.winxp.ico"; MinVersion: 0, 1
+Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\share\pixmaps\\QCADesigner\QCADesigner.win32.ico"; MinVersion: 1, 0
 Root: HKCR; SubKey: "QCADesigner.File\shell"; Flags: uninsdeletekey
 Root: HKCR; SubKey: "QCADesigner.File\shell"; ValueType: string; ValueName: ""; ValueData: "Open"
 Root: HKCR; SubKey: "QCADesigner.File\shell\Open"; Flags: uninsdeletekey
 Root: HKCR; SubKey: "QCADesigner.File\shell\Open"; ValueType: string; ValueName: ""; ValueData: "&Open"
 Root: HKCR; SubKey: "QCADesigner.File\shell\Open\command"; Flags: uninsdeletekey
-Root: HKCR; SubKey: "QCADesigner.File\shell\Open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QCADesigner.exe"" ""%1"""
+Root: HKCR; SubKey: "QCADesigner.File\shell\Open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bin\QCADesigner.exe"" ""%1"""
 
 [Files]
-Source: "C:\cygwin\home\nix\source\QCADesigner\src\QCADesigner.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\cygwin\home\nix\source\QCADesigner\pixmaps\*"; DestDir: "{app}\pixmaps"; Flags: ignoreversion
+Source: "C:\cygwin\home\Konrad\source\QCADesigner-distrib\*"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "C:\cygwin\home\Konrad\source\QCADesigner\src\QCADesigner.exe"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "C:\cygwin\home\Konrad\source\QCADesigner\pixmaps\*"; DestDir: "{app}\pixmaps"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; IconFilename: "{app}\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
-Name: "{userdesktop}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
-Name: "{group}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; IconFilename: "{app}\pixmaps\QCADesigner.ico"; MinVersion: 1, 0
-Name: "{userdesktop}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\pixmaps\QCADesigner.ico"; MinVersion: 1, 0
+Name: "{group}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; IconFilename: "{app}\share\pixmaps\QCADesigner\QCADesigner.winxp.ico"; MinVersion: 0, 1
+Name: "{userdesktop}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\share\pixmaps\QCADesigner\QCADesigner.winxp.ico"; MinVersion: 0, 1
+Name: "{group}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; IconFilename: "{app}\share\pixmaps\QCADesigner\QCADesigner.ico"; MinVersion: 1, 0
+Name: "{userdesktop}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\share\pixmaps\QCADesigner\QCADesigner.ico"; MinVersion: 1, 0
 
 [Code]
 

@@ -38,22 +38,20 @@ void create_message_box (MESSAGE_BOX *pmb) ;
 MBButton message_box (GtkWindow *parent, MBButton btns, char *pszTitle, char *pszFormat, ...)
   {
   va_list va ;
-  const char *pszFmt = pszFormat ;
   char *pszMsg = NULL ;
-  int ic = 0 ;
   MBButton ret = MB_OK ;
-
-  va_start (va, pszFormat) ;
-  pszMsg = malloc (ic = g_printf_string_upper_bound (pszFmt, va)) ;
-  g_vsnprintf (pszMsg, ic, pszFmt, va) ;
-  va_end (va) ;
 
   create_message_box (&the_message_box) ;
   gtk_object_set_data (GTK_OBJECT (the_message_box.message_box), "dialog", &(the_message_box)) ;
   
   gtk_window_set_transient_for (GTK_WINDOW (the_message_box.message_box), parent) ;
   gtk_window_set_title (GTK_WINDOW (the_message_box.message_box), pszTitle) ;
-  gtk_label_set_text (GTK_LABEL (the_message_box.lblMsg), pszMsg) ;
+  
+  va_start (va, pszFormat) ;
+  gtk_label_set_text (GTK_LABEL (the_message_box.lblMsg), pszMsg = g_strdup_vprintf (pszFormat, va)) ;
+  va_end (va) ;
+  g_free (pszMsg) ;
+  
   gtk_object_set_data (GTK_OBJECT (the_message_box.message_box), "ret", &ret) ;
   
   if (!btns) btns = MB_OK ;
@@ -77,8 +75,6 @@ MBButton message_box (GtkWindow *parent, MBButton btns, char *pszTitle, char *ps
     gtk_widget_show (the_message_box.btnCancel) ;
   else
     gtk_widget_hide (the_message_box.btnCancel) ;
-  
-  free (pszMsg) ;
   
   show_dialog_blocking (the_message_box.message_box) ;
   

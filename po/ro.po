@@ -1,0 +1,647 @@
+msgid "1 nm is"
+msgstr "1 nm este"
+
+msgid "About QCADesigner"
+msgstr "Despre QCADesigner"
+
+msgid "About..."
+msgstr "Despre..."
+
+msgid "Add Cell Array"
+msgstr "Adaugă şir de celule"
+
+msgid "Add Cell To Design"
+msgstr "Adaugă celulă la design"
+
+msgid "Add Type 2 Cell To Design"
+msgstr "Adaugă celulă de tipul 2 la design"
+
+msgid "Add Vector"
+msgstr "Adaugă vector"
+
+msgid "Add horizontal or vertical arrays of Type 1 or Type 2 cells to your design."
+msgstr "Adaugă şiruri orizontale sau verticale de celule tip 1 sau 2 la designul dvs."
+
+msgid "Animate Test Simulation"
+msgstr "Animează simulaţia experimentală"
+
+msgid "Animate"
+msgstr "Animează"
+
+msgid "Array"
+msgstr "Şir"
+
+msgid "Arrow Properties"
+msgstr "Caracteristicile săgeţii"
+
+msgid "Assign Destination To Selection..."
+msgstr "Specifică destinaţia pt. selecţie"
+
+# msgid "Bistable Options"
+# msgstr ""
+
+msgid "Bottom Margin:"
+msgstr "Marginea de jos:"
+
+msgid "Bring various parts of the design into view by dragging visible parts of the design out of view."
+msgstr "Faceţi anumite părţi ale design-ului visible trăgând alte părţi ale design-ului din fereastră"
+
+msgid "Browse..."
+msgstr "Selectează..."
+
+# msgid "Calculate Ground State"
+# msgstr ""
+
+msgid "Calculates and sets the magnification such that the currently topmost layer fits inside the window."
+msgstr "Calculează şi setează magnificaţia în aşa fel încât stratul superior se potriveşte în fereastră."
+
+msgid "Calculates and sets the magnification such that your design fits inside the window."
+msgstr "Calculează şi setează magnificaţia în aşa fel încât design-ul se potriveşte în fereastră."
+
+msgid "Cell Function"
+msgstr "Funcţia celulei"
+
+msgid "Cell Functions..."
+msgstr "Funcţii ale celulei"
+
+msgid "Cell Height [nm]:"
+msgstr "Înălţimea celulei [nm]:"
+
+msgid "Cell Label:"
+msgstr "Denumirea celulei:"
+
+msgid "Cell Width [nm]:"
+msgstr "Lăţimea celulei [nm]:"
+
+msgid "Cell"
+msgstr "Celulă"
+
+msgid "Center On Pages"
+msgstr "Centrează pe pagini"
+
+msgid "Click and drag your selection to its new location."
+msgstr "Apăsaţi şi trageţi selecţia la locul ei nou."
+
+msgid "Click here, then click on the design to add Type 2 cells to it."
+msgstr "Apăsaţi aici.  După aceea, apăsaţi pe design să adaugaţi celule de tipul 2."
+
+msgid "Click here, then click on the design to add cells to it."
+msgstr "Apăsaţi aici.  După aceea, apăsaţi pe design să adaugaţi celule."
+
+msgid "Click on a cell to rotate it (repeatedly)."
+msgstr "Apăsaţi pe o celulă să o rotiţi (repetat)."
+
+msgid "Click on this button to delete your selection.  Afterwards, click on individual cells to delete them."
+msgstr "Apăsaţi be acest buton să ştergeţi selecţia.  După aceea, apăsaţi pe celule una-câte-una să le ştergeţi."
+
+# msgid "Clock 0"
+# msgstr ""
+
+# msgid "Clock 1"
+# msgstr ""
+
+# msgid "Clock 2"
+# msgstr ""
+
+# msgid "Clock 3"
+# msgstr ""
+
+# msgid "Clock High:"
+# msgstr ""
+
+# msgid "Clock Low:"
+# msgstr ""
+
+# msgid "Clock:"
+# msgstr ""
+
+msgid "Close the project file"
+msgstr "Închide fişierul proiectului"
+
+# msgid "Command Line"
+# msgstr ""
+
+msgid "Command"
+msgstr "Comanda"
+
+msgid "Command:"
+msgstr "Comanda:"
+
+msgid "Common Paper Sizes"
+msgstr "Mărimi de hârtie obişnuite"
+
+msgid "Contents"
+msgstr "Conţinut"
+
+msgid "Convergence Tolerance:"
+msgstr "Toleranţa de convergenţă:"
+
+msgid "Copy Selection"
+msgstr "Copiază selecţia"
+
+msgid "Copy"
+msgstr "Copiază"
+
+msgid "Couldn't find pixmap file: %s"
+msgstr "Nu s-a găsit fişierul imagine %s"
+
+msgid "Create Block..."
+msgstr "Crează block..."
+
+msgid "Create Substrate"
+msgstr "Crează substrat"
+
+msgid "Create a mirrored copy of your selection."
+msgstr "Creaţi a copie oglinzită după selecţia dvs."
+
+msgid "Create a new project file"
+msgstr "Crează un nou fişier proiect"
+
+msgid "Creates a new rectangular substrate."
+msgstr "Crează un nou substrat dreptunghiular."
+
+# msgid "Creates a polygonal clocking zone."
+# msgstr ""
+
+# msgid "Creates an oval or a circular clocking zone."
+# msgstr ""
+
+msgid "Custom"
+msgstr "De comandă"
+
+msgid "Decrease the magnification to get an overall picture."
+msgstr "Scădeţi magnificaţia să obţineţi o perspectivă mai largă"
+
+msgid "Decrease The Magnification"
+msgstr "Scădează magnificaţia"
+
+# msgid "Default Cell Properties..."
+# msgstr ""
+
+# msgid "Default Clock:"
+# msgstr ""
+
+msgid "Delete Cells"
+msgstr "Şterge celule"
+
+msgid "Delete"
+msgstr "Şterge"
+
+# msgid "Die Height [nm]:"
+# msgstr ""
+
+# msgid "Die Width [nm]:"
+# msgstr ""
+
+msgid "Dimension Properties"
+msgstr "Caracteristicile Liniarului"
+
+msgid "Do Not Center"
+msgstr "Nu centra"
+
+msgid "Don't save"
+msgstr "Nu salva"
+
+msgid "Dot Diameter [nm]:"
+msgstr "Diametrul punctului[nm]:"
+
+msgid "Draw Arrow"
+msgstr "Desenează săgeată"
+
+msgid "Draw Dimensions"
+msgstr "Deseneaza liniar"
+
+msgid "Draw Line"
+msgstr "Desenează linie"
+
+msgid "Draw Rectangle"
+msgstr "Desenează dreptunghi"
+
+msgid "Draw Text"
+msgstr "Desenează text"
+
+msgid "Enter Grid Spacing [nm]"
+msgstr "Specificaţi intervalul de grilaj [nm]"
+
+# msgid "Enter Scale Factor"
+# msgstr ""
+
+msgid "Extents"
+msgstr "Întregime"
+
+msgid "File Name:"
+msgstr "Numele fişierului:"
+
+msgid "File"
+msgstr "Fişier"
+
+msgid "Fit Design To Window"
+msgstr "Potiveşte design-ul la fereastră"
+
+msgid "Fit Layer To Window"
+msgstr "Potriveşte stratul la fereastră"
+
+msgid "Fit"
+msgstr "Potriveşte"
+
+msgid "Fixed Polarization"
+msgstr "Polarizaţie fixă"
+
+msgid "Fixed"
+msgstr "Fix"
+
+msgid "Function"
+msgstr "Funcţie"
+
+msgid "Graph Options"
+msgstr "Opţiuni de graf"
+
+msgid "Grid Properties..."
+msgstr "Caracteristici de grilaj..."
+
+msgid "Grid Spacing [nm]:"
+msgstr "Intervalul de grilaj [nm]:"
+
+msgid "Grid Spacing"
+msgstr "Intervalul de grilaj"
+
+msgid "Grid Spacing:"
+msgstr "Intervalul de grilaj:"
+
+# msgid "Host Name And Port"
+# msgstr ""
+
+msgid "I/O"
+msgstr ""
+
+msgid "Import Block..."
+msgstr "Importă block..."
+
+msgid "Increase The Magnification"
+msgstr "Măreşte magnificaţia"
+
+msgid "Increase the magnification so you may concentrate on specific parts of the design."
+msgstr "Măriţi magnificaţia să vă concentraţi asupra anumitelor părţi ale design-ului."
+
+msgid "Increment Cell Clocks"
+msgstr "Incrementează clock-ul celulelor"
+
+# msgid "Input"
+# msgstr ""
+
+# msgid "Input/Output"
+# msgstr ""
+
+msgid "Insert Vector After"
+msgstr "Inserează vector după ..."
+
+msgid "Layer Properties"
+msgstr "Caracteristicile stratului"
+
+msgid "Layer"
+msgstr "Strat"
+
+msgid "Layers"
+msgstr "Straturi"
+
+msgid "Left Margin:"
+msgstr "Marginea stângă:"
+
+msgid "Line Properties"
+msgstr "Caracteristicile liniei"
+
+msgid "Lists the layers in the current design and allows you to switch between them."
+msgstr "Listeasză straturile în design-ul curent şi vă permite să schimbaţi între ele."
+
+# msgid "Logging Properties"
+# msgstr ""
+
+msgid "Makes a copy of your selection."
+msgstr "Copiază selectia."
+
+msgid "Margins"
+msgstr "Margini"
+
+# msgid "Maximum Iterations Per Sample:"
+# msgstr ""
+
+msgid "Measure Distance"
+msgstr "Măsoară distanţa"
+
+msgid "Measurement Preferences"
+msgstr "Preferinţele de măsurare"
+
+msgid "Mirror Selection"
+msgstr "Reflectează selecţia"
+
+msgid "Mirror"
+msgstr "Reflectează"
+
+msgid "Modify Cell Function"
+msgstr "Modifică funcţia celulei"
+
+msgid "Modify a cell's function (Normal/Input/Output/Fixed)"
+msgstr "Modifică funcţia unei celule (Normală/Input/Output/Fixă)"
+
+msgid "Modify the function of one of the cells (Input/Output/Fixed)."
+msgstr "Modificaţi funcţia unei celule (Input/Output/Fixă)."
+
+msgid "Move Selection"
+msgstr "Mişcaţi selecţia"
+
+msgid "Move"
+msgstr "Mişcă"
+
+# msgid "Nonlinear Approximation Properties"
+# msgstr ""
+
+msgid "Normal Cell"
+msgstr "Celulă normală"
+
+msgid "Note: Right-click the vector table for more options."
+msgstr "Atenţie: Apăsaţi cu butonul drept pe tabelul de vectori pt. opţiuni."
+
+# msgid "Number Of Samples:"
+# msgstr ""
+
+msgid "Number of Pages"
+msgstr "Numărul de pagini"
+
+# msgid "Number of Samples:"
+# msgstr ""
+
+msgid "Open a project file"
+msgstr "Deschide un fişier proiect"
+
+msgid "Options"
+msgstr "Opţiuni"
+
+msgid "Orientation"
+msgstr "Orientaţia"
+
+# msgid "Output"
+# msgstr ""
+
+# msgid "Oval Clocking Zone"
+# msgstr ""
+
+# msgid "Oval"
+# msgstr ""
+
+msgid "Over, then down"
+msgstr "La o parte, în jos"
+
+# msgid "Pan Design"
+# msgstr ""
+
+# msgid "Pan"
+# msgstr ""
+
+msgid "Paper Height:"
+msgstr "Înălţimea hârtiei:"
+
+msgid "Paper Size"
+msgstr "Mărimea hârtiei"
+
+msgid "Paper Width:"
+msgstr "Lăţimea hârtiei:"
+
+msgid "Pause Simulation"
+msgstr "Întrerupe simulaţia"
+
+# msgid "Please select which traces to plot:"
+# msgstr ""
+
+msgid "Polarization"
+msgstr "Polarizaţia"
+
+msgid "Polygon"
+msgstr "Poligon"
+
+# msgid "Polygonal Clocking Zone"
+# msgstr ""
+
+msgid "Preferred Units:"
+msgstr "Unităţi preferate:"
+
+msgid "Preview Mode"
+msgstr "Mod de previzualizare"
+
+# msgid "Preview the print layout"
+# msgstr ""
+
+msgid "Print Order"
+msgstr "Ordinea tipăriri"
+
+msgid "Print To"
+msgstr "Tipăreşte folosind"
+
+msgid "Printer Setup"
+msgstr "Setări imprimantă"
+
+msgid "Printer"
+msgstr "Imprimantă"
+
+msgid "Project Properties..."
+msgstr "Caracteristicile proiectului"
+
+msgid "Quit QCADesigner"
+msgstr "Iese din QCADesigner"
+
+msgid "Radius of Effect [nm]:"
+msgstr "Raza de efect [nm]:"
+
+msgid "Random Fault Setup..."
+msgstr ""
+
+msgid "Recent Files"
+msgstr "Fişiere recente"
+
+msgid "Rectangle Properties"
+msgstr "Caracteristicile dreptunghiului"
+
+# msgid "Relative Permittivity:"
+# msgstr ""
+
+msgid "Remove Vector"
+msgstr "Îndepărtează vector"
+
+msgid "Reset Simulation"
+msgstr "Resetează  simulaţia"
+
+msgid "Reset"
+msgstr "Resetează"
+
+msgid "Right Margin:"
+msgstr "Marginea dreaptă:"
+
+msgid "Rotate Cell"
+msgstr "Roteşte celula"
+
+msgid "Rotate Selection"
+msgstr "Roteşte selecţia"
+
+msgid "Rotate"
+msgstr "Roteşte"
+
+msgid "Save Output To File"
+msgstr "Salvează output-ul în fişier"
+
+msgid "Save current project"
+msgstr "Salvează proiectul curent"
+
+msgid "Save project file as ..."
+msgstr "Salvează fişierul proiect ca ..."
+
+# msgid "Scale All Cells In Design..."
+# msgstr ""
+
+msgid "Scale Factor:"
+msgstr "Factorul de scară:"
+
+msgid "Scale"
+msgstr "Scara"
+
+msgid "Search"
+msgstr "Caută"
+
+msgid "Select And Manipulate Design"
+msgstr "Selectaţi şi manipulaţi design-ul"
+
+msgid "Select Clock..."
+msgstr "Selectează clock-ul..."
+
+msgid "Select File"
+msgstr "Selectează fişierul"
+
+msgid "Select the clock"
+msgstr "Selectează clock-ul"
+
+msgid "Select"
+msgstr "Selectează"
+
+msgid "Show Grid"
+msgstr "Arată grilajul"
+
+# msgid "Show Toolbar Icons"
+# msgstr ""
+
+msgid "Show project properties"
+msgstr "Arată caracteristicile proiectului"
+
+# msgid "Simulation Engine Setup..."
+# msgstr ""
+
+msgid "Simulation Results"
+msgstr "Rezultatele simulaţiei"
+
+msgid "Simulation Type Setup..."
+msgstr "Setările tipului de simulaţie"
+
+# msgid "Snap Properties..."
+# msgstr ""
+
+msgid "Snap To Grid"
+msgstr "Aliniază la grilaj"
+
+# msgid "Split Current QCA Options"
+# msgstr ""
+
+msgid "Start Simulation"
+msgstr "Porneşte simulaţia"
+
+msgid "Stop Simulation"
+msgstr "Opreşte simulaţia"
+
+msgid "Substrate"
+msgstr "Substrat"
+
+msgid "Text Properties"
+msgstr "Caracteristicile textului"
+
+msgid "This button allows you to manipulate your design."
+msgstr "Acest buton vă permite să manipulaţi design-ul dvs."
+
+msgid "Top Margin:"
+msgstr "Marginea de sus:"
+
+msgid "Type 1"
+msgstr "Tipul 1"
+
+msgid "Type 2"
+msgstr "Tipul 2"
+
+msgid "Untitled"
+msgstr "Fără titlu"
+
+msgid "Vector Table Operations"
+msgstr "Operaţii asupra tabelului de vectori"
+
+msgid "Vector Table Setup"
+msgstr "Setări tabel de vectori"
+
+msgid "Window Properties"
+msgstr "Caracteristicile ferestrei"
+
+# msgid "Zoom Die"
+# msgstr ""
+
+msgid "Zoom Extents"
+msgstr "Zoom la întregime"
+
+msgid "Zoom In"
+msgstr "Măreşte"
+
+msgid "Zoom Layer Extents"
+msgstr "Zoom la întregimea stratului"
+
+msgid "Zoom Out"
+msgstr "Micşorează"
+
+msgid "_Draw"
+msgstr "_Desen"
+
+msgid "_Edit"
+msgstr "_Editare"
+
+msgid "_File"
+msgstr "_Fişier"
+
+msgid "_Help"
+msgstr "_Ajutor"
+
+msgid "_Simulation"
+msgstr "_Simulaţie"
+
+msgid "_Tools"
+msgstr "_Unelte"
+
+msgid "_View"
+msgstr "_Vizualizare"
+
+# msgid "cm"
+# msgstr ""
+
+msgid "page(s) tall"
+msgstr "de pagini în înălţime"
+
+msgid "page(s) wide"
+msgstr "de pagini în lăţime"
+
+msgid "Please select cell to edit..."
+msgstr "Vă rog selectaţi o celulă pt. editat..."
+
+msgid "Failed to open file \"%s\"!"
+msgstr "Eşec deschizând fişierul \"%s\"!"
+
+msgid "Device Voltage:"
+msgstr "Tensiunea dispozitivului:"
+
+msgid "Temperature:"
+msgstr "Temperatura:"
+
+msgid "Electron Lifetime:"
+msgstr "Longevitatea electronului:"
+
+msgid "Input Cell Current:"
+msgstr "Curentul celulei input:"

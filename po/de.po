@@ -1,0 +1,649 @@
+# Contributed by Gabriel Schulhof with much help from Björn Michaelsen
+
+msgid "1 nm is"
+msgstr "1 nm ist"
+
+msgid "About QCADesigner"
+msgstr "QCADesigner Info"
+
+msgid "About..."
+msgstr "Info..."
+
+msgid "Add Cell Array"
+msgstr "Zellreihe zufügen"
+
+msgid "Add Cell To Design"
+msgstr "Zelle zum Design zufügen"
+
+msgid "Add Type 2 Cell To Design"
+msgstr "Zelle 2. Types zum Design zufügen"
+
+msgid "Add Vector"
+msgstr "Vektor zufügen"
+
+msgid "Add horizontal or vertical arrays of Type 1 or Type 2 cells to your design."
+msgstr "Fügen Sie horizontale oder vertikale Zellreihen 1. oder 2. Types zum Design."
+
+msgid "Animate Test Simulation"
+msgstr "Testsimulation animieren"
+
+msgid "Animate"
+msgstr "Animieren"
+
+msgid "Array"
+msgstr "Reihe"
+
+msgid "Arrow Properties"
+msgstr "Pfeileinstellungen"
+
+msgid "Assign Destination To Selection..."
+msgstr "Zielrechnernamen für die Auswahl festsetzen..."
+
+# msgid "Bistable Options"
+# msgstr ""
+
+msgid "Bottom Margin:"
+msgstr "Unterer Rand:"
+
+# msgid "Bring various parts of the design into view by dragging visible parts of the design out of view."
+# msgstr ""
+
+msgid "Browse..."
+msgstr "Datei auswählen..."
+
+# msgid "Calculate Ground State"
+# msgstr ""
+
+msgid "Calculates and sets the magnification such that the currently topmost layer fits inside the window."
+msgstr "Berechnet und setzr die Vergrösserung so dass die zur Zeit <topmost> Schicht"
+
+msgid "Calculates and sets the magnification such that your design fits inside the window."
+msgstr "Berechnet und setzt die Vergrösserung so dass ihr Design ins Fenster passt."
+
+msgid "Cell Function"
+msgstr "Zellfunktion"
+
+msgid "Cell Functions..."
+msgstr "Zellfunktionen..."
+
+msgid "Cell Height [nm]:"
+msgstr "Zellhöhe [nm]:"
+
+msgid "Cell Label:"
+msgstr "Zellbeschriftung:"
+
+msgid "Cell Width [nm]:"
+msgstr "Zellbreite [nm]:"
+
+msgid "Cell"
+msgstr "Zelle"
+
+msgid "Center On Pages"
+msgstr "Auf den Seiten zentrieren"
+
+msgid "Click and drag your selection to its new location."
+msgstr "Klicken Sie und ziehen Sie Ihre Auswahl an ihre neue Position."
+
+msgid "Click here, then click on the design to add Type 2 cells to it."
+msgstr "Klicken Sie hier, dann klicken Sie auf den Design um Zellen 2. Types dazuzufügen."
+
+msgid "Click here, then click on the design to add cells to it."
+msgstr "Klicken Sie hier, dann klicken Sie auf den Design um Zellen dazuzufügen."
+
+msgid "Click on a cell to rotate it (repeatedly)."
+msgstr "Klicken sie auf eine Zelle um sie (mehrmals) zu rotieren"
+
+msgid "Click on this button to delete your selection.  Afterwards, click on individual cells to delete them."
+msgstr "Klicken Sie auf diesen Knopf um Ihre Auswahl zu löschen.  Nachher, klicken Sie auf einzelne Zellen ums sie zu löschen."
+
+msgid "Clock 0"
+msgstr "Takt 0"
+
+msgid "Clock 1"
+msgstr "Takt 1"
+
+msgid "Clock 2"
+msgstr "Takt 2"
+
+msgid "Clock 3"
+msgstr "Takt 3"
+
+msgid "Clock High:"
+msgstr "Takt Spannung (hoch):"
+
+msgid "Clock Low:"
+msgstr "Takt Spannung (niedrig):"
+
+msgid "Clock:"
+msgstr "Takt:"
+
+msgid "Close the project file"
+msgstr "Projektdatei schließen"
+
+msgid "Command Line"
+msgstr "Kommandozeile"
+
+msgid "Command"
+msgstr "Befehl"
+
+msgid "Command:"
+msgstr "Befehl:"
+
+msgid "Common Paper Sizes"
+msgstr "Gebräuchliche Papiergrössen"
+
+msgid "Contents"
+msgstr "Inhalt"
+
+# msgid "Convergence Tolerance:"
+# msgstr ""
+
+msgid "Copy Selection"
+msgstr "Auswahl kopieren"
+
+msgid "Copy"
+msgstr "Kopieren"
+
+msgid "Couldn't find pixmap file: %s"
+msgstr "Konnte Bilddatei %s nicht finden"
+
+msgid "Create Block..."
+msgstr "Erzeuge Block..."
+
+msgid "Create Substrate"
+msgstr "Substrat erzeugen"
+
+msgid "Create a mirrored copy of your selection."
+msgstr "Erzeugen Sie eine Spiegelkopie von ihrer Auswahl."
+
+msgid "Create a new project file"
+msgstr "Eine neue Projektdatei erzeugen"
+
+msgid "Creates a new rectangular substrate."
+msgstr "Erzeugt ein neues rechteckiges Substrat."
+
+# msgid "Creates a polygonal clocking zone."
+# msgstr ""
+
+# msgid "Creates an oval or a circular clocking zone."
+# msgstr ""
+
+msgid "Custom"
+msgstr "Maßgeschneidert"
+
+msgid "Decrease the magnification to get an overall picture."
+msgstr "Verringern Sie die Vergrösserung um das ganze Bild zu sehen."
+
+msgid "Decrease The Magnification"
+msgstr "Vergrösserung verringern"
+
+msgid "Default Cell Properties..."
+msgstr "Standardeinstellungen der Zellen..."
+
+msgid "Default Clock:"
+msgstr "Standardtakt:"
+
+msgid "Delete Cells"
+msgstr "Zellen löschen"
+
+msgid "Delete"
+msgstr "Löschen"
+
+# msgid "Die Height [nm]:"
+# msgstr ""
+
+# msgid "Die Width [nm]:"
+# msgstr ""
+
+msgid "Dimension Properties"
+msgstr "Linealeinstellungen"
+
+msgid "Do Not Center"
+msgstr "Nicht zentrieren"
+
+msgid "Don't save"
+msgstr "Nicht speichern"
+
+# msgid "Dot Diameter [nm]:"
+# msgstr ""
+
+msgid "Draw Arrow"
+msgstr "Pfeil zeichnen"
+
+msgid "Draw Dimensions"
+msgstr "Lineal zeichnen"
+
+msgid "Draw Line"
+msgstr "Linie zeichnen"
+
+msgid "Draw Rectangle"
+msgstr "Rechteck zeichnen"
+
+msgid "Draw Text"
+msgstr "Text zeichnen"
+
+msgid "Enter Grid Spacing [nm]"
+msgstr "Rasterabstand eingeben [nm]"
+
+# msgid "Enter Scale Factor"
+# msgstr ""
+
+msgid "Extents"
+msgstr "Gesamtdesign"
+
+msgid "File Name:"
+msgstr "Dateiname:"
+
+msgid "File"
+msgstr "Datei"
+
+msgid "Fit Design To Window"
+msgstr "Design in das Fenster einpassen"
+
+msgid "Fit Layer To Window"
+msgstr "Layer in das Fenster einpassen"
+
+msgid "Fit"
+msgstr "Einpassen"
+
+msgid "Fixed Polarization"
+msgstr "Festpolarisiert"
+
+msgid "Fixed"
+msgstr "Fest"
+
+msgid "Function"
+msgstr "Funktion"
+
+msgid "Graph Options"
+msgstr "Grafeinstellungen"
+
+msgid "Grid Properties..."
+msgstr "Rastereinstellungen..."
+
+msgid "Grid Spacing [nm]:"
+msgstr "Rasterabstand [nm]:"
+
+msgid "Grid Spacing"
+msgstr "Rasterabstand"
+
+msgid "Grid Spacing:"
+msgstr "Rasterabstand:"
+
+# msgid "Host Name And Port"
+# msgstr "Rechnername und Port"
+
+# msgid "I/O"
+# msgstr ""
+
+# msgid "Import Block..."
+# msgstr ""
+
+msgid "Increase The Magnification"
+msgstr "Vergrösserung erhöhen"
+
+# msgid "Increase the magnification so you may concentrate on specific parts of the design."
+# msgstr ""
+
+# msgid "Increment Cell Clocks"
+# msgstr ""
+
+# msgid "Input"
+# msgstr ""
+
+# msgid "Input/Output"
+# msgstr ""
+
+# msgid "Insert Vector After"
+# msgstr ""
+
+msgid "Layer Properties"
+msgstr "Layereinstellungen"
+
+# msgid "Layer"
+# msgstr ""
+
+# msgid "Layers"
+# msgstr ""
+
+msgid "Left Margin:"
+msgstr "Linker Rand:"
+
+msgid "Line Properties"
+msgstr "Linieneinstellungen"
+
+# msgid "Lists the layers in the current design and allows you to switch between them."
+# msgstr ""
+
+# msgid "Logging Properties"
+# msgstr ""
+
+msgid "Makes a copy of your selection."
+msgstr "Kopiert Ihre Auswahl"
+
+msgid "Margins"
+msgstr "Ränder"
+
+# msgid "Maximum Iterations Per Sample:"
+# msgstr ""
+
+msgid "Measure Distance"
+msgstr "Distanz messen"
+
+msgid "Measurement Preferences"
+msgstr "Messeinstellungen"
+
+msgid "Mirror Selection"
+msgstr "Auswahl spiegeln"
+
+msgid "Mirror"
+msgstr "Spiegeln"
+
+msgid "Modify Cell Function"
+msgstr "Zellfunktion verändern"
+
+msgid "Modify a cell's function (Normal/Input/Output/Fixed)"
+msgstr "Die Funktion einer Zelle verändern (Keine Funktion/Input/Output/Fix)"
+
+msgid "Modify the function of one of the cells (Input/Output/Fixed)."
+msgstr "Die Funktion einer der Zellen verändern (Input/Output/Fix)."
+
+msgid "Move Selection"
+msgstr "Auswahl verschieben"
+
+msgid "Move"
+msgstr "Verschieben"
+
+# msgid "Nonlinear Approximation Properties"
+# msgstr ""
+
+msgid "Normal Cell"
+msgstr "Einfache Zelle"
+
+# msgid "Note: Right-click the vector table for more options."
+# msgstr ""
+
+# msgid "Number Of Samples:"
+# msgstr ""
+
+msgid "Number of Pages"
+msgstr "Anzahl der Seiten"
+
+# msgid "Number of Samples:"
+# msgstr ""
+
+msgid "Open a project file"
+msgstr "Projektdatei öffnen"
+
+msgid "Options"
+msgstr "Optionen"
+
+msgid "Orientation"
+msgstr "Ausrichtung"
+
+# msgid "Output"
+# msgstr ""
+
+# msgid "Oval Clocking Zone"
+# msgstr ""
+
+# msgid "Oval"
+# msgstr ""
+
+msgid "Over, then down"
+msgstr "Hinüber, dann herunter"
+
+# msgid "Pan Design"
+# msgstr ""
+
+# msgid "Pan"
+# msgstr ""
+
+msgid "Paper Height:"
+msgstr "Papierhöhe:"
+
+msgid "Paper Size"
+msgstr "Papiergrösse"
+
+msgid "Paper Width:"
+msgstr "Papierbreite:"
+
+msgid "Pause Simulation"
+msgstr "Simulation anhalten"
+
+# msgid "Please select which traces to plot:"
+# msgstr ""
+
+msgid "Polarization"
+msgstr "Polarisation"
+
+# msgid "Polygon"
+# msgstr ""
+
+# msgid "Polygonal Clocking Zone"
+# msgstr ""
+
+msgid "Preferred Units:"
+msgstr "Bevorzugte Einheiten:"
+
+# msgid "Preview Mode"
+# msgstr ""
+
+# msgid "Preview the print layout"
+# msgstr ""
+
+msgid "Print Order"
+msgstr "Druckrichtung"
+
+msgid "Print To"
+msgstr "Drucke nach"
+
+msgid "Printer Setup"
+msgstr "Druckereinstellungen"
+
+msgid "Printer"
+msgstr "Drucker"
+
+msgid "Project Properties..."
+msgstr "Projekteinstellungen..."
+
+msgid "Quit QCADesigner"
+msgstr "QCADesigner Beenden"
+
+msgid "Radius of Effect [nm]:"
+msgstr "Effektradius [nm]:"
+
+# msgid "Random Fault Setup..."
+# msgstr ""
+
+msgid "Recent Files"
+msgstr "Zuletzt geöffnete Dateien"
+
+msgid "Rectangle Properties"
+msgstr "Rechteckeinstellungen"
+
+# msgid "Relative Permittivity:"
+# msgstr ""
+
+msgid "Remove Vector"
+msgstr "Vektor entfernen"
+
+msgid "Reset Simulation"
+msgstr "Simulation rückstellen"
+
+msgid "Reset"
+msgstr "Rückstellen"
+
+msgid "Right Margin:"
+msgstr "Rechter Rand:"
+
+msgid "Rotate Cell"
+msgstr "Zelle rotieren"
+
+msgid "Rotate Selection"
+msgstr "Auswahl rotieren"
+
+msgid "Rotate"
+msgstr "Rotieren"
+
+msgid "Save Output To File"
+msgstr "Output zur Datei speichern"
+
+msgid "Save current project"
+msgstr "Aktuelles Projekt speichern"
+
+msgid "Save project file as ..."
+msgstr "Projekt speichern unter..."
+
+msgid "Scale All Cells In Design..."
+msgstr "Alle Zellen im Design maßstäblich vergrössern/verkleinern..."
+
+msgid "Scale Factor:"
+msgstr "Maßstabfaktor:"
+
+msgid "Scale"
+msgstr "Maßstab"
+
+msgid "Search"
+msgstr "Suchen"
+
+# msgid "Select And Manipulate Design"
+# msgstr ""
+
+msgid "Select Clock..."
+msgstr "Takt auswählen..."
+
+msgid "Select File"
+msgstr "Datei auswählen"
+
+msgid "Select the clock"
+msgstr "Wählen Sie den Takt aus"
+
+msgid "Select"
+msgstr "Auswählen"
+
+msgid "Show Grid"
+msgstr "Raster anzeigen"
+
+# msgid "Show Toolbar Icons"
+# msgstr ""
+
+msgid "Show project properties"
+msgstr "Projekteinstellungen zeigen"
+
+# msgid "Simulation Engine Setup..."
+# msgstr ""
+
+msgid "Simulation Results"
+msgstr "Simulatioinsresultate"
+
+msgid "Simulation Type Setup..."
+msgstr "Einstellungen des Simulationstyps..."
+
+# msgid "Snap Properties..."
+# msgstr ""
+
+msgid "Snap To Grid"
+msgstr "Einrasten"
+
+# msgid "Split Current QCA Options"
+# msgstr ""
+
+msgid "Start Simulation"
+msgstr "Simulation beginnen"
+
+msgid "Stop Simulation"
+msgstr "Simulation beenden"
+
+msgid "Substrate"
+msgstr "Substrat"
+
+msgid "Text Properties"
+msgstr "Texteinstellungen"
+
+msgid "This button allows you to manipulate your design."
+msgstr "Dieser Knopf erlaubt es Ihnen Ihren Design zu manipulieren."
+
+msgid "Top Margin:"
+msgstr "Oberer Rand:"
+
+msgid "Type 1"
+msgstr "1. Typ"
+
+msgid "Type 2"
+msgstr "2. Typ"
+
+msgid "Untitled"
+msgstr "Namenlos"
+
+msgid "Vector Table Operations"
+msgstr "Vektortabellenbetätigungen"
+
+msgid "Vector Table Setup"
+msgstr "Einstellungen der Vektortabelle"
+
+msgid "Window Properties"
+msgstr "Fenstereinstellungen"
+
+# msgid "Zoom Die"
+# msgstr ""
+
+msgid "Zoom Extents"
+msgstr "Auf Gesamptdesign zoomen"
+
+msgid "Zoom In"
+msgstr "Heranzoomen"
+
+msgid "Zoom Layer Extents"
+msgstr "Auf Layer zoomen"
+
+msgid "Zoom Out"
+msgstr "Wegzoomen"
+
+msgid "_Draw"
+msgstr "_Zeichnen"
+
+msgid "_Edit"
+msgstr "_Bearbeiten"
+
+msgid "_File"
+msgstr "_Datei"
+
+msgid "_Help"
+msgstr "_Hilfe"
+
+# msgid "_Simulation"
+# msgstr ""
+
+msgid "_Tools"
+msgstr "_Werkzeuge"
+
+msgid "_View"
+msgstr "_Ansicht"
+
+# msgid "cm"
+# msgstr ""
+
+msgid "page(s) tall"
+msgstr "Seite(n) hoch"
+
+msgid "page(s) wide"
+msgstr "Seite(n) breit"
+
+msgid "Please select cell to edit..."
+msgstr "Bitte wählen Sie eine Zelle zum bearbeiten..."
+
+msgid "Failed to open file \"%s\"!"
+msgstr "Konnte Datei \"%s\" nicht öffnen!"
+
+msgid "Device Voltage:"
+msgstr "Einrichtungsspannung:"
+
+msgid "Temperature:"
+msgstr "Temperatur:"
+
+msgid "Electron Lifetime:"
+msgstr "Lebensdauer des Elektrons:"
+
+msgid "Input Cell Current:"
+msgstr "Input Zellstrom:"

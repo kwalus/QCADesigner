@@ -1,0 +1,649 @@
+msgid "1 nm is"
+msgstr "1 nm az"
+
+msgid "About QCADesigner"
+msgstr "QCADesigner névjegye"
+
+msgid "About..."
+msgstr "Névjegy..."
+
+msgid "Add Cell Array"
+msgstr "Cella sor hozzáadás"
+
+msgid "Add Cell To Design"
+msgstr "Tervhez cella hozzáadás"
+
+msgid "Add Type 2 Cell To Design"
+msgstr "Tervhez 2. tipusu cella hozzáadás"
+
+# msgid "Add Vector"
+# msgstr ""
+
+# msgid "Add horizontal or vertical arrays of Type 1 or Type 2 cells to your design."
+# msgstr ""
+
+# msgid "Animate Test Simulation"
+# msgstr ""
+
+# msgid "Animate"
+# msgstr ""
+
+msgid "Array"
+msgstr "Sor"
+
+msgid "Arrow Properties"
+msgstr "Nyílbeállítások"
+
+# msgid "Assign Destination To Selection..."
+# msgstr ""
+
+# msgid "Bistable Options"
+# msgstr ""
+
+msgid "Bottom Margin:"
+msgstr "Alsó Margó:"
+
+# msgid "Bring various parts of the design into view by dragging visible parts of the design out of view."
+# msgstr ""
+
+msgid "Browse..."
+msgstr "Tallózás..."
+
+# msgid "Calculate Ground State"
+# msgstr ""
+
+# msgid "Calculates and sets the magnification such that the currently topmost layer fits inside the window."
+# msgstr ""
+
+# msgid "Calculates and sets the magnification such that your design fits inside the window."
+# msgstr ""
+
+msgid "Cell Function"
+msgstr "Cellafunkció"
+
+msgid "Cell Functions..."
+msgstr "Cellafunkciók..."
+
+msgid "Cell Height [nm]:"
+msgstr "Cellamagasság [nm]:"
+
+msgid "Cell Label:"
+msgstr "Cellafelirat:"
+
+msgid "Cell Width [nm]:"
+msgstr "Cellaszélesség [nm]:"
+
+msgid "Cell"
+msgstr "Cella"
+
+# msgid "Center On Pages"
+# msgstr ""
+
+# msgid "Click and drag your selection to its new location."
+# msgstr ""
+
+# msgid "Click here, then click on the design to add Type 2 cells to it."
+# msgstr ""
+
+# msgid "Click here, then click on the design to add cells to it."
+# msgstr ""
+
+# msgid "Click on a cell to rotate it (repeatedly)."
+# msgstr ""
+
+# msgid "Click on this button to delete your selection.  Afterwards, click on individual cells to delete them."
+# msgstr ""
+
+msgid "Clock 0"
+msgstr "0 Órajel"
+
+msgid "Clock 1"
+msgstr "1 Órajel"
+
+msgid "Clock 2"
+msgstr "2 Órajel"
+
+msgid "Clock 3"
+msgstr "3 Órajel"
+
+msgid "Clock High:"
+msgstr "Órajelfeszültség (magas):"
+
+msgid "Clock Low:"
+msgstr "Órajelfeszültség (alacsony):"
+
+msgid "Clock:"
+msgstr "Órajel:"
+
+msgid "Close the project file"
+msgstr "Projekt fájl bezárása"
+
+# msgid "Command Line"
+# msgstr ""
+
+msgid "Command"
+msgstr "Parancs"
+
+msgid "Command:"
+msgstr "Parancs:"
+
+msgid "Common Paper Sizes"
+msgstr "Gyakori Papírnagyságok"
+
+msgid "Contents"
+msgstr "Tartalom"
+
+# msgid "Convergence Tolerance:"
+# msgstr ""
+
+msgid "Copy Selection"
+msgstr "Választást másolni"
+
+msgid "Copy"
+msgstr "Másolás"
+
+msgid "Couldn't find pixmap file: %s"
+msgstr "Nem találom a %s nevü pixmap fájlt"
+
+# msgid "Create Block..."
+# msgstr ""
+
+# msgid "Create Substrate"
+# msgstr ""
+
+msgid "Create a mirrored copy of your selection."
+msgstr "A választásbol tükrözött másolatot építeni."
+
+# msgid "Create a new project file"
+# msgstr ""
+
+# msgid "Creates a new rectangular substrate."
+# msgstr ""
+
+# msgid "Creates a polygonal clocking zone."
+# msgstr ""
+
+# msgid "Creates an oval or a circular clocking zone."
+# msgstr ""
+
+# msgid "Custom"
+# msgstr ""
+
+# msgid "Decrease the magnification to get an overall picture."
+# msgstr ""
+
+msgid "Decrease The Magnification"
+msgstr "Nagyítást csökkenteni"
+
+msgid "Default Cell Properties..."
+msgstr "Cella Alapbeállítások..."
+
+msgid "Default Clock:"
+msgstr "Alapórajel:"
+
+msgid "Delete Cells"
+msgstr "Cellatörlés"
+
+msgid "Delete"
+msgstr "Törlés"
+
+# msgid "Die Height [nm]:"
+# msgstr ""
+
+# msgid "Die Width [nm]:"
+# msgstr ""
+
+# msgid "Dimension Properties"
+# msgstr ""
+
+msgid "Do Not Center"
+msgstr ""
+
+msgid "Don't save"
+msgstr "Nem menteni"
+
+# msgid "Dot Diameter [nm]:"
+# msgstr ""
+
+msgid "Draw Arrow"
+msgstr "Rajzolás - Nyíl"
+
+msgid "Draw Dimensions"
+msgstr "Rajzolás - Vonalzó"
+
+msgid "Draw Line"
+msgstr "Rajzolás - Vonal"
+
+msgid "Draw Rectangle"
+msgstr "Rajzolás - Négyszög"
+
+msgid "Draw Text"
+msgstr "Rajzolás - Szöveg"
+
+msgid "Enter Grid Spacing [nm]"
+msgstr "Rácstávolságot megadni [nm]"
+
+# msgid "Enter Scale Factor"
+# msgstr ""
+
+# msgid "Extents"
+# msgstr ""
+
+msgid "File Name:"
+msgstr "Fájl neve:"
+
+msgid "File"
+msgstr "Fájl"
+
+msgid "Fit Design To Window"
+msgstr "Ablakot tervel kitölteni"
+
+msgid "Fit Layer To Window"
+msgstr "Ablakot réteggel kitölteni"
+
+msgid "Fit"
+msgstr "Kitölteni"
+
+# msgid "Fixed Polarization"
+# msgstr ""
+
+msgid "Fixed"
+msgstr "Fix"
+
+msgid "Function"
+msgstr "Fukció"
+
+msgid "Graph Options"
+msgstr "Grafikon Beállítások"
+
+msgid "Grid Properties..."
+msgstr "Rácsbeállítás..."
+
+msgid "Grid Spacing [nm]:"
+msgstr "Rácstávolság [nm]:"
+
+msgid "Grid Spacing"
+msgstr "Rácstávolság"
+
+msgid "Grid Spacing:"
+msgstr "Rácstávolság:"
+
+msgid "Host Name And Port"
+msgstr "Host-cím es port"
+
+# msgid "I/O"
+# msgstr ""
+
+# msgid "Import Block..."
+# msgstr ""
+
+msgid "Increase The Magnification"
+msgstr "Nagyítást növelni"
+
+msgid "Increase the magnification so you may concentrate on specific parts of the design."
+msgstr "Nagyítást növelni hogy a terv bizonyos részeire lehessen koncentrálni."
+
+msgid "Increment Cell Clocks"
+msgstr "Cellák Orajelének Növelése"
+
+# msgid "Input"
+# msgstr ""
+
+# msgid "Input/Output"
+# msgstr ""
+
+# msgid "Insert Vector After"
+# msgstr ""
+
+# msgid "Layer Properties"
+# msgstr ""
+
+# msgid "Layer"
+# msgstr ""
+
+# msgid "Layers"
+# msgstr ""
+
+msgid "Left Margin:"
+msgstr "Bal Margó:"
+
+msgid "Line Properties"
+msgstr "Vonal beállítások"
+
+msgid "Lists the layers in the current design and allows you to switch between them."
+msgstr "Felsorolja a <layer>okat "
+
+# msgid "Logging Properties"
+# msgstr ""
+
+msgid "Makes a copy of your selection."
+msgstr "Másolja a választást."
+
+msgid "Margins"
+msgstr "Margók"
+
+# msgid "Maximum Iterations Per Sample:"
+# msgstr ""
+
+msgid "Measure Distance"
+msgstr "Távolságmérő"
+
+msgid "Measurement Preferences"
+msgstr "Mérés Beállítások"
+
+msgid "Mirror Selection"
+msgstr "Választástükrözés"
+
+msgid "Mirror"
+msgstr "Tükrözés"
+
+msgid "Modify Cell Function"
+msgstr "Cellafunkciómódosítás"
+
+msgid "Modify a cell's function (Normal/Input/Output/Fixed)"
+msgstr "Egy cellának a funkcióját módosítani (Egszerü/Input/Output/Fix)"
+
+msgid "Modify the function of one of the cells (Input/Output/Fixed)."
+msgstr "Bizonyos cellának a funkcióját módosítani (Input/Output/Fix)."
+
+msgid "Move Selection"
+msgstr "Választásmozdítás"
+
+msgid "Move"
+msgstr "Mozdítás"
+
+# msgid "Nonlinear Approximation Properties"
+# msgstr ""
+
+msgid "Normal Cell"
+msgstr "Egyszerü cella"
+
+# msgid "Note: Right-click the vector table for more options."
+# msgstr ""
+
+# msgid "Number Of Samples:"
+# msgstr ""
+
+msgid "Number of Pages"
+msgstr "Lapok száma"
+
+# msgid "Number of Samples:"
+# msgstr ""
+
+msgid "Open a project file"
+msgstr "Projekt fájl megnyitása"
+
+msgid "Options"
+msgstr "Beállítások"
+
+# Portrait -> Álló
+# Landscape -> Fekvő
+msgid "Orientation"
+msgstr "Tájolás"
+
+# msgid "Output"
+# msgstr ""
+
+# msgid "Oval Clocking Zone"
+# msgstr ""
+
+msgid "Oval"
+msgstr "Ovális"
+
+msgid "Over, then down"
+msgstr "Oldalra, azután lefele"
+
+# msgid "Pan Design"
+# msgstr ""
+
+# msgid "Pan"
+# msgstr ""
+
+msgid "Paper Height:"
+msgstr "Papír magassága:"
+
+msgid "Paper Size"
+msgstr "Papír nagysága"
+
+msgid "Paper Width:"
+msgstr "Papír Szélessége:"
+
+msgid "Pause Simulation"
+msgstr "Szimuláció Felfüggesztése"
+
+# msgid "Please select which traces to plot:"
+# msgstr ""
+
+# msgid "Polarization"
+# msgstr ""
+
+msgid "Polygon"
+msgstr "Sokszög"
+
+msgid "Polygonal Clocking Zone"
+msgstr "Sokszögü órajel zóna"
+
+msgid "Preferred Units:"
+msgstr "Kedvenc egységek:"
+
+# msgid "Preview Mode"
+# msgstr ""
+
+# msgid "Preview the print layout"
+# msgstr ""
+
+msgid "Print Order"
+msgstr "Nyomtatási sorrend"
+
+# msgid "Print To"
+# msgstr ""
+
+msgid "Printer Setup"
+msgstr "Nyomtató beállítás"
+
+msgid "Printer"
+msgstr "Nyomtató"
+
+msgid "Project Properties..."
+msgstr "Projekt beállítások..."
+
+msgid "Quit QCADesigner"
+msgstr "QCADesigner kilépése"
+
+msgid "Radius of Effect [nm]:"
+msgstr "Hatássugár [nm]:"
+
+# msgid "Random Fault Setup..."
+# msgstr ""
+
+msgid "Recent Files"
+msgstr "Legutobbi fájlok"
+
+msgid "Rectangle Properties"
+msgstr "Négyszög beállítások"
+
+# msgid "Relative Permittivity:"
+# msgstr ""
+
+# msgid "Remove Vector"
+# msgstr ""
+
+msgid "Reset Simulation"
+msgstr "Szimuláció ujraindítása"
+
+msgid "Reset"
+msgstr "Ujraindítás"
+
+msgid "Right Margin:"
+msgstr "Jobb Margó:"
+
+msgid "Rotate Cell"
+msgstr "Cella forgatás"
+
+msgid "Rotate Selection"
+msgstr "Választás forgatás"
+
+msgid "Rotate"
+msgstr "Forgatás"
+
+# msgid "Save Output To File"
+# msgstr ""
+
+msgid "Save current project"
+msgstr "Jelenlegi projekt-et menteni"
+
+msgid "Save project file as ..."
+msgstr "Projekt fájl mentés másként..."
+
+msgid "Scale All Cells In Design..."
+msgstr "Terv összes celláit átméretezni..."
+
+msgid "Scale Factor:"
+msgstr "Méretarány:"
+
+msgid "Scale"
+msgstr "Átméretez"
+
+msgid "Search"
+msgstr "Keresés"
+
+msgid "Select And Manipulate Design"
+msgstr "Tervnek Választása es Manipulálása"
+
+msgid "Select Clock..."
+msgstr "Orajel választás"
+
+msgid "Select File"
+msgstr "Fájlválasztás"
+
+msgid "Select the clock"
+msgstr "Orajel választás"
+
+msgid "Select"
+msgstr "Választás"
+
+msgid "Show Grid"
+msgstr "Rács megjelenítése"
+
+# msgid "Show Toolbar Icons"
+# msgstr ""
+
+msgid "Show project properties"
+msgstr "Projekt beállítások megjelenítése"
+
+msgid "Simulation Engine Setup..."
+msgstr "Szimuláció algoritmus beállítása..."
+
+msgid "Simulation Results"
+msgstr "Szimuláció eredmények"
+
+msgid "Simulation Type Setup..."
+msgstr "Szimuláció tipus beállítása"
+
+# msgid "Snap Properties..."
+# msgstr ""
+
+msgid "Snap To Grid"
+msgstr "Rácshoz kötni"
+
+# msgid "Split Current QCA Options"
+# msgstr ""
+
+msgid "Start Simulation"
+msgstr "Szimuláció Indítása"
+
+msgid "Stop Simulation"
+msgstr "Szimuláció Leállítása"
+
+# msgid "Substrate"
+# msgstr ""
+
+msgid "Text Properties"
+msgstr "Szöveg beállítása"
+
+msgid "This button allows you to manipulate your design."
+msgstr "Ezáltal a gomb által a tervet manipulálni"
+
+msgid "Top Margin:"
+msgstr "Felső Margó:"
+
+msgid "Type 1"
+msgstr "1. Tipus"
+
+msgid "Type 2"
+msgstr "2. Tipus"
+
+msgid "Untitled"
+msgstr "Névtelen"
+
+# msgid "Vector Table Operations"
+# msgstr ""
+
+# msgid "Vector Table Setup"
+# msgstr ""
+
+# msgid "Window Properties"
+# msgstr ""
+
+# msgid "Zoom Die"
+# msgstr ""
+
+# msgid "Zoom Extents"
+# msgstr ""
+
+msgid "Zoom In"
+msgstr "Nagyítás"
+
+# msgid "Zoom Layer Extents"
+# msgstr ""
+
+msgid "Zoom Out"
+msgstr "Kicsinyítés"
+
+msgid "_Draw"
+msgstr "_Rajzolás"
+
+msgid "_Edit"
+msgstr "S_zerkesztés"
+
+msgid "_File"
+msgstr "_Fájl"
+
+msgid "_Help"
+msgstr "_Súgó"
+
+msgid "_Simulation"
+msgstr "Szi_muláció"
+
+msgid "_Tools"
+msgstr "_Eszközök"
+
+msgid "_View"
+msgstr "_Nézet"
+
+# msgid "cm"
+# msgstr ""
+
+msgid "page(s) tall"
+msgstr "lap magas"
+
+msgid "page(s) wide"
+msgstr "lap széles"
+
+msgid "Please select cell to edit..."
+msgstr ""
+
+msgid "Failed to open file \"%s\"!"
+msgstr "Nem sikerült ki nyitni a \"%s\" címü fájlt!"
+
+msgid "Device Voltage:"
+msgstr "Készülék feszültség:"
+
+msgid "Temperature:"
+msgstr "Hőmérséglet:"
+
+msgid "Electron Lifetime:"
+msgstr "Elektron élettartama:"
+
+msgid "Input Cell Current:"
+msgstr "Input cella áram:"

@@ -1,0 +1,6 @@
+
+[executer]
+RunInTerminal=true
+
+[Project DBase]
+ShowLocals=true

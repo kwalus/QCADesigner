@@ -456,8 +456,8 @@ msgstr "Hatássugár [nm]:"
 # msgid "Random Fault Setup..."
 # msgstr ""
 
-msgid "Recent Files"
-msgstr "Legutobbi fájlok"
+msgid "_Recent Files"
+msgstr "_Legutobbi fájlok"
 
 msgid "Rectangle Properties"
 msgstr "Négyszög beállítások"

@@ -13,6 +13,12 @@
 
 #define DBG_FIOH(s)
 
+typedef struct
+  {
+  char *pszCmdLine ;
+  char *pszTmpFName ;
+  } RUN_CMD_LINE_ASYNC_THREAD_PARAMS ;
+
 static gpointer RunCmdLineAsyncThread (gpointer p) ;
 
 /* Keep a buffer to hold a line of string, stripping comments. Return the buffer */
@@ -55,17 +61,21 @@ char *base_name (char *pszFile)
   return pszFile ;
   }
 
-void RunCmdLineAsync (char *pszCmdLine)
+void RunCmdLineAsync (char *pszCmdLine, char *pszTmpFName)
   {
-  char *pszCmdLineCopy = g_strdup (pszCmdLine) ;
+  RUN_CMD_LINE_ASYNC_THREAD_PARAMS *prclap = g_malloc0 (sizeof (RUN_CMD_LINE_ASYNC_THREAD_PARAMS)) ;
+
+  prclap->pszCmdLine = g_strdup (pszCmdLine) ;
+  prclap->pszTmpFName = (NULL == pszTmpFName ? NULL : g_strdup (pszTmpFName)) ;
+
   if (!g_thread_supported ()) g_thread_init (NULL) ;
 
-  g_thread_create ((GThreadFunc)RunCmdLineAsyncThread, (gpointer)pszCmdLineCopy, FALSE, NULL) ;
+  g_thread_create ((GThreadFunc)RunCmdLineAsyncThread, (gpointer)prclap, FALSE, NULL) ;
   }
 
 static gpointer RunCmdLineAsyncThread (gpointer p)
   {
-  char *pszCmdLine = (char *)p ;
+  RUN_CMD_LINE_ASYNC_THREAD_PARAMS *prclap = (RUN_CMD_LINE_ASYNC_THREAD_PARAMS *)p ;
 #ifdef WIN32
   STARTUPINFO si ;
   PROCESS_INFORMATION pi ;
@@ -74,7 +84,7 @@ static gpointer RunCmdLineAsyncThread (gpointer p)
   memset (&pi, 0, sizeof (pi)) ;
   si.cb = sizeof (STARTUPINFO) ;
 
-  if (CreateProcess (NULL, pszCmdLine, NULL, NULL, FALSE, DETACHED_PROCESS,
+  if (CreateProcess (NULL, prclap->pszCmdLine, NULL, NULL, FALSE, DETACHED_PROCESS,
     NULL, NULL, &si, &pi))
     {
     WaitForSingleObject (pi.hProcess, INFINITE) ;
@@ -84,7 +94,13 @@ static gpointer RunCmdLineAsyncThread (gpointer p)
 #else
   system (pszCmdLine) ;
 #endif
-  g_free (pszCmdLine) ;
+  g_free (prclap->pszCmdLine) ;
+  if (NULL != prclap->pszTmpFName)
+    {
+    unlink (prclap->pszTmpFName) ;
+    g_free (prclap->pszTmpFName) ;
+    }
+  g_free (prclap) ;
 
   return NULL ;
   }

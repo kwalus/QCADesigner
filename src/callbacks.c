@@ -145,7 +145,6 @@ static gboolean redraw_async_cb (GtkWidget *widget) ;
 void redraw_async (GtkWidget *widget) ;
 static gboolean bHaveIdler = FALSE ;
 static void change_cursor (GtkWidget *widget, GdkCursor *new_cursor) ;
-static void ChildPreRun (gpointer p) ;
 
 void main_window_show (GtkWidget *widget, gpointer data)
   {
@@ -814,7 +813,7 @@ pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner-%s%cmanual%cindex.html", 
 
 // fprintf (stderr, "Proceeding with command line |%s|\n", pszCmdLine) ;
 
-RunCmdLineAsync (pszCmdLine) ;
+RunCmdLineAsync (pszCmdLine, NULL) ;
 
 g_free (pszCmdLine) ;
 }
@@ -1403,5 +1402,3 @@ static void change_cursor (GtkWidget *widget, GdkCursor *new_cursor)
 
   g_object_set_data (G_OBJECT (widget), "old_cursor", new_cursor) ;
   }
-
-static void ChildPreRun (gpointer p){}

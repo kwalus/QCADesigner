@@ -93,10 +93,11 @@ void create_about_dialog (about_D *about_dialog){
 	gtk_box_pack_start (GTK_BOX (about_dialog->vbox1), about_dialog->pixmap1, TRUE, TRUE, 0);
 	
 	about_dialog->about_label = gtk_label_new (_(
-"QCADesigner (c) 2002 Version 1.20\nProtected by Copright 2002 K. Walus\n"
+"QCADesigner (c) 2002 Version 1.30\nProtected by Copright 2002 K. Walus\n"
 "Contributers:\n"
 "G. Schulhof, T. Dysart, A. Vetteth\n"
 "J. Eskritt, G.A. Jullien, V.S. Dimitrov\n"
+"D. Antonelli\n"
 "Download Free Version of QCADesigner from\n"
 "http://www.atips.ca/projects/qcadesigner/"));
 	gtk_widget_ref (about_dialog->about_label);

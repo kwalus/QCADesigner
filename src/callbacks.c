@@ -101,6 +101,8 @@ static float max_response_shift = 0.0;
 //!Probability that a design cell will be affected by the random response function shift.
 static float affected_cell_probability = 0.0;
 
+static int current_button = 0 ;
+
 //!Has the design been altered ?
 static gboolean bDesignAltered = FALSE ;
 
@@ -157,6 +159,8 @@ gboolean motion_notify_event(GtkWidget * widget, GdkEventMotion * event, gpointe
 		
 		// get the current mouse position variables and its state ie which buttons are pressed //
 		gdk_window_get_pointer(event->window, &x, &y, &state);
+		
+		if (1 == current_button) {
 	
 		// switch acording to the current selected action //
 		switch (selected_action) {
@@ -384,7 +388,45 @@ gboolean motion_notify_event(GtkWidget * widget, GdkEventMotion * event, gpointe
 	
 			redraw_contents(0, 0);
 		}
-
+		} // if (1 == current_button)
+		else if (2 == current_button)
+			{
+			// In order to speed up redrawing I do not redraw the entire background //
+			// Instead i draw a black rectangle over where the previous window was then redraw the contents of the design //
+			// with a new white window in the current mouse position //
+			gdk_draw_rectangle(widget->window, widget->style->black_gc,
+					   FALSE, prev_window_top_x, prev_window_top_y,
+					   window_width, window_height);
+	
+			// Determine the true top coords, because the user could have stretched the window upward not downward.
+			if (x < window_top_x) {
+			top_x = x;
+			x = window_top_x;
+			} else {
+			top_x = window_top_x;
+			}
+	
+			if (y < window_top_y) {
+			top_y = y;
+			y = window_top_y;
+	
+			} else {
+			top_y = window_top_y;
+			}
+	
+			// record the window parameters that the black window can be drawn next iteration.
+			prev_window_top_x = top_x;
+			prev_window_top_y = top_y;
+			window_width = x - top_x;
+			window_height = y - top_y;
+	
+			// Draw the white selection window
+			gdk_draw_rectangle(widget->window, widget->style->white_gc,
+					   FALSE, top_x, top_y, window_width,
+					   window_height);
+	
+			redraw_contents(0, 0);
+			} // if (2 == current_button)
     }				//if listen_motion
 
     // Pass this motion event onto the two rulers
@@ -407,6 +449,7 @@ gboolean button_release_event(GtkWidget * widget, GdkEventButton * event, gpoint
     float offset_y;
     int i, j;
 
+ current_button = 0;
     if (event->button == 1) {
       switch (selected_action)
         {
@@ -626,7 +669,7 @@ gboolean button_press_event(GtkWidget * widget, GdkEventButton * event, gpointer
     float offset_y;
     qcell cell;
     qcell *cellp;
-
+		current_button = event->button ;
     if (event->button == 1) {
 	switch (selected_action) {
 

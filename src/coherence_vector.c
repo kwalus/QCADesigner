@@ -26,7 +26,7 @@
 #include "cad.h"
 
 //!Options for the bistable simulation engine
-coherence_OP coherence_options = {300, 6.5828e-14, 1e-15, 1e-13, 100e-3 * 1.602e-19, 40e-3 * 1.602e-19, 60, 12.9, FALSE} ;
+coherence_OP coherence_options = {300, 1.34344e-11, 1e-14, 6.71719e-11, 41e-5 * 1.602e-19, 40e-5 * 1.602e-19, 60, 12.9, FALSE} ;
 
 typedef struct{
 	int number_of_neighbours;
@@ -232,6 +232,22 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	cell = first_cell;
 	
 	printf("Ek = %e Clock Low = %e \n", ((coherence_model *)cell->cell_model)->Ek[0]/(1.602e-19), options->clock_low/(1.602e-19));
+	
+	// -- Set the inital input values so that the steady state vector can be calculated correctly -- //
+	for (i = 0; i < total_number_of_inputs; i++){
+
+	      	if(SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION){
+				// Allways evaluates to this for exhaustive //
+				input = -1;
+			}
+			
+			else if(SIMULATION_TYPE == VECTOR_TABLE)
+		  		input = pvt->vectors[0][i] ? 1 : -1 ;
+
+	      		// -- set the inputs cells with the input data -- //
+	      		gqcell_set_polarization (input_cells[i], input);
+	      		sim_data->trace[i].data[j] = input;
+		}
 	
 	
 	while (cell != NULL){

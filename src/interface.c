@@ -517,6 +517,7 @@ void create_main_window (main_W *main_window){
     gtk_object_set_data_full (GTK_OBJECT (main_window->main_window), "clock_increment_menu_item", main_window->clock_increment_menu_item, (GtkDestroyNotify) gtk_widget_unref);
     gtk_widget_show (main_window->clock_increment_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->tools_menu_menu), main_window->clock_increment_menu_item);
+	gtk_widget_add_accelerator (main_window->clock_increment_menu_item, "activate", main_window->accel_group, GDK_i, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
 	// create and add the fixed polarization menu item to the tools menu //
     main_window->fixed_polarization = gtk_menu_item_new_with_label (_("Fix Cell Polarization..."));

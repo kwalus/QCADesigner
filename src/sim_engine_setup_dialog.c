@@ -61,6 +61,7 @@ int get_sim_engine (sim_engine_setup_D *dialog) ;
 void create_sim_engine_dialog(sim_engine_setup_D *dialog);
 void on_sim_engine_options_button_clicked(GtkButton *button, gpointer user_data);
 void on_sim_engine_ok_button_clicked(GtkWidget *button,gpointer user_data);
+void engine_toggled (GtkWidget *button,gpointer user_data);
 
 void get_sim_engine_from_user (GtkWindow *parent, int *piSimEng)
   {
@@ -172,15 +173,12 @@ void create_sim_engine_dialog (sim_engine_setup_D *dialog){
   gtk_container_add (GTK_CONTAINER (dialog->hbox1), dialog->sim_engine_cancel_button);
   GTK_WIDGET_SET_FLAGS (dialog->sim_engine_cancel_button, GTK_CAN_DEFAULT);
 
-  gtk_signal_connect (GTK_OBJECT (dialog->sim_engine_options_button), "clicked",
-                      GTK_SIGNAL_FUNC (on_sim_engine_options_button_clicked),
-                      dialog->sim_engine_setup_dialog);
-  gtk_signal_connect (GTK_OBJECT (dialog->sim_engine_ok_button), "clicked",
-                      GTK_SIGNAL_FUNC (on_sim_engine_ok_button_clicked),
-                      dialog->sim_engine_setup_dialog);
-  gtk_signal_connect_object (GTK_OBJECT (dialog->sim_engine_cancel_button), "clicked",
-                      GTK_SIGNAL_FUNC (gtk_widget_hide),
-                      GTK_OBJECT (dialog->sim_engine_setup_dialog));
+  gtk_signal_connect (GTK_OBJECT (dialog->sim_engine_options_button), "clicked", GTK_SIGNAL_FUNC (on_sim_engine_options_button_clicked), dialog->sim_engine_setup_dialog);
+  gtk_signal_connect (GTK_OBJECT (dialog->sim_engine_ok_button), "clicked", GTK_SIGNAL_FUNC (on_sim_engine_ok_button_clicked), dialog->sim_engine_setup_dialog);
+  gtk_signal_connect_object (GTK_OBJECT (dialog->sim_engine_cancel_button), "clicked", GTK_SIGNAL_FUNC (gtk_widget_hide), GTK_OBJECT (dialog->sim_engine_setup_dialog));
+  gtk_signal_connect (GTK_OBJECT (dialog->bistable_radio), "toggled", GTK_SIGNAL_FUNC (engine_toggled), dialog->sim_engine_setup_dialog) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->mean_field_radio), "toggled", GTK_SIGNAL_FUNC (engine_toggled), dialog->sim_engine_setup_dialog) ;
+  gtk_signal_connect (GTK_OBJECT (dialog->digital_radio), "toggled", GTK_SIGNAL_FUNC (engine_toggled), dialog->sim_engine_setup_dialog) ;
 
   // connect the destroy function for when the user clicks the "x" to close the window //
   gtk_signal_connect_object (GTK_OBJECT (dialog->sim_engine_setup_dialog), "delete_event",
@@ -220,4 +218,12 @@ void on_sim_engine_ok_button_clicked(GtkWidget *widget, gpointer user_data)
 
   *(int *)gtk_object_get_data (GTK_OBJECT (user_data), "piSimEng") = get_sim_engine (dialog) ;
   gtk_widget_hide(GTK_WIDGET(sim_engine_setup_dialog.sim_engine_setup_dialog));
+  }
+
+void engine_toggled (GtkWidget *button,gpointer user_data)
+  {
+  sim_engine_setup_D *dialog = NULL ;
+  int iSimEng = get_sim_engine (dialog = (sim_engine_setup_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog")) ;
+  
+  gtk_widget_set_sensitive (dialog->sim_engine_options_button, NONLINEAR_APPROXIMATION == iSimEng || BISTABLE == iSimEng) ;
   }

@@ -1154,8 +1154,7 @@ void file_operations (GtkWidget *widget, gpointer user_data)
       "You have altered your design.  If you open another one, you will lose your changes.  Save first ?") ;
     if (MB_YES == mbb)
       {
-      if (0 == current_file_name[0])
-      	on_save_menu_item_activate (NULL, NULL) ;
+      if (!do_save ()) return ;
       }
     else if (MB_CANCEL == mbb)
       return ;
@@ -1193,14 +1192,8 @@ void file_operations (GtkWidget *widget, gpointer user_data)
 	  break ;
 	
 	case SAVE:
-	  if (create_file(szFName))
-	    {
-	    add_to_recent_files (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
-	    g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
-	    bDesignAltered = FALSE ;
-	    bRedraw = TRUE ;
-	    }
-	  else
+	  g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
+	  if (!do_save ())
 	    message_box (GTK_WINDOW (main_window.main_window), MB_OK, "Error", "Failed to create file %s !", base_name (szFName)) ;
 	  break ;
 	
@@ -1474,7 +1467,9 @@ void on_new_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
       MBButton mbb = message_box (GTK_WINDOW (main_window.main_window), (MBButton)(MB_YES | MB_NO | MB_CANCEL), "Project Modified",
 	"You have altered your design.  If you start a new one, you will lose your changes.  Save first ?") ;
       if (MB_YES == mbb)
-      	on_save_menu_item_activate (NULL, NULL) ;
+      	{
+	if (!do_save ()) return ;
+	}
       else if (MB_CANCEL == mbb)
       	return ;
       }
@@ -1486,15 +1481,9 @@ void on_new_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 }
 
 void on_save_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-    if (0 == current_file_name[0])
-      file_operations (NULL, (gpointer)SAVE) ;
-    else if (create_file(current_file_name))
-      {
-      bDesignAltered = FALSE ;
-      add_to_recent_files (main_window.recent_files_menu, current_file_name, file_operations, (gpointer)OPEN_RECENT) ;
-      }
-}
+  {
+  do_save () ;
+  }
 
 void on_print_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
@@ -1523,7 +1512,9 @@ void on_quit_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
       MBButton mbb = message_box (GTK_WINDOW (main_window.main_window), (MBButton)(MB_YES | MB_NO | MB_CANCEL), "Project Modified",
 	"You have altered your design.  If you exit QCADesigner, you will lose your changes.  Save first ?") ;
       if (MB_YES == mbb)
-      	on_save_menu_item_activate (NULL, NULL) ;
+      	{
+	if (!do_save ()) return ;
+	}
       else if (MB_CANCEL == mbb)
       	return ;
       }
@@ -1733,4 +1724,24 @@ void set_selected_action (int action, int cell_type)
     DELETE_CELL == action) ;
   gtk_signal_handler_unblock_by_func (GTK_OBJECT (main_window.delete_cells_button), on_delete_cells_button_clicked, NULL) ;
   selected_action = action ;
+  }
+
+gboolean do_save ()
+  {
+  char szFName[PATH_LENGTH] = "" ;
+  
+  if (0 == current_file_name[0])
+    get_file_name_from_user (GTK_WINDOW (main_window.main_window), "Save Project As", "Select File", szFName, PATH_LENGTH) ;
+  
+  if (0 == szFName[0]) return FALSE ;
+  
+  if (create_file(szFName))
+    {
+    add_to_recent_files (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
+    g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
+    bDesignAltered = FALSE ;
+    return TRUE ;
+    }
+  
+  return FALSE ;
   }

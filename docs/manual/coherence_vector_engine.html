@@ -56,9 +56,15 @@ End of tree
 <h1>QCADesigner Documentation</h1>
 
 <h2>Coherence Vector Simulation Engine</h2>
-<p>The coherence vector simulation is based on a density matrix approach. It can model dissipative effects as well as perform a time-dependent simulation of the design<a href="#1">[1]</a>. As with the other simulation engines, it assumes that each cell is a simple two-state system. For this two-state system the following Hamiltonian can be constructed<a href="#2">[2]</a>.
+<p>The coherence vector simulation is based on a density matrix approach. It can model dissipative effects as well as perform a time-dependent simulation of the design<a href="#1">[1]</a>. As with the other simulation engines, it assumes that each cell is a simple two-state system. For this two-state system the following Hamiltonian can be constructed<a href="#2">[2]</a>:
 
-<p><center><img src="images/two_state_hamiltonian.png">       (1)</center>
+<p>
+<table border="0" width="100%">
+  <tr>
+  <td width="100%" align="center" valign="middle"><img src="images/two_state_hamiltonian.png"></td>
+  <td>(1)</td>
+  </tr>
+</table>
 
 <p>where <i>E<sup>k</sup><sub>i,j</sub></i> is the kink energy between cell <i>i</i> and <i>j</i>. This kink energy is associated with the energy cost of two cells having opposite polarization. <i>P<sub>j</sub></i> is the polarization of cell <i>j</i>. <i>&gamma;</i> is the tunneling energy of electrons within the cell and is directly connected to the clock; i.e. the clock value is the tunneling energy. The summation is over all cells within an <a href="#radius_of_effect">effective radius</a> of cell <i>i</i>, and can be set prior to the simulation. 
 
@@ -84,13 +90,19 @@ End of tree
 
 <p><center><img src="images/gamma_components.png"></center>
 
-<p>This vector &Gamma; represents the energy environment of the cell, including the effect of neighboring cells. We can evaluate the explicit expression for &Gamma; by substituting in our Hamiltonian. This explicit expression is
+<p>This vector &Gamma; represents the energy environment of the cell, including the effect of neighboring cells. We can evaluate the explicit expression for &Gamma; by substituting it into our Hamiltonian. This explicit expression is
 
 <p><center><img src="images/explicit_gamma.png"></center>
 
 <p>here <i>S</i> is the <a href="#radius_of_effect">effective neighborhood</a> of cell <i>i</i>. The equation of motion for the coherence vector including dissipative effects is
 
-<p><center><img src="images/coherence_equation_motion.png">       (2)</center>
+<p>
+<table border="0" width="100%">
+  <tr>
+  <td width="100%" align="center" valign="middle"><img src="images/coherence_equation_motion.png"></td>
+  <td>(2)</td>
+  </tr>
+</table>
 
 <p>here &tau; is the <a href="#relaxation_time">relaxation time</a>, and is a time constant representing the dissipation of energy into the environment. <i>&lambda;<sub>ss</sub></i> is the steady state coherence vector defined as
 

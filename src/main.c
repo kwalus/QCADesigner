@@ -102,6 +102,8 @@ int main (int argc, char *argv[])
   if (!g_shell_parse_argv (psz, &argc, &argv, &err))
     exit (1) ;
   g_free (psz) ;
+  for (Nix = 0 ; Nix < argc ; Nix++)
+    fprintf (stderr, "argv[%d] = %s\n", Nix, argv[Nix]) ;
 #endif
 
 #ifdef WIN32
@@ -128,10 +130,6 @@ int main (int argc, char *argv[])
 
 	gtk_set_locale ();
 	gtk_init (&argc, &argv);
-
-#ifdef NO_CONSOLE
-  g_strfreev (argv) ;
-#endif
 
   // call all the static initializers from init.h
   QCADesigner_static_init () ;
@@ -209,6 +207,11 @@ int main (int argc, char *argv[])
 	// -- LET'S GO -- //
 	gtk_main ();
 	
+
+#ifdef NO_CONSOLE
+  g_strfreev (argv) ;
+#endif
+
 	// -- Exit -- //
   return 0;
 

@@ -25,8 +25,6 @@
 //static void RunPreviewer (char *pszCmdLine, char *pszFName) ;
 //static gpointer PreviewerThread (gpointer) ;
 
-static void ChildPreRun (gpointer p) ;
-
 void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFunction fcnPrint)
   {
   char *pszPrintString = ppo->pszPrintString ;
@@ -145,5 +143,3 @@ static gpointer PreviewerThread (gpointer p)
   return NULL ;
   }
 */
-
-static void ChildPreRun (gpointer p) {}

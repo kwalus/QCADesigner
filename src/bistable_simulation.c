@@ -51,8 +51,8 @@ static double bistable_determine_Ek(GQCell * cell1, GQCell * cell2, bistable_OP 
 static void bistable_refresh_all_Ek(GQCell *cell, bistable_OP *options);
 static void run_bistable_iteration(int sample_number, int number_of_sorted_cells, GQCell **sorted_cells, bistable_OP *options, simulation_data *sim_data);
 static int compareBistableQCells (const void *p1, const void *p2) ;
-static void randomize_sorted_cells(GQCell **sorted_cells, int number_of_sorted_cells);
-static void flip_sorted_cells(GQCell **sorted_cells, int i, int j);
+//static void randomize_sorted_cells(GQCell **sorted_cells, int number_of_sorted_cells);
+//static void flip_sorted_cells(GQCell **sorted_cells, int i, int j);
 
 //-------------------------------------------------------------------//
 // -- this is the main simulation procedure -- //
@@ -563,7 +563,7 @@ static int compareBistableQCells (const void *p1, const void *p2)
   }//compareSortStructs
 
 //-------------------------------------------------------------------//
-
+/*
 static void randomize_sorted_cells(GQCell **sorted_cells, int number_of_sorted_cells){
 	int i;
 	for(i = 0; i <=number_of_sorted_cells; i++)
@@ -579,3 +579,4 @@ static void flip_sorted_cells(GQCell **sorted_cells, int i, int j){
 	sorted_cells[j] = tempcell;
 
 }
+*/

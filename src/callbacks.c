@@ -812,7 +812,7 @@ pszCmdLine = g_strdup_printf ("%s file://%s%c..%cshare%cdoc%cQCADesigner%cmanual
   G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
 //pszCmdLine = g_strdup_printf ("%s file://..\\share\\doc\\QCADesigner\\manual\\index.html", pszBrowser) ;
 #else
-pszCmdLine = g_strdup_printf ("%s file://%s%cdoc%cQCADesigner%cmanual%cindex.html",
+pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner%cmanual%cindex.html",
   pszBrowser, PACKAGE_DATA_DIR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
 #endif
 

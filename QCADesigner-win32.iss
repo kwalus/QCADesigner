@@ -10,7 +10,7 @@ AppSupportURL=qcadesigner.ca
 AppUpdatesURL=qcadesigner.ca
 DefaultDirName={pf}\QCADesigner
 DefaultGroupName=QCADesigner
-LicenseFile=C:\cygwin\home\Konrad\QCADesigner-distrib\share\QCADesigner\COPYING
+LicenseFile=C:\cygwin\home\nix\QCADesigner-distrib\share\doc\QCADesigner-1.4.0\COPYING
 ChangesAssociations=yes
 
 [Tasks]
@@ -40,9 +40,9 @@ Root: HKCR; SubKey: "QCADesigner.File\shell\Open\command"; Flags: uninsdeletekey
 Root: HKCR; SubKey: "QCADesigner.File\shell\Open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bin\QCADesigner.exe"" ""%1"""
 
 [Files]
-Source: "C:\cygwin\home\Konrad\QCADesigner-distrib\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-;Source: "C:\cygwin\home\Konrad\source\QCADesigner\src\QCADesigner.exe"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "C:\cygwin\home\Konrad\source\QCADesigner\pixmaps\*"; DestDir: "{app}\pixmaps"; Flags: ignoreversion
+Source: "C:\cygwin\home\nix\QCADesigner-distrib\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+;Source: "C:\cygwin\home\nix\source\QCADesigner\src\QCADesigner.exe"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "C:\cygwin\home\nix\source\QCADesigner\pixmaps\*"; DestDir: "{app}\pixmaps"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

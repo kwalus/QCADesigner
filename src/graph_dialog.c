@@ -248,7 +248,7 @@ gboolean daGraphs_expose (GtkWidget *widget, GdkEventExpose *ev, gpointer user_d
   DRAW_PARAMS *pdp = (DRAW_PARAMS *)gtk_object_get_data (GTK_OBJECT (user_data), "pdp") ;
   
   paint_graph_window (dialog->daGraphs, pdp, sim_data,
-    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->btnPreview)), &(ev->area)) ;
+    gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->btnPreview)), (NULL != ev) ? &(ev->area) : NULL) ;
   return TRUE ;
   }
 

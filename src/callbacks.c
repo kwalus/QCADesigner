@@ -59,6 +59,8 @@
 #include "random_fault_setup_dialog.h"
 #include "message_box.h"
 
+#define DBG_CB(s) s
+
 #define NUMBER_OF_RULER_SUBDIVISIONS 3
 
 static int show_grid_backup ;
@@ -1078,7 +1080,7 @@ gboolean expose_event(GtkWidget * widget, GdkEvent * event,
 gboolean configure_event(GtkWidget * widget, GdkEvent * event,
 			 gpointer user_data)
 {
-
+    setup_rulers () ;
     return FALSE;
 }
 

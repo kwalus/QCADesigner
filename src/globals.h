@@ -215,6 +215,7 @@ typedef struct
   {
     GtkWidget *main_window;
     GtkWidget *vbox1;
+    GtkWidget *vpaned1;
     GtkWidget *main_menubar;
     GtkWidget *file_menu;
     GtkWidget *file_menu_menu;

@@ -888,12 +888,18 @@ void create_main_window (main_W *main_window){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////// WINDOW WIDGETS //////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      	main_window->vpaned1 = gtk_vpaned_new () ;
+	gtk_widget_ref (main_window->vpaned1) ;
+	gtk_object_set_data_full (GTK_OBJECT (main_window->main_window), "vpaned1", main_window->vpaned1, (GtkDestroyNotify) gtk_widget_unref) ;
+	gtk_widget_show (main_window->vpaned1) ;
+	gtk_box_pack_start (GTK_BOX (main_window->vbox1), main_window->vpaned1, TRUE, TRUE, 0) ;
 	
 	main_window->hbox1 = gtk_hbox_new (FALSE, 0);
 	gtk_widget_ref (main_window->hbox1);
 	gtk_object_set_data_full (GTK_OBJECT (main_window->main_window), "hbox1", main_window->hbox1, (GtkDestroyNotify) gtk_widget_unref);
 	gtk_widget_show (main_window->hbox1);
-	gtk_box_pack_start (GTK_BOX (main_window->vbox1), main_window->hbox1, TRUE, TRUE, 0);
+	gtk_paned_pack1 (GTK_PANED (main_window->vpaned1), main_window->hbox1, FALSE, TRUE);
 	
 	// create and add the toolbar to the left hand side of the main window //
 	main_window->toolbar2 = gtk_vbutton_box_new ();
@@ -1050,7 +1056,7 @@ void create_main_window (main_W *main_window){
 	gtk_widget_ref (main_window->scrolledwindow1);
 	gtk_object_set_data_full (GTK_OBJECT (main_window->main_window), "scrolledwindow1", main_window->scrolledwindow1, (GtkDestroyNotify) gtk_widget_unref);
 	gtk_widget_show (main_window->scrolledwindow1);
-	gtk_box_pack_start (GTK_BOX (main_window->vbox1), main_window->scrolledwindow1, TRUE, TRUE, 0);
+	gtk_paned_pack2 (GTK_PANED (main_window->vpaned1), main_window->scrolledwindow1, TRUE, TRUE);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (main_window->scrolledwindow1), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	
 	// create and add the command history text box to the scrolled window //

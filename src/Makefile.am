@@ -41,6 +41,7 @@ QCADesigner_SOURCES = \
 	custom_widgets.c custom_widgets.h \
 	print_dialog.c pritn_dialog.h \
 	about.c about.h \
+	translate_selection_dialog.c translate_selection_dialog.h \
 	print_properties_dialog.c print_properties_dialog.h\
 	print_properties_dialog_interface.c print_properties_dialog_interface.h \
 	print_properties_dialog_callbacks.h \

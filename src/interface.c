@@ -49,6 +49,7 @@
 main_W main_window = {NULL} ;
 
 void create_main_window (main_W *main_window){
+    char *psz = NULL ;
     GtkWidget *img = NULL ;
     GtkRcStyle *rcstyle = NULL ;
     char *psz = NULL ;
@@ -460,6 +461,9 @@ void create_main_window (main_W *main_window){
     gtk_widget_show (main_window->measure_distance_menu_item);
     gtk_container_add (GTK_CONTAINER (main_window->tools_menu_menu), main_window->measure_distance_menu_item);
 
+    // *********** remove when finished ****************//
+    gtk_widget_set_sensitive (GTK_WIDGET (main_window->measure_distance_menu_item), FALSE);
+
 	// create and add the mesurement preferences menu item to the tools menu //
     main_window->measurement_preferences1 = gtk_menu_item_new_with_label (_("Measurement Preferences"));
     gtk_widget_show (main_window->measurement_preferences1);
@@ -836,7 +840,7 @@ void create_main_window (main_W *main_window){
 //            _("Click and drag your selection to its new location."),
 //            create_pixmap (main_window->main_window, "q_cell_move.xpm"),
 //            GTK_SIGNAL_FUNC (on_move_cell_button_clicked), NULL) ;
-	
+
 	// create and add the rotate button to the toolbar //
         main_window->rotate_cell_button = 
           gtk_toolbar_append_element (
@@ -848,7 +852,19 @@ void create_main_window (main_W *main_window){
             _("Click on a cell to rotate it (repeatedly)."),
             create_pixmap (main_window->main_window, "q_cell_rotate.xpm"),
             GTK_SIGNAL_FUNC (action_button_clicked), (gpointer)run_action_ROTATE) ;
-	
+
+	// create and add the translate button to the toolbar //
+        main_window->translate_cell_button = 
+          gtk_toolbar_append_element (
+            GTK_TOOLBAR (main_window->toolbar), 
+            GTK_TOOLBAR_CHILD_BUTTON,
+            NULL,
+            _("Translate"),
+            _("Translate Selection"),
+            _("Translate your selection horizontally and/or vertically."),
+            create_pixmap (main_window->main_window, "q_cell_move.xpm"),
+            GTK_SIGNAL_FUNC (on_translate_selection_button_clicked), NULL) ;
+
 	// create and add the mirror button to the toolbar //
 	main_window->mirror_button = 
           gtk_toolbar_append_element (
@@ -1054,7 +1070,7 @@ void create_main_window (main_W *main_window){
     g_signal_connect ((gpointer)(main_window->cell_function_menu_item), "activate", GTK_SIGNAL_FUNC (on_cell_function_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->clock_select_menu_item), "activate", GTK_SIGNAL_FUNC (on_clock_select_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->clock_increment_menu_item), "activate", GTK_SIGNAL_FUNC (on_clock_increment_menu_item_activate), NULL);
-    g_signal_connect ((gpointer)(main_window->measure_distance_menu_item), "activate", GTK_SIGNAL_FUNC (action_button_clicked), NULL);
+//    g_signal_connect ((gpointer)(main_window->measure_distance_menu_item), "activate", GTK_SIGNAL_FUNC (action_button_clicked), NULL);
     g_signal_connect ((gpointer)(main_window->measurement_preferences1), "activate", GTK_SIGNAL_FUNC (on_measurement_preferences1_activate), NULL);
     g_signal_connect ((gpointer)(main_window->draw_dimensions_menu_item), "activate", GTK_SIGNAL_FUNC (on_draw_dimensions_menu_item_activate), NULL);
     g_signal_connect ((gpointer)(main_window->dimension_properties1), "activate", GTK_SIGNAL_FUNC (on_dimension_properties1_activate), NULL);

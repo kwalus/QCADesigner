@@ -285,8 +285,8 @@ msgstr "Vergrösserung erhöhen"
 # msgid "Increase the magnification so you may concentrate on specific parts of the design."
 # msgstr ""
 
-# msgid "Increment Cell Clocks"
-# msgstr ""
+msgid "Increment Cell Clocks"
+msgstr "Zelltakte erhöhen"
 
 # msgid "Input"
 # msgstr ""
@@ -653,3 +653,27 @@ msgstr "Browser Auswählen"
 
 msgid "Please Select PostScript Viewer"
 msgstr "PostScript Betrachter Auswählen"
+
+msgid "Translate"
+msgstr "Verschieben"
+
+msgid "Translate Selection"
+msgstr "Auswahl Verschieben"
+
+# msgid "Horizontal:"
+# msgstr "Horizontal:"
+
+msgid "Vertical:"
+msgstr "Vertikal:"
+
+msgid "You have made changes to your design.  Opening another design will discard those changes. Save first ?"
+msgstr "Sie haben Ihren Design verändert. Wenn Sie einen anderen Design öffnen, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
+
+msgid "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?"
+msgstr "Sie haben Ihren Design verändert. Wenn Sie einen neuen Design anfangen, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
+
+msgid "You have made changes to your design.  Closing your design will discard those changes.  Save first ?"
+msgstr "Sie haben Ihren Design verändert. Wenn Sie den Design schließen, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
+
+msgid "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"
+msgstr "Sie haben Ihren Design verändert. Wenn Sie QCADesigner beenden, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"

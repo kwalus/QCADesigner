@@ -16,12 +16,15 @@
 //////////////////////////////////////////////////////////
 
 // GTK includes //
+#include <stdlib.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include "support.h"
 #include "custom_widgets.h"
 
+static void signal_isb_adj_value_changed (GtkAdjustment *adj, gpointer data) ;
+static void signal_isb_spn_text_changed (GtkWidget *widget, gpointer data) ;
 static void switch_pix (GtkWidget *tbtn, gpointer user_data) ;
 
 /* Creates a button whose label is a pixmap */
@@ -160,3 +163,41 @@ GtkWidget *gtk_button_new_with_stock_image (gchar *pszStock, gchar *pszLabel)
 
   return btn ;
   }
+
+GtkWidget *gtk_spin_button_new_infinite (GtkAdjustment *adj, gdouble climb_rate, guint digits, ISBDirection direction)
+  {
+  GtkWidget *ret = gtk_spin_button_new (adj, climb_rate, digits) ;
+  g_signal_connect (adj, "value_changed", (GCallback)signal_isb_adj_value_changed, (gpointer)direction) ;
+  g_signal_connect (ret, "changed", (GCallback)signal_isb_spn_text_changed, (gpointer)direction) ;
+  return ret ;
+  }
+
+static void signal_isb_adj_value_changed (GtkAdjustment *adj, gpointer data)
+  {
+  ISBDirection direction = (ISBDirection)data ;
+  
+  if (direction & ISB_DIR_UP)
+    while (adj->value >= adj->upper * 0.9)
+      adj->upper += adj->page_increment ;
+    
+  if (direction & ISB_DIR_DN)
+    while (adj->value <= adj->lower * 0.9)
+      adj->lower -= adj->page_increment ;
+  }
+
+static void signal_isb_spn_text_changed (GtkWidget *widget, gpointer data)
+  {
+  GtkAdjustment *adj = gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (widget)) ;
+  ISBDirection direction = (ISBDirection)data ;
+  char *pszText = gtk_editable_get_chars (GTK_EDITABLE (widget), 0, -1) ;
+  double dVal = (NULL == pszText ? 0.0 : atof (pszText)) ;
+
+  g_free (pszText) ;
+  
+  if (direction & ISB_DIR_UP)
+    adj->upper = MAX (dVal, adj->upper) ;
+  else
+  if (direction & ISB_DIR_DN)
+    adj->lower = MIN (dVal, adj->lower) ;
+  }
+

@@ -18,4 +18,5 @@ src/scqca_properties_dialog.c
 src/sim_engine_setup_dialog.c
 src/sim_type_setup_dialog.c
 src/support.c
+src/translate_selection_dialog.c
 src/vector_table_options_dialog.c

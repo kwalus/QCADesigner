@@ -634,6 +634,21 @@ msgstr ""
 msgid "Failed to open file \"%s\"!"
 msgstr ""
 
+msgid "Failed to create file \"%s\" !"
+msgstr ""
+
+msgid "You have made changes to your design.  Opening another design will discard those changes. Save first ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Closing your design will discard those changes.  Save first ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"
+msgstr ""
+
 msgid "Device Voltage:"
 msgstr ""
 
@@ -650,4 +665,28 @@ msgid "Please Select Web Browser"
 msgstr ""
 
 msgid "Please Select PostScript Viewer"
+msgstr ""
+
+msgid "Translate"
+msgstr "Verschieben"
+
+msgid "Translate Selection"
+msgstr ""
+
+msgid "Horizontal:"
+msgstr ""
+
+msgid "Vertical:"
+msgstr ""
+
+msgid "You have made changes to your design.  Opening another design will discard those changes. Save first ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Closing your design will discard those changes.  Save first ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"
 msgstr ""

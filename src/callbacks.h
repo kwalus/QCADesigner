@@ -78,6 +78,7 @@ void on_about_menu_item_activate(GtkMenuItem *menuitem, gpointer user_data);
 void file_operations (GtkWidget *widget, gpointer user_data);
 void rotate_selection_menu_item_activate (GtkWidget *widget, gpointer user_data);
 void on_scale_menu_item_activate(GtkMenuItem *menuitem, gpointer user_data);
+void on_translate_selection_button_clicked (GtkWidget *widget, gpointer user_data) ;
 
 void action_button_clicked (GtkWidget *widget, gpointer data) ;
 

@@ -653,3 +653,27 @@ msgstr "Internet Kereső Kiválasztás"
 
 msgid "Please Select PostScript Viewer"
 msgstr "PostScript Nézőke Kiválasztás"
+
+# msgid "Translate"
+# msgstr "Verschieben"
+
+# msgid "Translate Selection"
+# msgstr ""
+
+# msgid "Horizontal:"
+# msgstr ""
+
+# msgid "Vertical:"
+# msgstr ""
+
+msgid "You have made changes to your design.  Opening another design will discard those changes. Save first ?"
+msgstr "A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve egy másik terv megnyitásával. Menteni először ?"
+
+msgid "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?"
+msgstr "A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve egy uj terv elkezdésével. Menteni először ?"
+
+msgid "You have made changes to your design.  Closing your design will discard those changes.  Save first ?"
+msgstr "A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve a terv bezárásával. Menteni először ?"
+
+msgid "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"
+msgstr "A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve a QCADesigner kilépésével. Menteni először ?"

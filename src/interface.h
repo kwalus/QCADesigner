@@ -132,6 +132,7 @@ typedef struct
     GtkWidget *cell_properties_button;
 //    GtkWidget *move_cell_button;
     GtkWidget *rotate_cell_button;
+    GtkWidget *translate_cell_button;
     GtkWidget *mirror_button;
     GtkWidget *delete_cells_button;
     GtkWidget *oval_zone_button;

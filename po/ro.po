@@ -651,3 +651,27 @@ msgstr "Selectaţi Un Browser"
 
 # msgid "Please Select PostScript Viewer"
 # msgstr ""
+
+# msgid "Translate"
+# msgstr ""
+
+# msgid "Translate Selection"
+# msgstr ""
+
+# msgid "Horizontal:"
+# msgstr ""
+
+# msgid "Vertical:"
+# msgstr ""
+
+msgid "You have made changes to your design.  Opening another design will discard those changes. Save first ?"
+msgstr "Designul a fost modificat. Aceste modificaţii vor fi pierdute deschizând alt design. Să salvez ?"
+
+msgid "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?"
+msgstr "Designul a fost modificat. Aceste modificaţii vor fi pierdute începând un design nou. Să salvez ?"
+
+msgid "You have made changes to your design.  Closing your design will discard those changes.  Save first ?"
+msgstr "Designul a fost modificat. Aceste modificaţii vor fi pierdute închizând designul. Să salvez ?"
+
+msgid "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"
+msgstr "Designul a fost modificat. Aceste modificaţii vor fi pierdute ieşind din QCADesigner. Să salvez ?"

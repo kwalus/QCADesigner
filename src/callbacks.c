@@ -63,6 +63,7 @@
 #include "custom_widgets.h"
 #include "scale_dialog.h"
 #include "cell_function_dialog.h"
+#include "translate_selection_dialog.h"
 
 #define DBG_CB(s)
 #define DBG_CB_HERE(s)
@@ -364,9 +365,9 @@ void file_operations (GtkWidget *widget, gpointer user_data)
   if (FILEOP_OPEN == fFileOp || FILEOP_OPEN_RECENT == fFileOp || FILEOP_NEW == fFileOp || FILEOP_CLOSE == fFileOp)
     if (!(SaveDirtyUI (GTK_WINDOW (main_window.main_window),
       FILEOP_OPEN_RECENT == fFileOp || 
-             FILEOP_OPEN == fFileOp ? "You have made changes to your design.  Opening another design will discard those changes. Save first ?" :
-              FILEOP_NEW == fFileOp ? "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?" :
-                                      "You have made changes to your design.  Closing your design will discard those changes.  Save first ?")))
+             FILEOP_OPEN == fFileOp ? _("You have made changes to your design.  Opening another design will discard those changes. Save first ?") :
+              FILEOP_NEW == fFileOp ? _("You have made changes to your design.  Starting a new design will discard those changes.  Save first ?") :
+                                      _("You have made changes to your design.  Closing your design will discard those changes.  Save first ?"))))
       return ;
   
   if (!(FILEOP_OPEN     == fFileOp || 
@@ -678,7 +679,7 @@ void on_project_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer u
 gboolean on_quit_menu_item_activate(GtkWidget *main_window, gpointer user_data)
   {
   if (!SaveDirtyUI (GTK_WINDOW (main_window),
-    "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"))
+    _("You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?")))
       return TRUE ;
   else
     gtk_main_quit () ;
@@ -936,6 +937,25 @@ void action_button_clicked (GtkWidget *widget, gpointer data)
   (*((ActionHandler)(data))) (&mh, main_window.drawing_area, global_gc, &design, &project_options, &main_window) ;
 
   project_options.selected_action = new_action ;
+  }
+
+void on_translate_selection_button_clicked (GtkWidget *widget, gpointer user_data)
+  {
+  int Nix ;
+  double dx = 0, dy = 0 ;
+
+  if (NULL != project_options.selected_cells && project_options.number_of_selected_cells > 0)
+    if (get_translation_from_user (GTK_WINDOW (main_window.main_window), &dx, &dy))
+      if (!(0.0 == dx && 0.0 == dy))
+        {
+        for (Nix = 0 ; Nix < project_options.number_of_selected_cells ; Nix++)
+          gqcell_move_by_offset (project_options.selected_cells[Nix], dx, dy) ;
+        gui_add_to_undo (Undo_CreateAction_CellParamChange (project_options.selected_cells, 
+          project_options.number_of_selected_cells)) ;
+        }
+
+  redraw_async (main_window.drawing_area) ;
+  project_options.bDesignAltered = TRUE ;
   }
 
 ///////////////////////////////////////////////////////////////////

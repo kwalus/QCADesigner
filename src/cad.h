@@ -37,5 +37,5 @@ inline float calc_world_y(int local_y);
 inline float calc_world_dist(int dist);
 void draw_temp_array(double x0, double y0, double x1, double y1);
 void draw_ruler(int dist_x0, int dist_y0, int dist_x1, int dist_y1);
-int select_cells_in_radius (qcell * cell, float world_radius);
+int select_cells_in_radius (qcell * cell, float world_radius, qcell ***p_selected_cells) ;
 double determine_distance (qcell * cell1, qcell * cell2, int dot_cell_1, int dot_cell_2);

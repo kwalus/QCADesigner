@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////
 // This file written by Timothy Dysart (tdysart@nd.edu) //
 // This is the equivalent of TwoStateCell.cpp/.h in     //
-// Aquinas.  For the most part a 1 -> 1 converstion is  //
+// Aquinas.  For the most part a 1 -> 1 conversion is   //
 // how I've implemented it.                             //
 // Completion Date: August 1, 2002                      //
 //////////////////////////////////////////////////////////
@@ -32,10 +32,12 @@
 #include "eigenvalues.h"
 #include "cad.h"
 
+int compareBistableQCells (const void *p1, const void *p2) ;
+
 //-------------------------------------------------------------------//
 // -- this is the main simulation procedure -- //
 //-------------------------------------------------------------------//
-simulation_data *run_bistable_simulation(qcell *first_cell, bistable_OP *options){
+simulation_data *run_bistable_simulation(int SIMULATION_TYPE, qcell *first_cell, bistable_OP *options, VectorTable *pvt){
 	
 	int i, j, total_cells;
 	qcell *cell;
@@ -44,12 +46,11 @@ simulation_data *run_bistable_simulation(qcell *first_cell, bistable_OP *options
 	int total_number_of_inputs = 0;
 	int total_number_of_outputs = 0;
 	double input = 0;
-	int *neighbour_count = NULL;
+//	int *neighbour_count = NULL;
 	char text[100] = "" ;
 	simulation_data *sim_data = malloc(sizeof(simulation_data));
  
 	cell = first_cell;
-
 	
 	// -- check if there are cells to simulate -- //
 	if (cell == NULL){
@@ -78,11 +79,22 @@ simulation_data *run_bistable_simulation(qcell *first_cell, bistable_OP *options
 		
 		total_cells++;
 		cell = cell->next;
-    }
+        }
 
 	
 	// if we are performing a vector table simulation we consider only the activated inputs //
-	if(SIMULATION_TYPE == VECTOR_TABLE)total_number_of_inputs = active_inputs.num_activated;
+	if(SIMULATION_TYPE == VECTOR_TABLE)
+	  {
+	  int Nix ;
+      	  
+	  total_number_of_inputs = 0 ;
+	  for (Nix = 0 ; Nix < pvt->num_of_inputs ; Nix++)
+	    if (pvt->active_flag[Nix])
+	      total_number_of_inputs++ ;
+	    else
+	      /* Kill the input flag for inactive inputs, so they may be correctly simulated */
+	      pvt->inputs[Nix]->is_input = FALSE ;
+	  }
 	
 	// write message to the command history window //
 	g_snprintf (text, 100, "Simulation found %d inputs %d outputs %d total cells\n", total_number_of_inputs, total_number_of_outputs, total_cells);
@@ -115,12 +127,12 @@ simulation_data *run_bistable_simulation(qcell *first_cell, bistable_OP *options
 		
 	}
 
-	
 	// if vector table simulation copy the activated cells to the inputs cells array //
-	if(SIMULATION_TYPE == VECTOR_TABLE){
-		for(i = 0; i < total_number_of_inputs; i++)
-			input_cells[i] = active_inputs.activated_cells[i];
-	}
+	j = -1 ;
+	if(SIMULATION_TYPE == VECTOR_TABLE)
+	  for(i = 0; i < pvt->num_of_inputs; i++)
+	    if (pvt->active_flag[i])
+	      input_cells[++j] = pvt->inputs[i];
 	
 	// -- Initialize the simualtion data structure -- //
   	sim_data->number_of_traces = total_number_of_inputs + total_number_of_outputs;
@@ -129,62 +141,62 @@ simulation_data *run_bistable_simulation(qcell *first_cell, bistable_OP *options
 
   	// create and initialize the inputs into the sim data structure //      
   	for (i = 0; i < total_number_of_inputs; i++){
-      	sim_data->trace[i].data_labels = malloc (sizeof (char) * (strlen (input_cells[i]->label) + 1));
-      	strcpy (sim_data->trace[i].data_labels, input_cells[i]->label);
-      	sim_data->trace[i].drawtrace = TRUE;
-      	sim_data->trace[i].trace_color = BLUE;
-      	sim_data->trace[i].data = malloc (sizeof (double) * sim_data->number_samples);
-    }
+      	  sim_data->trace[i].data_labels = malloc (sizeof (char) * (strlen (input_cells[i]->label) + 1));
+      	  strcpy (sim_data->trace[i].data_labels, input_cells[i]->label);
+      	  sim_data->trace[i].drawtrace = TRUE;
+      	  sim_data->trace[i].trace_color = BLUE;
+      	  sim_data->trace[i].data = malloc (sizeof (double) * sim_data->number_samples);
+      	}
 
   	// create and initialize the outputs into the sim data structure //     
 	for (i = 0; i < total_number_of_outputs; i++){
-		sim_data->trace[i + total_number_of_inputs].data_labels = malloc (sizeof (char) * (strlen (output_cells[i]->label) + 1));
-      	strcpy (sim_data->trace[i + total_number_of_inputs].data_labels, output_cells[i]->label);
-      	sim_data->trace[i + total_number_of_inputs].drawtrace = TRUE;
-      	sim_data->trace[i + total_number_of_inputs].trace_color = YELLOW;
-      	sim_data->trace[i + total_number_of_inputs].data = malloc (sizeof (double) * sim_data->number_samples);
-    }
+	  sim_data->trace[i + total_number_of_inputs].data_labels = malloc (sizeof (char) * (strlen (output_cells[i]->label) + 1));
+      	  strcpy (sim_data->trace[i + total_number_of_inputs].data_labels, output_cells[i]->label);
+      	  sim_data->trace[i + total_number_of_inputs].drawtrace = TRUE;
+      	  sim_data->trace[i + total_number_of_inputs].trace_color = YELLOW;
+      	  sim_data->trace[i + total_number_of_inputs].data = malloc (sizeof (double) * sim_data->number_samples);
+      	}
 
   	// create and initialize the clock data //
   	sim_data->clock_data = malloc (sizeof (struct TRACEDATA) * 4);
 
   	for (i = 0; i < 4; i++){
-    	sim_data->clock_data[i].data_labels = malloc (10);
-    	g_snprintf (sim_data->clock_data[i].data_labels, 10, "CLOCK %d", i);
-    	sim_data->clock_data[i].drawtrace = 1;
-    	sim_data->clock_data[i].trace_color = RED;
-    
-    	sim_data->clock_data[i].data = malloc (sizeof (double) * sim_data->number_samples);
-  
-    	if(SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)for (j = 0; j < sim_data->number_samples; j++){
-    		sim_data->clock_data[i].data[j] = cos (((double) pow (2, total_number_of_inputs)) * (double) j * 4.0 * PI / (double) sim_data->number_samples - PI * i / 2) + 0.1;
-    		if (sim_data->clock_data[i].data[j] > 0.6)
-    			sim_data->clock_data[i].data[j] = 0.6;
-    		if (sim_data->clock_data[i].data[j] < 0.000000001)
-    			sim_data->clock_data[i].data[j] = 0.000000001;
-    	}
-		
-		if(SIMULATION_TYPE == VECTOR_TABLE)for (j = 0; j < sim_data->number_samples; j++){
-    		sim_data->clock_data[i].data[j] = cos (((double)vector_table.num_of_vectors) * (double) j * 2.0 * PI / (double) sim_data->number_samples - PI * i / 2) + 0.1;
-    		if (sim_data->clock_data[i].data[j] > 0.6)
-    			sim_data->clock_data[i].data[j] = 0.6;
-    		if (sim_data->clock_data[i].data[j] < 0.000000001)
-    			sim_data->clock_data[i].data[j] = 0.000000001;
-    	}
+    	  sim_data->clock_data[i].data_labels = malloc (10);
+    	  g_snprintf (sim_data->clock_data[i].data_labels, 10, "CLOCK %d", i);
+    	  sim_data->clock_data[i].drawtrace = 1;
+    	  sim_data->clock_data[i].trace_color = RED;
+
+    	  sim_data->clock_data[i].data = malloc (sizeof (double) * sim_data->number_samples);
+
+    	  if(SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)for (j = 0; j < sim_data->number_samples; j++){
+    		  sim_data->clock_data[i].data[j] = cos (((double) pow (2, total_number_of_inputs)) * (double) j * 4.0 * PI / (double) sim_data->number_samples - PI * i / 2) + 0.1;
+    		  if (sim_data->clock_data[i].data[j] > 0.6)
+    			  sim_data->clock_data[i].data[j] = 0.6;
+    		  if (sim_data->clock_data[i].data[j] < 0.000000001)
+    			  sim_data->clock_data[i].data[j] = 0.000000001;
+    	  }
+
+		  if(SIMULATION_TYPE == VECTOR_TABLE)for (j = 0; j < sim_data->number_samples; j++){
+    		  sim_data->clock_data[i].data[j] = cos (((double)pvt->num_of_vectors) * (double) j * 2.0 * PI / (double) sim_data->number_samples - PI * i / 2) + 0.1;
+    		  if (sim_data->clock_data[i].data[j] > 0.6)
+    			  sim_data->clock_data[i].data[j] = 0.6;
+    		  if (sim_data->clock_data[i].data[j] < 0.000000001)
+    			  sim_data->clock_data[i].data[j] = 0.000000001;
+    	  }
   
 	}
 	
 	// -- refresh all the kink energies -- //
-	bistable_refresh_all_Ek (options);
+	bistable_refresh_all_Ek (first_cell, options);
 
-	neighbour_count = calloc (total_cells, sizeof (int));
+//	neighbour_count = calloc (total_cells, sizeof (int));
 
 	sorted_cells = calloc (total_cells, sizeof (qcell *));
 
   	i = 0;
   	cell = first_cell;
 	while (cell != NULL){
-		neighbour_count[i] = ((bistable_model *)cell->cell_model)->number_of_neighbours;
+//		neighbour_count[i] = ((bistable_model *)cell->cell_model)->number_of_neighbours;
       	sorted_cells[i] = cell;
       	i++;
       	cell = cell->next;
@@ -194,7 +206,8 @@ simulation_data *run_bistable_simulation(qcell *first_cell, bistable_OP *options
 	// -- this is done so that majority gates are evalulated last -- //
 	// -- to ensure that all the signals have arrived first -- //
 	// -- kept getting wrong answers without this -- //
-	uglysort (sorted_cells, neighbour_count, total_cells);
+	qsort (sorted_cells, total_number_of_cells, sizeof (qcell *), compareBistableQCells) ;
+//	uglysort (sorted_cells, neighbour_count, total_cells);
 	
 	// perform the iterations over all samples //
 	for (j = 0; j < sim_data->number_samples; j++){
@@ -219,9 +232,8 @@ simulation_data *run_bistable_simulation(qcell *first_cell, bistable_OP *options
 				}
 			}
 			
-			if(SIMULATION_TYPE == VECTOR_TABLE){
-				if((input = vector_table.data[(j*vector_table.num_of_vectors) / sim_data->number_samples][i]) == 0)input = -1;
-			}
+		else if(SIMULATION_TYPE == VECTOR_TABLE)
+		  input = pvt->vectors[(j*pvt->num_of_vectors) / sim_data->number_samples][i] ? 1 : -1 ;
 
 	      	// -- set the inputs cells with the input data -- //
 	      	set_cell_polarization (input_cells[i], input);
@@ -259,15 +271,19 @@ simulation_data *run_bistable_simulation(qcell *first_cell, bistable_OP *options
 	}//for number of samples
 
 	free (sorted_cells);
-	free (neighbour_count);
+//	free (neighbour_count);
 	free (input_cells);
 	free (output_cells);
 	
 	sorted_cells = NULL;
-	neighbour_count = NULL;
+//	neighbour_count = NULL;
 	input_cells = NULL;
 	output_cells = NULL;
 	cell = NULL;
+	
+	/* Fix the input flag for the inactive inputs */	
+	for (i = 0 ; i < pvt->num_of_inputs ; i++)
+	  pvt->inputs[i]->is_input = TRUE ;
 	
 	return sim_data;
 
@@ -431,7 +447,7 @@ inline void sort_energies (int *index, float *energy, int NumberElements){
 	  	pss[Nix].energy = energy[Nix];
 	}
 	
-	qsort (pss, NumberElements, sizeof (ENERGYSORTSTRUCT), compareSortStructs);
+	qsort (pss, NumberElements, sizeof (ENERGYSORTSTRUCT), compare_energy_sort_structs);
 	
 	for (Nix = 0; Nix < NumberElements; Nix++){
 	  	index[Nix] = pss[Nix].index;
@@ -446,28 +462,26 @@ inline void sort_energies (int *index, float *energy, int NumberElements){
 // -- refreshes the array of Ek values for each cell in the design this is done to speed up the simulation
 // since we can assume no design changes durring the simulation we can precompute all the Ek values then
 // use them as necessary throughout the simulation -- //
-void bistable_refresh_all_Ek (bistable_OP *options){
-
+void bistable_refresh_all_Ek (qcell *cell, bistable_OP *options){
+      	int icNeighbours = 0 ;
+	bistable_model *cell_model = NULL ;
 	int k;
-	qcell *cell = first_cell;
 
 	// calculate the Ek for each cell //
 	while (cell != NULL){
 
-		// select all neighbour within the provided radius //
-		((bistable_model *)cell->cell_model)->number_of_neighbours = select_cells_in_radius (cell, ((bistable_OP *)options)->radius_of_effect);
-		
 		// free up memory for cell model variables //
-		free (((bistable_model *)cell->cell_model)->neighbours);
-		free (((bistable_model *)cell->cell_model)->Ek);
-		((bistable_model *)cell->cell_model)->neighbours = NULL;
-		((bistable_model *)cell->cell_model)->Ek = NULL;
+		free ((cell_model = (bistable_model *)cell->cell_model)->neighbours);
+		free (cell_model->Ek);
+		cell_model->neighbours = NULL;
+		cell_model->Ek = NULL;
 		
+		// select all neighbours within the provided radius //
+		cell_model->number_of_neighbours = icNeighbours = 
+		  select_cells_in_radius (cell, ((bistable_OP *)options)->radius_of_effect, &(cell_model->neighbours));
 		
-		if (number_of_selected_cells > 0){
-		
-			((bistable_model *)cell->cell_model)->neighbours = malloc (sizeof (qcell *) * number_of_selected_cells);
-			((bistable_model *)cell->cell_model)->Ek = malloc (sizeof (double) * number_of_selected_cells);
+		if (icNeighbours > 0){
+			cell_model->Ek = malloc (sizeof (double) * icNeighbours);
 			
 			// ensure no memory allocation error has ocurred //
 			if (((bistable_model *)cell->cell_model)->neighbours == NULL || ((bistable_model *)cell->cell_model)->Ek == NULL){
@@ -475,15 +489,10 @@ void bistable_refresh_all_Ek (bistable_OP *options){
 				exit (1);
 			}
 			
-			for (k = 0; k < number_of_selected_cells; k++){
-			
-			assert (selected_cells[k] != NULL);
+			for (k = 0; k < icNeighbours; k++){
 			
 			// set the Ek of this cell and its neighbour //
-			((bistable_model *)cell->cell_model)->Ek[k] = bistable_determine_Ek (cell, selected_cells[k], options);
-			
-			// record the pointer of the neighbour //
-			((bistable_model *)cell->cell_model)->neighbours[k] = selected_cells[k];
+			cell_model->Ek[k] = bistable_determine_Ek (cell, cell_model->neighbours[k], options);
 			
 			}
 		}
@@ -530,3 +539,12 @@ double bistable_determine_Ek (qcell * cell1, qcell * cell2, bistable_OP *options
 	return Ek - E;
 
 }// bistable_determine_Ek
+
+int compareBistableQCells (const void *p1, const void *p2)
+  {
+  return
+    ((bistable_model *)((*((qcell **)(p1)))->cell_model))->number_of_neighbours > 
+    ((bistable_model *)((*((qcell **)(p2)))->cell_model))->number_of_neighbours ?  1 :
+    ((bistable_model *)((*((qcell **)(p1)))->cell_model))->number_of_neighbours < 
+    ((bistable_model *)((*((qcell **)(p2)))->cell_model))->number_of_neighbours ? -1 : 0 ;
+  }//compareSortStructs

@@ -378,14 +378,15 @@ void CreateInputHeading (new_vector_table_options_D *dialog, VectorTable *pvt, i
 		    (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->pInput[idx].tb), pvt->active_flag[idx]) ;
   gtk_object_set_data (GTK_OBJECT (dialog->pInput[idx].tb), "idx", (gpointer)idx) ;
-  
+  GTK_WIDGET_UNSET_FLAGS (dialog->pInput[idx].tb, (GtkWidgetFlags)(GTK_CAN_FOCUS | GTK_CAN_DEFAULT)) ;
+
   dialog->pInput[idx].tblbl = gtk_label_new (pvt->active_flag[idx] ? "Active" : "Inactive") ;
   gtk_widget_ref (dialog->pInput[idx].tblbl) ;
   g_snprintf (sz, 16, "0x%08X", (int)dialog->pInput[idx].tblbl) ;
   gtk_object_set_data_full (GTK_OBJECT (dialog->dlgVectorTable), sz, dialog->pInput[idx].tblbl, (GtkDestroyNotify) gtk_widget_unref) ;
   gtk_widget_show (dialog->pInput[idx].tblbl) ;
   gtk_container_add (GTK_CONTAINER (dialog->pInput[idx].tb), dialog->pInput[idx].tblbl) ;
-  
+
   dialog->pInput[idx].cb = gtk_combo_new () ;
   gtk_widget_ref (dialog->pInput[idx].cb) ;
   g_snprintf (sz, 16, "0x%08X", (int)dialog->pInput[idx].cb) ;
@@ -411,7 +412,7 @@ void CreateInputHeading (new_vector_table_options_D *dialog, VectorTable *pvt, i
   gtk_entry_set_editable (GTK_ENTRY (GTK_COMBO (dialog->pInput[idx].cb)->entry), FALSE) ;
   gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (dialog->pInput[idx].cb)->entry), pvt->inputs[idx]->label) ;
   gtk_object_set_data (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->entry), "idx", (gpointer)idx) ;
-  
+
   gtk_widget_ref (GTK_COMBO (dialog->pInput[idx].cb)->popwin) ;
   g_snprintf (sz, 16, "0x%08X", (int)GTK_COMBO (dialog->pInput[idx].cb)->popwin) ;
   gtk_object_set_data_full (GTK_OBJECT (dialog->dlgVectorTable), sz, GTK_COMBO (dialog->pInput[idx].cb)->popwin, (GtkDestroyNotify) gtk_widget_unref) ;

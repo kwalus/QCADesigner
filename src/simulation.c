@@ -32,20 +32,22 @@
 #include "simulation.h"
 #include "bistable_simulation.h"
 #include "run_dig_sim.h"
+#include "vector_table.h"
 
 extern bistable_OP bistable_options ;
 extern nonlinear_approx_OP nonlinear_approx_options ;
+extern VectorTable *pvt ;
 
 // -- this is the main simulation procedure -- //
-simulation_data *run_simulation (int sim_engine)
+simulation_data *run_simulation (int sim_engine, int sim_type)
   {
   switch (sim_engine)
     {
     case NONLINEAR_APPROXIMATION:
-      return run_nonlinear_approx(first_cell, &nonlinear_approx_options);
+      return run_nonlinear_approx(sim_type, first_cell, &nonlinear_approx_options, pvt);
 
     case BISTABLE:
-      return run_bistable_simulation(first_cell, &bistable_options);
+      return run_bistable_simulation(sim_type, first_cell, &bistable_options, pvt);
 			
     case DIGITAL_SIM:
       return run_digital_simulation(first_cell);

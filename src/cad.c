@@ -1185,17 +1185,18 @@ inline float calc_world_dist(int dist){
 
 //-------------------------------------------------------------------//
 //!Finds all cells within a specified radius and sets the selected cells array//
-int select_cells_in_radius (qcell * cell, float world_radius){
+int select_cells_in_radius (qcell * cell, float world_radius, qcell ***p_selected_cells){
 
 	qcell *loop_cell = first_cell;
 	int j;
+	int number_of_selected_cells = 0 ;
 	
 	assert (cell != NULL);
 	
 	// free up selected cells //
-	number_of_selected_cells = 0;
-	free (selected_cells);
-	selected_cells = NULL;
+//	number_of_selected_cells = 0;
+//	free (selected_cells);
+//	selected_cells = NULL;
 	
 	while (loop_cell != NULL){
 		if (loop_cell != cell){
@@ -1210,10 +1211,10 @@ int select_cells_in_radius (qcell * cell, float world_radius){
 	loop_cell = first_cell;
 	
 	if (number_of_selected_cells > 0){
-		selected_cells = malloc (sizeof (qcell *) * number_of_selected_cells);
+		(*p_selected_cells) = malloc (sizeof (qcell *) * number_of_selected_cells);
 		
 		// catch any memory allocation errors //
-		if (selected_cells == NULL){
+		if ((*p_selected_cells) == NULL){
 			printf ("memory allocation error in select_cells_in_radius();\n");
 			exit (1);
 		}
@@ -1223,7 +1224,7 @@ int select_cells_in_radius (qcell * cell, float world_radius){
 		while (loop_cell != NULL){
 			if (loop_cell != cell){
 				if (sqrt((loop_cell->x - cell->x) * (loop_cell->x - cell->x) +(loop_cell->y - cell->y) * (loop_cell->y - cell->y)) <world_radius){
-					selected_cells[j] = loop_cell;
+					(*p_selected_cells)[j] = loop_cell;
 					j++;
 				}
 			}

@@ -40,7 +40,7 @@ typedef struct{
 	struct TRACEDATA *clock_data ;
 }simulation_data;
 
-simulation_data *run_simulation (int sim_engine);
+simulation_data *run_simulation (int sim_engine, int sim_type);
 void calculate_ground_state (int sim_engine) ;
 
 #endif /* _SIMULATION_H_ */

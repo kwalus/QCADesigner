@@ -26,6 +26,7 @@
 #include <assert.h>
 
 #include "globals.h"
+#include "vector_table.h"
 #include "simulation.h"
 
 typedef struct{
@@ -46,11 +47,11 @@ typedef struct{
 
 }bistable_OP;
 
-simulation_data *run_bistable_simulation(qcell *first_cell, bistable_OP *options);
+simulation_data *run_bistable_simulation(int SIMULATION_TYPE, qcell *first_cell, bistable_OP *options, VectorTable *pvt);
 void run_bistable_iteration(int sample_number, int number_of_sorted_cells, bistable_OP *options, simulation_data *sim_data);
 int compare_energy_sort_structs (const void *p1, const void *p2);
 inline void sort_energies (int *index, float *energy, int NumberElements);
 double bistable_determine_Ek(qcell * cell1, qcell * cell2, bistable_OP *options);
-void bistable_refresh_all_Ek(bistable_OP *options);
+void bistable_refresh_all_Ek(qcell *cell, bistable_OP *options);
 
 #endif /* _BISTABLE_SIMULATION_H_ */

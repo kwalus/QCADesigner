@@ -20,6 +20,8 @@
 #define GRAPH_TEXT_CLEARANCE 2
 #define FONT_STRING "-adobe-courier-medium-r-normal--12-*-*-*-*-*-*"
 
+#define DBG_GD(s)
+
 typedef struct
   {
   GtkWidget *dlgGraphs;
@@ -86,6 +88,7 @@ void show_graph_dialog (GtkWindow *parent, simulation_data *sim_data)
   
   gtk_window_set_transient_for (GTK_WINDOW (graph.dlgGraphs), parent) ;
   
+  /* Static data for the dialog */
   gtk_object_set_data (GTK_OBJECT (graph.dlgGraphs), "dialog", &graph) ;
   gtk_object_set_data (GTK_OBJECT (graph.dlgGraphs), "sim_data", sim_data) ;
   gtk_object_set_data (GTK_OBJECT (graph.dlgGraphs), "iZoomNum", (gpointer)1) ;
@@ -97,6 +100,8 @@ void show_graph_dialog (GtkWindow *parent, simulation_data *sim_data)
   
   CalculateDrawingArea (&graph, sim_data, 1, 1, &cx, &cy) ;
 
+  /* Initialize the drawing parameters - this way coordinates and dimensions dependent solely on the size of the window
+     do not have to be recalculated at each _expose */
   dp.idxBeg = 0 ;
   dp.idxEnd = sim_data->number_samples - 1 ;
   CacheDrawingParams (&dp, cx, cy, 1, 1) ;
@@ -110,6 +115,7 @@ void show_graph_dialog (GtkWindow *parent, simulation_data *sim_data)
 
 void create_graph_dialog (graph_D *dialog)
   {
+  /* The window */
   dialog->dlgGraphs = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (dialog->dlgGraphs), "dlgGraphs", dialog->dlgGraphs);
   gtk_widget_set_usize (dialog->dlgGraphs, 800, 600);
@@ -121,6 +127,7 @@ void create_graph_dialog (graph_D *dialog)
   gtk_object_set_data (GTK_OBJECT (dialog->dlgGraphs), "dialog_vbox1", dialog->dialog_vbox1);
   gtk_widget_show (dialog->dialog_vbox1);
 
+  /* The graphing area widgets */
   dialog->swndGraphs = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_ref (dialog->swndGraphs);
   gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "swndGraphs", dialog->swndGraphs,
@@ -144,6 +151,7 @@ void create_graph_dialog (graph_D *dialog)
   gtk_container_add (GTK_CONTAINER (dialog->vpGraphs), dialog->daGraphs);
   gtk_widget_set_usize (dialog->daGraphs, 640, 480);
 
+  /* The button containers */
   dialog->dialog_action_area1 = GTK_DIALOG (dialog->dlgGraphs)->action_area;
   gtk_object_set_data (GTK_OBJECT (dialog->dlgGraphs), "dialog_action_area1", dialog->dialog_action_area1);
   gtk_widget_show (dialog->dialog_action_area1);
@@ -159,6 +167,7 @@ void create_graph_dialog (graph_D *dialog)
   gtk_button_box_set_spacing (GTK_BUTTON_BOX (dialog->hbuttonbox1), 0);
   gtk_button_box_set_child_ipadding (GTK_BUTTON_BOX (dialog->hbuttonbox1), 0, -1);
 
+  /* The buttons */
   dialog->btnReset = gtk_button_new_with_label (_("Reset"));
   gtk_widget_ref (dialog->btnReset);
   gtk_object_set_data_full (GTK_OBJECT (dialog->dlgGraphs), "btnReset", dialog->btnReset,
@@ -207,13 +216,18 @@ void create_graph_dialog (graph_D *dialog)
   gtk_container_add (GTK_CONTAINER (dialog->hbuttonbox1), dialog->btnClose);
   GTK_WIDGET_SET_FLAGS (dialog->btnClose, GTK_CAN_DEFAULT);
 
+  /* The cancel signals */
   gtk_signal_connect_object (GTK_OBJECT (dialog->dlgGraphs), "delete_event", GTK_SIGNAL_FUNC (gtk_widget_hide), GTK_OBJECT (dialog->dlgGraphs)) ;
   gtk_signal_connect_object (GTK_OBJECT (dialog->btnClose), "clicked", GTK_SIGNAL_FUNC (gtk_widget_hide), GTK_OBJECT (dialog->dlgGraphs)) ;
+  
+  /* Manipulating and drawing the graphs */
   gtk_signal_connect (GTK_OBJECT (dialog->daGraphs), "expose_event", GTK_SIGNAL_FUNC (daGraphs_expose), dialog->dlgGraphs) ;
   gtk_signal_connect (GTK_OBJECT (dialog->dlgGraphs), "configure_event", GTK_SIGNAL_FUNC (daGraphs_configure), dialog->dlgGraphs) ;
   gtk_signal_connect_after (GTK_OBJECT (dialog->daGraphs), "button_press_event", GTK_SIGNAL_FUNC (daGraphs_mousedown), dialog->dlgGraphs) ;
   gtk_signal_connect_after (GTK_OBJECT (dialog->daGraphs), "motion_notify_event", GTK_SIGNAL_FUNC (daGraphs_mousemove), dialog->dlgGraphs) ;
   gtk_signal_connect_after (GTK_OBJECT (dialog->daGraphs), "button_release_event", GTK_SIGNAL_FUNC (daGraphs_mouseup), dialog->dlgGraphs) ;
+  
+  /* The various buttons */
   gtk_signal_connect (GTK_OBJECT (dialog->btnZoomIn), "clicked", GTK_SIGNAL_FUNC (graph_zoom_inc), dialog->dlgGraphs) ;
   gtk_signal_connect (GTK_OBJECT (dialog->btnZoomOut), "clicked", GTK_SIGNAL_FUNC (graph_zoom_dec), dialog->dlgGraphs) ;
   gtk_signal_connect (GTK_OBJECT (dialog->btnPreview), "clicked", GTK_SIGNAL_FUNC (toggle_preview_mode), dialog->dlgGraphs) ;
@@ -262,6 +276,7 @@ gboolean daGraphs_configure (GtkWidget *widget, GdkEventConfigure *ev, gpointer 
   
   RedoGraph (dialog, sim_data, iZoomNum, iZoomDen, pdp) ;
   
+  /* This is done only once in the lifetime of the graph, so disconnect */
   gtk_signal_disconnect_by_func (GTK_OBJECT (dialog->dlgGraphs), GTK_SIGNAL_FUNC (daGraphs_configure), user_data) ;
   
   return FALSE ;
@@ -275,6 +290,7 @@ gboolean daGraphs_mousedown (GtkWidget *widget, GdkEventButton *ev, gpointer use
   if (ev->type != GDK_BUTTON_PRESS) return FALSE ; /* We don't like double-clicks */
   if (1 == ev->button && x >= pdp->iTraceLeft && x <= pdp->iTraceRight)
     {
+    /* Draw a line that will widen into a XOR window as the user drags */
     gtk_object_set_data (GTK_OBJECT (user_data), "xBeg", (gpointer)x) ;
     gtk_object_set_data (GTK_OBJECT (user_data), "xOld", (gpointer)x) ;
     gtk_object_set_data (GTK_OBJECT (user_data), "bDrag", (gpointer)TRUE) ;
@@ -294,7 +310,9 @@ gboolean daGraphs_mousemove (GtkWidget *widget, GdkEventMotion *ev, gpointer use
     {
     int xBeg = (int)gtk_object_get_data (GTK_OBJECT (user_data), "xBeg"),
         xOld = (int)gtk_object_get_data (GTK_OBJECT (user_data), "xOld") ;
-      
+    
+    /* Draw the XOR window differentially */
+    
     if (x != xOld)
       {
       if (x > xOld)
@@ -352,6 +370,7 @@ gboolean daGraphs_mouseup (GtkWidget *widget, GdkEventButton *ev, gpointer user_
       xOld = iTmp ;
       }
     
+    /* Clean up the XOR rectangle */
     gdk_draw_rectangle (widget->window, widget->style->white_gc, TRUE, 
       xBeg, 0, xOld - xBeg + 1 - (b ? 0 : 1), pdp->cy) ;
     
@@ -363,6 +382,7 @@ gboolean daGraphs_mouseup (GtkWidget *widget, GdkEventButton *ev, gpointer user_
     idxEnd = CLAMP ((int)(((double)(xOld - pdp->iTraceLeft)) / pdp->dIncrem), 0, sim_data->number_samples - 1) ;
 
 
+    /* The beginning and ending sample idices must be relative to the already visible chunk */
     if (idxEnd != idxBeg)
       {
       pdp->idxBeg += idxBeg ;
@@ -404,6 +424,7 @@ void graph_zoom_inc (GtkWidget *widget, gpointer user_data)
   int iZoomDen = (int)gtk_object_get_data (GTK_OBJECT (user_data), "iZoomDen") ;
   DRAW_PARAMS *pdp = (DRAW_PARAMS *)gtk_object_get_data (GTK_OBJECT (user_data), "pdp") ;
   
+  /* Rules for setting the zoom numerator and denominator */
   if (1 == iZoomDen && iZoomNum < 10)
     gtk_object_set_data (GTK_OBJECT (user_data), "iZoomNum", (gpointer)(++iZoomNum)) ;
   else if (iZoomDen > 1) 
@@ -420,6 +441,7 @@ void graph_zoom_dec (GtkWidget *widget, gpointer user_data)
   int iZoomDen = (int)gtk_object_get_data (GTK_OBJECT (user_data), "iZoomDen") ;
   DRAW_PARAMS *pdp = (DRAW_PARAMS *)gtk_object_get_data (GTK_OBJECT (user_data), "pdp") ;
   
+  /* Rules for setting the zoom numerator and denominator */
   if (1 == iZoomNum && iZoomDen < 2)
     gtk_object_set_data (GTK_OBJECT (user_data), "iZoomDen", (gpointer)(++iZoomDen)) ;
   else if (iZoomNum > 1)
@@ -430,6 +452,7 @@ void graph_zoom_dec (GtkWidget *widget, gpointer user_data)
 
 void CacheDrawingParams (DRAW_PARAMS *pdp, int cx, int cy, int iZoomNum, int iZoomDen)
   {
+  /* When the window is resized, these parameters can be precalculated */
   pdp->cx = cx ;
   pdp->cy = cy ;
   pdp->dZoom = (double)iZoomNum / (double)iZoomDen ;
@@ -447,8 +470,9 @@ void CacheDrawingParams (DRAW_PARAMS *pdp, int cx, int cy, int iZoomNum, int iZo
 void CalculateDrawingArea (graph_D *dialog, simulation_data *sim_data, int iZoomNum, int iZoomDen, int *pcx, int *pcy)
   {
   int Nix, cx, cy ;
-  
   double dZoom = (double)iZoomNum / (double)iZoomDen ;
+  
+  /* Calculate the size of the drawing window based on the zoom, the size of the traces and the #defined width @ zoom 1:1 */
   
   *pcx = GRAPH_CX * dZoom ;
   *pcy = GRAPH_Y_PADDING + gdk_string_height (gdk_font_load (FONT_STRING), "Xg") + 2 * GRAPH_TEXT_CLEARANCE ;
@@ -480,6 +504,7 @@ void paint_graph_window (GtkWidget *da, DRAW_PARAMS *pdp, simulation_data *sim_d
   GdkFont *pfont = gdk_font_load (FONT_STRING) ;
   GdkColor clr ;
   
+  /* Set the clipping rectangle for the background gc to speed up drawing */
   if (NULL != prcClip)
     gdk_gc_set_clip_rectangle  (pgc, prcClip) ;
   gdk_draw_rectangle (da->window, pgc, TRUE, 0, 0, pdp->cx - 1, pdp->cy - 1) ;
@@ -487,6 +512,7 @@ void paint_graph_window (GtkWidget *da, DRAW_PARAMS *pdp, simulation_data *sim_d
     gdk_gc_set_clip_rectangle (pgc, &rc) ;
   
   pgc = gdk_gc_new (da->window) ;
+  /* Set the clipping rectangle for the drawing gc to speed up drawing */
   if (NULL != prcClip)
     gdk_gc_set_clip_rectangle (pgc, prcClip) ;
   
@@ -494,16 +520,19 @@ void paint_graph_window (GtkWidget *da, DRAW_PARAMS *pdp, simulation_data *sim_d
   
   gdk_gc_set_foreground (pgc, &clr) ;
   
+  /* The title - "Simulation Results" */
   gdk_draw_string (da->window, pfont, pgc,
     (pdp->cx - gdk_string_width (pfont, szText)) / 2, 
     GRAPH_TEXT_CLEARANCE + gdk_string_height (pfont, szText),
     szText) ;
   
+  /* Draw each trace */
   if (!(NULL == sim_data->trace || 0 == sim_data->number_of_traces))
     for (Nix = 0 ; Nix < sim_data->number_of_traces ; Nix++)
       if (sim_data->trace[Nix].drawtrace)
         draw_single_trace (da, pgc, pdp, &sim_data->trace[Nix], idxSample++, bPreview, sim_data->number_samples) ;
   
+  /* Draw each clock */
   if (NULL != sim_data->clock_data)
     for (Nix = 0 ; Nix < 4 ; Nix++)
       if (sim_data->clock_data[Nix].drawtrace)
@@ -523,10 +552,12 @@ void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRAC
   int cyFont = gdk_string_height (pfont, "X")/*, iCXString*/ ;
   int iBoxTop, iTraceTop, iTraceOffset1, iTraceOffset2 ;
   
-         iBoxTop = cyFont + 2 * GRAPH_TEXT_CLEARANCE + (idx * GRAPH_TRACE_CY) * pdp->dZoom + GRAPH_TRACE_PAD_Y ;
-       iTraceTop = iBoxTop + GRAPH_TRACE_MINMAX_GAP ;
-   iTraceOffset1 = iTraceTop + 0.5 * pdp->iTraceCY ;
-   iTraceOffset2 = iTraceTop + pdp->iTraceCY ;
+        iBoxTop = cyFont + 2 * GRAPH_TEXT_CLEARANCE + (idx * GRAPH_TRACE_CY) * pdp->dZoom + GRAPH_TRACE_PAD_Y ;
+      iTraceTop = iBoxTop + GRAPH_TRACE_MINMAX_GAP ;
+  iTraceOffset1 = iTraceTop + 0.5 * pdp->iTraceCY ;
+  iTraceOffset2 = iTraceTop + pdp->iTraceCY ;
+
+  DBG_GD (fprintf (stderr, "Graphing trace |%s|\n", trace->data_labels)) ;
 
   set_current_colour (&clr, GREEN, iClrMask) ;
   gdk_gc_set_foreground (pgc, &clr) ;
@@ -542,7 +573,13 @@ void draw_single_trace (GtkWidget *da, GdkGC *pgc, DRAW_PARAMS *pdp, struct TRAC
   gdk_gc_set_line_attributes(pgc, 1, GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
   
   get_min_max (trace, 0, icSamples - 1, &dMin, &dMax) ;
-  get_min_max (trace, pdp->idxBeg, pdp->idxEnd, &dSampleMin, &dSampleMax) ;
+  if (0 == pdp->idxBeg && icSamples - 1 == pdp->idxEnd)
+    {
+    dSampleMin = dMin ;
+    dSampleMax = dMax ;
+    }
+  else
+    get_min_max (trace, pdp->idxBeg, pdp->idxEnd, &dSampleMin, &dSampleMax) ;
   
   set_current_colour (&clr, trace->trace_color, iClrMask) ;
   gdk_gc_set_foreground (pgc, &clr) ;
@@ -571,12 +608,15 @@ void get_min_max (struct TRACEDATA *trace, int idxStart, int idxEnd, double *pdM
   {
   int Nix ;
   
+  DBG_GD (fprintf (stderr, "Getting min and max for trace 0x%08X between %d <-> %d\n", (int)trace, idxStart, idxEnd)) ;
+  
   if (NULL == trace) return ;
   
   *pdMin = *pdMax = trace->data[idxStart] ;
   
   for (Nix = idxStart + 1 ; Nix <= idxEnd ; Nix++)
     {
+    DBG_GD (fprintf (stderr, "Comparing *pdMin:%lf <-> %lf <-> %lf:*pdMax\n", *pdMin, trace->data[Nix], *pdMax)) ;
     if (trace->data[Nix] < *pdMin) *pdMin = trace->data[Nix] ;
     if (trace->data[Nix] > *pdMax) *pdMax = trace->data[Nix] ;
     }

@@ -48,7 +48,7 @@ print_OP print_options ;
 bistable_OP bistable_options;
 
 //!Options for the nonlinear approximation engine
-nonlinear_approx_OP nonlinear_approx_options = {0, 50.0, 5.0} ;
+nonlinear_approx_OP nonlinear_approx_options = {3200, 1000.0, 5.0, FALSE} ;
 
 //!Options for the cells
 cell_OP cell_options = {0, 18, 18, 5, 9, 9, 2} ;

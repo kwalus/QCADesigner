@@ -674,25 +674,6 @@ gboolean button_press_event(GtkWidget * widget, GdkEventButton * event, gpointer
 	    break;
 
 	case CELL_PROPERTIES:
-	    /*
-	       cellp = select_cell_at_coords(calc_world_x(event->x),calc_world_y(event->y));
-
-	       if(cellp != NULL){
-
-
-	       refresh_all_Ek();
-
-	       printf("cell has %d neighbours\n", cellp->number_of_neighbours);
-
-	       for(i = 0; i < cellp->number_of_neighbours; i++){
-	       cellp->neighbours[i]->color = RED;
-	       }                                                            
-
-	       redraw_world();
-
-
-	       }
-	     */
 	    set_selected_action (CLEAR, selected_cell_type) ;
 	    break;
 
@@ -1087,62 +1068,46 @@ gboolean configure_event(GtkWidget * widget, GdkEvent * event,
 }
 
 void on_preview_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-init_print_options (&print_options, first_cell) ;
-do_print_preview (&print_options, GTK_WINDOW (main_window.main_window), first_cell) ;
-/*
-    qcell *cell;
-    char *text =
-	"Print Preview is still under development, the colors will change to allow for printable screen-shots of designs *** Click again to return to normal ***\n";
+  {
+  init_print_options (&print_options, first_cell) ;
+  do_print_preview (&print_options, GTK_WINDOW (main_window.main_window), first_cell) ;
+  }
 
-    PRINT_PREVIEW = !PRINT_PREVIEW;
-    gtk_text_insert(GTK_TEXT (main_window.command_history), NULL, NULL, NULL, text,
-		    strlen(text));
-
-    cell = first_cell;
-
-    while (cell != NULL) {
-	cell->color = BLACK;
-	cell = cell->next;
-    }
-
-    redraw_world();
-*/
-}
-
-void on_grid_properties_menu_item_activate(GtkMenuItem * menuitem,
-					   gpointer user_data)
+void on_grid_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
   get_grid_spacing_from_user (GTK_WINDOW (main_window.main_window), &grid_spacing) ;
   redraw_world () ;
 }
 
 void on_snap_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-}
-void on_cell_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data){
-    get_cell_properties_from_user (GTK_WINDOW (main_window.main_window), &cell_options) ;
-}
+  {
+  }
+
+void on_cell_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
+  {
+  get_cell_properties_from_user (GTK_WINDOW (main_window.main_window), &cell_options) ;
+  }
 
 void on_window_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-}
+  {
+  }
+
 void on_layer_properties_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
-}
+  {
+  }
 
 // toggle the snap to grid option //
-void on_snap_to_grid_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data){
-    
-    SNAP_TO_GRID = ((GtkCheckMenuItem *) menuitem)->active;
-}
+void on_snap_to_grid_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
+  {
+  SNAP_TO_GRID = ((GtkCheckMenuItem *) menuitem)->active;
+  }
 
 // toggle the show grid option //
-void on_show_grid_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data){
-   
-    SHOW_GRID = ((GtkCheckMenuItem *) menuitem)->active;
-	redraw_world();
-}
+void on_show_grid_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
+  {
+  SHOW_GRID = ((GtkCheckMenuItem *) menuitem)->active;
+  redraw_world();
+  }
 
 void file_operations (GtkWidget *widget, gpointer user_data)
   {
@@ -1568,7 +1533,7 @@ void on_preferences_menu_item_activate(GtkMenuItem * menuitem, gpointer user_dat
 }
 void on_start_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
-  simulation_data *sim_data = run_simulation(SIMULATION_ENGINE);
+  simulation_data *sim_data = run_simulation(SIMULATION_ENGINE, SIMULATION_TYPE);
   if (NULL != sim_data)
     show_graph_dialog (GTK_WINDOW (main_window.main_window), sim_data) ;
 }

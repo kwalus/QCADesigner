@@ -20,6 +20,7 @@
 #include <assert.h>
 
 #include "globals.h"
+#include "vector_table.h"
 #include "simulation.h"
 
 typedef struct{
@@ -27,7 +28,7 @@ typedef struct{
 	int number_of_samples;
 	float K ;
 	float decay_exponent ;
-	int animate_simulation;
+	gboolean animate_simulation;
 
 }nonlinear_approx_OP;
 
@@ -40,12 +41,12 @@ typedef struct{
 	
 }nonlinear_approx_model;
 
-simulation_data *run_nonlinear_approx(qcell *first_cell, nonlinear_approx_OP *options);
-void run_nonlinear_approx_iteration(int sample_number, int number_of_sorted_cells, simulation_data *sim_data);
+simulation_data *run_nonlinear_approx(int SIMULATION_TYPE, qcell *first_cell, nonlinear_approx_OP *options, VectorTable *pvt);
+int CountActiveInputs (VectorTable *pvt) ;
 inline void uglysort(qcell ** sorted_cells, int *number_of_neighbours, int NumberElements);
 int compareSortStructs(const void *p1, const void *p2);
 double determine_Ek(qcell * cell1, qcell * cell2, nonlinear_approx_OP *options);
-void refresh_all_Ek(nonlinear_approx_OP *options);
+void refresh_all_Ek(qcell *cell, nonlinear_approx_OP *options);
 //void calculate_ground_state(nonlinear_approx_OP *options);
 void animate_test_simulation();
 

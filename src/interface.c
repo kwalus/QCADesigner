@@ -408,15 +408,7 @@ void create_main_window (main_W *main_window){
 	gtk_widget_show (main_window->zoom_extents_menu_item);
 	gtk_container_add (GTK_CONTAINER (main_window->view_menu_menu), main_window->zoom_extents_menu_item);
 	gtk_widget_add_accelerator (main_window->zoom_extents_menu_item, "activate", main_window->accel_group, GDK_e, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-/*	
-	// create and add the pan menu item to the view menu //
-	pan_menu_item = gtk_menu_item_new_with_label (_("Pan"));
-	gtk_widget_ref (pan_menu_item);
-	gtk_object_set_data_full (GTK_OBJECT (main_window), "pan_menu_item", pan_menu_item,
-	(GtkDestroyNotify) gtk_widget_unref);
-	gtk_widget_show (pan_menu_item);
-	gtk_container_add (GTK_CONTAINER (view_menu_menu), pan_menu_item);
-*/	
+
     // create and add a seperator to the edit menu //
     main_window->separator4 = gtk_menu_item_new ();
     gtk_widget_ref (main_window->separator4);

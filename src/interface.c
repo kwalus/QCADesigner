@@ -1048,7 +1048,7 @@ void create_main_window (main_W *main_window){
 	gtk_widget_ref (main_window->scrolledwindow1);
 	gtk_object_set_data_full (GTK_OBJECT (main_window->main_window), "scrolledwindow1", main_window->scrolledwindow1, (GtkDestroyNotify) gtk_widget_unref);
 	gtk_widget_show (main_window->scrolledwindow1);
-	gtk_paned_pack2 (GTK_PANED (main_window->vpaned1), main_window->scrolledwindow1, TRUE, TRUE);
+	gtk_paned_pack2 (GTK_PANED (main_window->vpaned1), main_window->scrolledwindow1, FALSE, TRUE);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (main_window->scrolledwindow1), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	
 	// create and add the command history text box to the scrolled window //

@@ -238,9 +238,9 @@ qcell *import_block(gchar *file_name, qcell ***p_selected_cells, int *p_number_o
 // opens a selected file //
 qcell *open_project_file(gchar *file_name, qcell **p_first_cell, qcell **p_last_cell){
 	FILE *project_file = NULL ;
-	project_file = fopen(file_name, "r");
 	qcell qc = {NULL} ;
 	qcell *pqc = &qc ;
+	project_file = fopen(file_name, "r");
 	
 	if(project_file == NULL){
 		g_print("cannot open that file!\n");

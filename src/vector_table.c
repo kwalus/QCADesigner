@@ -312,12 +312,13 @@ gboolean VectorTable_save (VectorTable *pvt)
 VTL_RESULT VectorTable_load (VectorTable *pvt)
   {
   int icInputs = 0, icVectors = 0, idxNext = -1, Nix, Nix1 ;
+  FILE *pfile = fopen (pvt->szFName, "r") ;
   VTL_RESULT ret = VTL_OK ;
+  VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
   
   DBG_VT (fprintf (stderr, "Entering VectorTable_load\n")) ;
 
-  VECTOR_TABLE_PRIVATE *pvtp = (VECTOR_TABLE_PRIVATE *)pvt ;
-  FILE *pfile = fopen (pvt->szFName, "r") ;
+
   
   if (NULL == pfile) return VTL_FILE_FAILED ;
   

@@ -25,7 +25,7 @@ make
 
 %install
 make DESTDIR=%buildroot install
-[ "/" != %buildroot ] && rm -rf %buildroot/share/doc
+[ "/" != %buildroot ] && rm -rf %buildroot/usr/share/doc
 
 %clean
 [ "/" != $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT

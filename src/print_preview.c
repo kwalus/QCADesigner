@@ -36,9 +36,9 @@ void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFuncti
   char **argv ;
   int argc = -1 ;
   GError *err = NULL ;
-  GPid child_pid = -1 ;
 #ifdef WIN32
   char szBuf[MAX_PATH] = "" ;
+  FILE *pfile = NULL ;
 #endif
   
 #ifdef WIN32
@@ -105,7 +105,7 @@ void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFuncti
     G_SPAWN_SEARCH_PATH | 
     G_SPAWN_STDOUT_TO_DEV_NULL |
     G_SPAWN_STDERR_TO_DEV_NULL,
-    ChildPreRun, NULL, &child_pid, &err))
+    ChildPreRun, NULL, NULL, &err))
     
     fprintf (stderr, "Failed to execute command line\"%s\"!\n", pszCmdLine) ;
 

@@ -106,7 +106,6 @@ static void save_vector_table (GtkWidget *widget, gpointer user_data) ;
 static void InputCBEntry_changed (GtkWidget *widget, gpointer user_data) ;
 static void InputCBPopwin_show (GtkWidget *widget, gpointer user_data) ;
 static void InputCBPopwin_hide (GtkWidget *widget, gpointer user_data) ;
-static void mnusp_enter_notify (GtkWidget *widget, GdkEventCrossing *ev, gpointer data) ;
 
 static void VectorTableToDialog (vector_table_options_D *dialog, VectorTable *pvt) ;
 static void DialogToVectorTable (vector_table_options_D *dialog, VectorTable *pvt) ;
@@ -644,11 +643,6 @@ static void create_vector_table_options_dialog (vector_table_options_D *dialog)
   DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->mnuAdd\n")) ;
   g_signal_connect (G_OBJECT (dialog->mnuDel), "activate", (GCallback)delete_vector, dialog->dlgVectorTable) ;
   DBG_VTO_UI (fprintf (stderr, "create_vector_table_options_dialog:Hooked up dailog->mnuDel\n")) ;
-  }
-
-static void mnusp_enter_notify (GtkWidget *widget, GdkEventCrossing *ev, gpointer data)
-  {
-  fprintf (stderr, "Nix\n") ;
   }
 
 static gboolean Vector_buttondown (GtkWidget *widget, GdkEventButton *ev, gpointer user_data)

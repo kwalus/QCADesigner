@@ -27,6 +27,9 @@
 #include "file_selection_window.h"
 #include "fileio_helpers.h"
 #include "custom_widgets.h"
+#ifdef WIN32
+  #include "global_consts.h"
+#endif
 
 #define DBG_FSW(s)
 

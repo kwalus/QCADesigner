@@ -6,6 +6,6 @@
 char *ReadLine (FILE *pfile, char cComment) ;
 char *base_name (char *pszFile) ;
 char *CreateUserFName (char *pszBaseName) ;
-char **CmdLineToArgv (char *pszCmdLine, int *pargc) ;
+//char **CmdLineToArgv (char *pszCmdLine, int *pargc) ;
 
 #endif /* _FILEIO_HELPERS_H_ */

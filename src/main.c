@@ -38,7 +38,6 @@
 #include "bistable_simulation.h"
 #include "recent_files.h"
 #include "vector_table.h"
-#include "fileio_helpers.h"
 #include "init.h"
 
 #define NO_CONSOLE
@@ -64,6 +63,7 @@ static void QCADesigner_static_init () ;
 // Use WinMain and set argc and argv to reasonable values
 int APIENTRY WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *pszCmdLine, int iCmdShow)
   {
+  GError *err = NULL ;
 #else /* ifndef NO_CONSOLE */
 // Normally, we have a console
 int main (int argc, char *argv[])
@@ -99,7 +99,8 @@ int main (int argc, char *argv[])
     psz = g_strdup_printf ("%s %s", pszModuleFName, pszCmdLine) ;
   else
     psz = g_strdup_printf ("%s", pszModuleFName) ;
-  argv = (char **)CmdLineToArgv (psz, &argc) ;
+  if (!g_shell_parse_argv (psz, ,&argc, &argv, &err))
+    exit (1) ;
   g_free (psz) ;
 #endif
 
@@ -127,6 +128,10 @@ int main (int argc, char *argv[])
 
 	gtk_set_locale ();
 	gtk_init (&argc, &argv);
+
+#ifdef NO_CONSOLE
+  g_strfreev (argv) ;
+#endif
 
   // call all the static initializers from init.h
   QCADesigner_static_init () ;

@@ -792,7 +792,6 @@ void on_contents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 char *pszCmdLine = NULL ;
 char **argv = NULL ;
 int argc = -1 ;
-int Nix ;
 GError *err = NULL ;
 #ifdef WIN32
 char *pszBrowser = 
@@ -818,7 +817,11 @@ pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner%cmanual%cindex.html",
 
 // fprintf (stderr, "Proceeding with command line |%s|\n", pszCmdLine) ;
 
-argv = CmdLineToArgv (pszCmdLine, &argc) ;
+if (!g_shell_parse_argv (pszCmdLine, &argc, &argv, &err))
+  {
+  g_free (pszCmdLine) ;
+  return ;
+  }
 
 if (!g_spawn_async (NULL, argv, NULL, 
   G_SPAWN_SEARCH_PATH | 
@@ -830,9 +833,7 @@ if (!g_spawn_async (NULL, argv, NULL,
 
 g_free (pszCmdLine) ;
 
-for (Nix = 0 ; Nix < argc ; Nix++)
-  g_free (argv[Nix]) ;
-g_free (argv) ;  
+g_strfreev (argv) ;
 }
 
 void on_search_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)

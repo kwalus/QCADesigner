@@ -64,7 +64,7 @@ char *CreateUserFName (char *pszBaseName)
   g_free (psz) ;
   return pszRet ;
   }
-
+/*
 // Turn a string into an argv-style array
 char **CmdLineToArgv (char *pszTmp, int *pargc)
   {
@@ -118,3 +118,4 @@ char **CmdLineToArgv (char *pszTmp, int *pargc)
   g_free (psz) ;
   return argv ;
   }
+*/

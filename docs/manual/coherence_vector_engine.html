@@ -40,17 +40,11 @@
 <h1>QCADesigner Documentation</h1>
 
 <h2>Coherence Vector Simulation Engine</h2>
-<p>The coherence vector simulation is based on a density matrix approach and can model dissipative effects as well as time dependant simulation of the design. As with the other simulation engines assumes that each cell is a simple two-state system. For this two-state system, it has been shown that the following Hamiltonian can be constructed<a href="#1">[1]</a>.
+<p>The coherence vector simulation is based on a density matrix approach and can model dissipative effects as well as time dependent simulation of the design<a href="#1">[1]</a>. As with the other simulation engines, it assumes that each cell is a simple two-state system. For this two-state system the following Hamiltonian can be constructed<a href="#2">[2]</a>.
 
-<p><center><img src="images/two_state_hamiltonian.png"></center>
+<p><center><img src="images/two_state_hamiltonian.png">       (1)</center>
 
-<p>where <i>E<sup>k</sup><sub>i,j</sub></i> is the kink energy between cell <i>i</i> and <i>j</i>. This kink energy is associated with the energy cost of two cells having opposite polarization. <i>P<sub>j</sub></i> is the polarization of cell <i>j</i>. <i>&gamma;</i> is the tunneling energy of electrons within the cell. The summation is over all cells within an <a href="#radius_of_effect">effective radius</a> of cell <i>i</i>, and can be set prior to the simulation. Using the time-independent Schroedinger equation we are able to find the stationary states of the cell in the environment described by this Hamiltonian. QCADesigner uses the Jacobi algorithm to find the eigenvalues (<i>E<sub>i</sub></i>) and eigenvectors (<i>&psi;<sub>i</sub></i>) of the Hamiltonian
-
-<p><center><img src="images/shroedinger_equation.png"></center>
-
-<p>where <i>H<sub>i</sub></i> is the Hamiltonian given above. <i>&psi;<sub>i</sub></i> is the state vector of the cell. <i>E<sub>i</sub></i> is the energy associated with the state. The algorithm sorts each of the states, <i>&psi;<sub>i</sub></i> , according to their respective energy, in ascending order. The first state in the sorted list is that which has the lowest energy. Our assumption is that the system remains very close to the ground state during computation. As a result, the state with the lowest energy is chosen and the cell polarization is set accordingly. The two state simulation engine computes the polarization of each cell in the design until the entire system has converged to a <a href="#convergence_tolerance">preset tolerance</a>. Once the system has converged, the output values are recorded, new input values are set and the simulation is reiterated.
-
-<p>This method is less time efficient in comparison to the <a href="nonlinear_approximation_engine.html">nonlinear approximation</a>, and as a result leads to longer simulation times. The advantage of this method is that the model on which it is based is more accurate.
+<p>where <i>E<sup>k</sup><sub>i,j</sub></i> is the kink energy between cell <i>i</i> and <i>j</i>. This kink energy is associated with the energy cost of two cells having opposite polarization. <i>P<sub>j</sub></i> is the polarization of cell <i>j</i>. <i>&gamma;</i> is the tunneling energy of electrons within the cell and is directly connected to the clock; i.e. the clock value is the tunneling energy. The summation is over all cells within an <a href="#radius_of_effect">effective radius</a> of cell <i>i</i>, and can be set prior to the simulation. 
 
 <h2>Kink Energy</h2>
 <p>The kink energy <i>E<sup>k</sup><sub>i,j</sub></i> represents the energy cost of cells <i>i</i> and <i>j</i> having opposite polarization. It is calculated simply from the electrostatic interaction between all the charges (mobile/immobile). That is, for each dot in cell <i>i</i> we calculate the electrostatic interaction between this dot and each dot in cell <i>j</i> as
@@ -61,6 +55,40 @@
 
 <p>Because the cell is charge neutral (immobile positive charges cancel the charged electrons) the cells interact through a quadrupole-quadrupole interaction which decays inversely as a power of five of the distance between cells. Therefore the kink energy will decay rapidly with distance and the <a href="#radius_of_effect">effective neighborhood</a> of interacting cells can be made small.
 
+<h2>Coherence Vector</h2>
+<p>The coherence vector &lambda; is a vector representation of the density matrix &rho; of a cell, projected onto the Pauli spin matrices <i>&sigma;<sub>x</sub></i>,<i>&sigma;<sub>y</sub></i>,and <i>&sigma;<sub>z</sub></i>. The components of &lambda; are found by taking the Trace of the density matrix multiplied by each of the Pauli spin matrices; i.e.
+
+<p><center><img src="images/coherence_vector_components.png"></center>
+
+<p>The polarization of cell <i>i</i>, <i>P<sub>i</sub></i> is just the <i>z</i> component of the coherence vector.
+
+<p><center><img src="images/polarization_definition.png"></center>
+
+<p>The Hamiltonian must also be projected onto the spin matrices as
+
+<p><center><img src="images/gamma_components.png"></center>
+
+<p>This vector &Gamma; represents the energy environment of the cell, including the effect of neighboring cells. We can evaluate the explicit expression for &Gamma; by substituting in our Hamiltonian. This explicit expression is
+
+<p><center><img src="images/explicit_gamma.png"></center>
+
+<p>here <i>S</i> is the <a href="#radius_of_effect">effective neighborhood</a> of cell <i>i</i>. The equation of motion for the coherence vector including dissipative effects is
+
+<p><center><img src="images/coherence_equation_motion.png">       (2)</center>
+
+<p>here &tau; is the <a href="#relaxation_time">relaxation time</a>, and is a time constant representing the dissipation of energy into the environment. <i>&lambda;<sub>ss</sub></i> is the steady state coherence vector defined as
+
+<p><center><img src="images/lambda_steady_state.png"></center>
+
+<p>&Delta; is the temperature ratio defined as
+
+<p><center><img src="images/temperature_ratio.png"></center>
+
+<p><i>T</i> is the <a href="#temperature">temperature</a> in Kelvin. <i>k<sub>B</sub></i> is Boltzmann's constant.
+
+<p>The simulation engine evaluates the equation of motion (a partial differential equation) using an explicit time marching algorithm. For each <a href="#time_step">time step</a> the &Gamma; and <i>&lambda;<sub>ss</sub></i> for each cell is evaluated and then the coherence vector for each cell is stepped forward in time.
+
+
 <a name="engine_options">
 <h2>Engine Options</h2>
 
@@ -69,7 +97,7 @@
 <a name="temperature">
 <h3>Temperature</h3>
 
-<p>The temperature of the simulation in Kelvins. Has an effect on the steady state vector as described above.
+<p>The temperature of the simulation in Kelvin. Has an effect on the steady state vector as described above.
 
 <a name="relaxation_time">
 <h3>Relaxation Time</h3>
@@ -84,7 +112,7 @@
 <a name="total_simulation_time">
 <h3>Total Simulation Time</h3>
 
-<p>The total duration of the simulation. Be carefull not to set this to large if your <a href="time_step">time step</a> is too small because the simulation may take days! The total number of samples = total simulation time / time step.
+<p>The total duration of the simulation. Be careful not to set this to large if your <a href="time_step">time step</a> is too small because the simulation may take days! The total number of samples = total simulation time / time step.
 
 <a name="clock_low">
 <a name="clock_high">
@@ -106,7 +134,10 @@
  
 <h3>References</h3>
 <a name="1">
-<p>[1] G. Toth, "Correlation and coherence in quantum-dot cellular automata", <i>Ph.D. Thesis</i>, University of Notre Dame, pp. 56-63, 2000.
+<p>[1] J. Timler and C. S. Lent, "Power gain and dissipation in quantum-dot cellular automata", <i>J. Appl. Phys., vol 91, no 2, pp. 823-831, 2002</i>
+
+<a name="2">
+<p>[2] G. Toth, "Correlation and coherence in quantum-dot cellular automata", <i>Ph.D. Thesis</i>, University of Notre Dame, pp. 56-63, 2000.
 
 </td>
 </tr>

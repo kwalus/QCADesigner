@@ -816,7 +816,7 @@ pszCmdLine = g_strdup_printf ("%s file://%s%cdoc%cQCADesigner%cmanual%cindex.htm
   pszBrowser, PACKAGE_DATA_DIR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
 #endif
 
-fprintf (stderr, "Proceeding with command line |%s|\n", pszCmdLine) ;
+// fprintf (stderr, "Proceeding with command line |%s|\n", pszCmdLine) ;
 
 argv = CmdLineToArgv (pszCmdLine, &argc) ;
 

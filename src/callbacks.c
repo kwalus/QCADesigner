@@ -231,16 +231,25 @@ gboolean scroll_event(GtkWidget *widget, GdkEventScroll *event, gpointer user_da
 
 gboolean expose_event(GtkWidget * widget, GdkEventExpose *event, gpointer user_data)
 {
+    GdkGC *gc = NULL ;
     DBG_CB_HERE (fprintf (stderr, "Entering expose_event\n")) ;
+    GdkColor clr = {0, 0, 0, 0} ;
+
+    gdk_colormap_alloc_color (gdk_colormap_get_system (), &clr, FALSE, TRUE) ;
     
     AREA_WIDTH = (int) widget->allocation.width;
     AREA_HEIGHT = (int) widget->allocation.height;
-    
+
+    gc = gdk_gc_new (widget->window) ;
+    gdk_gc_set_foreground (gc, &clr) ;
+    gdk_gc_set_background (gc, &clr) ;
+    gdk_draw_rectangle (widget->window, gc, TRUE, 0, 0, AREA_WIDTH, AREA_HEIGHT) ;
+
     gdk_window_begin_paint_region (widget->window, event->region) ;
     redraw_world (widget->window, global_gc, (GQCell *)(design.first_layer->first_obj), project_options.SHOW_GRID) ;
     gdk_window_end_paint (widget->window) ;
     
-    return FALSE;
+    return TRUE;
 }
 
 gboolean configure_event(GtkWidget * widget, GdkEvent * event, gpointer user_data)

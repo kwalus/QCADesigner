@@ -91,10 +91,10 @@ void cad_init ()
   GdkColormap *clrmSys = gdk_colormap_get_system () ;
   
   global_font = gdk_font_load (QCAD_GDKFONT) ;
-  gdk_color_alloc (clrmSys, &clrBlack) ;
-  gdk_color_alloc (clrmSys, &clrWhite) ;
-  gdk_color_alloc (clrmSys, &clrBlue) ;
-  gdk_color_alloc (clrmSys, &clrCyan) ;
+  gdk_colormap_alloc_color (clrmSys, &clrBlack, FALSE, TRUE) ;
+  gdk_colormap_alloc_color (clrmSys, &clrWhite, FALSE, TRUE) ;
+  gdk_colormap_alloc_color (clrmSys, &clrBlue, FALSE, TRUE) ;
+  gdk_colormap_alloc_color (clrmSys, &clrCyan, FALSE, TRUE) ;
   }
 
 //!Redraws all the design cells to the screen.
@@ -211,24 +211,27 @@ void draw_grid(GdkDrawable *d, GdkGC *gc){
 void redraw_world(GdkDrawable *dWnd, GdkGC *gcWnd, GQCell *first_cell, gboolean bShowGrid)
   {
   GdkGC *gc = gcWnd ;
-  GdkPixmap *pm = gdk_pixmap_new (dWnd, AREA_WIDTH, AREA_HEIGHT, -1) ;
-  GdkDrawable *d = dWnd ;
-  if (NULL != pm)
-    gc = gdk_gc_new (d = GDK_DRAWABLE (pm)) ;
-  
+
   gdk_window_clear (dWnd) ;
+
+//  gdk_gc_set_foreground (gc, &clrBlack) ;
+//  gdk_gc_set_background (gc, &clrBlack) ;
+
+//  fprintf (stderr, "Drawing black rectangle of size (%d,%d)\n", AREA_WIDTH, AREA_HEIGHT) ;
+
+//  gdk_draw_rectangle (dWnd, gc, TRUE, 0, 0, AREA_WIDTH, AREA_HEIGHT) ;
   
   DBG_CAD (fprintf (stderr, "redraw_world\n")) ;
-  draw_subs(d, gc);
-  if(bShowGrid)draw_grid(d, gc);
-  redraw_all_cells(d, gc, first_cell);
+  draw_subs(dWnd, gc);
+  if(bShowGrid)draw_grid(dWnd, gc);
+  redraw_all_cells(dWnd, gc, first_cell);
   
-  if (NULL != pm)
-    {
-    gdk_draw_drawable (dWnd, gcWnd, GDK_DRAWABLE (pm), 0, 0, 0, 0, -1, -1) ;
-    g_object_unref (G_OBJECT (gc)) ;
-    g_object_unref (G_OBJECT (pm)) ;
-    }
+//  if (NULL != pm)
+//    {
+//    gdk_draw_drawable (dWnd, gcWnd, GDK_DRAWABLE (pm), 0, 0, 0, 0, -1, -1) ;
+//    g_object_unref (G_OBJECT (gc)) ;
+//    g_object_unref (G_OBJECT (pm)) ;
+//    }
   }//redraw_world
 
 //-------------------------------------------------------------------//

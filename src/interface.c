@@ -971,6 +971,7 @@ void create_main_window (main_W *main_window){
 	GTK_WIDGET_SET_FLAGS (main_window->drawing_area, GTK_CAN_FOCUS);
 	gtk_widget_show (main_window->drawing_area);
 	gtk_container_add (GTK_CONTAINER (main_window->drawing_area_frame), main_window->drawing_area) ;
+
         rcstyle = gtk_widget_get_modifier_style (main_window->drawing_area) ;
         rcstyle->color_flags[0] |= GTK_RC_BG ;
         rcstyle->color_flags[1] |= GTK_RC_BG ;

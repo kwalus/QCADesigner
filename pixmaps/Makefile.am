@@ -1,5 +1,5 @@
 pixmapdir= $(datadir)/pixmaps/QCADesigner
-# appicondir= $(datadir)/pixmaps
+appicondir= $(datadir)/pixmaps
 
 pixmap_DATA=\
   QCADesigner.ico \
@@ -38,4 +38,6 @@ pixmap_DATA=\
   zoom_in.xpm \
   zoom_out.xpm
 
-EXTRA_DIST=$(pixmap_DATA)
+appicon_DATA = QCADesigner-icon.png
+
+EXTRA_DIST=$(pixmap_DATA) $(appicon_DATA)

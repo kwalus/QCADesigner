@@ -39,9 +39,10 @@ typedef struct{
 
 static double coherence_determine_Ek(GQCell * cell1, GQCell * cell2, coherence_OP *options);
 static void coherence_refresh_all_Ek(GQCell *cell, coherence_OP *options);
-static void run_coherence_iteration(int sample_number, int number_of_sorted_cells, GQCell **sorted_cells, coherence_OP *options, simulation_data *sim_data);
+inline static void run_coherence_iteration(int sample_number, int number_of_sorted_cells, int total_number_of_inputs, unsigned long int number_samples, GQCell **sorted_cells, coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt);
+double calculate_clock_value(unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
 static int compareCoherenceQCells (const void *p1, const void *p2) ;
-inline double magnitude_energy_vector(double t, double PEk, double Gamma, const coherence_OP *options);
+double magnitude_energy_vector(double t, double PEk, double Gamma, const coherence_OP *options);
 double temp_ratio(double t, double PEk, double Gamma, const coherence_OP *options);
 inline double lambda_ss_x(double t, double PEk, double Gamma, const coherence_OP *options);
 inline double lambda_ss_y(double t, double PEk, double Gamma, const coherence_OP *options);
@@ -63,11 +64,26 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	int total_number_of_inputs = 0;
 	int total_number_of_outputs = 0;
 	double input = 0;
-	unsigned int number_samples;
+	unsigned long int number_samples;
+	//number of points to record in simulation results //
+	//simulations can have millions of points and there is no need to plot them all //
+	unsigned int number_recorded_samples = 3000;
+	unsigned int record_interval;
 	double PEk = 0;
-
+	gboolean stable;
+	double old_lambda_x;
+	double old_lambda_y;
+	double old_lambda_z;
+		
 	// determine the number of samples from the user options //
-	number_samples = (unsigned int)(options->duration/options->time_step);
+	number_samples = (unsigned long int)(options->duration/options->time_step);
+	if(number_recorded_samples >= number_samples){
+		number_recorded_samples = number_samples;
+		record_interval = 1;
+	}else{
+		record_interval = number_samples/(number_recorded_samples-1);
+	}
+	
 	command_history_message ("About to start the coherence vector simulation with %d samples\n", number_samples);
 
 	// -- Allocate memory to hold the simulation data -- //
@@ -162,7 +178,9 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	// -- Initialize the simualtion data structure -- //
   	sim_data->number_of_traces = total_number_of_inputs + total_number_of_outputs;
         
-  	sim_data->number_samples = number_samples;
+	// set the number of simulation samples to be the desired number of recorded samples //
+  	sim_data->number_samples = number_recorded_samples;
+	// allocate the memory for each trace //
   	sim_data->trace = malloc (sizeof (struct TRACEDATA) * sim_data->number_of_traces);
 
   	// create and initialize the inputs into the sim data structure //      
@@ -191,24 +209,11 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
     	  g_snprintf (sim_data->clock_data[i].data_labels, 10, "CLOCK %d", i);
     	  sim_data->clock_data[i].drawtrace = 1;
     	  sim_data->clock_data[i].trace_color = RED;
-
-    	  sim_data->clock_data[i].data = malloc (sizeof (double) * sim_data->number_samples);
-
-    	  if(SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)for (j = 0; j < sim_data->number_samples; j++){
-    		  sim_data->clock_data[i].data[j] = (options->clock_high - options->clock_low)/0.5 * cos (((double) pow (2, total_number_of_inputs)) * (double) j * 4.0 * PI / (double) sim_data->number_samples - PI * i / 2) + (options->clock_high + options->clock_low)/2;
-    		  if (sim_data->clock_data[i].data[j] > options->clock_high)
-    			  sim_data->clock_data[i].data[j] = options->clock_high;
-    		  if (sim_data->clock_data[i].data[j] < options->clock_low)
-    			  sim_data->clock_data[i].data[j] = options->clock_low;
-    	  }
-
-		  if(SIMULATION_TYPE == VECTOR_TABLE)for (j = 0; j < sim_data->number_samples; j++){
-    		  sim_data->clock_data[i].data[j] = (options->clock_high - options->clock_low)/0.5 * cos (((double)pvt->num_of_vectors) * (double) j * 2.0 * PI / (double) sim_data->number_samples - PI * i / 2) + (options->clock_high + options->clock_low)/2;
-    		  if (sim_data->clock_data[i].data[j] > options->clock_high)
-    			  sim_data->clock_data[i].data[j] = options->clock_high;
-    		  if (sim_data->clock_data[i].data[j] < options->clock_low)
-    			  sim_data->clock_data[i].data[j] = options->clock_low;
-    	  }
+    	  if((sim_data->clock_data[i].data = malloc (sizeof (double) * sim_data->number_samples)) == NULL)printf("Could not allocate memory for clock data\n");
+		
+		// fill in the clock data for the simulation results //
+		for(j = 0; j<sim_data->number_samples; j++)
+		sim_data->clock_data[i].data[j] = calculate_clock_value(i, j*record_interval, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
   
 	}
 	
@@ -230,10 +235,7 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	// -- to ensure that all the signals have arrived first -- //
 	// -- kept getting wrong answers without this -- //
 	qsort (sorted_cells, total_cells, sizeof (GQCell *), compareCoherenceQCells) ;
-	
-	
-	
-	
+		
 	// -- Set the inital input values so that the steady state vector can be calculated correctly -- //
 	for (i = 0; i < total_number_of_inputs; i++){
 
@@ -252,31 +254,45 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 	
 	// Reset all the cell polarizations to their associated steady state values //
 	cell = first_cell;
-	printf("Ek = %e Clock Low = %e \n", ((coherence_model *)cell->cell_model)->Ek[0]/(1.602e-19), options->clock_low/(1.602e-19));
+	printf("Ek of the first two cells wrt each other is = %e Clock Low = %e \n", ((coherence_model *)cell->cell_model)->Ek[0]/(1.602e-19), options->clock_low/(1.602e-19));
 	
-	while (cell != NULL){
+	// Converge the steady state coherence vector for each cell so that the simulation starts without any transients //
+	stable = FALSE;
+	while(stable == FALSE){
+		stable = TRUE;
+		while (cell != NULL){
 		
 		
-		PEk = 0;
-		// Calculate the sum of neighboring polarizations * the kink energy between them//
-		for (q = 0; q < ((coherence_model *)cell->cell_model)->number_of_neighbours; q++){
-		  	PEk += (gqcell_calculate_polarization(((coherence_model *)cell->cell_model)->neighbours[q]))*((coherence_model *)cell->cell_model)->Ek[q];
-		}
+			PEk = 0;
+			// Calculate the sum of neighboring polarizations * the kink energy between them//
+			for (q = 0; q < ((coherence_model *)cell->cell_model)->number_of_neighbours; q++){
+		  		PEk += (gqcell_calculate_polarization(((coherence_model *)cell->cell_model)->neighbours[q]))*((coherence_model *)cell->cell_model)->Ek[q];
+			}
 		
-		((coherence_model *)cell->cell_model)->lambda_x = lambda_ss_x(0, PEk, sim_data->clock_data[cell->clock].data[0], options);
-		((coherence_model *)cell->cell_model)->lambda_y = lambda_ss_y(0, PEk, sim_data->clock_data[cell->clock].data[0], options);
-		((coherence_model *)cell->cell_model)->lambda_z = lambda_ss_z(0, PEk, sim_data->clock_data[cell->clock].data[0], options);
+			old_lambda_x = ((coherence_model *)cell->cell_model)->lambda_x;
+			old_lambda_y = ((coherence_model *)cell->cell_model)->lambda_y;
+			old_lambda_z = ((coherence_model *)cell->cell_model)->lambda_z;
 		
-      	cell = cell->next;
+			((coherence_model *)cell->cell_model)->lambda_x = lambda_ss_x(0, PEk, sim_data->clock_data[cell->clock].data[0], options);
+			((coherence_model *)cell->cell_model)->lambda_y = lambda_ss_y(0, PEk, sim_data->clock_data[cell->clock].data[0], options);
+			((coherence_model *)cell->cell_model)->lambda_z = lambda_ss_z(0, PEk, sim_data->clock_data[cell->clock].data[0], options);
+			
+			// if the lambda values are different by more then the tolerance then they have not converged //
+			if(abs(((coherence_model *)cell->cell_model)->lambda_x - old_lambda_x) > 0.01 || 
+			abs(((coherence_model *)cell->cell_model)->lambda_y - old_lambda_y) > 0.01 ||
+			abs(((coherence_model *)cell->cell_model)->lambda_z - old_lambda_z) > 0.01)stable = FALSE;
+			
+      		cell = cell->next;
     	}
+	}
 	
 	
 	// perform the iterations over all samples //
-	for (j = 0; j < sim_data->number_samples; j++){
+	for (j = 0; j < number_samples; j++){
 		
 		if (j % 100 == 0){
 			// write the completion percentage to the command history window //
-			command_history_message ("%3.0f%% complete\n", 100 * (float) j / (float) sim_data->number_samples) ;
+			command_history_message ("%3.0f%% complete\n", 100 * (float) j / (float) number_samples) ;
 	    }
 	  
 	  	// -- for each of the inputs -- //
@@ -286,7 +302,7 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 				// -- create a square wave at a given frequency then double the frequency for each input -- //
 				// -- this way we cover the entire input space for proper digital verification -- //
 				input = 0;
-				if (-1 * sin (((double) pow (2, i)) * (double) j * 4.0 * PI / (double) sim_data->number_samples) > 0){
+				if (-1 * sin (((double) pow (2, i)) * (double) j * 4.0 * PI / (double) number_samples) > 0){
 					input = 1;
 				}else{
 					input = -1;
@@ -294,15 +310,15 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 			}
 			
 			else if(SIMULATION_TYPE == VECTOR_TABLE)
-		  		input = pvt->vectors[(j*pvt->num_of_vectors) / sim_data->number_samples][i] ? 1 : -1 ;
+		  		input = pvt->vectors[(j*pvt->num_of_vectors) / number_samples][i] ? 1 : -1 ;
 
 	      		// -- set the inputs cells with the input data -- //
 	      		gqcell_set_polarization (input_cells[i], input);
-	      		sim_data->trace[i].data[j] = input;
+	      		if(0==j%record_interval)sim_data->trace[i].data[j/record_interval] = input;
 		}
 
 		// -- run the iteration with the given clock value -- //
-		run_coherence_iteration (j, total_cells, sorted_cells, options, sim_data);
+		run_coherence_iteration (j, total_cells, total_number_of_inputs, number_samples, sorted_cells, options, sim_data, SIMULATION_TYPE, pvt);
 		
 		// -- Set the cell polarizations to the lambda_z value -- //
 		for(i = 0; i < total_cells; i++){
@@ -313,7 +329,7 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 		
 		// -- collect all the output data from the simulation -- //
 		for (i = 0; i < total_number_of_outputs; i++){
-			sim_data->trace[total_number_of_inputs + i].data[j] =
+			if(0==j%record_interval)sim_data->trace[total_number_of_inputs + i].data[j/record_interval] =
 			gqcell_calculate_polarization (output_cells[i]);
 			
 			
@@ -342,7 +358,7 @@ simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cel
 
 
 // -- completes one simulation iteration performs the approximations until the entire design has stabalized -- //
-static void run_coherence_iteration (int sample_number, int number_of_sorted_cells, GQCell **sorted_cells, coherence_OP *options, simulation_data *sim_data){
+static void run_coherence_iteration (int sample_number, int number_of_sorted_cells, int total_number_of_inputs, unsigned long int number_samples, GQCell **sorted_cells, coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt){
 	
 	unsigned int i,q;
 	double lambda_x_new;
@@ -365,17 +381,17 @@ static void run_coherence_iteration (int sample_number, int number_of_sorted_cel
 		  	PEk += (gqcell_calculate_polarization(((coherence_model *)sorted_cells[i]->cell_model)->neighbours[q]))*((coherence_model *)sorted_cells[i]->cell_model)->Ek[q];
 		}
 		
-		lambda_x_new = lambda_x_next(t, PEk, sim_data->clock_data[sorted_cells[i]->clock].data[0], 
+		lambda_x_new = lambda_x_next(t, PEk, calculate_clock_value(sorted_cells[i]->clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt), 
 		((coherence_model *)sorted_cells[i]->cell_model)->lambda_x, 
 		((coherence_model *)sorted_cells[i]->cell_model)->lambda_y, 
 		((coherence_model *)sorted_cells[i]->cell_model)->lambda_z, options);
 		
-		lambda_y_new = lambda_y_next(t, PEk, sim_data->clock_data[sorted_cells[i]->clock].data[0], 
+		lambda_y_new = lambda_y_next(t, PEk, calculate_clock_value(sorted_cells[i]->clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt), 
 		((coherence_model *)sorted_cells[i]->cell_model)->lambda_x, 
 		((coherence_model *)sorted_cells[i]->cell_model)->lambda_y, 
 		((coherence_model *)sorted_cells[i]->cell_model)->lambda_z, options);
 		
-		lambda_z_new = lambda_z_next(t, PEk, sim_data->clock_data[sorted_cells[i]->clock].data[0], 
+		lambda_z_new = lambda_z_next(t, PEk, calculate_clock_value(sorted_cells[i]->clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt), 
 		((coherence_model *)sorted_cells[i]->cell_model)->lambda_x, 
 		((coherence_model *)sorted_cells[i]->cell_model)->lambda_y, 
 		((coherence_model *)sorted_cells[i]->cell_model)->lambda_z, options);
@@ -473,6 +489,34 @@ static double coherence_determine_Ek (GQCell * cell1, GQCell * cell2, coherence_
 	return Ek - Energy;
 
 }// bistable_determine_Ek
+
+//-------------------------------------------------------------------//
+// Calculates the clock data at a particular sample
+double calculate_clock_value(unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt){
+
+	double clock = 0;
+	if(SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION){
+		clock = (options->clock_high - options->clock_low)/0.5 * 
+		cos (((double) pow (2, total_number_of_inputs)) * (double) sample * 4.0 * PI / (double)number_samples - PI * clock_num / 2) + (options->clock_high + options->clock_low)/2;
+    	if (clock > options->clock_high)
+    		clock = options->clock_high;
+    	if (clock < options->clock_low)
+    		clock = options->clock_low;
+	}
+
+	if(SIMULATION_TYPE == VECTOR_TABLE){
+    		  clock = (options->clock_high - options->clock_low)/0.5 * 
+			  cos (((double)pvt->num_of_vectors) * (double) sample * 2.0 * PI / (double)number_samples - PI * clock_num / 2) + (options->clock_high + options->clock_low)/2;
+    	if (clock > options->clock_high)
+    		clock = options->clock_high;
+    	if (clock < options->clock_low)
+    		clock = options->clock_low;
+    }
+	
+	printf("for clock %d I am returning %e\n", clock_num, clock);
+	return clock;
+}
+// calculate clock value
 
 //-------------------------------------------------------------------//
 

@@ -3,7 +3,7 @@
 filesdir = $(datadir)/QCADesigner
 appdir = $(datadir)/applications
 
-SUBDIRS = src po pixmaps
+SUBDIRS = src po pixmaps docs
 
 files_DATA = \
   AUTHORS \

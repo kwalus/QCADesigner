@@ -27,6 +27,7 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <math.h>
 
 #include "callbacks.h"
@@ -144,6 +145,7 @@ static gboolean redraw_async_cb (GtkWidget *widget) ;
 void redraw_async (GtkWidget *widget) ;
 static gboolean bHaveIdler = FALSE ;
 static void change_cursor (GtkWidget *widget, GdkCursor *new_cursor) ;
+static void ChildPreRun (gpointer p) ;
 
 void main_window_show (GtkWidget *widget, gpointer data)
   {
@@ -787,20 +789,48 @@ void on_animate_test_simulation_menu_item_activate(GtkMenuItem *menuitem, gpoint
 
 void on_contents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
+char *pszCmdLine = NULL ;
+char **argv = NULL ;
+int argc = -1 ;
+int Nix ;
+GError *err = NULL ;
 #ifdef WIN32
 char *pszBrowser = 
-  get_external_app (main_window.main_window, "Please Select Web Browser", "browser", 
+  get_external_app (GTK_WINDOW (main_window.main_window), "Please Select Web Browser", "browser", 
     "C:\\Program Files\\Internet Explorer\\iexplore.exe", FALSE) ;
 #else
 char *pszBrowser = 
-  get_external_app (main_window.main_window, "Please Select Web Browser", "browser", 
+  get_external_app (GTK_WINDOW (main_window.main_window), "Please Select Web Browser", "browser", 
     "/usr/bin/mozilla", FALSE) ;
 #endif
 
 if (NULL == pszBrowser) return ;
 
-  
+#ifdef WIN32
+pszCmdLine = g_strdup_printf ("%s ..%cshare%cdoc%cQCADesigner%cmanual%cindex.html",
+  pszBrowser, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
+#else
+pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner%cmanual%cindex.html",
+  pszBrowser, PACKAGE_DATA_DIR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;
+#endif
+
+argv = CmdLineToArgv (pszCmdLine, &argc) ;
+
+if (!g_spawn_async (NULL, argv, NULL, 
+  G_SPAWN_SEARCH_PATH | 
+  G_SPAWN_STDOUT_TO_DEV_NULL |
+  G_SPAWN_STDERR_TO_DEV_NULL,
+  ChildPreRun, NULL, NULL, &err))
+
+  fprintf (stderr, "Failed to execute command line\"%s\"!\n", pszCmdLine) ;
+
+g_free (pszCmdLine) ;
+
+for (Nix = 0 ; Nix < argc ; Nix++)
+  g_free (argv[Nix]) ;
+g_free (argv) ;  
 }
+
 void on_search_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
   DBG_CB_HERE (fprintf (stderr, "Entering on_search_menu_item_activate\n")) ;
@@ -1385,3 +1415,5 @@ static void change_cursor (GtkWidget *widget, GdkCursor *new_cursor)
 
   g_object_set_data (G_OBJECT (widget), "old_cursor", new_cursor) ;
   }
+
+static void ChildPreRun (gpointer p){}

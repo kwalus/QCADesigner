@@ -33,9 +33,6 @@ void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFuncti
   gboolean bPrintFile = ppo->bPrintFile ;
   int fd = -1 ;
   char *pszCfgFile = NULL, *pszPreviewer = NULL, *pszFName = NULL, *pszCmdLine = NULL ;
-  char **argv ;
-  int argc = -1 ;
-  GError *err = NULL ;
 #ifdef WIN32
   char szBuf[MAX_PATH] = "" ;
   FILE *pfile = NULL ;
@@ -96,25 +93,9 @@ void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFuncti
 
   g_free (pszPreviewer) ;
   g_free (pszFName) ;
-  
-  if (!g_shell_parse_argv (pszCmdLine, &argc, &argv, &err))
-    {
-    g_free (pszCmdLine) ;
-    return ;
-    }
 
-  /* RunPreviewer takes care of freeing pszPreviewer and pszFName */
-//  RunPreviewer (pszPreviewer, pszFName) ;
+  RunCmdLineAsync (pszCmdLine) ;
 
-  if (!g_spawn_async (NULL, argv, NULL, 
-    G_SPAWN_SEARCH_PATH | 
-    G_SPAWN_STDOUT_TO_DEV_NULL |
-    G_SPAWN_STDERR_TO_DEV_NULL,
-    ChildPreRun, NULL, NULL, &err))
-    
-    fprintf (stderr, "Failed to execute command line\"%s\"!\n", pszCmdLine) ;
-
-  g_strfreev (argv) ;
   g_free (pszCmdLine) ;
   g_free (pszCfgFile) ;
 

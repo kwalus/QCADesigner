@@ -790,9 +790,6 @@ void on_animate_test_simulation_menu_item_activate(GtkMenuItem *menuitem, gpoint
 void on_contents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
 char *pszCmdLine = NULL ;
-char **argv = NULL ;
-int argc = -1 ;
-GError *err = NULL ;
 #ifdef WIN32
 char *pszBrowser = 
   get_external_app (GTK_WINDOW (main_window.main_window), "Please Select Web Browser", "browser", 
@@ -817,23 +814,9 @@ pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner%cmanual%cindex.html",
 
 // fprintf (stderr, "Proceeding with command line |%s|\n", pszCmdLine) ;
 
-if (!g_shell_parse_argv (pszCmdLine, &argc, &argv, &err))
-  {
-  g_free (pszCmdLine) ;
-  return ;
-  }
-
-if (!g_spawn_async (NULL, argv, NULL, 
-  G_SPAWN_SEARCH_PATH | 
-  G_SPAWN_STDOUT_TO_DEV_NULL |
-  G_SPAWN_STDERR_TO_DEV_NULL,
-  ChildPreRun, NULL, NULL, &err))
-
-  fprintf (stderr, "Failed to execute command line\"%s\"!\n", pszCmdLine) ;
+RunCmdLineAsync (pszCmdLine) ;
 
 g_free (pszCmdLine) ;
-
-g_strfreev (argv) ;
 }
 
 void on_search_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)

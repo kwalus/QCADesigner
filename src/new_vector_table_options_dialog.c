@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <gtk/gtk.h>
+#include "fileio.h"
 #include "support.h"
 #include "blocking_dialog.h"
 #include "message_box.h"
@@ -10,14 +11,13 @@
 
 #define VTTBL_X_OFF 1
 #define VTTBL_Y_OFF 2
+#define VTTBL_H_PAD 1
+#define VTTBL_V_PAD 0
 
 #define DBG_NVTO(s)
 
 typedef struct
   {
-  GtkWidget *fm ;
-  GtkWidget *lbl ;
-  GtkWidget *eb ;
   GtkWidget *cb ;
   GtkWidget *tb ;
   GtkWidget *tblbl ;
@@ -84,10 +84,12 @@ void create_vector (GtkWidget *widget, gpointer user_data) ;
 void delete_vector (GtkWidget *widget, gpointer user_data) ;
 void click_bit_button (GtkWidget *widget, gpointer user_data) ;
 void ActiveFlag_toggled (GtkWidget *widget, gpointer user_data) ;
-void InputEntry_changed (GtkWidget *widget, gpointer user_data) ;
 void load_vector_table (GtkWidget *widget, gpointer user_data) ;
 void save_vector_table (GtkWidget *widget, gpointer user_data) ;
 void vector_table_options_dialog_btnOK_clicked (GtkWidget *widget, gpointer user_data) ;
+void InputCBEntry_changed (GtkWidget *widget, gpointer user_data) ;
+void InputCBPopwin_show (GtkWidget *widget, gpointer user_data) ;
+void InputCBPopwin_hide (GtkWidget *widget, gpointer user_data) ;
 
 void VectorTableToDialog (new_vector_table_options_D *dialog, VectorTable *pvt) ;
 void DialogToVectorTable (new_vector_table_options_D *dialog, VectorTable *pvt) ;
@@ -104,6 +106,8 @@ void CreateVector (new_vector_table_options_D *dialog, int idx) ;
 void DeleteVector (new_vector_table_options_D *dialog, int idx) ;
 void SetCurrentFileName (new_vector_table_options_D *dialog, char *pszFName) ;
 int CountActiveInputs (new_vector_table_options_D *dialog) ;
+void SwapColumns (new_vector_table_options_D *dialog, int idxSrc, int idxDst) ;
+int GetInputIdx (new_vector_table_options_D *dialog, char *pszInput) ;
 
 void get_vector_table_options_from_user (GtkWindow *parent, VectorTable *pvt)
   {
@@ -133,18 +137,13 @@ void get_vector_table_options_from_user (GtkWindow *parent, VectorTable *pvt)
   /* At long last, pop the box */
   show_dialog_blocking (nvto.dlgVectorTable) ;
   
-  DBG_NVTO (fprintf (stderr, "After having popped the dialog, there are %d vectors used and %d inputs used\n", nvto.icVectorsUsed, nvto.icInputsUsed)) ;
-  
   VectorTable_clear (pvtDlg) ;
   }
 
 void VectorTableToDialog (new_vector_table_options_D *dialog, VectorTable *pvt)
   {
   int Nix, Nix1 ;
-  DBG_NVTO (fprintf (stderr, "Filling dialog with the following vector table:\n")) ;
-  DBG_NVTO (VectorTable_dump (pvt, stderr)) ;
-  DBG_NVTO (fprintf (stderr, "Making sure there is enough memory for all the widgets\n")) ;
-  
+
   if (pvt->num_of_inputs > dialog->icInputs)
     {
     dialog->pInput = realloc (dialog->pInput, pvt->num_of_inputs * sizeof (INPUT_HEADING)) ;
@@ -155,7 +154,6 @@ void VectorTableToDialog (new_vector_table_options_D *dialog, VectorTable *pvt)
   
   if (pvt->num_of_vectors > dialog->icVectors)
     {
-    DBG_NVTO (fprintf (stderr, "I need %d vectors, but I only have %d\n", pvt->num_of_vectors, dialog->icVectors)) ;
     dialog->pIdx = realloc (dialog->pIdx, pvt->num_of_vectors * sizeof (VECTOR_IDX)) ;
     dialog->ppBit = realloc (dialog->ppBit, pvt->num_of_vectors * sizeof (VECTOR_BIT *)) ;
     for (Nix = dialog->icVectors ; Nix < pvt->num_of_vectors ; Nix++)
@@ -163,11 +161,8 @@ void VectorTableToDialog (new_vector_table_options_D *dialog, VectorTable *pvt)
     dialog->icVectors = pvt->num_of_vectors ;
     }
   
-  DBG_NVTO (fprintf (stderr, "Destroying excess widgets. %d vectors and %d inputs are used.\n", dialog->icVectorsUsed, dialog->icInputsUsed)) ;
-  
   if (dialog->icInputsUsed > pvt->num_of_inputs)
     {
-    DBG_NVTO (fprintf (stderr, "There are %d inputs used, but only %d inputs in the pvt\n", dialog->icInputsUsed, pvt->num_of_inputs)) ;
     for (Nix = pvt->num_of_inputs ; Nix < dialog->icInputsUsed ; Nix++)
       {
       DestroyInputHeading (dialog, Nix) ;
@@ -179,7 +174,6 @@ void VectorTableToDialog (new_vector_table_options_D *dialog, VectorTable *pvt)
     
   if (dialog->icVectorsUsed > pvt->num_of_vectors)
     {
-    DBG_NVTO (fprintf (stderr, "There are %d vectors used, but only %d vectors in the pvt\n", dialog->icVectorsUsed, pvt->num_of_vectors)) ;
     for (Nix = pvt->num_of_vectors ; Nix < dialog->icVectorsUsed ; Nix++)
       {
       DestroyIdxLabel (dialog, Nix) ;
@@ -192,16 +186,12 @@ void VectorTableToDialog (new_vector_table_options_D *dialog, VectorTable *pvt)
   /* create new widgets if this time around we have more than last time around.  Reuse existing
      widgets first. */
   
-  DBG_NVTO (fprintf (stderr, "Reusing existing widgets horizontally (0 -> %d)\n", dialog->icInputsUsed - 1)) ;
-  
   for (Nix = 0 ; Nix < dialog->icInputsUsed ; Nix++)
     {
     ReuseInputHeading (dialog, pvt, Nix) ;
     for (Nix1 = 0 ; Nix1 < dialog->icVectorsUsed ; Nix1++)
       ReuseVectorToggle (dialog, pvt->vectors[Nix1][Nix], Nix1, Nix) ;
     }
-  
-  DBG_NVTO (fprintf (stderr, "Creating new widgets horizontally (%d -> %d)\n", Nix, pvt->num_of_inputs - 1)) ;
   
   for (; Nix < pvt->num_of_inputs ; Nix++)
     {
@@ -211,9 +201,6 @@ void VectorTableToDialog (new_vector_table_options_D *dialog, VectorTable *pvt)
     }
   
   dialog->icInputsUsed = pvt->num_of_inputs ;
-  
-  DBG_NVTO (fprintf (stderr, "Creating new widgets vertically (%d -> %d)\n", dialog->icVectorsUsed, pvt->num_of_vectors - 1)) ;
-  DBG_NVTO (fprintf (stderr, "dialog->icVectors = %d\ndialog->icInputs = %d\n", dialog->icVectors, dialog->icInputs)) ;
   
   for (Nix = dialog->icVectorsUsed ; Nix < pvt->num_of_vectors ; Nix++)
     {
@@ -227,8 +214,6 @@ void VectorTableToDialog (new_vector_table_options_D *dialog, VectorTable *pvt)
   gtk_table_resize (GTK_TABLE (dialog->tblVT), dialog->icInputsUsed + 1, dialog->icVectorsUsed + 1) ;
   
   /* First, make sure /everything/ is visible */
-  
-  DBG_NVTO (fprintf (stderr, "Disabling deactivated columns\n")) ;
   
   for (Nix = 0 ; Nix < pvt->num_of_inputs ; Nix++)
     {
@@ -247,6 +232,12 @@ void DialogToVectorTable (new_vector_table_options_D *dialog, VectorTable *pvt)
   
   while (pvt->num_of_vectors > 0)
     VectorTable_del_vector (pvt, pvt->num_of_vectors - 1) ;
+    
+  while (pvt->num_of_inputs > 0)
+    VectorTable_del_input (pvt, pvt->inputs[pvt->num_of_inputs - 1]) ;
+  
+  for (Nix = 0 ; Nix < dialog->icInputsUsed ; Nix++)
+    VectorTable_add_input (pvt, (qcell *)gtk_object_get_data (GTK_OBJECT (dialog->pInput[Nix].cb), "input")) ;
   
   for (Nix = 0 ; Nix < dialog->icVectorsUsed ; Nix++)
     {
@@ -285,7 +276,7 @@ void CreateIdxLabel (new_vector_table_options_D *dialog, int idx)
   gtk_widget_show (dialog->pIdx[idx].eb) ;
   gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->pIdx[idx].eb, 0, 1, VTTBL_Y_OFF + idx, VTTBL_Y_OFF + idx + 1,
       (GtkAttachOptions)(GTK_FILL),
-      (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+      (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
   gtk_object_set_data (GTK_OBJECT (dialog->pIdx[idx].eb), "idx", (gpointer)idx) ;
 
   g_snprintf (sz, 16, "%d", idx) ;
@@ -329,7 +320,7 @@ void CreateVectorToggle (new_vector_table_options_D *dialog, gboolean bValue, in
   gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->ppBit[idxRow][idxCol].tb,
     VTTBL_X_OFF + idxCol, VTTBL_X_OFF + idxCol + 1, VTTBL_Y_OFF + idxRow, VTTBL_Y_OFF + idxRow + 1,
     (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+    (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->ppBit[idxRow][idxCol].tb), bValue) ;
   gtk_object_set_data (GTK_OBJECT (dialog->ppBit[idxRow][idxCol].tb), "idxRow", (gpointer)idxRow) ;
   gtk_object_set_data (GTK_OBJECT (dialog->ppBit[idxRow][idxCol].tb), "idxCol", (gpointer)idxCol) ;
@@ -384,7 +375,7 @@ void CreateInputHeading (new_vector_table_options_D *dialog, VectorTable *pvt, i
   gtk_widget_show (dialog->pInput[idx].tb) ;
   gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->pInput[idx].tb, VTTBL_X_OFF + idx, VTTBL_X_OFF + idx + 1, VTTBL_Y_OFF - 2, VTTBL_Y_OFF - 1,
       	      	    (GtkAttachOptions)(GTK_FILL),
-		    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+		    (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->pInput[idx].tb), pvt->active_flag[idx]) ;
   gtk_object_set_data (GTK_OBJECT (dialog->pInput[idx].tb), "idx", (gpointer)idx) ;
   
@@ -402,7 +393,7 @@ void CreateInputHeading (new_vector_table_options_D *dialog, VectorTable *pvt, i
   gtk_widget_show (dialog->pInput[idx].cb) ;
   gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->pInput[idx].cb, VTTBL_X_OFF + idx, VTTBL_X_OFF + idx + 1, VTTBL_Y_OFF - 1, VTTBL_Y_OFF,
       	      	    (GtkAttachOptions)(GTK_FILL),
-		    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+		    (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
   gtk_widget_set_usize (dialog->pInput[idx].cb, 90, -2) ;
   gtk_combo_set_value_in_list (GTK_COMBO (dialog->pInput[idx].cb), TRUE, FALSE);
   gtk_combo_set_use_arrows_always (GTK_COMBO (dialog->pInput[idx].cb), TRUE);
@@ -411,18 +402,26 @@ void CreateInputHeading (new_vector_table_options_D *dialog, VectorTable *pvt, i
   gtk_combo_set_popdown_strings (GTK_COMBO (dialog->pInput[idx].cb), pglInputs) ;
   g_list_free (pglInputs) ;
   gtk_object_set_data (GTK_OBJECT (dialog->pInput[idx].cb), "input", pvt->inputs[idx]) ;
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idx].cb), "bIgnore", (gpointer)FALSE) ;
 
   gtk_widget_ref (GTK_COMBO (dialog->pInput[idx].cb)->entry) ;
   g_snprintf (sz, 16, "0x%08X", (int)GTK_COMBO (dialog->pInput[idx].cb)->entry) ;
   gtk_object_set_data_full (GTK_OBJECT (dialog->dlgVectorTable), sz, GTK_COMBO (dialog->pInput[idx].cb)->entry, (GtkDestroyNotify) gtk_widget_unref) ;
   gtk_widget_show (GTK_COMBO (dialog->pInput[idx].cb)->entry) ;
-  GTK_WIDGET_UNSET_FLAGS (GTK_COMBO (dialog->pInput[idx].cb)->entry, GTK_CAN_FOCUS) ;
   gtk_entry_set_editable (GTK_ENTRY (GTK_COMBO (dialog->pInput[idx].cb)->entry), FALSE) ;
   gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (dialog->pInput[idx].cb)->entry), pvt->inputs[idx]->label) ;
   gtk_object_set_data (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->entry), "idx", (gpointer)idx) ;
   
+  gtk_widget_ref (GTK_COMBO (dialog->pInput[idx].cb)->popwin) ;
+  g_snprintf (sz, 16, "0x%08X", (int)GTK_COMBO (dialog->pInput[idx].cb)->popwin) ;
+  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgVectorTable), sz, GTK_COMBO (dialog->pInput[idx].cb)->popwin, (GtkDestroyNotify) gtk_widget_unref) ;
+//  gtk_widget_show (GTK_COMBO (dialog->pInput[idx].cb)->popwin) ;
+  gtk_object_set_data (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), "idx", (gpointer)idx) ;
+
   gtk_signal_connect (GTK_OBJECT (dialog->pInput[idx].tb), "toggled", GTK_SIGNAL_FUNC (ActiveFlag_toggled), dialog->dlgVectorTable) ;
-  gtk_signal_connect (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->entry), "changed", GTK_SIGNAL_FUNC (InputEntry_changed), dialog->dlgVectorTable) ;
+  gtk_signal_connect (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->entry), "changed", GTK_SIGNAL_FUNC (InputCBEntry_changed), dialog->dlgVectorTable) ;
+  gtk_signal_connect (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), "show", GTK_SIGNAL_FUNC (InputCBPopwin_show), dialog->dlgVectorTable) ;
+  gtk_signal_connect (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), "hide", GTK_SIGNAL_FUNC (InputCBPopwin_hide), dialog->dlgVectorTable) ;
   }
 
 void ReuseInputHeading (new_vector_table_options_D *dialog, VectorTable *pvt, int idx)
@@ -430,26 +429,35 @@ void ReuseInputHeading (new_vector_table_options_D *dialog, VectorTable *pvt, in
   int Nix ;
   GList *pglInputs = NULL ;
   
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idx].cb), "bIgnore", (gpointer)TRUE) ;
   for (Nix = 0 ; Nix < pvt->num_of_inputs ; Nix++)
     pglInputs = g_list_append (pglInputs, pvt->inputs[Nix]->label) ;
   
   gtk_combo_set_popdown_strings (GTK_COMBO (dialog->pInput[idx].cb), pglInputs) ;
   g_list_free (pglInputs) ;
   gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (dialog->pInput[idx].cb)->entry), pvt->inputs[idx]->label) ;
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idx].cb), "bIgnore", (gpointer)FALSE) ;
   }
 
 void DestroyInputHeading (new_vector_table_options_D *dialog, int idx)
   {
   char sz[16] = "" ;
   
+  gtk_signal_disconnect_by_func (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->entry), GTK_SIGNAL_FUNC (InputCBEntry_changed), dialog->dlgVectorTable) ;
+  gtk_signal_disconnect_by_func (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), GTK_SIGNAL_FUNC (InputCBPopwin_hide), dialog->dlgVectorTable) ;
+  gtk_signal_disconnect_by_func (GTK_OBJECT (GTK_COMBO (dialog->pInput[idx].cb)->popwin), GTK_SIGNAL_FUNC (InputCBPopwin_show), dialog->dlgVectorTable) ;
   gtk_signal_disconnect_by_func (GTK_OBJECT (dialog->pInput[idx].tb), GTK_SIGNAL_FUNC (ActiveFlag_toggled), dialog->dlgVectorTable) ;
+
   g_snprintf (sz, 16, "0x%08X", (int)GTK_COMBO (dialog->pInput[idx].cb)->entry) ;
   gtk_object_remove_data (GTK_OBJECT (dialog->dlgVectorTable), sz) ;
-  
+
+  g_snprintf (sz, 16, "0x%08X", (int)GTK_COMBO (dialog->pInput[idx].cb)->popwin) ;
+  gtk_object_remove_data (GTK_OBJECT (dialog->dlgVectorTable), sz) ;
+
   g_snprintf (sz, 16, "0x%08X", (int)dialog->pInput[idx].cb) ;
   gtk_object_remove_data (GTK_OBJECT (dialog->dlgVectorTable), sz) ;
   gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->pInput[idx].cb) ;
-  
+
   g_snprintf (sz, 16, "0x%08X", (int)dialog->pInput[idx].tb) ;
   gtk_object_remove_data (GTK_OBJECT (dialog->dlgVectorTable), sz) ;
   gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->pInput[idx].tb) ;
@@ -581,7 +589,7 @@ void create_new_vector_table_options_dialog (new_vector_table_options_D *dialog)
       	      	      	    (GtkDestroyNotify) gtk_widget_unref) ;
   gtk_widget_show (spacer) ;
   gtk_table_attach (GTK_TABLE (dialog->tblVT), spacer, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
   gtk_widget_set_usize (spacer, 60, 0) ;
   
   dialog->hbVTFile = gtk_hbox_new (FALSE, 2) ;
@@ -692,18 +700,6 @@ void create_new_vector_table_options_dialog (new_vector_table_options_D *dialog)
   gtk_signal_connect (GTK_OBJECT (dialog->mnuDel), "activate", GTK_SIGNAL_FUNC (delete_vector), dialog->dlgVectorTable) ;
   }
 
-void InputEntry_changed (GtkWidget *widget, gpointer user_data)
-  {
-/*  gchar *pszText = NULL ;
-  int idxOther = -1, idxMe = -1 ;
-  new_vector_table_options_D *dialog = (new_vector_table_options_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
-  SwapColumns (dialog, idxMe = (int)gtk_object_get_data (GTK_OBJECT (widget), "idx"), idxOther = GetInputIdx (pszText = gtk_editable_get_chars (GTK_EDITABLE (widget)))) ;
-  if (idxMe != idxOther)
-    {
-    gtk_entry_set_text (GTK_ENTRY (widget), ((qcell *))->label) ;
-    }*/
-  }
-
 gboolean Vector_buttondown (GtkWidget *widget, GdkEventButton *ev, gpointer user_data)
   {
   new_vector_table_options_D *dialog = (new_vector_table_options_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
@@ -721,6 +717,35 @@ gboolean Vector_buttondown (GtkWidget *widget, GdkEventButton *ev, gpointer user
     return TRUE ;
     }
   return FALSE ;
+  }
+
+void InputCBEntry_changed (GtkWidget *widget, gpointer user_data)
+  {
+  new_vector_table_options_D *dialog = (new_vector_table_options_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
+  int idx = (int)gtk_object_get_data (GTK_OBJECT (widget), "idx") ;
+  gchar *pszText = NULL ;
+
+  if ((gboolean)gtk_object_get_data (GTK_OBJECT (dialog->pInput[idx].cb), "bIgnore")) return ;
+
+  SwapColumns (dialog, idx, GetInputIdx (dialog, pszText = gtk_editable_get_chars (GTK_EDITABLE (widget), 0, -1))) ;
+  g_free (pszText) ;
+  }
+
+void InputCBPopwin_show (GtkWidget *widget, gpointer user_data)
+  {
+  new_vector_table_options_D *dialog = (new_vector_table_options_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
+  int idx = (int)gtk_object_get_data (GTK_OBJECT (widget), "idx") ;
+  
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idx].cb), "bIgnore", (gpointer)TRUE) ;
+  }
+
+void InputCBPopwin_hide (GtkWidget *widget, gpointer user_data)
+  {
+  new_vector_table_options_D *dialog = (new_vector_table_options_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
+  int idx = (int)gtk_object_get_data (GTK_OBJECT (widget), "idx") ;
+
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idx].cb), "bIgnore", (gpointer)FALSE) ;
+  InputCBEntry_changed (GTK_COMBO (dialog->pInput[idx].cb)->entry, user_data) ;
   }
 
 gboolean VT_buttondown (GtkWidget *widget, GdkEventButton *ev, gpointer user_data)
@@ -753,8 +778,6 @@ gboolean Bit_buttondown (GtkWidget *widget, GdkEventButton *ev, gpointer user_da
       (gpointer)(idxRow = (int)gtk_object_get_data (GTK_OBJECT (widget), "idxRow"))) ;
     gtk_object_set_data (GTK_OBJECT (dialog->dlgVectorTable), "idxInput",
       (gpointer)(idxCol = (int)gtk_object_get_data (GTK_OBJECT (widget), "idxCol"))) ;
-    
-    DBG_NVTO (fprintf (stderr, "Button is (r,c)=(%d,%d)\n", idxRow, idxCol)) ;
     
     gtk_widget_set_sensitive (dialog->mnuInsBefore, TRUE) ;
     gtk_widget_set_sensitive (dialog->mnuInsAfter, TRUE) ;
@@ -800,8 +823,9 @@ void load_vector_table (GtkWidget *widget, gpointer user_data)
   VTL_RESULT vtlr = VTL_OK ;
   char szFName[PATH_LENGTH] = "" ;
   
-  get_file_name_from_user (GTK_WINDOW (dialog->dlgVectorTable), "Load Vector Table", szFName, PATH_LENGTH) ;
-  if (0 == szFName[0])
+  if (!get_file_name_from_user (GTK_WINDOW (dialog->dlgVectorTable), "Load Vector Table", szFName, PATH_LENGTH))
+    return ;
+  if (0 == szFName[0] || 0 == *(base_name (szFName)))
     return ;
   else
     g_snprintf (pvtDlg->szFName, PATH_LENGTH, "%s", szFName) ;
@@ -823,22 +847,23 @@ void load_vector_table (GtkWidget *widget, gpointer user_data)
 
 void save_vector_table (GtkWidget *widget, gpointer user_data)
   {
-    char szFName[PATH_LENGTH] = "" ;
+  char szFName[PATH_LENGTH] = "" ;
   new_vector_table_options_D *dialog = (new_vector_table_options_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   VectorTable *pvtDlg = (VectorTable *)gtk_object_get_data (GTK_OBJECT (user_data), "pvtDlg") ;
   
   if (dialog->btnSaveAs == widget)
     pvtDlg->szFName[0] = 0 ;
   
-  if (0 == pvtDlg->szFName[0])
+  if (0 == pvtDlg->szFName[0] || 0 == *(base_name (pvtDlg->szFName)))
     {
-    get_file_name_from_user (GTK_WINDOW (dialog->dlgVectorTable), "Save Vector Table As", szFName, PATH_LENGTH) ;
-    if (0 == szFName[0])
+    if (!get_file_name_from_user (GTK_WINDOW (dialog->dlgVectorTable), "Save Vector Table As", szFName, PATH_LENGTH))
+      return ;
+    if (0 == szFName[0] || 0 == *(base_name (szFName)))
       return ;
     }
   
   DialogToVectorTable (dialog, pvtDlg) ;
-  if (0 == pvtDlg->szFName[0])
+  if (0 == pvtDlg->szFName[0] || 0 == *(base_name (pvtDlg->szFName)))
     g_snprintf (pvtDlg->szFName, PATH_LENGTH, "%s", szFName) ;
   if (!VectorTable_save (pvtDlg))
     message_box (GTK_WINDOW (dialog->dlgVectorTable), MB_OK, "Vector Table Save", "Failed to save vector table to file '%s'.", pvtDlg->szFName) ;
@@ -875,6 +900,88 @@ void ActiveFlag_toggled (GtkWidget *widget, gpointer user_data)
     }
   }
 
+int GetInputIdx (new_vector_table_options_D *dialog, gchar *pszText)
+  {
+  int Nix ;
+  
+  for (Nix = 0 ; Nix < dialog->icInputsUsed ; Nix++)
+    if (!strcmp (((qcell *)gtk_object_get_data (GTK_OBJECT (dialog->pInput[Nix].cb), "input"))->label, pszText))
+      return Nix ;
+  
+  return -1 ;
+  }
+
+void SwapColumns (new_vector_table_options_D *dialog, int idxSrc, int idxDst)
+  {
+  INPUT_HEADING ihTmp = {NULL} ;
+  VECTOR_BIT vbTmp = {NULL} ;
+  int Nix ;
+
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idxSrc].cb), "bIgnore", (gpointer)TRUE) ;
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idxDst].cb), "bIgnore", (gpointer)TRUE) ;
+
+  if (idxSrc == idxDst || 
+      idxSrc < 0 || idxSrc >= dialog->icInputsUsed || 
+      idxDst < 0 || idxDst >= dialog->icInputsUsed) return ;
+  
+  gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->pInput[idxSrc].cb) ;
+  gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->pInput[idxSrc].tb) ;
+  gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->pInput[idxDst].cb) ;
+  gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->pInput[idxDst].tb) ;
+  gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->pInput[idxSrc].cb,
+    VTTBL_X_OFF + idxDst, VTTBL_X_OFF + idxDst + 1, VTTBL_Y_OFF - 1, VTTBL_Y_OFF,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
+  gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->pInput[idxSrc].tb,
+    VTTBL_X_OFF + idxDst, VTTBL_X_OFF + idxDst + 1, VTTBL_Y_OFF - 2, VTTBL_Y_OFF - 1,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
+  gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->pInput[idxDst].cb,
+    VTTBL_X_OFF + idxSrc, VTTBL_X_OFF + idxSrc + 1, VTTBL_Y_OFF - 1, VTTBL_Y_OFF,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
+  gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->pInput[idxDst].tb,
+    VTTBL_X_OFF + idxSrc, VTTBL_X_OFF + idxSrc + 1, VTTBL_Y_OFF - 2, VTTBL_Y_OFF - 1,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
+  
+  memcpy (&ihTmp, &(dialog->pInput[idxSrc]), sizeof (INPUT_HEADING)) ;
+  memcpy (&(dialog->pInput[idxSrc]), &(dialog->pInput[idxDst]), sizeof (INPUT_HEADING)) ;
+  memcpy (&(dialog->pInput[idxDst]), &ihTmp, sizeof (INPUT_HEADING)) ;
+  
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idxSrc].tb), "idx", (gpointer)idxSrc) ;
+  gtk_object_set_data (GTK_OBJECT (GTK_COMBO (dialog->pInput[idxSrc].cb)->entry), "idx", (gpointer)idxSrc) ;
+  gtk_object_set_data (GTK_OBJECT (GTK_COMBO (dialog->pInput[idxSrc].cb)->popwin), "idx", (gpointer)idxSrc) ;
+  gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (dialog->pInput[idxSrc].cb)->entry), ((qcell *)gtk_object_get_data (GTK_OBJECT (dialog->pInput[idxSrc].cb), "input"))->label) ;
+  
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idxDst].tb), "idx", (gpointer)idxDst) ;
+  gtk_object_set_data (GTK_OBJECT (GTK_COMBO (dialog->pInput[idxDst].cb)->entry), "idx", (gpointer)idxDst) ;
+  gtk_object_set_data (GTK_OBJECT (GTK_COMBO (dialog->pInput[idxDst].cb)->popwin), "idx", (gpointer)idxDst) ;
+  gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (dialog->pInput[idxDst].cb)->entry), ((qcell *)gtk_object_get_data (GTK_OBJECT (dialog->pInput[idxDst].cb), "input"))->label) ;
+  
+  for (Nix = 0 ; Nix < dialog->icVectorsUsed ; Nix++)
+    {
+    gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->ppBit[Nix][idxSrc].tb) ;
+    gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->ppBit[Nix][idxDst].tb) ;
+    gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->ppBit[Nix][idxSrc].tb,
+      VTTBL_X_OFF + idxDst, VTTBL_X_OFF + idxDst + 1, VTTBL_Y_OFF + Nix, VTTBL_Y_OFF + Nix + 1,
+      (GtkAttachOptions)(GTK_FILL),
+      (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
+    gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->ppBit[Nix][idxDst].tb,
+      VTTBL_X_OFF + idxSrc, VTTBL_X_OFF + idxSrc + 1, VTTBL_Y_OFF + Nix, VTTBL_Y_OFF + Nix + 1,
+      (GtkAttachOptions)(GTK_FILL),
+      (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
+    
+    memcpy (&vbTmp, &(dialog->ppBit[Nix][idxSrc]), sizeof (VECTOR_BIT)) ;
+    memcpy (&(dialog->ppBit[Nix][idxSrc]), &(dialog->ppBit[Nix][idxDst]), sizeof (VECTOR_BIT)) ;
+    memcpy (&(dialog->ppBit[Nix][idxDst]), &vbTmp, sizeof (VECTOR_BIT)) ;
+    
+    gtk_object_set_data (GTK_OBJECT (dialog->ppBit[Nix][idxSrc].tb), "idxCol", (gpointer)idxSrc) ;
+    gtk_object_set_data (GTK_OBJECT (dialog->ppBit[Nix][idxDst].tb), "idxCol", (gpointer)idxDst) ;
+    }
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idxSrc].cb), "bIgnore", (gpointer)FALSE) ;
+  gtk_object_set_data (GTK_OBJECT (dialog->pInput[idxDst].cb), "bIgnore", (gpointer)FALSE) ;
+  }
 
 void DeleteVector (new_vector_table_options_D *dialog, int idx)
   {
@@ -891,14 +998,14 @@ void DeleteVector (new_vector_table_options_D *dialog, int idx)
 
     gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->pIdx[Nix].eb) ;
     gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->pIdx[Nix].eb,
-      0, 1, VTTBL_Y_OFF + Nix - 1, VTTBL_Y_OFF + Nix, (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+      0, 1, VTTBL_Y_OFF + Nix - 1, VTTBL_Y_OFF + Nix, (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
     gtk_label_set_text (GTK_LABEL (dialog->pIdx[Nix].lbl), sz) ;
     gtk_object_set_data (GTK_OBJECT (dialog->pIdx[Nix].eb), "idx", (gpointer)(Nix - 1)) ;
     for (Nix1 = 0 ; Nix1 < dialog->icInputsUsed ; Nix1++)
       {
       gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->ppBit[Nix][Nix1].tb) ;
       gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->ppBit[Nix][Nix1].tb,
-	VTTBL_X_OFF + Nix1, VTTBL_X_OFF + Nix1 + 1, VTTBL_Y_OFF + Nix - 1, VTTBL_Y_OFF + Nix, (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+	VTTBL_X_OFF + Nix1, VTTBL_X_OFF + Nix1 + 1, VTTBL_Y_OFF + Nix - 1, VTTBL_Y_OFF + Nix, (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
       gtk_object_set_data (GTK_OBJECT (dialog->ppBit[Nix][Nix1].tb), "idxRow", (gpointer)(Nix - 1)) ;
       }
     }
@@ -921,6 +1028,8 @@ void CreateVector (new_vector_table_options_D *dialog, int idx)
   {
   char sz[16] = "" ;
   int Nix, Nix1 ;
+  gboolean bActive = TRUE ;
+
   if (dialog->icVectorsUsed == dialog->icVectors)
     {
     dialog->icVectors = dialog->icVectors * 2 + 1 ;
@@ -937,7 +1046,7 @@ void CreateVector (new_vector_table_options_D *dialog, int idx)
       {
       gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->pIdx[Nix].eb) ;
       gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->pIdx[Nix].eb, 0, 1, VTTBL_Y_OFF + Nix + 1, VTTBL_Y_OFF + Nix + 2,
-      	(GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+      	(GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
       g_snprintf (sz, 16, "%d", Nix + 1) ;
       gtk_label_set_text (GTK_LABEL (dialog->pIdx[Nix].lbl), sz) ;
       gtk_object_set_data (GTK_OBJECT (dialog->pIdx[Nix].eb), "idx", (gpointer)(Nix + 1)) ;
@@ -945,7 +1054,7 @@ void CreateVector (new_vector_table_options_D *dialog, int idx)
         {
 	gtk_container_remove (GTK_CONTAINER (dialog->tblVT), dialog->ppBit[Nix][Nix1].tb) ;
 	gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->ppBit[Nix][Nix1].tb,
-	  VTTBL_X_OFF + Nix1, VTTBL_X_OFF + Nix1 + 1, VTTBL_Y_OFF + Nix + 1, VTTBL_Y_OFF + Nix + 2, (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+	  VTTBL_X_OFF + Nix1, VTTBL_X_OFF + Nix1 + 1, VTTBL_Y_OFF + Nix + 1, VTTBL_Y_OFF + Nix + 2, (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), VTTBL_H_PAD, VTTBL_V_PAD) ;
         gtk_object_set_data (GTK_OBJECT (dialog->ppBit[Nix][Nix1].tb), "idxRow", (gpointer)(Nix + 1)) ;
 	}
       }
@@ -961,7 +1070,8 @@ void CreateVector (new_vector_table_options_D *dialog, int idx)
   for (Nix = 0 ; Nix < dialog->icInputsUsed ; Nix++)
     {
     CreateVectorToggle (dialog, FALSE, idx, Nix) ;
-    SetColumnActive (dialog, Nix, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->pInput[Nix].tb))) ;
+    gtk_widget_set_sensitive (dialog->ppBit[idx][Nix].tb, bActive = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->pInput[Nix].tb))) ;
+    gtk_widget_set_sensitive (dialog->ppBit[idx][Nix].tblbl, bActive) ;
     }
   
   gtk_table_resize (GTK_TABLE (dialog->tblVT), dialog->icInputsUsed + 1, dialog->icVectorsUsed + 1) ;

@@ -45,8 +45,10 @@ void create_file_selection_dialog(file_select *select) ;
 void file_selection_ok_button_clicked(GtkWidget *widget, gpointer data);
 void file_selection_cancel_button_clicked(GtkWidget *widget, gpointer data);
 
-void get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFName, int cb)
+gboolean get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFName, int cb)
   {
+  gboolean bRet = FALSE ;
+  
   if (NULL == file_selection_dialog.fileselection)
     create_file_selection_dialog (&file_selection_dialog) ;
   gtk_window_set_transient_for (GTK_WINDOW (file_selection_dialog.fileselection), parent) ;
@@ -55,7 +57,9 @@ void get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFNa
   DBG_FSW (fprintf (stderr, "Setting pszFName to 0x%08X\n", (int)pszFName)) ;
   gtk_object_set_data (GTK_OBJECT (file_selection_dialog.fileselection), "pszFName", pszFName) ;
   gtk_object_set_data (GTK_OBJECT (file_selection_dialog.fileselection), "pcb", &cb) ;
+  gtk_object_set_data (GTK_OBJECT (file_selection_dialog.fileselection), "pbRet", &bRet) ;
   show_dialog_blocking (file_selection_dialog.fileselection) ;
+  return bRet ;
   }
 
 void create_file_selection_dialog(file_select *select){
@@ -86,10 +90,13 @@ void file_selection_ok_button_clicked(GtkWidget *widget, gpointer data)
   GtkObject *pobj = GTK_OBJECT (data) ;
   char *pszFName = gtk_object_get_data (pobj, "pszFName") ;
   int *pcb = gtk_object_get_data (pobj, "pcb") ;
+  gboolean *pbRet = gtk_object_get_data (pobj, "pbRet") ;
+  char *pszFileSel = gtk_file_selection_get_filename (GTK_FILE_SELECTION (data)) ;
   
   DBG_FSW (fprintf (stderr, "pszFName = 0x%08X\n", (int)pszFName)) ;
   
-  g_snprintf (pszFName, *pcb, "%s", gtk_file_selection_get_filename (GTK_FILE_SELECTION (data))) ;
+  g_snprintf (pszFName, *pcb, "%s", pszFileSel) ;
+  *pbRet = TRUE ;
   gtk_widget_hide (GTK_WIDGET (data)) ;
   }
 
@@ -98,7 +105,10 @@ void file_selection_cancel_button_clicked(GtkWidget *widget, gpointer data)
   GtkObject *pobj = GTK_OBJECT (data) ;
   char *pszFName = gtk_object_get_data (pobj, "pszFName") ;
   int *pcb = gtk_object_get_data (pobj, "pcb") ;
+  gboolean *pbRet = gtk_object_get_data (pobj, "pbRet") ;
+  
   if (*pcb > 0)
   pszFName[0] = 0 ; /* Kill whatever string was stored in the user-provided buffer */
+  *pbRet = FALSE ;
   gtk_widget_hide (GTK_WIDGET (data)) ;
   }

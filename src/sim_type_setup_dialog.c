@@ -39,6 +39,8 @@
 #include "sim_type_setup_dialog.h"
 #include "vector_table.h"
 
+#define DBG_STS(s)
+
 typedef struct{
   GtkWidget *simulation_type_dialog;
   GtkWidget *dialog_vbox1;
@@ -201,6 +203,8 @@ void on_sim_type_options_button_clicked(GtkButton *button, gpointer user_data){
   sim_type_setup_D *dialog = (sim_type_setup_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
   get_vector_table_options_from_user (GTK_WINDOW (dialog->simulation_type_dialog),
     (VectorTable *)gtk_object_get_data (GTK_OBJECT (user_data), "pvt")) ;
+  
+  DBG_STS (VectorTable_dump ((VectorTable *)gtk_object_get_data (GTK_OBJECT (user_data), "pvt"), stderr)) ;
   /*
   if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->vector_table_radio)))
     {

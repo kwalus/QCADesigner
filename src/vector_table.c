@@ -282,7 +282,7 @@ gboolean VectorTable_save (VectorTable *pvt)
     "# This is a vector table file.  All text beginning with a '#' and up to the\n"
     "# end of the line will be ignored.  The first vector is the list of active\n"
     "# inputs.  The inputs this vector table was constructed for are listed below\n"
-    "# from Most Significant Bit to Least Significant Bit.\n") ;
+    "# from Most Significant Bit to Least Significant Bit:\n") ;
   
   for (Nix = 0 ; Nix < pvt->num_of_inputs ; Nix++)
     fprintf (pfile, "# %s\n", pvt->inputs[Nix]->label) ;

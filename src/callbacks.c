@@ -1163,66 +1163,67 @@ void file_operations (GtkWidget *widget, gpointer user_data)
     }
 
   if (OPEN_RECENT != fFileOp)
-    get_file_name_from_user (GTK_WINDOW (main_window.main_window), 
+    {
+    if (!get_file_name_from_user (GTK_WINDOW (main_window.main_window), 
       OPEN == fFileOp ? "Open Project" :
       SAVE == fFileOp ? "Save Project As" :
       IMPORT == fFileOp ? "Import Block" :
       EXPORT == fFileOp ? "Export Block" :
       "Select File",
-      szFName, PATH_LENGTH) ;
+      szFName, PATH_LENGTH)) return ;
+    }
   else
     g_snprintf (szFName, PATH_LENGTH, "%s", (char *)gtk_object_get_data (GTK_OBJECT (widget), "file")) ;
     
-    if (szFName[0] != 0)
+  if (szFName[0] != 0 && *(base_name (szFName)) != 0)
+    {
+    switch (fFileOp)
       {
-      switch (fFileOp)
-        {
-	case OPEN_RECENT:
-	case OPEN:
-	  // -- Clear all the cells in the current design -- //
-	  clear_all_cells();
-	  
-	  if (NULL != open_project_file(szFName, &first_cell, &last_cell))
-	    {
-	    VectorTable_fill (pvt, first_cell) ;
-	    add_to_recent_files (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
-	    g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
-	    bRedraw = TRUE ;
-	    }
-	  else
-	    {
-	    message_box (GTK_WINDOW (main_window.main_window), MB_OK, "Error", "File %s failed to open !", base_name (szFName)) ;
-	    remove_recent_file (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
-	    }
-	  break ;
+      case OPEN_RECENT:
+      case OPEN:
+	// -- Clear all the cells in the current design -- //
+	clear_all_cells();
 	
-	case SAVE:
-	  g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
-	  if (!do_save ())
-	    message_box (GTK_WINDOW (main_window.main_window), MB_OK, "Error", "Failed to create file %s !", base_name (szFName)) ;
-	  break ;
-	
-	case IMPORT:
+	if (NULL != open_project_file(szFName, &first_cell, &last_cell))
 	  {
-	  qcell *pqc = NULL ;
-	  
-          if (NULL != (pqc = import_block (szFName, &selected_cells, &number_of_selected_cells, &last_cell)))
-	    {
-	    VectorTable_add_inputs (pvt, pqc) ;
-      	    window_move_selected_cell = selected_cells[0];
-	    set_selected_action (MOVE_CELL, -1);
-	    INVALID_MOVE = TRUE;
-	    listen_motion = TRUE;
-	    }
-	  break ;
+	  VectorTable_fill (pvt, first_cell) ;
+	  add_to_recent_files (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
+	  g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
+	  bRedraw = TRUE ;
 	  }
+	else
+	  {
+	  message_box (GTK_WINDOW (main_window.main_window), MB_OK, "Error", "File %s failed to open !", base_name (szFName)) ;
+	  remove_recent_file (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
+	  }
+	break ;
 
-	
-	case EXPORT:
-	  export_block (szFName, selected_cells, number_of_selected_cells) ;
-	  break ;
+      case SAVE:
+	g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
+	if (!do_save ())
+	  message_box (GTK_WINDOW (main_window.main_window), MB_OK, "Error", "Failed to create file %s !", base_name (szFName)) ;
+	break ;
+
+      case IMPORT:
+	{
+	qcell *pqc = NULL ;
+
+        if (NULL != (pqc = import_block (szFName, &selected_cells, &number_of_selected_cells, &last_cell)))
+	  {
+	  VectorTable_add_inputs (pvt, pqc) ;
+      	  window_move_selected_cell = selected_cells[0];
+	  set_selected_action (MOVE_CELL, -1);
+	  INVALID_MOVE = TRUE;
+	  listen_motion = TRUE;
+	  }
+	break ;
 	}
+
+      case EXPORT:
+	export_block (szFName, selected_cells, number_of_selected_cells) ;
+	break ;
       }
+    }
   if (bRedraw) redraw_world () ;
   }
 
@@ -1755,19 +1756,23 @@ gboolean do_save ()
   {
   char szFName[PATH_LENGTH] = "" ;
   
-  if (0 == current_file_name[0])
+  g_snprintf (szFName, PATH_LENGTH, "%s", current_file_name) ;
+  
+  if (0 == szFName[0])
     {
-    get_file_name_from_user (GTK_WINDOW (main_window.main_window), "Save Project As", szFName, PATH_LENGTH) ;
-    if (0 == szFName[0]) return FALSE ;
-    g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
+    if (!get_file_name_from_user (GTK_WINDOW (main_window.main_window), "Save Project As", szFName, PATH_LENGTH)) return FALSE ;
+    if (0 == szFName[0] || 0 == base_name (szFName)) return FALSE ;
     }
 
-  if (create_file(current_file_name, first_cell))
+  if (create_file(szFName, first_cell))
     {
-    add_to_recent_files (main_window.recent_files_menu, current_file_name, file_operations, (gpointer)OPEN_RECENT) ;
+    add_to_recent_files (main_window.recent_files_menu, szFName, file_operations, (gpointer)OPEN_RECENT) ;
     bDesignAltered = FALSE ;
+    g_snprintf (current_file_name, PATH_LENGTH, "%s", szFName) ;
     return TRUE ;
     }
+  else
+    message_box (GTK_WINDOW (main_window.main_window), MB_OK, "Error", "Failed to create file %s !", base_name (szFName)) ;
   
   return FALSE ;
   }

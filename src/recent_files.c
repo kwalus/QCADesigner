@@ -1,0 +1,165 @@
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <gtk/gtk.h>
+#include <errno.h>
+#include "recent_files.h"
+#include "fileio.h"
+#include "message_box.h"
+#include "vector_table.h"
+#include "globals.h"
+
+#define MAX_RECENT_FILES 10
+
+static char **ppszRecentFiles = NULL ;
+static int icRecentFiles = 0 ;
+static char szPath[PATH_LENGTH] = "" ;
+
+extern char current_file_name[PATH_LENGTH] ;
+extern VectorTable *pvt ;
+
+void ScrollRecentFiles (char **ppszRecentFiles, int idxStart, int idxEnd) ;
+void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data) ;
+void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles) ;
+void RemoveRecentFile (char *pszFName) ;
+
+void fill_recent_files_menu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
+  {
+  char *pszHome = getenv ("HOME"), *pszFile = NULL ;
+  FILE *pfile = NULL ;
+  char szFName[PATH_LENGTH] = "" ;
+  
+  g_snprintf (szPath, PATH_LENGTH, "%s%s.QCADesigner", pszHome,
+    ('/' != pszHome[strlen (pszHome) - 1]) ? "/" : "") ;
+
+  if (-1 == mkdir (szPath, 07777))
+    {
+    if (EEXIST != errno)
+      return ;
+    }
+  
+  g_snprintf (szPath, PATH_LENGTH, "%s%s.QCADesigner/recent", pszHome,
+    ('/' != pszHome[strlen (pszHome) - 1]) ? "/" : "") ;
+  
+  if (NULL == (pfile = fopen (szPath, "r")))
+    return ;
+  
+  while (!feof (pfile))
+    {
+    szFName[0] = 0 ;
+    fgets (szFName, PATH_LENGTH - 1, pfile) ;
+    if (0 == strlen (szFName))
+      break ;
+    
+    if ('\n' == szFName[strlen (szFName) - 1])
+      szFName[strlen (szFName) - 1] = 0 ;
+    
+    ppszRecentFiles = realloc (ppszRecentFiles, ++icRecentFiles * sizeof (char *)) ;
+    pszFile = 
+    ppszRecentFiles[icRecentFiles - 1] = malloc (PATH_LENGTH * sizeof (char)) ;
+    strcpy (pszFile, szFName) ;
+    }
+  fclose (pfile) ;
+  BuildRecentFilesMenu (menu, pfn, data) ;
+  }
+
+void add_to_recent_files (GtkWidget *menu, char *pszFName, GtkSignalFunc pfn, gpointer data)
+  {
+  int Nix ;
+  char szFound[PATH_LENGTH] = "" ;
+
+  for (Nix = 0 ; Nix < icRecentFiles ; Nix++)
+    if (!strcmp (pszFName, ppszRecentFiles[Nix]))
+      break ;
+  
+  if (MAX_RECENT_FILES == Nix)
+    {
+    ScrollRecentFiles (ppszRecentFiles, 0, Nix - 2) ;
+    g_snprintf (ppszRecentFiles[0], PATH_LENGTH, "%s", pszFName) ;
+    }
+  else if (icRecentFiles == Nix)
+    {
+    ppszRecentFiles = realloc (ppszRecentFiles, ++icRecentFiles * sizeof (char *)) ;
+    ppszRecentFiles[icRecentFiles - 1] = malloc (PATH_LENGTH * sizeof (char)) ;
+    ScrollRecentFiles (ppszRecentFiles, 0, icRecentFiles - 2) ;
+    g_snprintf (ppszRecentFiles[0], PATH_LENGTH, "%s", pszFName) ;
+    }
+  else
+    {
+    g_snprintf (szFound, PATH_LENGTH, "%s", ppszRecentFiles[Nix]) ;
+    ScrollRecentFiles (ppszRecentFiles, 0, Nix - 1) ;
+    g_snprintf (ppszRecentFiles[0], PATH_LENGTH, "%s", szFound) ;
+    }
+  BuildRecentFilesMenu (menu, pfn, data) ;
+  SaveRecentFiles (ppszRecentFiles, icRecentFiles) ;
+  }
+
+void remove_recent_file (GtkWidget *menu, char *pszFName, GtkSignalFunc pfn, gpointer data)
+  {
+  RemoveRecentFile (pszFName) ;
+  BuildRecentFilesMenu (menu, pfn, data) ;
+  }
+  
+void ScrollRecentFiles (char **ppszRecentFiles, int idxStart, int idxEnd)
+  {
+  int Nix ;
+  for (Nix = idxEnd ; Nix > idxStart - 1 ; Nix--)
+    strcpy (ppszRecentFiles[Nix + 1], ppszRecentFiles[Nix]) ;
+  }
+
+void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer data)
+  {
+  int Nix ;
+  char *pszBaseName = NULL ;
+  GtkWidget *menu_item = NULL ;
+  
+  gtk_container_foreach (GTK_CONTAINER (menu), (GtkCallback)gtk_widget_destroy, NULL) ;
+  
+  for (Nix = 0 ; Nix < icRecentFiles ; Nix++)
+    {
+    pszBaseName = base_name (ppszRecentFiles[Nix]) ;
+    
+    menu_item = gtk_menu_item_new_with_label (pszBaseName) ;
+    gtk_widget_ref (menu_item) ;
+    gtk_object_set_data (GTK_OBJECT (menu_item), "file", ppszRecentFiles[Nix]) ;
+    gtk_object_set_data (GTK_OBJECT (menu_item), "parent", menu) ;
+    gtk_widget_show (menu_item) ;
+    gtk_container_add (GTK_CONTAINER (menu), menu_item) ;
+    gtk_signal_connect (GTK_OBJECT (menu_item), "activate", pfn, data) ;
+    }
+  }
+
+void SaveRecentFiles (char **ppszRecentFiles, int icRecentFiles)
+  {
+  FILE *pfile ;
+  int Nix ;
+  
+  pfile = fopen (szPath, "w") ;
+  
+  for (Nix = 0 ; Nix < icRecentFiles ; Nix++)
+    fprintf (pfile, "%s\n", ppszRecentFiles[Nix]) ;
+  
+  fclose (pfile) ;
+  }
+
+void RemoveRecentFile (char *pszFName)
+  {
+  int Nix ;
+  
+  for (Nix = 0 ; Nix < icRecentFiles ; Nix++)
+    if (!strcmp (ppszRecentFiles[Nix], pszFName))
+      break ;
+  
+  if (icRecentFiles == Nix)
+    return ;
+    
+  for (; Nix < icRecentFiles - 1 ; Nix++)
+    strcpy (ppszRecentFiles[Nix], ppszRecentFiles[Nix + 1]) ;
+  
+  free (ppszRecentFiles[icRecentFiles - 1]) ;
+  ppszRecentFiles = realloc (ppszRecentFiles, --icRecentFiles * sizeof (char *)) ;
+  
+  SaveRecentFiles (ppszRecentFiles, icRecentFiles) ;
+  }

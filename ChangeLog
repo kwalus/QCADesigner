@@ -1,0 +1,50 @@
+2002-11-12  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* Makefile.am (SUBDIRS): Add m4.
+	(SUBDIRS): Remove intl.
+	(ACLOCAL_AMFLAGS): New variable.
+	(EXTRA_DIST): Add config.rpath mkinstalldirs.
+	* configure.in (AC_OUTPUT): Add m4/Makefile.
+
+Version 1.20
+
+New Features
+
+- Added bistable simulation engine which uses the Jacobi algorithm to calculte eigenvalues/vectors of Hamiltonian.
+- Added ability to run a real-time animated simulation.
+- Added ability to calculate and show ground state of the cells (ignores clocks).
+- Cells now show and retain their polarization.
+- Array tool now draws the cells instead of just a line where the cells would be.
+- Now able to save/load vector tables to/from file.
+- Mouse wheel now works. (up/down with no modifier, left/right with ctrl)
+- Mouse pan works with left mouse button and ctrl modifier.
+- Tool bar buttons are now toggle buttons and stay on while tool is in use.
+- Added print capabilities which allows to print ps to file or send to printer(Great work by Gabriel Schulhof).
+- Added recent files menu item.
+- Implemented the rulers which were there before but did not function.
+
+Bug Fixes
+
+- Higher contrast colours for the various clocks.
+  Only the colour for clock 2 needed changing (now cyan).
+- Fixed focus bug where panning with the arrow keys would change the focus.
+- Cleaned up all the dialogs.
+- Eliminated some of the screen flashing with many of the tools.
+
+Changes
+
+- Changed some of the simulation options default values.
+
+Version 1.10
+
+New Features
+- Added ability to place 2 different cell types with configurable paprameters(ie, cell width, height, dot diameter).
+- Added ability to test circuit from a vector table.
+- Re-coded the file structure, now in ASCII text format and will work between platforms.
+
+Bug Fixes
+- Fixed the problem with the wacky grid points when zooming to far.
+- Slight speed improvment with the drawing (ie. less flashing).
+- Fixed problem when drawing arrays with grid spacing smaller then the width of the cell, cells do not overlap anymore.
+- Fixed problem with closing dialogs using the "x".
+- Some others that I forget now.

@@ -1,0 +1,57 @@
+////////////// QCADesigner TODO /////////////////
+
+/-------------HIGH PRIORITY-------------/
+
+- Fix mirror problem when mirroring multiple cell types.
+- Add ability to draw arbitary shapes and labels to the cad window.
+- Add the design document to the new cvs tree.
+- UNDO! REDO!
+- Add keyboard commands as things move forward.
+X Save file box on exit (as this been done?).
+
+FIXES
+
+
+
+NEW FEATURES
+
+/-------------MEDIUM PRIORITY-----------/
+
+- signal properties to adjust the clock properties (amplitude, etc).
+- when "show grid" is changed the grid does not change until the user clicks the cad window
+- up and down keys should not change widgets.
+- Ability to change the order of the inputs in the exhaustive simulation.
+- User should be able to change the number of samples in a simulation.
+- Print the simulation percentage completed into the status bar at bottom of window.
+- fix random fault code.
+- zoom in out arent really correct. FIX IT
+- extents is really not correct especially for large designs
+- Do something about the flashing in the cad window (some functions still flash)
+
+- Draw mesurements onto the screen and have them remain as a selectable object.
+- Density/Area Stats
+- statically link in all the GTK+ libraries.- User defined colors
+- Rotate groups of cells
+- Flip
+- Group rotate (from 90 deg to 45 deg cells)
+
+
+/-------------LOW PRIORITY--------------/
+
+- Add ability for user to change the colors.
+- help about window does not show up
+- Add a radio button on the splash screen to not show in anymore.
+- add an activate/deactivate cell feature could reduce simulation time if sections are deactivated.
+- Support floorplanning
+
+KNOWN BUGS
+
+- if the clock_select_dialog, sim_engine_setup_window, sim_type_setup_window is destroyed with the x and opened again there is some error about the radio button group
+- if you run a simulation, then run it again without closing the first window, then close the second window, there is a segmentation fault.
+- appears to be one when drawing an array (still determining it's existance)
+- inconsistent tool useage (esp. for those with buttons)
+- arrow keys stopped working for panning (trying to recreate)
+- Mirror copies 45 deg cells to 90 deg. cells
+- Middle button zoom doesn't always show everything desired
+- Panning with keyboard redraws the pic 4 times
+

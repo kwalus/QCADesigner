@@ -1,0 +1,10 @@
+To get the pixmaps to appear correctly, You must maintain
+the current directory structure, and run the program from 
+within the bin directory. The use of a simple shell script
+will allow you to run the program from anywhere:
+
+#!/bin/sh
+cd /path/to/QCADesigner/bin
+./qcadesigner
+
+

@@ -1,0 +1,61 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(configure.in)
+AM_INIT_AUTOMAKE(QCADesigner, 1.1)
+dnl AC_CONFIG_SRCDIR([src/about.c])
+AM_CONFIG_HEADER(config.h)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CXX
+
+dnl Checks for libraries.
+AM_PATH_GTK(1.2.0, , AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([libintl.h stdlib.h string.h unistd.h])
+AC_CHECK_LIB(pthread, pthread_create)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+
+dnl Checks for library functions.
+AC_FUNC_MALLOC
+AC_FUNC_STAT
+
+dnl Set PACKAGE_LOCALE_DIR in config.h.
+if test "x${prefix}" = "xNONE"; then
+  AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR,
+  "${ac_default_prefix}/${DATADIRNAME}/locale", PACKAGE_LOCALE_DIR)
+else
+  AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale", PACKAGE_LOCALE_DIR)
+fi
+
+dnl Set PACKAGE_DATA_DIR in config.h.
+if test "x${datadir}" = 'x${prefix}/share'; then
+  if test "x${prefix}" = "xNONE"; then
+    AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR,
+	"${ac_default_prefix}/share/${PACKAGE}", PACKAGE_DATA_DIR)
+  else
+    AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${prefix}/share/${PACKAGE}", PACKAGE_DATA_DIR)
+  fi
+else
+  AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${datadir}/${PACKAGE}", PACKAGE_DATA_DIR)
+fi
+
+dnl Set PACKAGE_SOURCE_DIR in config.h.
+packagesrcdir=`cd $srcdir && pwd`
+AC_DEFINE_UNQUOTED(PACKAGE_SOURCE_DIR, "${packagesrcdir}", PACKAGE_SOURCE_DIR)
+
+dnl Use -Wall if we have gcc.
+changequote(,)dnl
+if test "x$GCC" = "xyes"; then
+  case " $CFLAGS " in
+  *[\ \	]-Wall[\ \	]*) ;;
+  *) CFLAGS="$CFLAGS -Wall" ;;
+  esac
+fi
+changequote([,])dnl
+
+AC_OUTPUT(Makefile src/Makefile)

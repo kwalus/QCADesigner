@@ -1,6 +1,7 @@
 ChangeLog for next release -- 1.4.
 
 Completed Changes/Bug Fixes/Additions:
+-- Added self-extracting installer for Win32.
 -- Made fonts work in Win32 (avoiding font-related segfaults)
 -- Made print preview work in Win32.  I had to figure out how to
    build the command line so system() would work.  The solution:

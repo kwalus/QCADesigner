@@ -55,7 +55,7 @@ static double
   world_extents_y2 = 0 ;
 
 void fit_rect_inside_rect (double dWidth, double dHeight, double *px, double *py, double *pdRectWidth, double *pdRectHeight) ;
-void init_print_properties_dialog (print_properties_D *dialog, print_OP *print_op, GtkWindow *parent, qcell *first_cell) ;
+void init_print_properties_dialog (print_properties_D *dialog, print_OP *print_op, GtkWindow *parent, qcell *first_cell, gboolean *pbOK) ;
 void create_print_properties_dialog (print_properties_D *dialog) ;
 void on_print_properties_dialog_btnOK_clicked(GtkButton *button, gpointer user_data) ;
 void on_print_properties_dialog_btnPreview_clicked(GtkButton *button, gpointer user_data) ;
@@ -85,12 +85,7 @@ gboolean get_print_properties_from_user (GtkWindow *parent, print_OP *ppo, qcell
   if (NULL == print_properties.dlgPrintProps)
     create_print_properties_dialog (&print_properties) ;
 
-  gtk_object_set_data (GTK_OBJECT (print_properties.dlgPrintProps), "first_cell", first_cell) ;
-  gtk_object_set_data (GTK_OBJECT (print_properties.dlgPrintProps), "pbOK", &bOK) ;
-  gtk_object_set_data (GTK_OBJECT (print_properties.dlgPrintProps), "ppo", ppo) ;
-  gtk_object_set_data (GTK_OBJECT (print_properties.dlgPrintProps), "dialog", &print_properties) ;
-  
-  init_print_properties_dialog (&print_properties, ppo, parent, first_cell) ;
+  init_print_properties_dialog (&print_properties, ppo, parent, first_cell, &bOK) ;
   
   show_dialog_blocking (print_properties.dlgPrintProps) ;
   
@@ -980,7 +975,7 @@ void create_print_properties_dialog (print_properties_D *dialog){
 		      dialog->dlgPrintProps) ;
   }
 
-void init_print_properties_dialog (print_properties_D *dialog, print_OP *print_op, GtkWindow *parent, qcell *first_cell)
+void init_print_properties_dialog (print_properties_D *dialog, print_OP *print_op, GtkWindow *parent, qcell *first_cell, gboolean *pbOK)
   {
   int Nix ;
   double factor ;
@@ -988,6 +983,11 @@ void init_print_properties_dialog (print_properties_D *dialog, print_OP *print_o
   if (NULL == dialog->dlgPrintProps)
     create_print_properties_dialog (dialog) ;
     
+  gtk_object_set_data (GTK_OBJECT (dialog->dlgPrintProps), "first_cell", first_cell) ;
+  gtk_object_set_data (GTK_OBJECT (dialog->dlgPrintProps), "pbOK", pbOK) ;
+  gtk_object_set_data (GTK_OBJECT (dialog->dlgPrintProps), "ppo", print_op) ;
+  gtk_object_set_data (GTK_OBJECT (dialog->dlgPrintProps), "dialog", dialog) ;
+  
   gtk_window_set_transient_for (GTK_WINDOW (dialog->dlgPrintProps), parent) ;
 
   old_preferred_units_menu_item = GTK_OPTION_MENU (dialog->cbPrefUnits)->menu_item ;
@@ -1177,11 +1177,12 @@ void init_print_options (print_OP *pPrintOp, qcell *first_cell)
   {
   double dFactor ;
   int Nix ;
+  gboolean bOK = FALSE ;
 
   if (NULL == print_properties.dlgPrintProps)
     {
     create_print_properties_dialog (&print_properties) ;
-    init_print_properties_dialog (&print_properties, pPrintOp, NULL, first_cell) ;
+    init_print_properties_dialog (&print_properties, pPrintOp, NULL, first_cell, &bOK) ;
     }
   
   dFactor = get_conversion_factor (old_preferred_units_menu_item, print_properties.cbmPUPoints, &print_properties) ;

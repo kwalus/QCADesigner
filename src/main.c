@@ -99,7 +99,7 @@ int main (int argc, char *argv[])
     psz = g_strdup_printf ("%s %s", pszModuleFName, pszCmdLine) ;
   else
     psz = g_strdup_printf ("%s", pszModuleFName) ;
-  if (!g_shell_parse_argv (psz, ,&argc, &argv, &err))
+  if (!g_shell_parse_argv (psz, &argc, &argv, &err))
     exit (1) ;
   g_free (psz) ;
 #endif

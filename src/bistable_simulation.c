@@ -226,10 +226,10 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell
 	// -- this is done so that majority gates are evalulated last -- //
 	// -- to ensure that all the signals have arrived first -- //
 	// -- kept getting wrong answers without this -- //
-	//qsort (sorted_cells, total_cells, sizeof (GQCell *), compareBistableQCells) ;
+	qsort (sorted_cells, total_cells, sizeof (GQCell *), compareBistableQCells) ;
 //	uglysort (sorted_cells, neighbour_count, total_cells);
 	
-	randomize_sorted_cells(sorted_cells, total_cells);
+	//randomize_sorted_cells(sorted_cells, total_cells);
 	
 	// perform the iterations over all samples //
 	for (j = 0; j < sim_data->number_samples; j++){
@@ -262,7 +262,7 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell
 		}
 
 		// randomize the order in which the cells are simulated //
-		randomize_sorted_cells(sorted_cells, total_cells);
+		//randomize_sorted_cells(sorted_cells, total_cells);
 		
 		// -- run the iteration with the given clock value -- //
 		run_bistable_iteration (j, total_cells, sorted_cells, options, sim_data);

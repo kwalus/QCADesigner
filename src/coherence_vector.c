@@ -16,58 +16,61 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-//#include <unistd.h>
 
 #include "gqcell.h"
 #include "simulation.h"
 #include "stdqcell.h"
-#include "bistable_simulation.h"
+#include "coherence_simulation.h"
 #include "nonlinear_approx.h"
 #include "command_history.h"
-#include "eigenvalues.h"
 #include "cad.h"
-#include "command_history.h"
 
 //!Options for the bistable simulation engine
-//This variable is used by multiple source files
-bistable_OP bistable_options = {3200, FALSE, 1e-3, 65, 12.9, 1e-20, 3e-34, 100} ;
+coherence_OP coherence_options = {300, 6.5828e-14, 1e-15, 1e-13, 100e-3 * 1.602e-19, 40e-3 * 1.602e-19} ;
 
 typedef struct{
 	int number_of_neighbours;
 	struct GQCell **neighbours;
 	double *Ek;
-}bistable_model;
+	double lambda_x;
+	double lambda_y;
+	double lambda_z;
+}coherence_model;
 
-typedef struct
-{
-  int index;
-  float energy;
-}
-ENERGYSORTSTRUCT;
-
-static int compare_energy_sort_structs (const void *p1, const void *p2);
-static inline void sort_energies (int *index, float *energy, int NumberElements);
-static double bistable_determine_Ek(GQCell * cell1, GQCell * cell2, bistable_OP *options);
-static void bistable_refresh_all_Ek(GQCell *cell, bistable_OP *options);
-static void run_bistable_iteration(int sample_number, int number_of_sorted_cells, GQCell **sorted_cells, bistable_OP *options, simulation_data *sim_data);
-static int compareBistableQCells (const void *p1, const void *p2) ;
-static void randomize_sorted_cells(GQCell **sorted_cells, int number_of_sorted_cells);
-static void flip_sorted_cells(GQCell **sorted_cells, int i, int j);
+static double coherence_determine_Ek(GQCell * cell1, GQCell * cell2, coherence_OP *options);
+static void coherence_refresh_all_Ek(GQCell *cell, coherence_OP *options);
+static void run_coherence_iteration(int sample_number, int number_of_sorted_cells, GQCell **sorted_cells, coherence_OP *options, simulation_data *sim_data);
+static int compareCoherenceQCells (const void *p1, const void *p2) ;
+inline double magnitude_energy_vector(double t, double PEk, double Gamma, const coherence_OP *options);
+double temp_ratio(double t, double PEk, double Gamma, const coherence_OP *options);
+inline double lambda_ss_x(double t, double PEk, double Gamma, const coherence_OP *options);
+inline double lambda_ss_y(double t, double PEk, double Gamma, const coherence_OP *options);
+inline double lambda_ss_z(double t, double PEk, double Gamma, const coherence_OP *options);
+inline double lambda_x_next(double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options);
+inline double lambda_y_next(double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options);
+inline double lambda_z_next(double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options);
 
 //-------------------------------------------------------------------//
 // -- this is the main simulation procedure -- //
 //-------------------------------------------------------------------//
-simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell, bistable_OP *options, VectorTable *pvt){
+simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cell, coherence_OP *options, VectorTable *pvt){
 	
-	int i, j, total_cells;
+	int i, j, q, total_cells;
 	GQCell *cell;
 	GQCell **input_cells = NULL;
 	GQCell **output_cells = NULL;
-        GQCell **sorted_cells = NULL ;
+    GQCell **sorted_cells = NULL ;
 	int total_number_of_inputs = 0;
 	int total_number_of_outputs = 0;
 	double input = 0;
-//	int *neighbour_count = NULL;
+	unsigned int number_samples;
+	double PEk = 0;
+
+	// determine the number of samples from the user options //
+	number_samples = (unsigned int)(options->duration/options->time_step);
+	command_history_message ("About to start the coherence vector simulation with %d samples\n", number_samples);
+
+	// -- Allocate memory to hold the simulation data -- //
 	simulation_data *sim_data = malloc(sizeof(simulation_data));
  
 	cell = first_cell;
@@ -91,11 +94,11 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell
 		}
 
 		// attach the model parameters to each of the simulation cells //
-		cell->cell_model = malloc(sizeof(bistable_model));
+		cell->cell_model = malloc(sizeof(coherence_model));
 		
 		// -- Clear the model pointers so they are not dangling -- //
-		((bistable_model *)cell->cell_model)->neighbours = NULL;
-		((bistable_model *)cell->cell_model)->Ek = NULL;
+		((coherence_model *)cell->cell_model)->neighbours = NULL;
+		((coherence_model *)cell->cell_model)->Ek = NULL;
 		
 		total_cells++;
 		cell = cell->next;
@@ -155,8 +158,8 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell
 	
 	// -- Initialize the simualtion data structure -- //
   	sim_data->number_of_traces = total_number_of_inputs + total_number_of_outputs;
-        // This values was so far hard-coded at 3200 - Let's find out why.
-  	sim_data->number_samples = options->number_of_samples;
+        
+  	sim_data->number_samples = number_samples;
   	sim_data->trace = malloc (sizeof (struct TRACEDATA) * sim_data->number_of_traces);
 
   	// create and initialize the inputs into the sim data structure //      
@@ -207,16 +210,13 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell
 	}
 	
 	// -- refresh all the kink energies -- //
-	bistable_refresh_all_Ek (first_cell, options);
-
-//	neighbour_count = calloc (total_cells, sizeof (int));
+	coherence_refresh_all_Ek (first_cell, options);
 
 	sorted_cells = calloc (total_cells, sizeof (GQCell *));
 
   	i = 0;
   	cell = first_cell;
 	while (cell != NULL){
-//		neighbour_count[i] = ((bistable_model *)cell->cell_model)->number_of_neighbours;
       	sorted_cells[i] = cell;
       	i++;
       	cell = cell->next;
@@ -226,10 +226,24 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell
 	// -- this is done so that majority gates are evalulated last -- //
 	// -- to ensure that all the signals have arrived first -- //
 	// -- kept getting wrong answers without this -- //
-	//qsort (sorted_cells, total_cells, sizeof (GQCell *), compareBistableQCells) ;
-//	uglysort (sorted_cells, neighbour_count, total_cells);
+	qsort (sorted_cells, total_cells, sizeof (GQCell *), compareBistableQCells) ;
 	
-	randomize_sorted_cells(sorted_cells, total_cells);
+	// Reset all the cell polarizations to their associated steady state values //
+	cell = first_cell;
+	while (cell != NULL){
+		PEk = 0;
+		// Calculate the sum of neighboring polarizations * the kink energy between them//
+		for (q = 0; q < ((coherence_model *)cell->cell_model)->number_of_neighbours; q++){
+		  	PEk += (gqcell_calculate_polarization(((coherence_model *)cell->cell_model)->neighbours[q]))*((coherence_model *)cell->cell_model)->Ek[q];
+		}
+		
+		((coherence_model *)cell->cell_model)->lambda_x = lambda_ss_x(0, PEk, sim_data->clock_data[cell->clock].data[0], options);
+		((coherence_model *)cell->cell_model)->lambda_y = lambda_ss_y(0, PEk, sim_data->clock_data[cell->clock].data[0], options);
+		((coherence_model *)cell->cell_model)->lambda_z = lambda_ss_z(0, PEk, sim_data->clock_data[cell->clock].data[0], options);
+		
+      	cell = cell->next;
+    	}
+	
 	
 	// perform the iterations over all samples //
 	for (j = 0; j < sim_data->number_samples; j++){
@@ -253,19 +267,23 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell
 				}
 			}
 			
-		else if(SIMULATION_TYPE == VECTOR_TABLE)
-		  input = pvt->vectors[(j*pvt->num_of_vectors) / sim_data->number_samples][i] ? 1 : -1 ;
+			else if(SIMULATION_TYPE == VECTOR_TABLE)
+		  		input = pvt->vectors[(j*pvt->num_of_vectors) / sim_data->number_samples][i] ? 1 : -1 ;
 
-	      	// -- set the inputs cells with the input data -- //
-	      	gqcell_set_polarization (input_cells[i], input);
-	      	sim_data->trace[i].data[j] = input;
+	      		// -- set the inputs cells with the input data -- //
+	      		gqcell_set_polarization (input_cells[i], input);
+	      		sim_data->trace[i].data[j] = input;
 		}
 
-		// randomize the order in which the cells are simulated //
-		randomize_sorted_cells(sorted_cells, total_cells);
-		
 		// -- run the iteration with the given clock value -- //
 		run_bistable_iteration (j, total_cells, sorted_cells, options, sim_data);
+		
+		// -- Set the cell polarizations to the lambda_z value -- //
+		for(i = 0; i < number_sorted_cells; i++){
+			// don't simulate the input and fixed cells //
+			if(sorted_cells[i]->is_input || sorted_cells[i]->is_fixed)continue;
+			gqcell_set_polarization(sorted_cells[i], ((coherence_model *)sorted_cells[i]->cell_model)->lambda_z);
+		}
 		
 		// -- collect all the output data from the simulation -- //
 		for (i = 0; i < total_number_of_outputs; i++){
@@ -280,12 +298,10 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell
 	}//for number of samples
 
 	free (sorted_cells);
-//	free (neighbour_count);
 	free (input_cells);
 	free (output_cells);
 	
 	sorted_cells = NULL;
-//	neighbour_count = NULL;
 	input_cells = NULL;
 	output_cells = NULL;
 	cell = NULL;
@@ -296,184 +312,64 @@ simulation_data *run_bistable_simulation(int SIMULATION_TYPE, GQCell *first_cell
 	
 	return sim_data;
 
-}//run_bistable
+}//run_coherence
 
 
 // -- completes one simulation iteration performs the approximations until the entire design has stabalized -- //
-static void run_bistable_iteration (int sample_number, int number_of_sorted_cells, GQCell **sorted_cells, bistable_OP *options, simulation_data *sim_data){
-
-	int i,j, q, iteration = 0;
-  	int stable = FALSE;
-  	double old_polarization;
-  	double new_polarization;
-  	double tolerance = ((bistable_OP *)options)->convergence_tolerance;
-	double temp;
-	int ntot;
-	int *index;
-	float *Energy;
-	float **Psi;
-	float **Hamiltonian;
+static void run_coherence_iteration (int sample_number, int number_of_sorted_cells, GQCell **sorted_cells, coherence_OP *options, simulation_data *sim_data){
 	
-	if((index = malloc(2 * sizeof(int))) == NULL){
-		printf("malloc failed in run_bistable_iteration: index==NULL\n");
-		exit(1);
-	}
+	unsigned int i,q;
+	double lambda_x_new;
+	double lambda_y_new;
+	double lambda_z_new;
+	double PEk;
 	
-	if((Energy = malloc(2 * sizeof(float))) == NULL){
-		printf("malloc failed in run_bistable_iteration: Energy==NULL\n");
-		exit(1);
-	}
+	t = options->time_step * sample_number;
 	
-	if((Psi = malloc(2 * sizeof(float *))) == NULL){
-		printf("malloc failed in run_bistable_iteration: Psi==NULL\n");
-		exit(1);
-	}
-	
-	if((Hamiltonian = malloc(2 * sizeof(float *))) == NULL){
-		printf("malloc failed in run_bistable_iteration: Hamiltonian==NULL\n");
-		exit(1);
-	}
-	
-
-	for(i = 0; i < 2; i++){
-		Hamiltonian[i] = malloc(2 * sizeof(float));
-		Psi[i] = malloc(2 * sizeof(float));
-	}
-	
-	// -- iterate until the entire design has stabalized -- //
-
-  	while (!stable && iteration < ((bistable_OP *)options)->max_iterations_per_sample){
-		iteration++;
-
-		// -- assume that it is stable -- //
-      	stable = TRUE;
-
-		for (j = 0; j < number_of_sorted_cells; j++){
-
-			if (sorted_cells[j]->is_input == FALSE && sorted_cells[j]->is_fixed == FALSE){
-
-	      		old_polarization = gqcell_calculate_polarization (sorted_cells[j]);
-
-	      		temp = 0;
-	     		for (q = 0; q < ((bistable_model *)sorted_cells[j]->cell_model)->number_of_neighbours; q++){
-
-		  			g_assert (((bistable_model *)sorted_cells[j]->cell_model)->neighbours[q] != NULL);
-
-					// H[0][0] && H[1][1] == 1/2 Ek * P
-		  			temp += (1.0/2.0)*(((bistable_model *)sorted_cells[j]->cell_model)->Ek[q]  * (gqcell_calculate_polarization(((bistable_model *)sorted_cells[j]->cell_model)->neighbours[q])));
-					//printf("Ek = %f Polarization = %f temp = %f",((bistable_model *)sorted_cells[j]->cell_model)->Ek[q],(calculate_polarization(((bistable_model *)sorted_cells[j]->cell_model)->neighbours[q])), temp);
-					}
-				
-				Hamiltonian[0][0] = -temp;
-				Hamiltonian[1][1] = temp;					
-				Hamiltonian[0][1] = - sim_data->clock_data[sorted_cells[j]->clock].data[sample_number];
-				Hamiltonian[1][0] = - sim_data->clock_data[sorted_cells[j]->clock].data[sample_number];					
-				/*
-				printf("\n\n***********************************************************\n");
-				
-				printf("The Hamiltonian is:\n");
-				printf("*****************************\n");
-				printf("*  %f  *  %f  *\n", Hamiltonian[0][0], Hamiltonian[0][1]);
-				printf("*****************************\n");
-				printf("*  %f  *  %f  *\n", Hamiltonian[1][0], Hamiltonian[1][1]);
-				printf("*****************************\n");						
-				*/	
-					
-				jacobi(Hamiltonian,2,Energy,Psi,&ntot);
-				
-				index[0] = 0;
-				index[1] = 1;					
-									
-				//printf("Energies are %f, %f\n", Energy[0], Energy[1]);
-				//printf("Psi are Psi1 = %f,%f Psi2 = %f,%f\n", Psi[0][0], Psi[1][0], Psi[0][1], Psi[1][1]);
-				
-				sort_energies(index, Energy, 2);
-					
-				//printf("Energies are %f, %f\n", Energy[0], Energy[1]);
-				//printf("The final state is %f,%f\n", Psi[0][index[0]], Psi[1][index[0]]);
-				
-				//printf("Polarization=%f\n", Psi[0][index[0]]*Psi[0][index[0]] - Psi[1][index[0]]*Psi[1][index[0]]);
-
-	      		// -- calculate the new cell polarization -- //
-	      		new_polarization = Psi[0][index[0]]*Psi[0][index[0]] - Psi[1][index[0]]*Psi[1][index[0]];
-
-	      		// -- set the polarization of this cell -- //
-	      		gqcell_set_polarization (sorted_cells[j], new_polarization);
-				
-				// -- check if it really is stable -- //
-	      		//printf("tolerance = %f\n", new_polarization - old_polarization);
-	      		if (fabs (new_polarization - old_polarization) > tolerance)
-				stable = FALSE;
-
-	    	}
-
-
+	// loop through all the cells in the design //
+	for(i = 0; i < number_sorted_cells; i++){
+		
+		// don't simulate the input and fixed cells //
+		if(sorted_cells[i]->is_input || sorted_cells[i]->is_fixed)continue;
+		
+		PEk = 0;
+		// Calculate the sum of neighboring polarizations //
+		for (q = 0; q < ((coherence_model *)sorted_cells[i]->cell_model)->number_of_neighbours; q++){
+		  	PEk += (gqcell_calculate_polarization(((coherence_model *)sorted_cells[i]->cell_model)->neighbours[q]))*((coherence_model *)sorted_cells[i]->cell_model)->Ek[q];
 		}
-
-    }				//WHILE !STABLE
-	
-	for(i = 0; i < 2; i++){
-		free(Hamiltonian[i]);
-		free(Psi[i]);
+		
+		lambda_x_new = lambda_x_next(t, PEk, sim_data->clock_data[sorted_cells[i]->clock].data[0], 
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_x, 
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_y, 
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_z, options);
+		
+		lambda_y_new = lambda_y_next(t, PEk, sim_data->clock_data[sorted_cells[i]->clock].data[0], 
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_x, 
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_y, 
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_z, options);
+		
+		lambda_z_new = lambda_z_next(t, PEk, sim_data->clock_data[sorted_cells[i]->clock].data[0], 
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_x, 
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_y, 
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_z, options);
+		
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_x = lambda_x_new;
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_y = lambda_y_new;
+		((coherence_model *)sorted_cells[i]->cell_model)->lambda_z = lambda_z_new;
+		
+		
 	}
-	
-	free(index);
-	free(Energy);
-	free(Psi);
-	free(Hamiltonian);
-	
-	index = NULL;
-	Energy = NULL;
-	Psi = NULL;
-	Hamiltonian = NULL;
 	
 
 }//run_iteration
 
 //-------------------------------------------------------------------//
-
-//!Compare two instances of energysortstruct to determine which has a higher energy
-static int compare_energy_sort_structs (const void *p1, const void *p2){
-  
-  ENERGYSORTSTRUCT *pss1 = (ENERGYSORTSTRUCT *) p1;
-  ENERGYSORTSTRUCT *pss2 = (ENERGYSORTSTRUCT *) p2;
-
-  return (pss1->energy > pss2->energy) ? 1 :
-    (pss1->energy == pss2->energy) ? 0 : -1;
-}//compare_energy_sort_structs
-
-//-------------------------------------------------------------------//
-
-//!Sorts a list of indicies according to the energy
-static inline void sort_energies (int *index, float *energy, int NumberElements){
-
-	int Nix;
-	
-	ENERGYSORTSTRUCT *pss = (ENERGYSORTSTRUCT *) malloc (NumberElements * sizeof (ENERGYSORTSTRUCT));
-	
-	for (Nix = 0; Nix < NumberElements; Nix++){
-	  	pss[Nix].index = index[Nix];
-	  	pss[Nix].energy = energy[Nix];
-	}
-	
-	qsort (pss, NumberElements, sizeof (ENERGYSORTSTRUCT), compare_energy_sort_structs);
-	
-	for (Nix = 0; Nix < NumberElements; Nix++){
-	  	index[Nix] = pss[Nix].index;
-	  	energy[Nix] = pss[Nix].energy;
-	}
-	
-	free (pss);
-	pss = NULL;
-}//uglysort
-
-//-------------------------------------------------------------------//
 // -- refreshes the array of Ek values for each cell in the design this is done to speed up the simulation
 // since we can assume no design changes durring the simulation we can precompute all the Ek values then
 // use them as necessary throughout the simulation -- //
-static void bistable_refresh_all_Ek (GQCell *cell, bistable_OP *options){
-      	int icNeighbours = 0 ;
-	bistable_model *cell_model = NULL ;
+static void coherence_refresh_all_Ek (GQCell *cell, bistable_OP *options){
+    int icNeighbours = 0 ;
+	coherence_model *cell_model = NULL ;
 	GQCell *first_cell = cell ;
 	int k;
 
@@ -481,7 +377,7 @@ static void bistable_refresh_all_Ek (GQCell *cell, bistable_OP *options){
 	while (cell != NULL){
 
 		// free up memory for cell model variables //
-		free ((cell_model = (bistable_model *)cell->cell_model)->neighbours);
+		free ((cell_model = (coherence_model *)cell->cell_model)->neighbours);
 		free (cell_model->Ek);
 		cell_model->neighbours = NULL;
 		cell_model->Ek = NULL;
@@ -494,7 +390,7 @@ static void bistable_refresh_all_Ek (GQCell *cell, bistable_OP *options){
 			cell_model->Ek = malloc (sizeof (double) * icNeighbours);
 			
 			// ensure no memory allocation error has ocurred //
-			if (((bistable_model *)cell->cell_model)->neighbours == NULL || ((bistable_model *)cell->cell_model)->Ek == NULL){
+			if (((coherence_model *)cell->cell_model)->neighbours == NULL || ((coherence_model *)cell->cell_model)->Ek == NULL){
 				printf ("memory allocation error in refresh_all_Ek()\n");
 				exit (1);
 			}
@@ -516,7 +412,7 @@ static void bistable_refresh_all_Ek (GQCell *cell, bistable_OP *options){
 //-------------------------------------------------------------------//
 // Determines the Kink energy of one cell with respect to another this is defined as the energy of those
 // cells having opposite polarization minus the energy of those two cells having the same polarization -- //
-static double bistable_determine_Ek (GQCell * cell1, GQCell * cell2, bistable_OP *options){
+static double coherence_determine_Ek (GQCell * cell1, GQCell * cell2, bistable_OP *options){
 
 	int k;
 	int j;
@@ -553,29 +449,65 @@ static double bistable_determine_Ek (GQCell * cell1, GQCell * cell2, bistable_OP
 
 //-------------------------------------------------------------------//
 
-static int compareBistableQCells (const void *p1, const void *p2)
+static int compareCoherenceQCells (const void *p1, const void *p2)
   {
   return
-    ((bistable_model *)((*((GQCell **)(p1)))->cell_model))->number_of_neighbours > 
-    ((bistable_model *)((*((GQCell **)(p2)))->cell_model))->number_of_neighbours ?  1 :
-    ((bistable_model *)((*((GQCell **)(p1)))->cell_model))->number_of_neighbours < 
-    ((bistable_model *)((*((GQCell **)(p2)))->cell_model))->number_of_neighbours ? -1 : 0 ;
+    ((coherence_model *)((*((GQCell **)(p1)))->cell_model))->number_of_neighbours > 
+    ((coherence_model *)((*((GQCell **)(p2)))->cell_model))->number_of_neighbours ?  1 :
+    ((coherence_model *)((*((GQCell **)(p1)))->cell_model))->number_of_neighbours < 
+    ((coherence_model *)((*((GQCell **)(p2)))->cell_model))->number_of_neighbours ? -1 : 0 ;
   }//compareSortStructs
+  
+// Next value of lambda x using the time marching algorithm
+inline double lambda_x_next(double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options){
+	return lambda_x + options->time_step * 
+	(-(2.0*Gamma*over_hbar * 1.0/magnitude_energy_vector(t, PEk, Gamma, options) * 
+	tanh(temp_ratio(t, PEk, Gamma, options))+lambda_x)/options->relaxation 
+	+ (PEk*lambda_y*over_hbar));
+}
 
-//-------------------------------------------------------------------//
+// Next value of lambda y using the time marching algorithm
+inline double lambda_y_next(double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options){
+	return lambda_y + (-options->time_step*options->relaxation*
+	PEk*lambda_x-options->time_step*hbar*lambda_y-2.0*Gamma*options->time_step*options->relaxation*lambda_z)/(options->relaxation*hbar);
+}
 
-static void randomize_sorted_cells(GQCell **sorted_cells, int number_of_sorted_cells){
-	int i;
-	for(i = 0; i <=number_of_sorted_cells; i++)
-		flip_sorted_cells(sorted_cells, rand()%number_of_sorted_cells, rand()%number_of_sorted_cells);
-}//randomize_sorted_cells
-
-//-------------------------------------------------------------------//
-static void flip_sorted_cells(GQCell **sorted_cells, int i, int j){
-
-	GQCell *tempcell = sorted_cells[i];
+// Next value of lambda z using the time marching algorithm
+inline double lambda_z_next(double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options){
+	double mag = magnitude_energy_vector(t, PEk, Gamma, options);
 	
-	sorted_cells[i] = sorted_cells[j];
-	sorted_cells[j] = tempcell;
+	return lambda_z + 1.0/(options->relaxation*hbar*mag) * 
+	(options->time_step*PEk*tanh(temp_ratio(t, PEk, Gamma, options)) +
+	2.0*Gamma*options->time_step*options->relaxation*mag*lambda_y	-
+	options->time_step*hbar*mag*lambda_z);
 
 }
+
+// Calculates the magnitude of the 3D energy vector
+inline double magnitude_energy_vector(double t, double PEk, double Gamma, const coherence_OP *options){
+	return sqrt((4.0*Gamma*Gamma + PEk*PEk)*over_hbar_sqr);
+}
+
+// The temperature ratio
+double temp_ratio(double t, double PEk, double Gamma, const coherence_OP *options){
+	return 0.5 * hbar/(options->T * kB) * magnitude_energy_vector(t, PEk, Gamma, options);
+} 
+
+//-------------------------------------------------------------------------------------------------------------------------//
+
+// Steady-State Coherence Vector X component
+inline double lambda_ss_x(double t, double PEk, double Gamma, const coherence_OP *options){
+	return -2.0*Gamma*over_hbar * 1.0/magnitude_energy_vector(t, PEk, Gamma, options) * tanh(temp_ratio(t, PEk, Gamma, options));
+}
+
+// Steady-State Coherence Vector y component
+inline double lambda_ss_y(double t, double PEk, double Gamma, const coherence_OP *options){
+	return 0.0;
+}
+
+// Steady-State Coherence Vector Z component
+inline double lambda_ss_z(double t, double PEk, double Gamma, const coherence_OP *options){
+	return PEk*over_hbar * 1.0/magnitude_energy_vector(t, PEk, Gamma, options) * tanh(temp_ratio(t, PEk, Gamma, options));
+}
+
+

@@ -24,11 +24,22 @@
 #include "gqcell.h"
 #include "simulation.h"
 
+// Physical Constants //
+#define hbar 1.05457266e-34
+#define over_hbar 9.48252e33
+#define hbar_sqr 1.11212e-68
+#define over_hbar_sqr 8.99183e67
+#define kB 1.381e-23
+#define over_kB 7.24296e22
+#define E 1.602e-19
+
 typedef struct{
 	double T;
 	double relaxation;
 	double time_step;
 	double duration;
+	double clock_high;
+	double clock_low;
 }coherence_OP;
 
 simulation_data *run_coherence_simulation(int SIMULATION_TYPE, GQCell *first_cell, coherence_OP *options, VectorTable *pvt);

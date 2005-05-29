@@ -1,182 +1,47 @@
-#!/bin/sh
+#!/bin/bash
 
-# Run this to generate all the initial makefiles, etc.
+set -x
 
 #Ask for the appropriate automake/autoconf versions
 WANT_AUTOMAKE=1.6
-export WANT_AUTOMAKE
 WANT_AUTOCONF_2_5=1
+                                                                                                                                                              
+export WANT_AUTOMAKE
 export WANT_AUTOCONF_2_5
-CFLAGS="${CFLAGS} -O3"
-export CFLAGS
+
+HAVE_WINDOWS=0
+
+set +x
 
 # Hacky test for Windoze follows :o)
 if [ "" != "$WINDIR" ]; then
   echo '########################################################################################'
   echo 'IMPORTANT: Under cygwin, you must set the following environment variables:'
   echo ''
-  echo 'LDFLAGS="-L/lib/mingw -mwindows"'
-  echo 'CFLAGS="-mno-cygwin -mwindows -mms-bitfields -g"'
+  echo 'LDFLAGS="-L/lib/mingw -Xlinker -subsys -Xlinker windows"'
+  echo 'CFLAGS="-mno-cygwin -mms-bitfields -g"'
   echo 'CXXFLAGS=${CFLAGS}'
   echo ''
   echo 'If you have not done so, you had better rm -rf the source tree and check it out again'
   echo 'because, for some reason, you cannot run autogen.sh twice on the same source tree'
   echo '########################################################################################'
-fi
 
-srcdir=`dirname $0`
-test -z "$srcdir" && srcdir=.
-
-DIE=0
-
-if [ -n "$GNOME2_DIR" ]; then
-	ACLOCAL_FLAGS="-I $GNOME2_DIR/share/aclocal $ACLOCAL_FLAGS"
-	LD_LIBRARY_PATH="$GNOME2_DIR/lib:$LD_LIBRARY_PATH"
-	PATH="$GNOME2_DIR/bin:$PATH"
-	export PATH
-	export LD_LIBRARY_PATH
-fi
-
-(test -f $srcdir/configure.in) || {
-    echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
-    echo " top-level package directory"
-    exit 1
-}
-
-(autoconf --version) < /dev/null > /dev/null 2>&1 || {
-  echo
-  echo "**Error**: You must have \`autoconf' installed."
-  echo "Download the appropriate package for your distribution,"
-  echo "or get the source tarball at ftp://ftp.gnu.org/pub/gnu/"
-  DIE=1
-}
-
-(grep "^AC_PROG_INTLTOOL" $srcdir/configure.in >/dev/null) && {
-  (intltoolize --version) < /dev/null > /dev/null 2>&1 || {
-    echo 
-    echo "**Error**: You must have \`intltool' installed."
-    echo "You can get it from:"
-    echo "  ftp://ftp.gnome.org/pub/GNOME/"
-    DIE=1
-  }
-}
-
-(grep "^AM_PROG_XML_I18N_TOOLS" $srcdir/configure.in >/dev/null) && {
-  (xml-i18n-toolize --version) < /dev/null > /dev/null 2>&1 || {
-    echo
-    echo "**Error**: You must have \`xml-i18n-toolize' installed."
-    echo "You can get it from:"
-    echo "  ftp://ftp.gnome.org/pub/GNOME/"
-    DIE=1
-  }
-}
-
-(grep "^AM_PROG_LIBTOOL" $srcdir/configure.in >/dev/null) && {
-  (libtool --version) < /dev/null > /dev/null 2>&1 || {
-    echo
-    echo "**Error**: You must have \`libtool' installed."
-    echo "You can get it from: ftp://ftp.gnu.org/pub/gnu/"
-    DIE=1
-  }
-}
-
-(grep "^AM_GLIB_GNU_GETTEXT" $srcdir/configure.in >/dev/null) && {
-  (grep "sed.*POTFILES" $srcdir/configure.in) > /dev/null || \
-  (glib-gettextize --version) < /dev/null > /dev/null 2>&1 || {
-    echo
-    echo "**Error**: You must have \`glib' installed."
-    echo "You can get it from: ftp://ftp.gtk.org/pub/gtk"
-    DIE=1
-  }
-}
-
-(automake --version) < /dev/null > /dev/null 2>&1 || {
-  echo
-  echo "**Error**: You must have \`automake' installed."
-  echo "You can get it from: ftp://ftp.gnu.org/pub/gnu/"
-  DIE=1
-  NO_AUTOMAKE=yes
-}
-
-
-# if no automake, don't bother testing for aclocal
-test -n "$NO_AUTOMAKE" || (aclocal --version) < /dev/null > /dev/null 2>&1 || {
-  echo
-  echo "**Error**: Missing \`aclocal'.  The version of \`automake'"
-  echo "installed doesn't appear recent enough."
-  echo "You can get automake from ftp://ftp.gnu.org/pub/gnu/"
-  DIE=1
-}
-
-if test "$DIE" -eq 1; then
-  exit 1
-fi
-
-if test -z "$*"; then
-  echo "**Warning**: I am going to run \`configure' with no arguments."
-  echo "If you wish to pass any to it, please specify them on the"
-  echo \`$0\'" command line."
-  echo
-fi
-
-case $CC in
-xlc )
-  am_opt=--include-deps;;
-esac
-
-for coin in `find $srcdir -path $srcdir/CVS -prune -o -name configure.in -print`
-do 
-  dr=`dirname $coin`
-  if test -f $dr/NO-AUTO-GEN; then
-    echo skipping $dr -- flagged as no auto-gen
-  else
-    echo processing $dr
-    ( cd $dr
-
-      aclocalinclude="$ACLOCAL_FLAGS"
-
-      if grep "^AM_GLIB_GNU_GETTEXT" configure.in >/dev/null; then
-	echo "Creating $dr/aclocal.m4 ..."
-	test -r $dr/aclocal.m4 || touch $dr/aclocal.m4
-	echo "Running glib-gettextize...  Ignore non-fatal messages."
-	echo "no" | glib-gettextize --force --copy
-	echo "Making $dr/aclocal.m4 writable ..."
-	test -r $dr/aclocal.m4 && chmod u+w $dr/aclocal.m4
-      fi
-      if grep "^AC_PROG_INTLTOOL" configure.in >/dev/null; then
-        echo "Running intltoolize..."
-	intltoolize --copy --force --automake
-      fi
-      if grep "^AM_PROG_XML_I18N_TOOLS" configure.in >/dev/null; then
-        echo "Running xml-i18n-toolize..."
-	xml-i18n-toolize --copy --force --automake
-      fi
-      if grep "^AM_PROG_LIBTOOL" configure.in >/dev/null; then
-	if test -z "$NO_LIBTOOLIZE" ; then 
-	  echo "Running libtoolize..."
-	  libtoolize --force --copy
-	fi
-      fi
-      echo "Running aclocal $aclocalinclude ..."
-      aclocal $aclocalinclude
-      if grep "^AM_CONFIG_HEADER" configure.in >/dev/null; then
-	echo "Running autoheader..."
-	autoheader
-      fi
-      echo "Running automake --gnu $am_opt ..."
-      automake --add-missing --gnu $am_opt
-      echo "Running autoconf ..."
-      autoconf
-    )
+  HAVE_WINDOWS=1
+  if [ "" = "$GTK_SOURCES" ]; then
+    echo "The environment variable GTK_SOURCES is not defined. Please enter the location of your GTK+ development environment (see http://www.gimp.org/~tml/gimp/win32/downloads.html):"
+    read
+    GTK_SOURCES="$REPLY"
+    export GTK_SOURCES
   fi
-done
-
-conf_flags="--enable-maintainer-mode"
-
-if test x$NOCONFIGURE = x; then
-  echo Running $srcdir/configure $conf_flags "$@" ...
-  $srcdir/configure $conf_flags "$@" \
-  && echo Now type \`make\' to compile. || exit 1
-else
-  echo Skipping configure process.
 fi
+
+set -x
+
+if [ "1" = "$HAVE_WINDOWS" ]; then
+  aclocal -I $GTK_SOURCES/share/aclocal
+else
+  aclocal
+fi
+automake --gnu --add-missing
+glib-gettextize -c
+autoconf

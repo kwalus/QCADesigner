@@ -3,17 +3,29 @@
 msgid "1 nm is"
 msgstr "1 nm ist"
 
+msgid "<big><span foreground=\"red\"><b>Note:</b></span> Right-click the vector table for adding/removing vectors.</big>"
+msgstr "<big><span foreground=\"red\"><b>Bemerkung:</b></span> Auf den Vektor rechtsklicken um Vektoren zuzufügen/entfernen.</big>"
+
 msgid "About QCADesigner"
 msgstr "QCADesigner Info"
 
 msgid "About..."
 msgstr "Info..."
 
+msgid "Active"
+msgstr "Aktiv"
+
 msgid "Add Cell Array"
 msgstr "Zellreihe zufügen"
 
 msgid "Add Cell To Design"
 msgstr "Zelle zum Design zufügen"
+
+msgid "Add Layer to Design"
+msgstr "Layer zum Design hinzufügen"
+
+msgid "Add Layer"
+msgstr "Layer hinzufügen"
 
 msgid "Add Type 2 Cell To Design"
 msgstr "Zelle 2. Types zum Design zufügen"
@@ -23,6 +35,9 @@ msgstr "Vektor zufügen"
 
 msgid "Add horizontal or vertical arrays of Type 1 or Type 2 cells to your design."
 msgstr "Fügen Sie horizontale oder vertikale Zellreihen 1. oder 2. Types zum Design."
+
+msgid "Adds a layer to your design."
+msgstr "Fügt einen Layer zum Design hinzu."
 
 msgid "Animate Test Simulation"
 msgstr "Testsimulation animieren"
@@ -34,7 +49,7 @@ msgid "Array"
 msgstr "Reihe"
 
 msgid "Arrow Properties"
-msgstr "Pfeileinstellungen"
+msgstr "Pfeileigenschaften"
 
 msgid "Assign Destination To Selection..."
 msgstr "Zielrechnernamen für die Auswahl festsetzen..."
@@ -55,10 +70,13 @@ msgstr "Datei auswählen..."
 # msgstr ""
 
 msgid "Calculates and sets the magnification such that the currently topmost layer fits inside the window."
-msgstr "Berechnet und setzr die Vergrösserung so dass die zur Zeit <topmost> Schicht"
+msgstr "Berechnet und setzt den Vergrösserungsfaktor so dass der zur Zeit oberste Layer ins Fenster passt"
 
 msgid "Calculates and sets the magnification such that your design fits inside the window."
-msgstr "Berechnet und setzt die Vergrösserung so dass ihr Design ins Fenster passt."
+msgstr "Berechnet und setzt den Vergrösserungsfactor so dass ihr Design ins Fenster passt."
+
+# msgid "Cell Convergence Tolerance:"
+# msgstr ""
 
 msgid "Cell Function"
 msgstr "Zellfunktion"
@@ -66,20 +84,32 @@ msgstr "Zellfunktion"
 msgid "Cell Functions..."
 msgstr "Zellfunktionen..."
 
-msgid "Cell Height [nm]:"
-msgstr "Zellhöhe [nm]:"
-
 msgid "Cell Label:"
 msgstr "Zellbeschriftung:"
-
-msgid "Cell Width [nm]:"
-msgstr "Zellbreite [nm]:"
 
 msgid "Cell"
 msgstr "Zelle"
 
+msgid "Cells"
+msgstr "Zellen"
+
+msgid "Center"
+msgstr "Zentrieren"
+
 msgid "Center On Pages"
 msgstr "Auf den Seiten zentrieren"
+
+msgid "Centimeters"
+msgstr "Zentimeter"
+
+msgid "Change the order of layers in your design."
+msgstr "Die Ordnung der Layers im Design verändern."
+
+# msgid "Circuit Convergence Tolerance:"
+# msgstr ""
+
+msgid "Click and drag layers to their new location:"
+msgstr "Klicken Sie und ziehen Sie den Layer an dessen neue Position:"
 
 msgid "Click and drag your selection to its new location."
 msgstr "Klicken Sie und ziehen Sie Ihre Auswahl an ihre neue Position."
@@ -117,8 +147,14 @@ msgstr "Takt Spannung (niedrig):"
 msgid "Clock:"
 msgstr "Takt:"
 
+msgid "Clocking"
+msgstr "Takt"
+
 msgid "Close the project file"
 msgstr "Projektdatei schließen"
+
+msgid "Coherence Vector Options"
+msgstr ""
 
 msgid "Command Line"
 msgstr "Kommandozeile"
@@ -138,6 +174,12 @@ msgstr "Inhalt"
 # msgid "Convergence Tolerance:"
 # msgstr ""
 
+msgid "Converts graphs to PostScript and prints them to a file or a printer."
+msgstr "Konvertiert Graphen in PostScript und speichert sie in eine Datei oder sendet sie an einen Drucker."
+
+msgid "Converts graphs to PostScript and runs the previewer application."
+msgstr "Konvertiert Graphen in PostScript und startet die Vorschau."
+
 msgid "Copy Selection"
 msgstr "Auswahl kopieren"
 
@@ -150,6 +192,9 @@ msgstr "Konnte Bilddatei %s nicht finden"
 msgid "Create Block..."
 msgstr "Erzeuge Block..."
 
+msgid "Create Label"
+msgstr "Beschriftung erzeugen"
+
 msgid "Create Substrate"
 msgstr "Substrat erzeugen"
 
@@ -158,6 +203,9 @@ msgstr "Erzeugen Sie eine Spiegelkopie von ihrer Auswahl."
 
 msgid "Create a new project file"
 msgstr "Eine neue Projektdatei erzeugen"
+
+msgid "Creates a new label."
+msgstr "Eine neue Beschriftung erzeugen."
 
 msgid "Creates a new rectangular substrate."
 msgstr "Erzeugt ein neues rechteckiges Substrat."
@@ -171,17 +219,20 @@ msgstr "Erzeugt ein neues rechteckiges Substrat."
 msgid "Custom"
 msgstr "Maßgeschneidert"
 
-msgid "Decrease the magnification to get an overall picture."
-msgstr "Verringern Sie die Vergrösserung um das ganze Bild zu sehen."
-
 msgid "Decrease The Magnification"
 msgstr "Vergrösserung verringern"
 
-msgid "Cell Properties..."
-msgstr "Zelleneinstellungen..."
+msgid "Decrease the magnification to get an overall picture."
+msgstr "Verringern Sie die Vergrösserung um das ganze Bild zu sehen."
+
+msgid "Default Cell Properties..."
+msgstr "Standardeigenschaften der Zellen..."
 
 msgid "Default Clock:"
 msgstr "Standardtakt:"
+
+msgid "Default Clock"
+msgstr "Standardtakt"
 
 msgid "Delete Cells"
 msgstr "Zellen löschen"
@@ -189,14 +240,11 @@ msgstr "Zellen löschen"
 msgid "Delete"
 msgstr "Löschen"
 
-# msgid "Die Height [nm]:"
-# msgstr ""
-
-# msgid "Die Width [nm]:"
-# msgstr ""
+msgid "Device Voltage:"
+msgstr "Einrichtungsspannung:"
 
 msgid "Dimension Properties"
-msgstr "Linealeinstellungen"
+msgstr "Linealeigenschaften"
 
 msgid "Do Not Center"
 msgstr "Nicht zentrieren"
@@ -204,8 +252,11 @@ msgstr "Nicht zentrieren"
 msgid "Don't save"
 msgstr "Nicht speichern"
 
-# msgid "Dot Diameter [nm]:"
+# msgid "Dot Convergence Tolerance:"
 # msgstr ""
+
+msgid "Down, then over"
+msgstr "Herunter, dann hinüber"
 
 msgid "Draw Arrow"
 msgstr "Pfeil zeichnen"
@@ -222,14 +273,32 @@ msgstr "Rechteck zeichnen"
 msgid "Draw Text"
 msgstr "Text zeichnen"
 
+# msgid "Drawing Layer"
+# msgstr ""
+
+# msgid "Drawing"
+# msgstr ""
+
+msgid "Electron Lifetime:"
+msgstr "Lebensdauer des Elektrons:"
+
 msgid "Enter Grid Spacing [nm]"
 msgstr "Rasterabstand eingeben [nm]"
 
-# msgid "Enter Scale Factor"
+msgid "Enter Scale Factor"
+msgstr "Skalierungsfaktop Eingeben"
+
+# msgid "Export Block"
 # msgstr ""
 
 msgid "Extents"
 msgstr "Gesamtdesign"
+
+msgid "Failed to create file \"%s\" !"
+msgstr "Konnte Datei \"%s\" nicht erzeugen !"
+
+msgid "Failed to open file \"%s\"!"
+msgstr "Konnte Datei \"%s\" nicht öffnen!"
 
 msgid "File Name:"
 msgstr "Dateiname:"
@@ -255,11 +324,11 @@ msgstr "Fest"
 msgid "Function"
 msgstr "Funktion"
 
+# msgid "Gamma:"
+# msgstr ""
+
 msgid "Graph Options"
 msgstr "Grafeinstellungen"
-
-msgid "Grid Properties..."
-msgstr "Rastereinstellungen..."
 
 msgid "Grid Spacing [nm]:"
 msgstr "Rasterabstand [nm]:"
@@ -270,23 +339,41 @@ msgstr "Rasterabstand"
 msgid "Grid Spacing:"
 msgstr "Rasterabstand:"
 
-# msgid "Host Name And Port"
-# msgstr "Rechnername und Port"
+msgid "Hidden"
+msgstr "Unsichtbar"
+
+# msgid "Horizontal:"
+# msgstr ""
+
+msgid "Host Name And Port"
+msgstr "Rechnername und Port"
 
 # msgid "I/O"
 # msgstr ""
 
+msgid "Import Block"
+msgstr "Block Importieren"
+
 # msgid "Import Block..."
 # msgstr ""
 
-msgid "Increase The Magnification"
-msgstr "Vergrösserung erhöhen"
+msgid "Inches"
+msgstr "Zoll"
 
-# msgid "Increase the magnification so you may concentrate on specific parts of the design."
+msgid "Increase The Magnification"
+msgstr "Vergrösserungsfaktor erhöhen"
+
+msgid "Increase the magnification so you may concentrate on specific parts of the design."
+msgstr "Vergrösserungsfaktor erhöhen um sich auf bestimmte Teile des Designs zu konzentrieren."
+
+# msgid "Increase the magnification so you may concentrate on specific parts of the graph."
 # msgstr ""
 
-msgid "Increment Cell Clocks"
-msgstr "Zelltakte erhöhen"
+# msgid "Increment Cell Clocks"
+# msgstr ""
+
+msgid "Input Cell Current:"
+msgstr "Input Zellstrom:"
 
 # msgid "Input"
 # msgstr ""
@@ -297,8 +384,26 @@ msgstr "Zelltakte erhöhen"
 # msgid "Insert Vector After"
 # msgstr ""
 
+msgid "Label Properties"
+msgstr "Beschriftungseigenschaften"
+
+msgid "Label"
+msgstr "Beschriftung"
+
+msgid "Landscape"
+msgstr "Querformat"
+
+msgid "Layer Description:"
+msgstr "Beschriftung des Layers:"
+
 msgid "Layer Properties"
-msgstr "Layereinstellungen"
+msgstr "Layereigenschaften"
+
+msgid "Layer Status:"
+msgstr "Layerstatus:"
+
+msgid "Layer Type:"
+msgstr "Layertyp:"
 
 # msgid "Layer"
 # msgstr ""
@@ -310,13 +415,19 @@ msgid "Left Margin:"
 msgstr "Linker Rand:"
 
 msgid "Line Properties"
-msgstr "Linieneinstellungen"
+msgstr "Linieneigenschaften"
 
-# msgid "Lists the layers in the current design and allows you to switch between them."
-# msgstr ""
+msgid "Lists the layers in the current design and allows you to switch between them."
+msgstr "Listet die Layer im aktuellen Design und erlaubt zwischen ihnen herumzuschalten."
 
 # msgid "Logging Properties"
 # msgstr ""
+
+msgid "Main Cell Layer"
+msgstr "Hauptzellenlayer"
+
+msgid "Main Clocking Layer"
+msgstr "Haupttaktsignallayer"
 
 msgid "Makes a copy of your selection."
 msgstr "Kopiert Ihre Auswahl"
@@ -324,8 +435,14 @@ msgstr "Kopiert Ihre Auswahl"
 msgid "Margins"
 msgstr "Ränder"
 
-# msgid "Maximum Iterations Per Sample:"
-# msgstr ""
+msgid "Maximum Iterations Per Sample:"
+msgstr "Maximale Anzahl der Interazionen pro Probe:"
+
+msgid "Maximum Loops Per Cell:"
+msgstr "Maximale Anzahl der Schleifen pro Zelle:"
+
+msgid "Maximum Loops Per Dot:"
+msgstr "Maximale Anzahl der Schleifen pro Punkt:"
 
 msgid "Measure Distance"
 msgstr "Distanz messen"
@@ -360,17 +477,20 @@ msgstr "Verschieben"
 msgid "Normal Cell"
 msgstr "Einfache Zelle"
 
-# msgid "Note: Right-click the vector table for more options."
-# msgstr ""
+msgid "Note: If you change the paper size, please also have a look at the margins. They may have changed as a result."
+msgstr "Bemerkung: Wenn Sie die Papiergrösse verändern, bitte schauen Sie auch die Ränder an. Sie könnten verändert sein."
 
-# msgid "Number Of Samples:"
-# msgstr ""
+msgid "Note: The PostScript data will be piped to your specified command. Any valid command line is accepted."
+msgstr "Bemerkung: Die Postscript Daten werden an Ihren angegebenen Befehl weitergeleitet.  Jedwelcher gültige Befehl wird akzeptiert."
+
+msgid "Number Of Samples:"
+msgstr "Anzahl der Proben:"
 
 msgid "Number of Pages"
 msgstr "Anzahl der Seiten"
 
-# msgid "Number of Samples:"
-# msgstr ""
+msgid "Open Design"
+msgstr "Design Öffnen"
 
 msgid "Open a project file"
 msgstr "Projektdatei öffnen"
@@ -411,6 +531,15 @@ msgstr "Papierbreite:"
 msgid "Pause Simulation"
 msgstr "Simulation anhalten"
 
+# msgid "Please Select PostScript Viewer"
+# msgstr ""
+
+# msgid "Please Select Web Browser"
+# msgstr ""
+
+msgid "Please select cell to edit..."
+msgstr "Bitte wählen Sie eine Zelle zum bearbeiten..."
+
 # msgid "Please select which traces to plot:"
 # msgstr ""
 
@@ -423,20 +552,35 @@ msgstr "Polarisation"
 # msgid "Polygonal Clocking Zone"
 # msgstr ""
 
+msgid "Portrait"
+msgstr "Hochformat"
+
 msgid "Preferred Units:"
 msgstr "Bevorzugte Einheiten:"
-
-# msgid "Preview Mode"
-# msgstr ""
 
 # msgid "Preview the print layout"
 # msgstr ""
 
+msgid "Print Colours"
+msgstr "Farbdruck"
+
+msgid "Print Graphs"
+msgstr "Graphe Drucken"
+
 msgid "Print Order"
 msgstr "Druckrichtung"
 
+msgid "Print Preview"
+msgstr "Druckvorschau"
+
 msgid "Print To"
 msgstr "Drucke nach"
+
+msgid "Print"
+msgstr "Drucken"
+
+msgid "Printed Objects"
+msgstr "Drucken"
 
 msgid "Printer Setup"
 msgstr "Druckereinstellungen"
@@ -444,8 +588,8 @@ msgstr "Druckereinstellungen"
 msgid "Printer"
 msgstr "Drucker"
 
-msgid "Project Properties..."
-msgstr "Projekteinstellungen..."
+msgid "Quality"
+msgstr "Qualität"
 
 msgid "Quit QCADesigner"
 msgstr "QCADesigner Beenden"
@@ -453,26 +597,44 @@ msgstr "QCADesigner Beenden"
 msgid "Radius of Effect [nm]:"
 msgstr "Effektradius [nm]:"
 
+msgid "Radius of Effect:"
+msgstr "Effektradius:"
+
 # msgid "Random Fault Setup..."
 # msgstr ""
 
-msgid "_Recent Files"
-msgstr "_Zuletzt geöffnete Dateien"
+# msgid "Recent Files"
+# msgstr "Zuletzt geöffnete Dateien"
 
 msgid "Rectangle Properties"
-msgstr "Rechteckeinstellungen"
+msgstr "Rechteckeigenschaften"
 
-# msgid "Relative Permittivity:"
-# msgstr ""
+msgid "Relative Permittivity:"
+msgstr "Relative Dielektrizitätskonstante:"
+
+msgid "Remove Layer from Design"
+msgstr "Layer vom Design entfernen"
+
+msgid "Remove Layer"
+msgstr "Layer Entfernen"
 
 msgid "Remove Vector"
 msgstr "Vektor entfernen"
 
+msgid "Remove a layer from your design."
+msgstr "Layer von Ihrem Design entfernen."
+
+msgid "Reorder Layers"
+msgstr "Layers Umordnen"
+
 msgid "Reset Simulation"
-msgstr "Simulation rückstellen"
+msgstr "Simulation zurückstellen"
+
+msgid "Reset Zoom and Range"
+msgstr "Zoom und Intervall zurückstellen"
 
 msgid "Reset"
-msgstr "Rückstellen"
+msgstr "Zurückstellen"
 
 msgid "Right Margin:"
 msgstr "Rechter Rand:"
@@ -485,6 +647,9 @@ msgstr "Auswahl rotieren"
 
 msgid "Rotate"
 msgstr "Rotieren"
+
+msgid "Save As"
+msgstr "Speichern Unter"
 
 msgid "Save Output To File"
 msgstr "Output zur Datei speichern"
@@ -507,32 +672,41 @@ msgstr "Maßstab"
 msgid "Search"
 msgstr "Suchen"
 
-# msgid "Select And Manipulate Design"
-# msgstr ""
+msgid "Select And Manipulate Design"
+msgstr "Design auswählen und manipulieren"
 
 msgid "Select Clock..."
 msgstr "Takt auswählen..."
 
+msgid "Select Command"
+msgstr "Kommando auswählen"
+
 msgid "Select File"
 msgstr "Datei auswählen"
+
+msgid "Select Visible Traces"
+msgstr ""
 
 msgid "Select the clock"
 msgstr "Wählen Sie den Takt aus"
 
+msgid "Select which traces you would like to see/preview."
+msgstr ""
+
 msgid "Select"
 msgstr "Auswählen"
+
+msgid "Set the Zoom to 100% and show the full range."
+msgstr "Zoom zu 100% einstellen und den ganzen Intervall zeigen."
 
 msgid "Show Grid"
 msgstr "Raster anzeigen"
 
-# msgid "Show Toolbar Icons"
+msgid "Show Toolbar Icons"
+msgstr "Werkseugleiste icons anzeigen"
+
+# msgid "Simulation Engine Setup..."
 # msgstr ""
-
-msgid "Show project properties"
-msgstr "Projekteinstellungen zeigen"
-
-msgid "Simulation Engine Setup..."
-msgstr "Simulation-Engine Einstellungen..."
 
 msgid "Simulation Results"
 msgstr "Simulatioinsresultate"
@@ -546,6 +720,9 @@ msgstr "Einstellungen des Simulationstyps..."
 msgid "Snap To Grid"
 msgstr "Einrasten"
 
+msgid "Specify the default clock for future cells."
+msgstr ""
+
 # msgid "Split Current QCA Options"
 # msgstr ""
 
@@ -558,8 +735,17 @@ msgstr "Simulation beenden"
 msgid "Substrate"
 msgstr "Substrat"
 
+msgid "Temperature:"
+msgstr "Temperatur:"
+
 msgid "Text Properties"
-msgstr "Texteinstellungen"
+msgstr "Texteigenschaften"
+
+# msgid "Text:"
+# msgstr ""
+
+msgid "The file \"%s\" is not a regular file.  Maybe it's a directory, or a device file.  Please choose a regular file."
+msgstr "\"%s\" ist nicht eine reguläre Datei. Möglicherweise ist es ein Ordner oder eine Gerätdatei. Bitte wählen sie eine reguläre Datei aus."
 
 msgid "This button allows you to manipulate your design."
 msgstr "Dieser Knopf erlaubt es Ihnen Ihren Design zu manipulieren."
@@ -567,11 +753,23 @@ msgstr "Dieser Knopf erlaubt es Ihnen Ihren Design zu manipulieren."
 msgid "Top Margin:"
 msgstr "Oberer Rand:"
 
-msgid "Type 1"
-msgstr "1. Typ"
+# msgid "Traces..."
+# msgstr ""
+
+msgid "Translate Selection"
+msgstr "Auswahl Verschieben"
+
+msgid "Translate your selection horizontally and/or vertically."
+msgstr "Auswahl horizontal und/order vertikal verschieben."
+
+msgid "Translate"
+msgstr "Verschieben"
 
 msgid "Type 2"
 msgstr "2. Typ"
+
+msgid "Unnamed Layer"
+msgstr "Namenloser Layer"
 
 msgid "Untitled"
 msgstr "Namenlos"
@@ -582,11 +780,26 @@ msgstr "Vektortabellenbetätigungen"
 msgid "Vector Table Setup"
 msgstr "Einstellungen der Vektortabelle"
 
-msgid "Window Properties"
-msgstr "Fenstereinstellungen"
+msgid "Vertical:"
+msgstr "Vertikal:"
 
-# msgid "Zoom Die"
-# msgstr ""
+msgid "Visible"
+msgstr "Sichtbar"
+
+msgid "Window Properties"
+msgstr "Fenstereigenschaften"
+
+msgid "You have made changes to your design.  Closing your design will discard those changes.  Save first ?"
+msgstr "Sie haben Ihren Design verändert. Wenn Sie den Design schließen, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
+
+msgid "You have made changes to your design.  Opening another design will discard those changes. Save first ?"
+msgstr "Sie haben Ihren Design verändert. Wenn Sie einen anderen Design öffnen, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
+
+msgid "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"
+msgstr "Sie haben Ihren Design verändert. Wenn Sie QCADesigner beenden, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
+
+msgid "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?"
+msgstr "Sie haben Ihren Design verändert. Wenn Sie einen neuen Design anfangen, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
 
 msgid "Zoom Extents"
 msgstr "Auf Gesamtdesign zoomen"
@@ -612,6 +825,9 @@ msgstr "_Datei"
 msgid "_Help"
 msgstr "_Hilfe"
 
+msgid "_Recent Files"
+msgstr "_Zuletzt geöffnete Dateien"
+
 # msgid "_Simulation"
 # msgstr ""
 
@@ -629,51 +845,3 @@ msgstr "Seite(n) hoch"
 
 msgid "page(s) wide"
 msgstr "Seite(n) breit"
-
-msgid "Please select cell to edit..."
-msgstr "Bitte wählen Sie eine Zelle zum bearbeiten..."
-
-msgid "Failed to open file \"%s\"!"
-msgstr "Konnte Datei \"%s\" nicht öffnen!"
-
-msgid "Device Voltage:"
-msgstr "Einrichtungsspannung:"
-
-msgid "Temperature:"
-msgstr "Temperatur:"
-
-msgid "Electron Lifetime:"
-msgstr "Lebensdauer des Elektrons:"
-
-msgid "Input Cell Current:"
-msgstr "Input Zellstrom:"
-
-msgid "Please Select Web Browser"
-msgstr "Browser Auswählen"
-
-msgid "Please Select PostScript Viewer"
-msgstr "PostScript Betrachter Auswählen"
-
-msgid "Translate"
-msgstr "Verschieben"
-
-msgid "Translate Selection"
-msgstr "Auswahl Verschieben"
-
-# msgid "Horizontal:"
-# msgstr "Horizontal:"
-
-msgid "Vertical:"
-msgstr "Vertikal:"
-
-msgid "You have made changes to your design.  Opening another design will discard those changes. Save first ?"
-msgstr "Sie haben Ihren Design verändert. Wenn Sie einen anderen Design öffnen, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
-
-msgid "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?"
-msgstr "Sie haben Ihren Design verändert. Wenn Sie einen neuen Design anfangen, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
-
-msgid "You have made changes to your design.  Closing your design will discard those changes.  Save first ?"
-msgstr "Sie haben Ihren Design verändert. Wenn Sie den Design schließen, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"
-
-msgid "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"
-msgstr "Sie haben Ihren Design verändert. Wenn Sie QCADesigner beenden, werden Sie diese Veränderungen verlieren. Speichern zuerst ?"

@@ -1,30 +1,37 @@
-ChangeLog for next release -- 1.4.
+ChangeLog for next release -- 1.3.
 
 Completed Changes/Bug Fixes/Additions:
--- Added self-extracting installer for Win32.
--- Made fonts work in Win32 (avoiding font-related segfaults)
--- Made print preview work in Win32.  I had to figure out how to
-   build the command line so system() would work.  The solution:
-   GetShortPathName.  IOW, get the ugly, DOSsy path from the nice,
-   Windozey path.
--- Modified file operations UI.
--- Removed message_box.[ch].  Though less convenient,
-   gtk_dialog_message_new should be used instead of message_box.
--- Implemented state pattern for mouse actions
--- Consolidated cell functions (Normal/Input/Output/Fixed) into one dialog.
--- Implemented complex(er) selections (Ctrl+Select == remove from selection,
-   Shift+Select == add to selection)
--- Trimmed configure.in and Makefile.in to reduce warnings.
--- Started work on implementing layers.
--- Added the ability to print out simulation results.
--- New simulation engine: Coherence Vector
--- Faster graph drawing algorithm
--- Initial multilingual support (suggestions/corrections to schulhof@atips.ca)
+
+ -- Started gtk2 port (available via the gtk2 tag: cvs co -r gtk2 QCADesigner)
+
+ -- Created gtk2 version of the scrolling message widget, because under
+    GTK2 multiline text is done waaaay differently.  Factored out the 
+    process of writing messages to the widget into a printf()-like 
+    function.
+ -- Save first boxes added.
+ -- Digital Simulation engine made available.
+ -- Created new vector table library and struct to replace old vector_table and
+    active_inputs structures.
+ -- Moved all simulation engines to this new vector table structure
+ -- Removed globals "vector_table" and "active_inputs" and their respective
+    structures
+ -- Created new user interface for specifying vector tables
+ -- Added basic Undo/Redo capabilities for creating cells
+ -- Fixed clipping bug occurring with toolbar pixmaps
+ -- Rotate cells now can rotate all selected cells if they are selected prior
+    to pushing the rotate button.
+ -- Added view menu item to remove pixmaps from the toolbar. Useful feature
+    for small screen laptops.
+ -- Mirror cells now mirrors all the properties of the cells including type and
+    input/output names.
+ -- Added menu item under tools to rotate block of selected cells by 90 degrees.
+ -- Added Hotkeys for "Increment Cell Clocks" (Ctrl+I)
 
 Desired Changes:
--- The ability to add arbitrary numbers of layers, each of which may or may not
-   have a physical significance (at the discretion of the simulation engine)
 
 Bugs to Fix:
+-- Some weird vector table behaviour with the bistable engine
 
 Long Range Changes:
+ -- XML File format (tdysart currently working on)
+	

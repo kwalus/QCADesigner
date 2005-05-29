@@ -1,3 +1,33 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@atips.ca).                                 //
+//////////////////////////////////////////////////////////
+// Contents:                                            //
+//                                                      //
+// Selection translation dialog. This allows a user to  //
+// translate the currently selected objects by a fixed  //
+// (cx,cy) nanometer amount.                            //
+//                                                      //
+//////////////////////////////////////////////////////////
+
 #include <gtk/gtk.h>
 #include "support.h"
 #include "custom_widgets.h"
@@ -40,7 +70,7 @@ static void create_translate_dialog (translate_selection_D *dialog)
 
   dialog->dlg = gtk_dialog_new () ;
   gtk_window_set_title (GTK_WINDOW (dialog->dlg), _("Translate Selection")) ;
-  gtk_window_set_policy (GTK_WINDOW (dialog->dlg), FALSE, FALSE, TRUE) ;
+  gtk_window_set_resizable (GTK_WINDOW (dialog->dlg), FALSE) ;
 
   tbl = gtk_table_new (2, 3, FALSE) ;
   gtk_widget_show (tbl) ;
@@ -92,6 +122,6 @@ static void create_translate_dialog (translate_selection_D *dialog)
     (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
 
   gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
-  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
+  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_OK,     GTK_RESPONSE_OK) ;
   gtk_dialog_set_default_response (GTK_DIALOG (dialog->dlg), GTK_RESPONSE_OK) ;
   }

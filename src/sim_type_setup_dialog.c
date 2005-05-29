@@ -3,34 +3,34 @@
 // Copyright 2002 Konrad Walus                          //
 // All Rights Reserved                                  //
 // Author: Konrad Walus                                 //
-// Email: walus@atips.ca                                //
-// WEB: http://www.atips.ca/projects/qcadesigner/       //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
 //////////////////////////////////////////////////////////
 //******************************************************//
 //*********** PLEASE DO NOT REFORMAT THIS CODE *********//
 //******************************************************//
 // If your editor wraps long lines disable it or don't  //
-// save the core files that way.                        //
-// Any independent files you generate format as you wish//
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
 //////////////////////////////////////////////////////////
 // Please use complete names in variables and fucntions //
 // This will reduce ramp up time for new people trying  //
 // to contribute to the project.                        //
 //////////////////////////////////////////////////////////
-
-
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
+// Contents:                                            //
+//                                                      //
+// The simulation type setup dialog. This dialog allows //
+// the user to choose whether to perform an exhaustive  //
+// simulation or to create a custom vector table.       //
+//                                                      //
+//////////////////////////////////////////////////////////
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
-
-#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
-
+#include "global_consts.h"
 #include "support.h"
 #include "vector_table_options_dialog.h"
 #include "sim_type_setup_dialog.h"
@@ -38,11 +38,12 @@
 
 #define DBG_STS(s)
 
-typedef struct{
+typedef struct
+  {
   GtkWidget *simulation_type_dialog;
   GtkWidget *dialog_vbox1;
   GtkWidget *vbox1;
-  GSList *vbox1_group;
+  GSList    *vbox1_group;
   GtkWidget *digital_verif_radio;
   GtkWidget *vector_table_radio;
   GtkWidget *dialog_action_area1;
@@ -50,45 +51,47 @@ typedef struct{
   GtkWidget *options_button;
   GtkWidget *simulation_type_cancel_button;
   GtkWidget *simulation_type_ok_button;
-}sim_type_setup_D;  
+  } sim_type_setup_D;
 
 static sim_type_setup_D sim_type_setup_dialog = {NULL} ;
 
-static void on_options_button_clicked(GtkButton *button, gpointer user_data);
-static void on_vector_table_radio_toggled(GtkButton *button, gpointer user_data);
-static void create_sim_type_dialog(sim_type_setup_D *dialog);
+static void on_options_button_clicked (GtkButton *button, gpointer user_data);
+static void on_vector_table_radio_toggled (GtkButton *button, gpointer user_data);
+static void create_sim_type_dialog (sim_type_setup_D *dialog);
 
 void get_sim_type_from_user (GtkWindow *parent, int *piSimType, VectorTable *pvt)
   {
   if (NULL == sim_type_setup_dialog.simulation_type_dialog)
     create_sim_type_dialog (&sim_type_setup_dialog) ;
-  
-  gtk_object_set_data (GTK_OBJECT (sim_type_setup_dialog.simulation_type_dialog), "pvt", pvt) ;
+
+  g_object_set_data (G_OBJECT (sim_type_setup_dialog.simulation_type_dialog), "pvt", pvt) ;
   gtk_window_set_transient_for (GTK_WINDOW (sim_type_setup_dialog.simulation_type_dialog), parent) ;
-  
-  if (VECTOR_TABLE == *piSimType && pvt->num_of_inputs > 0)
+
+  if (VECTOR_TABLE == *piSimType && pvt->inputs->icUsed > 0)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (sim_type_setup_dialog.vector_table_radio), TRUE) ;
   else
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (sim_type_setup_dialog.digital_verif_radio), TRUE) ;
 
-  gtk_widget_set_sensitive (sim_type_setup_dialog.vector_table_radio, (pvt->num_of_inputs > 0)) ;
-  gtk_widget_set_sensitive (sim_type_setup_dialog.options_button, ((VECTOR_TABLE == *piSimType) && (pvt->num_of_inputs > 0))) ;
-  
+  gtk_widget_set_sensitive (sim_type_setup_dialog.vector_table_radio, (pvt->inputs->icUsed > 0)) ;
+  gtk_widget_set_sensitive (sim_type_setup_dialog.options_button, ((VECTOR_TABLE == *piSimType) && (pvt->inputs->icUsed > 0))) ;
+
   if (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (sim_type_setup_dialog.simulation_type_dialog)))
     if (NULL != piSimType)
       *piSimType = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_type_setup_dialog.digital_verif_radio)) ?
         EXHAUSTIVE_VERIFICATION : VECTOR_TABLE ;
-  
+
   gtk_widget_hide (sim_type_setup_dialog.simulation_type_dialog) ;
   }
 
-static void create_sim_type_dialog (sim_type_setup_D *dialog){
-  if (NULL != dialog->simulation_type_dialog) return ;
+static void create_sim_type_dialog (sim_type_setup_D *dialog)
+  {
   GtkWidget *imgProps = NULL, *hbox = NULL, *lbl = NULL ;
-    
+
+  if (NULL != dialog->simulation_type_dialog) return ;
+
   dialog->simulation_type_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (dialog->simulation_type_dialog), "Set Simulation Type");
-  gtk_window_set_policy (GTK_WINDOW (dialog->simulation_type_dialog), FALSE, FALSE, FALSE);
+  gtk_window_set_resizable (GTK_WINDOW (dialog->simulation_type_dialog), FALSE);
   gtk_window_set_modal (GTK_WINDOW (dialog->simulation_type_dialog), TRUE) ;
 
   dialog->dialog_vbox1 = GTK_DIALOG (dialog->simulation_type_dialog)->vbox;
@@ -130,20 +133,12 @@ static void create_sim_type_dialog (sim_type_setup_D *dialog){
   gtk_dialog_add_button (GTK_DIALOG (dialog->simulation_type_dialog), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
   gtk_dialog_set_default_response (GTK_DIALOG (dialog->simulation_type_dialog), GTK_RESPONSE_OK) ;
 
-  gtk_signal_connect (GTK_OBJECT (dialog->vector_table_radio), "toggled",
-                      GTK_SIGNAL_FUNC (on_vector_table_radio_toggled),
-                      dialog->options_button);	
+  g_signal_connect (G_OBJECT (dialog->vector_table_radio), "toggled", (GCallback)on_vector_table_radio_toggled, dialog->options_button);
+  g_signal_connect (G_OBJECT (dialog->options_button),     "clicked", (GCallback)on_options_button_clicked,     dialog->simulation_type_dialog);
+  }
 
-  gtk_signal_connect (GTK_OBJECT (dialog->options_button), "clicked",
-                      GTK_SIGNAL_FUNC (on_options_button_clicked),
-                      dialog->simulation_type_dialog);
-}
+static void on_vector_table_radio_toggled (GtkButton *button, gpointer user_data)
+  {gtk_widget_set_sensitive (GTK_WIDGET (user_data), gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button))) ;}
 
-static void on_vector_table_radio_toggled(GtkButton *button, gpointer user_data){
-  gtk_widget_set_sensitive (GTK_WIDGET (user_data), gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button))) ;
-}
-
-static void on_options_button_clicked(GtkButton *button, gpointer user_data){
-  get_vector_table_options_from_user (GTK_WINDOW (user_data),
-    (VectorTable *)gtk_object_get_data (GTK_OBJECT (user_data), "pvt")) ;
-}
+static void on_options_button_clicked (GtkButton *button, gpointer user_data)
+  {get_vector_table_options_from_user (GTK_WINDOW (user_data), (VectorTable *)g_object_get_data (G_OBJECT (user_data), "pvt")) ;}

@@ -1,3 +1,34 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@atips.ca).                                 //
+//////////////////////////////////////////////////////////
+// Contents:                                            //
+//                                                      //
+// Header for the print dialog. This is a basic print   //
+// dialog derived from GtkDialog. It is a dialog box    //
+// with 3 property pages and a facility for adding      //
+// more.                                                //
+//                                                      //
+//////////////////////////////////////////////////////////
+
 #ifndef _PRINT_DIALOG_H_
 #define _PRINT_DIALOG_H_
 
@@ -23,6 +54,7 @@ typedef struct
   double dRMargin ;
   double dBMargin ;
   gboolean bPrintFile ;
+  gboolean bPortrait ;
   char *pszPrintString ;
   } print_OP ;
 
@@ -37,7 +69,7 @@ typedef struct PrintDialog
   GtkWidget *mnuiCurrent ;
 
   GtkWidget *nbPropPages ;
-  
+
   GtkWidget *rbPrintFile ;
   GtkWidget *fmFileSelect ;
   GtkWidget *txtFileSelect ;
@@ -49,7 +81,7 @@ typedef struct PrintDialog
   GtkWidget *btnPipeSelect ;
   GtkWidget *lblPipeSelect ;
   GtkWidget *lblPipeSelectBlurb ;
-  
+
   GtkWidget *optPaperSize ;
   GtkWidget *mnuiPaperSize[24] ;
   GtkAdjustment *adjPaperCX ;

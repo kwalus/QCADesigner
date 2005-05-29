@@ -1,138 +1,132 @@
-#include <stdio.h>
-#include <stdlib.h>
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@atips.ca).                                 //
+//////////////////////////////////////////////////////////
+// Contents:                                            //
+//                                                      //
+// Mouse handlers for drawing a horizontal or vertical  //
+// array of cells.                                      //
+//                                                      //
+//////////////////////////////////////////////////////////
+
 #include <gtk/gtk.h>
-#include "../interface.h"
-#include "../cad.h"
-#include "../stdqcell.h"
-#include "../undo_create.h"
+#include "array.h"
+#include "../design.h"
+#ifdef UNDO_REDO
+  #include "../selection_undo.h"
+#endif /* def UNDO_REDO */
 #include "../callback_helpers.h"
-#include "action_handlers.h"
+#include "../objects/object_helpers.h"
+#include "../objects/QCADCell.h"
 
-extern cell_OP cell_options ;
+static double x0Grid, y0Grid, x1Grid, y1Grid ;
+static GtkOrientation orientation ;
 
-static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
-static gboolean motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer data) ;
-static gboolean button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
+extern gboolean (*drop_function) (QCADDesignObject *obj) ;
 
-static GdkGC *global_gc ;
-static DESIGN *pDesign ;
-static main_W *wndMain ;
-static project_OP *pProjectOpts ;
-
-static int x0, y0, x1, y1 ;
-
-void run_action_ARRAY (MOUSE_HANDLERS *pmh, GtkWidget *widget, GdkGC *gc, DESIGN *design, project_OP *options, main_W *main_window)
+gboolean button_pressed_ACTION_ARRAY (GtkWidget *widget, GdkEventButton *event, gpointer data)
   {
-  global_gc = gc ;
-  pDesign = design ;
-  pProjectOpts = options ;
-  wndMain = main_window ;
-
-  pmh->lIDButtonPressed = g_signal_connect (G_OBJECT (widget), "button_press_event", (GCallback)button_press_event, NULL) ;
-  pmh->lIDMotionNotify = g_signal_connect (G_OBJECT (widget), "motion_notify_event", (GCallback)motion_notify_event, NULL) ;
-  pmh->lIDButtonReleased = g_signal_connect (G_OBJECT (widget), "button_release_event", (GCallback)button_release_event, NULL) ;
-  }
-
-static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
-  {
+  double xWorld = real_to_world_x (event->x), yWorld = real_to_world_y (event->y) ;
   if (1 != event->button) return FALSE ;
 
-  x0 = x1 = event->x ;
-  y0 = y1 = event->y ;
-  
-  return TRUE ;
+  world_to_grid_pt (&xWorld, &yWorld) ;
+
+  x0Grid = x1Grid = xWorld ;
+  y0Grid = y1Grid = yWorld ;
+
+  orientation = GTK_ORIENTATION_HORIZONTAL ;
+
+  qcad_cell_drexp_array (widget->window, GDK_XOR, orientation, x0Grid, x1Grid, y0Grid) ;
+  return FALSE ;
   }
 
-static gboolean motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer data)
+gboolean motion_notify_ACTION_ARRAY (GtkWidget *widget, GdkEventMotion *event, gpointer data)
   {
-  GdkModifierType state ;
-  int x, y ;
-  
-  if (!(event->state & GDK_BUTTON1_MASK)) return FALSE ;
+  double xWorld = real_to_world_x (event->x), yWorld = real_to_world_y (event->y) ;
 
-  gdk_window_get_pointer (widget->window, &x, &y, &state) ;
-  
-  // draw over the old coords with GDK_XOR to erase the old array cells //
-  gdk_gc_set_function (global_gc, GDK_XOR) ;
-  if(!(x0 == x1 && y0 == y1))
+  if (event->state & GDK_BUTTON1_MASK)
     {
-    if (abs(x0 - x1) >= abs(y0 - y1))
+    world_to_grid_pt (&xWorld, &yWorld) ;
+
+    if (!(xWorld == x1Grid && yWorld == y1Grid))
       {
-      y1 = y0;
-      draw_temp_array (widget->window, global_gc, pProjectOpts->selected_cell_type, x0, y0, x1, y0);
-      } 
-    else 
-      {
-      x1 = x0;
-      draw_temp_array (widget->window, global_gc, pProjectOpts->selected_cell_type, x0, y0, x0, y1);
+      // Draw the old array in order to erase it
+      if (orientation == GTK_ORIENTATION_HORIZONTAL)
+        qcad_cell_drexp_array (widget->window, GDK_XOR, orientation, x0Grid, x1Grid, y0Grid) ;
+      else
+        qcad_cell_drexp_array (widget->window, GDK_XOR, orientation, y0Grid, y1Grid, x0Grid) ;
+
+      x1Grid = xWorld ;
+      y1Grid = yWorld ;
+      orientation = ABS (x0Grid - x1Grid) > ABS (y0Grid - y1Grid) ? GTK_ORIENTATION_HORIZONTAL : GTK_ORIENTATION_VERTICAL ;
+
+      // Draw the new array
+      if (orientation == GTK_ORIENTATION_HORIZONTAL)
+        qcad_cell_drexp_array (widget->window, GDK_XOR, orientation, x0Grid, x1Grid, y0Grid) ;
+      else
+        qcad_cell_drexp_array (widget->window, GDK_XOR, orientation, y0Grid, y1Grid, x0Grid) ;
       }
     }
 
-  // set the second point of the line to the current mouse position //
-  x1 = event->x;
-  y1 = event->y;
-
-  // -- draw a temporary horizontal array -- //
-  if (abs (x0 - x1) >= abs (y0 - y1))
-    {
-    y1 = y0;
-    draw_temp_array (widget->window, global_gc, pProjectOpts->selected_cell_type, x0, y0, x1, y0);
-    } 
-  // -- Draw a temporary vertical array -- //
-  else 
-    {
-    x1 = x0;
-    draw_temp_array (widget->window, global_gc, pProjectOpts->selected_cell_type, x0, y0, x0, y1);
-    }
-  gdk_gc_set_function (global_gc, GDK_COPY) ;
-  return TRUE ;
+  return FALSE ;
   }
 
-static gboolean button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
+gboolean button_released_ACTION_ARRAY (GtkWidget *widget, GdkEventButton *event, gpointer data)
   {
-  int icNewCells = 0 ;
-  GQCell **pqcNewCells = NULL ;
-  
-  if (3 == event->button)
-    {
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (wndMain->default_action_button), TRUE) ;
-    return FALSE ;
-    }
+  double param[3] = {0, 0, 0} ;
+  EXP_ARRAY *cells = NULL ;
+  int Nix ;
+#ifdef UNDO_REDO
+  project_OP *project_options = (project_OP *)data ;
+#endif /* def UNDO_REDO */
+  QCADDesignObject *obj = NULL ;
 
-  if (1 != event->button) return FALSE ;
+  if (2 == event->button) return FALSE ;
 
-  gdk_gc_set_function (global_gc, GDK_XOR) ;
-  if(!(x0 == x1 && y0 == y1))
+  // Draw the old array in order to erase it
+  if (orientation == GTK_ORIENTATION_HORIZONTAL)
+    qcad_cell_drexp_array (widget->window, GDK_XOR, orientation, param[0] = x0Grid, param[1] = x1Grid, param[2] = y0Grid) ;
+  else
+    qcad_cell_drexp_array (widget->window, GDK_XOR, orientation, param[0] = y0Grid, param[1] = y1Grid, param[2] = x0Grid) ;
+
+  if (NULL != (cells = qcad_cell_create_array (orientation == GTK_ORIENTATION_HORIZONTAL, param[0], param[1], param[2])))
     {
-    if (abs(x0 - x1) >= abs(y0 - y1))
+    for (Nix = 0 ; Nix < cells->icUsed ; Nix++)
+      if (!((*drop_function) (obj = QCAD_DESIGN_OBJECT (exp_array_index_1d (cells, QCADCell *, Nix)))))
+        {
+        g_object_unref (G_OBJECT (obj)) ;
+        exp_array_remove_vals (cells, 1, Nix, 1) ;
+        Nix-- ;
+        }
+
+    if (cells->icUsed > 0)
       {
-      y1 = y0;
-      draw_temp_array(widget->window, global_gc, pProjectOpts->selected_cell_type, x0, y0, x1, y0);
-      } 
-    else 
-      {
-      x1 = x0;
-      draw_temp_array(widget->window, global_gc, pProjectOpts->selected_cell_type, x0, y0, x0, y1);
+      design_selection_object_array_add_weak_pointers (cells) ;
+#ifdef UNDO_REDO
+      push_undo_selection_existence (project_options->design, project_options->srSelection, widget->window, cells, TRUE) ;
+#endif /* def UNDO_REDO */
       }
-    }
-    
-  gdk_gc_set_function (global_gc, GDK_COPY) ;
-  
-  if ((icNewCells = 
-    create_array_of_cells (
-      (GQCell **)(&((pDesign->first_layer->first_obj))), 
-      (GQCell **)(&((pDesign->first_layer->last_obj))), 
-      x0, y0, x1, y1, &cell_options, pProjectOpts->selected_cell_type, &pqcNewCells, pProjectOpts->SNAP_TO_GRID)) > 0)
-    {
-
-    gui_add_to_undo (Undo_CreateAction_CreateCells (pqcNewCells, icNewCells)) ;
-
-    redraw_selected_cells (widget->window, global_gc, pqcNewCells, icNewCells) ;
-    free (pqcNewCells) ;
-    pqcNewCells = NULL ;
-    icNewCells = 0 ;
+    else
+      exp_array_free (cells) ;
     }
 
-  pProjectOpts->bDesignAltered = TRUE ;
-  return TRUE ;
+  return FALSE ;
   }

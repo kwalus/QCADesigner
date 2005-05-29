@@ -1,9 +1,40 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@atips.ca).                                 //
+//////////////////////////////////////////////////////////
+// Contents:                                            //
+//                                                      //
+// Header for the implementation of a vector table      //
+// structure, together with a set of functions to       //
+// manipulate the structure more easily.                //
+//                                                      //
+//////////////////////////////////////////////////////////
+
 #ifndef _VECTOR_TABLE_H_
 #define _VECTOR_TABLE_H_
 
 #include <glib.h>
-#include "gqcell.h"
-#include "global_consts.h" /* for PATH_LENGTH */
+#include "objects/QCADCell.h"
+#include "exp_array.h"
+#include "design.h"
 
 typedef enum
   {
@@ -16,28 +47,31 @@ typedef enum
 
 typedef struct
   {
-  char szFName[PATH_LENGTH] ;
-  
-  int num_of_vectors ;
-  gboolean **vectors ;
+  QCADCell *input ;
+  gboolean active_flag ;
+  } VT_INPUT ;
 
-  int num_of_inputs ;
-  GQCell **inputs ;
-  gboolean *active_flag ;
+typedef struct
+  {
+  char *pszFName ;
+  EXP_ARRAY *vectors ;
+  EXP_ARRAY *inputs ;
+
   } VectorTable ;
 
 VectorTable *VectorTable_new () ;
-VectorTable *VectorTable_clear (VectorTable *pvt) ;
+VectorTable *VectorTable_free (VectorTable *pvt) ;
 VectorTable *VectorTable_copy (VectorTable *pvt) ;
-void VectorTable_fill (VectorTable *pvt, GQCell *first_cell) ;
-void VectorTable_add_input (VectorTable *pvt, GQCell *new_input) ;
-void VectorTable_del_input (VectorTable *pvt, GQCell *old_input) ;
-void VectorTable_add_inputs (VectorTable *pvt, GQCell *first_cell) ;
-void VectorTable_update_inputs (VectorTable *pvt, GQCell *pqc) ;
+void VectorTable_fill (VectorTable *pvt, DESIGN *design) ;
+void VectorTable_add_input (VectorTable *pvt, QCADCell *new_input) ;
+void VectorTable_del_input (VectorTable *pvt, QCADCell *old_input) ;
+void VectorTable_add_inputs (VectorTable *pvt, DESIGN *design) ;
+void VectorTable_update_inputs (VectorTable *pvt, QCADCell *pqc) ;
 int VectorTable_add_vector (VectorTable *pvt, int idx) ;
 void VectorTable_del_vector (VectorTable *pvt, int idx) ;
 gboolean VectorTable_save (VectorTable *pvt) ;
 VTL_RESULT VectorTable_load (VectorTable *pvt) ;
-void VectorTable_dump (VectorTable *pvt, FILE *pfile) ;
+void VectorTable_dump (VectorTable *pvt, FILE *pfile, int icIndent) ;
+void VectorTable_empty (VectorTable *pvt) ;
 
 #endif /* _VECTOR_TABLE_H_ */

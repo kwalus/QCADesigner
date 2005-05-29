@@ -3,96 +3,54 @@
 // Copyright 2002 Konrad Walus                          //
 // All Rights Reserved                                  //
 // Author: Konrad Walus                                 //
-// Email: walus@atips.ca                                //
-// **** Please use complete names in variables and      //
-// **** functions. This will reduce ramp up time for new//
-// **** people trying to contribute to the project.     //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// Contents:                                            //
+//                                                      //
+// Header file for the open/save functions.             //
+//                                                      //
 //////////////////////////////////////////////////////////
 
 #ifndef _FILEIO_H_
 #define _FILEIO_H_
 
-#include <gtk/gtk.h>
-#include "gqcell.h"
+#ifdef STDIO_FILEIO
+
+#include "design.h"
+#include "vector_table.h"
+#include "coherence_vector.h"
+#include "bistable_simulation.h"
+#include "simulation.h"
 
 // -- Prototypes -- //
-gboolean create_file(gchar *file_name, GQCell *first_cell, double grid_spacing);
-GQCell *open_project_file(gchar *file_name, GQCell **p_first_cell, GQCell **p_last_cell, double *pgrid_spacing);
-void export_block(gchar *file_name, GQCell **selected_cells, int number_of_selected_cells, double grid_spacing);
-GQCell *import_block(gchar *file_name, GQCell ***p_selected_cells, int *p_number_of_selected_cells, GQCell **p_last_cell) ;
-
-///////////////////////////////////////////////////////////////////////////////
-// These next two structures were used in the first version of QCADesigner  ///
-// I have added them here so that new versions can open the saved designs   ///
-// old files where saved by fwriting the structures to the file             ///
-// New files are saved as text to ensure cross platform compatibility       ///
-///////////////////////////////////////////////////////////////////////////////
-
-// -- Quantum Dot Structure used in the qcell structure -- //
-typedef struct{
-
-	// absolute world qdot coords //
-	double x;
-	double y;
-	
-	// qdot diameter //
-	double diameter;
-	
-	// qdot charge //
-	double charge;
-	
-	// quantum spin of charge within dot //
-	float spin;
-
-}version1_qdot;
-
-
-// standard qcell type //
-typedef struct version1_qcell{
-
-// center coords //
-	double x;
-	double y;
-
-// corner coords //
-	double top_x;
-	double top_y;
-	double bot_x;
-	double bot_y;
-	
-// -- cell physical parameters -- //
-	double cell_width;
-	double cell_height;
-			
-// all the dots within this cell  //
-	version1_qdot *cell_dots;
-	int number_of_dots;
-	
-// current cell color //
-	int color;
-	
-// the clock that this cell is linked to //
-	int clock;
-	
-// simulation parameter are only filled in during a simulation //
-	int number_of_neighbours;
-	struct version1_qcell **neighbours; // array of pointers to the neighbour cells
-	double *Ek;  // the associated Ek values for those neighbours
-		
-// cell type flags //
-	gint is_input;
-	gint is_output;
-	gint is_fixed;
-
-// cell label used to store input name or output name //
-	char *label;
-	
-// pointers to the previous and next cell //
-// needed since all the cells form a doubly linked list //	
-	struct version1_qcell *previous;
-	struct version1_qcell *next;
-	
-}version1_qcell;
+gboolean open_project_file (gchar *file_name, DESIGN **pdesign) ;
+gboolean open_project_file_fp (FILE *pfile, DESIGN **pdesign) ;
+gboolean check_project_file_magic_fp (FILE *pfile, double *pversion) ;
+SIMULATION_OUTPUT *open_simulation_output_file (char *pszFName) ;
+SIMULATION_OUTPUT *open_simulation_output_file_fp (FILE *fp) ;
+coherence_OP *open_coherence_options_file (char *pszFName) ;
+bistable_OP *open_bistable_options_file (char *pszFName) ;
+simulation_data *simulation_data_unserialize (FILE *fp) ;
+gboolean create_file (gchar *file_name, DESIGN *design) ;
+void create_file_fp (FILE *pfile, DESIGN *design) ;
+void create_simulation_output_file (char *pszFName, SIMULATION_OUTPUT *sim_output) ;
+void create_simulation_output_file_fp (FILE *pfile, SIMULATION_OUTPUT *sim_output) ;
+void simulation_data_serialize (FILE *fp, simulation_data *sim_data) ;
+void export_block (char *pszFName, DESIGN *design) ;
+void export_block_fp (FILE *pfile, DESIGN *design) ;
 
 /////////////////////////////////////////////////////////////////////////////////////
+#endif /* def STDIO_FILEIO */
 #endif /* _FILEIO_H_ */

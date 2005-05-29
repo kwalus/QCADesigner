@@ -1,22 +1,40 @@
-#ifndef _ACTION_HANDLERS_H_
-#define _ACTION_HANDLERS_H_
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@atips.ca).                                 //
+//////////////////////////////////////////////////////////
+// Contents:                                            //
+//                                                      //
+// Cumulative header file for the groups of mouse hand- //
+// lers not implemented by various GType values. These  //
+// are responsible for actions such as pan, rotate, se- //
+// lect, etc.                                           //
+//                                                      //
+//////////////////////////////////////////////////////////
 
-#include <gtk/gtk.h>
-#include "../interface.h"
-#include "../callback_helpers.h"
-#include "../cad.h"
+#ifndef _ACTIONS_ACTION_HANDLERS_H_
+#define _ACTIONS_ACTION_HANDLERS_H_
 
-typedef void (*ActionHandler) (MOUSE_HANDLERS *pmh, GtkWidget *widget, GdkGC *gc, DESIGN *design, project_OP *options, main_W *main_window) ;
+#include "pan.h"
+#include "array.h"
+#include "select.h"
+#include "rotate.h"
 
-void run_action_SINGLE_CELL (MOUSE_HANDLERS *pmh, GtkWidget *drawing_area, GdkGC *global_gc, DESIGN *pDesign, project_OP *pProjectOpt, main_W *wndMain) ;
-void run_action_ROTATE (MOUSE_HANDLERS *pmh, GtkWidget *widget, GdkGC *gc, DESIGN *design, project_OP *options, main_W *main_window) ;
-void run_action_MIRROR (MOUSE_HANDLERS *pmh, GtkWidget *widget, GdkGC *gc, DESIGN *design, project_OP *options, main_W *main_window) ;
-void run_action_ARRAY (MOUSE_HANDLERS *pmh, GtkWidget *widget, GdkGC *gc, DESIGN *design, project_OP *options, main_W *main_window) ;
-void run_action_PAN (MOUSE_HANDLERS *pmh, GtkWidget *widget, GdkGC *gc, DESIGN *design, project_OP *options, main_W *main_window) ;
-void run_action_DELETE (MOUSE_HANDLERS *pmh, GtkWidget *widget, GdkGC *gc, DESIGN *design, project_OP *options, main_W *main_window) ;
-void run_action_CELL_FUNCTION (MOUSE_HANDLERS *pmh, GtkWidget *widget, GdkGC *gc, DESIGN *design, project_OP *options, main_W *main_window) ;
-
-void run_action_DEFAULT (MOUSE_HANDLERS *pmh, GtkWidget *drawing_area, GdkGC *global_gc, DESIGN *pDesign, project_OP *pProjectOpt, main_W *wndMain) ;
-void run_action_DEFAULT_sel_changed () ;
-
-#endif /* _ACTION_HANDLERS_H_ */
+#endif /* _ACTIONS_ACTION_HANDLERS_H_ */

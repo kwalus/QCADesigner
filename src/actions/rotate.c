@@ -1,55 +1,63 @@
-#include <stdio.h>
-#include <stdlib.h>
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@atips.ca).                                 //
+//////////////////////////////////////////////////////////
+// Contents:                                            //
+//                                                      //
+// Mouse handlers for rotating individual objects.      //
+//                                                      //
+//////////////////////////////////////////////////////////
+
 #include <gtk/gtk.h>
-#include "../interface.h"
-#include "../cad.h"
-#include "../stdqcell.h"
-#include "../undo_create.h"
+#include "rotate.h"
+#include "../global_consts.h"
+#include "../design.h"
+#include "../objects/object_helpers.h"
 #include "../callback_helpers.h"
-#include "action_handlers.h"
+#include "../selection_renderer.h"
 
-extern cell_OP cell_options ;
 
-static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
-static gboolean button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
-
-static GdkGC *global_gc ;
-static DESIGN *pDesign ;
-static main_W *wndMain ;
-static project_OP *pProjectOpts ;
-
-void run_action_ROTATE (MOUSE_HANDLERS *pmh, GtkWidget *widget, GdkGC *gc, DESIGN *design, project_OP *options, main_W *main_window)
+gboolean button_pressed_ACTION_ROTATE (GtkWidget *widget, GdkEventButton *event, gpointer data)
   {
-  global_gc = gc ;
-  pDesign = design ;
-  pProjectOpts = options ;
-  wndMain = main_window ;
+  project_OP *project_options = (project_OP *)data ;
+  QCADDesignObject *htobj = NULL ;
+  GdkRegion *rgn = NULL ;
 
-  pmh->lIDButtonPressed = g_signal_connect (G_OBJECT (widget), "button_press_event", (GCallback)button_press_event, NULL) ;
-  pmh->lIDMotionNotify = -1 ;
-  pmh->lIDButtonReleased = g_signal_connect (G_OBJECT (widget), "button_release_event", (GCallback)button_release_event, NULL) ;
-  }
+  if (NULL != (htobj = QCAD_DESIGN_OBJECT (design_hit_test (project_options->design, event->x, event->y))))
+    if (QCAD_IS_CELL (htobj))
+      {
+      GdkRectangle rcReal ;
+      selection_renderer_draw (project_options->srSelection, project_options->design, widget->window, GDK_XOR) ;
+      qcad_cell_rotate_dots (QCAD_CELL (htobj), PI / 4.0) ;
+      selection_renderer_update (project_options->srSelection, project_options->design) ;
+      selection_renderer_draw (project_options->srSelection, project_options->design, widget->window, GDK_XOR) ;
 
-static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
-  {
-  GQCell *cellp = NULL ;
-  if (1 != event->button) return FALSE ;
+      world_to_real_rect (&(htobj->bounding_box), &rcReal) ;
 
-  cellp = select_cell_at_coords((GQCell *)(pDesign->first_layer->first_obj), calc_world_x (event->x), calc_world_y (event->y));
+      rgn = gdk_region_new () ;
+      gdk_region_union_with_rect (rgn, &rcReal) ;
 
-  if (cellp != NULL)
-    {
-    gqcell_rotate (cellp, 3.14159 / 4.0);
-    gui_add_to_undo (Undo_CreateAction_CellParamChange (&cellp, 1)) ;
-    pProjectOpts->bDesignAltered = TRUE ;
-    redraw_world (GDK_DRAWABLE (widget->window), global_gc, (GQCell *)(pDesign->first_layer->first_obj), pProjectOpts->SHOW_GRID) ;
-    }
-  return TRUE ;
-  }
+      // redraw_async takes care of destroying rgn
+      redraw_async (rgn) ;
+      }
 
-static gboolean button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
-  {
-  if (3 == event->button)
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (wndMain->default_action_button), TRUE) ;
   return FALSE ;
   }

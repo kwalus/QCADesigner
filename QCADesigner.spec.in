@@ -1,12 +1,12 @@
 Summary: A QCA design and simulation tool
-Name: QCADesigner
-Version: 1.4.1
+Name: @PACKAGE@
+Version: @VERSION@
 Release: 1
-Copyright: GPL
+License: GPL
 Group: Development/Tools
-Source: http://qcadesigner.ca/QCADesigner/releases/1.4.0/QCADesigner-1.4.0-src.tar.gz
+Source: http://qcadesigner.ca/dl/releases/@VERSION@/@PACKAGE@-@VERSION@-src.tar.gz
 BuildRoot: /var/tmp/%{name}-buildroot
-Vendor: Konrad Walus <walus@atips.ca> University of Calgary
+Vendor: Konrad Walus <qcadesigner@gmail.com> University of Calgary
 Packager: Gabriel Schulhof <schulhof@atips.ca> University of Calgary
 Requires: gtk2 >= 2.0
 
@@ -20,24 +20,28 @@ engines.
 %setup -q
 
 %build
-CFLAGS="%optflags" CXXFLAGS="%optflags" ./autogen.sh --prefix=/usr
+./autogen.sh
+CFLAGS="%optflags" CXXFLAGS="%optflags" ./configure --prefix=/usr
 make
 
 %install
 make DESTDIR=%buildroot install
-[ "/" != %buildroot ] && rm -rf %buildroot/usr/share/doc
 
 %clean
 [ "/" != $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING ChangeLog CurrentVerChangeLog INSTALL README TODO
-%doc docs/manual
+%doc AUTHORS COPYING ChangeLog CurrentVerChangeLog INSTALL README TODO docs/manual
 
 /usr/bin/QCADesigner
-/usr/share
+/usr/bin/batch_sim
+/usr/share/QCADesigner
+/usr/share/locale/*/LC_MESSAGES/@PACKAGE@.mo
+/usr/share/applications/QCADesigner.desktop
 
 %changelog
+* Fri May 27 2005 Gabriel Schulhof <schulhof@atips.ca>
+- Packaging version 2.0.0
 * Sat Oct 11 2003 Gabriel Schulhof <schulhof@atips.ca> 
 - added RPM support

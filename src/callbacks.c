@@ -1267,7 +1267,7 @@ void on_delete_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 
 #ifdef UNDO_REDO
   // TEMPORARY
-  if (NULL != arDeletedObjs)
+  if ((project_options.bDesignAltered = (NULL != arDeletedObjs)))
     push_undo_selection_existence (project_options.design, project_options.srSelection, main_window.drawing_area->window, arDeletedObjs, FALSE) ;
 #endif /* def UNDO_REDO */
 

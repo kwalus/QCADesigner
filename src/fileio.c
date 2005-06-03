@@ -334,6 +334,9 @@ static QCADDesignObject *legacy_read_cell_from_stream (FILE *stream)
   QCADCell *cell = g_object_new (QCAD_TYPE_CELL, NULL);
   QCADDesignObject *obj = QCAD_DESIGN_OBJECT (cell) ;
   gboolean bInput = FALSE, bOutput = FALSE, bFixed = FALSE ;
+  QCADCellFunction cell_function = 0 ;
+
+  int clock = -1 ;
 
   // -- The dot that is currently being read to -- //
   int current_dot = 0;
@@ -412,6 +415,7 @@ static QCADDesignObject *legacy_read_cell_from_stream (FILE *stream)
       cell->cell_options.cyCell = g_ascii_strtod (pszValue, NULL) ;
     else
     if (!strncmp (pszName, "clock", sizeof ("clock")))
+      clock =
       cell->cell_options.clock = g_ascii_strtod (pszValue, NULL) ;
     else
     if (!strncmp (pszName, "is_input", sizeof ("is_input")))
@@ -520,13 +524,19 @@ static QCADDesignObject *legacy_read_cell_from_stream (FILE *stream)
 
   dPolarization = qcad_cell_calculate_polarization (cell) ;
 
+  cell_function = bInput  ? QCAD_CELL_INPUT  :
+                  bOutput ? QCAD_CELL_OUTPUT :
+                  bFixed  ? QCAD_CELL_FIXED  : QCAD_CELL_NORMAL ;
+
   g_object_set (G_OBJECT (cell),
-    "function",     bInput  ? QCAD_CELL_INPUT  :
-                    bOutput ? QCAD_CELL_OUTPUT :
-                    bFixed  ? QCAD_CELL_FIXED  : QCAD_CELL_NORMAL,
+    "function",     cell_function,
     "polarization", dPolarization,
-    "clock",        cell->cell_options.clock,
-    "label",        pszLabel, NULL) ;
+    "clock",        clock,
+    NULL) ;
+  if (QCAD_CELL_INPUT == cell_function || QCAD_CELL_OUTPUT == cell_function)
+    g_object_set (G_OBJECT (cell),
+      "label", pszLabel,
+      NULL) ;
 
   g_free (pszLabel) ;
   g_free (buffer) ;

@@ -123,7 +123,7 @@ int main (int argc, char **argv)
     memcpy (&coherence_options, co, sizeof (coherence_OP)) ;
     }
 
-  fprintf (stderr, "Running %d simulations with a radial tolerance of %lf\n", number_of_sims, dTolerance) ;
+  printf ("Running %d simulations with a radial tolerance of %lf\n", number_of_sims, dTolerance) ;
 
   rnd = g_rand_new () ;
 
@@ -205,7 +205,7 @@ int main (int argc, char **argv)
     }
 
   for (Nix = 0 ; Nix < icSuccesses->icUsed ; Nix++)
-    fprintf (stderr, "success_rate[%d] = %.2lf%%\n", Nix, (double)(exp_array_index_1d (icSuccesses, int, Nix)) / ((double)(number_of_sims)) * 100.0) ;
+    printf ("success_rate[%d] = %.2lf%%\n", Nix, (double)(exp_array_index_1d (icSuccesses, int, Nix)) / ((double)(number_of_sims)) * 100.0) ;
 
   g_rand_free (rnd) ;
 

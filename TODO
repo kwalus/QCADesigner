@@ -1,5 +1,30 @@
 ////////////// QCADesigner TODO /////////////////
 
+QCADesigner ToDo's
+[X] show_graph_dialog (char *pszSimOutputFName) ;
+    sets the file selection to the file name
+    create the file selection is now public
+[ ] Move the pixmap registration code out of main.c so other gtk targets can benefit from it.
+[ ] Graph dialog time reference
+[ ] Ability to input dec and hex into the vector table
+[ ] Fork off a process to wait for the previewer and then delete the temp file, in case the previewer
+    survives us
+
+2.0.0
+=============================================================================================================
+[X] Cell Library
+[X] Hot Key for activating/deactivating all layers other then the one presently in use.z
+[X] Check all menu items most do not work yet. Remove any unused menu items
+[W] Difficult to select anything for moving when zoomed out far
+[X] Rotated cells are not printed as such
+[X] Must drop selection in layer before deactivating that layer else the selected objects will not be drawn.
+[X] Confirmation check on layer delete, unless undo is available
+
+Incompleted Man Pages
+[X] Create/Import Block Man page
+[X] Vector Table Man page
+[X] Correct the bistable man page to include the nonlinear functions
+
 /-------------HIGH PRIORITY-------------/
 
 - Fix mirror problem when mirroring multiple cell types.

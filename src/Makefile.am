@@ -37,6 +37,7 @@ QCADesigner_CFLAGS = \
 QCADesigner_SOURCES = \
 	$(UNDO_REDO_FILES) \
 	$(STDIO_FILEIO_FILES) \
+	gtk_preamble.c                        gtk_preamble.h \
 	about.c                               about.h \
 	actions.h \
 	actions/action_handlers.h \
@@ -168,6 +169,7 @@ graph_dialog_CFLAGS = \
 graph_dialog_SOURCES = \
 	$(STDIO_FILEIO_FILES) \
 	$(OBJECT_FILES) \
+	gtk_preamble.c                        gtk_preamble.h \
 	objects/QCADClockCombo.c              objects/QCADClockCombo.h \
 	design.c                              design.h \
 	objects/object_helpers.c              objects/object_helpers.h \

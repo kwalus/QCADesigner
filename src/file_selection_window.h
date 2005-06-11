@@ -31,6 +31,8 @@
 
 #include <gtk/gtk.h>
 
+void set_file_selection_file_name (char *pszFName) ;
+
 gchar *get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFName, gboolean bOverwritePrompt) ;
 
 gchar *get_external_app (GtkWindow *parent, char *pszWinTitle, char *pszCfgFName, char *pszDefaultContents, gboolean bForceNew) ;

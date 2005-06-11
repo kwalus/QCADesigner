@@ -66,6 +66,10 @@ GtkWidget *command_history_create () ;
 GtkWidget *create_labelled_progress_bar () ;
 void push_cursor (GtkWidget *widget, GdkCursor *cursor) ;
 GdkCursor *pop_cursor (GtkWidget *widget) ;
+
+#define NUMBER_OF_RULER_SUBDIVISIONS 3
+void set_ruler_scale (GtkRuler *ruler, double dLower, double dUpper) ;
+
 #endif /* def GTK_GUI */
 void command_history_message (char *pszFmt, ...) ;
 void set_progress_bar_visible (gboolean bVisible) ;

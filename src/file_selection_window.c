@@ -40,7 +40,7 @@
 #define QCA_CELL_LIBRARY PACKAGE_DATA_DIR G_DIR_SEPARATOR_S PACKAGE G_DIR_SEPARATOR_S "qca_cell_library"
 
 static gboolean filesel_ok_button_activate (GtkWidget *widget, GdkEventButton *ev, gpointer data) ;
-static char *get_default_file_name (char *pszFName) ;
+static char *get_default_file_name (GtkFileSelection *file_sel, char *pszFName) ;
 
 static GtkWidget *file_selection = NULL ;
 
@@ -55,7 +55,7 @@ gchar *get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszF
   gtk_window_set_transient_for (GTK_WINDOW (file_selection), parent) ;
   gtk_window_set_title (GTK_WINDOW (file_selection), pszWinTitle) ;
 
-  if (NULL != (pszRet = get_default_file_name (pszFName)))
+  if (NULL != (pszRet = get_default_file_name (GTK_FILE_SELECTION (file_selection), pszFName)))
     {
     gtk_file_selection_set_filename (GTK_FILE_SELECTION (file_selection), pszRet) ;
     g_free (pszRet) ;
@@ -101,6 +101,16 @@ static gboolean filesel_ok_button_activate (GtkWidget *widget, GdkEventButton *e
 
   g_free (pszFName) ;
   return FALSE ;
+  }
+
+void set_file_selection_file_name (char *pszFName)
+  {
+  if (NULL == pszFName) return ;
+
+  if (NULL == file_selection)
+    file_selection = gtk_file_selection_new ("GtkFileSelection") ;
+
+  gtk_file_selection_set_filename (GTK_FILE_SELECTION (file_selection), pszFName) ;
   }
 
 gchar *get_external_app (GtkWindow *parent, char *pszWinTitle, char *pszCfgFName, char *pszDefaultContents, gboolean bForceNew)
@@ -181,10 +191,11 @@ gchar *get_external_app (GtkWindow *parent, char *pszWinTitle, char *pszCfgFName
   return pszRet ;
   }
 
-static char *get_default_file_name (char *pszFName)
+static char *get_default_file_name (GtkFileSelection *file_sel, char *pszFName)
   {
   gboolean bHaveCellLib = FALSE ;
   char *pszCellLibrary = NULL ;
+  char *pszOldFName = NULL ;
 #ifdef WIN32
   char szPath[PATH_LENGTH] = "" ;
   g_snprintf (szPath, PATH_LENGTH, "%s%s..%sshare%s%s%sqca_cell_library", 
@@ -193,11 +204,17 @@ static char *get_default_file_name (char *pszFName)
 #else
   pszCellLibrary = QCA_CELL_LIBRARY ;
 #endif /* def WIN32 */
+
+  pszOldFName = g_strdup (gtk_file_selection_get_filename (file_sel)) ;
+
   bHaveCellLib = g_file_test (pszCellLibrary, G_FILE_TEST_IS_DIR) ;
 
   if (NULL != pszFName)
     if (0 != pszFName[0])
       return strdup (pszFName) ;
+
+  if (g_file_test (pszOldFName, G_FILE_TEST_EXISTS) && !g_file_test (pszOldFName, G_FILE_TEST_IS_DIR))
+    return pszOldFName ;
 
   if (bHaveCellLib)
     return g_strdup_printf ("%s%s", pszCellLibrary, G_DIR_SEPARATOR_S) ;

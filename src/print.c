@@ -166,7 +166,7 @@ void print_world (print_design_OP *pPO, DESIGN *design)
     "/txtcb { gsave dup stringwidth pop 2 div -1 mul 0 rmoveto show grestore } def\n"
     "/txtrt { gsave dup stringwidth exch -1 mul exch pop labelfontsize -1 mul rmoveto show grestore } def\n"
     "/txtrm { gsave dup stringwidth exch -1 mul exch pop labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtrt { gsave dup stringwidth exch -1 mul exch pop 0 rmoveto show grestore } def\n"
+    "/txtrb { gsave dup stringwidth exch -1 mul exch pop 0 rmoveto show grestore } def\n"
     "1 setlinejoin\n"
     "1 setlinecap\n"
     "linewidth setlinewidth\n",

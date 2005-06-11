@@ -41,10 +41,16 @@
 
 #define GAP_HEIGHT 10
 #define TRACE_GAP_HEIGHT 5
+#define TRACE_HEADER_WIDTH 180
 
 #define GAP_PERCENT 0.01
 #define TRACE_GAP_PERCENT 0.005
 #define FONT_SIZE 12 /* points */
+
+#define RULER_HEIGHT 12 /* points */
+#define RULER_GRAD_HEIGHT 4 /* points */
+#define RULER_SMALL_GRAD_HEIGHT 2 /* points */
+#define RULER_FONT_SIZE 8 /* points */
 
 #define OBJ_TYPE_PATH 0
 
@@ -73,9 +79,11 @@ static void PlaceSingleTrace        (print_graph_OP *pPO, PAGES *pPages, struct 
 static void PlaceSingleWaveform     (print_graph_OP *pPO, PAGES *pPages, struct TRACEDATA *ptd, double dxMin, double dyMin, double dxMax, double dyMax, int icSamples, double dTraceMin, double dTraceMax) ;
 static void PlaceSingleBusTrace     (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_DATA *hc_data, BUS *bus, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyTrace, int icSamples, int base) ;
 static void PlaceSingleTraceBox     (print_graph_OP *pPO, PAGES *pPages, double dyTraceTop, double dcxTraceHeader, double dcxEffective, double dcyEffective, double dcyTrace, gboolean bDrawMidLine) ;
-static void PlaceSingleString       (print_graph_OP *pPO, PAGES *pPages, double dcxEffective, double dcyEffective, double dcyTrace, double dx, double dy, char *pszClr, char *pszClrType, char *pszString, char *pszStringPlacement) ;
+static void PlaceSingleBox          (print_graph_OP *pPO, PAGES *pPages, double dxMin, double dyMin, double dxMax, double dyMax, double dcxEffective, double dcyEffective) ;
+static void PlaceSingleString       (print_graph_OP *pPO, PAGES *pPages, double dcxEffective, double dcyEffective, double dx, double dy, char *pszClr, char *pszClrType, char *pszString, int font_size, char *pszStringPlacement) ;
 static void PlaceSingleLine         (print_graph_OP *pPO, PAGES *pPages, double dxMin, double dyMin, double dxMax, double dyMax, double dcxEffective, double dcyEffective, char *pszClr, char *pszClrType, char *pszDash) ;
 static void PlaceSingleHoneycomb    (print_graph_OP *pPO, PAGES *pPages, double dxMin, double dxL, double dxR, double dxMax, double dyMin, double dyMax, char *pszLabel, double dcxEffective, double dcyEffective, char *pszClr, char *pszClrType) ;
+static void PlaceRuler              (print_graph_OP *pPO, PAGES *pPages, simulation_data *sim_data, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyRuler) ;
 static int GetPageIndex (double dCoord, int icPages, double dEffectiveLength) ;
 static void PrintSingleGraphPage (print_graph_OP *pPO, FILE *pfile, EXP_ARRAY *page, int idx) ;
 static EXP_ARRAY *get_polyline_page_indices (print_graph_OP *pPO, DPOINT *pts, int icPts, gboolean bClose, double dcxEffective, double dcyEffective) ;
@@ -122,15 +130,15 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
   fprintf (pfile,
     "%%%%BeginProlog\n"
     "/labelfontsize %d def\n"
-    "/txtlt { gsave dup 0 -1 labelfontsize mul rmoveto show grestore } def\n"
-    "/txtlm { gsave dup 0 labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtlb { gsave dup 0 0 rmoveto show grestore } def\n"
-    "/txtct { gsave dup stringwidth exch 2 div -1 mul exch pop labelfontsize -1 mul rmoveto show grestore } def\n"
-    "/txtcm { gsave dup stringwidth exch 2 div -1 mul exch pop labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtcb { gsave dup stringwidth pop 2 div -1 mul 0 rmoveto show grestore } def\n"
-    "/txtrt { gsave dup stringwidth exch -1 mul exch pop labelfontsize -1 mul rmoveto show grestore } def\n"
-    "/txtrm { gsave dup stringwidth exch -1 mul exch pop labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtrt { gsave dup stringwidth exch -1 mul exch pop 0 rmoveto show grestore } def\n"
+    "/txtlt { /font_size exch def gsave dup 0 -1 font_size mul rmoveto show grestore } def\n"
+    "/txtlm { /font_size exch def gsave dup 0 font_size 2 div -1 mul rmoveto show grestore } def\n"
+    "/txtlb { /font_size exch def gsave dup 0 0 rmoveto show grestore } def\n"
+    "/txtct { /font_size exch def gsave dup stringwidth exch 2 div -1 mul exch pop font_size -1 mul rmoveto show grestore } def\n"
+    "/txtcm { /font_size exch def gsave dup stringwidth exch 2 div -1 mul exch pop font_size 2 div -1 mul rmoveto show grestore } def\n"
+    "/txtcb { /font_size exch def gsave dup stringwidth pop 2 div -1 mul 0 rmoveto show grestore } def\n"
+    "/txtrt { /font_size exch def gsave dup stringwidth exch -1 mul exch pop font_size -1 mul rmoveto show grestore } def\n"
+    "/txtrm { /font_size exch def gsave dup stringwidth exch -1 mul exch pop font_size 2 div -1 mul rmoveto show grestore } def\n"
+    "/txtrb { /font_size exch def gsave dup stringwidth exch -1 mul exch pop 0 rmoveto show grestore } def\n"
     "/point {} def\n"
     "%%/point { -3 -3 rmoveto 6 6 rlineto -6 0 rmoveto 6 -6 rlineto -3 3 rmoveto } def\n"
     "\n"
@@ -182,12 +190,12 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
     "  newpath\n"
     "  xL xR add 2 div yMid moveto\n"
     "  (Courier) findfont labelfontsize scalefont setfont\n"
-    "  label txtcm\n"
+    "  label labelfontsize txtcm\n"
     "  stroke\n"
     "  grestore\n"
     "  } def\n"
     "\n"
-    "1 setlinejoin 1 setlinecap\n"
+    "2 setlinejoin 2 setlinecap\n"
     "%%%%EndProlog\n", FONT_SIZE,
     pszClr, pszClrType,
     pszClrHCFill, pszClrType) ;
@@ -224,7 +232,7 @@ static void PrintSingleGraphPage (print_graph_OP *pPO, FILE *pfile, EXP_ARRAY *p
     "%f %f lineto\n"
     "%f %f lineto\n"
     "%f %f lineto\n"
-    "closepath eoclip\n\n",
+    "closepath eoclip\n\n", // Need eoclip here
     pPO->po.dLMargin, pPO->po.dBMargin,
     pPO->po.dLMargin, pPO->po.dPaperCY - pPO->po.dTMargin,
     pPO->po.dPaperCX - pPO->po.dRMargin, pPO->po.dPaperCY - pPO->po.dTMargin,
@@ -289,7 +297,7 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
   // Precalculate some parameters for each trace
   dcxEffective = pPO->iCXPages * (pPO->po.dPaperCX - pPO->po.dLMargin - pPO->po.dRMargin) ;
   dcyEffective = pPO->iCYPages * (pPO->po.dPaperCY - pPO->po.dTMargin - pPO->po.dBMargin) ;
-  dcyTrace = ((dcyEffective - (FONT_SIZE + GAP_HEIGHT)) - (GAP_HEIGHT * icVisibleTraces)) / icVisibleTraces ;
+  dcyTrace = (((dcyEffective - (FONT_SIZE + GAP_HEIGHT)) - (GAP_HEIGHT * icVisibleTraces)) - RULER_HEIGHT) / icVisibleTraces ;
 
   pPages->strings = exp_array_new (sizeof (char *), 1) ;
   pPages->pages = exp_array_new (sizeof (char *), 2) ;
@@ -323,6 +331,8 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
       PlaceSingleTrace (pPO, pPages, &(print_graph_data->sim_data->clock_data[Nix]), ++idxTraceOnPg, icVisibleTraces, dcxEffective, dcyEffective, dcyTrace, print_graph_data->sim_data->number_samples, dTraceMinVal, dTraceMaxVal) ;
       }
 
+  PlaceRuler (pPO, pPages, print_graph_data->sim_data, idxTraceOnPg, icVisibleTraces, dcxEffective, dcyEffective, RULER_HEIGHT) ;
+
   // Graph title ("Simulation Results")
   dxTitle = dcxEffective / 2 ;
   dyTitle = 0 ;
@@ -335,7 +345,7 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
     "newpath\n"
     "(Courier) findfont labelfontsize scalefont setfont\n"
     "%lf %lf moveto\n"
-    "(%s) txtct\n"
+    "(%s) labelfontsize txtct\n"
     "stroke\n"
     "grestore\n",
     dxTitle - xIdxTitle * (dcxEffective / pPO->iCXPages) + pPO->po.dLMargin,
@@ -351,7 +361,7 @@ static void PlaceSingleTrace (print_graph_OP *pPO, PAGES *pPages, struct TRACEDA
   {
   char *psz = NULL ;
   double
-    dcxTraceHeader = 108.0, // points
+    dcxTraceHeader = TRACE_HEADER_WIDTH, // points
     dyTraceTop = idx * (GAP_HEIGHT + dcyTrace) + (FONT_SIZE + GAP_HEIGHT),
     dTraceMaxVal = 0, dTraceMinVal = 0 ;
   char *pszClr =
@@ -372,25 +382,100 @@ static void PlaceSingleTrace (print_graph_OP *pPO, PAGES *pPages, struct TRACEDA
   // Filling in the trace header
   tracedata_get_min_max (ptd, 0, icSamples -1, &dTraceMinVal, &dTraceMaxVal) ;
 
-  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, dcyTrace, TRACE_GAP_HEIGHT, dyTraceTop + TRACE_GAP_HEIGHT,
+  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT, dyTraceTop + TRACE_GAP_HEIGHT,
     pPO->bPrintClr ? pszClr : "0.00",
     pPO->bPrintClr ? "setrgbcolor" : "setgray",
-    psz = g_strdup_printf ("max: %9.2e", dTraceMaxVal), "txtlt") ;
+    psz = g_strdup_printf ("max: %9.2e", dTraceMaxVal), FONT_SIZE, "txtlt") ;
   g_free (psz) ;
 
-  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, dcyTrace, TRACE_GAP_HEIGHT, dyTraceTop + dcyTrace - TRACE_GAP_HEIGHT,
+  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT, dyTraceTop + dcyTrace - TRACE_GAP_HEIGHT,
     pPO->bPrintClr ? pszClr : "0.00",
     pPO->bPrintClr ? "setrgbcolor" : "setgray",
-    psz = g_strdup_printf ("min: %9.2e", dTraceMinVal), "txtlb") ;
+    psz = g_strdup_printf ("min: %9.2e", dTraceMinVal), FONT_SIZE, "txtlb") ;
   g_free (psz) ;
 
-  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, dcyTrace, TRACE_GAP_HEIGHT, dyTraceTop +  dcyTrace / 2,
+  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT, dyTraceTop +  dcyTrace / 2,
     pPO->bPrintClr ? pszClr : "0.00",
     pPO->bPrintClr ? "setrgbcolor" : "setgray",
-    ptd->data_labels, "txtlm") ;
+    ptd->data_labels, FONT_SIZE, "txtlm") ;
   }
 
-static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEffective, double dcyEffective, double dcyTrace, double dx, double dy, char *pszClr, char *pszClrType, char *pszString, char *pszStringPlacement)
+static void PlaceRuler (print_graph_OP *pPO, PAGES *pPages, simulation_data *sim_data, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyRuler)
+  {
+  double dMaxDigits = 0 ;
+  double dxCurrentGrad = 0.0 ;
+  double dxSmallGrad = 0.0 ;
+  int Nix ;
+  int icAvailTics = 0 ;
+  int icSamplesPerTic = 0 ;
+  int current_sample = 0 ;
+  int magnitude = 0 ;
+  char *psz = NULL ;
+  double 
+    dxRulerTop = TRACE_HEADER_WIDTH + GAP_HEIGHT + TRACE_GAP_HEIGHT,
+    dyRulerTop = dcyEffective - RULER_HEIGHT,
+    dxRulerBot = dcxEffective - TRACE_GAP_HEIGHT,
+    dyRulerBot = dcyEffective,
+    dcxRuler = dxRulerBot - dxRulerTop ;
+
+  // Main ruler line
+  PlaceSingleLine (pPO, pPages, dxRulerTop, dyRulerTop, dxRulerBot, dyRulerTop, dcxEffective, dcyEffective, PS_BLACK, "setrgbcolor", NULL) ;
+
+  // Right Graduation
+  PlaceSingleLine (pPO, pPages, dxRulerBot, dyRulerTop, dxRulerBot, dyRulerTop + RULER_GRAD_HEIGHT, dcxEffective, dcyEffective, PS_BLACK, "setrgbcolor", NULL) ;
+
+  dMaxDigits = ceil (log (sim_data->number_samples) / log (10)) ;
+
+  icAvailTics = 1 + floor (dcxRuler / (dMaxDigits * RULER_FONT_SIZE + 2 * TRACE_GAP_HEIGHT)) ;
+
+  // Samples between the right edge of the "0" tic and the left edge of the "max" tic
+  icSamplesPerTic = (int)ceil (((double)(sim_data->number_samples)) / ((double)icAvailTics)) ;
+
+  fprintf (stderr, "Raw samples per tic are %d\n", icSamplesPerTic) ;
+  magnitude = pow (10, (int)(log10 (icSamplesPerTic))) ;
+
+  fprintf (stderr, "magnitude = %d\n", magnitude) ;
+
+  icSamplesPerTic = (int)(((int)(((double)icSamplesPerTic)/(magnitude))) * magnitude) ;
+  fprintf (stderr, "Rounded samples per tic are %d\n", icSamplesPerTic) ;
+
+  if (magnitude >= icSamplesPerTic)
+    icSamplesPerTic = magnitude ;
+  else
+  if (magnitude * 2 >= icSamplesPerTic)
+    icSamplesPerTic = 2 * magnitude ;
+  else
+  if (magnitude * 5 >= icSamplesPerTic)
+    icSamplesPerTic = 5 * magnitude ;
+  else
+    icSamplesPerTic = 10 * magnitude ;
+  fprintf (stderr, "Final samples per tic are %d\n", icSamplesPerTic) ;
+
+  for (current_sample = 0 ; current_sample < sim_data->number_samples ; current_sample += icSamplesPerTic)
+    {
+    // Graduation
+    PlaceSingleLine (pPO, pPages, 
+      dxCurrentGrad = 
+      dxRulerTop + (current_sample * dcxRuler) / (double)(sim_data->number_samples), dyRulerTop, 
+      dxRulerTop + (current_sample * dcxRuler) / (double)(sim_data->number_samples), dyRulerTop + RULER_GRAD_HEIGHT, 
+      dcxEffective, dcyEffective, PS_BLACK, "setrgbcolor", NULL) ;
+
+    // Label
+    PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, 
+      dxRulerTop + (current_sample * dcxRuler) / (double)(sim_data->number_samples), 
+      dyRulerTop + RULER_GRAD_HEIGHT, PS_BLACK, "setrgbcolor", psz = g_strdup_printf ("%d", current_sample), RULER_FONT_SIZE, "txtct") ;
+    g_free (psz) ;
+
+    for (Nix = 0 ; Nix < 10 ; Nix++)
+      if ((dxSmallGrad = dxCurrentGrad + (icSamplesPerTic * dcxRuler * Nix * 0.1) / (double)(sim_data->number_samples)) < dxRulerBot)
+        PlaceSingleLine (pPO, pPages, dxSmallGrad, dyRulerTop, dxSmallGrad, dyRulerTop + RULER_SMALL_GRAD_HEIGHT + ((5 == Nix) ? 1 : 0), 
+          dcxEffective, dcyEffective, PS_BLACK, "setrgbcolor", NULL) ;
+      else
+        break ;
+    }
+  }
+
+static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEffective, double dcyEffective, double dx, double dy, char *pszClr, char *pszClrType, char *pszString, int font_size, char *pszStringPlacement)
   {
   char *psz = NULL ;
   int idxXPgMin = -1, idxYPgMin = -1, idxPg = -1 ;
@@ -404,16 +489,19 @@ static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEff
     "%s %s\n"
     "newpath\n"
     "%lf %lf moveto\n"
-    "(Courier) findfont labelfontsize scalefont setfont\n"
-    "(%s) %s\n"
+    "(Courier) findfont %d scalefont setfont\n"
+    "(%s) %d %s\n"
     "stroke\n"
     "grestore\n",
     pszClr,
     pszClrType,
     dx - (idxXPgMin * dcxEffective) / pPO->iCXPages + pPO->po.dLMargin,
     pPO->po.dPaperCY -
-   (dy - (idxYPgMin * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin),
-    pszString, pszStringPlacement) ;
+   (dy - (idxYPgMin * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin), 
+    font_size,
+    pszString,
+    font_size,
+    pszStringPlacement) ;
 
   exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
   exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
@@ -439,9 +527,9 @@ static void PlaceSingleBusTrace (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_D
 
   PlaceSingleTraceBox (pPO, pPages, dyTraceTop, dcxTraceHeader, dcxEffective, dcyEffective, dcyTrace, FALSE) ;
 
-  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, dcyTrace, TRACE_GAP_HEIGHT, dyTraceTop + TRACE_GAP_HEIGHT,
+  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT, dyTraceTop + TRACE_GAP_HEIGHT,
     pszClr, pszClrType,
-    bus->pszName, "txtlt") ;
+    bus->pszName, FONT_SIZE, "txtlt") ;
 
   if (0 == hc_data->arHCs->icUsed)
     PlaceSingleLine (pPO, pPages,
@@ -491,11 +579,7 @@ static void PlaceSingleBusTrace (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_D
 
 static void PlaceSingleTraceBox (print_graph_OP *pPO, PAGES *pPages, double dyTraceTop, double dcxTraceHeader, double dcxEffective, double dcyEffective, double dcyTrace, gboolean bDrawMidLine)
   {
-  int Nix, Nix1 ;
-  int idxPg ;
-  int idxXPgMin = -1, idxYPgMin = -1, idxXPgMax = -1, idxYPgMax = -1 ;
-  double dxMinPg, dxMaxPg, dyMinPg, dyMaxPg, dxMin, dyMin, dxMax, dyMax ;
-  char *psz = NULL ;
+  double dxMin, dyMin, dxMax, dyMax ;
   char *pszClr = pPO->bPrintClr ? PS_GREEN : "0.00",
        *pszClrType = pPO->bPrintClr ? "setrgbcolor" : "setgray" ;
 
@@ -505,32 +589,7 @@ static void PlaceSingleTraceBox (print_graph_OP *pPO, PAGES *pPages, double dyTr
   dxMax = dcxTraceHeader ;
   dyMax = dyTraceTop + dcyTrace ;
 
-  idxXPgMin = GetPageIndex (dxMin, pPO->iCXPages, dcxEffective) ;
-  idxYPgMin = GetPageIndex (dyMin, pPO->iCYPages, dcyEffective) ;
-  idxXPgMax = GetPageIndex (dxMax, pPO->iCXPages, dcxEffective) ;
-  idxYPgMax = GetPageIndex (dyMax, pPO->iCYPages, dcyEffective) ;
-
-  DBG_PG (fprintf (stderr, "trace %d (header) ranges from (%d,%d) to (%d,%d)\n",
-    idx, idxXPgMin, idxYPgMin, idxXPgMax, idxYPgMax)) ;
-
-  // Place trace header box onto every page it appears on
-  for (Nix = idxYPgMin ; Nix <= idxYPgMax ; Nix++)
-    for (Nix1 = idxXPgMin ; Nix1 <= idxXPgMax ; Nix1++)
-      {
-      idxPg = pPO->bPrintOrderOver ? Nix * pPO->iCXPages + Nix1 : Nix1 * pPO->iCYPages + Nix ;
-
-      dxMinPg = dxMin - (Nix1 * dcxEffective) / pPO->iCXPages + pPO->po.dLMargin ;
-      dyMinPg = pPO->po.dPaperCY -
-               (dyMin - (Nix  * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin)  ;
-      dxMaxPg = dxMax - (Nix1 * dcxEffective) / pPO->iCXPages + pPO->po.dLMargin ;
-      dyMaxPg = pPO->po.dPaperCY -
-               (dyMax - (Nix  * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin)  ;
-
-      psz = g_strdup_printf ("%lf %lf %lf %lf tracebox\n", dxMinPg, dyMinPg, dxMaxPg, dyMaxPg) ;
-
-      exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-      exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
-      }
+  PlaceSingleBox (pPO, pPages, dxMin, dyMin, dxMax, dyMax, dcxEffective, dcyEffective) ;
 
   // Trace body box
   dxMin = dcxTraceHeader + GAP_HEIGHT ;
@@ -538,32 +597,7 @@ static void PlaceSingleTraceBox (print_graph_OP *pPO, PAGES *pPages, double dyTr
   // dyMin = same as above
   // dyMax = same as above
 
-  idxXPgMin = GetPageIndex (dxMin, pPO->iCXPages, dcxEffective) ;
-  idxYPgMin = GetPageIndex (dyMin, pPO->iCYPages, dcyEffective) ;
-  idxXPgMax = GetPageIndex (dxMax, pPO->iCXPages, dcxEffective) ;
-  idxYPgMax = GetPageIndex (dyMax, pPO->iCYPages, dcyEffective) ;
-
-  DBG_PG (fprintf (stderr, "trace %d (body) ranges from (%d,%d) to (%d,%d)\n",
-    idx, idxXPgMin, idxYPgMin, idxXPgMax, idxYPgMax)) ;
-
-  // Place trace body box onto every page it appears on
-  for (Nix = idxYPgMin ; Nix <= idxYPgMax ; Nix++)
-    for (Nix1 = idxXPgMin ; Nix1 <= idxXPgMax ; Nix1++)
-      {
-      idxPg = pPO->bPrintOrderOver ? Nix * pPO->iCXPages + Nix1 : Nix1 * pPO->iCYPages + Nix ;
-
-      dxMinPg = dxMin - (Nix1 * dcxEffective) / pPO->iCXPages + pPO->po.dLMargin ;
-      dyMinPg = pPO->po.dPaperCY -
-               (dyMin - (Nix  * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin)  ;
-      dxMaxPg = dxMax - (Nix1 * dcxEffective) / pPO->iCXPages + pPO->po.dLMargin ;
-      dyMaxPg = pPO->po.dPaperCY -
-               (dyMax - (Nix  * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin)  ;
-
-      psz = g_strdup_printf ("%lf %lf %lf %lf tracebox\n", dxMinPg, dyMinPg, dxMaxPg, dyMaxPg) ;
-
-      exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-      exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
-      }
+  PlaceSingleBox (pPO, pPages, dxMin, dyMin, dxMax, dyMax, dcxEffective, dcyEffective) ;
 
   // Place trace max line onto every page
   PlaceSingleLine (pPO, pPages,
@@ -589,6 +623,42 @@ static void PlaceSingleTraceBox (print_graph_OP *pPO, PAGES *pPages, double dyTr
       dcxEffective, dcyEffective,
       pszClr, pszClrType,
       "[4 4] 1 setdash") ;
+  }
+
+static void PlaceSingleBox (print_graph_OP *pPO, PAGES *pPages, double dxMin, double dyMin, double dxMax, double dyMax, double dcxEffective, double dcyEffective)
+  {
+  char *psz = NULL ;
+  int Nix, Nix1 ;
+  int
+    idxXPgMin = -1, idxYPgMin = -1,
+    idxXPgMax = -1, idxYPgMax = -1,
+    idxPg = -1 ;
+  double 
+    dxMinPg = -1.0, dyMinPg = -1.0, 
+    dxMaxPg = -1.0, dyMaxPg = -1.0 ;
+
+  idxXPgMin = GetPageIndex (dxMin, pPO->iCXPages, dcxEffective) ;
+  idxYPgMin = GetPageIndex (dyMin, pPO->iCYPages, dcyEffective) ;
+  idxXPgMax = GetPageIndex (dxMax, pPO->iCXPages, dcxEffective) ;
+  idxYPgMax = GetPageIndex (dyMax, pPO->iCYPages, dcyEffective) ;
+
+  for (Nix = idxYPgMin ; Nix <= idxYPgMax ; Nix++)
+    for (Nix1 = idxXPgMin ; Nix1 <= idxXPgMax ; Nix1++)
+      {
+      idxPg = pPO->bPrintOrderOver ? Nix * pPO->iCXPages + Nix1 : Nix1 * pPO->iCYPages + Nix ;
+
+      dxMinPg = dxMin - (Nix1 * dcxEffective) / pPO->iCXPages + pPO->po.dLMargin ;
+      dyMinPg = pPO->po.dPaperCY -
+               (dyMin - (Nix  * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin)  ;
+      dxMaxPg = dxMax - (Nix1 * dcxEffective) / pPO->iCXPages + pPO->po.dLMargin ;
+      dyMaxPg = pPO->po.dPaperCY -
+               (dyMax - (Nix  * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin)  ;
+
+      psz = g_strdup_printf ("%lf %lf %lf %lf tracebox %%from PlaceSingleBox\n", dxMinPg, dyMinPg, dxMaxPg, dyMaxPg) ;
+
+      exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
+      exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
+      }
   }
 
 static void PlaceSingleHoneycomb (print_graph_OP *pPO, PAGES *pPages, double dxMin, double dxL, double dxR, double dxMax, double dyMin, double dyMax, char *pszLabel, double dcxEffective, double dcyEffective, char *pszClr, char *pszClrType)

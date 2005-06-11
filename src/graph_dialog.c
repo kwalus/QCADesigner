@@ -935,12 +935,10 @@ static gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *
   {
   GdkGC *gc = NULL ;
   int cx = 0, cy = 0 ;
-  int sample_beg = 0, sample_end = 0 ;
-  GtkWidget *label = g_object_get_data (G_OBJECT (widget), "label") ;
-  GRAPH_DATA *graph_data = g_object_get_data (G_OBJECT (widget), "graph_data") ;
-  GRAPH_DIALOG_DATA *graph_dialog_data = (GRAPH_DIALOG_DATA *)data ;
+  double lower, upper, position, max_size ;
+  GtkWidget *ruler = g_object_get_data (G_OBJECT (widget), "ruler") ;
 
-  if (NULL == label || NULL == graph_data || NULL == graph_dialog_data) return FALSE ;
+  if (NULL == ruler || NULL == graph_data || NULL == graph_dialog_data) return FALSE ;
   if (1 != event->button) return FALSE ;
 
   gc = gdk_gc_new (widget->window) ;
@@ -955,7 +953,10 @@ static gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *
 
   g_object_unref (gc) ;
 
-  sample_beg = (graph_dialog_data->sim_data->number_samples / graph_data->cxWanted) * x_old + graph_data->xOffset ;
+  gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
+  // desired range goes from beg_sample to (int)position
+
+  
 
   return TRUE ;
   }

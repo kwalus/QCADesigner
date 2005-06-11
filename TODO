@@ -4,6 +4,7 @@ QCADesigner ToDo's
 [X] show_graph_dialog (char *pszSimOutputFName) ;
     sets the file selection to the file name
     create the file selection is now public
+[ ] Both honeycomb and waveform drawing areas get created the same way - factor out the code
 [ ] Move the pixmap registration code out of main.c so other gtk targets can benefit from it.
 [ ] Graph dialog time reference
 [ ] Ability to input dec and hex into the vector table

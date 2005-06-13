@@ -33,6 +33,9 @@
 
 #ifdef GTK_GUI
   #include "callback_helpers.h"
+  #include "support.h"
+#else
+  #define _(s) s
 #endif /* def GTK_GUI */
 #include "objects/QCADCell.h"
 #include "simulation.h"
@@ -151,11 +154,11 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
    }
 
   // write message to the command history window //
-  command_history_message ("Simulation found %d inputs %d outputs %d total cells\n", design->bus_layout->inputs->icUsed, design->bus_layout->outputs->icUsed, total_cells) ;
+  command_history_message (_("Simulation found %d inputs %d outputs %d total cells\n"), design->bus_layout->inputs->icUsed, design->bus_layout->outputs->icUsed, total_cells) ;
 
-  command_history_message("Starting initialization\n");
+  command_history_message(_("Starting initialization\n"));
   set_progress_bar_visible (TRUE) ;
-  set_progress_bar_label ("Bistable simulation:") ;
+  set_progress_bar_label (_("Bistable simulation:")) ;
 
   // -- Initialize the simualtion data structure -- //
   sim_data = g_malloc0 (sizeof(simulation_data));

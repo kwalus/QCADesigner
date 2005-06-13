@@ -425,7 +425,7 @@ static void CreateInputHeading (vector_table_options_D *dialog, VectorTable *pvt
   g_object_set_data (G_OBJECT (dialog->pInput[idx].tb), "idx", (gpointer)idx) ;
   GTK_WIDGET_UNSET_FLAGS (dialog->pInput[idx].tb, (GtkWidgetFlags)(GTK_CAN_FOCUS | GTK_CAN_DEFAULT)) ;
 
-  dialog->pInput[idx].tblbl = gtk_label_new (exp_array_index_1d (pvt->inputs, VT_INPUT, idx).active_flag ? "Active" : "Inactive") ;
+  dialog->pInput[idx].tblbl = gtk_label_new (exp_array_index_1d (pvt->inputs, VT_INPUT, idx).active_flag ? _("Active") : _("Inactive")) ;
   gtk_widget_ref (dialog->pInput[idx].tblbl) ;
   g_snprintf (sz, 16, "0x%08X", (int)dialog->pInput[idx].tblbl) ;
   g_object_set_data_full (G_OBJECT (dialog->dlgVectorTable), sz, dialog->pInput[idx].tblbl, (GtkDestroyNotify) gtk_widget_unref) ;
@@ -623,7 +623,7 @@ static void create_vector_table_options_dialog (vector_table_options_D *dialog)
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (0), 2, 2);
 
-  dialog->lblVTFileMsg = gtk_label_new ("File:") ;
+  dialog->lblVTFileMsg = gtk_label_new (_("File:")) ;
   gtk_widget_show (dialog->lblVTFileMsg) ;
   gtk_box_pack_start (GTK_BOX (dialog->hbVTFile), dialog->lblVTFileMsg, FALSE, TRUE, 0) ;
   gtk_label_set_justify (GTK_LABEL (dialog->lblVTFileMsg), GTK_JUSTIFY_RIGHT) ;
@@ -648,7 +648,7 @@ static void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_widget_show (dialog->mnuAdd) ;
   gtk_container_add (GTK_CONTAINER (dialog->mnuVT), dialog->mnuAdd) ;
 
-  dialog->mnuInsBefore = gtk_menu_item_new_with_label ("Insert Before") ;
+  dialog->mnuInsBefore = gtk_menu_item_new_with_label (_("Insert Before")) ;
   gtk_widget_show (dialog->mnuInsBefore) ;
   gtk_container_add (GTK_CONTAINER (dialog->mnuVT), dialog->mnuInsBefore) ;
 
@@ -872,12 +872,12 @@ static void ActiveFlag_toggled (GtkWidget *widget, gpointer user_data)
   if (CountActiveInputs (dialog) < 1)
     {
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE) ;
-    gtk_label_set_text (GTK_LABEL (dialog->pInput[idx].tblbl), "Active") ;
+    gtk_label_set_text (GTK_LABEL (dialog->pInput[idx].tblbl), _("Active")) ;
     }
   else
     {
     SetColumnActive (dialog, idx, bActive = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) ;
-    gtk_label_set_text (GTK_LABEL (dialog->pInput[idx].tblbl), bActive ? "Active" : "Inactive") ;
+    gtk_label_set_text (GTK_LABEL (dialog->pInput[idx].tblbl), bActive ? _("Active") : _("Inactive")) ;
     }
   }
 

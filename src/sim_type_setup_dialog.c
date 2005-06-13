@@ -90,7 +90,7 @@ static void create_sim_type_dialog (sim_type_setup_D *dialog)
   if (NULL != dialog->simulation_type_dialog) return ;
 
   dialog->simulation_type_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (dialog->simulation_type_dialog), "Set Simulation Type");
+  gtk_window_set_title (GTK_WINDOW (dialog->simulation_type_dialog), _("Set Simulation Type"));
   gtk_window_set_resizable (GTK_WINDOW (dialog->simulation_type_dialog), FALSE);
   gtk_window_set_modal (GTK_WINDOW (dialog->simulation_type_dialog), TRUE) ;
 
@@ -102,14 +102,14 @@ static void create_sim_type_dialog (sim_type_setup_D *dialog)
   gtk_container_set_border_width (GTK_CONTAINER (dialog->vbox1), 2) ;
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->vbox1, TRUE, TRUE, 0);
 
-  dialog->digital_verif_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, "Exhaustive Verification");
+  dialog->digital_verif_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, _("Exhaustive Verification"));
   dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->digital_verif_radio));
   gtk_widget_show (dialog->digital_verif_radio);
   gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->digital_verif_radio, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
-  dialog->vector_table_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, "Vector Table");
+  dialog->vector_table_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, _("Vector Table"));
   dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->vector_table_radio));
   gtk_widget_show (dialog->vector_table_radio);
   gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->vector_table_radio, 1, 2, 1, 2,

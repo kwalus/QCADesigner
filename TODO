@@ -1,6 +1,7 @@
 ////////////// QCADesigner TODO /////////////////
 
 QCADesigner ToDo's
+[ ] Ctrl+Shift+S == Save As
 [X] show_graph_dialog (char *pszSimOutputFName) ;
     sets the file selection to the file name
     create the file selection is now public

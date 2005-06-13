@@ -1411,7 +1411,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   gtk_widget_show (dialog->tbl) ;
   gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
 
-  lbl = gtk_label_new ("Cell Width:") ;
+  lbl = gtk_label_new (_("Cell Width:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
@@ -1427,7 +1427,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
   gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
-  lbl = gtk_label_new ("Cell Height:") ;
+  lbl = gtk_label_new (_("Cell Height:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 1, 2,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
@@ -1443,7 +1443,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
   gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
-  lbl = gtk_label_new ("Dot Diameter:") ;
+  lbl = gtk_label_new (_("Dot Diameter:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 2, 3,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),

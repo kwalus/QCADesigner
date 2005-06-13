@@ -82,7 +82,7 @@ gboolean open_project_file (gchar *file_name, DESIGN **pdesign)
   file_close_and_unbuffer (pfile) ;
 
   if (bRet && NULL != timer)
-    command_history_message ("File opened in %.2lf seconds\n", g_timer_elapsed (timer, &usec)) ;
+    command_history_message (_("File opened in %.2lf seconds\n"), g_timer_elapsed (timer, &usec)) ;
 
   if (NULL != timer) g_timer_destroy (timer) ;
 

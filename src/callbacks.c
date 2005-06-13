@@ -1301,7 +1301,7 @@ void on_start_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer use
     {
     GtkWidget *msg = NULL ;
 
-    gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (GTK_WINDOW (main_window.main_window), GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, _("Cannot simulated with an empty vector table !")))) ;
+    gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (GTK_WINDOW (main_window.main_window), GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, _("Cannot simulate with an empty vector table !")))) ;
 
     gtk_widget_hide (msg) ;
     gtk_widget_destroy (msg) ;

@@ -447,6 +447,7 @@ static gboolean waveform_expose (GtkWidget *widget, GdkEventExpose *event, gpoin
 
   if (wf->graph_data.bNeedCalc)
     calculate_waveform_coords (wf, gdd->sim_data->number_samples) ;
+//    calculate_waveform_coords (wf, gdd->sim_data->number_samples, gdd->dScale) ;
 
   gc = gdk_gc_new (widget->window) ;
 
@@ -915,14 +916,14 @@ static gboolean graph_widget_motion_notify (GtkWidget *widget, GdkEventMotion *e
     g_object_unref (gc) ;
 
     gtk_label_set_text (GTK_LABEL (label),
-      psz = g_strdup_printf ("Sample %d - %d", MIN (beg_sample, (int)position), MAX (beg_sample, (int)position))) ;
+      psz = g_strdup_printf ("%s %d - %d", _("Sample"), MIN (beg_sample, (int)position), MAX (beg_sample, (int)position))) ;
     g_free (psz) ;
     }
   else
   if (!(NULL == label || NULL == ruler))
     {
     gtk_label_set_text (GTK_LABEL (label),
-      psz = g_strdup_printf ("Sample %d", (int)position)) ;
+      psz = g_strdup_printf ("%s %d", _("Sample"), (int)position)) ;
     g_free (psz) ;
     }
 
@@ -938,7 +939,6 @@ static gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *
   double lower, upper, position, max_size ;
   GtkWidget *ruler = g_object_get_data (G_OBJECT (widget), "ruler") ;
 
-  if (NULL == ruler || NULL == graph_data || NULL == graph_dialog_data) return FALSE ;
   if (1 != event->button) return FALSE ;
 
   gc = gdk_gc_new (widget->window) ;
@@ -953,11 +953,9 @@ static gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *
 
   g_object_unref (gc) ;
 
-  gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
+  if (NULL != ruler)
+    gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
   // desired range goes from beg_sample to (int)position
-
-  
-
   return TRUE ;
   }
 
@@ -973,7 +971,7 @@ static gboolean graph_widget_enter_notify (GtkWidget *widget, GdkEventCrossing *
 
     gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
     gtk_label_set_text (GTK_LABEL (label),
-      psz = g_strdup_printf ("Sample %d", (int)position)) ;
+      psz = g_strdup_printf ("%s %d", _("Sample"), (int)position)) ;
     g_free (psz) ;
     }
 
@@ -1575,7 +1573,7 @@ static void set_ruler_values (GtkWidget *ruler, int cxGiven, int cx, int old_off
   gtk_ruler_set_range (GTK_RULER (ruler), lower, upper, position, max_size) ;
 
   gtk_label_set_text (GTK_LABEL (label),
-    psz = g_strdup_printf ("Sample %d", (int)position)) ;
+    psz = g_strdup_printf ("%s %d", _("Sample"), (int)position)) ;
   g_free (psz) ;
 
   set_ruler_scale (GTK_RULER (ruler), lower, upper) ;

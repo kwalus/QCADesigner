@@ -645,7 +645,7 @@ void create_main_window (main_W *main_window){
       main_window->insert_type_1_cell_button,
       _("Array"),
       _("Add Cell Array"),
-      _("Add horizontal or vertical arrays of Type 1 or Type 2 cells to your design."),
+      _("Add horizontal or vertical arrays of cells to your design."),
       gtk_image_new_from_stock (QCAD_STOCK_ARRAY, QCAD_ICON_SIZE_SIDE_TOOLBAR),
       (GCallback)action_button_clicked, (gpointer)ACTION_ARRAY) ;
 

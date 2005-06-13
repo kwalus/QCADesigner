@@ -130,7 +130,7 @@ static void create_layer_order_dialog (layer_order_D *dialog)
 
   dialog->dialog = gtk_dialog_new () ;
   gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), TRUE) ;
-  gtk_window_set_title (GTK_WINDOW (dialog->dialog), _("Layer Order Dialog")) ;
+  gtk_window_set_title (GTK_WINDOW (dialog->dialog), _("Layer Order")) ;
 
   tbl = gtk_table_new (2, 1, FALSE) ;
   gtk_widget_show (tbl) ;

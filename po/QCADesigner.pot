@@ -478,7 +478,7 @@ msgstr ""
 msgid "Layer Description:"
 msgstr ""
 
-msgid "Layer Order Dialog"
+msgid "Layer Order"
 msgstr ""
 
 msgid "Layer Properties..."

@@ -20,13 +20,13 @@ msgid "Add horizontal or vertical arrays of cells to your design."
 msgstr "Fügen Sie horizontale oder vertikale Zellreihen zum Design hinzu."
 
 msgid "Add Layer"
-msgstr "Layer hinzufügen"
+msgstr "Ebene hinzufügen"
 
 msgid "Add Layer to Design"
-msgstr "Layer zum Design hinzufügen"
+msgstr "Ebene zum Design hinzufügen"
 
 msgid "Adds a layer to your design."
-msgstr "Fügt einen Layer zum Design hinzu."
+msgstr "Fügt einen Ebene zum Design hinzu."
 
 msgid "Add Vector"
 msgstr "Vektor zufügen"
@@ -77,16 +77,16 @@ msgid "<b>Source Layer</b>"
 msgstr ""
 
 msgid "_Bus Layout..."
-msgstr ""
+msgstr "_Busauslegung..."
 
 msgid "Bus Layout"
-msgstr ""
+msgstr "Busauslegung"
 
 msgid "Bus Name:"
 msgstr "Busname:"
 
 msgid "Calculates and sets the magnification such that the currently topmost layer fits inside the window."
-msgstr "Berechnet und setzt den Vergrösserungsfaktor so dass der zur Zeit oberste Layer ins Fenster passt"
+msgstr "Berechnet und setzt den Vergrösserungsfaktor so dass die zur Zeit oberste Ebene ins Fenster passt"
 
 msgid "Calculates and sets the magnification such that your design fits inside the window."
 msgstr "Berechnet und setzt den Vergrösserungsfactor so dass ihr Design ins Fenster passt."
@@ -98,13 +98,13 @@ msgid "Cannot simulate with an empty vector table !"
 msgstr "Kann mit leerer Vektortabelle nicht simulieren !"
 
 msgid "Cannot %s the layer at this time.\n\nPlease ensure that your selection can be dropped before attempting to %s a layer."
-msgstr ""
+msgstr "Kann zur Zeit Ebene nicht %s.\n\nDie Auswahl muss man fallen lassen können, ehe man die Ebene %s versucht."
 
 msgid "Cannot zoom to the design extents, because the design is empty"
-msgstr ""
+msgstr "Kann auf Gesamtdesign nicht zoomen, weil es leer ist"
 
 msgid "Cannot zoom to the layer extents, because the design is empty"
-msgstr ""
+msgstr "Kann auf die Ebene nicht zoomen, weil sie leer ist"
 
 msgid "Cell"
 msgstr "Zelle"
@@ -152,7 +152,7 @@ msgid "Centimeters"
 msgstr "Zentimeter"
 
 msgid "Change the order of layers in your design."
-msgstr "Die Ordnung der Layers im Design verändern."
+msgstr "Die Ordnung der Ebenen im Design verändern."
 
 # msgid "Click here, then click on the design to add cells to it."
 # msgstr ""
@@ -332,13 +332,13 @@ msgid "Download free version of QCADesigner from:"
 msgstr "Downloaden Sie QCADesigner frei(nicht nur gratis) von:"
 
 msgid "Drag and drop layers to their new location:"
-msgstr "Layer an dessen neue Position ziehen und fallen lassen:"
+msgstr "Ebene an dessen neue Position ziehen und fallen lassen:"
 
 msgid "Drawing"
 msgstr "Zeichnung"
 
 msgid "Drawing Layer"
-msgstr "Zeichnungslayer"
+msgstr "Zeichnungsebene"
 
 msgid "_Edit"
 msgstr "_Bearbeiten"
@@ -347,7 +347,7 @@ msgid "Enter Scale Factor"
 msgstr "Maßstabfaktor Eingeben"
 
 msgid "Exhaustive Verification"
-msgstr ""
+msgstr "Vollständige Verifizierung"
 
 # msgid "Export Block"
 # msgstr ""
@@ -392,7 +392,7 @@ msgid "Fit Design To Window"
 msgstr "Design in das Fenster einpassen"
 
 msgid "Fit Layer To Window"
-msgstr "Layer in das Fenster einpassen"
+msgstr "Ebene in das Fenster einpassen"
 
 msgid "Fixed"
 msgstr "Fest"
@@ -425,7 +425,7 @@ msgid "hide"
 msgstr "ausblenden"
 
 msgid "_Hide All But The Selected Layer"
-msgstr "_Ausschließlich ausgewähltes Layer anzeigen"
+msgstr "_Ausschließlich ausgewählte Ebene anzeigen"
 
 msgid "Horizontal:"
 msgstr ""
@@ -460,11 +460,11 @@ msgstr "_Zelltakt erhöhen"
 # msgid "Input/Output"
 # msgstr ""
 
-# msgid "Insert Before"
-# msgstr ""
+msgid "Insert Before"
+msgstr "Einfügung Bevor"
 
-# msgid "Insert Vector After"
-# msgstr ""
+msgid "Insert Vector After"
+msgstr "Vektoreinfügung Nach"
 
 # msgid "I/O"
 # msgstr ""
@@ -478,38 +478,38 @@ msgstr "Beschriftungseigenschaften"
 msgid "Landscape"
 msgstr "Querformat"
 
-# msgid "Layer"
-# msgstr ""
+msgid "Layer"
+msgstr "Ebene"
 
 msgid "Layer Description:"
-msgstr "Layerbeschriftung:"
+msgstr "Ebenebeschriftung:"
 
-msgid "Layer Order Dialog"
-msgstr ""
+msgid "Layer Order"
+msgstr "Reihenfolge der Ebenen"
 
 msgid "Layer Properties..."
-msgstr "Layereigenschaften..."
+msgstr "Eigenschaften der Ebene..."
 
 msgid "Layer Properties"
-msgstr "Layereigenschaften"
+msgstr "Eigenschaften der Ebene"
 
-# msgid "Layers"
-# msgstr ""
+msgid "Layers"
+msgstr "Ebenen"
 
 msgid "Layer Separation:"
-msgstr "Layerabstand:"
+msgstr "Ebeneabstand:"
 
 msgid "Layer Status:"
-msgstr "Layerstatus:"
+msgstr "Ebenestatus:"
 
 msgid "Layer Type:"
-msgstr "Layertyp:"
+msgstr "Ebenetyp:"
 
 msgid "Left Margin:"
 msgstr "Linker Rand:"
 
 msgid "Lists the layers in the current design and allows you to switch between them."
-msgstr "Listet die Layer im aktuellen Design und erlaubt zwischen ihnen herumzuschalten."
+msgstr "Listet die Ebenen im aktuellen Design und erlaubt zwischen ihnen herumzuschalten."
 
 msgid "_Load Output From File..."
 msgstr "Simulationsresultate von Datei laden..."
@@ -521,7 +521,7 @@ msgid "Lower Threshold [0]:"
 msgstr "Unterer Grenzwert [0]:"
 
 msgid "Main Cell Layer"
-msgstr "Hauptzellenlayer"
+msgstr "Hauptzellenebene"
 
 msgid "Make Cell(s) Less Significant"
 msgstr "Zelle(n) niedrigerwertig machen"
@@ -533,7 +533,7 @@ msgid "Makes a copy of your selection."
 msgstr "Kopiert Ihre Auswahl"
 
 msgid "Map Layers"
-msgstr ""
+msgstr "Ebenen vereinen"
 
 msgid "Margins"
 msgstr "Ränder"
@@ -554,7 +554,7 @@ msgid "Mirror Selection"
 msgstr "Auswahl spiegeln"
 
 msgid "Modify the settings for the current layer."
-msgstr ""
+msgstr "Die Eigenschafter der aktuellen Ebene verändern."
 
 msgid "Move Bus Down"
 msgstr ""
@@ -571,6 +571,9 @@ msgstr "Einfach"
 msgid "Normal Cell"
 msgstr "Einfache Zelle"
 
+msgid "Note: If you change the paper size, please also have a look at the margins. They may have changed as a result."
+msgstr "Bemerkung: Wenn Sie die Papiergrösse verändern, bitte überprüfen Sie auch die Ränder. Sie könnten sich folge dessen geändert haben."
+
 msgid "Number of Pages"
 msgstr "Anzahl der Seiten"
 
@@ -581,13 +584,13 @@ msgid "Object Properties"
 msgstr "Objekteinstellungen"
 
 msgid "Once deleted, a layer cannot be undeleted. Do you really want to delete layer \"%s\"?"
-msgstr "Wenn gelöscht, kann ein Layer nicht wiederhergestellt werden. Layer \"%s\" wirklich löschen?"
+msgstr "Wenn gelöscht, kann eine Ebene nicht wiederhergestellt werden. Ebene \"%s\" wirklich löschen?"
 
 msgid "Open"
 msgstr "Öffnen"
 
-msgid "Andere Simulationsresultate öffnen und anzeigen."
-msgstr ""
+msgid "Open and display another set of simulation results."
+msgstr "Andere Simulationsresultate öffnen und anzeigen."
 
 msgid "Open a project file"
 msgstr "Projektdatei öffnen"
@@ -619,11 +622,11 @@ msgstr "Seite(n) hoch"
 msgid "page(s) wide"
 msgstr "Seite(n) breit"
 
-# msgid "Pan"
-# msgstr ""
+msgid "Pan"
+msgstr "Schwenken"
 
-# msgid "Pan Design"
-# msgstr ""
+msgid "Pan Design"
+msgstr "Design schwenken"
 
 msgid "Paper Height:"
 msgstr "Papierhöhe:"
@@ -710,19 +713,19 @@ msgid "Relaxation Time:"
 msgstr ""
 
 msgid "Remove a layer from your design."
-msgstr "Layer von Ihrem Design entfernen."
+msgstr "Ebene von Ihrem Design entfernen."
 
 msgid "Remove Layer"
-msgstr "Layer Entfernen"
+msgstr "Ebene Entfernen"
 
 msgid "Remove Layer from Design"
-msgstr "Layer vom Design entfernen"
+msgstr "Ebene vom Design entfernen"
 
 msgid "Remove Vector"
 msgstr "Vektor entfernen"
 
 msgid "Reorder Layers"
-msgstr "Layers Umordnen"
+msgstr "Ebenen Umordnen"
 
 msgid "Reset Zoom"
 msgstr "Zoom zurückstellen"
@@ -893,7 +896,7 @@ msgid "Untitled Bus"
 msgstr "Namenloser Bus"
 
 msgid "Untitled Layer"
-msgstr "Namenloser Layer"
+msgstr "Namenlose Ebene"
 
 msgid "Upper Threshold [1]:"
 msgstr "Oberer Grenzwert [1]:"
@@ -944,7 +947,7 @@ msgid "Zoom In"
 msgstr "Heranzoomen"
 
 msgid "Zoom Layer Extents"
-msgstr "Auf Layer zoomen"
+msgstr "Auf Ebene zoomen"
 
 msgid "Zoom Out"
 msgstr "Wegzoomen"

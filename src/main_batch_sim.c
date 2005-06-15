@@ -38,7 +38,7 @@
 #include "simulation.h"
 #include "simulation_data.h"
 #include "coherence_vector.h"
-#include "graph_dialog_data.h"
+#include "graph_dialog_widget_data.h"
 #include "bistable_simulation.h"
 
 extern bistable_OP bistable_options ;

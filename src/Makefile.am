@@ -60,7 +60,10 @@ QCADesigner_SOURCES = \
 	                                      global_consts.h \
 	honeycomb_thresholds_dialog.c         honeycomb_thresholds_dialog.h \
 	graph_dialog.c                        graph_dialog.h \
+	graph_dialog_interface.c              graph_dialog_interface.h \
+	graph_dialog_widget_data.c            graph_dialog_widget_data.h \
 	graph_dialog_data.c                   graph_dialog_data.h \
+	graph_dialog_callbacks.c              graph_dialog_callbacks.h \
 	hsl2rgb.c                             hsl2rgb.h \
 	interface.c                           interface.h \
 	layer_mapping_dialog.c                layer_mapping_dialog.h \
@@ -132,7 +135,7 @@ batch_sim_SOURCES = \
 	hsl2rgb.c                             hsl2rgb.h \
 	generic_utils.c                       generic_utils.h \
 \
-	graph_dialog_data.c                   graph_dialog_data.h \
+	graph_dialog_widget_data.c            graph_dialog_widget_data.h \
 \
 	main_batch_sim.c
 
@@ -173,8 +176,13 @@ graph_dialog_SOURCES = \
 	objects/QCADClockCombo.c              objects/QCADClockCombo.h \
 	design.c                              design.h \
 	objects/object_helpers.c              objects/object_helpers.h \
+\
 	graph_dialog.c                        graph_dialog.h \
+	graph_dialog_interface.c              graph_dialog_interface.h \
+	graph_dialog_widget_data.c            graph_dialog_widget_data.h \
 	graph_dialog_data.c                   graph_dialog_data.h \
+	graph_dialog_callbacks.c              graph_dialog_callbacks.h \
+\
 	generic_utils.c                       generic_utils.h \
 	custom_widgets.c                      custom_widgets.h \
 	exp_array.c                           exp_array.h \

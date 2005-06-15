@@ -620,7 +620,7 @@ void create_main_window (main_W *main_window){
       GTK_TOOLBAR_CHILD_RADIOBUTTON,
       NULL,
       _("Select"),
-      _("Select And Manipulate Design"),
+      _("Make Selections And Manipulate Design"),
       _("This button allows you to manipulate your design."),
       gtk_image_new_from_stock (QCAD_STOCK_SELECT, QCAD_ICON_SIZE_SIDE_TOOLBAR),
       (GCallback)action_button_clicked, (gpointer)ACTION_SELECT) ;

@@ -36,7 +36,7 @@
 #include "print_util.h"
 #include "generic_utils.h"
 #include "simulation.h"
-#include "graph_dialog_data.h"
+#include "graph_dialog_widget_data.h"
 #include "global_consts.h"
 
 #define GAP_HEIGHT 10

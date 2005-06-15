@@ -22,79 +22,47 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
-// Header file for functions related to maintaining     //
-// HONEYCOMB_DATA and WAVEFORM_DATA structures          //
-// necessary for drawing the various traces in the      //
-// graph dialog.                                        //
 //                                                      //
 //////////////////////////////////////////////////////////
 
 #ifndef _GRAPH_DIALOG_DATA_H_
 #define _GRAPH_DIALOG_DATA_H_
 
-#include "exp_array.h"
-#include "objects/QCADCell.h"
+#include "simulation_data.h"
+#include "bus_layout_dialog.h"
 
 enum
   {
-  GRAPH_DATA_TYPE_BUS,
-  GRAPH_DATA_TYPE_CELL
+  GRAPH_MODEL_COLUMN_VISIBLE = BUS_LAYOUT_MODEL_COLUMN_LAST,
+  GRAPH_MODEL_COLUMN_RULER,
+  GRAPH_MODEL_COLUMN_TRACE,
+  GRAPH_MODEL_COLUMN_UI,
+  GRAPH_MODEL_COLUMN_LAST
   } ;
 
 typedef struct
   {
-  int data_type ;
-  gboolean bNeedCalc ;
-  int cxGiven ;
-  int cyGiven ;
-  int cxWanted ;
-  int cyWanted ;
-  int xOffset ;
-  GdkColor clr ;
-  gboolean bVisible ;
-  } GRAPH_DATA ;
+  simulation_data *sim_data ;
+  BUS_LAYOUT *bus_layout ;
+  gboolean bFreeSourceData ;
+  gboolean bFakeCells ;
+  GtkTreeModel *model ;
+  double dHCThreshLower ;
+  double dHCThreshUpper ;
+  int icDrawingArea ;
+  int icUIWidget ;
+  int cxDrawingArea ;
+  int cyDrawingArea ;
+  int cxUIWidget ;
+  int cyUIWidget ;
+  int cxMaxGiven ;
+  int cyMaxGiven ;
+  int bOneTime ;
+  int icGraphLines ;
+  int base ;
+  } GRAPH_DIALOG_DATA ;
 
-typedef struct
-  {
-  int idxBeg ;
-  int idxEnd ;
-  GdkPoint pts[6] ;
-  long long unsigned int value ;
-  } HONEYCOMB ;
+GRAPH_DIALOG_DATA *graph_dialog_data_new (simulation_data *sim_data, BUS_LAYOUT *bus_layout, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int base) ;
+void graph_dialog_data_free (GRAPH_DIALOG_DATA *gdd) ;
 
-typedef struct
-  {
-  GRAPH_DATA graph_data ;
-  EXP_ARRAY *arTraces ; // struct TRACEDATA *
-  EXP_ARRAY *arHCs ; // HONEYCOMB
-  int icHCSamples ;
-  } HONEYCOMB_DATA ;
-
-typedef struct
-  {
-  GRAPH_DATA graph_data ;
-  struct TRACEDATA *trace ;
-  EXP_ARRAY *arPoints ; // GdkPoint
-  gboolean bStretch ;
-  } WAVEFORM_DATA ;
-
-// Percentage of trace cyPixels to use for top and bottom padding
-#define MIN_MAX_OFFSET 0.05
-// The angle between the horizontal and the side wall of the honeycomb
-#define HONEYCOMB_ANGLE ((80.0 * PI) / 180.0)
-// The font to use for the honeycomb text
-#define FONT_STRING "Courier 14"
-
-WAVEFORM_DATA *waveform_data_new (struct TRACEDATA *trace, GdkColor *clr, gboolean bStretch) ;
-void calculate_waveform_coords (WAVEFORM_DATA *hc, int icSamples) ;
-void waveform_data_free (WAVEFORM_DATA *wf) ;
-
-HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr) ;
-void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThreshLower, double dThreshUpper, int base) ;
-#ifdef GTK_GUI
-int calculate_honeycomb_cxWanted (HONEYCOMB_DATA *hc, int icSamples, int base) ;
-#endif /* def GTK_GUI */
-void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples) ;
-void honeycomb_data_free (HONEYCOMB_DATA *hc) ;
-
-#endif /* ndef _GRAPH_DIALOG_DATA_H_ */
+#endif /* def _GRAPH_DIALOG_DATA_H_ */

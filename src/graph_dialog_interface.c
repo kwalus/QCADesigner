@@ -307,8 +307,6 @@ void attach_graph_widgets (graph_D *dialog, GtkWidget *table, GtkWidget *trace, 
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   g_signal_connect (G_OBJECT (trace), "expose-event",        (GCallback)graph_widget_one_time_expose, dialog) ;
-  g_signal_connect (G_OBJECT (trace), "size-allocate",       (GCallback)graph_widget_size_allocate,   dialog) ;
-  g_signal_connect (G_OBJECT (ui),    "size-allocate",       (GCallback)graph_widget_size_allocate,   dialog) ;
   }
 
 gboolean create_graph_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTreeIter *itr)
@@ -391,7 +389,9 @@ static gboolean create_waveform_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, G
 
   g_object_set_data (G_OBJECT (trace_drawing_widget), "ruler", trace_ruler_widget) ;
 
-  g_signal_connect (G_OBJECT (trace_ruler_widget), "motion-notify-event", (GCallback)graph_widget_motion_notify, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_ruler_widget),   "motion-notify-event", (GCallback)graph_widget_motion_notify, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "size-allocate",       (GCallback)graph_widget_size_allocate, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_ui_widget),      "size-allocate",       (GCallback)graph_widget_size_allocate, graph_dialog_data) ;
 
   gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), itr,
     GRAPH_MODEL_COLUMN_VISIBLE, TRUE,
@@ -451,7 +451,9 @@ static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTre
 
   g_object_set_data (G_OBJECT (trace_drawing_widget), "ruler", trace_ruler_widget) ;
 
-  g_signal_connect (G_OBJECT (trace_ruler_widget), "motion-notify-event", (GCallback)graph_widget_motion_notify, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_ruler_widget),   "motion-notify-event", (GCallback)graph_widget_motion_notify, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "size-allocate",       (GCallback)graph_widget_size_allocate, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_ui_widget),      "size-allocate",       (GCallback)graph_widget_size_allocate, graph_dialog_data) ;
 
   gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), itr,
     GRAPH_MODEL_COLUMN_VISIBLE, TRUE,

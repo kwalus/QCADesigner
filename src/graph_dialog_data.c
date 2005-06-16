@@ -61,6 +61,7 @@ GRAPH_DIALOG_DATA *graph_dialog_data_new (simulation_data *sim_data, BUS_LAYOUT 
   graph_dialog_data->icGraphLines    =  0 ;
   graph_dialog_data->bOneTime        = TRUE ;
   graph_dialog_data->base            = base ;
+  graph_dialog_data->dScale          = 1.0 ;
 
   gtk_tree_store_append (GTK_TREE_STORE (graph_dialog_data->model), &itr, NULL) ;
   gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), &itr,

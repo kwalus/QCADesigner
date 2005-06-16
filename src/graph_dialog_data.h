@@ -60,6 +60,8 @@ typedef struct
   int bOneTime ;
   int icGraphLines ;
   int base ;
+  double dScale ;
+  int xOffset ;
   } GRAPH_DIALOG_DATA ;
 
 GRAPH_DIALOG_DATA *graph_dialog_data_new (simulation_data *sim_data, BUS_LAYOUT *bus_layout, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int base) ;

@@ -156,13 +156,13 @@ void hscroll_adj_value_changed (GtkAdjustment *adj, gpointer data)
     if (NULL != drawing_area)
       if (NULL != (graph_data = g_object_get_data (G_OBJECT (drawing_area), "graph_data")))
         {
-        old_offset = graph_data->xOffset ;
-        graph_data->xOffset = -(adj->value) ;
+        old_offset = gdd->xOffset ;
+        gdd->xOffset = -(adj->value) ;
         gtk_widget_queue_draw (drawing_area) ;
         if (NULL != drawing_area->window)
           {
           gdk_window_get_size (drawing_area->window, &cx, &cy) ;
-          set_ruler_values (ruler, graph_data->cxGiven, cx, old_offset, graph_data->xOffset, gdd->sim_data->number_samples) ;
+          set_ruler_values (ruler, graph_data->cxGiven, cx, old_offset, gdd->xOffset, gdd->sim_data->number_samples) ;
           }
         }
     if (!gtk_tree_model_iter_next_dfs (gdd->model, &itr)) break ;
@@ -185,7 +185,7 @@ gboolean waveform_expose (GtkWidget *widget, GdkEventExpose *event, gpointer dat
   gdk_window_get_size (widget->window, &cx, &cy) ;
 
   if (wf->graph_data.bNeedCalc)
-    calculate_waveform_coords (wf, gdd->sim_data->number_samples) ;
+    calculate_waveform_coords (wf, gdd->sim_data->number_samples, gdd->dScale) ;
 
   gc = gdk_gc_new (widget->window) ;
 
@@ -193,7 +193,7 @@ gboolean waveform_expose (GtkWidget *widget, GdkEventExpose *event, gpointer dat
   gdk_gc_set_background (gc, &(wf->graph_data.clr)) ;
 
   for (Nix = 0 ; Nix < wf->arPoints->icUsed ; Nix++)
-    exp_array_index_1d (wf->arPoints, GdkPoint, Nix).x += wf->graph_data.xOffset ;
+    exp_array_index_1d (wf->arPoints, GdkPoint, Nix).x += gdd->xOffset ;
 
   for (idxStart = 0 ; idxStart < wf->arPoints->icUsed ; idxStart++)
     if (exp_array_index_1d (wf->arPoints, GdkPoint, idxStart).x >= 0)
@@ -212,7 +212,7 @@ gboolean waveform_expose (GtkWidget *widget, GdkEventExpose *event, gpointer dat
   gdk_draw_lines (widget->window, gc, (GdkPoint *)&(exp_array_index_1d (wf->arPoints, GdkPoint, idxStart)), ic);
 
   for (Nix = wf->arPoints->icUsed - 1 ; Nix > -1 ; Nix--)
-    exp_array_index_1d (wf->arPoints, GdkPoint, Nix).x -= wf->graph_data.xOffset ;
+    exp_array_index_1d (wf->arPoints, GdkPoint, Nix).x -= gdd->xOffset ;
 
   g_object_unref (gc) ;
   return FALSE ;
@@ -234,7 +234,7 @@ gboolean honeycomb_expose (GtkWidget *widget, GdkEventExpose *event, gpointer da
   gdk_window_get_size (widget->window, &cx, &cy) ;
 
   if (hc->graph_data.bNeedCalc)
-    calculate_honeycomb_coords (hc, gdd->sim_data->number_samples) ;
+    calculate_honeycomb_coords (hc, gdd->sim_data->number_samples, gdd->dScale) ;
 
   draw_trace_reference_lines (widget->window, cx, cy) ;
 
@@ -249,20 +249,20 @@ gboolean honeycomb_expose (GtkWidget *widget, GdkEventExpose *event, gpointer da
     for (Nix = 0 ; Nix < hc->arHCs->icUsed ; Nix++)
       {
       hcCur = &(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix)) ;
-      xCur += hc->graph_data.xOffset ;
-      hcCur->pts[0].x += hc->graph_data.xOffset ;
+      xCur += gdd->xOffset ;
+      hcCur->pts[0].x += gdd->xOffset ;
       if ((xCur >= 0 && xCur <= cx) || (hcCur->pts[0].x >= 0 && xCur <= cx))
         // Need gdk_draw_line_in_rect
         gdk_draw_line (widget->window, gc, xCur, hcCur->pts[0].y, hcCur->pts[0].x, hcCur->pts[0].y) ;
-      xCur -= hc->graph_data.xOffset ;
-      hcCur->pts[0].x -= hc->graph_data.xOffset ;
+      xCur -= gdd->xOffset ;
+      hcCur->pts[0].x -= gdd->xOffset ;
 
-      hcCur->pts[0].x += hc->graph_data.xOffset ;
-      hcCur->pts[1].x += hc->graph_data.xOffset ;
-      hcCur->pts[2].x += hc->graph_data.xOffset ;
-      hcCur->pts[3].x += hc->graph_data.xOffset ;
-      hcCur->pts[4].x += hc->graph_data.xOffset ;
-      hcCur->pts[5].x += hc->graph_data.xOffset ;
+      hcCur->pts[0].x += gdd->xOffset ;
+      hcCur->pts[1].x += gdd->xOffset ;
+      hcCur->pts[2].x += gdd->xOffset ;
+      hcCur->pts[3].x += gdd->xOffset ;
+      hcCur->pts[4].x += gdd->xOffset ;
+      hcCur->pts[5].x += gdd->xOffset ;
 
       if (RECT_INTERSECT_RECT (0, 0, cx, cy, hcCur->pts[0].x, 0, hcCur->pts[3].x - hcCur->pts[0].x + 1, cy))
         {
@@ -279,18 +279,18 @@ gboolean honeycomb_expose (GtkWidget *widget, GdkEventExpose *event, gpointer da
         gdk_draw_polygon (widget->window, gc, FALSE, hcCur->pts, 6) ;
         }
 
-      hcCur->pts[0].x -= hc->graph_data.xOffset ;
-      hcCur->pts[1].x -= hc->graph_data.xOffset ;
-      hcCur->pts[2].x -= hc->graph_data.xOffset ;
-      hcCur->pts[3].x -= hc->graph_data.xOffset ;
-      hcCur->pts[4].x -= hc->graph_data.xOffset ;
-      hcCur->pts[5].x -= hc->graph_data.xOffset ;
+      hcCur->pts[0].x -= gdd->xOffset ;
+      hcCur->pts[1].x -= gdd->xOffset ;
+      hcCur->pts[2].x -= gdd->xOffset ;
+      hcCur->pts[3].x -= gdd->xOffset ;
+      hcCur->pts[4].x -= gdd->xOffset ;
+      hcCur->pts[5].x -= gdd->xOffset ;
 
       xCur = hcCur->pts[3].x ;
       }
     gdk_draw_line (widget->window, gc,
-      xCur + hc->graph_data.xOffset, hcCur->pts[3].y,
-      hc->graph_data.cxGiven + hc->graph_data.xOffset, hcCur->pts[3].y) ;
+      xCur + gdd->xOffset, hcCur->pts[3].y,
+      hc->graph_data.cxGiven + gdd->xOffset, hcCur->pts[3].y) ;
     }
 
   g_object_unref (gc) ;
@@ -302,9 +302,9 @@ gboolean graph_widget_size_allocate (GtkWidget *widget, GtkAllocation *alloc, gp
   GtkTreeIter itr ;
   GtkWidget *widget_to_size = NULL ;
   GtkWidget *ruler = NULL ;
+  GtkWidget *hscroll = g_object_get_data (G_OBJECT (widget), "hscroll") ;
   int *pcx = NULL, *pcy = NULL, *pic = NULL ;
-  graph_D *dialog = (graph_D *)data ;
-  GRAPH_DIALOG_DATA *dialog_data = g_object_get_data (G_OBJECT (dialog->dialog), "graph_dialog_data") ;
+  GRAPH_DIALOG_DATA *dialog_data = (GRAPH_DIALOG_DATA *)data ;
   int model_column = -1 ;
   GRAPH_DATA *graph_data = NULL ;
   GtkAdjustment *adj = NULL ;
@@ -331,6 +331,7 @@ gboolean graph_widget_size_allocate (GtkWidget *widget, GtkAllocation *alloc, gp
   (*pcx) = MAX ((*pcx), alloc->width) ;
   (*pcy) = MAX ((*pcy), alloc->height) ;
   (*pic)++ ;
+
   if ((*pic) == dialog_data->icGraphLines)
     {
     if (!gtk_tree_model_get_iter_first (dialog_data->model, &itr)) return FALSE ;
@@ -364,24 +365,25 @@ gboolean graph_widget_size_allocate (GtkWidget *widget, GtkAllocation *alloc, gp
         GRAPH_MODEL_COLUMN_RULER, &ruler, -1) ;
       if (NULL != (graph_data = g_object_get_data (G_OBJECT (widget_to_size), "graph_data")))
         {
-        graph_data->cxGiven = dialog_data->cxMaxGiven ;
+        graph_data->cxGiven = dialog_data->cxMaxGiven * dialog_data->dScale ;
         graph_data->cyGiven = dialog_data->cyMaxGiven ;
         graph_data->bNeedCalc = TRUE ;
-        set_ruler_values (ruler, dialog_data->cxMaxGiven, dialog_data->cxDrawingArea, graph_data->xOffset, graph_data->xOffset, dialog_data->sim_data->number_samples) ;
+        set_ruler_values (ruler, dialog_data->cxMaxGiven * dialog_data->dScale, dialog_data->cxDrawingArea, dialog_data->xOffset, dialog_data->xOffset, dialog_data->sim_data->number_samples) ;
         }
       if (!gtk_tree_model_iter_next_dfs (dialog_data->model, &itr)) break ;
       }
-    if (NULL != (adj = gtk_range_get_adjustment (GTK_RANGE (dialog->hscroll))))
-      {
-      adj->lower = 0 ;
-      adj->upper = dialog_data->cxMaxGiven ;
-      adj->page_increment =
-      adj->page_size = dialog_data->cxDrawingArea ;
-      adj->step_increment = adj->page_size / 10.0 ;
-      adj->value = CLAMP (adj->value, adj->lower, adj->upper - adj->page_size) ;
-      gtk_adjustment_changed (adj) ;
-      gtk_adjustment_value_changed (adj) ;
-      }
+    if (NULL != hscroll)
+      if (NULL != (adj = gtk_range_get_adjustment (GTK_RANGE (hscroll))))
+        {
+        adj->lower = 0 ;
+        adj->upper = dialog_data->cxMaxGiven * dialog_data->dScale ;
+        adj->page_increment =
+        adj->page_size = dialog_data->cxDrawingArea ;
+        adj->step_increment = adj->page_size / 10.0 ;
+        adj->value = CLAMP (adj->value, adj->lower, adj->upper - adj->page_size) ;
+        gtk_adjustment_changed (adj) ;
+        gtk_adjustment_value_changed (adj) ;
+        }
     dialog_data->icDrawingArea =
     dialog_data->cxDrawingArea =
     dialog_data->cyDrawingArea = 0 ;
@@ -584,7 +586,7 @@ gboolean graph_widget_button_press (GtkWidget *widget, GdkEventButton *event, gp
   if (1 != event->button) return FALSE ;
 
   gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
-  beg_sample = (int)position ;
+  beg_sample = CLAMP ((int)position, 0, ((GRAPH_DIALOG_DATA *)data)->sim_data->number_samples) ;
   
   x_beg = 
   x_old =
@@ -677,11 +679,13 @@ gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *event, 
   int cx = 0, cy = 0 ;
   double lower, upper, position, max_size ;
   GtkWidget *ruler = g_object_get_data (G_OBJECT (widget), "ruler") ;
-  GtkWidget *trace_drawing_widget = NULL ;
+  GtkWidget *hscroll = g_object_get_data (G_OBJECT (widget), "hscroll") ;
+  GtkWidget *widget_to_size = NULL ;
   GtkTreeIter itr ;
-  GRAPH_DATA *graph_data = NULL ;
-  GRAPH_DIALOG_DATA *graph_dialog_data = (GRAPH_DIALOG_DATA *)data ;
-  int cxWanted = 0 ;
+  GRAPH_DIALOG_DATA *graph_dialog_data = (GRAPH_DIALOG_DATA *)data, *dialog_data = (GRAPH_DIALOG_DATA *)data ;
+  GtkAllocation alloc = {0} ;
+  int end_sample = -1 ;
+  GtkAdjustment *adj = NULL ;
 
   if (1 != event->button) return FALSE ;
 
@@ -701,32 +705,32 @@ gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *event, 
     gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
   // desired range goes from beg_sample to (int)position
 
-  if (!gtk_tree_model_get_iter_first (graph_dialog_data->model, &itr)) return FALSE ;
-  while (TRUE)
-    {
-    gtk_tree_model_get (graph_dialog_data->model, &itr, 
-      GRAPH_MODEL_COLUMN_TRACE, &trace_drawing_widget, -1) ;
+  end_sample = CLAMP ((int)position, 0, graph_dialog_data->sim_data->number_samples) ;
 
-    if (NULL != (graph_data = g_object_get_data (G_OBJECT (trace_drawing_widget), "graph_data")))
-      cxWanted = MAX (cxWanted, graph_data->cxWanted) ;
-    if (!gtk_tree_model_iter_next_dfs (graph_dialog_data->model, &itr)) break ;
-    }
+  graph_dialog_data->dScale = 
+    (((double)(graph_dialog_data->sim_data->number_samples)) / 
+    ((double)(ABS (end_sample - beg_sample)))) ;
+  graph_dialog_data->dScale = MAX (1.0, graph_dialog_data->dScale) ;
 
-  if (!gtk_tree_model_get_iter_first (graph_dialog_data->model, &itr)) return FALSE ;
-  while (TRUE)
-    {
-    gtk_tree_model_get (graph_dialog_data->model, &itr, 
-      GRAPH_MODEL_COLUMN_TRACE, &trace_drawing_widget, 
-      GRAPH_MODEL_COLUMN_RULER, &ruler, -1) ;
+  graph_dialog_data->xOffset = 
+    (((double)beg_sample / ((double)(graph_dialog_data->sim_data->number_samples))) *
+      ((double)(graph_dialog_data->cxMaxGiven * graph_dialog_data->dScale))) ;
 
-    if (NULL != (graph_data = g_object_get_data (G_OBJECT (trace_drawing_widget), "graph_data")))
+  if (NULL != hscroll)
+    if (NULL != (adj = gtk_range_get_adjustment (GTK_RANGE (hscroll))))
       {
-      fit_graph_data_to_window (graph_data, cx, cxWanted, beg_sample, (int)position, graph_dialog_data->sim_data->number_samples) ;
-
-      gtk_widget_queue_draw (trace_drawing_widget) ;
+      adj->value = graph_dialog_data->xOffset ;
+      gtk_adjustment_value_changed (adj) ;
       }
 
-    if (!gtk_tree_model_iter_next_dfs (graph_dialog_data->model, &itr)) break ;
+  if (!gtk_tree_model_get_iter_first (dialog_data->model, &itr)) return FALSE ;
+  while (TRUE)
+    {
+    gtk_tree_model_get (dialog_data->model, &itr, GRAPH_MODEL_COLUMN_TRACE, &widget_to_size,
+      GRAPH_MODEL_COLUMN_RULER, &ruler, -1) ;
+    gdk_window_get_size (widget_to_size->window, &(alloc.width), &(alloc.height)) ;
+    graph_widget_size_allocate (widget_to_size, &alloc, graph_dialog_data) ;
+    if (!gtk_tree_model_iter_next_dfs (dialog_data->model, &itr)) break ;
     }
 
   return TRUE ;

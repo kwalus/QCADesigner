@@ -49,7 +49,7 @@ typedef struct
   int cyGiven ;
   int cxWanted ;
   int cyWanted ;
-  int xOffset ;
+//  int xOffset ;
   GdkColor clr ;
   gboolean bVisible ;
   } GRAPH_DATA ;
@@ -85,10 +85,10 @@ typedef struct
 // The font to use for the honeycomb text
 #define FONT_STRING "Courier 14"
 
-void fit_graph_data_to_window (GRAPH_DATA *graph_data, int cxWindow, int cxWanted, int beg_sample, int end_sample, int icSamples) ;
+//void fit_graph_data_to_window (GRAPH_DATA *graph_data, int cxWindow, int cxWanted, int beg_sample, int end_sample, int icSamples) ;
 
 WAVEFORM_DATA *waveform_data_new (struct TRACEDATA *trace, GdkColor *clr, gboolean bStretch) ;
-void calculate_waveform_coords (WAVEFORM_DATA *hc, int icSamples) ;
+void calculate_waveform_coords (WAVEFORM_DATA *hc, int icSamples, double dScale) ;
 void waveform_data_free (WAVEFORM_DATA *wf) ;
 
 HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr) ;
@@ -96,7 +96,7 @@ void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThres
 #ifdef GTK_GUI
 int calculate_honeycomb_cxWanted (HONEYCOMB_DATA *hc, int icSamples, int base) ;
 #endif /* def GTK_GUI */
-void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples) ;
+void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples, double dScale) ;
 void honeycomb_data_free (HONEYCOMB_DATA *hc) ;
 
 #endif /* ndef _GRAPH_DIALOG_WIDGET_DATA_H_ */

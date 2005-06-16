@@ -53,7 +53,7 @@ typedef enum
 static long long unsigned int calculate_honeycomb_value (EXP_ARRAY *bits) ;
 static HoneycombTransition calculate_honeycomb_transition (EXP_ARRAY *old_bits, EXP_ARRAY *new_bits) ;
 static void calculate_trace_bits (EXP_ARRAY *arTraces, EXP_ARRAY *bits, int idxSample, double dThreshLower, double dThreshUpper) ;
-
+/*
 void fit_graph_data_to_window (GRAPH_DATA *graph_data, int cxWindow, int cxWanted, int beg_sample, int end_sample, int icSamples)
   {
   graph_data->cxGiven = 
@@ -65,7 +65,7 @@ void fit_graph_data_to_window (GRAPH_DATA *graph_data, int cxWindow, int cxWante
 
   graph_data->bNeedCalc = TRUE ;
   }
-
+*/
 HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr)
   {
   HONEYCOMB_DATA *hc = NULL ;
@@ -77,7 +77,7 @@ HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr)
   hc->graph_data.cyWanted  =
   hc->graph_data.cxGiven   =
   hc->graph_data.cyGiven   = -1 ;
-  hc->graph_data.xOffset   =  0 ;
+//  hc->graph_data.xOffset   =  0 ;
   hc->graph_data.bVisible  = TRUE ;
   hc->arTraces             = exp_array_new (sizeof (struct TRACEDATA *), 1) ;
   memcpy (&(hc->graph_data.clr), clr, sizeof (GdkColor)) ;
@@ -96,7 +96,7 @@ WAVEFORM_DATA *waveform_data_new (struct TRACEDATA *trace, GdkColor *clr, gboole
   wf->graph_data.cyWanted  =
   wf->graph_data.cxGiven   =
   wf->graph_data.cyGiven   = -1 ;
-  wf->graph_data.xOffset   =  0 ;
+//  wf->graph_data.xOffset   =  0 ;
   memcpy (&(wf->graph_data.clr), clr, sizeof (GdkColor)) ;
   wf->trace                = trace ;
   wf->bStretch             = bStretch ;
@@ -240,7 +240,7 @@ static long long unsigned int calculate_honeycomb_value (EXP_ARRAY *bits)
    0          3
     \        /
      5------4    */
-void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples)
+void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples, double dScale)
   {
   HONEYCOMB *hcCalc = NULL ;
   int Nix ;
@@ -249,16 +249,16 @@ void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples)
   for (Nix = hc->arHCs->icUsed - 1 ; Nix > -1 ; Nix--)
     {
     hcCalc = &(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix)) ;
-    icSlopePixels = (int)(((hc->graph_data.cyGiven * (1.0 - 2.0 * MIN_MAX_OFFSET)) / 2.0) * cos (HONEYCOMB_ANGLE)) ;
+    icSlopePixels = (int)(((hc->graph_data.cyGiven * (1.0 - 2.0 * MIN_MAX_OFFSET)) / 2.0) * cos (HONEYCOMB_ANGLE)) /** dScale*/ ;
 
-    hcCalc->pts[0].x = ((double)(hcCalc->idxBeg * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) ;
-    hcCalc->pts[3].x = ((double)(hcCalc->idxEnd * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) ;
+    hcCalc->pts[0].x = ((double)(hcCalc->idxBeg * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) /** dScale*/ ;
+    hcCalc->pts[3].x = ((double)(hcCalc->idxEnd * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) /** dScale*/ ;
     hcCalc->pts[0].y =
     hcCalc->pts[3].y = hc->graph_data.cyGiven >> 1 ;
     hcCalc->pts[1].x =
-    hcCalc->pts[5].x = hcCalc->pts[0].x + icSlopePixels ;
+    hcCalc->pts[5].x = (hcCalc->pts[0].x + icSlopePixels) /** dScale*/ ;
     hcCalc->pts[2].x =
-    hcCalc->pts[4].x = hcCalc->pts[3].x - icSlopePixels ;
+    hcCalc->pts[4].x = (hcCalc->pts[3].x - icSlopePixels) /** dScale*/ ;
     hcCalc->pts[1].y =
     hcCalc->pts[2].y = hc->graph_data.cyGiven * MIN_MAX_OFFSET ;
     hcCalc->pts[4].y =
@@ -285,7 +285,7 @@ int calculate_honeycomb_cxWanted (HONEYCOMB_DATA *hc, int icSamples, int base)
   }
 #endif /* def GTK_GUI */
 
-void calculate_waveform_coords (WAVEFORM_DATA *wf, int icSamples)
+void calculate_waveform_coords (WAVEFORM_DATA *wf, int icSamples, double dScale)
   {
   double dxInc = 0.0, dyInc = 0.0 ;
   GdkPoint pt1 = {0, 0}, pt2 = {0, 0}, pt3 = {0, 0} ;
@@ -302,7 +302,7 @@ void calculate_waveform_coords (WAVEFORM_DATA *wf, int icSamples)
 
   if (dMinTrace == dMaxTrace) return ;
 
-  dxInc = ((double)(wf->graph_data.cxGiven - 1)) / (double)((icSamples)) ;
+  dxInc = ((double)(wf->graph_data.cxGiven - 1)) / (double)((icSamples)) /** dScale*/ ;
   dyInc = ((double)((1 - 2 * MIN_MAX_OFFSET) * wf->graph_data.cyGiven - 1)) / (dMaxTrace - dMinTrace) ;
 
   exp_array_remove_vals (wf->arPoints, 1, 0, wf->arPoints->icUsed) ;

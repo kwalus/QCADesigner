@@ -42,13 +42,15 @@
 
 // x values from user hilighting 
 static int x_beg = -1, x_old = -1, x_cur = -1 ;
-static int beg_sample ;
+static int beg_sample = -1 ;
+static gboolean bCancelStretch = FALSE ;
 
 static void recalculate_honeycombs (GRAPH_DIALOG_DATA *gdd, gboolean bCalcHoneycombArrays, graph_D *dialog) ;
 static void set_trace_widget_visible (GtkWidget *trace, gboolean bVisible) ;
 static void set_ruler_values (GtkWidget *ruler, int cxGiven, int cx, int old_offset, int xOffset, int icSamples) ;
 static void draw_trace_reference_lines (GdkDrawable *dst, int cx, int cy) ;
 static void print_graph_data_init (PRINT_GRAPH_DATA *print_graph_data, GRAPH_DIALOG_DATA *gdd) ;
+void reflect_scale_change (GRAPH_DIALOG_DATA *dialog_data) ;
 
 static print_graph_OP print_graph_options = {{612, 792, 72, 72, 72, 72, TRUE, TRUE, NULL}, TRUE, TRUE, 1, 1} ;
 
@@ -185,7 +187,7 @@ gboolean waveform_expose (GtkWidget *widget, GdkEventExpose *event, gpointer dat
   gdk_window_get_size (widget->window, &cx, &cy) ;
 
   if (wf->graph_data.bNeedCalc)
-    calculate_waveform_coords (wf, gdd->sim_data->number_samples, gdd->dScale) ;
+    calculate_waveform_coords (wf, gdd->sim_data->number_samples) ;
 
   gc = gdk_gc_new (widget->window) ;
 
@@ -234,7 +236,7 @@ gboolean honeycomb_expose (GtkWidget *widget, GdkEventExpose *event, gpointer da
   gdk_window_get_size (widget->window, &cx, &cy) ;
 
   if (hc->graph_data.bNeedCalc)
-    calculate_honeycomb_coords (hc, gdd->sim_data->number_samples, gdd->dScale) ;
+    calculate_honeycomb_coords (hc, gdd->sim_data->number_samples) ;
 
   draw_trace_reference_lines (widget->window, cx, cy) ;
 
@@ -403,6 +405,19 @@ void btnPrint_clicked (GtkWidget *widget, gpointer user_data)
     print_graphs (&print_graph_options, &pgd) ;
 
   exp_array_free (pgd.bus_traces) ;
+  }
+
+void btnZoom100_clicked (GtkWidget *widget, gpointer user_data)
+  {
+  graph_D *dialog = (graph_D *)user_data ;
+  GRAPH_DIALOG_DATA *gdd = NULL ;
+
+  if (NULL == user_data) return ;
+
+  if (NULL == (gdd = g_object_get_data (G_OBJECT (dialog->dialog), "graph_dialog_data"))) return ;
+
+  gdd->dScale = 1.0 ;
+  reflect_scale_change (gdd) ;
   }
 
 #ifdef STDIO_FILEIO
@@ -583,6 +598,24 @@ gboolean graph_widget_button_press (GtkWidget *widget, GdkEventButton *event, gp
   double lower, upper, position, max_size ;
   GtkWidget *ruler = g_object_get_data (G_OBJECT (widget), "ruler") ;
 
+  if (bCancelStretch) return FALSE ;
+
+  if ((bCancelStretch = (3 == event->button)))
+    if (x_beg != x_old)
+      {
+      int cx, cy ;
+      GdkGC *gc = NULL ;
+
+      gc = gdk_gc_new (widget->window) ;
+      gdk_gc_set_function (gc, GDK_XOR) ;
+      gdk_gc_set_foreground (gc, clr_idx_to_clr_struct (WHITE)) ;
+      gdk_gc_set_background (gc, clr_idx_to_clr_struct (WHITE)) ;
+      gdk_window_get_size (widget->window, &cx, &cy) ;
+      gdk_draw_rectangle (widget->window, gc, TRUE, MIN (x_beg, x_old), 0, ABS (x_beg - x_old), cy) ;
+      x_old = event->x ;
+      g_object_unref (gc) ;
+      }
+
   if (1 != event->button) return FALSE ;
 
   gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
@@ -604,8 +637,8 @@ gboolean graph_widget_motion_notify (GtkWidget *widget, GdkEventMotion *event, g
   char *psz = NULL ;
   GtkWidget *label = g_object_get_data (G_OBJECT (widget), "label") ;
   GtkWidget *ruler = NULL ;
-  double current_position ;
-  gboolean bHaveRuler = FALSE ;
+  double current_position = 0.0 ;
+  gboolean bHaveRuler = FALSE, bHaveRange = FALSE ;
 
   GtkTreeIter itr ;
   GRAPH_DIALOG_DATA *gdd = (GRAPH_DIALOG_DATA *)data ;
@@ -615,6 +648,15 @@ gboolean graph_widget_motion_notify (GtkWidget *widget, GdkEventMotion *event, g
 
   if ((bHaveRuler = GTK_IS_RULER (widget)))
     gtk_ruler_get_range (GTK_RULER (widget), &lower, &upper, &current_position, &max_size) ;
+  else
+    {
+    ruler = g_object_get_data (G_OBJECT (widget), "ruler") ;
+    gdk_window_get_size (widget->window, &cx, &cy) ;
+    gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &current_position, &max_size) ;
+    current_position = lower + (upper - lower) * (((double)(event->x)) / (double)cx) ;
+    }
+
+  current_position = CLAMP (current_position, 0, gdd->sim_data->number_samples) ;
 
   if (!gtk_tree_model_get_iter_first (gdd->model, &itr)) return FALSE ;
   while (TRUE)
@@ -626,20 +668,16 @@ gboolean graph_widget_motion_notify (GtkWidget *widget, GdkEventMotion *event, g
       {
       gdk_window_get_size (trace->window, &cx, &cy) ;
       gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
-      gtk_ruler_set_range (GTK_RULER (ruler), lower, upper, 
-        bHaveRuler 
-          ? current_position
-          : (current_position = lower + (upper - lower) * (((double)(event->x)) / (double)cx)), 
-        max_size) ;
+      gtk_ruler_set_range (GTK_RULER (ruler), lower, upper, current_position, max_size) ;
       }
     if (!gtk_tree_model_iter_next_dfs (gdd->model, &itr)) break ;
     }
 
-  if (!(bHaveRuler || NULL == (ruler = g_object_get_data (G_OBJECT (widget), "ruler"))))
+  if (!(bHaveRuler || NULL == (ruler = g_object_get_data (G_OBJECT (widget), "ruler")) || bCancelStretch))
     {
     gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
 
-    if (event->state & GDK_BUTTON1_MASK)
+    if ((bHaveRange = (event->state & GDK_BUTTON1_MASK)))
       {
       gc = gdk_gc_new (widget->window) ;
       gdk_gc_set_function (gc, GDK_XOR) ;
@@ -661,7 +699,7 @@ gboolean graph_widget_motion_notify (GtkWidget *widget, GdkEventMotion *event, g
       }
     }
 
-  if (!(NULL == label || NULL == ruler))
+  if (!(NULL == label || NULL == ruler || bHaveRange))
     {
     gtk_label_set_text (GTK_LABEL (label),
       psz = g_strdup_printf ("%s %d", _("Sample"), (int)current_position)) ;
@@ -680,26 +718,29 @@ gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *event, 
   double lower, upper, position, max_size ;
   GtkWidget *ruler = g_object_get_data (G_OBJECT (widget), "ruler") ;
   GtkWidget *hscroll = g_object_get_data (G_OBJECT (widget), "hscroll") ;
-  GtkWidget *widget_to_size = NULL ;
-  GtkTreeIter itr ;
-  GRAPH_DIALOG_DATA *graph_dialog_data = (GRAPH_DIALOG_DATA *)data, *dialog_data = (GRAPH_DIALOG_DATA *)data ;
-  GtkAllocation alloc = {0} ;
+  GRAPH_DIALOG_DATA *graph_dialog_data = (GRAPH_DIALOG_DATA *)data ;
   int end_sample = -1 ;
   GtkAdjustment *adj = NULL ;
 
   if (1 != event->button) return FALSE ;
 
-  gc = gdk_gc_new (widget->window) ;
-  gdk_gc_set_function (gc, GDK_XOR) ;
-  gdk_gc_set_foreground (gc, clr_idx_to_clr_struct (WHITE)) ;
-  gdk_gc_set_background (gc, clr_idx_to_clr_struct (WHITE)) ;
-  gdk_window_get_size (widget->window, &cx, &cy) ;
+  if (bCancelStretch)
+    {
+    bCancelStretch = FALSE ;
+    return FALSE ;
+    }
 
   if (x_beg != x_old)
+    {
+    gc = gdk_gc_new (widget->window) ;
+    gdk_gc_set_function (gc, GDK_XOR) ;
+    gdk_gc_set_foreground (gc, clr_idx_to_clr_struct (WHITE)) ;
+    gdk_gc_set_background (gc, clr_idx_to_clr_struct (WHITE)) ;
+    gdk_window_get_size (widget->window, &cx, &cy) ;
     gdk_draw_rectangle (widget->window, gc, TRUE, MIN (x_beg, x_old), 0, ABS (x_beg - x_old), cy) ;
-  x_old = event->x ;
-
-  g_object_unref (gc) ;
+    x_old = event->x ;
+    g_object_unref (gc) ;
+    }
 
   if (NULL != ruler)
     gtk_ruler_get_range (GTK_RULER (ruler), &lower, &upper, &position, &max_size) ;
@@ -709,7 +750,8 @@ gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *event, 
 
   graph_dialog_data->dScale = 
     (((double)(graph_dialog_data->sim_data->number_samples)) / 
-    ((double)(ABS (end_sample - beg_sample)))) ;
+      ((double)(ABS (end_sample - beg_sample)))) *
+        (((double)cx)/((double)(graph_dialog_data->cxMaxGiven))) ;
   graph_dialog_data->dScale = MAX (1.0, graph_dialog_data->dScale) ;
 
   graph_dialog_data->xOffset = 
@@ -723,15 +765,7 @@ gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *event, 
       gtk_adjustment_value_changed (adj) ;
       }
 
-  if (!gtk_tree_model_get_iter_first (dialog_data->model, &itr)) return FALSE ;
-  while (TRUE)
-    {
-    gtk_tree_model_get (dialog_data->model, &itr, GRAPH_MODEL_COLUMN_TRACE, &widget_to_size,
-      GRAPH_MODEL_COLUMN_RULER, &ruler, -1) ;
-    gdk_window_get_size (widget_to_size->window, &(alloc.width), &(alloc.height)) ;
-    graph_widget_size_allocate (widget_to_size, &alloc, graph_dialog_data) ;
-    if (!gtk_tree_model_iter_next_dfs (dialog_data->model, &itr)) break ;
-    }
+  reflect_scale_change (graph_dialog_data) ;
 
   return TRUE ;
   }
@@ -887,5 +921,24 @@ static void print_graph_data_init (PRINT_GRAPH_DATA *print_graph_data, GRAPH_DIA
 
       if (!gtk_tree_model_iter_next (gdd->model, &itr)) break ;
       }
+    }
+  }
+
+void reflect_scale_change (GRAPH_DIALOG_DATA *dialog_data)
+  {
+  GtkAllocation alloc = {0} ;
+  GtkTreeIter itr ;
+  GtkWidget *widget_to_size = NULL ;
+
+  dialog_data->cxMaxGiven =
+  dialog_data->cyMaxGiven = 0 ;
+
+  if (!gtk_tree_model_get_iter_first (dialog_data->model, &itr)) return ;
+  while (TRUE)
+    {
+    gtk_tree_model_get (dialog_data->model, &itr, GRAPH_MODEL_COLUMN_TRACE, &widget_to_size, -1) ;
+    gdk_window_get_size (widget_to_size->window, &(alloc.width), &(alloc.height)) ;
+    graph_widget_size_allocate (widget_to_size, &alloc, dialog_data) ;
+    if (!gtk_tree_model_iter_next_dfs (dialog_data->model, &itr)) break ;
     }
   }

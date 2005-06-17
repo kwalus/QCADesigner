@@ -240,7 +240,7 @@ static long long unsigned int calculate_honeycomb_value (EXP_ARRAY *bits)
    0          3
     \        /
      5------4    */
-void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples, double dScale)
+void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples)
   {
   HONEYCOMB *hcCalc = NULL ;
   int Nix ;
@@ -249,16 +249,16 @@ void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples, double dScal
   for (Nix = hc->arHCs->icUsed - 1 ; Nix > -1 ; Nix--)
     {
     hcCalc = &(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix)) ;
-    icSlopePixels = (int)(((hc->graph_data.cyGiven * (1.0 - 2.0 * MIN_MAX_OFFSET)) / 2.0) * cos (HONEYCOMB_ANGLE)) /** dScale*/ ;
+    icSlopePixels = (int)(((hc->graph_data.cyGiven * (1.0 - 2.0 * MIN_MAX_OFFSET)) / 2.0) * cos (HONEYCOMB_ANGLE)) ;
 
-    hcCalc->pts[0].x = ((double)(hcCalc->idxBeg * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) /** dScale*/ ;
-    hcCalc->pts[3].x = ((double)(hcCalc->idxEnd * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) /** dScale*/ ;
+    hcCalc->pts[0].x = ((double)(hcCalc->idxBeg * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) ;
+    hcCalc->pts[3].x = ((double)(hcCalc->idxEnd * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) ;
     hcCalc->pts[0].y =
     hcCalc->pts[3].y = hc->graph_data.cyGiven >> 1 ;
     hcCalc->pts[1].x =
-    hcCalc->pts[5].x = (hcCalc->pts[0].x + icSlopePixels) /** dScale*/ ;
+    hcCalc->pts[5].x = (hcCalc->pts[0].x + icSlopePixels) ;
     hcCalc->pts[2].x =
-    hcCalc->pts[4].x = (hcCalc->pts[3].x - icSlopePixels) /** dScale*/ ;
+    hcCalc->pts[4].x = (hcCalc->pts[3].x - icSlopePixels) ;
     hcCalc->pts[1].y =
     hcCalc->pts[2].y = hc->graph_data.cyGiven * MIN_MAX_OFFSET ;
     hcCalc->pts[4].y =
@@ -285,7 +285,7 @@ int calculate_honeycomb_cxWanted (HONEYCOMB_DATA *hc, int icSamples, int base)
   }
 #endif /* def GTK_GUI */
 
-void calculate_waveform_coords (WAVEFORM_DATA *wf, int icSamples, double dScale)
+void calculate_waveform_coords (WAVEFORM_DATA *wf, int icSamples)
   {
   double dxInc = 0.0, dyInc = 0.0 ;
   GdkPoint pt1 = {0, 0}, pt2 = {0, 0}, pt3 = {0, 0} ;
@@ -302,7 +302,7 @@ void calculate_waveform_coords (WAVEFORM_DATA *wf, int icSamples, double dScale)
 
   if (dMinTrace == dMaxTrace) return ;
 
-  dxInc = ((double)(wf->graph_data.cxGiven - 1)) / (double)((icSamples)) /** dScale*/ ;
+  dxInc = ((double)(wf->graph_data.cxGiven - 1)) / (double)((icSamples)) ;
   dyInc = ((double)((1 - 2 * MIN_MAX_OFFSET) * wf->graph_data.cyGiven - 1)) / (dMaxTrace - dMinTrace) ;
 
   exp_array_remove_vals (wf->arPoints, 1, 0, wf->arPoints->icUsed) ;

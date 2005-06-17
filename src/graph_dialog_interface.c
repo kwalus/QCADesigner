@@ -135,6 +135,19 @@ void create_graph_dialog (graph_D *dialog)
     (GCallback)btnPrint_clicked,
     dialog) ;
 
+  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
+
+  gtk_toolbar_append_element (
+    GTK_TOOLBAR (toolbar),
+    GTK_TOOLBAR_CHILD_BUTTON,
+    NULL,
+    _("Reset Zoom"),
+    _("Un-stretch Traces"),
+    _("Reset the stretch on the traces"),
+    gtk_image_new_from_stock (GTK_STOCK_ZOOM_100, GTK_ICON_SIZE_LARGE_TOOLBAR),
+    (GCallback)btnZoom100_clicked,
+    dialog) ;
+
   // This will separate the layers combo from the clocks combo
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
 

@@ -878,6 +878,9 @@ void create_main_window (main_W *main_window){
 // Set up accelerators for the various menu items                                   ////
 ////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef STDIO_FILEIO
+  gtk_widget_add_accelerator (save_as_menu_item,                 "activate", GTK_ACCEL_GROUP (accel_group), GDK_s,      GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+#endif /* def STDIO_FILEIO */
 #ifdef UNDO_REDO
   gtk_widget_add_accelerator (main_window->undo_menu_item,       "activate", GTK_ACCEL_GROUP (accel_group), GDK_z,      GDK_CONTROL_MASK,                  GTK_ACCEL_VISIBLE);
   gtk_widget_add_accelerator (main_window->redo_menu_item,       "activate", GTK_ACCEL_GROUP (accel_group), GDK_z,      GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);

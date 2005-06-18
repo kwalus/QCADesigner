@@ -1451,8 +1451,9 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
-  dialog->adjDotDiam = GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 100, 1, 10, 10)) ;
-  spn = gtk_spin_button_new_infinite (dialog->adjDotDiam, 1, 0, ISB_DIR_UP) ;
+  dialog->adjDotDiam = GTK_ADJUSTMENT (gtk_adjustment_new (0.0001, 0.0001, 100, 1, 10, 10)) ;
+  spn = gtk_spin_button_new_infinite (dialog->adjDotDiam, 1, 4, ISB_DIR_UP) ;
+  g_object_set (G_OBJECT (spn), "snap-to-ticks", FALSE, "update-policy", GTK_UPDATE_IF_VALID, NULL) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (tbl), spn, 1, 2, 2, 3,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),

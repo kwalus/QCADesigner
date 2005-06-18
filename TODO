@@ -1,5 +1,12 @@
 ////////////// QCADesigner TODO /////////////////
 
+[ ] Graph dialog time reference
+[ ] Ability to input dec and hex into the vector table
+[ ] Fork off a process to wait for the previewer and then delete the temp file, in case the previewer
+    survives us
+
+2.0.1
+=============================================================================================================
 [X] Sub-nanometer cell sizes (via more digits and non-snap-to-tics in spin button)
 [X] Ctrl+Shift+S == Save As
 [X] show_graph_dialog (char *pszSimOutputFName) ;
@@ -8,10 +15,6 @@
 [X] Both honeycomb and waveform drawing areas get created the same way - factor out the code
 [X] Move the pixmap registration code out of main.c so other gtk targets can benefit from it.
 [X] Ability to horizontally stretch traces
-[ ] Graph dialog time reference
-[ ] Ability to input dec and hex into the vector table
-[ ] Fork off a process to wait for the previewer and then delete the temp file, in case the previewer
-    survives us
 
 2.0.0
 =============================================================================================================

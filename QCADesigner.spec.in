@@ -42,6 +42,14 @@ make DESTDIR=%buildroot install
 
 %changelog
 * Fri May 27 2005 Gabriel Schulhof <schulhof@atips.ca>
+- Version 2.0.1
+- Sub-nanometer cell sizes (via more digits and non-snap-to-tics in spin button)
+- Ctrl+Shift+S == Save As
+- Set file selection dialog to a more sensible default
+- Both honeycomb and waveform drawing areas get created the same way - factor out the code
+- Move the pixmap registration code out of main.c so other gtk targets can benefit from it.
+- Ability to horizontally stretch traces
+* Fri May 27 2005 Gabriel Schulhof <schulhof@atips.ca>
 - Packaging version 2.0.0
 * Sat Oct 11 2003 Gabriel Schulhof <schulhof@atips.ca> 
 - added RPM support

@@ -892,6 +892,9 @@ msgstr ""
 msgid "Upper Threshold [1]:"
 msgstr ""
 
+msgid "Usage: %s <simulation results file>\n"
+msgstr ""
+
 msgid "Vector Table"
 msgstr ""
 

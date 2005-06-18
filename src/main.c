@@ -97,11 +97,6 @@ int main (int argc, char *argv[])
 #endif /* ifdef WIN32 */
 
   gtk_preamble (&argc, &argv) ;
-#ifdef ENABLE_NLS
-  bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-  textdomain (PACKAGE);
-#endif
-  gtk_set_locale ();
 
   wndAbout = show_about_dialog (&(main_window.main_window), TRUE) ;
 

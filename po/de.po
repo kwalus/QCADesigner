@@ -901,6 +901,9 @@ msgstr "Namenlose Ebene"
 msgid "Upper Threshold [1]:"
 msgstr "Oberer Grenzwert [1]:"
 
+msgid "Usage: %s <simulation results file>\n"
+msgstr "Aufruf: %s <Simulationresultatendatei>\n"
+
 msgid "Vector Table"
 msgstr "Vektortabelle"
 

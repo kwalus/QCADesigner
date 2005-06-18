@@ -16,7 +16,7 @@ doc_DATA = \
 qcasample_DATA = \
   sample.qca
 
-app_DATA = QCADesigner.desktop
+app_DATA = QCADesigner.desktop graph_dialog.desktop
 
 EXTRA_DIST = $(doc_DATA) $(app_DATA)
 
@@ -30,6 +30,7 @@ squeaky : distclean
 	docs/Makefile.in \
 	pixmaps/Makefile.in \
 	QCADesigner.desktop \
+	graph_dialog.desktop \
 	QCADesigner-win32.iss \
 	po/Makefile po/Makefile.in po/Makefile.in.in \
 	po/POTFILES po/*.gmo `find | grep '.#'` *~

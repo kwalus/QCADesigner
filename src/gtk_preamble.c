@@ -181,6 +181,11 @@ void gtk_preamble (int *pargc, char ***pargv)
   add_stock_icon ("q_cell_pan.png",         QCAD_STOCK_PAN) ;
   add_stock_icon ("ruler.png",              QCAD_STOCK_MEASURE) ;
 #endif
+#ifdef ENABLE_NLS
+  bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+  textdomain (PACKAGE);
+#endif
+  gtk_set_locale ();
   }
 
 #endif /* def GTK_GUI */

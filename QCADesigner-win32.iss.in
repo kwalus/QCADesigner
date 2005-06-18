@@ -46,8 +46,11 @@ Source: "@prefix@\*"; DestDir: "{app}"; Flags: recursesubdirs
 
 [Icons]
 Name: "{group}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
+Name: "{group}\Simulation Results Viewer"; Filename: "{app}\bin\graph_dialog.exe"; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
 Name: "{userdesktop}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
+
 Name: "{group}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.ico"; MinVersion: 1, 0
+Name: "{group}\Simulation Results Viewer"; Filename: "{app}\bin\graph_dialog.exe"; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.ico"; MinVersion: 1, 0
 Name: "{userdesktop}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.ico"; MinVersion: 1, 0
 
 [Code]

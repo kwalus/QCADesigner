@@ -415,7 +415,6 @@ static void PlaceRuler (print_graph_OP *pPO, PAGES *pPages, simulation_data *sim
     dxRulerTop = TRACE_HEADER_WIDTH + GAP_HEIGHT + TRACE_GAP_HEIGHT,
     dyRulerTop = dcyEffective - RULER_HEIGHT,
     dxRulerBot = dcxEffective - TRACE_GAP_HEIGHT,
-    dyRulerBot = dcyEffective,
     dcxRuler = dxRulerBot - dxRulerTop ;
 
   // Main ruler line

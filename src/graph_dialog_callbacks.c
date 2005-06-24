@@ -228,7 +228,6 @@ gboolean honeycomb_expose (GtkWidget *widget, GdkEventExpose *event, gpointer da
   GRAPH_DIALOG_DATA *gdd = (GRAPH_DIALOG_DATA *)data ;
   int cx, cy, cxText, cyText ;
   HONEYCOMB *hcCur = NULL ;
-  int xCur = 0 ;
   char *psz = NULL ;
 
   if (NULL == hc) return FALSE ;
@@ -244,55 +243,56 @@ gboolean honeycomb_expose (GtkWidget *widget, GdkEventExpose *event, gpointer da
   gdk_gc_set_foreground (gc, &(hc->graph_data.clr)) ;
   gdk_gc_set_background (gc, &(hc->graph_data.clr)) ;
 
-  if (0 == hc->arHCs->icUsed)
-    gdk_draw_line (widget->window, gc, 0, cy >> 1, cx, cy >> 1) ;
-  else
+  gdk_draw_line (widget->window, gc, 0, cy >> 1, cx, cy >> 1) ;
+  if (hc->arHCs->icUsed > 0)
     {
     for (Nix = 0 ; Nix < hc->arHCs->icUsed ; Nix++)
       {
       hcCur = &(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix)) ;
-      xCur += gdd->xOffset ;
-      hcCur->pts[0].x += gdd->xOffset ;
-      if ((xCur >= 0 && xCur <= cx) || (hcCur->pts[0].x >= 0 && xCur <= cx))
-        // Need gdk_draw_line_in_rect
-        gdk_draw_line (widget->window, gc, xCur, hcCur->pts[0].y, hcCur->pts[0].x, hcCur->pts[0].y) ;
-      xCur -= gdd->xOffset ;
-      hcCur->pts[0].x -= gdd->xOffset ;
-
       hcCur->pts[0].x += gdd->xOffset ;
       hcCur->pts[1].x += gdd->xOffset ;
       hcCur->pts[2].x += gdd->xOffset ;
       hcCur->pts[3].x += gdd->xOffset ;
       hcCur->pts[4].x += gdd->xOffset ;
       hcCur->pts[5].x += gdd->xOffset ;
+      }
 
+    for (Nix = 0 ; Nix < hc->arHCs->icUsed ; Nix++)
+      {
+      hcCur = &(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix)) ;
       if (RECT_INTERSECT_RECT (0, 0, cx, cy, hcCur->pts[0].x, 0, hcCur->pts[3].x - hcCur->pts[0].x + 1, cy))
-        {
-        gdk_gc_set_foreground (gc, clr_idx_to_clr_struct (HONEYCOMB_BACKGROUND)) ;
-        gdk_gc_set_background (gc, clr_idx_to_clr_struct (HONEYCOMB_BACKGROUND)) ;
-        gdk_draw_polygon (widget->window, gc, TRUE, hcCur->pts, 6) ;
-        gdk_gc_set_foreground (gc, &(hc->graph_data.clr)) ;
-        gdk_gc_set_background (gc, &(hc->graph_data.clr)) ;
-        get_string_dimensions (psz = strdup_convert_to_base (hcCur->value, gdd->base), FONT_STRING, &cxText, &cyText) ;
-        draw_string (widget->window, gc, FONT_STRING,
-          (hcCur->pts[3].x + hcCur->pts[0].x - cxText) >> 1,
-          (hcCur->pts[1].y + hcCur->pts[4].y - cyText) >> 1, psz) ;
-        g_free (psz) ;
-        gdk_draw_polygon (widget->window, gc, FALSE, hcCur->pts, 6) ;
-        }
+        break ;
+      }
 
+    for (; Nix < hc->arHCs->icUsed ; Nix++)
+      {
+      hcCur = &(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix)) ;
+      if (!RECT_INTERSECT_RECT (0, 0, cx, cy, hcCur->pts[0].x, 0, hcCur->pts[3].x - hcCur->pts[0].x + 1, cy))
+        break ;
+
+      gdk_gc_set_foreground (gc, clr_idx_to_clr_struct (HONEYCOMB_BACKGROUND)) ;
+      gdk_gc_set_background (gc, clr_idx_to_clr_struct (HONEYCOMB_BACKGROUND)) ;
+      gdk_draw_polygon (widget->window, gc, TRUE, hcCur->pts, 6) ;
+      gdk_gc_set_foreground (gc, &(hc->graph_data.clr)) ;
+      gdk_gc_set_background (gc, &(hc->graph_data.clr)) ;
+      get_string_dimensions (psz = strdup_convert_to_base (hcCur->value, gdd->base), FONT_STRING, &cxText, &cyText) ;
+      draw_string (widget->window, gc, FONT_STRING,
+        (hcCur->pts[3].x + hcCur->pts[0].x - cxText) >> 1,
+        (hcCur->pts[1].y + hcCur->pts[4].y - cyText) >> 1, psz) ;
+      g_free (psz) ;
+      gdk_draw_polygon (widget->window, gc, FALSE, hcCur->pts, 6) ;
+      }
+
+    for (Nix = 0 ; Nix < hc->arHCs->icUsed ; Nix++)
+      {
+      hcCur = &(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix)) ;
       hcCur->pts[0].x -= gdd->xOffset ;
       hcCur->pts[1].x -= gdd->xOffset ;
       hcCur->pts[2].x -= gdd->xOffset ;
       hcCur->pts[3].x -= gdd->xOffset ;
       hcCur->pts[4].x -= gdd->xOffset ;
       hcCur->pts[5].x -= gdd->xOffset ;
-
-      xCur = hcCur->pts[3].x ;
       }
-    gdk_draw_line (widget->window, gc,
-      xCur + gdd->xOffset, hcCur->pts[3].y,
-      hc->graph_data.cxGiven + gdd->xOffset, hcCur->pts[3].y) ;
     }
 
   g_object_unref (gc) ;
@@ -475,7 +475,7 @@ void btnOpen_clicked (GtkWidget *widget, gpointer user_data)
     }
 
   g_object_set_data_full (G_OBJECT (dialog->dialog), "graph_dialog_data",
-    gdd = graph_dialog_data_new (sim_output->sim_data, sim_output->bus_layout, TRUE, dThreshLower, dThreshUpper, base),
+    gdd = graph_dialog_data_new (sim_output, TRUE, dThreshLower, dThreshUpper, base),
     (GDestroyNotify)graph_dialog_data_free) ;
 
   apply_graph_dialog_data (dialog, gdd) ;

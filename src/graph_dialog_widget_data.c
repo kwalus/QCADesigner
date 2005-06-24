@@ -245,14 +245,15 @@ void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples)
   HONEYCOMB *hcCalc = NULL ;
   int Nix ;
   int icSlopePixels = 0 ;
+  double pt0x, pt3x ;
 
   for (Nix = hc->arHCs->icUsed - 1 ; Nix > -1 ; Nix--)
     {
     hcCalc = &(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix)) ;
     icSlopePixels = (int)(((hc->graph_data.cyGiven * (1.0 - 2.0 * MIN_MAX_OFFSET)) / 2.0) * cos (HONEYCOMB_ANGLE)) ;
 
-    hcCalc->pts[0].x = ((double)(hcCalc->idxBeg * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) ;
-    hcCalc->pts[3].x = ((double)(hcCalc->idxEnd * hc->graph_data.cxGiven)) / ((double)(icSamples - 1)) ;
+    hcCalc->pts[0].x = (pt0x = (((double)(((double)(hcCalc->idxBeg)) * ((double)(hc->graph_data.cxGiven)))) / ((double)(icSamples - 1)))) ;
+    hcCalc->pts[3].x = (pt3x = (((double)(((double)(hcCalc->idxEnd)) * ((double)(hc->graph_data.cxGiven)))) / ((double)(icSamples - 1)))) ;
     hcCalc->pts[0].y =
     hcCalc->pts[3].y = hc->graph_data.cyGiven >> 1 ;
     hcCalc->pts[1].x =
@@ -281,7 +282,7 @@ int calculate_honeycomb_cxWanted (HONEYCOMB_DATA *hc, int icSamples, int base)
   get_string_dimensions (psz, FONT_STRING, &cxText, &cyText) ;
   g_free (psz) ;
   cxText += ceil (cyText * cos (HONEYCOMB_ANGLE)) ;
-  return (int)ceil (((double)(hc->arHCs->icUsed * cxText * icSamples)) / ((double)hc->icHCSamples)) ;
+  return (int)ceil (((((double)(hc->arHCs->icUsed)) * ((double)cxText) * ((double)icSamples))) / ((double)hc->icHCSamples)) ;
   }
 #endif /* def GTK_GUI */
 

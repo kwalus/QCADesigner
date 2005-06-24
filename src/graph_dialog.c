@@ -39,7 +39,7 @@
 
 static graph_D graph = {NULL} ;
 
-void show_graph_dialog (GtkWindow *parent, simulation_data *sim_data, BUS_LAYOUT *bus_layout, gboolean bOKToFree, gboolean bModal)
+void show_graph_dialog (GtkWindow *parent, SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, gboolean bModal)
   {
   int base = 10 ;
   GRAPH_DIALOG_DATA *gdd = NULL ;
@@ -58,7 +58,7 @@ void show_graph_dialog (GtkWindow *parent, simulation_data *sim_data, BUS_LAYOUT
     }
 
   g_object_set_data_full (G_OBJECT (graph.dialog), "graph_dialog_data",
-    gdd = graph_dialog_data_new (sim_data, bus_layout, bOKToFree, dThreshLower, dThreshUpper, base),
+    gdd = graph_dialog_data_new (sim_output, bOKToFree, dThreshLower, dThreshUpper, base),
     (GDestroyNotify)graph_dialog_data_free) ;
 
   apply_graph_dialog_data (&graph, gdd) ;

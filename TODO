@@ -8,9 +8,18 @@
 [ ] Ability to input dec and hex into the vector table
 [ ] Fork off a process to wait for the previewer and then delete the temp file, 
     in case the previewer survives us
+[ ] Print dialog: list of strings representing font names to be used
 
 2.0.1
 ================================================================================
+[X] Does -P have to be present after co in CVS commands ? No.
+[X] Line up exhaustive vs. exhaustive vector table simulation results
+[X] Open 4_bit_adder, delete everything past and including the adders, simulate:
+    segfault.
+[X] Selection anchor (when copying?) is chosen "arbitrarily".
+[X] Fix sim results printout such that honeycomb and waveform trace headers have
+    identical widths.
+[X] Draw only visible honeycombs
 [X] Separate simulation results viewer tool
 [X] Sub-nanometer cell sizes (via more digits and non-snap-to-tics in spin 
     button)

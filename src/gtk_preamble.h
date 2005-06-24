@@ -31,7 +31,7 @@
 #ifdef GTK_GUI
 #include "support.h"
 
-void gtk_preamble (int *pargc, char ***pargv) ;
+void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName) ;
 #endif /* def GTK_GUI */
 
 #endif /* def _GTK_PREAMBLE_H_ */

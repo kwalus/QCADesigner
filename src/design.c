@@ -663,6 +663,8 @@ gboolean design_unserialize (DESIGN **pdesign, FILE *pfile)
       set_progress_bar_fraction (get_file_percent (pfile)) ;
       if (NULL != (layer = QCAD_LAYER (qcad_design_object_new_from_stream (pfile))))
         {
+        g_signal_connect (G_OBJECT (layer), "added",   (GCallback)qcad_layer_design_object_added,   (*pdesign)) ;
+        g_signal_connect (G_OBJECT (layer), "removed", (GCallback)qcad_layer_design_object_removed, (*pdesign)) ;
         (*pdesign)->lstLayers = g_list_prepend ((*pdesign)->lstLayers, layer) ;
         if (NULL == (*pdesign)->lstLastLayer)
           (*pdesign)->lstLastLayer = (*pdesign)->lstLayers ;
@@ -1276,11 +1278,13 @@ static void cell_function_changed (QCADCell *cell, DESIGN *design)
 static void design_rebuild_io_lists (DESIGN *design)
   {
   GList *llItrLayers = NULL, *llItrCells = NULL ;
-  int *pidx = NULL ;
+  int *pidx = NULL, *pNew = NULL ;
   EXP_ARRAY *io_list = NULL ;
   int idxIn = 0, idxOut = 0 ;
   int icInputsUsed  = 0 ;
   int icOutputsUsed = 0 ;
+  int icNewInputs  = 0 ;
+  int icNewOutputs = 0 ;
   int icOldCellCount = 0 ;
   int Nix, Nix1, Nix2, idx ;
   BUS_LAYOUT_CELL bus_layout_cell = {NULL, FALSE} ;
@@ -1304,14 +1308,17 @@ static void design_rebuild_io_lists (DESIGN *design)
 	            {
 	            pidx = &idxIn ;
 	            io_list = design->bus_layout->inputs ;
+              pNew = &icNewInputs ;
 	            }
 	          else
 	            {
 	            pidx = &idxOut ;
 	            io_list = design->bus_layout->outputs ;
+              pNew = &icNewOutputs ;
 	            }
             bus_layout_cell.cell = llItrCells->data ;
 	          exp_array_insert_vals (io_list, &bus_layout_cell, 1, 1, (*pidx)++) ;
+            (*pNew)++ ;
 	          }
           }
 
@@ -1342,16 +1349,20 @@ static void design_rebuild_io_lists (DESIGN *design)
 	        }
 
       if (Nix2 == io_list->icUsed)
-        {
-      	// We should never get here - if we do, it'll cause a segfault - good !
-        fprintf (stderr, "design_rebuild_io_lists:Warning:Setting a bus cell index to -1!\n") ;
       	exp_array_remove_vals (bus->cell_indices, 1, Nix1--, 1) ;
-        }
+      }
+    if (0 == bus->cell_indices->icUsed)
+      {
+      g_free (bus->pszName) ;
+      exp_array_free (bus->cell_indices) ;
+      exp_array_remove_vals (design->bus_layout->buses, 1, Nix--, 1) ;
       }
     }
 
-  exp_array_remove_vals (design->bus_layout->inputs,  1, 0, icInputsUsed) ;
-  exp_array_remove_vals (design->bus_layout->outputs, 1, 0, icOutputsUsed) ;
+  if (icInputsUsed > 0)
+    exp_array_remove_vals (design->bus_layout->inputs,  1, 0, icInputsUsed) ;
+  if (icOutputsUsed > 0)
+    exp_array_remove_vals (design->bus_layout->outputs, 1, 0, icOutputsUsed) ;
 
   for (Nix = 0 ; Nix < design->bus_layout->buses->icUsed ; Nix++)
     {

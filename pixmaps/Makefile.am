@@ -43,6 +43,19 @@ pixmap_DATA = \
 	graph_data_dec.svg \
 	graph_data_hex.png \
 	graph_data_hex.svg \
+	graph_dialog.ico \
+	graph_dialog.svg \
+	graph_dialog.win32.ico \
+	graph_dialog.winxp.ico \
+	graph_dialog_0_48x48x24a.png \
+	graph_dialog_1_32x32x24a.png \
+	graph_dialog_2_16x16x24a.png \
+	graph_dialog_3_48x48x24.png \
+	graph_dialog_4_32x32x24.png \
+	graph_dialog_5_16x16x24.png \
+	graph_dialog_6_48x48x8.png \
+	graph_dialog_7_32x32x8.png \
+	graph_dialog_8_16x16x8.png \
 	label.png \
 	landscape.png \
 	no_center_on_pages.png \

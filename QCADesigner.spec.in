@@ -34,8 +34,7 @@ make DESTDIR=%buildroot install
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog CurrentVerChangeLog INSTALL README TODO docs/manual
 
-/usr/bin/QCADesigner
-/usr/bin/batch_sim
+/usr/bin/*
 /usr/share/QCADesigner
 /usr/share/locale/*/LC_MESSAGES/@PACKAGE@.mo
 /usr/share/applications/*.desktop

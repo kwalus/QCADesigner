@@ -41,7 +41,8 @@
 
 #define GAP_HEIGHT 10
 #define TRACE_GAP_HEIGHT 5
-#define TRACE_HEADER_WIDTH 180
+#define TRACE_HEADER_WIDTH 120.0
+#define FONT "Helvetica"
 
 #define GAP_PERCENT 0.01
 #define TRACE_GAP_PERCENT 0.005
@@ -189,7 +190,7 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
     "  stroke\n"
     "  newpath\n"
     "  xL xR add 2 div yMid moveto\n"
-    "  (Courier) findfont labelfontsize scalefont setfont\n"
+    "  (" FONT ") findfont labelfontsize scalefont setfont\n"
     "  label labelfontsize txtcm\n"
     "  stroke\n"
     "  grestore\n"
@@ -343,7 +344,7 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
   psz = g_strdup_printf (
     "gsave\n"
     "newpath\n"
-    "(Courier) findfont labelfontsize scalefont setfont\n"
+    "(" FONT ") findfont labelfontsize scalefont setfont\n"
     "%lf %lf moveto\n"
     "(%s) labelfontsize txtct\n"
     "stroke\n"
@@ -488,7 +489,7 @@ static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEff
     "%s %s\n"
     "newpath\n"
     "%lf %lf moveto\n"
-    "(Courier) findfont %d scalefont setfont\n"
+    "(" FONT ") findfont %d scalefont setfont\n"
     "(%s) %d %s\n"
     "stroke\n"
     "grestore\n",
@@ -510,7 +511,7 @@ static void PlaceSingleBusTrace (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_D
   {
   HONEYCOMB *hc = NULL ;
   double
-    dcxTraceHeader = 108.0, // points
+    dcxTraceHeader = TRACE_HEADER_WIDTH, // points
     dyTraceTop = idx * (GAP_HEIGHT + dcyTrace) + (FONT_SIZE + GAP_HEIGHT),
     dxMin = dcxTraceHeader + GAP_HEIGHT + TRACE_GAP_HEIGHT,
     dyMin = dyTraceTop + dcyTrace - TRACE_GAP_HEIGHT,

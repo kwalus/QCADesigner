@@ -2,7 +2,7 @@
 Comment=QCA-based circuit designer and simulator
 Name=QCADesigner
 Exec=QCADesigner %f
-Icon=/usr/share/QCADesigner/pixmaps/@ICON@
+Icon=/usr/share/QCADesigner/pixmaps/QCADesigner@ICON_EXT@
 Type=Application
 Terminal=0
 MapNotify=false

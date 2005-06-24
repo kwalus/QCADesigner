@@ -41,7 +41,7 @@
 #include "graph_dialog_interface.h"
 #include "graph_dialog_data.h"
 
-void show_graph_dialog (GtkWindow *parent, simulation_data *sim_data, BUS_LAYOUT *bus_layout, gboolean bOKToFree, gboolean bModal) ;
+void show_graph_dialog (GtkWindow *parent, SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, gboolean bModal) ;
 
 void apply_graph_dialog_data (graph_D *dialog, GRAPH_DIALOG_DATA *dialog_data) ;
 

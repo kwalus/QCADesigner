@@ -537,6 +537,53 @@ void set_ruler_scale (GtkRuler *ruler, double dLower, double dUpper)
     }
   }
 #endif /* WIN32 => Don't set_ruler_scale */
+
+void set_window_icon (GtkWindow *window, char *pszBaseName)
+  {
+  // Our windows will get icons from this list
+  char *psz = NULL ;
+  GList *icon_list = NULL ;
+#ifdef HAVE_LIBRSVG
+  gchar *pszIconFile = NULL ;
+#endif
+#ifdef HAVE_LIBRSVG
+  pszIconFile = find_pixmap_file (psz = g_strdup_printf ("%s.svg", pszBaseName)) ;
+  g_free (psz) ;
+  if (!((NULL == window)
+    ? gtk_window_set_default_icon_from_file (pszIconFile, NULL)
+    : gtk_window_set_icon_from_file (window, pszIconFile, NULL)))
+    {
+#endif
+    icon_list = g_list_append (icon_list, create_pixbuf (psz = g_strdup_printf ("%s_8_16x16x8.png", pszBaseName))) ;
+    g_free (psz) ;
+    icon_list = g_list_append (icon_list, create_pixbuf (psz = g_strdup_printf ("%s_7_32x32x8.png", pszBaseName))) ;
+    g_free (psz) ;
+    icon_list = g_list_append (icon_list, create_pixbuf (psz = g_strdup_printf ("%s_6_48x48x8.png", pszBaseName))) ;
+    g_free (psz) ;
+    icon_list = g_list_append (icon_list, create_pixbuf (psz = g_strdup_printf ("%s_5_16x16x24.png", pszBaseName))) ;
+    g_free (psz) ;
+    icon_list = g_list_append (icon_list, create_pixbuf (psz = g_strdup_printf ("%s_4_32x32x24.png", pszBaseName))) ;
+    g_free (psz) ;
+    icon_list = g_list_append (icon_list, create_pixbuf (psz = g_strdup_printf ("%s_3_48x48x24.png", pszBaseName))) ;
+    g_free (psz) ;
+    icon_list = g_list_append (icon_list, create_pixbuf (psz = g_strdup_printf ("%s_2_16x16x24a.png", pszBaseName))) ;
+    g_free (psz) ;
+    icon_list = g_list_append (icon_list, create_pixbuf (psz = g_strdup_printf ("%s_1_32x32x24a.png", pszBaseName))) ;
+    g_free (psz) ;
+    icon_list = g_list_append (icon_list, create_pixbuf (psz = g_strdup_printf ("%s_0_48x48x24a.png", pszBaseName))) ;
+    g_free (psz) ;
+    if (NULL == window)
+      gtk_window_set_default_icon_list (icon_list) ;
+    else
+      gtk_window_set_icon_list (window, icon_list) ;
+    g_list_free (icon_list) ;
+#ifdef HAVE_LIBRSVG
+    }
+
+  g_free (pszIconFile) ;
+#endif
+  }
+
 #endif /* def GTK_GUI */
 
 GdkColor *clr_idx_to_clr_struct (int clr_idx)

@@ -30,15 +30,15 @@
 #include "support.h"
 #include "gtk_preamble.h"
 #include "qcadstock.h"
+#include "global_consts.h"
+#include "custom_widgets.h"
 
-void gtk_preamble (int *pargc, char ***pargv)
+#ifdef NO_CONSOLE
+static void my_logger (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer user_data) ;
+#endif /* def NO_CONSOLE */
+
+void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   {
-  // Our windows will get icons from this list
-  GList *icon_list = NULL ;
-#ifdef HAVE_LIBRSVG
-  gchar *pszIconFile = NULL ;
-#endif
-
 #ifdef WIN32
   char *psz = NULL, *pszModuleFName = NULL, szBuf[MAX_PATH] = "" ;
   int Nix ;
@@ -103,27 +103,8 @@ void gtk_preamble (int *pargc, char ***pargv)
 #endif /* ifdef NO_CONSOLE */
 #endif /* ifdef WIN32 */
 
-#ifdef HAVE_LIBRSVG
-  pszIconFile = find_pixmap_file ("QCADesigner.svg") ;
-  if (!gtk_window_set_default_icon_from_file (pszIconFile, NULL))
-    {
-#endif
-    icon_list = g_list_append (icon_list, create_pixbuf ("QCADesigner_8_16x16x8.png")) ;
-    icon_list = g_list_append (icon_list, create_pixbuf ("QCADesigner_7_32x32x8.png")) ;
-    icon_list = g_list_append (icon_list, create_pixbuf ("QCADesigner_6_48x48x8.png")) ;
-    icon_list = g_list_append (icon_list, create_pixbuf ("QCADesigner_5_16x16x24.png")) ;
-    icon_list = g_list_append (icon_list, create_pixbuf ("QCADesigner_4_32x32x24.png")) ;
-    icon_list = g_list_append (icon_list, create_pixbuf ("QCADesigner_3_48x48x24.png")) ;
-    icon_list = g_list_append (icon_list, create_pixbuf ("QCADesigner_2_16x16x24a.png")) ;
-    icon_list = g_list_append (icon_list, create_pixbuf ("QCADesigner_1_32x32x24a.png")) ;
-    icon_list = g_list_append (icon_list, create_pixbuf ("QCADesigner_0_48x48x24a.png")) ;
-    gtk_window_set_default_icon_list (icon_list) ;
-    g_list_free (icon_list) ;
-#ifdef HAVE_LIBRSVG
-    }
+  set_window_icon (NULL, pszBaseName) ;
 
-  g_free (pszIconFile) ;
-#endif
   add_stock_icon ("drawing_layer.png",      QCAD_STOCK_DRAWING_LAYER) ;
   add_stock_icon ("clocks_layer.png",       QCAD_STOCK_CLOCKING_LAYER) ;
   add_stock_icon ("cells_layer.png",        QCAD_STOCK_CELL_LAYER) ;
@@ -188,4 +169,11 @@ void gtk_preamble (int *pargc, char ***pargv)
   gtk_set_locale ();
   }
 
+#ifdef NO_CONSOLE
+static void my_logger (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer user_data)
+  {
+  // Handle log messages here
+  // This logger ignores all messages, so as not to produce a console window
+  }
+#endif /* ifdef NO_CONSOLE */
 #endif /* def GTK_GUI */

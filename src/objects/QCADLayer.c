@@ -556,10 +556,20 @@ void qcad_layer_dump (QCADLayer *layer, FILE *pfile)
       {
       if (LAYER_TYPE_CELLS == layer->type)
         {
-        if (NULL != lstObj->next)
-          fprintf (pfile, "|[%.2lf,%.2lf]|0x%08X|->", QCAD_DESIGN_OBJECT (lstObj->data)->x, QCAD_DESIGN_OBJECT (lstObj->data)->y, (int)(lstObj->next)) ;
+        if (NULL != lstObj->data)
+          {
+          if (NULL != lstObj->next)
+            fprintf (pfile, "|[%.2lf,%.2lf]|0x%08X|->", QCAD_DESIGN_OBJECT (lstObj->data)->x, QCAD_DESIGN_OBJECT (lstObj->data)->y, (int)(lstObj->next)) ;
+          else
+            fprintf (pfile, "|[%.2lf,%.2lf]|0x%08X|\n", QCAD_DESIGN_OBJECT (lstObj->data)->x, QCAD_DESIGN_OBJECT (lstObj->data)->y, (int)(lstObj->next)) ;
+          }
         else
-          fprintf (pfile, "|[%.2lf,%.2lf]|0x%08X|\n", QCAD_DESIGN_OBJECT (lstObj->data)->x, QCAD_DESIGN_OBJECT (lstObj->data)->y, (int)(lstObj->next)) ;
+          {
+          if (NULL != lstObj->next)
+            fprintf (pfile, "|0x%08X|0x%08X|->", (int)(lstObj->data), (int)(lstObj->next)) ;
+          else
+            fprintf (pfile, "|0x%08X|0x%08X|\n", (int)(lstObj->data), (int)(lstObj->next)) ;
+          }
         }
       else
         {

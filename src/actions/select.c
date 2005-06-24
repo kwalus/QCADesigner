@@ -50,6 +50,7 @@ static void clean_extents (GdkWindow *dst, GdkRectangle *rcReal) ;
 
 gboolean button_pressed_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event, gpointer data)
   {
+  QCADDesignObject *objNewSelRef = NULL ;
   project_OP *project_options = (project_OP *)data ;
 
   // If we double-click on an object, bring up its properties
@@ -89,9 +90,17 @@ gboolean button_pressed_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event,
 
   // If we have a sel ref object that means we still haven't dropped our selection, so we cannot start a new
   // selection, nor can we draw a window.
-  if (NULL != objSelRef) return FALSE ;
 
-  if (NULL != (objSelRef = design_selection_hit_test (project_options->design, event->x, event->y)))
+  objNewSelRef = design_selection_hit_test (project_options->design, event->x, event->y) ;
+
+  if (NULL != objSelRef) 
+    {
+    if (NULL != objNewSelRef)
+      objSelRef = objNewSelRef ;
+    return FALSE ;
+    }
+
+  if (NULL != (objSelRef = objNewSelRef))
     {
     bHaveWindow = FALSE ;
 

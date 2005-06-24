@@ -848,12 +848,12 @@ void file_operations (GtkWidget *widget, gpointer user_data)
               fFileOp = FILEOP_AUTOLOAD ;
             else
               {
-              g_free (pszAutoFName) ;
 #ifdef WIN32
               DeleteFile (pszAutoFName) ;
 #else
               unlink (pszAutoFName) ;
 #endif /* def WIN32 */
+              g_free (pszAutoFName) ;
               pszAutoFName = NULL ;
               }
             gtk_widget_hide (msg) ;
@@ -985,7 +985,7 @@ void on_load_output_from_file_menu_item_activate(GtkMenuItem *menuitem, gpointer
   if (NULL != (sim_output = open_simulation_output_file (pszFName)))
     {
     // Give the contents of sim_output to graph_dialog, and allow it to destroy said contents
-    show_graph_dialog (GTK_WINDOW (main_window.main_window), sim_output->sim_data, sim_output->bus_layout, TRUE, FALSE) ;
+    show_graph_dialog (GTK_WINDOW (main_window.main_window), sim_output, TRUE, FALSE) ;
     // Since graph_dialog will destroy the contents of sim_output, we can now free the wrapper shallowly
     g_free (sim_output) ;
     }
@@ -999,6 +999,7 @@ void on_save_output_to_file_menu_item_activate(GtkMenuItem *menuitem, gpointer u
 
   sim_output.sim_data = project_options.sim_data ;
   sim_output.bus_layout = project_options.design->bus_layout ;
+  sim_output.bFakeIOLists = FALSE ;
   DBG_CB_HERE (fprintf (stderr, "Entering on_save_output_to_file_menu_item_activate\n")) ;
 
   if (NULL == project_options.sim_data) { gdk_beep () ; return ; }
@@ -1312,11 +1313,12 @@ void on_start_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer use
 
   if (NULL != project_options.sim_data)
     {
+    SIMULATION_OUTPUT sim_output = {project_options.sim_data, project_options.design->bus_layout, FALSE} ;
     gtk_widget_set_sensitive (GTK_WIDGET (project_options.main_window->show_simulation_results_menu_item), TRUE);
 #ifdef STDIO_FILEIO
     gtk_widget_set_sensitive (GTK_WIDGET (project_options.main_window->save_output_to_file_menu_item), TRUE);
 #endif /* def STDIO_FILEIO */
-    show_graph_dialog (GTK_WINDOW (main_window.main_window), project_options.sim_data, project_options.design->bus_layout, FALSE, FALSE) ;
+    show_graph_dialog (GTK_WINDOW (main_window.main_window), &sim_output, FALSE, FALSE) ;
     }
   }
 
@@ -1328,8 +1330,9 @@ void on_stop_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer user
 
 void on_show_simulation_results_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
+  SIMULATION_OUTPUT sim_output = {project_options.sim_data, project_options.design->bus_layout, FALSE} ;
   DBG_CB_HERE (fprintf (stderr, "Entering on_reset_simulation_menu_item_activate\n")) ;
-  show_graph_dialog (GTK_WINDOW (main_window.main_window), project_options.sim_data, project_options.design->bus_layout, FALSE, FALSE) ;
+  show_graph_dialog (GTK_WINDOW (main_window.main_window), &sim_output, FALSE, FALSE) ;
   }
 
 void on_contents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)

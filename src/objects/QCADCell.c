@@ -654,6 +654,7 @@ static void copy (QCADDesignObject *src, QCADDesignObject *dst)
   cellDst->cell_options.dot_diameter = cellSrc->cell_options.dot_diameter ;
   cellDst->cell_options.mode         = cellSrc->cell_options.mode ;
   cellDst->cell_function             = cellSrc->cell_function ;
+  cellDst->bLabelRemoved             = FALSE ;
   // CAREFUL ! This is a shallow copy of the cell model
   cellDst->cell_model                = cellSrc->cell_model ;
   if (NULL != cellSrc->label)

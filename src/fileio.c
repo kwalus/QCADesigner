@@ -57,6 +57,7 @@ static void unserialize_trace (FILE *pfile, struct TRACEDATA *trace, int icSampl
 static void unserialize_trace_data (FILE *pfile, struct TRACEDATA *trace, int icSamples) ;
 static coherence_OP *open_coherence_options_file_fp (FILE *fp) ;
 static bistable_OP *open_bistable_options_file_fp (FILE *fp) ;
+static void build_io_tables (simulation_data *sim_data, BUS_LAYOUT *bus_layout) ;
 
 static double qcadesigner_version = 2.0 ;
 
@@ -640,6 +641,8 @@ SIMULATION_OUTPUT *open_simulation_output_file_fp (FILE *pfile)
 
   sim_output = g_malloc0 (sizeof (SIMULATION_OUTPUT)) ;
 
+  sim_output->bFakeIOLists = TRUE ;
+
   while (TRUE)
     {
     if (NULL == (pszLine = ReadLine (pfile, '\0', TRUE))) break ;
@@ -672,9 +675,11 @@ SIMULATION_OUTPUT *open_simulation_output_file_fp (FILE *pfile)
     g_free (sim_output) ;
     sim_output = NULL ;
     }
-  else
+
   if (NULL == sim_output->bus_layout)
     sim_output->bus_layout = design_bus_layout_new () ;
+  if (NULL != sim_output->bus_layout)
+    build_io_tables (sim_output->sim_data, sim_output->bus_layout) ;
 
   return sim_output ;
   }
@@ -990,5 +995,35 @@ static void unserialize_trace_data (FILE *pfile, struct TRACEDATA *trace, int ic
 
     g_free (pszLine) ;
     g_free (ReadLine (pfile, '\0', FALSE)) ;
+    }
+  }
+
+static void build_io_tables (simulation_data *sim_data, BUS_LAYOUT *bus_layout)
+  {
+  int Nix, Nix1 ;
+  EXP_ARRAY *cell_list = NULL ;
+  BUS_LAYOUT_CELL blcell = {NULL, FALSE} ;
+  BUS *bus = NULL ;
+
+  if (NULL == bus_layout) return ;
+
+  if (NULL == sim_data) return ;
+
+  for (Nix = 0 ; Nix < sim_data->number_of_traces ; Nix++)
+    {
+    blcell.cell = QCAD_CELL (qcad_cell_new_with_function ((sim_data->trace)[Nix].trace_function, (sim_data->trace)[Nix].data_labels)) ;
+    cell_list = (QCAD_CELL_INPUT == blcell.cell->cell_function) ? bus_layout->inputs : bus_layout->outputs ;
+    exp_array_insert_vals (cell_list, &blcell, 1, 1, -1) ;
+    }
+
+  for (Nix = 0 ; Nix < bus_layout->buses->icUsed ; Nix++)
+    {
+    bus = &(exp_array_index_1d (bus_layout->buses, BUS, Nix)) ;
+    for (Nix1 = 0 ; Nix1 < bus->cell_indices->icUsed ; Nix1++)
+      exp_array_index_1d (
+        (QCAD_CELL_INPUT == bus->bus_function) ?
+          bus_layout->inputs : bus_layout->outputs,
+        BUS_LAYOUT_CELL,
+        exp_array_index_1d (bus->cell_indices, int, Nix1)).bIsInBus = TRUE ;
     }
   }

@@ -319,7 +319,10 @@ void attach_graph_widgets (graph_D *dialog, GtkWidget *table, GtkWidget *trace, 
     TRACE_TABLE_MIN_Y + ((idxTbl + 1) << 1),
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+
   g_signal_connect (G_OBJECT (trace), "expose-event",        (GCallback)graph_widget_one_time_expose, dialog) ;
+
+  set_window_icon (GTK_WINDOW (dialog->dialog), "graph_dialog") ;
   }
 
 gboolean create_graph_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTreeIter *itr)

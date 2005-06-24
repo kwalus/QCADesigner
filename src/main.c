@@ -60,7 +60,6 @@ extern main_W main_window ;
 #ifdef WIN32
 #ifdef NO_CONSOLE
 static char **CmdLineToArgv (char *pszCmdLine, int *pargc) ;
-static void my_logger (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer user_data) ;
 #endif /* ifdef NO_CONSOLE */
 #endif /* ifdef WIN32 */
 
@@ -74,6 +73,10 @@ int main (int argc, char *argv[])
   {
   GtkWindow *wndAbout = NULL ;
 #ifdef WIN32
+  char *psz = NULL ;
+  char *pszModuleFName = NULL ;
+  int argc = 0 ;
+  char **argv ;
   char *pszHomeHDD = getenv ("HOMEDRIVE") ;
   char *pszHomeDIR = getenv ("HOMEPATH") ;
 #ifdef NO_CONSOLE
@@ -96,7 +99,7 @@ int main (int argc, char *argv[])
     putenv ("HOME=.") ;
 #endif /* ifdef WIN32 */
 
-  gtk_preamble (&argc, &argv) ;
+  gtk_preamble (&argc, &argv, "QCADesigner") ;
 
   wndAbout = show_about_dialog (&(main_window.main_window), TRUE) ;
 
@@ -182,11 +185,3 @@ char **CmdLineToArgv (char *pszTmp, int *pargc)
   }
 #endif /* NO_CONSOLE */
 #endif /* ifdef WIN32 */
-
-#ifdef NO_CONSOLE
-static void my_logger (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer user_data)
-  {
-  // Handle log messages here
-  // This logger ignores all messages, so as not to produce a console window
-  }
-#endif /* ifdef NO_CONSOLE */

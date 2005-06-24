@@ -12,7 +12,7 @@ DefaultDirName={pf}\@PACKAGE@
 DefaultGroupName=@PACKAGE@
 LicenseFile=@prefix@\share\doc\@PACKAGE@-@VERSION@\COPYING
 ChangesAssociations=yes
-OutputBaseFilename=@PACKAGE@-@VERSION@-setup
+OutputBaseFilename=@PACKAGE@-@VERSION@-setup-gtk
 
 [Tasks]
 ; NOTE: The following entry contains English phrases ("Create a desktop icon" and "Additional icons"). You are free to translate them into another language if required.
@@ -65,6 +65,7 @@ Root: HKCR; SubKey: "QCADesigner.SimResults.File\shell\Open\command"; ValueType:
 
 [Files]
 Source: "@prefix@\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "@packagesrcdir@\GTK-Runtime-Environment-2.2.4-3.exe"; DestDir: "{tmp}"; Flags: dontcopy
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -91,6 +92,32 @@ begin
    Result := Exists
 end;
 
+function EnsureGtkInstalled ():Boolean;
+  var ExecResult : integer ;
+  var iMsgBox : integer ;
+  begin
+  Result := GetGtkInstalled ();
+  if not Result then
+    iMsgBox := MsgBox('QCADesigner requires GTK+ version 2.0 or higher. Would you like to install it ?', mbConfirmation, MB_YESNO) ;
+    begin
+    if idNo = iMsgBox then
+      begin
+      Result := False ;
+      end;
+    if idYes = iMsgBox then
+      begin
+      ExtractTemporaryFile ('GTK-Runtime-Environment-2.2.4-3.exe');
+      Exec (ExpandConstant ('{tmp}')+'\GTK-Runtime-Environment-2.2.4-3.exe',
+        '', ExpandConstant ('{tmp}'), SW_SHOWNORMAL, ewWaitUntilTerminated, ExecResult) ;
+      Result := GetGtkInstalled ();
+      if not Result then
+        begin
+        MsgBox('Failed to install GTK+ !', mbError, MB_OK);
+        end;
+      end;
+    end;
+  end;
+
 function GetGtkPath (S: String): String;
 begin
     Result := GtkPath;
@@ -98,7 +125,7 @@ end;
 
 function InitializeSetup(): Boolean;
 begin
-  Result := GetGtkInstalled ();
+  Result := EnsureGtkInstalled ();
   if not Result then begin
     MsgBox ('Please install the GTK+ 2.0 Runtime Environment before installing @PACKAGE@.  You can obtain GTK+ from http://www.dropline.net/gtk .', mbError, MB_OK);
   end;

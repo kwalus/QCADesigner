@@ -119,7 +119,7 @@ char *ReadLine (FILE *pfile, char cComment, gboolean bPeek)
   else
   if (!(bFoundHash = (NULL != (pbi = g_hash_table_lookup (hash_table, pfile)))))
     {
-    fprintf (stderr, "Hash not found => peeking will be unavailable\n") ;
+//    fprintf (stderr, "Hash not found => peeking will be unavailable\n") ;
     pbi = &bi ;
     pbi->buffer = exp_array_new (sizeof (char), 1) ;
     }

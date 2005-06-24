@@ -66,6 +66,7 @@ typedef struct
   {
   simulation_data *sim_data ;
   BUS_LAYOUT *bus_layout ;
+  gboolean bFakeIOLists ;
   } SIMULATION_OUTPUT ;
 
 void tracedata_get_min_max (struct TRACEDATA *trace, int idxStart, int idxEnd, double *pdMin, double *pdMax) ;

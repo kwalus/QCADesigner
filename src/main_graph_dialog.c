@@ -10,7 +10,7 @@ int main (int argc, char **argv)
   {
   char *psz = NULL ;
 
-  gtk_preamble (&argc, &argv) ;
+  gtk_preamble (&argc, &argv, "graph_dialog") ;
   SIMULATION_OUTPUT *sim_output = NULL ;
 
   if (1 == argc)
@@ -34,7 +34,7 @@ int main (int argc, char **argv)
   set_file_selection_file_name (psz) ;
   g_free (psz) ;
 
-  show_graph_dialog (NULL, sim_output->sim_data, sim_output->bus_layout, TRUE, TRUE) ;
+  show_graph_dialog (NULL, sim_output, TRUE, TRUE) ;
 
   return 0 ;
   }

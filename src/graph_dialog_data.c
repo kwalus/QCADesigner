@@ -31,25 +31,23 @@
 #include "graph_dialog_interface.h"
 #include "graph_dialog_data.h"
 
-static void build_io_tables (simulation_data *sim_data, BUS_LAYOUT *bus_layout) ;
-
-GRAPH_DIALOG_DATA *graph_dialog_data_new (simulation_data *sim_data, BUS_LAYOUT *bus_layout, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int base)
+GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int base)
   {
   GtkTreeStore *ts = NULL ;
   GtkTreeIter itr ;
   GRAPH_DIALOG_DATA *graph_dialog_data = NULL ;
 
-  if (NULL == sim_data || NULL == bus_layout) return NULL ;
+  if (NULL == sim_output) return NULL ;
+  if (NULL == sim_output->sim_data || NULL == sim_output->bus_layout) return NULL ;
 
   graph_dialog_data = g_malloc0 (sizeof (GRAPH_DIALOG_DATA)) ;
 
-  graph_dialog_data->sim_data        = sim_data ;
-  graph_dialog_data->bus_layout      = bus_layout ;
-  if ((graph_dialog_data->bFakeCells = (0 == bus_layout->inputs->icUsed || 0 == bus_layout->outputs->icUsed)))
-    build_io_tables (sim_data, bus_layout) ;
+  graph_dialog_data->sim_data        = sim_output->sim_data ;
+  graph_dialog_data->bus_layout      = sim_output->bus_layout ;
+  graph_dialog_data->bFakeCells      = sim_output->bFakeIOLists ;
   graph_dialog_data->bFreeSourceData = bOKToFree ;
   graph_dialog_data->model           =
-    GTK_TREE_MODEL (ts = create_bus_layout_tree_store (bus_layout,
+    GTK_TREE_MODEL (ts = create_bus_layout_tree_store (sim_output->bus_layout,
       5, G_TYPE_BOOLEAN, G_TYPE_POINTER, G_TYPE_POINTER, G_TYPE_POINTER, G_TYPE_POINTER)) ;
   graph_dialog_data->dHCThreshLower  = dThreshLower ;
   graph_dialog_data->dHCThreshUpper  = dThreshUpper ;
@@ -135,12 +133,15 @@ void graph_dialog_data_free (GRAPH_DIALOG_DATA *gdd)
       g_object_unref (exp_array_index_1d (gdd->bus_layout->inputs, BUS_LAYOUT_CELL, Nix).cell) ;
     for (Nix = 0 ; Nix < gdd->bus_layout->outputs->icUsed ; Nix++)
       g_object_unref (exp_array_index_1d (gdd->bus_layout->outputs, BUS_LAYOUT_CELL, Nix).cell) ;
+    design_bus_layout_free (gdd->bus_layout) ;
+    gdd->bus_layout = NULL ;
     }
 
   // If it's OK to free the data, free it.
   if (gdd->bFreeSourceData)
     {
-    design_bus_layout_free (gdd->bus_layout) ;
+    if (NULL != gdd->bus_layout)
+      design_bus_layout_free (gdd->bus_layout) ;
     simulation_data_destroy (gdd->sim_data) ;
     }
 
@@ -149,34 +150,4 @@ void graph_dialog_data_free (GRAPH_DIALOG_DATA *gdd)
 
   // Free the structure itself
   g_free (gdd) ;
-  }
-
-static void build_io_tables (simulation_data *sim_data, BUS_LAYOUT *bus_layout)
-  {
-  int Nix, Nix1 ;
-  EXP_ARRAY *cell_list = NULL ;
-  BUS_LAYOUT_CELL blcell = {NULL, FALSE} ;
-  BUS *bus = NULL ;
-
-  if (NULL == bus_layout) return ;
-
-  if (NULL == sim_data) return ;
-
-  for (Nix = 0 ; Nix < sim_data->number_of_traces ; Nix++)
-    {
-    blcell.cell = QCAD_CELL (qcad_cell_new_with_function ((sim_data->trace)[Nix].trace_function, (sim_data->trace)[Nix].data_labels)) ;
-    cell_list = (QCAD_CELL_INPUT == blcell.cell->cell_function) ? bus_layout->inputs : bus_layout->outputs ;
-    exp_array_insert_vals (cell_list, &blcell, 1, 1, -1) ;
-    }
-
-  for (Nix = 0 ; Nix < bus_layout->buses->icUsed ; Nix++)
-    {
-    bus = &(exp_array_index_1d (bus_layout->buses, BUS, Nix)) ;
-    for (Nix1 = 0 ; Nix1 < bus->cell_indices->icUsed ; Nix1++)
-      exp_array_index_1d (
-        (QCAD_CELL_INPUT == bus->bus_function) ?
-          bus_layout->inputs : bus_layout->outputs,
-        BUS_LAYOUT_CELL,
-        exp_array_index_1d (bus->cell_indices, int, Nix1)).bIsInBus = TRUE ;
-    }
   }

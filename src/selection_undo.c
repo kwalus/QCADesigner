@@ -359,7 +359,7 @@ static void undo_sel_apply (QCADUndoEntry *entry, gboolean bUndo, gpointer data)
                   : (CLOCK_INC (clock_current)))
                 : (pusc->relative_clock_change > 0
                   ? (CLOCK_INC (clock_current))
-                  : (CLOCK_DEC (clock_current))))) ;
+                  : (CLOCK_DEC (clock_current)))), NULL) ;
             }
       break ;
       }

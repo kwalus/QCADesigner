@@ -64,7 +64,7 @@ typedef struct
   int xOffset ;
   } GRAPH_DIALOG_DATA ;
 
-GRAPH_DIALOG_DATA *graph_dialog_data_new (simulation_data *sim_data, BUS_LAYOUT *bus_layout, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int base) ;
+GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int base) ;
 void graph_dialog_data_free (GRAPH_DIALOG_DATA *gdd) ;
 
 #endif /* def _GRAPH_DIALOG_DATA_H_ */

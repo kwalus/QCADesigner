@@ -60,5 +60,6 @@ void get_bus_layout_from_user (GtkWindow *parent, BUS_LAYOUT *bus_layout) ;
 GtkWidget *create_bus_layout_tree_view (gboolean bColsVisible, char *pszColumnTitle, GtkSelectionMode sel_mode) ;
 GtkTreeStore *create_bus_layout_tree_store (BUS_LAYOUT *bus_layout, int icExtraColumns, ...) ;
 gboolean gtk_tree_model_iter_next_dfs (GtkTreeModel *model, GtkTreeIter *itr) ;
+void bus_layout_tree_model_dump (GtkTreeModel *model, FILE *pfile) ;
 
 #endif /* _BUS_LAYOUT_DIALOG_H_ */

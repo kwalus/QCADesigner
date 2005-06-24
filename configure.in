@@ -1,4 +1,4 @@
-dnl Process this file with autoconf to produce a configure script.
+\dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(configure.in)
 AM_INIT_AUTOMAKE(QCADesigner, 2.0.1)
@@ -101,14 +101,14 @@ ALL_LINGUAS="de hu ro fr"
 AM_GLIB_GNU_GETTEXT
 
 if test "$svgpix" = "yes"; then
-  ICON="QCADesigner.svg"
+  ICON_EXT=".svg"
 else
-  ICON="QCADesigner_0_48x48x24a.png"
+  ICON_EXT="_0_48x48x24a.png"
 fi
 
 AC_SUBST(VERSION)
 AC_SUBST(prefix)
-AC_SUBST(ICON)
+AC_SUBST(ICON_EXT)
 AC_SUBST(packagesrcdir)
 
 AC_OUTPUT([
@@ -121,4 +121,5 @@ QCADesigner.desktop
 graph_dialog.desktop
 QCADesigner.spec
 QCADesigner-win32.iss
+QCADesigner-win32-gtk.iss
 ])

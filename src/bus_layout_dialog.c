@@ -118,6 +118,7 @@ static void determine_first_or_last_bus (GtkTreeModel *tm, GtkTreePath *tpSelBus
 static GtkTreePath *get_next_bus (GtkTreeModel *tm, GtkTreePath *tpSelBus) ;
 static GtkTreePath *get_prev_bus (GtkTreeModel *tm, GtkTreePath *tpSelBus) ;
 static void swap_buses (GtkTreeModel *tm, GtkTreeSelection *sel, bus_layout_D *dialog, GtkTreePath *tpSrc, GtkTreePath *tpDst) ;
+static void bus_layout_tree_model_dump_priv (GtkTreeModel *model, FILE *pfile, GtkTreeIter *itr, int icIndent) ;
 
 void get_bus_layout_from_user (GtkWindow *parent, BUS_LAYOUT *bus_layout)
   {
@@ -1294,4 +1295,37 @@ gboolean gtk_tree_model_iter_next_dfs (GtkTreeModel *model, GtkTreeIter *itr)
       memcpy (itr, &itrTree, sizeof (GtkTreeIter)) ;
     }
   return TRUE ;
+  }
+
+void bus_layout_tree_model_dump (GtkTreeModel *model, FILE *pfile)
+  {
+  GtkTreeIter itr ;
+
+  if (!gtk_tree_model_get_iter_first (model, &itr)) return ;
+
+  bus_layout_tree_model_dump_priv (model, pfile, &itr, 0) ;
+  }
+
+static void bus_layout_tree_model_dump_priv (GtkTreeModel *model, FILE *pfile, GtkTreeIter *itr, int icIndent)
+  {
+  char *pszIcon = NULL, *pszName = NULL ;
+  int row_type = -1, idx = -1 ;
+  GtkTreeIter itrChild ;
+
+  do
+    {
+    gtk_tree_model_get (model, itr, 
+      BUS_LAYOUT_MODEL_COLUMN_ICON, &pszIcon,
+      BUS_LAYOUT_MODEL_COLUMN_NAME, &pszName,
+      BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type,
+      BUS_LAYOUT_MODEL_COLUMN_INDEX, &idx, -1) ;
+
+    fprintf (pfile, "%*sicon:%s, name:%s, row_type:%d, idx = %d\n", icIndent, "", pszIcon, pszName, row_type, idx) ;
+    g_free (pszIcon) ;
+    g_free (pszName) ;
+
+    if (gtk_tree_model_iter_children (model, &itrChild, itr))
+      bus_layout_tree_model_dump_priv (model, pfile, &itrChild, icIndent + 2) ;
+    }
+  while (gtk_tree_model_iter_next (model, itr)) ;
   }

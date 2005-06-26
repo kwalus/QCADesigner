@@ -9,6 +9,8 @@
 [ ] Fork off a process to wait for the previewer and then delete the temp file, 
     in case the previewer survives us
 [ ] Print dialog: list of strings representing font names to be used
+[ ] graph dialog: All honeycombs for a given bus trace should show as many
+    digits as the largest honeycomb value
 
 2.0.1
 ================================================================================

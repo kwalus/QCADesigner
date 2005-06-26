@@ -1,5 +1,21 @@
 ////////////// QCADesigner TODO /////////////////
 
+[ ] One selection renderer per layer => compositing
+[ ] two apps: 
+    - design creation: main_window
+    - design testing: graph dialog + bus layout + vector table + sim engine
+      - Simulation data /is/ vector table
+      - What about number of samples ? Assemble simulation data the way the 
+        engine would. IOW, copy the assembly code out of the top of the main
+        simulation routine
+      - What to display when output no longer reflects inputs ? "Out of date"
+        in top left corner of trace
+      - Disable engaging simulation when simulation data i loaded from file
+      - Editable input honeycombs <=> vector table
+      - Button to fill with exhaustive
+      - Button to switch back to the sim data for current design
+      - Custom (or pixbuf) cell renderer for waveforms and honeycombs
+
 [ ] Add ability for user to change the colors
 [ ] Draw mesurements onto the screen and have them remain as a selectable 
     object

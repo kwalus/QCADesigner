@@ -29,7 +29,7 @@
     digits as the largest honeycomb value
 [ ] Convert input to fixed cell, and it continues to show up in vector table.
     Reload file and it dies when trying vector table simulation.
-[ ] Turn output cell into normal cell, and label persists even across reload.
+[X] Turn output cell into normal cell, and label persists even across reload.
 
 2.0.1
 ================================================================================

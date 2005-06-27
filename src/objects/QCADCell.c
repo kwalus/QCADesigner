@@ -1181,7 +1181,7 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
     fprintf(fp, "[#TYPE:CELL_DOT]\n");
     }
 
-  if (NULL != cell->label)
+  if (NULL != cell->label && !(cell->bLabelRemoved))
     qcad_design_object_serialize (QCAD_DESIGN_OBJECT (cell->label), fp) ;
 
   // output end of object

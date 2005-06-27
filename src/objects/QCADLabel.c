@@ -150,13 +150,13 @@ static void qcad_label_instance_init (GObject *object, gpointer data)
 
 static void qcad_label_instance_finalize (GObject *object)
   {
-  fprintf (stderr, "QCADLabel::instance_finalize:Entering\n") ;
+  DBG_OO (fprintf (stderr, "QCADLabel::instance_finalize:Entering\n")) ;
   g_free (QCAD_LABEL (object)->psz) ;
 #ifdef GTK_GUI
   exp_pixmap_free (QCAD_LABEL (object)->epm) ;
 #endif /* def GTK_GUI */
   G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_LABEL)))->finalize (object) ;
-  fprintf (stderr, "QCADLabel::instance_finalize:Leaving\n") ;
+  DBG_OO (fprintf (stderr, "QCADLabel::instance_finalize:Leaving\n")) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -351,7 +351,7 @@ static const char *PostScript_preamble ()
 //    "  if\n"
     "\n"
     "  x y moveto\n"
-    "  (Courier) findfont labelfontsize scalefont setfont\n"
+    "  (" PS_FONT ") findfont labelfontsize scalefont setfont\n"
     "  label txtlt\n"
     "  grestore\n"
     "  } def\n" ;

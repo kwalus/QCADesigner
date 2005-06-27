@@ -113,5 +113,6 @@
 #else
   #define QCAD_GDKFONT "Courier"
 #endif
+#define PS_FONT "Helvetica"
 
 #endif /* _GLOBAL_CONSTS_H_ */

@@ -42,7 +42,6 @@
 #define GAP_HEIGHT 10
 #define TRACE_GAP_HEIGHT 5
 #define TRACE_HEADER_WIDTH 120.0
-#define FONT "Helvetica"
 
 #define GAP_PERCENT 0.01
 #define TRACE_GAP_PERCENT 0.005
@@ -190,7 +189,7 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
     "  stroke\n"
     "  newpath\n"
     "  xL xR add 2 div yMid moveto\n"
-    "  (" FONT ") findfont labelfontsize scalefont setfont\n"
+    "  (" PS_FONT ") findfont labelfontsize scalefont setfont\n"
     "  label labelfontsize txtcm\n"
     "  stroke\n"
     "  grestore\n"
@@ -344,7 +343,7 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
   psz = g_strdup_printf (
     "gsave\n"
     "newpath\n"
-    "(" FONT ") findfont labelfontsize scalefont setfont\n"
+    "(" PS_FONT ") findfont labelfontsize scalefont setfont\n"
     "%lf %lf moveto\n"
     "(%s) labelfontsize txtct\n"
     "stroke\n"
@@ -489,7 +488,7 @@ static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEff
     "%s %s\n"
     "newpath\n"
     "%lf %lf moveto\n"
-    "(" FONT ") findfont %d scalefont setfont\n"
+    "(" PS_FONT ") findfont %d scalefont setfont\n"
     "(%s) %d %s\n"
     "stroke\n"
     "grestore\n",

@@ -1181,6 +1181,7 @@ static void design_bus_layout_remove_cell (DESIGN *design, QCADCell *cell, QCADC
   int Nix, Nix1 ;
   int idx = -1 ;
   EXP_ARRAY *cell_list = NULL ;
+  BUS *bus = NULL ;
 
   if (NULL ==
     (cell_list = (QCAD_CELL_INPUT  == cell_function) ? design->bus_layout->inputs :
@@ -1195,17 +1196,27 @@ static void design_bus_layout_remove_cell (DESIGN *design, QCADCell *cell, QCADC
   if (idx == cell_list->icUsed) return ;
 
   for (Nix = 0 ; Nix < design->bus_layout->buses->icUsed ; Nix++)
-    if (exp_array_index_1d (design->bus_layout->buses, BUS, Nix).bus_function == cell_function)
+    {
+    bus = &exp_array_index_1d (design->bus_layout->buses, BUS, Nix) ;
+    if (bus->bus_function == cell_function)
       {
-      for (Nix1 = exp_array_index_1d (design->bus_layout->buses, BUS, Nix).cell_indices->icUsed ; Nix1 > -1 ; Nix1--)
+      for (Nix1 = bus->cell_indices->icUsed ; Nix1 > -1 ; Nix1--)
         {
-        if (exp_array_index_1d (exp_array_index_1d (design->bus_layout->buses, BUS, Nix).cell_indices, int, Nix1) == idx)
-          exp_array_remove_vals (exp_array_index_1d (design->bus_layout->buses, BUS, Nix).cell_indices, 1, Nix1--, 1) ;
+        if (exp_array_index_1d (bus->cell_indices, int, Nix1) == idx)
+          exp_array_remove_vals (bus->cell_indices, 1, Nix1--, 1) ;
         else
-        if (exp_array_index_1d (exp_array_index_1d (design->bus_layout->buses, BUS, Nix).cell_indices, int, Nix1) > idx)
-          exp_array_index_1d (exp_array_index_1d (design->bus_layout->buses, BUS, Nix).cell_indices, int, Nix1)-- ;
+        if (exp_array_index_1d (bus->cell_indices, int, Nix1) > idx)
+          exp_array_index_1d (bus->cell_indices, int, Nix1)-- ;
+        }
+
+      if (0 == bus->cell_indices->icUsed)
+        {
+        g_free (bus->pszName) ;
+        exp_array_free (bus->cell_indices) ;
+        exp_array_remove_vals (design->bus_layout->buses, 1, Nix--, 1) ;
         }
       }
+    }
 
   exp_array_remove_vals (cell_list, 1, idx, 1) ;
   }

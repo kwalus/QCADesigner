@@ -501,6 +501,8 @@ const char *qcad_cell_get_label (QCADCell *cell)
   {
   if (NULL == cell) return "" ;
   else
+  if (cell->bLabelRemoved) return "" ;
+  else
   if (NULL == cell->label) return "" ;
   else
   if (NULL == cell->label->psz) return "" ;

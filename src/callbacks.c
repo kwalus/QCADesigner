@@ -1309,6 +1309,9 @@ void on_start_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer use
     return ;
     }
 
+  fprintf (stderr, "Running sim with the following bus_layout\n") ;
+  design_bus_layout_dump (project_options.design->bus_layout, stderr) ;
+
   project_options.sim_data = run_simulation (project_options.SIMULATION_ENGINE, project_options.SIMULATION_TYPE, project_options.design, pvt);
 
   if (NULL != project_options.sim_data)

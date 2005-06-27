@@ -154,7 +154,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
    }
 
   // write message to the command history window //
-  command_history_message (_("Simulation found %d inputs %d outputs %d total cells\n"), design->bus_layout->inputs->icUsed, design->bus_layout->outputs->icUsed, total_cells) ;
+//  command_history_message (_("Simulation found %d inputs %d outputs %d total cells\n"), design->bus_layout->inputs->icUsed, design->bus_layout->outputs->icUsed, total_cells) ;
 
   command_history_message(_("Starting initialization\n"));
   set_progress_bar_visible (TRUE) ;

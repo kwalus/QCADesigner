@@ -811,7 +811,7 @@ msgstr "Werte hexadezimal anzeigen"
 # msgid "_Simulation"
 # msgstr ""
 
-# msgid "Simulation Engine Setup..."
+# msgid "Simulation _Engine Setup..."
 # msgstr ""
 
 msgid "Simulation found %d inputs %d outputs %d total cells\n"
@@ -823,7 +823,7 @@ msgstr "Simulatioinsresultate"
 msgid "Simulation Results"
 msgstr "Simulatioinsresultate"
 
-msgid "Simulation Type Setup..."
+msgid "Simulation _Type Setup..."
 msgstr "Einstellungen des Simulationstyps..."
 
 msgid "Snap To Grid"

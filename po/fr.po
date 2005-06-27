@@ -700,13 +700,13 @@ msgstr ""
 msgid "Show Toolbar Icons"
 msgstr ""
 
-msgid "Simulation Engine Setup..."
+msgid "Simulation _Engine Setup..."
 msgstr ""
 
 msgid "Simulation Results"
 msgstr ""
 
-msgid "Simulation Type Setup..."
+msgid "Simulation _Type Setup..."
 msgstr ""
 
 msgid "Snap Properties..."

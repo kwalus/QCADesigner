@@ -802,7 +802,7 @@ msgstr ""
 msgid "_Simulation"
 msgstr ""
 
-msgid "Simulation Engine Setup..."
+msgid "Simulation _Engine Setup..."
 msgstr ""
 
 msgid "Simulation found %d inputs %d outputs %d total cells\n"
@@ -814,7 +814,7 @@ msgstr ""
 msgid "Simulation Results"
 msgstr ""
 
-msgid "Simulation Type Setup..."
+msgid "Simulation _Type Setup..."
 msgstr ""
 
 msgid "Snap To Grid"

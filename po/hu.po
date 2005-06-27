@@ -704,13 +704,13 @@ msgstr "Rács megjelenítése"
 # msgid "Show Toolbar Icons"
 # msgstr ""
 
-msgid "Simulation Engine Setup..."
+msgid "Simulation _Engine Setup..."
 msgstr "Szimuláció algoritmus beállítása..."
 
 msgid "Simulation Results"
 msgstr "Szimuláció eredmények"
 
-msgid "Simulation Type Setup..."
+msgid "Simulation _Type Setup..."
 msgstr "Szimuláció tipus beállítása"
 
 # msgid "Snap Properties..."

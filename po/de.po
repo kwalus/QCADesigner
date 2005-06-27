@@ -823,7 +823,7 @@ msgstr "Simulatioinsresultate"
 msgid "Simulation Results"
 msgstr "Simulatioinsresultate"
 
-msgid "Simulation _Type Setup..."
+msgid "Simulation T_ype Setup..."
 msgstr "Einstellungen des Simulationstyps..."
 
 msgid "Snap To Grid"

@@ -710,7 +710,7 @@ msgstr "Szimuláció algoritmus beállítása..."
 msgid "Simulation Results"
 msgstr "Szimuláció eredmények"
 
-msgid "Simulation _Type Setup..."
+msgid "Simulation T_ype Setup..."
 msgstr "Szimuláció tipus beállítása"
 
 # msgid "Snap Properties..."

@@ -558,12 +558,12 @@ void create_main_window (main_W *main_window){
   gtk_widget_set_sensitive (mnuiSep, FALSE);
 
   // create and add the simulation type setup menu item to the simulation menu //
-  simulation_type_setup_menu_item = gtk_menu_item_new_with_label (_("Simulation Type Setup..."));
+  simulation_type_setup_menu_item = gtk_menu_item_new_with_mnemonic (_("Simulation T_ype Setup..."));
   gtk_widget_show (simulation_type_setup_menu_item);
   gtk_container_add (GTK_CONTAINER (simulation_menu_menu), simulation_type_setup_menu_item);
 
   // create and add the simulation engine setup menu item to the simulation menu //
-  simulation_engine_setup_menu_item = gtk_menu_item_new_with_label (_("Simulation Engine Setup..."));
+  simulation_engine_setup_menu_item = gtk_menu_item_new_with_mnemonic (_("Simulation _Engine Setup..."));
   gtk_widget_show (simulation_engine_setup_menu_item);
   gtk_container_add (GTK_CONTAINER (simulation_menu_menu), simulation_engine_setup_menu_item);
 

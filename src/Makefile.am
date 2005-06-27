@@ -89,7 +89,6 @@ QCADesigner_SOURCES = \
 	scale_dialog.c                        scale_dialog.h \
 	selection_renderer.c                  selection_renderer.h \
 	sim_engine_setup_dialog.c             sim_engine_setup_dialog.h \
-	sim_type_setup_dialog.c               sim_type_setup_dialog.h \
 	support.c                             support.h \
 	translate_selection_dialog.c          translate_selection_dialog.h \
 	vector_table.c                        vector_table.h \
@@ -101,6 +100,10 @@ QCADesigner_SOURCES = \
 	simulation.c                          simulation.h \
 	simulation_data.c                     simulation_data.h \
 	main.c
+
+#
+#	sim_type_setup_dialog.c               sim_type_setup_dialog.h \
+#
 
 QCADesigner_LDADD = \
 	-lm \

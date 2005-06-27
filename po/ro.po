@@ -708,7 +708,7 @@ msgstr "Arată grilajul"
 msgid "Simulation Results"
 msgstr "Rezultatele simulaţiei"
 
-msgid "Simulation _Type Setup..."
+msgid "Simulation T_ype Setup..."
 msgstr "Setările tipului de simulaţie"
 
 # msgid "Snap Properties..."

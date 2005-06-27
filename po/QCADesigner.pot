@@ -814,7 +814,7 @@ msgstr ""
 msgid "Simulation Results"
 msgstr ""
 
-msgid "Simulation _Type Setup..."
+msgid "Simulation T_ype Setup..."
 msgstr ""
 
 msgid "Snap To Grid"

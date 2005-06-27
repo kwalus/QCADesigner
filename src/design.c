@@ -467,6 +467,7 @@ EXP_ARRAY *design_selection_destroy (DESIGN *design)
     {
     // Ref the object so removing it from the layer doesn't destroy it.
     // After all, the array we return should contain something other than garbage.
+
     g_object_ref (obj = exp_array_index_1d (ar, QCADDesignObject *, Nix)) ;
     qcad_do_container_remove (QCAD_DO_CONTAINER (qcad_layer_from_object (obj)), QCAD_DESIGN_OBJECT (obj)) ;
     }

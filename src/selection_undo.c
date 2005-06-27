@@ -457,8 +457,8 @@ static void undo_sel_apply (QCADUndoEntry *entry, gboolean bUndo, gpointer data)
             g_object_ref (obj) ;
             qcad_do_container_remove (QCAD_DO_CONTAINER (qcad_layer_from_object (obj)), obj) ;
             }
-          DBG_UNDO_SEL_APPLY (fprintf (stderr, "The design after undo-%s cells looks like this:\n", bCreate ? "adding" : "removing")) ;
-          DBG_UNDO_SEL_APPLY (design_dump (pus->design, stderr)) ;
+          fprintf (stderr, "The design after undo-%s cells looks like this:\n", bCreate ? "adding" : "removing") ;
+          design_dump (pus->design, stderr) ;
           }
       break ;
       }

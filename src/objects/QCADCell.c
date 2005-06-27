@@ -630,7 +630,7 @@ static gboolean qcad_cell_do_container_remove (QCADDOContainer *container, QCADD
   if (NULL == cell->label) return FALSE ;
   if (QCAD_DESIGN_OBJECT (cell->label) == obj && !(cell->bLabelRemoved))
     {
-    qcad_cell_set_label (cell, "") ;
+    cell->bLabelRemoved = TRUE ;
     return TRUE ;
     }
   return FALSE ;

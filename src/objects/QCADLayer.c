@@ -309,7 +309,10 @@ static void qcad_layer_compound_do_removed (QCADCompoundDO *cdo, QCADDesignObjec
   if (NULL != ots->llSel)
     if (NULL != ots->layer)
       if (NULL != ots->layer->lstSelObjs)
+        {
         ots->layer->lstSelObjs = g_list_delete_link (ots->layer->lstSelObjs, ots->llSel) ;
+        ots->llSel = NULL ;
+        }
   }
 
 static void qcad_layer_compound_do_added (QCADCompoundDO *cdo, QCADDesignObject *obj, gpointer data)

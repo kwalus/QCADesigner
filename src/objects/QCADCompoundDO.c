@@ -33,6 +33,8 @@
 #include "QCADCompoundDO.h"
 #include "QCADDesignObject.h"
 
+static void qcad_compound_do_added   (QCADCompoundDO *container, QCADDesignObject *obj, gpointer data) ;
+static void qcad_compound_do_removed (QCADCompoundDO *container, QCADDesignObject *obj, gpointer data) ;
 static void qcad_compound_do_class_base_init (gpointer klass) ;
 
 enum
@@ -53,7 +55,7 @@ GType qcad_compound_do_get_type ()
     static GTypeInfo qcad_compound_do_info =
       {
       sizeof (QCADCompoundDOClass),
-      qcad_compound_do_class_base_init,
+      (GBaseInitFunc)qcad_compound_do_class_base_init,
       NULL,
       NULL,
       NULL,
@@ -75,6 +77,9 @@ static void qcad_compound_do_class_base_init (gpointer klass)
 
   if (bFirstCall)
     {
+    ((QCADCompoundDOClass *)klass)->added = qcad_compound_do_added ;
+    ((QCADCompoundDOClass *)klass)->removed = qcad_compound_do_removed ;
+
     qcad_compound_do_signals[QCAD_COMPOUND_DO_ADDED_SIGNAL] =
       g_signal_new ("added", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
         G_STRUCT_OFFSET (QCADCompoundDOClass, added), NULL, NULL, g_cclosure_marshal_VOID__OBJECT,
@@ -88,6 +93,9 @@ static void qcad_compound_do_class_base_init (gpointer klass)
     bFirstCall = FALSE ;
     }
   }
+
+static void qcad_compound_do_added   (QCADCompoundDO *container, QCADDesignObject *obj, gpointer data) {}
+static void qcad_compound_do_removed (QCADCompoundDO *container, QCADDesignObject *obj, gpointer data) {}
 
 QCADDesignObject *qcad_compound_do_first (QCADCompoundDO *cdo)
   {return QCAD_COMPOUND_DO_GET_CLASS (cdo)->first (cdo) ;}

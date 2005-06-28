@@ -34,6 +34,6 @@
 #include <gtk/gtk.h>
 #include "vector_table.h"
 
-void get_vector_table_options_from_user (GtkWindow *parent, int *sim_type, VectorTable *pvt) ;
+void get_vector_table_options_from_user (GtkWindow *parent, BUS_LAYOUT *bus_layout, int *sim_type, VectorTable *pvt) ;
 
 #endif /* _VECTOR_TABLE_OPTIONS_DIALOG_H_ */

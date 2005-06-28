@@ -44,6 +44,17 @@ static gboolean CheckMagic (FILE *pfile) ;
 static int ReadVector (FILE *pfile, gboolean *pVector, int ic) ;
 #endif /* def STDIO_FILEIO */
 
+int VectorTable_find_input_idx (VectorTable *pvt, QCADCell *cell)
+  {
+  int Nix ;
+
+  for (Nix = 0 ; Nix < pvt->inputs->icUsed ; Nix++)
+    if (exp_array_index_1d (pvt->inputs, VT_INPUT, Nix).input == cell)
+      return Nix ;
+
+  return -1 ;
+  }
+
 VectorTable *VectorTable_new ()
   {
   VectorTable *pvt = g_malloc0 (sizeof (VectorTable)) ;

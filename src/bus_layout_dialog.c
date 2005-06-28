@@ -147,7 +147,7 @@ void get_bus_layout_from_user (GtkWindow *parent, BUS_LAYOUT *bus_layout)
   gtk_widget_hide (bus_layout_dialog.dialog) ;
   }
 
-GtkTreeStore *create_bus_layout_tree_store (BUS_LAYOUT *bus_layout, int icExtraColumns, ...)
+GtkTreeStore *create_bus_layout_tree_store (BUS_LAYOUT *bus_layout, int row_types, int icExtraColumns, ...)
   {
   GtkTreeStore *ts = NULL ;
   EXP_ARRAY *ar = NULL ;
@@ -160,13 +160,15 @@ GtkTreeStore *create_bus_layout_tree_store (BUS_LAYOUT *bus_layout, int icExtraC
   int Nix = -1, Nix1 = -1, idx = -1 ;
   EXP_ARRAY *cell_list = NULL ;
   char *pszStockCell = NULL, *pszStockBus = NULL ;
+  QCADCell *cell = NULL ;
 
   ar = exp_array_new (sizeof (GType), 1) ;
 
-  type = G_TYPE_STRING ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_STRING ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_INT    ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_INT    ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_POINTER ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
 
   if (icExtraColumns > 0)
     {
@@ -184,63 +186,77 @@ GtkTreeStore *create_bus_layout_tree_store (BUS_LAYOUT *bus_layout, int icExtraC
   for (Nix = 0 ; Nix < bus_layout->buses->icUsed ; Nix++)
     {
     bus = &(exp_array_index_1d (bus_layout->buses, BUS, Nix)) ;
-    if (QCAD_CELL_INPUT == bus->bus_function)
+    if (bus->bus_function & row_types)
       {
-      bus_type = ROW_TYPE_BUS_INPUT ;
-      cell_type = ROW_TYPE_CELL_INPUT ;
-      cell_list = bus_layout->inputs ;
-      pszStockCell = QCAD_STOCK_CELL_INPUT ;
-      pszStockBus = QCAD_STOCK_BUS_INPUT ;
-      }
-    else
-      {
-      bus_type = ROW_TYPE_BUS_OUTPUT ;
-      cell_type = ROW_TYPE_CELL_OUTPUT ;
-      cell_list = bus_layout->outputs ;
-      pszStockCell = QCAD_STOCK_CELL_OUTPUT ;
-      pszStockBus = QCAD_STOCK_BUS_OUTPUT ;
-      }
-    gtk_tree_store_append (ts, &gtiBus, NULL) ;
-    gtk_tree_store_set (ts, &gtiBus,
-      BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockBus,
-      BUS_LAYOUT_MODEL_COLUMN_NAME, bus->pszName,
-      BUS_LAYOUT_MODEL_COLUMN_TYPE, bus_type,
-      BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, -1) ;
+      if (QCAD_CELL_INPUT == bus->bus_function)
+        {
+        bus_type = ROW_TYPE_BUS_INPUT ;
+        cell_type = ROW_TYPE_CELL_INPUT ;
+        cell_list = bus_layout->inputs ;
+        pszStockCell = QCAD_STOCK_CELL_INPUT ;
+        pszStockBus = QCAD_STOCK_BUS_INPUT ;
+        cell = NULL ;
+        }
+      else
+        {
+        bus_type = ROW_TYPE_BUS_OUTPUT ;
+        cell_type = ROW_TYPE_CELL_OUTPUT ;
+        cell_list = bus_layout->outputs ;
+        pszStockCell = QCAD_STOCK_CELL_OUTPUT ;
+        pszStockBus = QCAD_STOCK_BUS_OUTPUT ;
+        cell = NULL ;
+        }
+      gtk_tree_store_append (ts, &gtiBus, NULL) ;
+      gtk_tree_store_set (ts, &gtiBus,
+        BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockBus,
+        BUS_LAYOUT_MODEL_COLUMN_NAME, bus->pszName,
+        BUS_LAYOUT_MODEL_COLUMN_TYPE, bus_type,
+        BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix,
+        BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
 
-    for (Nix1 = 0 ; Nix1 < bus->cell_indices->icUsed ; Nix1++)
-      {
-      idx = exp_array_index_1d (bus->cell_indices, int, Nix1) ;
-      gtk_tree_store_append (ts, &gtiCell, &gtiBus) ;
-      gtk_tree_store_set (ts, &gtiCell,
-        BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockCell,
-        BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (QCAD_CELL (exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, idx).cell)),
-        BUS_LAYOUT_MODEL_COLUMN_TYPE, cell_type,
-        BUS_LAYOUT_MODEL_COLUMN_INDEX, idx, -1) ;
+      for (Nix1 = 0 ; Nix1 < bus->cell_indices->icUsed ; Nix1++)
+        {
+        idx = exp_array_index_1d (bus->cell_indices, int, Nix1) ;
+        gtk_tree_store_append (ts, &gtiCell, &gtiBus) ;
+        gtk_tree_store_set (ts, &gtiCell,
+          BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockCell,
+          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (QCAD_CELL (exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, idx).cell)),
+          BUS_LAYOUT_MODEL_COLUMN_TYPE, cell_type,
+          BUS_LAYOUT_MODEL_COLUMN_INDEX, idx,
+          BUS_LAYOUT_MODEL_COLUMN_CELL, exp_array_index_1d ((QCAD_CELL_INPUT == bus->bus_function ? bus_layout->inputs : bus_layout->outputs), BUS_LAYOUT_CELL, idx).cell,
+          -1) ;
+        }
       }
     }
 
 // Add whatever remaining free inputs and outputs to their respective lists
-  for (Nix = 0 ; Nix < bus_layout->inputs->icUsed ; Nix++)
-    if (!(exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
-      {
-      gtk_tree_store_append (ts, &gtiCell, NULL) ;
-      gtk_tree_store_set (ts, &gtiCell,
-        BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_INPUT,
-        BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (QCAD_CELL (exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).cell)),
-        BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_INPUT,
-        BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, -1) ;
-      }
+  if (row_types & ROW_TYPE_INPUT)
+    for (Nix = 0 ; Nix < bus_layout->inputs->icUsed ; Nix++)
+      if (!(exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
+        {
+        cell = QCAD_CELL (exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).cell) ;
+        gtk_tree_store_append (ts, &gtiCell, NULL) ;
+        gtk_tree_store_set (ts, &gtiCell,
+          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_INPUT,
+          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
+          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_INPUT,
+          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
+          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
+        }
 
-  for (Nix = 0 ; Nix < bus_layout->outputs->icUsed ; Nix++)
-    if (!(exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
-      {
-      gtk_tree_store_append (ts, &gtiCell, NULL) ;
-      gtk_tree_store_set (ts, &gtiCell,
-        BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_OUTPUT,
-        BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (QCAD_CELL (exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).cell)),
-        BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_OUTPUT,
-        BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, -1) ;
-      }
+  if (row_types & ROW_TYPE_OUTPUT)
+    for (Nix = 0 ; Nix < bus_layout->outputs->icUsed ; Nix++)
+      if (!(exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
+        {
+        cell = QCAD_CELL (exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).cell) ;
+        gtk_tree_store_append (ts, &gtiCell, NULL) ;
+        gtk_tree_store_set (ts, &gtiCell,
+          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_OUTPUT,
+          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
+          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_OUTPUT,
+          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
+          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
+        }
 
   return ts ;
   }
@@ -251,7 +267,7 @@ static void BusLayoutToDialog (bus_layout_D *dialog, BUS_LAYOUT *bus_layout)
   {
   GtkTreeStore *ts = NULL ;
 
-  ts = create_bus_layout_tree_store (bus_layout, 0) ;
+  ts = create_bus_layout_tree_store (bus_layout, ROW_TYPE_ANY, 0) ;
 
   gtk_widget_set_sensitive (dialog->btnCreateBus, FALSE) ;
   gtk_widget_set_sensitive (dialog->btnDeleteBus, FALSE) ;

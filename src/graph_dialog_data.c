@@ -47,7 +47,7 @@ GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolea
   graph_dialog_data->bFakeCells      = sim_output->bFakeIOLists ;
   graph_dialog_data->bFreeSourceData = bOKToFree ;
   graph_dialog_data->model           =
-    GTK_TREE_MODEL (ts = create_bus_layout_tree_store (sim_output->bus_layout,
+    GTK_TREE_MODEL (ts = create_bus_layout_tree_store (sim_output->bus_layout, ROW_TYPE_ANY,
       5, G_TYPE_BOOLEAN, G_TYPE_POINTER, G_TYPE_POINTER, G_TYPE_POINTER, G_TYPE_POINTER)) ;
   graph_dialog_data->dHCThreshLower  = dThreshLower ;
   graph_dialog_data->dHCThreshUpper  = dThreshUpper ;

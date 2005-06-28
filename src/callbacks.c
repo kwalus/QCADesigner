@@ -1018,7 +1018,7 @@ void on_save_output_to_file_menu_item_activate(GtkMenuItem *menuitem, gpointer u
 void on_simulation_type_setup_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
 {
   DBG_CB_HERE (fprintf (stderr, "Entering on_simulation_type_setup_menu_item_activate\n")) ;
-  get_vector_table_options_from_user (GTK_WINDOW (main_window.main_window), &(project_options.SIMULATION_TYPE), pvt) ;
+  get_vector_table_options_from_user (GTK_WINDOW (main_window.main_window), project_options.design->bus_layout, &(project_options.SIMULATION_TYPE), pvt) ;
 }  //on_simulation_properties_menu_item_activate
 
 void on_simulation_engine_setup_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
@@ -1308,9 +1308,6 @@ void on_start_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer use
     gtk_widget_destroy (msg) ;
     return ;
     }
-
-  fprintf (stderr, "Running sim with the following bus_layout\n") ;
-  design_bus_layout_dump (project_options.design->bus_layout, stderr) ;
 
   project_options.sim_data = run_simulation (project_options.SIMULATION_ENGINE, project_options.SIMULATION_TYPE, project_options.design, pvt);
 

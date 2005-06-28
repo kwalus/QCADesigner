@@ -73,5 +73,6 @@ gboolean VectorTable_save (VectorTable *pvt) ;
 VTL_RESULT VectorTable_load (VectorTable *pvt) ;
 void VectorTable_dump (VectorTable *pvt, FILE *pfile, int icIndent) ;
 void VectorTable_empty (VectorTable *pvt) ;
+int VectorTable_find_input_idx (VectorTable *pvt, QCADCell *cell) ;
 
 #endif /* _VECTOR_TABLE_H_ */

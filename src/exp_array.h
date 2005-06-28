@@ -53,7 +53,9 @@ void exp_array_dump (EXP_ARRAY *exp_array, FILE *pfile, int icIndent) ;
 void print_hex_bytes (char *bytes, int icBytes, int icInitBytes, int icCols, FILE *pfile, int icIndent) ;
 guint exp_array_crc32 (EXP_ARRAY *exp_array) ;
 
-#define exp_array_index_1d(a,t,i) (((t*) (a)->data) [(i)])
-#define exp_array_index_2d(a,t,r,c) (((t*) (exp_array_index_1d((a),EXP_ARRAY *,(r)))->data) [(c)])
+//#define exp_array_index_1d(a,t,i) (((t*) (a)->data) [(i)])
+//#define exp_array_index_2d(a,t,r,c) (((t*) (exp_array_index_1d((a),EXP_ARRAY *,(r)))->data) [(c)])
+#define exp_array_index_1d(a,t,i) (((t*) (a)->data) [((-1 == (i)) ? (((a)->icUsed) - 1) : (i))])
+#define exp_array_index_2d(a,t,r,c) (((t*) (exp_array_index_1d((a),EXP_ARRAY *,(r)))->data) [((-1 == (c)) ? (((exp_array_index_1d((a),EXP_ARRAY *,(r)))->icUsed) - 1) : (c))])
 
 #endif /* _EXP_ARRAY_H_ */

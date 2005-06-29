@@ -71,6 +71,7 @@ void set_window_icon (GtkWindow *window, char *pszBaseName) ;
 #define NUMBER_OF_RULER_SUBDIVISIONS 3
 void set_ruler_scale (GtkRuler *ruler, double dLower, double dUpper) ;
 
+void tree_model_row_changed (GtkTreeModel *model, GtkTreeIter *itr) ;
 #endif /* def GTK_GUI */
 void command_history_message (char *pszFmt, ...) ;
 void set_progress_bar_visible (gboolean bVisible) ;

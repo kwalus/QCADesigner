@@ -22,11 +22,18 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
+// Header for a treeviewcontainer that allows "freeze   //
+// columns". That is, the horizontal scrolling does not //
+// scroll the entire tree view but, instead, it hides   //
+// and shows columns as appropriate, keeping the first  //
+// n columns always visible.                            //
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#ifndef _OBJECTS_QCADCellRendererVT_H_
-#define _OBJECTS_QCADCellRendererVT_H_
+#ifndef _OBJECTS_QCADTreeViewContainer_H_
+#define _OBJECTS_QCADTreeViewContainer_H_
+
+#include <gtk/gtk.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,32 +41,31 @@ extern "C" {
 
 typedef struct
   {
-  GtkCellRendererText parent ;
-
-  int row_type ;
-  long long value ;
-  } QCADCellRendererVT ;
+  GtkScrolledWindowClass parent_klass ;
+  } QCADTreeViewContainerClass ;
 
 typedef struct
   {
-  GtkCellRendererTextClass parent_class ;
-  void (*toggled) (QCADCellRendererVT *cr, const gchar *pszPath) ;
-  void (*clicked) (QCADCellRendererVT *cr) ;
-  } QCADCellRendererVTClass ;
+  GtkScrolledWindow parent_instance ;
+  int n_frozen_columns ;
+  } QCADTreeViewContainer ;
 
-GType qcad_cell_renderer_vt_get_type () ;
-GtkCellRenderer *qcad_cell_renderer_vt_new () ;
+GType qcad_tree_view_container_get_type () ;
 
-#define QCAD_TYPE_STRING_CELL_RENDERER_VT "QCADCellRendererVT"
-#define QCAD_TYPE_CELL_RENDERER_VT (qcad_cell_renderer_vt_get_type ())
-#define QCAD_CELL_RENDERER_VT(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CELL_RENDERER_VT, QCADCellRendererVT))
-#define QCAD_CELL_RENDERER_VT_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_CELL_RENDERER_VT, QCADCellRendererVTClass))
-#define QCAD_IS_CELL_RENDERER_VT(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CELL_RENDERER_VT))
-#define QCAD_IS_CELL_RENDERER_VT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_CELL_RENDERER_VT))
-#define QCAD_CELL_RENDERER_VT_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_CELL_RENDERER_VT, QCADCellRendererVTClass))
+GtkWidget *qcad_tree_view_container_new () ;
+
+void qcad_tree_view_container_freeze_columns (QCADTreeViewContainer *tvc, int n_columns) ;
+
+#define QCAD_TYPE_STRING_TREE_VIEW_CONTAINER "QCADTreeViewContainer"
+#define QCAD_TYPE_TREE_VIEW_CONTAINER (qcad_tree_view_container_get_type ())
+#define QCAD_TREE_VIEW_CONTAINER(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_TREE_VIEW_CONTAINER, QCADTreeViewContainer))
+#define QCAD_TREE_VIEW_CONTAINER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_TREE_VIEW_CONTAINER, QCADTreeViewContainerClass))
+#define QCAD_IS_TREE_VIEW_CONTAINER(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_TREE_VIEW_CONTAINER))
+#define QCAD_IS_TREE_VIEW_CONTAINER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_TREE_VIEW_CONTAINER_VT))
+#define QCAD_TREE_VIEW_CONTAINER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_TREE_VIEW_CONTAINER, QCADTreeViewContainerClass))
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* def _OBJECTS_QCADCellRendererVT_H_ */
+#endif /* def _OBJECTS_QCADTreeViewContainer_H_ */

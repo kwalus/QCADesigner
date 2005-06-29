@@ -35,11 +35,17 @@
 
 enum
   {
+  QCADCRVT_CLICKED_SIGNAL,
+  QCADCRVT_LAST_SIGNAL
+  } ;
+
+enum
+  {
   QCADCRVT_PROP_ACTIVE = 1,
   QCADCRVT_PROP_ROW_TYPE
   } ;
 
-//static guint qcad_cell_renderer_vt_signals[QCADCRVT_LAST_SIGNAL] = {0} ;
+static guint qcadcrvt_signals[QCADCRVT_LAST_SIGNAL] = {0} ;
 
 static void qcad_cell_renderer_vt_class_init (QCADCellRendererVTClass *klass) ;
 static void qcad_cell_renderer_vt_instance_init (QCADCellRendererVT *qcadcrvt) ;
@@ -94,6 +100,11 @@ static void qcad_cell_renderer_vt_class_init (QCADCellRendererVTClass *klass)
   g_object_class_install_property (object_klass, QCADCRVT_PROP_ROW_TYPE,
     g_param_spec_int ("row-type", _("Row Type"), _("Row type:Cell/Bus"),
       1, (1 << 5) - 1, ROW_TYPE_CELL_INPUT, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL] =
+    g_signal_new ("clicked", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
+      G_STRUCT_OFFSET (QCADCellRendererVTClass, clicked), NULL, NULL, g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0) ;
   }
 
 static void qcad_cell_renderer_vt_instance_init (QCADCellRendererVT *qcadcrvt)
@@ -140,9 +151,12 @@ static void qcad_cell_renderer_vt_set_property (GObject *object, guint param_id,
 
     case QCADCRVT_PROP_ROW_TYPE:
       qcadcrvt->row_type = g_value_get_int (value) ;
+      GTK_CELL_RENDERER (qcadcrvt)->mode = GTK_CELL_RENDERER_MODE_ACTIVATABLE ;
+
       GTK_CELL_RENDERER (qcadcrvt)->mode = (qcadcrvt->row_type & ROW_TYPE_CELL)
         ? GTK_CELL_RENDERER_MODE_ACTIVATABLE 
         : GTK_CELL_RENDERER_MODE_EDITABLE ;
+
       g_object_notify (object, "row-type") ;
       break ;
 
@@ -235,7 +249,10 @@ static void qcad_cell_renderer_vt_render (GtkCellRenderer *cr, GdkWindow *window
 static GtkCellEditable *qcad_cell_renderer_vt_start_editing (GtkCellRenderer *cell, GdkEvent *event, GtkWidget *widget, const gchar *path, GdkRectangle *background_area, GdkRectangle *cell_area, GtkCellRendererState flags)
   {
   if (QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_BUS)
+    {
+    g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL], 0) ;
     return (GTK_CELL_RENDERER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL_RENDERER_VT))))->start_editing (cell, event, widget, path, background_area, cell_area, flags) ;
+    }
   else
     return NULL ;
   }
@@ -243,9 +260,11 @@ static GtkCellEditable *qcad_cell_renderer_vt_start_editing (GtkCellRenderer *ce
 static gboolean qcad_cell_renderer_vt_activate (GtkCellRenderer *cell, GdkEvent *event, GtkWidget *widget, const gchar *path, GdkRectangle *background_area, GdkRectangle *cell_area, GtkCellRendererState flags)
   {
   char *psz = NULL ;
+
   if (QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_CELL)
     {
 //    QCAD_CELL_RENDERER_VT (cell)->value = (0 == QCAD_CELL_RENDERER_VT (cell)->value) ? 1 : 0 ;
+    g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL], 0) ;
     g_signal_emit_by_name (cell, "edited", path, psz = g_strdup_printf ("%llu", QCAD_CELL_RENDERER_VT (cell)->value)) ;
     //g_signal_emit (cell, qcad_cell_renderer_vt_signals[QCADCRVT_TOGGLED_SIGNAL], 0, path) ;
     return TRUE ;

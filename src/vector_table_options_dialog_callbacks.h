@@ -36,7 +36,7 @@ void vector_table_options_dialog_btnSimType_clicked (GtkWidget *widget, gpointer
 void vector_table_options_dialog_btnClose_clicked (GtkWidget *widget, gpointer data) ;
 void vector_table_options_dialog_btnAdd_clicked (GtkWidget *widget, gpointer data) ;
 void vt_model_active_toggled (GtkCellRenderer *cr, char *pszTreePath, gpointer data) ;
-void vector_column_clicked (GtkTreeViewColumn *col, gpointer data) ;
+void vector_column_clicked (GtkObject *obj, gpointer data) ;
 void vector_data_func (GtkTreeViewColumn *col, GtkCellRenderer *cr, GtkTreeModel *model, GtkTreeIter *itr, gpointer data) ;
 void tree_view_style_set (GtkWidget *widget, GtkStyle *old_style, gpointer data) ;
 void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *pszNewText, gpointer data) ;

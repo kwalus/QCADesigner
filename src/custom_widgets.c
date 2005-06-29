@@ -581,7 +581,19 @@ void set_window_icon (GtkWindow *window, char *pszBaseName)
     }
 
   g_free (pszIconFile) ;
-#endif
+#endif /* def GAVE_LIBRSVG */
+  }
+
+void tree_model_row_changed (GtkTreeModel *model, GtkTreeIter *itr)
+  {
+  GtkTreePath *tp = NULL ;
+
+  if (NULL == model || NULL == itr) return ;
+  if (NULL == (tp = gtk_tree_model_get_path (model, itr))) return ;
+
+  gtk_tree_model_row_changed (model, tp, itr) ;
+
+  gtk_tree_path_free (tp) ;
   }
 
 #endif /* def GTK_GUI */

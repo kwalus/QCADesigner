@@ -58,7 +58,6 @@ void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout
         gtk_tree_model_get (model, &itr, 
           BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type,
           BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, -1) ;
-        idx = CLAMP (idx, 0, pvt->inputs->icUsed) ;
         if (ROW_TYPE_CELL_INPUT == row_type && NULL != cell)
           if (-1 != (idx = VectorTable_find_input_idx (pvt, cell)))
             gtk_tree_store_set (GTK_TREE_STORE (model), &itr, 
@@ -80,8 +79,8 @@ void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout
             if (!gtk_tree_model_iter_next (model, &itrChild)) break ;
             }
           gtk_tree_store_set (GTK_TREE_STORE (model), &itr, VECTOR_TABLE_MODEL_COLUMN_ACTIVE, bBusActive, -1) ;
-          if (!gtk_tree_model_iter_next (model, &itr)) break ;
           }
+        if (!gtk_tree_model_iter_next (model, &itr)) break ;
         }
 
     gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->tv), model) ;

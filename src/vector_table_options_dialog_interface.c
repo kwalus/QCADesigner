@@ -25,6 +25,7 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
+#include <stdio.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include "support.h"
@@ -32,13 +33,14 @@
 #include "global_consts.h"
 #include "bus_layout_dialog.h"
 #include "objects/QCADCellRendererVT.h"
+#include "objects/QCADTreeViewContainer.h"
 #include "vector_table_options_dialog_data.h"
 #include "vector_table_options_dialog_callbacks.h"
 #include "vector_table_options_dialog_interface.h"
 
 void create_vector_table_options_dialog (vector_table_options_D *dialog)
   {
-  GtkWidget *tbl = NULL, *toolbar = NULL, *btn = NULL, *btnBaseRadioSource = NULL ;
+  GtkWidget *tbl = NULL, *toolbar = NULL, *btn = NULL, *btnBaseRadioSource = NULL/*, *hscroll = NULL, *vscroll = NULL, *tblSW = NULL, *frm = NULL*/ ;
   GtkAccelGroup *accel_group = NULL ;
   GtkTreeViewColumn *col = NULL ;
   GtkCellRenderer *cr = NULL ;
@@ -163,13 +165,29 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
     (GCallback)vector_table_options_dialog_btnAdd_clicked,
     dialog->dialog) ;
 
-  dialog->sw = gtk_scrolled_window_new (
-    GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 1, 1)), 
-    GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 1, 1))) ;
+  dialog->sw = qcad_tree_view_container_new () ;
   gtk_widget_show (dialog->sw) ;
   gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->sw, 1, 2, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (dialog->sw), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC) ;
+
+/*
+  tblSW = gtk_table_new (2, 2, FALSE) ;
+  gtk_widget_show (tblSW) ;
+  gtk_table_attach (GTK_TABLE (dialog->tblVT), tblSW, 1, 2, 0, 1,
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+  gtk_table_set_row_spacings (GTK_TABLE (tblSW), 2) ;
+  gtk_table_set_col_spacings (GTK_TABLE (tblSW), 2) ;
+
+  frm = gtk_frame_new (NULL) ;
+  gtk_widget_show (frm) ;
+  gtk_table_attach (GTK_TABLE (tblSW), frm, 0, 1, 0, 1,
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0) ;
+  gtk_frame_set_shadow_type (GTK_FRAME (frm), GTK_SHADOW_IN) ;
+*/
 
   dialog->tv = create_bus_layout_tree_view (TRUE, _("Inputs"), GTK_SELECTION_SINGLE) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new ()) ;
@@ -180,6 +198,25 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_cell_renderer_toggle_set_active (GTK_CELL_RENDERER_TOGGLE (cr), TRUE) ;
   gtk_widget_show (dialog->tv) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->tv) ;
+/*
+  gtk_container_add (GTK_CONTAINER (frm), dialog->tv) ;
+  gtk_widget_set_size_request (dialog->tv, 0, 0) ;
+
+  hscroll = gtk_hscrollbar_new (NULL) ;
+  gtk_widget_show (hscroll) ;
+  gtk_table_attach (GTK_TABLE (tblSW), hscroll, 0, 1, 1, 2,
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+//  gtk_tree_view_set_hadjustment (GTK_TREE_VIEW (dialog->tv), gtk_range_get_adjustment (GTK_RANGE (hscroll))) ;
+  
+  vscroll = gtk_vscrollbar_new (NULL) ;
+  gtk_widget_show (vscroll) ;
+  gtk_table_attach (GTK_TABLE (tblSW), vscroll, 1, 2, 0, 1,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0) ;
+  gtk_tree_view_set_vadjustment (GTK_TREE_VIEW (dialog->tv), gtk_range_get_adjustment (GTK_RANGE (vscroll))) ;
+*/
+//  gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->tv) ;
 
   g_signal_connect (G_OBJECT (dialog->tv),     "style-set",    (GCallback)tree_view_style_set,                          NULL) ;
   g_signal_connect (G_OBJECT (cr),             "toggled",      (GCallback)vt_model_active_toggled,                      dialog->tv) ;
@@ -210,8 +247,10 @@ void add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int
   g_object_set_data (G_OBJECT (cr), "pvt", pvt) ;
   gtk_tree_view_column_set_cell_data_func (col, cr, vector_data_func, pvt, NULL) ;
   g_object_set_data (G_OBJECT (col), "cr", cr) ;
+  g_object_set_data (G_OBJECT (cr), "col", col) ;
 
   g_signal_connect (G_OBJECT (col), "clicked", (GCallback)vector_column_clicked, dialog) ;
+  g_signal_connect (G_OBJECT (cr), "clicked", (GCallback)vector_column_clicked, dialog) ;
   g_signal_connect (G_OBJECT (cr), "edited",  (GCallback)vector_value_edited, dialog->tv) ;
 
   gtk_tree_view_column_clicked (col) ;

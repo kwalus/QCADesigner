@@ -120,7 +120,7 @@ void vector_table_options_dialog_btnSimType_clicked (GtkWidget *widget, gpointer
     gtk_widget_set_sensitive (dialog->btnOpen, TRUE) ;
     gtk_widget_set_sensitive (dialog->btnSave, TRUE) ;
     gtk_widget_show (dialog->tblVT) ;
-    scrolled_window_set_size (dialog->sw, dialog->tv, 0.8, 0.8) ;
+//    scrolled_window_set_size (dialog->sw, dialog->tv, 0.8, 0.8) ;
     gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), TRUE) ;
     }
   else
@@ -150,12 +150,15 @@ void vector_table_options_dialog_btnAdd_clicked (GtkWidget *widget, gpointer dat
   add_vector_to_dialog (dialog, pvt, -1) ;
   }
 
-void vector_column_clicked (GtkTreeViewColumn *col, gpointer data)
+void vector_column_clicked (GtkObject *obj, gpointer data)
   {
   GList *llCols = NULL ;
   vector_table_options_D *dialog = (vector_table_options_D *)data ;
+  GtkTreeViewColumn *col = NULL ;
 
   if (NULL == dialog) return ;
+
+  col = GTK_TREE_VIEW_COLUMN (GTK_IS_CELL_RENDERER (obj) ? g_object_get_data (G_OBJECT (obj), "col") : obj) ;
 
   if (NULL != (llCols = gtk_tree_view_get_columns (GTK_TREE_VIEW (dialog->tv))))
     {
@@ -242,6 +245,10 @@ void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *pszNewTe
   int idx = -1, the_shift = 0 ;
   long long new_value = -1 ;
   QCADCell *cell = NULL ;
+  GtkTreeViewColumn *col = g_object_get_data (G_OBJECT (cr), "col") ;
+
+  if (NULL != col)
+    gtk_tree_view_column_clicked (col) ;
 
   if (NULL == (tp = gtk_tree_path_new_from_string (pszPath))) return ;
   gtk_tree_model_get_iter (model, &itr, tp) ;
@@ -269,8 +276,11 @@ void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *pszNewTe
         gtk_tree_model_get (model, &itr, BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, -1) ;
         if (NULL != cell)
           if (-1 != (idx = VectorTable_find_input_idx (pvt, cell)))
+            {
+            tree_model_row_changed (model, &itr) ;
             // Zee ozer beeg fleep (1 == value ) would be noop
             exp_array_index_2d (pvt->vectors, gboolean, idxVector, idx) = (0 == new_value) ;
+            }
         }
     }
 

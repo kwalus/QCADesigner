@@ -174,17 +174,42 @@ void vector_column_clicked (GtkTreeViewColumn *col, gpointer data)
 
 void vector_data_func (GtkTreeViewColumn *col, GtkCellRenderer *cr, GtkTreeModel *model, GtkTreeIter *itr, gpointer data)
   {
+  GtkTreeIter itrChild ;
+  long long bus_value = 0 ;
   int idxInput = -1 ;
   int idxVector = (int)g_object_get_data (G_OBJECT (cr), "idxVector") ;
   QCADCell *cell = NULL ;
   VectorTable *pvt = (VectorTable *)data ;
 
-  gtk_tree_model_get (model, itr, BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, -1) ;
+  gtk_tree_model_get (model, itr, 
+    BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, -1) ;
 
-  if (NULL == cell) return ;
-  if (-1 == (idxInput = VectorTable_find_input_idx (pvt, cell))) return ;
+  if (NULL != cell)
+    if (-1 != (idxInput = VectorTable_find_input_idx (pvt, cell)))
+      {
+      g_object_set (cr, "active", exp_array_index_2d (pvt->vectors, gboolean, idxVector, idxInput), NULL) ;
+      return ;
+      }
 
-  g_object_set (cr, "text", (exp_array_index_2d (pvt->vectors, gboolean, idxVector, idxInput) ? "1" : "0"), NULL) ;
+  if (gtk_tree_model_iter_children (model, &itrChild, itr))
+    {
+    char *psz = NULL ;
+    while (TRUE)
+      {
+      bus_value = bus_value << 1 ;
+      gtk_tree_model_get (model, &itrChild, 
+        BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, 
+        BUS_LAYOUT_MODEL_COLUMN_NAME, &psz, 
+        -1) ;
+      if (-1 != (idxInput = VectorTable_find_input_idx (pvt, cell)))
+        bus_value += exp_array_index_2d (pvt->vectors, gboolean, idxVector, idxInput) ? 1 : 0 ;
+      if (!gtk_tree_model_iter_next (model, &itrChild)) break ;
+      }
+    g_object_set (cr, "text", psz = g_strdup_printf ("%llu", bus_value), NULL) ;
+    g_free (psz) ;
+    return ;
+    }
+  g_object_set (cr, "text", "", NULL) ;
   }
 
 void tree_view_style_set (GtkWidget *widget, GtkStyle *old_style, gpointer data)
@@ -213,22 +238,41 @@ void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *pszNewTe
   VectorTable *pvt = g_object_get_data (G_OBJECT (cr), "pvt") ;
   int idxVector = (int)g_object_get_data (G_OBJECT (cr), "idxVector") ;
   GtkTreePath *tp = NULL ;
-  GtkTreeIter itr ;
-  int idx = -1 ;
-  int new_value = -1 ;
+  GtkTreeIter itr, itrChild ;
+  int idx = -1, the_shift = 0 ;
+  long long new_value = -1 ;
   QCADCell *cell = NULL ;
 
-  new_value = atoi (pszNewText) ;
-  if (!(new_value == 0 || new_value == 1)) return ;
-
-  if (NULL == model || NULL == pvt || NULL == (tp = gtk_tree_path_new_from_string (pszPath))) return ;
-
+  if (NULL == (tp = gtk_tree_path_new_from_string (pszPath))) return ;
   gtk_tree_model_get_iter (model, &itr, tp) ;
 
-  gtk_tree_model_get (model, &itr, BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, -1) ;
-  if (NULL != cell)
-    if (-1 != (idx = VectorTable_find_input_idx (pvt, cell)))
-      exp_array_index_2d (pvt->vectors, gboolean, idxVector, idx) = (1 == new_value) ;
+  new_value = (long long)atoi (pszNewText) ;
+
+  if (gtk_tree_model_iter_children (model, &itrChild, &itr))
+    {
+    long long max_val = (1 << (the_shift = gtk_tree_model_iter_n_children (model, &itr))) - 1 ;
+    new_value = CLAMP (new_value, 0, max_val) ;
+    while (TRUE)
+      {
+      gtk_tree_model_get (model, &itrChild, BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, -1) ;
+      if (NULL != cell)
+        if (-1 != (idx = VectorTable_find_input_idx (pvt, cell)))
+          exp_array_index_2d (pvt->vectors, gboolean, idxVector, idx) = (new_value >> (--the_shift)) & 0x1 ;
+      if (!gtk_tree_model_iter_next (model, &itrChild)) break ;
+      }
+    }
+  else
+    {
+    if (new_value == 0 || new_value == 1)
+      if (!(NULL == model || NULL == pvt))
+        {
+        gtk_tree_model_get (model, &itr, BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, -1) ;
+        if (NULL != cell)
+          if (-1 != (idx = VectorTable_find_input_idx (pvt, cell)))
+            // Zee ozer beeg fleep (1 == value ) would be noop
+            exp_array_index_2d (pvt->vectors, gboolean, idxVector, idx) = (0 == new_value) ;
+        }
+    }
 
   gtk_tree_path_free (tp) ;  
   }

@@ -31,6 +31,7 @@
 #include "custom_widgets.h"
 #include "global_consts.h"
 #include "bus_layout_dialog.h"
+#include "objects/QCADCellRendererVT.h"
 #include "vector_table_options_dialog_data.h"
 #include "vector_table_options_dialog_callbacks.h"
 #include "vector_table_options_dialog_interface.h"
@@ -198,11 +199,12 @@ void add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int
   gtk_tree_view_insert_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new (), idxCol) ;
   gtk_tree_view_column_set_title (col, psz = g_strdup_printf ("%d", idxVector)) ;
   g_free (psz) ;
-  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_text_new (), FALSE) ;
+  gtk_tree_view_column_pack_start (col, cr = qcad_cell_renderer_vt_new (), FALSE) ;
   g_object_set (G_OBJECT (cr), 
     "cell-background-gdk", &((gtk_widget_get_style (dialog->tv))->base[3]),
     "cell-background-set", FALSE, 
     "editable", TRUE, NULL) ;
+  gtk_tree_view_column_add_attribute (col, cr, "row-type", BUS_LAYOUT_MODEL_COLUMN_TYPE) ;
   gtk_tree_view_column_set_clickable (col, TRUE) ;
   g_object_set_data (G_OBJECT (cr), "idxVector", (gpointer)idxVector) ;
   g_object_set_data (G_OBJECT (cr), "pvt", pvt) ;
@@ -210,7 +212,7 @@ void add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int
   g_object_set_data (G_OBJECT (col), "cr", cr) ;
 
   g_signal_connect (G_OBJECT (col), "clicked", (GCallback)vector_column_clicked, dialog) ;
-  g_signal_connect (G_OBJECT (cr), "edited",  (GCallback)vector_value_edited,   dialog->tv) ;
+  g_signal_connect (G_OBJECT (cr), "edited",  (GCallback)vector_value_edited, dialog->tv) ;
 
   gtk_tree_view_column_clicked (col) ;
   }

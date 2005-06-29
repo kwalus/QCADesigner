@@ -77,6 +77,7 @@ QCADesigner_SOURCES = \
 	$(OBJECT_FILES) \
 \
 	objects/QCADClockCombo.c                objects/QCADClockCombo.h \
+	objects/QCADCellRendererVT.c            objects/QCADCellRendererVT.h \
 	print_properties_dialog.c               print_properties_dialog.h \
 	print_graph_properties_dialog.c         print_graph_properties_dialog.h \
 	                                        print_properties_dialog_callbacks.h \

@@ -120,7 +120,7 @@ void vector_table_options_dialog_btnSimType_clicked (GtkWidget *widget, gpointer
     gtk_widget_set_sensitive (dialog->btnOpen, TRUE) ;
     gtk_widget_set_sensitive (dialog->btnSave, TRUE) ;
     gtk_widget_show (dialog->tblVT) ;
-//    scrolled_window_set_size (dialog->sw, dialog->tv, 0.8, 0.8) ;
+    scrolled_window_set_size (dialog->sw, dialog->tv, 0.8, 0.8) ;
     gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), TRUE) ;
     }
   else

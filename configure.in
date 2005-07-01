@@ -39,6 +39,11 @@ fi
 pkg_modules="gtk+-2.0 >= 2.0.0"
 PKG_CHECK_MODULES(GTK, [$pkg_modules])
 
+if $PKG_CONFIG --modversion cairo; then
+  GTK_CFLAGS=${GTK_CFLAGS} `$PKG_CONFIG --cflags cairo`
+  GTK_LIBS=${GTK_LIBS} `$PKG_CONFIG --libs cairo`
+fi
+
 pkg_modules="gthread-2.0 >= 2.0.0"
 PKG_CHECK_MODULES(GTHREAD, [$pkg_modules])
 if echo "$build" | grep "solaris" > /dev/null; then

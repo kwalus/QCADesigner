@@ -37,6 +37,7 @@
 #include "bus_layout_dialog.h"
 #include "vector_table_options_dialog.h"
 #include "vector_table_options_dialog_data.h"
+#include "vector_table_options_dialog_callbacks.h"
 #include "vector_table_options_dialog_interface.h"
 
 VectorTable *pvt ;
@@ -53,6 +54,8 @@ void get_vector_table_options_from_user (GtkWindow *parent, BUS_LAYOUT *bus_layo
   VectorTableToDialog (&vto, bus_layout, sim_type, pvt) ;
 
   gtk_widget_show (vto.dialog) ;
+
+  vector_table_options_dialog_btnSimType_clicked (VECTOR_TABLE == (*sim_type) ? vto.tbtnVT : vto.tbtnExhaustive, &vto) ;
 
   while (GTK_WIDGET_VISIBLE (vto.dialog))
     gtk_main_iteration () ;

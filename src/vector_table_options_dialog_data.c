@@ -32,12 +32,15 @@
 
 void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout, int *sim_type, VectorTable *pvt)
   {
+  GList *llCols = NULL, *llItr = NULL ;
+  int Nix ;
   GtkTreeModel *model = NULL ;
   GtkWidget *tbtn = NULL ;
   if (NULL == dialog || NULL == sim_type || NULL == pvt) return ;
 
   g_object_set_data (G_OBJECT (dialog->dialog), "user_sim_type", sim_type) ;
   g_object_set_data (G_OBJECT (dialog->dialog), "user_pvt", pvt) ;
+  g_object_set_data (G_OBJECT (dialog->dialog), "user_bus_layout", bus_layout) ;
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (tbtn = (VECTOR_TABLE == (*sim_type) ? dialog->tbtnVT : dialog->tbtnExhaustive)), TRUE) ;
 
@@ -83,12 +86,25 @@ void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout
         if (!gtk_tree_model_iter_next (model, &itr)) break ;
         }
 
+    llCols = gtk_tree_view_get_columns (GTK_TREE_VIEW (dialog->tv)) ;
+    for (Nix = 0, llItr = llCols ; Nix < 2 && NULL != llItr ; Nix++, llItr = llItr->next) ;
+    for (; llItr != NULL ; llItr = llItr->next)
+      gtk_tree_view_remove_column (GTK_TREE_VIEW (dialog->tv), GTK_TREE_VIEW_COLUMN (llItr->data)) ;
+    g_list_free (llCols) ;
+
     gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->tv), model) ;
     }
 
   gtk_tree_view_expand_all (GTK_TREE_VIEW (dialog->tv)) ;
 
-  vector_table_options_dialog_btnSimType_clicked (tbtn, dialog) ;
+  for (Nix = 0 ; Nix < pvt->vectors->icUsed ; Nix++)
+    add_vector_to_dialog (dialog, pvt, Nix) ;
+
+  if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (tbtn)))
+    {
+    fprintf (stderr, "VectorTableToDialog:Calling btnSimType_clicked\n") ;
+    vector_table_options_dialog_btnSimType_clicked (tbtn, dialog) ;
+    }
   }
 
 void DialogToVectorTable (vector_table_options_D *dialog)

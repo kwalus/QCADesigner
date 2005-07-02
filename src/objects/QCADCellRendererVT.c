@@ -226,15 +226,23 @@ static void qcad_cell_renderer_vt_render (GtkCellRenderer *cr, GdkWindow *window
 
     shadow = (1 == qcadcrvt->value) ? GTK_SHADOW_IN : GTK_SHADOW_OUT;
 
-    if ((flags & GTK_CELL_RENDERER_SELECTED) == GTK_CELL_RENDERER_SELECTED)
+/*
+    if (cr->sensitive)
       {
-      if (GTK_WIDGET_HAS_FOCUS (widget))
-        state = GTK_STATE_SELECTED;
+      if ((flags & GTK_CELL_RENDERER_SELECTED) == GTK_CELL_RENDERER_SELECTED)
+        {
+        if (GTK_WIDGET_HAS_FOCUS (widget))
+          state = GTK_STATE_SELECTED;
+        else
+          state = GTK_STATE_ACTIVE;
+        }
       else
-        state = GTK_STATE_ACTIVE;
+        state = GTK_STATE_NORMAL;
       }
     else
-      state = GTK_STATE_NORMAL;
+      state = GTK_STATE_INSENSITIVE ;
+*/
+    state = GTK_STATE_INSENSITIVE ;
 
     gtk_paint_check (widget->style,
     window,

@@ -178,7 +178,8 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_tree_view_column_set_title (col, _("Active")) ;
   gtk_tree_view_column_pack_start (col, cr = dialog->crActive = gtk_cell_renderer_toggle_new (), TRUE) ;
   gtk_tree_view_column_add_attribute (col, cr, "active", VECTOR_TABLE_MODEL_COLUMN_ACTIVE) ;
-  g_object_set (G_OBJECT (cr), "activatable", TRUE, NULL) ;
+  g_object_set (G_OBJECT (cr), "activatable", FALSE, NULL) ;
+  g_object_set (G_OBJECT (cr), "sensitive", FALSE, NULL) ;
   gtk_cell_renderer_toggle_set_active (GTK_CELL_RENDERER_TOGGLE (cr), TRUE) ;
   gtk_widget_show (dialog->tv) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->tv) ;
@@ -208,6 +209,7 @@ void add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int
     "cell-background-set", FALSE, 
     "editable", TRUE, NULL) ;
   gtk_tree_view_column_add_attribute (col, cr, "row-type", BUS_LAYOUT_MODEL_COLUMN_TYPE) ;
+  gtk_tree_view_column_add_attribute (col, cr, "sensitive", VECTOR_TABLE_MODEL_COLUMN_ACTIVE) ;
   gtk_tree_view_column_set_clickable (col, TRUE) ;
   g_object_set_data (G_OBJECT (cr), "idxVector", (gpointer)idxVector) ;
   g_object_set_data (G_OBJECT (cr), "pvt", pvt) ;
@@ -219,5 +221,5 @@ void add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int
   g_signal_connect (G_OBJECT (cr), "clicked", (GCallback)vector_column_clicked, dialog) ;
   g_signal_connect (G_OBJECT (cr), "edited",  (GCallback)vector_value_edited, dialog->tv) ;
 
-  gtk_tree_view_column_clicked (col) ;
+//  gtk_tree_view_column_clicked (col) ;
   }

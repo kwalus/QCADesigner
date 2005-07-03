@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
+#include "qcadstock.h"
 #include "support.h"
 #include "custom_widgets.h"
 #include "global_consts.h"
@@ -165,6 +166,29 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
     (GCallback)vector_table_options_dialog_btnAdd_clicked,
     dialog->dialog) ;
 
+  dialog->btnInsert =
+  btn = gtk_toolbar_append_element (
+    GTK_TOOLBAR (toolbar),
+    GTK_TOOLBAR_CHILD_BUTTON,
+    NULL,
+    _("Insert Before"),
+    _("Insert Vector Before"),
+    _("Insert vector before the selected one."),
+    gtk_image_new_from_stock (QCAD_STOCK_INSERT_COL_BEFORE, GTK_ICON_SIZE_LARGE_TOOLBAR),
+    (GCallback)vector_table_options_dialog_btnAdd_clicked,
+    dialog->dialog) ;
+
+  btn = gtk_toolbar_append_element (
+    GTK_TOOLBAR (toolbar),
+    GTK_TOOLBAR_CHILD_BUTTON,
+    NULL,
+    _("Delete Vector"),
+    _("Delete Vector"),
+    _("Insert the selected vector."),
+    gtk_image_new_from_stock (GTK_STOCK_DELETE, GTK_ICON_SIZE_LARGE_TOOLBAR),
+    (GCallback)vector_table_options_dialog_btnDelete_clicked,
+    dialog->dialog) ;
+
   dialog->sw = qcad_tree_view_container_new () ;
   gtk_widget_show (dialog->sw) ;
   gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->sw, 1, 2, 0, 1,
@@ -178,8 +202,7 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_tree_view_column_set_title (col, _("Active")) ;
   gtk_tree_view_column_pack_start (col, cr = dialog->crActive = gtk_cell_renderer_toggle_new (), TRUE) ;
   gtk_tree_view_column_add_attribute (col, cr, "active", VECTOR_TABLE_MODEL_COLUMN_ACTIVE) ;
-  g_object_set (G_OBJECT (cr), "activatable", FALSE, NULL) ;
-  g_object_set (G_OBJECT (cr), "sensitive", FALSE, NULL) ;
+  g_object_set (G_OBJECT (cr), "activatable", TRUE, NULL) ;
   gtk_cell_renderer_toggle_set_active (GTK_CELL_RENDERER_TOGGLE (cr), TRUE) ;
   gtk_widget_show (dialog->tv) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->tv) ;
@@ -192,13 +215,36 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_window_add_accel_group (GTK_WINDOW (dialog->dialog), accel_group) ;
   }
 
-void add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int idx)
+GtkTreeViewColumn *add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int idx)
   {
+  GList *llItr = NULL, *llCols = NULL ;
   GtkTreeViewColumn *col = NULL ;
   GtkCellRenderer *cr = NULL ;
   int idxCol = (-1 == idx ? idx : idx + 2) ;
   int idxVector = (-1 == idx ? pvt->vectors->icUsed - 1 : idx) ;
   char *psz = NULL ;
+  int Nix, new_idx = -1 ;
+
+  if (idx >= 0)
+    {
+    // Move to the first vector column
+    if (NULL != (llCols = llItr = gtk_tree_view_get_columns (GTK_TREE_VIEW (dialog->tv))))
+      {
+      if (NULL != (llItr = llItr->next))
+        llItr = llItr->next ;
+      // Increment the indices for all vector columns following the new one.
+      for (Nix = 0 ; llItr != NULL ; llItr = llItr->next, Nix++)
+        if (Nix >= idx)
+          if (NULL != (cr = g_object_get_data (G_OBJECT (llItr->data), "cr")))
+            {
+            g_object_set_data (G_OBJECT (cr), "idxVector",
+              (gpointer)(new_idx = (int)g_object_get_data (G_OBJECT (cr), "idxVector") + 1)) ;
+            gtk_tree_view_column_set_title (GTK_TREE_VIEW_COLUMN (llItr->data), psz = g_strdup_printf ("%d", new_idx)) ;
+            g_free (psz) ;
+            }
+      g_list_free (llCols) ;
+      }
+    }
 
   gtk_tree_view_insert_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new (), idxCol) ;
   gtk_tree_view_column_set_title (col, psz = g_strdup_printf ("%d", idxVector)) ;
@@ -221,5 +267,5 @@ void add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int
   g_signal_connect (G_OBJECT (cr), "clicked", (GCallback)vector_column_clicked, dialog) ;
   g_signal_connect (G_OBJECT (cr), "edited",  (GCallback)vector_value_edited, dialog->tv) ;
 
-//  gtk_tree_view_column_clicked (col) ;
+  return col ;
   }

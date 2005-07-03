@@ -66,5 +66,6 @@
 #define QCAD_STOCK_MEASURE            "qcad-measure"
 #define QCAD_STOCK_LABEL              "qcad-label"
 #define QCAD_STOCK_SUBSTRATE          "qcad-substrate"
+#define QCAD_STOCK_INSERT_COL_BEFORE  "qcad-insert-column-before"
 
 #endif /* _QCADSTOCK_H_ */

@@ -239,7 +239,7 @@ char *base_name (char *pszFile)
   {
   char *pszRet = &(pszFile[strlen (pszFile)]) ;
   while (--pszRet > pszFile)
-    if (*pszRet == '/' || *pszRet == '\\')
+    if (*pszRet == G_DIR_SEPARATOR)
       return pszRet + 1 ;
   return pszFile ;
   }

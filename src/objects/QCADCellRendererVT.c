@@ -226,7 +226,6 @@ static void qcad_cell_renderer_vt_render (GtkCellRenderer *cr, GdkWindow *window
 
     shadow = (1 == qcadcrvt->value) ? GTK_SHADOW_IN : GTK_SHADOW_OUT;
 
-/*
     if (cr->sensitive)
       {
       if ((flags & GTK_CELL_RENDERER_SELECTED) == GTK_CELL_RENDERER_SELECTED)
@@ -241,22 +240,20 @@ static void qcad_cell_renderer_vt_render (GtkCellRenderer *cr, GdkWindow *window
       }
     else
       state = GTK_STATE_INSENSITIVE ;
-*/
-    state = GTK_STATE_INSENSITIVE ;
 
     gtk_paint_check (widget->style,
-    window,
-    state, shadow,
-    cell_area, widget, "cellcheck",
-    cell_area->x + x_offset + cr->xpad,
-    cell_area->y + y_offset + cr->ypad,
-    width - 1, height - 1);
+      window,
+      state, shadow,
+      cell_area, widget, "cellcheck",
+      cell_area->x + x_offset + cr->xpad,
+      cell_area->y + y_offset + cr->ypad,
+      width - 1, height - 1);
     }
   }
 
 static GtkCellEditable *qcad_cell_renderer_vt_start_editing (GtkCellRenderer *cell, GdkEvent *event, GtkWidget *widget, const gchar *path, GdkRectangle *background_area, GdkRectangle *cell_area, GtkCellRendererState flags)
   {
-  if (QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_BUS)
+  if (QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_BUS && cell->sensitive)
     {
     g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL], 0) ;
     return (GTK_CELL_RENDERER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL_RENDERER_VT))))->start_editing (cell, event, widget, path, background_area, cell_area, flags) ;
@@ -269,12 +266,10 @@ static gboolean qcad_cell_renderer_vt_activate (GtkCellRenderer *cell, GdkEvent 
   {
   char *psz = NULL ;
 
-  if (QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_CELL)
+  if ((QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_CELL) && cell->sensitive)
     {
-//    QCAD_CELL_RENDERER_VT (cell)->value = (0 == QCAD_CELL_RENDERER_VT (cell)->value) ? 1 : 0 ;
     g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL], 0) ;
     g_signal_emit_by_name (cell, "edited", path, psz = g_strdup_printf ("%llu", QCAD_CELL_RENDERER_VT (cell)->value)) ;
-    //g_signal_emit (cell, qcad_cell_renderer_vt_signals[QCADCRVT_TOGGLED_SIGNAL], 0, path) ;
     return TRUE ;
     }
   return FALSE ;

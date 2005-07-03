@@ -37,6 +37,7 @@ typedef struct
   GtkWidget *tbtnExhaustive ;
   GtkWidget *btnOpen ;
   GtkWidget *btnSave ;
+  GtkWidget *btnInsert ;
   GtkWidget *tblVT ;
   GtkWidget *sw ;
   GtkWidget *tv ;
@@ -44,6 +45,6 @@ typedef struct
   } vector_table_options_D ;
 
 void create_vector_table_options_dialog (vector_table_options_D *pnvto) ;
-void add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int idx) ;
+GtkTreeViewColumn *add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int idx) ;
 
 #endif /* _VECTOR_TABLE_OPTIONS_DIALOG_INTERFACE_H_ */

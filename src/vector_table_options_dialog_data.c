@@ -36,11 +36,14 @@ void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout
   int Nix ;
   GtkTreeModel *model = NULL ;
   GtkWidget *tbtn = NULL ;
+  GtkTreeViewColumn *col = NULL ;
+
   if (NULL == dialog || NULL == sim_type || NULL == pvt) return ;
 
   g_object_set_data (G_OBJECT (dialog->dialog), "user_sim_type", sim_type) ;
   g_object_set_data (G_OBJECT (dialog->dialog), "user_pvt", pvt) ;
   g_object_set_data (G_OBJECT (dialog->dialog), "user_bus_layout", bus_layout) ;
+  g_object_set_data (G_OBJECT (dialog->dialog), "idxVector", (gpointer)-1) ;
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (tbtn = (VECTOR_TABLE == (*sim_type) ? dialog->tbtnVT : dialog->tbtnExhaustive)), TRUE) ;
 
@@ -98,13 +101,16 @@ void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout
   gtk_tree_view_expand_all (GTK_TREE_VIEW (dialog->tv)) ;
 
   for (Nix = 0 ; Nix < pvt->vectors->icUsed ; Nix++)
-    add_vector_to_dialog (dialog, pvt, Nix) ;
+    if (NULL == col)
+      col = add_vector_to_dialog (dialog, pvt, Nix) ;
+    else
+      add_vector_to_dialog (dialog, pvt, Nix) ;
+
+  if (NULL != col)
+    gtk_tree_view_column_clicked (col) ;
 
   if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (tbtn)))
-    {
-    fprintf (stderr, "VectorTableToDialog:Calling btnSimType_clicked\n") ;
     vector_table_options_dialog_btnSimType_clicked (tbtn, dialog) ;
-    }
   }
 
 void DialogToVectorTable (vector_table_options_D *dialog)
@@ -121,3 +127,19 @@ void DialogToVectorTable (vector_table_options_D *dialog)
 
   (*sim_type) = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->tbtnVT)) ? VECTOR_TABLE : EXHAUSTIVE_VERIFICATION ;
   }
+/*
+void vector_table_options_dialog_reflect_state (vector_table_options_D *dialog)
+  {
+  int *sim_type = NULL ;
+  VectorTable *pvt = NULL ;
+
+  if (NULL == dialog) return ;
+  if (NULL == (pvt = g_object_get_data (G_OBJECT (dialog->dialog), "user_pvt"))) return ;
+  if (NULL == (sim_type = g_object_get_data (G_OBJECT (dialog->dialog), "user_sim_type"))) return ;
+
+  if (VECTOR_TABLE == (*sim_type))
+    {
+    
+    }
+  }
+*/

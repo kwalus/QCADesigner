@@ -38,6 +38,8 @@
 #include "vector_table_options_dialog_interface.h"
 #include "vector_table_options_dialog_callbacks.h"
 
+static int get_n_active_children (GtkTreeModel *model, GtkTreeIter *itr) ;
+
 void vt_model_active_toggled (GtkCellRenderer *cr, char *pszTreePath, gpointer data)
   {
   VectorTable *pvt = g_object_get_data (G_OBJECT (cr), "pvt") ;
@@ -64,7 +66,7 @@ void vt_model_active_toggled (GtkCellRenderer *cr, char *pszTreePath, gpointer d
       exp_array_index_1d (pvt->inputs, VT_INPUT, idx).active_flag = bActive ;
   gtk_tree_store_set (GTK_TREE_STORE (model), &itr, VECTOR_TABLE_MODEL_COLUMN_ACTIVE, bActive, -1) ;
 
-  // If this node hash children (IOW it's a bus node) make all the children be toggled the same way
+  // If this node has children (IOW it's a bus node) make all the children be toggled the same way
   // as the bus node, and reflect the state in the vector table
   if (gtk_tree_model_iter_children (model, &itrOther, &itr))
     while (TRUE)
@@ -99,6 +101,46 @@ void vt_model_active_toggled (GtkCellRenderer *cr, char *pszTreePath, gpointer d
     }
 
   gtk_tree_path_free (tp) ;
+  }
+
+void vector_table_options_dialog_btnDelete_clicked (GtkWidget *widget, gpointer data)
+  {
+  char *psz = NULL ;
+  GtkCellRenderer *cr = NULL ;
+  int Nix; ;
+  GList *llItr = NULL, *llCols = NULL, *llRemove = NULL, *llFirst = NULL, *llClick = NULL ;
+  vector_table_options_D *dialog = g_object_get_data (G_OBJECT (data), "dialog") ;
+  int idxVector = (int)g_object_get_data (G_OBJECT (data), "idxVector") ;
+  VectorTable *pvt = g_object_get_data (G_OBJECT (data), "user_pvt") ;
+
+  if (NULL == dialog || NULL == pvt) return ;
+
+  if (NULL != (llCols = gtk_tree_view_get_columns (GTK_TREE_VIEW (dialog->tv))))
+    // The first vector
+    if (NULL != (llFirst = g_list_nth (llCols, 2)))
+      if (NULL != (llRemove = g_list_nth (llFirst, idxVector)))
+        llClick = ((NULL == llRemove->next) ? ((NULL == llRemove->prev) ? NULL : llRemove->prev) : llRemove->next) ;
+
+  if (NULL != llRemove)
+    gtk_tree_view_remove_column (GTK_TREE_VIEW (dialog->tv), GTK_TREE_VIEW_COLUMN (llRemove->data)) ;
+
+  for (Nix = 0, llItr = llFirst ; llItr != NULL ; llItr = llItr->next, Nix++)
+    if (llItr != llRemove)
+      {
+      if (NULL != (cr = g_object_get_data (G_OBJECT (llItr->data), "cr")))
+        {
+        g_object_set_data (G_OBJECT (cr), "idxVector", (gpointer)Nix) ;
+        gtk_tree_view_column_set_title (GTK_TREE_VIEW_COLUMN (llItr->data), psz = g_strdup_printf ("%d", Nix)) ;
+        g_free (psz) ;
+        }
+      }
+    else
+      Nix-- ;
+
+  if (NULL != llClick)
+    gtk_tree_view_column_clicked (GTK_TREE_VIEW_COLUMN (llClick->data)) ;
+
+  VectorTable_del_vector (pvt, idxVector) ;
   }
 
 void vector_table_options_dialog_btnClose_clicked (GtkWidget *widget, gpointer data)
@@ -197,7 +239,6 @@ void vector_table_options_dialog_btnOpen_clicked (GtkWidget *widget, gpointer da
     }
   else
     {
-    char *psz1 = NULL ;
     if (VTL_SHORT == vtl_result || VTL_TRUNC == vtl_result)
       {
       GtkWidget *msg = NULL ;
@@ -219,9 +260,8 @@ void vector_table_options_dialog_btnOpen_clicked (GtkWidget *widget, gpointer da
 
     g_free (pszOldFName) ;
 
-    gtk_window_set_title (GTK_WINDOW (dialog->dialog), psz = g_strdup_printf ("%s - %s", psz1 = base_name (psz), _("Vector Table Setup"))) ;
+    gtk_window_set_title (GTK_WINDOW (dialog->dialog), psz = g_strdup_printf ("%s - %s", base_name (psz), _("Vector Table Setup"))) ;
     g_free (psz) ;
-    g_free (psz1) ;
     }
   }
 
@@ -235,7 +275,6 @@ void vector_table_options_dialog_btnSave_clicked (GtkWidget *widget, gpointer da
 
   if (NULL == (psz = get_file_name_from_user (GTK_WINDOW (data), _("Save Vector Table"), pvt->pszFName, TRUE)))
     return ;
-  else
 
   psz1 = pvt->pszFName ;
   pvt->pszFName = psz ;
@@ -243,16 +282,21 @@ void vector_table_options_dialog_btnSave_clicked (GtkWidget *widget, gpointer da
   if (VectorTable_save (pvt))
     {
     g_free (psz1) ;
-    // Overwriting psz here is OK, because pvt->pszFName keeps a reference.
-    psz = base_name (psz) ;
-
-    gtk_window_set_title (GTK_WINDOW (data), psz1 = g_strdup_printf ("%s - %s", psz, _("Vector Table Setup"))) ;
-
+    gtk_window_set_title (GTK_WINDOW (data), psz1 = g_strdup_printf ("%s - %s", base_name (psz), _("Vector Table Setup"))) ;
     g_free (psz1) ;
-    g_free (psz) ;
     }
   else
     {
+    GtkWidget *msg = NULL ;
+
+    gtk_dialog_run (GTK_DIALOG (msg = 
+      gtk_message_dialog_new (GTK_WINDOW (data), 
+        GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, 
+           _("Failed to save vector table file \"%s\"!"), psz))) ;
+
+    gtk_widget_hide (msg) ;
+    gtk_widget_destroy (msg) ;
+
     pvt->pszFName = psz1 ;
     g_free (psz) ;
     }
@@ -262,15 +306,16 @@ void vector_table_options_dialog_btnAdd_clicked (GtkWidget *widget, gpointer dat
   {
   vector_table_options_D *dialog = g_object_get_data (G_OBJECT (data), "dialog") ;
   VectorTable *pvt = NULL ;
+  int idxVector = -1 ;
 
   if (NULL == dialog) return ;
-
   if (NULL == (pvt = g_object_get_data (G_OBJECT (dialog->dialog), "user_pvt"))) return ;
+  if (dialog->btnInsert == widget)
+    idxVector = (int)g_object_get_data (G_OBJECT (data), "idxVector") ;
 
+  VectorTable_add_vector (pvt, idxVector) ;
 
-  VectorTable_add_vector (pvt, -1) ;
-
-  add_vector_to_dialog (dialog, pvt, -1) ;
+  add_vector_to_dialog (dialog, pvt, idxVector) ;
   }
 
 void vector_column_clicked (GtkObject *obj, gpointer data)
@@ -278,10 +323,13 @@ void vector_column_clicked (GtkObject *obj, gpointer data)
   GList *llCols = NULL ;
   vector_table_options_D *dialog = (vector_table_options_D *)data ;
   GtkTreeViewColumn *col = NULL ;
+  GtkCellRenderer *cr = NULL ;
 
   if (NULL == dialog) return ;
 
   col = GTK_TREE_VIEW_COLUMN (GTK_IS_CELL_RENDERER (obj) ? g_object_get_data (G_OBJECT (obj), "col") : obj) ;
+  cr = g_object_get_data (G_OBJECT (col), "cr") ;
+  g_object_set_data (G_OBJECT (dialog->dialog), "idxVector", g_object_get_data (G_OBJECT (cr), "idxVector")) ;
 
   if (NULL != (llCols = gtk_tree_view_get_columns (GTK_TREE_VIEW (dialog->tv))))
     {
@@ -306,6 +354,7 @@ void vector_data_func (GtkTreeViewColumn *col, GtkCellRenderer *cr, GtkTreeModel
   int idxVector = (int)g_object_get_data (G_OBJECT (cr), "idxVector") ;
   QCADCell *cell = NULL ;
   VectorTable *pvt = (VectorTable *)data ;
+  gboolean bActive = FALSE ;
 
   gtk_tree_model_get (model, itr, 
     BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, -1) ;
@@ -322,13 +371,17 @@ void vector_data_func (GtkTreeViewColumn *col, GtkCellRenderer *cr, GtkTreeModel
     char *psz = NULL ;
     while (TRUE)
       {
-      bus_value = bus_value << 1 ;
       gtk_tree_model_get (model, &itrChild, 
         BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, 
-        BUS_LAYOUT_MODEL_COLUMN_NAME, &psz, 
+        BUS_LAYOUT_MODEL_COLUMN_NAME, &psz,
+        VECTOR_TABLE_MODEL_COLUMN_ACTIVE, &bActive,
         -1) ;
-      if (-1 != (idxInput = VectorTable_find_input_idx (pvt, cell)))
-        bus_value += exp_array_index_2d (pvt->vectors, gboolean, idxVector, idxInput) ? 1 : 0 ;
+      if (bActive)
+        {
+        bus_value = bus_value << 1 ;
+        if (-1 != (idxInput = VectorTable_find_input_idx (pvt, cell)))
+          bus_value += exp_array_index_2d (pvt->vectors, gboolean, idxVector, idxInput) ? 1 : 0 ;
+        }
       if (!gtk_tree_model_iter_next (model, &itrChild)) break ;
       }
     g_object_set (cr, "text", psz = g_strdup_printf ("%llu", bus_value), NULL) ;
@@ -369,6 +422,7 @@ void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *pszNewTe
   long long new_value = -1 ;
   QCADCell *cell = NULL ;
   GtkTreeViewColumn *col = g_object_get_data (G_OBJECT (cr), "col") ;
+  gboolean bActive = FALSE ;
 
   if (NULL != col)
     gtk_tree_view_column_clicked (col) ;
@@ -378,19 +432,24 @@ void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *pszNewTe
 
   new_value = (long long)atoi (pszNewText) ;
 
+  // If this is a bus node, update the children
   if (gtk_tree_model_iter_children (model, &itrChild, &itr))
     {
-    long long max_val = (1 << (the_shift = gtk_tree_model_iter_n_children (model, &itr))) - 1 ;
+    long long max_val = (1 << (the_shift = get_n_active_children (model, &itr))) - 1 ;
+
     new_value = CLAMP (new_value, 0, max_val) ;
     while (TRUE)
       {
-      gtk_tree_model_get (model, &itrChild, BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, -1) ;
-      if (NULL != cell)
+      gtk_tree_model_get (model, &itrChild, 
+        BUS_LAYOUT_MODEL_COLUMN_CELL, &cell, 
+        VECTOR_TABLE_MODEL_COLUMN_ACTIVE, &bActive, -1) ;
+      if (NULL != cell && bActive)
         if (-1 != (idx = VectorTable_find_input_idx (pvt, cell)))
           exp_array_index_2d (pvt->vectors, gboolean, idxVector, idx) = (new_value >> (--the_shift)) & 0x1 ;
       if (!gtk_tree_model_iter_next (model, &itrChild)) break ;
       }
     }
+  // Otherwise, update the checkbox and the corresponding bus
   else
     {
     if (new_value == 0 || new_value == 1)
@@ -408,4 +467,22 @@ void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *pszNewTe
     }
 
   gtk_tree_path_free (tp) ;  
+  }
+
+static int get_n_active_children (GtkTreeModel *model, GtkTreeIter *itr)
+  {
+  int ret = 0 ;
+  GtkTreeIter itrChild ;
+  gboolean bActive = FALSE ;
+
+  if (NULL == model || NULL == itr) return 0 ;
+  if (!gtk_tree_model_iter_children (model, &itrChild, itr)) return 0 ;
+
+  while (TRUE)
+    {
+    gtk_tree_model_get (model, &itrChild, VECTOR_TABLE_MODEL_COLUMN_ACTIVE, &bActive, -1) ;
+    if (bActive) ret++ ;
+    if (!gtk_tree_model_iter_next (model, &itrChild)) break ;
+    }
+  return ret ;
   }

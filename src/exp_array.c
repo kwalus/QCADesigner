@@ -95,8 +95,7 @@ void exp_array_insert_vals (EXP_ARRAY *exp_array, void *data, int icElements, in
 
 static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElements, int iDimension, va_list va)
   {
-  int idx = -1, Nix, icNeeded = -1, icOldAvail = -1 ;
-  va_list xa ;
+  int idx = -1, icNeeded = -1 ;
 
   idx = va_arg (va, int) ;
   if (-1 == idx) idx = exp_array->icUsed ;
@@ -104,57 +103,26 @@ static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElem
 
   if (iDimension > 1)
     {
-    if (idx == (icOldAvail = exp_array->icAvail))
-      {
-      exp_array->data = g_realloc (exp_array->data, (exp_array->icAvail = ((exp_array->icAvail) << 1) + 1) * sizeof (EXP_ARRAY *)) ;
-      for (Nix = icOldAvail ; Nix < exp_array->icAvail ; Nix++)
-        ((EXP_ARRAY **)(exp_array->data))[Nix] = NULL ;
-      }
-
-    if (idx >= exp_array->icUsed) (exp_array->icUsed)++ ;
-
-    if (NULL == ((EXP_ARRAY **)(exp_array->data))[idx])
-      ((EXP_ARRAY **)(exp_array->data))[idx] = exp_array_new (exp_array->cbSize, iDimension - 1) ;
-
-    exp_array_vinsert_vals (((EXP_ARRAY **)(exp_array->data))[idx], data, icElements, iDimension - 1, va) ;
+    exp_array_insert_vals (exp_array, NULL, 1, 1, idx) ;
+    exp_array_index_1d (exp_array, EXP_ARRAY *, idx) = exp_array_new (exp_array->cbSize, iDimension - 1) ;
+    exp_array_vinsert_vals (exp_array_index_1d (exp_array, EXP_ARRAY *, idx), data, icElements, iDimension - 1, va) ;
     }
   else
   if (1 == iDimension)
     {
-    if (exp_array->icDimensions > 1)
-      {
-      if ((icNeeded = MAX (icElements, exp_array->icUsed)) > (icOldAvail = exp_array->icAvail))
-        exp_array->data = g_realloc (exp_array->data,
-          (exp_array->icAvail = MAX ((exp_array->icAvail << 1) + 1, icNeeded)) * sizeof (EXP_ARRAY *)) ;
-      for (Nix = icOldAvail ; Nix < exp_array->icAvail ; Nix++)
-        ((EXP_ARRAY **)(exp_array->data))[Nix] = NULL ;
+    if ((icNeeded = icElements + exp_array->icUsed) > exp_array->icAvail)
+      exp_array->data = g_realloc (exp_array->data,
+        (exp_array->icAvail = MAX ((exp_array->icAvail << 1) + 1, icNeeded)) * exp_array->cbSize) ;
 
-      for (Nix = idx ; Nix < idx + icElements ; Nix++)
-        {
-        if (NULL == ((EXP_ARRAY **)(exp_array->data))[Nix])
-          ((EXP_ARRAY **)(exp_array->data))[Nix] = exp_array_new (exp_array->cbSize, exp_array->icDimensions - 1) ;
-        va_copy (xa, va) ;
-        exp_array_vinsert_vals (((EXP_ARRAY **)(exp_array->data))[Nix],
-          NULL == data ? NULL : &((char *)(data))[(Nix * exp_array->cbSize) / sizeof (char)], 1, iDimension, xa) ;
-        }
-      exp_array->icUsed = icNeeded ;
-      }
-    else
-      {
-      if ((icNeeded = icElements + exp_array->icUsed) > exp_array->icAvail)
-        exp_array->data = g_realloc (exp_array->data,
-          (exp_array->icAvail = MAX ((exp_array->icAvail << 1) + 1, icNeeded)) * exp_array->cbSize) ;
+    if (idx < exp_array->icUsed)
+      memmove (
+        &(((char *)(exp_array->data))[(idx + icElements) * exp_array->cbSize]),
+        &(((char *)(exp_array->data))[idx * exp_array->cbSize]),
+        (exp_array->icUsed - idx) * exp_array->cbSize) ;
 
-      if (idx < exp_array->icUsed)
-        memmove (
-          &(((char *)(exp_array->data))[(idx + icElements) * exp_array->cbSize]),
-          &(((char *)(exp_array->data))[idx * exp_array->cbSize]),
-          (exp_array->icUsed - idx) * exp_array->cbSize) ;
-
-      if (NULL != data)
-        memcpy (exp_array->data + idx * exp_array->cbSize, data, icElements * exp_array->cbSize) ;
-      exp_array->icUsed += icElements ;
-      }
+    if (NULL != data)
+      memcpy (exp_array->data + idx * exp_array->cbSize, data, icElements * exp_array->cbSize) ;
+    exp_array->icUsed += icElements ;
     va_end (va) ;
     }
   }

@@ -229,22 +229,13 @@ VTL_RESULT VectorTable_load (VectorTable *pvt)
   FILE *pfile = fopen (pvt->pszFName, "r") ;
   VTL_RESULT ret = VTL_OK ;
 
-  DBG_VT (fprintf (stderr, "Entering VectorTable_load\n")) ;
-
-  if (NULL == pfile) return VTL_FILE_FAILED ;
-
+  if (NULL == pfile) return VTL_FILE_FAILED ; 
   if (!CheckMagic (pfile)) return VTL_MAGIC_FAILED ;
-
-  DBG_VT (fprintf (stderr, "After CheckMagic the file is at %d\n", (int)ftell (pfile))) ;
 
   GetVTSizes (pfile, &icInputs, &icVectors) ;
 
-  DBG_VT (fprintf (stderr, "There seem to be %d inputs and %d vectors in the file\n", icInputs, icVectors)) ;
-
   ret = icInputs < pvt->inputs->icUsed ? VTL_SHORT :
       	icInputs > pvt->inputs->icUsed ? VTL_TRUNC : VTL_OK ;
-
-  DBG_VT (fprintf (stderr, "Before reading the active flags the file is at %d\n", (int)ftell (pfile))) ;
 
   exp_array_insert_vals (pvt->vectors, NULL, pvt->inputs->icUsed, 2, 0) ;
 
@@ -258,8 +249,6 @@ VTL_RESULT VectorTable_load (VectorTable *pvt)
       exp_array_index_2d (pvt->vectors, gboolean, 0, Nix) ;
 
   exp_array_remove_vals (pvt->vectors, 1, 0, 1) ;
-
-  DBG_VT (fprintf (stderr, "Read the active flags.\n")) ;
 
   for (Nix = 0 ; Nix < icVectors ; Nix++)
     {

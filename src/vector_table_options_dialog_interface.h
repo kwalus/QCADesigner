@@ -38,6 +38,8 @@ typedef struct
   GtkWidget *btnOpen ;
   GtkWidget *btnSave ;
   GtkWidget *btnInsert ;
+  GtkWidget *btnDelete ;
+  GtkWidget *btnAdd ;
   GtkWidget *tblVT ;
   GtkWidget *sw ;
   GtkWidget *tv ;

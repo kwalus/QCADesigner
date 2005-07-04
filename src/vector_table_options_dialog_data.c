@@ -25,6 +25,9 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
+#include "support.h"
+#include "custom_widgets.h"
+#include "fileio_helpers.h"
 #include "global_consts.h"
 #include "bus_layout_dialog.h"
 #include "vector_table_options_dialog_data.h"
@@ -111,6 +114,8 @@ void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout
 
   if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (tbtn)))
     vector_table_options_dialog_btnSimType_clicked (tbtn, dialog) ;
+
+  vector_table_options_dialog_reflect_state (dialog) ;
   }
 
 void DialogToVectorTable (vector_table_options_D *dialog)
@@ -127,9 +132,10 @@ void DialogToVectorTable (vector_table_options_D *dialog)
 
   (*sim_type) = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->tbtnVT)) ? VECTOR_TABLE : EXHAUSTIVE_VERIFICATION ;
   }
-/*
+
 void vector_table_options_dialog_reflect_state (vector_table_options_D *dialog)
   {
+  char *pszTitle = NULL ;
   int *sim_type = NULL ;
   VectorTable *pvt = NULL ;
 
@@ -139,7 +145,36 @@ void vector_table_options_dialog_reflect_state (vector_table_options_D *dialog)
 
   if (VECTOR_TABLE == (*sim_type))
     {
-    
+    gtk_widget_set_sensitive (dialog->btnSave, TRUE) ;
+    gtk_widget_set_sensitive (dialog->btnOpen, TRUE) ;
+    gtk_widget_show (dialog->tblVT) ;
+    scrolled_window_set_size (dialog->sw, dialog->tv, 0.8, 0.8) ;
+    gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), TRUE) ;
+
+    gtk_window_set_title (GTK_WINDOW (dialog->dialog), 
+      pszTitle = g_strdup_printf ("%s - %s", 
+        (NULL == pvt->pszFName ? _("Untitled") : base_name (pvt->pszFName)), _("Vector Table Setup"))) ;
+    }
+  else // EXHAUSTIVE_VERIFICATION
+    {
+    gtk_window_set_title (GTK_WINDOW (dialog->dialog),
+      pszTitle = g_strdup_printf ("%s - %s", _("Exhaustive Verification"), _("Vector Table Setup"))) ;
+
+    gtk_widget_set_sensitive (dialog->btnOpen, FALSE) ;
+    gtk_widget_set_sensitive (dialog->btnSave, FALSE) ;
+    gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), FALSE) ;
+    gtk_widget_hide (dialog->tblVT) ;
+    }
+  g_free (pszTitle) ;
+
+  if (pvt->vectors->icUsed <= 0)
+    {
+    gtk_widget_set_sensitive (dialog->btnInsert, FALSE) ;
+    gtk_widget_set_sensitive (dialog->btnDelete, FALSE) ;
+    }
+  else
+    {
+    gtk_widget_set_sensitive (dialog->btnInsert, TRUE) ;
+    gtk_widget_set_sensitive (dialog->btnDelete, TRUE) ;
     }
   }
-*/

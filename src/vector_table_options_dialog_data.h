@@ -40,5 +40,6 @@ enum
 
 void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout, int *sim_type, VectorTable *pvt) ;
 void DialogToVectorTable (vector_table_options_D *dialog) ;
+void vector_table_options_dialog_reflect_state (vector_table_options_D *dialog) ;
 
 #endif /* _VECTOR_TABLE_OPTIONS_DIALOG_DATA_H_ */

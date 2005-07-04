@@ -61,6 +61,7 @@ gboolean get_translation_from_user (GtkWindow *parent, double *pdx, double *pdy)
     }
   gtk_widget_hide (dialog.dlg) ;
 
+  gtk_window_present (parent) ;
   return bRet ;
   }
 

@@ -68,6 +68,8 @@ void show_graph_dialog (GtkWindow *parent, SIMULATION_OUTPUT *sim_output, gboole
   if (bModal)
     while (GTK_WIDGET_VISIBLE (graph.dialog))
       gtk_main_iteration () ;
+
+  gtk_window_present (parent) ;
   }
 
 void apply_graph_dialog_data (graph_D *dialog, GRAPH_DIALOG_DATA *dialog_data)

@@ -81,6 +81,8 @@ void get_sim_type_from_user (GtkWindow *parent, int *piSimType, VectorTable *pvt
         EXHAUSTIVE_VERIFICATION : VECTOR_TABLE ;
 
   gtk_widget_hide (sim_type_setup_dialog.simulation_type_dialog) ;
+
+  gtk_window_present (parent) ;
   }
 
 static void create_sim_type_dialog (sim_type_setup_D *dialog)

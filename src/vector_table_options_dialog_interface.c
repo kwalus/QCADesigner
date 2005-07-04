@@ -155,6 +155,7 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_toolbar_set_tooltips (GTK_TOOLBAR (toolbar), TRUE) ;
   gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS) ;
 
+  dialog->btnAdd =
   btn = gtk_toolbar_append_element (
     GTK_TOOLBAR (toolbar),
     GTK_TOOLBAR_CHILD_BUTTON,
@@ -178,6 +179,7 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
     (GCallback)vector_table_options_dialog_btnAdd_clicked,
     dialog->dialog) ;
 
+  dialog->btnDelete =
   btn = gtk_toolbar_append_element (
     GTK_TOOLBAR (toolbar),
     GTK_TOOLBAR_CHILD_BUTTON,

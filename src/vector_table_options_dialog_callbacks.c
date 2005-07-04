@@ -31,7 +31,6 @@
 #include "global_consts.h"
 #include "custom_widgets.h"
 #include "vector_table.h"
-#include "fileio_helpers.h"
 #include "file_selection_window.h"
 #include "bus_layout_dialog.h"
 #include "vector_table_options_dialog_data.h"
@@ -141,6 +140,8 @@ void vector_table_options_dialog_btnDelete_clicked (GtkWidget *widget, gpointer 
     gtk_tree_view_column_clicked (GTK_TREE_VIEW_COLUMN (llClick->data)) ;
 
   VectorTable_del_vector (pvt, idxVector) ;
+
+  vector_table_options_dialog_reflect_state (dialog) ;
   }
 
 void vector_table_options_dialog_btnClose_clicked (GtkWidget *widget, gpointer data)
@@ -155,7 +156,6 @@ void vector_table_options_dialog_btnClose_clicked (GtkWidget *widget, gpointer d
 
 void vector_table_options_dialog_btnSimType_clicked (GtkWidget *widget, gpointer data) 
   {
-  char *psz = NULL ;
   vector_table_options_D *dialog = (vector_table_options_D *)data ;
   int sim_type = (int)g_object_get_data (G_OBJECT (widget), "sim_type") ;
   int *user_sim_type = NULL ;
@@ -166,38 +166,7 @@ void vector_table_options_dialog_btnSimType_clicked (GtkWidget *widget, gpointer
   if (NULL != (user_sim_type = g_object_get_data (G_OBJECT (dialog->dialog), "user_sim_type")))
     (*user_sim_type) = sim_type ;
 
-  if (VECTOR_TABLE == sim_type)
-    {
-    VectorTable *pvt = g_object_get_data (G_OBJECT (dialog->dialog), "user_pvt") ;
-
-    gtk_widget_set_sensitive (dialog->btnOpen, TRUE) ;
-    gtk_widget_set_sensitive (dialog->btnSave, TRUE) ;
-    gtk_widget_show (dialog->tblVT) ;
-    scrolled_window_set_size (dialog->sw, dialog->tv, 0.8, 0.8) ;
-    gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), TRUE) ;
-    if (NULL != pvt->pszFName)
-      {
-      char *psz1 = NULL ;
-
-      psz = base_name (pvt->pszFName) ;
-      gtk_window_set_title (GTK_WINDOW (dialog->dialog), 
-        psz1 = g_strdup_printf ("%s - %s", psz, _("Vector Table Setup"))) ;
-      g_free (psz1) ;
-      }
-    else
-      gtk_window_set_title (GTK_WINDOW (dialog->dialog), 
-        psz = g_strdup_printf ("%s - %s", _("Untitled"), _("Vector Table Setup"))) ;
-    }
-  else
-    {
-    gtk_window_set_title (GTK_WINDOW (dialog->dialog), 
-      psz = g_strdup_printf ("%s - %s", _("Exhaustive Verification"), _("Vector Table Setup"))) ;
-    gtk_widget_set_sensitive (dialog->btnOpen, FALSE) ;
-    gtk_widget_set_sensitive (dialog->btnSave, FALSE) ;
-    gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), FALSE) ;
-    gtk_widget_hide (dialog->tblVT) ;
-    }
-  g_free (psz) ;
+  vector_table_options_dialog_reflect_state (dialog) ;
   }
 
 void vector_table_options_dialog_btnOpen_clicked (GtkWidget *widget, gpointer data)
@@ -260,8 +229,7 @@ void vector_table_options_dialog_btnOpen_clicked (GtkWidget *widget, gpointer da
 
     g_free (pszOldFName) ;
 
-    gtk_window_set_title (GTK_WINDOW (dialog->dialog), psz = g_strdup_printf ("%s - %s", base_name (psz), _("Vector Table Setup"))) ;
-    g_free (psz) ;
+    vector_table_options_dialog_reflect_state (dialog) ;
     }
   }
 
@@ -280,11 +248,7 @@ void vector_table_options_dialog_btnSave_clicked (GtkWidget *widget, gpointer da
   pvt->pszFName = psz ;
 
   if (VectorTable_save (pvt))
-    {
-    g_free (psz1) ;
-    gtk_window_set_title (GTK_WINDOW (data), psz1 = g_strdup_printf ("%s - %s", base_name (psz), _("Vector Table Setup"))) ;
-    g_free (psz1) ;
-    }
+    vector_table_options_dialog_reflect_state (g_object_get_data (G_OBJECT (data), "dialog")) ;
   else
     {
     GtkWidget *msg = NULL ;
@@ -316,6 +280,8 @@ void vector_table_options_dialog_btnAdd_clicked (GtkWidget *widget, gpointer dat
   VectorTable_add_vector (pvt, idxVector) ;
 
   add_vector_to_dialog (dialog, pvt, idxVector) ;
+
+  vector_table_options_dialog_reflect_state (dialog) ;
   }
 
 void vector_column_clicked (GtkObject *obj, gpointer data)

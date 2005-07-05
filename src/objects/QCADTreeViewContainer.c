@@ -148,8 +148,8 @@ void qcad_tree_view_container_freeze_columns (QCADTreeViewContainer *tvc, int n_
     adjHScroll->value = 0 ;
     adjHScroll->lower = 0 ;
     adjHScroll->upper = 1 ;
-    adjHScroll->step_increment =
-    adjHScroll->page_increment =
+    adjHScroll->step_increment = 1 ;
+    adjHScroll->page_increment = 10 ;
     adjHScroll->page_size = 1 ;
     set_hscroll_upper (tvc) ;
     gtk_adjustment_value_changed (adjHScroll) ;

@@ -104,10 +104,16 @@ void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout
   gtk_tree_view_expand_all (GTK_TREE_VIEW (dialog->tv)) ;
 
   for (Nix = 0 ; Nix < pvt->vectors->icUsed ; Nix++)
+    {
     if (NULL == col)
       col = add_vector_to_dialog (dialog, pvt, Nix) ;
     else
       add_vector_to_dialog (dialog, pvt, Nix) ;
+    // Give the dialog a chance to update itself
+    if (0 == Nix % 10)
+      while (gtk_events_pending ())
+        gtk_main_iteration () ;
+    }
 
   if (NULL != col)
     gtk_tree_view_column_clicked (col) ;

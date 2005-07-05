@@ -41,7 +41,7 @@ static char *pszMagicCookie = "%%VECTOR TABLE%%" ;
 #ifdef STDIO_FILEIO
 static void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors) ;
 static gboolean CheckMagic (FILE *pfile) ;
-static int ReadVector (FILE *pfile, gboolean *pVector, int ic) ;
+static void ReadVector (FILE *pfile, EXP_ARRAY *vector) ;
 #endif /* def STDIO_FILEIO */
 
 int VectorTable_find_input_idx (VectorTable *pvt, QCADCell *cell)
@@ -225,9 +225,10 @@ gboolean VectorTable_save (VectorTable *pvt)
 // is contained within the structure
 VTL_RESULT VectorTable_load (VectorTable *pvt)
   {
-  int icInputs = 0, icVectors = 0, idxNext = -1, Nix, Nix1 ;
+  int icInputs = 0, icVectors = 0, Nix ;
   FILE *pfile = fopen (pvt->pszFName, "r") ;
   VTL_RESULT ret = VTL_OK ;
+  EXP_ARRAY *vector = NULL ;
 
   if (NULL == pfile) return VTL_FILE_FAILED ; 
   if (!CheckMagic (pfile)) return VTL_MAGIC_FAILED ;
@@ -237,35 +238,36 @@ VTL_RESULT VectorTable_load (VectorTable *pvt)
   ret = icInputs < pvt->inputs->icUsed ? VTL_SHORT :
       	icInputs > pvt->inputs->icUsed ? VTL_TRUNC : VTL_OK ;
 
-  exp_array_insert_vals (pvt->vectors, NULL, pvt->inputs->icUsed, 2, 0) ;
+  SkipPast (pfile, '#', pszMagicCookie, NULL) ;
 
-  if ((idxNext = 
-    ReadVector (pfile, exp_array_index_1d (pvt->vectors, EXP_ARRAY *, 0)->data, pvt->inputs->icUsed)) < pvt->inputs->icUsed)
-    for (Nix = idxNext ; Nix < pvt->inputs->icUsed ; Nix++)
-      exp_array_index_2d (pvt->vectors, gboolean, 0, Nix) = TRUE ;
+  //Read active flags
+  ReadVector (pfile, vector = exp_array_new (sizeof (gboolean), 1)) ;
+  for (Nix = 0 ; Nix < MIN (vector->icUsed, pvt->inputs->icUsed) ; Nix++)
+    exp_array_index_1d (pvt->inputs, VT_INPUT, Nix).active_flag = 
+      exp_array_index_1d (vector, gboolean, Nix) ;
 
-  for (Nix = 0 ; Nix < pvt->inputs->icUsed ; Nix++)
-    exp_array_index_1d (pvt->inputs, VT_INPUT, Nix).active_flag =
-      exp_array_index_2d (pvt->vectors, gboolean, 0, Nix) ;
+  // Remove all vectors
+  exp_array_remove_vals (pvt->vectors, 2, 0, pvt->vectors->icUsed, 0, pvt->inputs->icUsed) ;
 
-  exp_array_remove_vals (pvt->vectors, 1, 0, 1) ;
-
-  for (Nix = 0 ; Nix < icVectors ; Nix++)
+  while (TRUE)
     {
-    DBG_VT (fprintf (stderr, "Reading vector %d\n", Nix)) ;
-    exp_array_insert_vals (pvt->vectors, NULL, pvt->inputs->icUsed, 2, Nix) ;
-    if ((idxNext = ReadVector (pfile, exp_array_index_1d (pvt->vectors, EXP_ARRAY *, Nix)->data, pvt->inputs->icUsed)) < pvt->inputs->icUsed)
-      {
-      DBG_VT (fprintf (stderr, "ReadVector has returned %d\n", idxNext)) ;
-      for (Nix1 =  idxNext ; Nix1 < pvt->inputs->icUsed ; Nix1++)
-        exp_array_index_2d (pvt->vectors, gboolean, Nix, Nix1) = FALSE ;
-      }
+    ReadVector (pfile, vector) ;
+    if (0 == vector->icUsed) break ;
+
+    exp_array_insert_vals (pvt->vectors, NULL, pvt->inputs->icUsed, 2, -1, 0) ;
+
+    for (Nix = 0 ; Nix < MAX (pvt->inputs->icUsed, vector->icUsed) ; Nix++)
+      if (Nix >= pvt->inputs->icUsed)
+        break ;
+      else
+        exp_array_index_2d (pvt->vectors, gboolean, -1, Nix) = 
+          (Nix < vector->icUsed) ? exp_array_index_1d (vector, gboolean, Nix) : FALSE ;
     }
+
+  exp_array_free (vector) ;
 
   fclose (pfile) ;
 
-  DBG_VT (fprintf (stderr, "Exiting VectorTable_load.  pvt looks like this:\n")) ;
-  DBG_VT (VectorTable_dump (pvt, stderr, 0)) ;
   return ret ;
   }
 #endif /* def STDIO_FILEIO */
@@ -378,27 +380,30 @@ static void GetVTSizes (FILE *pfile, int *picInputs, int *picVectors)
   }
 
 // Read in a single vector from the file
-static int ReadVector (FILE *pfile, gboolean *pVector, int ic)
+static void ReadVector (FILE *pfile, EXP_ARRAY *vector)
   {
-  int idx = -1 ;
   int Nix ;
   char *psz ;
 
+  if (NULL == vector) return ;
+  exp_array_remove_vals (vector, 1, 0, vector->icUsed) ;
+
   while (!feof (pfile))
     {
-    DBG_VT (fprintf (stderr, "Entering non-EOF loop\n")) ;
-    if (NULL == (psz = ReadLine (pfile, '#', FALSE))) return 0 ;
-    DBG_VT (fprintf (stderr, "ReadVector: Have retrieved the following line:\n%s\n", psz)) ;
+    if (NULL == (psz = ReadLine (pfile, '#', FALSE))) return ;
 
-    for (Nix = 0 ; Nix < strlen (psz) && idx < ic - 1 ; Nix++)
+    for (Nix = 0 ; Nix < strlen (psz) ; Nix++)
+      {
       if ('0' == psz[Nix] || '1' == psz[Nix])
-        pVector[++idx] = ('1' == psz[Nix]) ;
+        {
+        exp_array_insert_vals (vector, NULL, 1, 1, -1) ;
+        exp_array_index_1d (vector, gboolean, -1) = ('1' == psz[Nix]) ;
+        }
+      }
 
     g_free (psz) ;
 
-    if (-1 != idx) break ;
+    if (vector->icUsed > 0) break ;
     }
-  DBG_VT (fprintf (stderr, "ReadVector returning idx = %d. There're supposed to be %d inputs.\n", idx + 1, ic)) ;
-  return ++idx ;
   }
 #endif /* def STDIO_FILEIO */

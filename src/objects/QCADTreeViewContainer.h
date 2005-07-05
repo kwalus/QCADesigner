@@ -48,6 +48,7 @@ typedef struct
   {
   GtkScrolledWindow parent_instance ;
   int n_frozen_columns ;
+  GtkAdjustment *fake_hadj ;
   } QCADTreeViewContainer ;
 
 GType qcad_tree_view_container_get_type () ;

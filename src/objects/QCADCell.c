@@ -36,6 +36,7 @@
   #include <gtk/gtk.h>
 #endif
 
+#include "../generic_utils.h"
 #include "../support.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
@@ -135,8 +136,6 @@ static void default_properties_apply (gpointer data) ;
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
 static gboolean qcad_cell_dot_unserialize (FILE *fp, QCADCellDot *pdots, int idxDot) ;
-static int get_enum_value_from_string (GType enum_type, char *psz) ;
-static char *get_enum_string_from_value (GType enum_type, int value) ;
 #endif
 static void *default_properties_get (struct QCADDesignObjectClass *klass) ;
 static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) ;
@@ -1809,29 +1808,4 @@ static gboolean qcad_cell_dot_unserialize (FILE *fp, QCADCellDot *pdots, int idx
   return TRUE ;
   }
 
-static int get_enum_value_from_string (GType enum_type, char *psz)
-  {
-  GEnumClass *klass = g_type_class_peek (enum_type) ;
-  GEnumValue *val = NULL ;
-
-  if (NULL == klass) return g_ascii_strtod (psz, NULL) ;
-
-  if (NULL == (val = g_enum_get_value_by_name (klass, psz)))
-    return g_ascii_strtod (psz, NULL) ;
-  else
-    return val->value ;
-  }
-
-static char *get_enum_string_from_value (GType enum_type, int value)
-  {
-  GEnumClass *klass = g_type_class_peek (enum_type) ;
-  GEnumValue *val = NULL ;
-
-  if (NULL == klass) return g_strdup_printf ("%d", value) ;
-
-  if (NULL == (val = g_enum_get_value (klass, value)))
-    return g_strdup_printf ("%d", value) ;
-  else
-    return g_strdup (val->value_name) ;
-  }
 #endif /* STDIO_FILEIO */

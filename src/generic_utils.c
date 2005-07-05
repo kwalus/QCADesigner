@@ -174,3 +174,31 @@ static gpointer RunCmdLineAsyncThread (gpointer p)
   return NULL ;
   }
 #endif /* def GTK_GUI */
+
+char *get_enum_string_from_value (GType enum_type, int value)
+  {
+  GEnumClass *klass = g_type_class_ref (enum_type) ;
+  GEnumValue *val = NULL ;
+
+  if (NULL == klass) return g_strdup_printf ("%d", value) ;
+
+  if (NULL == (val = g_enum_get_value (klass, value)))
+    return g_strdup_printf ("%d", value) ;
+  else
+    return g_strdup (val->value_name) ;
+
+  g_type_class_unref (klass) ;
+  }
+
+int get_enum_value_from_string (GType enum_type, char *psz)
+  {
+  GEnumClass *klass = g_type_class_peek (enum_type) ;
+  GEnumValue *val = NULL ;
+
+  if (NULL == klass) return g_ascii_strtod (psz, NULL) ;
+
+  if (NULL == (val = g_enum_get_value_by_name (klass, psz)))
+    return g_ascii_strtod (psz, NULL) ;
+  else
+    return val->value ;
+  }

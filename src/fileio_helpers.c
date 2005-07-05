@@ -112,14 +112,12 @@ char *ReadLine (FILE *pfile, char cComment, gboolean bPeek)
 
   if (NULL == hash_table)
     {
-    fprintf (stderr, "Hash table non-existent => peeking will be unavailable\n") ;
     pbi = &bi ;
     pbi->buffer = exp_array_new (sizeof (char), 1) ;
     }
   else
   if (!(bFoundHash = (NULL != (pbi = g_hash_table_lookup (hash_table, pfile)))))
     {
-//    fprintf (stderr, "Hash not found => peeking will be unavailable\n") ;
     pbi = &bi ;
     pbi->buffer = exp_array_new (sizeof (char), 1) ;
     }
@@ -153,14 +151,11 @@ char *ReadLine (FILE *pfile, char cComment, gboolean bPeek)
       if (pbi->buffer->icUsed > 1)
         {
         for (Nix = pbi->buffer->icUsed - 2 ; Nix > -1 ; Nix--)
-          if ('\r' == exp_array_index_1d (pbi->buffer, char, Nix))
+          {
+          if ('\r' == exp_array_index_1d (pbi->buffer, char, Nix) ||
+              cComment == exp_array_index_1d (pbi->buffer, char, Nix))
             exp_array_index_1d (pbi->buffer, char, Nix) = 0 ;
-          else
-          if (cComment == exp_array_index_1d (pbi->buffer, char, Nix))
-            {
-            exp_array_index_1d (pbi->buffer, char, Nix) = 0 ;
-            break ;
-            }
+          }
         }
       }
     }

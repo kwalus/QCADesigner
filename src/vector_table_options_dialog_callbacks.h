@@ -41,5 +41,6 @@ void vector_column_clicked (GtkObject *obj, gpointer data) ;
 void vector_data_func (GtkTreeViewColumn *col, GtkCellRenderer *cr, GtkTreeModel *model, GtkTreeIter *itr, gpointer data) ;
 void tree_view_style_set (GtkWidget *widget, GtkStyle *old_style, gpointer data) ;
 void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *pszNewText, gpointer data) ;
+void vector_value_editing_started (GtkCellRendererText *cr, GtkCellEditable *editable, char *pszPath, gpointer data) ;
 
 #endif /* def _VECTOR_TABLE_OPTIONS_DIALOG_CALLBACKS_H_ */

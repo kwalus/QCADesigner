@@ -42,11 +42,13 @@ static void qcad_tree_view_container_add (GtkContainer *container, GtkWidget *ch
 static void hscroll_adj_value_changed (GtkAdjustment *adj, gpointer data) ;
 static void fake_hadj_value_changed (GtkAdjustment *adj, gpointer data) ;
 static void tree_view_size_allocate (GtkTreeView *tv, GtkAllocation *alloc, gpointer data) ;
-static gboolean tree_view_move_cursor (GtkTreeView *tv, GtkMovementStep movement_step, gint arg2, gpointer data) ;
+static gboolean tree_view_move_cursor (GtkTreeView *tv, GtkMovementStep movement_step, gint count, gpointer data) ;
+static void tree_view_cursor_changed (GtkTreeView *tv, gpointer data) ;
 
 static int tree_view_count_columns (GtkTreeView *tv) ;
 static int tree_view_column_get_width (GtkTreeView *tv, GtkTreeViewColumn *col, gboolean bLastCol) ;
 static void set_hscroll_upper (QCADTreeViewContainer *tvc) ;
+static void tree_view_handle_cursor_movement (GtkTreeView *tv, QCADTreeViewContainer *tvc, int icSteps, gboolean bDownwards) ;
 
 GType qcad_tree_view_container_get_type ()
   {
@@ -98,6 +100,7 @@ static void qcad_tree_view_container_add (GtkContainer *container, GtkWidget *ch
     {
     g_signal_handlers_disconnect_matched (G_OBJECT (old_child), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, tree_view_size_allocate, container) ;
     g_signal_handlers_disconnect_matched (G_OBJECT (old_child), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, tree_view_move_cursor, container) ;
+    g_signal_handlers_disconnect_matched (G_OBJECT (old_child), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, tree_view_cursor_changed, container) ;
     }
 
   GTK_BIN (container)->child = child ;
@@ -107,6 +110,7 @@ static void qcad_tree_view_container_add (GtkContainer *container, GtkWidget *ch
 
   g_signal_connect (G_OBJECT (child), "size-allocate", (GCallback)tree_view_size_allocate, container) ;
   g_signal_connect (G_OBJECT (child), "move-cursor", (GCallback)tree_view_move_cursor, container) ;
+  g_signal_connect (G_OBJECT (child), "cursor-changed", (GCallback)tree_view_cursor_changed, container) ;
   }
 
 GtkWidget *qcad_tree_view_container_new ()
@@ -158,15 +162,20 @@ static void fake_hadj_value_changed (GtkAdjustment *adj, gpointer data)
 static void tree_view_size_allocate (GtkTreeView *tv, GtkAllocation *alloc, gpointer data)
   {set_hscroll_upper (QCAD_TREE_VIEW_CONTAINER (data)) ;}
 
-static gboolean tree_view_move_cursor (GtkTreeView *tv, GtkMovementStep movement_step, gint arg2, gpointer data)
+static void tree_view_cursor_changed (GtkTreeView *tv, gpointer data)
   {
-  char *psz = NULL ;
+  if (QCAD_TREE_VIEW_CONTAINER (data) > 0)
+    tree_view_handle_cursor_movement (tv, QCAD_TREE_VIEW_CONTAINER (data), 0, FALSE) ;
+  }
 
-  fprintf (stderr, "tree_view_move_cursor:Entering with movement_step = %s, arg2 = %d\n", 
-    psz = get_enum_string_from_value (GTK_TYPE_MOVEMENT_STEP, movement_step), arg2) ;
-  g_free (psz) ;
-
-  return TRUE ;
+static gboolean tree_view_move_cursor (GtkTreeView *tv, GtkMovementStep movement_step, gint count, gpointer data)
+  {
+  if (GTK_MOVEMENT_VISUAL_POSITIONS == movement_step && QCAD_TREE_VIEW_CONTAINER (data)->n_frozen_columns > 0)
+    {
+    tree_view_handle_cursor_movement (tv, QCAD_TREE_VIEW_CONTAINER (data), count, TRUE) ;
+    return TRUE ;
+    }
+  return FALSE ;
   }
 
 static void hscroll_adj_value_changed (GtkAdjustment *adj, gpointer data)
@@ -177,10 +186,13 @@ static void hscroll_adj_value_changed (GtkAdjustment *adj, gpointer data)
 
   llCols = gtk_tree_view_get_columns (GTK_TREE_VIEW (GTK_BIN (tvc)->child)) ;
 
-  for (Nix = 0, llItr = llCols ; Nix < tvc->n_frozen_columns && NULL != llItr ; llItr = llItr->next, Nix++) ;
-
-  for (Nix = adj->value ; llItr != NULL ; Nix--, llItr = llItr->next)
+  for (Nix = adj->value, llItr = g_list_nth (llCols, tvc->n_frozen_columns) ; 
+       llItr != NULL ; 
+       Nix--, llItr = llItr->next)
+    {
+    if (gtk_tree_view_column_get_visible (GTK_TREE_VIEW_COLUMN (llItr->data)) && (Nix <= 0)) break ;
     gtk_tree_view_column_set_visible (GTK_TREE_VIEW_COLUMN (llItr->data), (Nix <= 0)) ;
+    }
 
   g_list_free (llCols) ;
   }
@@ -255,4 +267,75 @@ static int tree_view_column_get_width (GtkTreeView *tv, GtkTreeViewColumn *col, 
     col_width = MIN (col_width, col->max_width) ;
 
   return col_width ;
+  }
+
+static void tree_view_handle_cursor_movement (GtkTreeView *tv, QCADTreeViewContainer *tvc, int icSteps, gboolean bDownwards)
+  {
+  GtkTreePath *tp = NULL ;
+  GtkTreeViewColumn *col = NULL ;
+
+  gtk_tree_view_get_cursor (tv, &tp, &col) ;
+  if (NULL != col)
+    {
+    GList *llCols = NULL ;
+
+    if (NULL != (llCols = gtk_tree_view_get_columns (tv)))
+      {
+      GList *llFirst = NULL ;
+
+      if (NULL != (llFirst = g_list_nth (llCols, tvc->n_frozen_columns)))
+        {
+        GtkAdjustment *adjHScroll = NULL ;
+
+        if (NULL != (adjHScroll = gtk_range_get_adjustment (GTK_RANGE (GTK_SCROLLED_WINDOW (tvc)->hscrollbar))))
+          {
+          GList *llItr = NULL ;
+          int idx, new_value = 0 ;
+          for (idx = 0, llItr = llCols ; llItr != NULL ; llItr = llItr->next, idx++)
+            if (llItr->data == col)
+              break ;
+
+          if (idx >= tvc->n_frozen_columns)
+            {
+            GList *llDst = NULL ;
+
+            idx = idx - tvc->n_frozen_columns + icSteps ;
+
+            if (bDownwards)
+              {
+              if (idx < adjHScroll->value)
+                gtk_adjustment_set_value (adjHScroll, MAX (adjHScroll->lower, idx)) ;
+              }
+            else
+              if (idx >= adjHScroll->value)
+                if (NULL != (llDst = g_list_nth (llFirst, idx)))
+                  {
+                  int icToHide = 0 ;
+                  GdkRectangle rcTV = {0} ;
+
+                  gtk_tree_view_get_visible_rect (tv, &rcTV) ;
+
+                  for (llItr = llCols ; llItr != NULL ; llItr = llItr->next)
+                    {
+                    if (gtk_tree_view_column_get_visible (GTK_TREE_VIEW_COLUMN (llItr->data)))
+                      if ((rcTV.width -= tree_view_column_get_width (tv, GTK_TREE_VIEW_COLUMN (llItr->data), (NULL == llItr->next))) < 0)
+                        icToHide++ ;
+                    if (llItr == llDst) break ;
+                    }
+
+                  if (icToHide > 0)
+                    {
+                    new_value = adjHScroll->value + icToHide ;
+                    new_value = CLAMP (new_value, adjHScroll->lower, adjHScroll->upper - adjHScroll->page_size) ;
+                    if (new_value != adjHScroll->value)
+                      gtk_adjustment_set_value (adjHScroll, new_value) ;
+                    }
+                  }
+            }
+          }
+        }
+      g_list_free (llCols) ;
+      }
+    }
+  if (NULL != tp) gtk_tree_path_free (tp) ;
   }

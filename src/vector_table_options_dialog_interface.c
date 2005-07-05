@@ -89,8 +89,8 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
     GTK_TOOLBAR_CHILD_BUTTON,
     NULL,
     _("Open"),
-    _("Open Simulation Results"),
-    _("Open and display another set of simulation results."),
+    _("Open Vector Table"),
+    _("Open and display another vector table."),
     gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_LARGE_TOOLBAR),
     (GCallback)vector_table_options_dialog_btnOpen_clicked,
     dialog) ;
@@ -102,8 +102,8 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
     GTK_TOOLBAR_CHILD_BUTTON,
     NULL,
     _("Save"),
-    _("Save Simulation Results"),
-    _("Save the displayed simulation results."),
+    _("Save Vector Table"),
+    _("Save the displayed vector table."),
     gtk_image_new_from_stock (GTK_STOCK_SAVE, GTK_ICON_SIZE_LARGE_TOOLBAR),
     (GCallback)vector_table_options_dialog_btnSave_clicked,
     dialog->dialog) ;
@@ -268,6 +268,7 @@ GtkTreeViewColumn *add_vector_to_dialog (vector_table_options_D *dialog, VectorT
   g_signal_connect (G_OBJECT (col), "clicked", (GCallback)vector_column_clicked, dialog) ;
   g_signal_connect (G_OBJECT (cr), "clicked", (GCallback)vector_column_clicked, dialog) ;
   g_signal_connect (G_OBJECT (cr), "edited",  (GCallback)vector_value_edited, dialog->tv) ;
+  g_signal_connect (G_OBJECT (cr), "editing-started", (GCallback)vector_value_editing_started, dialog) ;
 
   return col ;
   }

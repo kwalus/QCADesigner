@@ -25,9 +25,12 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
+#include <string.h>
 #include <stdlib.h>
+#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include "support.h"
+#include "generic_utils.h"
 #include "global_consts.h"
 #include "custom_widgets.h"
 #include "vector_table.h"
@@ -36,6 +39,8 @@
 #include "vector_table_options_dialog_data.h"
 #include "vector_table_options_dialog_interface.h"
 #include "vector_table_options_dialog_callbacks.h"
+
+static void vector_cell_editable_move_cursor (GtkEntry *entry, GtkMovementStep movement_step, gint count, gboolean arg3, gpointer data) ;
 
 static int get_n_active_children (GtkTreeModel *model, GtkTreeIter *itr) ;
 
@@ -375,6 +380,71 @@ void tree_view_style_set (GtkWidget *widget, GtkStyle *old_style, gpointer data)
         "cell-background-gdk", clrNew, 
         "cell-background-set", bUseBackground, NULL) ;
       }
+  }
+
+void vector_value_editing_started (GtkCellRendererText *cr, GtkCellEditable *editable, char *pszPath, gpointer data)
+  {
+  if (GTK_IS_ENTRY (editable))
+    {
+    g_object_set_data_full (G_OBJECT (editable), "pszPath", g_strdup (pszPath), (GDestroyNotify)g_free) ;
+    if (!g_signal_handler_find (G_OBJECT (editable), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, vector_cell_editable_move_cursor, data))
+      g_signal_connect (G_OBJECT (editable), "move_cursor", (GCallback)vector_cell_editable_move_cursor, data) ;
+    }
+  }
+
+static void vector_cell_editable_move_cursor (GtkEntry *entry, GtkMovementStep movement_step, gint count, gboolean arg3, gpointer data)
+  {
+  int position = -1 ;
+  const char *pszText = NULL ;
+  gboolean bWhichColumn = FALSE ; // FALSE <=> Next column
+
+  if (NULL == (pszText = gtk_entry_get_text (entry))) return ;
+  g_object_get (G_OBJECT (entry), "cursor-position", &position, NULL) ;
+
+  if ((bWhichColumn = (0 == position && count < 0)) ||
+      (strlen (pszText) == position && count > 0))
+    {
+    vector_table_options_D *dialog = (vector_table_options_D *)data ;
+    GList *llCols = NULL, *llIdx = NULL ;
+    char *pszPath = NULL ;
+    int idxVector = -1 ;
+
+    if (NULL == dialog) return ;
+    if (NULL == (llCols = gtk_tree_view_get_columns (GTK_TREE_VIEW (dialog->tv)))) return ;
+    if (NULL != (llIdx = g_list_nth (llCols, (idxVector = (int)g_object_get_data (G_OBJECT (dialog->dialog), "idxVector")) + 2)))
+      {
+      if (NULL != (pszPath = g_object_get_data (G_OBJECT (entry), "pszPath")))
+        {
+        GList *llDst = NULL ;
+
+        // if (0 == idxVector) do not grab a frozen column
+        if (NULL != (llDst = (bWhichColumn ? (0 == idxVector ? NULL : llIdx->prev) : llIdx->next)))
+          {
+          GtkTreePath *tp = NULL ;
+
+          if (NULL != (tp = gtk_tree_path_new_from_string (pszPath)))
+            {
+            GtkCellRenderer *cr = NULL ;
+
+            if (NULL != (cr = g_object_get_data (G_OBJECT (llIdx->data), "cr")))
+              {
+              gtk_cell_editable_editing_done (GTK_CELL_EDITABLE (entry)) ;
+              gtk_cell_editable_remove_widget (GTK_CELL_EDITABLE (entry)) ;
+              gtk_bindings_activate (GTK_OBJECT (dialog->tv), bWhichColumn ? GDK_Left : GDK_Right, 0) ;
+//              gtk_tree_view_set_cursor (GTK_TREE_VIEW (dialog->tv), tp, GTK_TREE_VIEW_COLUMN (llIdx->data), FALSE) ;
+//              GTK_TREE_VIEW_CLASS (g_type_class_peek (GTK_TYPE_TREE_VIEW))->move_cursor (GTK_TREE_VIEW (dialog->tv), GTK_MOVEMENT_VISUAL_POSITIONS, bWhichColumn ? -1 : 1) ;
+              while (gtk_events_pending ())
+                gtk_main_iteration () ;
+              gtk_tree_view_set_cursor (GTK_TREE_VIEW (dialog->tv), tp, GTK_TREE_VIEW_COLUMN (llDst->data), TRUE) ;
+              }
+
+            gtk_tree_path_free (tp) ;
+            }
+          }
+        }
+      }
+    g_list_free (llCols) ;
+    }
   }
 
 void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *pszNewText, gpointer data)

@@ -5,11 +5,11 @@ set -x
 #Ask for the appropriate automake/autoconf versions
 WANT_AUTOMAKE=1.6
 WANT_AUTOCONF_2_5=1
-                                                                                                                                                              
+ACLOCAL_INCLUDE=""
+
 export WANT_AUTOMAKE
 export WANT_AUTOCONF_2_5
-
-HAVE_WINDOWS=0
+export ACLOCAL_INCLUDE
 
 set +x
 
@@ -26,22 +26,30 @@ if [ "" != "$WINDIR" ]; then
   echo 'because, for some reason, you cannot run autogen.sh twice on the same source tree'
   echo '########################################################################################'
 
-  HAVE_WINDOWS=1
   if [ "" = "$GTK_SOURCES" ]; then
     echo "The environment variable GTK_SOURCES is not defined. Please enter the location of your GTK+ development environment (see http://www.gimp.org/~tml/gimp/win32/downloads.html):"
     read
-    GTK_SOURCES="$REPLY"
-    export GTK_SOURCES
+    ACLOCAL_INCLUDE=${GTK_SOURCES}/share/aclocal
+    export ACLOCAL_INCLUDE
+  fi
+# Test for Fink if Darwin
+elif [ "Darwin" = "$(uname)" ]; then
+  if ![ -d /sw/share/aclocal ]; then
+    echo "Couldn't find directory /sw/share/aclocal. This probably means that you don't have Fink installed, or that it is installed improperly. Please download Fink from http://fink.sourceforge.net/ and re-run this script afterwards."
+  else
+    ACLOCAL_INCLUDE=/sw/share/aclocal
+    export ACLOCAL_INCLUDE
   fi
 fi
 
 set -x
 
-if [ "1" = "$HAVE_WINDOWS" ]; then
-  aclocal -I $GTK_SOURCES/share/aclocal
-else
+if [ "" = "${ACLOCAL_INCLUDE}" ]; then
   aclocal
+else
+  aclocal -I ${ACLOCAL_INCLUDE}
 fi
+
 automake --gnu --add-missing
 glib-gettextize -c
 autoconf

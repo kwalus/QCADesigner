@@ -110,7 +110,7 @@ manual:$(MANUAL_FILES)
 	rm -rf manual ; \
 	mkdir manual ; \
 	cd manual.src ; \
-	for Nix in `find | grep -v CVS | grep -v '^\.$$'`; do \
+	for Nix in `find . | grep -v CVS | grep -v '^\.$$'`; do \
 	if [ -d $$Nix ]; then \
 		mkdir "../manual/$$Nix" ;\
 	elif [ -f $$Nix ]; then \

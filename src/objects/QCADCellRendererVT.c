@@ -307,7 +307,11 @@ static GtkCellEditable *qcad_cell_renderer_vt_start_editing (GtkCellRenderer *ce
     {
     g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL], 0) ;
     if (NULL != (ce = (GTK_CELL_RENDERER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL_RENDERER_VT))))->start_editing (cell, event, widget, path, background_area, cell_area, flags)))
+#if (GTK_MINOR_VERSION <= 4)
       g_signal_emit (G_OBJECT (cell), qcadcrvt_signals[QCADCRVT_EDITING_STARTED_SIGNAL], 0, ce, path) ;
+#else
+      ;
+#endif
     }
   return ce ;
   }

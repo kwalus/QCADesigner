@@ -33,4 +33,4 @@ squeaky : distclean
 	graph_dialog.desktop \
 	QCADesigner-win32.iss \
 	po/Makefile po/Makefile.in po/Makefile.in.in \
-	po/POTFILES po/*.gmo `find | grep '.#'` *~
+	po/POTFILES po/*.gmo `find . | grep '.#'` *~

@@ -117,7 +117,7 @@ manual:$(MANUAL_FILES)
 		if echo $$Nix | grep -q '\.html$$'; then \
 			if echo $$Nix | grep -qv '^\./menu\.html$$'; then \
 				echo Inserting menu into file $$Nix ; \
-				echo -e "/<!--MENU-->/d\n^r ../manual.src/menu.html\nw ../manual/$$Nix\nq\n" | ed - $$Nix ; \
+				echo "/<!--MENU-->/\nd\n.r ../manual.src/menu.html\nw ../manual/$$Nix\nq\n" | ed - $$Nix ; \
 			fi ; \
 		elif echo $$Nix | grep -qEv '^\./menu\.(html|txt)$$'; then \
 			cp $$Nix "../manual/$$Nix" ; \

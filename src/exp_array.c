@@ -37,6 +37,7 @@ static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElem
 static void exp_array_vremove_vals (EXP_ARRAY *exp_array, int icDimPairs, va_list va) ;
 static void exp_array_dump_priv (EXP_ARRAY *exp_array, FILE *pfile, int icIndent) ;
 static void exp_array_empty (EXP_ARRAY *exp_array) ;
+static void exp_array_insert_vals_flat (EXP_ARRAY *exp_array, void *data, int icElements, int idx) ;
 
 EXP_ARRAY *exp_array_new (int cbElementSize, int icDimensions)
   {
@@ -95,7 +96,7 @@ void exp_array_insert_vals (EXP_ARRAY *exp_array, void *data, int icElements, in
 
 static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElements, int iDimension, va_list va)
   {
-  int idx = -1, icNeeded = -1 ;
+  int idx = -1 ;
 
   idx = va_arg (va, int) ;
   if (-1 == idx) idx = exp_array->icUsed ;
@@ -103,28 +104,65 @@ static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElem
 
   if (iDimension > 1)
     {
-    exp_array_insert_vals (exp_array, NULL, 1, 1, idx) ;
-    exp_array_index_1d (exp_array, EXP_ARRAY *, idx) = exp_array_new (exp_array->cbSize, iDimension - 1) ;
+    if (idx == exp_array->icUsed)
+      {
+      exp_array_insert_vals (exp_array, NULL, 1, 1, idx) ;
+      exp_array_index_1d (exp_array, EXP_ARRAY *, idx) = exp_array_new (exp_array->cbSize, iDimension - 1) ;
+      }
     exp_array_vinsert_vals (exp_array_index_1d (exp_array, EXP_ARRAY *, idx), data, icElements, iDimension - 1, va) ;
     }
   else
   if (1 == iDimension)
     {
-    if ((icNeeded = icElements + exp_array->icUsed) > exp_array->icAvail)
-      exp_array->data = g_realloc (exp_array->data,
-        (exp_array->icAvail = MAX ((exp_array->icAvail << 1) + 1, icNeeded)) * exp_array->cbSize) ;
+    if (exp_array->icDimensions > 1)
+      {
+      int Nix ;
+      va_list vaNew ;
+      int old_used = -1 ;
 
-    if (idx < exp_array->icUsed)
-      memmove (
-        &(((char *)(exp_array->data))[(idx + icElements) * exp_array->cbSize]),
-        &(((char *)(exp_array->data))[idx * exp_array->cbSize]),
-        (exp_array->icUsed - idx) * exp_array->cbSize) ;
+      if (idx + icElements > (old_used = exp_array->icUsed))
+        {
+        exp_array_insert_vals_flat (exp_array, NULL, idx + icElements - exp_array->icUsed, exp_array->icUsed) ;
+        for (Nix = old_used ; Nix < exp_array->icUsed ; Nix++)
+          if (NULL == exp_array_index_1d (exp_array, EXP_ARRAY *, Nix))
+            exp_array_index_1d (exp_array, EXP_ARRAY *, Nix) = exp_array_new (exp_array->cbSize, exp_array->icDimensions - 1) ;
+        }
 
-    if (NULL != data)
-      memcpy (exp_array->data + idx * exp_array->cbSize, data, icElements * exp_array->cbSize) ;
-    exp_array->icUsed += icElements ;
+      for (Nix = 0 ; Nix < icElements ; Nix++)
+        {
+        va_copy (vaNew, va) ;
+        exp_array_vinsert_vals (exp_array_index_1d (exp_array, EXP_ARRAY *, Nix + idx), 
+          NULL == data ? NULL : data + Nix * exp_array->cbSize, 1, exp_array->icDimensions - 1, vaNew) ;
+        va_end (vaNew) ;
+        }
+      exp_array->icUsed = Nix + idx ;
+      }
+    else
+      exp_array_insert_vals_flat (exp_array, data, icElements, idx) ;
     va_end (va) ;
     }
+  }
+
+static void exp_array_insert_vals_flat (EXP_ARRAY *exp_array, void *data, int icElements, int idx)
+  {
+  int icNeeded = -1 ;
+  int cbSize = (exp_array->icDimensions > 1 ? sizeof (EXP_ARRAY *) : exp_array->cbSize) ;
+
+  if ((icNeeded = icElements + exp_array->icUsed) > exp_array->icAvail)
+    exp_array->data = g_realloc (exp_array->data,
+      (exp_array->icAvail = MAX ((exp_array->icAvail << 1) + 1, icNeeded)) * cbSize) ;
+
+  if (idx < exp_array->icUsed)
+    memmove (
+      &(((char *)(exp_array->data))[(idx + icElements) * cbSize]),
+      &(((char *)(exp_array->data))[idx * cbSize]),
+      (exp_array->icUsed - idx) * cbSize) ;
+
+  if (NULL != data)
+    memcpy (exp_array->data + idx * cbSize, data, icElements * cbSize) ;
+  else
+    memset (exp_array->data + idx * cbSize, 0, icElements * cbSize) ;
+  exp_array->icUsed += icElements ;
   }
 
 void exp_array_remove_vals (EXP_ARRAY *exp_array, int icDimPairs, ...)

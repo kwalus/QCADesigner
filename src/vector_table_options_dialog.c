@@ -62,5 +62,6 @@ void get_vector_table_options_from_user (GtkWindow *parent, BUS_LAYOUT *bus_layo
 
   DialogToVectorTable (&vto) ;
 
-  gtk_window_present (parent) ;
+  if (NULL != parent)
+    gtk_window_present (parent) ;
   }

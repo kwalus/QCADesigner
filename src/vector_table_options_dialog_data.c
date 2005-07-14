@@ -48,6 +48,9 @@ void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout
   g_object_set_data (G_OBJECT (dialog->dialog), "user_bus_layout", bus_layout) ;
   g_object_set_data (G_OBJECT (dialog->dialog), "idxVector", (gpointer)-1) ;
 
+  if (0 == bus_layout->inputs->icUsed)
+    (*sim_type) = EXHAUSTIVE_VERIFICATION ;
+
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (tbtn = (VECTOR_TABLE == (*sim_type) ? dialog->tbtnVT : dialog->tbtnExhaustive)), TRUE) ;
 
   g_object_set_data (G_OBJECT (dialog->crActive), "pvt", pvt) ;
@@ -144,12 +147,14 @@ void vector_table_options_dialog_reflect_state (vector_table_options_D *dialog)
   char *pszTitle = NULL ;
   int *sim_type = NULL ;
   VectorTable *pvt = NULL ;
+  BUS_LAYOUT *bus_layout = NULL ;
 
   if (NULL == dialog) return ;
   if (NULL == (pvt = g_object_get_data (G_OBJECT (dialog->dialog), "user_pvt"))) return ;
   if (NULL == (sim_type = g_object_get_data (G_OBJECT (dialog->dialog), "user_sim_type"))) return ;
+  if (NULL == (bus_layout = g_object_get_data (G_OBJECT (dialog->dialog), "user_bus_layout"))) return ;
 
-  if (VECTOR_TABLE == (*sim_type))
+  if (VECTOR_TABLE == (*sim_type) && bus_layout->inputs->icUsed > 0)
     {
     gtk_widget_set_sensitive (dialog->btnSave, TRUE) ;
     gtk_widget_set_sensitive (dialog->btnOpen, TRUE) ;
@@ -172,6 +177,8 @@ void vector_table_options_dialog_reflect_state (vector_table_options_D *dialog)
     gtk_widget_hide (dialog->tblVT) ;
     }
   g_free (pszTitle) ;
+
+  gtk_widget_set_sensitive (dialog->tbtnVT, (bus_layout->inputs->icUsed > 0)) ;
 
   if (pvt->vectors->icUsed <= 0)
     {

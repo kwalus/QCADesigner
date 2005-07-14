@@ -35,7 +35,6 @@ MANUAL_FILES = \
 	manual.src/images/pan_button.png                  \
 	manual.src/images/electrostatic_energy.png        \
 	manual.src/images/qcadlogo_gradient.png           \
-	manual.src/images/resort_vectors.png              \
 	manual.src/images/temperature_ratio.png           \
 	manual.src/images/coherence_options.png           \
 	manual.src/images/zoom_in_button.png              \
@@ -65,7 +64,6 @@ MANUAL_FILES = \
 	manual.src/images/nonlinear_options.png           \
 	manual.src/images/bus_layout_dialog.png           \
 	manual.src/images/coherence_vector_components.png \
-	manual.src/images/vector_table_add_vector.png     \
 	manual.src/images/cell_functions_dialog.png       \
 	manual.src/images/bus_layout_button.png           \
 	manual.src/images/drawing_layer.png               \
@@ -97,11 +95,12 @@ MANUAL_FILES = \
 	manual.src/images/pan-step-3.png                  \
 	manual.src/images/radius_of_effect.ai             \
 	manual.src/images/remove_layer_button.png         \
-	manual.src/images/vector_table_click_bits.png     \
 	manual.src/QCADesigner.ico                        \
 	manual.src/hot_keys.html                          \
 	manual.src/print_dialog.html                      \
 	manual.src/bistable_simulation_engine.html        \
+	manual.src/images/add-vector-button.png           \
+	manual.src/images/insert-before-button.png        \
 	manual.src/bus_layout.html
 
 all:manual

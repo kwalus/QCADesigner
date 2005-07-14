@@ -101,6 +101,11 @@ MANUAL_FILES = \
 	manual.src/bistable_simulation_engine.html        \
 	manual.src/images/add-vector-button.png           \
 	manual.src/images/insert-before-button.png        \
+	manual.src/images/save-vector-table-button.png    \
+	manual.src/images/inserting_vectors.png           \
+	manual.src/images/editing_vectors.png             \
+	manual.src/images/delete-vector-button.png        \
+	manual.src/images/close-vector-table-button.png   \
 	manual.src/bus_layout.html
 
 all:manual

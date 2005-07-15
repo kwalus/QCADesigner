@@ -129,6 +129,9 @@ void get_bistable_properties_from_user (GtkWindow *parent, bistable_OP *pbo)
     }
 
   gtk_widget_hide (bistable_properties.bistable_properties_dialog) ;
+
+  if (NULL != parent)
+    gtk_window_present (parent) ;
   }
 
 static void create_bistable_properties_dialog (bistable_properties_D *dialog)

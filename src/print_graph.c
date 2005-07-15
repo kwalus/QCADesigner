@@ -354,7 +354,7 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
    _("Simulation Results")) ;
 
   exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-  exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
+  exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
   }
 
 static void PlaceSingleTrace (print_graph_OP *pPO, PAGES *pPages, struct TRACEDATA *ptd, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyTrace, int icSamples, double dMinTrace, double dMaxTrace)
@@ -503,7 +503,7 @@ static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEff
     pszStringPlacement) ;
 
   exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-  exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
+  exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
   }
 
 static void PlaceSingleBusTrace (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_DATA *hc_data, BUS *bus, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyTrace, int icSamples, int base)
@@ -656,7 +656,7 @@ static void PlaceSingleBox (print_graph_OP *pPO, PAGES *pPages, double dxMin, do
       psz = g_strdup_printf ("%lf %lf %lf %lf tracebox %%from PlaceSingleBox\n", dxMinPg, dyMinPg, dxMaxPg, dyMaxPg) ;
 
       exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-      exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
+      exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
       }
   }
 
@@ -705,7 +705,7 @@ static void PlaceSingleHoneycomb (print_graph_OP *pPO, PAGES *pPages, double dxM
       pszClr, pszClrType, dxMinPg, dxLPg, dxRPg, dxMaxPg, dyMinPg, dyMaxPg, pszLabel) ;
 
     exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-    exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
+    exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
     }
   exp_array_free (page_indices) ;
   }
@@ -826,7 +826,7 @@ static void PlaceSingleLine (print_graph_OP *pPO, PAGES *pPages, double dxMin, d
         dxMinPg, dyMinPg, dxMaxPg, dyMaxPg) ;
 
       exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-      exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
+      exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
       }
   }
 
@@ -921,7 +921,7 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
         idxPg = pPO->bPrintOrderOver ? Nix * pPO->iCXPages + xIdx : xIdx * pPO->iCYPages + Nix ;
 
         exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-        exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
+        exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
 
         xIdx = xIdxNew ;
 
@@ -985,6 +985,6 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
     idxPg = pPO->bPrintOrderOver ? Nix * pPO->iCXPages + xIdx : xIdx * pPO->iCYPages + Nix ;
 
     exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-    exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, -1) ;
+    exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
     }
   }

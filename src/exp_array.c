@@ -35,7 +35,7 @@
 
 static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElements, int iDimension, va_list va) ;
 static void exp_array_vremove_vals (EXP_ARRAY *exp_array, int icDimPairs, va_list va) ;
-static void exp_array_dump_priv (EXP_ARRAY *exp_array, FILE *pfile, int icIndent) ;
+static void exp_array_dump_priv (EXP_ARRAY *exp_array, FILE *pfile, int icIndent, gboolean bReverseVideo) ;
 static void exp_array_empty (EXP_ARRAY *exp_array) ;
 static void exp_array_insert_vals_flat (EXP_ARRAY *exp_array, void *data, int icElements, int idx) ;
 
@@ -92,6 +92,8 @@ void exp_array_insert_vals (EXP_ARRAY *exp_array, void *data, int icElements, in
   iDimension = CLAMP (iDimension, 1, exp_array->icDimensions) ;
 
   exp_array_vinsert_vals (exp_array, data, icElements, iDimension, va) ;
+
+  va_end (va) ;
   }
 
 static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElements, int iDimension, va_list va)
@@ -104,11 +106,8 @@ static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElem
 
   if (iDimension > 1)
     {
-    if (idx == exp_array->icUsed)
-      {
-      exp_array_insert_vals (exp_array, NULL, 1, 1, idx) ;
-      exp_array_index_1d (exp_array, EXP_ARRAY *, idx) = exp_array_new (exp_array->cbSize, iDimension - 1) ;
-      }
+    exp_array_insert_vals_flat (exp_array, NULL, 1, idx) ;
+    exp_array_index_1d (exp_array, EXP_ARRAY *, idx) = exp_array_new (exp_array->cbSize, iDimension - 1) ;
     exp_array_vinsert_vals (exp_array_index_1d (exp_array, EXP_ARRAY *, idx), data, icElements, iDimension - 1, va) ;
     }
   else
@@ -135,11 +134,10 @@ static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElem
           NULL == data ? NULL : data + Nix * exp_array->cbSize, 1, exp_array->icDimensions - 1, vaNew) ;
         va_end (vaNew) ;
         }
-      exp_array->icUsed = Nix + idx ;
+      exp_array->icUsed = MAX (exp_array->icUsed, Nix + idx) ;
       }
     else
       exp_array_insert_vals_flat (exp_array, data, icElements, idx) ;
-    va_end (va) ;
     }
   }
 
@@ -279,23 +277,32 @@ static void exp_array_empty (EXP_ARRAY *exp_array)
 void exp_array_dump (EXP_ARRAY *exp_array, FILE *pfile, int icIndent)
   {
   fprintf (pfile, "%*sexp_array_dump (0x%08X):\n", icIndent, "", (int)exp_array) ;
-  exp_array_dump_priv (exp_array, pfile, icIndent) ;
+  exp_array_dump_priv (exp_array, pfile, icIndent, FALSE) ;
   }
 
-static void exp_array_dump_priv (EXP_ARRAY *exp_array, FILE *pfile, int icIndent)
+static void exp_array_dump_priv (EXP_ARRAY *exp_array, FILE *pfile, int icIndent, gboolean bReverseVideo)
   {
   int Nix ;
+  char *pszReverseOn = bReverseVideo ? "\033[7m" : "" ;
+  char *pszReverseOff = bReverseVideo ? "\033[0m" : "" ;
 
-  fprintf (pfile, "%*s->icUsed = %d\n", icIndent, "", exp_array->icUsed) ;
-  fprintf (pfile, "%*s->icAvail = %d\n", icIndent, "", exp_array->icAvail) ;
-  fprintf (pfile, "%*s->cbSize = %d\n", icIndent, "", exp_array->cbSize) ;
-  fprintf (pfile, "%*s->icDimensions = %d\n", icIndent, "", exp_array->icDimensions) ;
-  fprintf (pfile, "%*s->data (0x%08X):\n", icIndent, "", (int)(exp_array->data)) ;
+  fprintf (pfile, "%*s%s->icUsed = %d%s\n", icIndent, "", pszReverseOn, exp_array->icUsed, pszReverseOff) ;
+  fprintf (pfile, "%*s%s->icAvail = %d%s\n", icIndent, "", pszReverseOn, exp_array->icAvail, pszReverseOff) ;
+  fprintf (pfile, "%*s%s->cbSize = %d%s\n", icIndent, "", pszReverseOn, exp_array->cbSize, pszReverseOff) ;
+  fprintf (pfile, "%*s%s->icDimensions = %d%s\n", icIndent, "", pszReverseOn, exp_array->icDimensions, pszReverseOff) ;
+  fprintf (pfile, "%*s%s->data (0x%08X):%s\n", icIndent, "", pszReverseOn, (int)(exp_array->data), pszReverseOff) ;
   if (1 == exp_array->icDimensions)
     print_hex_bytes ((char *)(exp_array->data), exp_array->icAvail * exp_array->cbSize, exp_array->icUsed * exp_array->cbSize, 8, pfile, icIndent) ;
   else
+    {
     for (Nix = 0 ; Nix < exp_array->icUsed ; Nix++)
-      exp_array_dump (exp_array_index_1d (exp_array, EXP_ARRAY *, Nix), pfile, icIndent + 2) ;
+      exp_array_dump_priv (exp_array_index_1d (exp_array, EXP_ARRAY *, Nix), pfile, icIndent + 2, TRUE) ;
+    for (; Nix < exp_array->icAvail ; Nix++)
+      if (NULL == exp_array_index_1d (exp_array, EXP_ARRAY *, Nix))
+        fprintf (pfile, "NULL\n") ;
+      else
+        exp_array_dump_priv (exp_array_index_1d (exp_array, EXP_ARRAY *, Nix), pfile, icIndent + 2, FALSE) ;
+    }
   }
 
 void print_hex_bytes (char *bytes, int icBytes, int icInitBytes, int icCols, FILE *pfile, int icIndent)

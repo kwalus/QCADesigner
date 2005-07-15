@@ -90,6 +90,9 @@ void get_sim_engine_from_user (GtkWindow *parent, int *piSimEng)
       *piSimEng = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.coherence_radio)) ? COHERENCE_VECTOR : BISTABLE ;
 
   gtk_widget_hide (sim_engine_setup_dialog.sim_engine_setup_dialog) ;
+
+  if (NULL != parent)
+    gtk_window_present (parent) ;
   }
 
 static void create_sim_engine_dialog (sim_engine_setup_D *dialog)

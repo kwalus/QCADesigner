@@ -290,14 +290,14 @@ void VectorTable_dump (VectorTable *pvt, FILE *pfile, int icIndent)
     fprintf (pfile, "%*s  ", icStrlen, qcad_cell_get_label (QCAD_CELL (exp_array_index_1d (pvt->inputs, VT_INPUT, Nix).input))) ;
   fprintf (pfile, "\n%*s", icIndent + 2, "") ;
   for (Nix = 0 ; Nix < pvt->inputs->icUsed ; Nix++)
-    fprintf (pfile, "%*s  ", icStrlen, exp_array_index_1d (pvt->inputs, VT_INPUT, Nix).active_flag ? "TRUE" : "FALSE") ;
+    fprintf (pfile, "%*s  ", icStrlen, exp_array_index_1d (pvt->inputs, VT_INPUT, Nix).active_flag ? "1" : "0") ;
   fprintf (pfile, "\n%*spvt->vectors:%d:\n", icIndent + 2, "", pvt->vectors->icUsed) ;
   fprintf (pfile, "\n%*s", icIndent + 2, "") ;
 
   for (Nix = 0 ; Nix < pvt->vectors->icUsed ; Nix++)
     {
     for (Nix1 = 0 ; Nix1 < pvt->inputs->icUsed ; Nix1++)
-      fprintf (pfile, "%*s  ", icStrlen, exp_array_index_2d (pvt->vectors, gboolean, Nix, Nix1) ? "TRUE" : "FALSE") ;
+      fprintf (pfile, "%*s  ", icStrlen, exp_array_index_2d (pvt->vectors, gboolean, Nix, Nix1) ? "1" : "0") ;
     if (Nix < pvt->vectors->icUsed - 1)
       fprintf (pfile, "\n%*s", icIndent + 2, "") ;
     }

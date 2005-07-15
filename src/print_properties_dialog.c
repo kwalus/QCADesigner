@@ -93,7 +93,7 @@ static void init_print_design_properties_dialog (print_properties_D *dialog, Gtk
   g_object_set_data (G_OBJECT (dialog->dlgPrintProps), "design", design) ;
   g_object_set_data (G_OBJECT (dialog->dlgPrintProps), "dialog", dialog) ;
   g_object_set_data (G_OBJECT (dialog->dlgPrintProps), "old_units",
-    (gpointer)print_dialog_get_units (PRINT_DIALOG (dialog->dlgPrintProps))) ;
+    (gpointer)qcad_print_dialog_get_units (QCAD_PRINT_DIALOG (dialog->dlgPrintProps))) ;
 
   gtk_window_set_transient_for (GTK_WINDOW (dialog->dlgPrintProps), parent) ;
 
@@ -109,7 +109,7 @@ static void init_print_design_properties_dialog (print_properties_D *dialog, Gtk
 
   // Fill in the dialog from the print_op values (must have the ppPrintedObjs filled in first !)
   gtk_adjustment_set_value (GTK_ADJUSTMENT (dialog->adjNanoToUnits),
-    print_dialog_to_current_units (PRINT_DIALOG (dialog->dlgPrintProps), print_op->dPointsPerNano)) ;
+    qcad_print_dialog_to_current_units (QCAD_PRINT_DIALOG (dialog->dlgPrintProps), print_op->dPointsPerNano)) ;
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->tbtnPrintOrder), !print_op->bPrintOrderOver) ;
 
@@ -153,10 +153,10 @@ void chkPrintedObj_toggled (GtkWidget *widget, gpointer user_data)
 void units_changed (GtkWidget *widget, gpointer data)
   {
   print_properties_D *dialog = (print_properties_D *)g_object_get_data (G_OBJECT (widget), "dialog") ;
-  PrintDialogUnits
-    old_units = (PrintDialogUnits)g_object_get_data (G_OBJECT (widget), "old_units"),
-    new_units = print_dialog_get_units (PRINT_DIALOG (widget)) ;
-  char *pszShortString = print_dialog_get_units_short_string (PRINT_DIALOG (widget)) ;
+  QCADPrintDialogUnits
+    old_units = (QCADPrintDialogUnits)g_object_get_data (G_OBJECT (widget), "old_units"),
+    new_units = qcad_print_dialog_get_units (QCAD_PRINT_DIALOG (widget)) ;
+  char *pszShortString = qcad_print_dialog_get_units_short_string (QCAD_PRINT_DIALOG (widget)) ;
 
   gtk_label_set_text (GTK_LABEL (dialog->lblScale), pszShortString) ;
 
@@ -180,10 +180,10 @@ void init_print_design_options (print_design_OP *pPrintOp, DESIGN *design)
     init_print_design_properties_dialog (&print_properties, NULL, pPrintOp, design) ;
     }
 
-  print_dialog_get_options (PRINT_DIALOG (print_properties.dlgPrintProps), &(pPrintOp->po)) ;
+  qcad_print_dialog_get_options (QCAD_PRINT_DIALOG (print_properties.dlgPrintProps), &(pPrintOp->po)) ;
 
   // points per nanometer
-  pPrintOp->dPointsPerNano = print_dialog_from_current_units (PRINT_DIALOG (print_properties.dlgPrintProps),
+  pPrintOp->dPointsPerNano = qcad_print_dialog_from_current_units (QCAD_PRINT_DIALOG (print_properties.dlgPrintProps),
     gtk_adjustment_get_value (GTK_ADJUSTMENT (print_properties.adjNanoToUnits))) ;
 
   g_free (pPrintOp->pbPrintedObjs) ;
@@ -314,7 +314,7 @@ static void check_scale (print_properties_D *dialog, GtkAdjustment *adj)
     icxPages = 0, icyPages = 0 ;
   print_OP po = {0} ;
 
-  print_dialog_get_options (PRINT_DIALOG (dialog->dlgPrintProps), &po) ;
+  qcad_print_dialog_get_options (QCAD_PRINT_DIALOG (dialog->dlgPrintProps), &po) ;
   if (NULL != po.pszPrintString) g_free (po.pszPrintString) ;
 
   calc_world_size (&icxWorld, &icyWorld, dialog) ;
@@ -326,18 +326,18 @@ static void check_scale (print_properties_D *dialog, GtkAdjustment *adj)
     {
     if (adj == dialog->adjCXPages)
       dNanoToUnits =
-        print_dialog_to_current_units (PRINT_DIALOG (dialog->dlgPrintProps),
+        qcad_print_dialog_to_current_units (QCAD_PRINT_DIALOG (dialog->dlgPrintProps),
           (dcxPg * gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (dialog->spnCXPages)))) / icxWorld ;
     else
     if (adj == dialog->adjCYPages)
       dNanoToUnits =
-        print_dialog_to_current_units (PRINT_DIALOG (dialog->dlgPrintProps),
+        qcad_print_dialog_to_current_units (QCAD_PRINT_DIALOG (dialog->dlgPrintProps),
           (dcyPg * gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (dialog->spnCYPages)))) / icyWorld ;
     else
       dNanoToUnits = MIN (
-        print_dialog_to_current_units (PRINT_DIALOG (dialog->dlgPrintProps),
+        qcad_print_dialog_to_current_units (QCAD_PRINT_DIALOG (dialog->dlgPrintProps),
           (dcxPg * gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (dialog->spnCXPages)))) / icxWorld,
-        print_dialog_to_current_units (PRINT_DIALOG (dialog->dlgPrintProps),
+        qcad_print_dialog_to_current_units (QCAD_PRINT_DIALOG (dialog->dlgPrintProps),
           (dcyPg * gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (dialog->spnCYPages)))) / icyWorld) ;
 
     dNanoToUnits = floor (dNanoToUnits * 1000.0) / 1000.0 ;
@@ -345,9 +345,9 @@ static void check_scale (print_properties_D *dialog, GtkAdjustment *adj)
     gtk_adjustment_set_value (GTK_ADJUSTMENT (dialog->adjNanoToUnits), dNanoToUnits) ;
     }
 
-  tmp = print_dialog_from_current_units (PRINT_DIALOG (dialog->dlgPrintProps), icxWorld * dNanoToUnits) / dcxPg ;
+  tmp = qcad_print_dialog_from_current_units (QCAD_PRINT_DIALOG (dialog->dlgPrintProps), icxWorld * dNanoToUnits) / dcxPg ;
   icxPages = (int)((fabs (tmp - (double)((int)tmp)) > CEIL_EXCEPTION_EPSILON) ? ceil (tmp) : tmp) ;
-  tmp = print_dialog_from_current_units (PRINT_DIALOG (dialog->dlgPrintProps), icyWorld * dNanoToUnits) / dcyPg ;
+  tmp = qcad_print_dialog_from_current_units (QCAD_PRINT_DIALOG (dialog->dlgPrintProps), icyWorld * dNanoToUnits) / dcyPg ;
   icyPages = (int)((fabs (tmp - (double)((int)tmp)) > CEIL_EXCEPTION_EPSILON) ? ceil (tmp) : tmp) ;
 
   g_signal_handlers_block_matched ((gpointer)dialog->adjCXPages, G_SIGNAL_MATCH_FUNC, 0, 0, NULL, (gpointer)validate_value_change, NULL) ;

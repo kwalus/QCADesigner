@@ -22,6 +22,10 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
+// A hybrid text/checkbox cell renderer used by the     //
+// vector table tree view. The decision whether to      //
+// render as text is driven by the "row-type"           //
+// attribute.                                           //
 //                                                      //
 //////////////////////////////////////////////////////////
 

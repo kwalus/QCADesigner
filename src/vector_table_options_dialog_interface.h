@@ -22,6 +22,9 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
+// Header for functions for creating vector table in-   //
+// terface elements, including the dialog itself and    //
+// adding a new vector.                                 //
 //                                                      //
 //////////////////////////////////////////////////////////
 

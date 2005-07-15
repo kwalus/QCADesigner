@@ -15,37 +15,25 @@ GObject
  |     +----QCADLayer<QCADCompoundDO,QCADDOContainer>
  |
  +----GtkObject
-       +----GtkWidget                                                                     
+       +----GtkWidget
        |     +----GtkContainer
        |           +----GtkBox
        |           |     +----GtkHBox
-       |           |            +----QCADClockCombo                                                   
+       |           |            +----QCADClockCombo
        |           |
        |           +----GtkBin
        |                 +----GtkScrolledWindow
-       |                       +----QCADTreeViewContainer
+       |                 |     +----QCADTreeViewContainer
+       |                 |
+       |                 +----GtkWindow
+       |                       +----GtkDialog
+       |                             +----QCADPrintDialog
        |
        +----GtkCellRenderer
              +----GtkCellRendererText
                    +----QCADCellRendererVT
 
 GTypeInterface
- +----QCADCompoundDO                                                                      
+ +----QCADCompoundDO
  |
- +----QCADDOContainer                                                                     
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
+ +----QCADDOContainer

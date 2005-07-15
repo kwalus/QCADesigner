@@ -31,7 +31,7 @@
 #include <gtk/gtk.h>
 #include "support.h"
 #include "simulation.h"
-#include "print_dialog.h"
+#include "objects/QCADPrintDialog.h"
 #include "print_graph_properties_dialog.h"
 #include "print.h"
 #include "print_preview.h"
@@ -73,7 +73,7 @@ static void create_print_graph_properties_dialog (print_graph_properties_D *dial
   {
   GtkWidget *tbl = NULL, *widget = NULL ;
 
-  dialog->dlgPrintGraphProps = print_dialog_new (pPO) ;
+  dialog->dlgPrintGraphProps = qcad_print_dialog_new (pPO) ;
   gtk_window_set_title (GTK_WINDOW (dialog->dlgPrintGraphProps), _("Printer Setup")) ;
 
   widget = tbl = gtk_table_new (1, 1, FALSE) ;
@@ -86,7 +86,7 @@ static void create_print_graph_properties_dialog (print_graph_properties_D *dial
     (GtkAttachOptions)(0),
     (GtkAttachOptions)(0), 2, 2) ;
 
-  print_dialog_add_page (PRINT_DIALOG (dialog->dlgPrintGraphProps), tbl, _("Document Options")) ;
+  qcad_print_dialog_add_page (QCAD_PRINT_DIALOG (dialog->dlgPrintGraphProps), tbl, _("Document Options")) ;
   g_signal_connect (G_OBJECT (dialog->dlgPrintGraphProps), "preview", (GCallback)graphs_preview, dialog->dlgPrintGraphProps) ;
   g_signal_connect (G_OBJECT (dialog->chkPrintClr), "activate", (GCallback)chkPrintClr_activate, pPO) ;
   }
@@ -96,7 +96,7 @@ void init_print_graph_options (print_graph_OP *pPO, PRINT_GRAPH_DATA *print_grap
   if (NULL == print_graph_props.dlgPrintGraphProps)
     create_print_graph_properties_dialog (&print_graph_props, &(pPO->po)) ;
 
-  print_dialog_get_options (PRINT_DIALOG (print_graph_props.dlgPrintGraphProps), &(pPO->po)) ;
+  qcad_print_dialog_get_options (QCAD_PRINT_DIALOG (print_graph_props.dlgPrintGraphProps), &(pPO->po)) ;
 
   pPO->bPrintClr = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (print_graph_props.chkPrintClr)) ;
   }

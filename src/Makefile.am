@@ -79,6 +79,7 @@ QCADesigner_SOURCES = \
 	objects/QCADClockCombo.c                objects/QCADClockCombo.h \
 	objects/QCADCellRendererVT.c            objects/QCADCellRendererVT.h \
 	objects/QCADTreeViewContainer.c         objects/QCADTreeViewContainer.h \
+  objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
 	print_properties_dialog.c               print_properties_dialog.h \
 	print_graph_properties_dialog.c         print_graph_properties_dialog.h \
 	                                        print_properties_dialog_callbacks.h \
@@ -86,7 +87,6 @@ QCADesigner_SOURCES = \
 	print.c                                 print.h \
 	print_util.c                            print_util.h \
 	print_graph.c \
-	print_dialog.c                          print_dialog.h \
 	                                        qcadstock.h \
 	scale_dialog.c                          scale_dialog.h \
 	selection_renderer.c                    selection_renderer.h \
@@ -154,7 +154,7 @@ batch_sim_SOURCES = \
 #	print.c                               print.h \
 #	print_util.c                          print_util.h \
 #	print_graph.c \
-#	print_dialog.c                        print_dialog.h \
+#	objects/QCADPrintDialog.c             objects/QCADPrintDialog.h \
 #	print_graph_properties_dialog.c       print_graph_properties_dialog.h \
 #	support.c                             support.h \
 #	honeycomb_thresholds_dialog.c         honeycomb_thresholds_dialog.h \
@@ -182,6 +182,7 @@ graph_dialog_SOURCES = \
 	$(OBJECT_FILES) \
 	gtk_preamble.c                        gtk_preamble.h \
 	objects/QCADClockCombo.c              objects/QCADClockCombo.h \
+	objects/QCADPrintDialog.c             objects/QCADPrintDialog.h \
 	design.c                              design.h \
 	objects/object_helpers.c              objects/object_helpers.h \
 \
@@ -200,7 +201,6 @@ graph_dialog_SOURCES = \
 	print.c                               print.h \
 	print_util.c                          print_util.h \
 	print_graph.c \
-	print_dialog.c                        print_dialog.h \
 	print_graph_properties_dialog.c       print_graph_properties_dialog.h \
 	support.c                             support.h \
 	honeycomb_thresholds_dialog.c         honeycomb_thresholds_dialog.h \

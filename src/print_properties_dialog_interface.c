@@ -43,7 +43,7 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
   if (NULL != dialog->dlgPrintProps) return ;
 
   /* The dialog window */
-  dialog->dlgPrintProps = GTK_WIDGET (print_dialog_new ((print_OP *)pPO)) ;
+  dialog->dlgPrintProps = GTK_WIDGET (qcad_print_dialog_new ((print_OP *)pPO)) ;
   gtk_window_set_title (GTK_WINDOW (dialog->dlgPrintProps), _("Printer Setup"));
 
 #ifdef WIN32
@@ -204,7 +204,7 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
                     (GtkAttachOptions) (0), 2, 2);
   gtk_misc_set_alignment (GTK_MISC (dialog->lblCenter), 0.5, 0.5);
 
-  print_dialog_add_page (PRINT_DIALOG (dialog->dlgPrintProps), dialog->tblScale, _("Scale")) ;
+  qcad_print_dialog_add_page (QCAD_PRINT_DIALOG (dialog->dlgPrintProps), dialog->tblScale, _("Scale")) ;
 
   /* Tab 4 - Printed Objects */
   tbl = gtk_table_new (2, 1, FALSE) ;
@@ -235,7 +235,7 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 2, 2) ;
 
-  print_dialog_add_page (PRINT_DIALOG (dialog->dlgPrintProps), tbl, _("Printed Objects")) ;
+  qcad_print_dialog_add_page (QCAD_PRINT_DIALOG (dialog->dlgPrintProps), tbl, _("Printed Objects")) ;
 
   g_signal_connect (G_OBJECT (dialog->adjNanoToUnits), "value_changed", (GCallback)validate_value_change,     dialog->dlgPrintProps) ;
   g_signal_connect (G_OBJECT (dialog->adjCXPages),     "value_changed", (GCallback)validate_value_change,     dialog->dlgPrintProps) ;

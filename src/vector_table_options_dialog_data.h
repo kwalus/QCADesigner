@@ -22,6 +22,10 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
+// Header for applying the data to the vector table     //
+// dialog and harvesting the data from the dialog, as   //
+// well as a function to set widgets appropriately      //
+// (in)sensitive.                                       //
 //                                                      //
 //////////////////////////////////////////////////////////
 

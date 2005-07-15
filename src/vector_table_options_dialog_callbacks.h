@@ -22,6 +22,8 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
+// Header for the callback functions for the vector     //
+// table options dialog.                                //
 //                                                      //
 //////////////////////////////////////////////////////////
 

@@ -22,6 +22,9 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
+// Functions for creating vector table interface ele-   //
+// ments, including the dialog itself and adding a new  //
+// vector.                                              //
 //                                                      //
 //////////////////////////////////////////////////////////
 

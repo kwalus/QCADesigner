@@ -22,7 +22,7 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
-// A treeviewcontainer that allows "freeze columns".    //
+// A tree view container that allows "freeze columns".  //
 // That is, the horizontal scrolling does not scroll    //
 // the entire tree view but, instead, it hides and      //
 // shows columns as appropriate, keeping the first n    //

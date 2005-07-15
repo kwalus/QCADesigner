@@ -31,20 +31,20 @@
 #include <stdio.h>
 #include <string.h>
 #include <gtk/gtk.h>
-#include "print_dialog.h"
-#include "generic_utils.h"
-#include "file_selection_window.h"
-#include "support.h"
+#include "QCADPrintDialog.h"
+#include "../generic_utils.h"
+#include "../file_selection_window.h"
+#include "../support.h"
 
 #define MIN_MARGIN_SEPARATION 72 /* points */
 
-static void print_dialog_class_init (PrintDialogClass *klass, gpointer data) ;
-static void print_dialog_instance_init (PrintDialog *dlg, gpointer data) ;
+static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer data) ;
+static void qcad_print_dialog_instance_init (QCADPrintDialog *dlg, gpointer data) ;
 //Helpers
-static void print_op_to_dialog (PrintDialog *pd, print_OP *pPO) ;
+static void print_op_to_dialog (QCADPrintDialog *pd, print_OP *pPO) ;
 static int get_paper_index (double cx, double cy) ;
 static void redraw_preview (GtkWidget *daPreview, double dPaperWidth, double dPaperHeight, double dLeftMargin, double dTopMargin, double dRightMargin, double dBottomMargin) ;
-void emit_changed_signal (PrintDialog *pd) ;
+void emit_changed_signal (QCADPrintDialog *pd) ;
 //Callbacks
 static void print_destination_toggled (GtkWidget *widget, gpointer data) ;
 static void btnPrint_clicked (GtkWidget *widget, gpointer data) ;
@@ -77,57 +77,57 @@ static struct
 
 enum
   {
-  PRINT_DIALOG_CHANGED_SIGNAL,
-  PRINT_DIALOG_UNITS_CHANGED_SIGNAL,
-  PRINT_DIALOG_PREVIEW_SIGNAL,
-  PRINT_DIALOG_LAST_SIGNAL
+  QCAD_PRINT_DIALOG_CHANGED_SIGNAL,
+  QCAD_PRINT_DIALOG_UNITS_CHANGED_SIGNAL,
+  QCAD_PRINT_DIALOG_PREVIEW_SIGNAL,
+  QCAD_PRINT_DIALOG_LAST_SIGNAL
   };
 
-static guint print_dialog_signals[PRINT_DIALOG_LAST_SIGNAL] = {0} ;
+static guint qcad_print_dialog_signals[QCAD_PRINT_DIALOG_LAST_SIGNAL] = {0} ;
 
-GType print_dialog_get_type ()
+GType qcad_print_dialog_get_type ()
   {
-  static GType print_dialog_type = 0 ;
+  static GType qcad_print_dialog_type = 0 ;
 
-  if (!print_dialog_type)
+  if (!qcad_print_dialog_type)
     {
-    static const GTypeInfo print_dialog_info =
+    static const GTypeInfo qcad_print_dialog_info =
       {
-      sizeof (PrintDialogClass),
+      sizeof (QCADPrintDialogClass),
       (GBaseInitFunc)NULL,
       (GBaseFinalizeFunc)NULL,
-      (GClassInitFunc)print_dialog_class_init,
+      (GClassInitFunc)qcad_print_dialog_class_init,
       (GClassFinalizeFunc)NULL,
       NULL,
-      sizeof (PrintDialog),
+      sizeof (QCADPrintDialog),
       0,
-      (GInstanceInitFunc)print_dialog_instance_init
+      (GInstanceInitFunc)qcad_print_dialog_instance_init
       } ;
-    print_dialog_type = g_type_register_static (GTK_TYPE_DIALOG, "PrintDialog", &print_dialog_info, 0) ;
+    qcad_print_dialog_type = g_type_register_static (GTK_TYPE_DIALOG, QCAD_TYPE_STRING_PRINT_DIALOG, &qcad_print_dialog_info, 0) ;
     }
-  return print_dialog_type ;
+  return qcad_print_dialog_type ;
   }
 
-static void print_dialog_class_init (PrintDialogClass *klass, gpointer data)
+static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer data)
   {
-  print_dialog_signals[PRINT_DIALOG_CHANGED_SIGNAL] =
+  qcad_print_dialog_signals[QCAD_PRINT_DIALOG_CHANGED_SIGNAL] =
     g_signal_new ("changed", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
-      G_STRUCT_OFFSET (PrintDialogClass, changed), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
-  print_dialog_signals[PRINT_DIALOG_UNITS_CHANGED_SIGNAL] =
+      G_STRUCT_OFFSET (QCADPrintDialogClass, changed), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
+  qcad_print_dialog_signals[QCAD_PRINT_DIALOG_UNITS_CHANGED_SIGNAL] =
     g_signal_new ("units_changed", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
-      G_STRUCT_OFFSET (PrintDialogClass, units_changed), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
-  print_dialog_signals[PRINT_DIALOG_PREVIEW_SIGNAL] =
+      G_STRUCT_OFFSET (QCADPrintDialogClass, units_changed), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
+  qcad_print_dialog_signals[QCAD_PRINT_DIALOG_PREVIEW_SIGNAL] =
     g_signal_new ("preview", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
-      G_STRUCT_OFFSET (PrintDialogClass, preview), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
+      G_STRUCT_OFFSET (QCADPrintDialogClass, preview), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
   }
 
-static void print_dialog_instance_init (PrintDialog *dlg, gpointer data)
+static void qcad_print_dialog_instance_init (QCADPrintDialog *dlg, gpointer data)
   {
   GtkWidget *tbl, *widget, *mnu, *frame, *tblPg, *tblFm ;
   GSList *grp = NULL ;
   int Nix ;
 
-  gtk_window_set_title (GTK_WINDOW (dlg), "PrintDialog") ;
+  gtk_window_set_title (GTK_WINDOW (dlg), QCAD_TYPE_STRING_PRINT_DIALOG) ;
   gtk_window_set_resizable (GTK_WINDOW (dlg), FALSE) ;
   gtk_window_set_modal (GTK_WINDOW (dlg), TRUE) ;
 
@@ -586,56 +586,56 @@ static void print_dialog_instance_init (PrintDialog *dlg, gpointer data)
 * PUBLIC FUNCTIONS                                                           *
 *****************************************************************************/
 
-GtkWidget *print_dialog_new (print_OP *pPO)
+GtkWidget *qcad_print_dialog_new (print_OP *pPO)
   {
-  PrintDialog *ret = PRINT_DIALOG (g_object_new (TYPE_PRINT_DIALOG, NULL)) ;
+  QCADPrintDialog *ret = QCAD_PRINT_DIALOG (g_object_new (QCAD_TYPE_PRINT_DIALOG, NULL)) ;
   print_op_to_dialog (ret, pPO) ;
   return GTK_WIDGET (ret) ;
   }
 
-void print_dialog_add_page (PrintDialog *pd, GtkWidget *contents, char *pszLbl)
+void qcad_print_dialog_add_page (QCADPrintDialog *pd, GtkWidget *contents, char *pszLbl)
   {
   GtkWidget *lbl = gtk_label_new (pszLbl) ;
   gtk_widget_show (lbl) ;
   gtk_notebook_append_page (GTK_NOTEBOOK (pd->nbPropPages), contents, lbl) ;
   }
 
-void print_dialog_get_options (PrintDialog *pd, print_OP *pPO)
+void qcad_print_dialog_get_options (QCADPrintDialog *pd, print_OP *pPO)
   {
-  pPO->dPaperCX = print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCX))) ;
-  pPO->dPaperCY = print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCY))) ;
-  pPO->dLMargin = print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjLMargin))) ;
-  pPO->dTMargin = print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjTMargin))) ;
-  pPO->dRMargin = print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjRMargin))) ;
-  pPO->dBMargin = print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjBMargin))) ;
+  pPO->dPaperCX = qcad_print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCX))) ;
+  pPO->dPaperCY = qcad_print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCY))) ;
+  pPO->dLMargin = qcad_print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjLMargin))) ;
+  pPO->dTMargin = qcad_print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjTMargin))) ;
+  pPO->dRMargin = qcad_print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjRMargin))) ;
+  pPO->dBMargin = qcad_print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjBMargin))) ;
   pPO->bPortrait = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pd->rbPortrait)) ;
   pPO->bPrintFile = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pd->rbPrintFile)) ;
   pPO->pszPrintString =
     gtk_editable_get_chars (GTK_EDITABLE (pPO->bPrintFile ? pd->txtFileSelect : pd->txtPipeSelect), 0, -1) ;
   }
 
-PrintDialogUnits print_dialog_get_units (PrintDialog *pd)
+QCADPrintDialogUnits qcad_print_dialog_get_units (QCADPrintDialog *pd)
   {
   return
     pd->mnuiCurrent == pd->mnuiPoints ? PD_UNITS_POINTS :
     pd->mnuiCurrent == pd->mnuiInches ? PD_UNITS_INCHES : PD_UNITS_CENTIS ;
   }
 
-char *print_dialog_get_units_short_string (PrintDialog *pd)
+char *qcad_print_dialog_get_units_short_string (QCADPrintDialog *pd)
   {
   return
     pd->mnuiCurrent == pd->mnuiPoints ? "pt" :
     pd->mnuiCurrent == pd->mnuiInches ? "in" : "cm" ;
   }
 
-double print_dialog_to_current_units (PrintDialog *pd, double dPoints)
+double qcad_print_dialog_to_current_units (QCADPrintDialog *pd, double dPoints)
   {
   return
     pd->mnuiCurrent == pd->mnuiCentis ? (dPoints * 2.54) / 72.0 :
     pd->mnuiCurrent == pd->mnuiInches ? dPoints / 72.0 : dPoints ;
   }
 
-double print_dialog_from_current_units (PrintDialog *pd, double dUnits)
+double qcad_print_dialog_from_current_units (QCADPrintDialog *pd, double dUnits)
   {
   return
     pd->mnuiCurrent == pd->mnuiCentis ? (dUnits * 72) / 2.54 :
@@ -679,7 +679,7 @@ static void redraw_preview (GtkWidget *daPreview, double dPaperWidth, double dPa
   gdk_draw_line (daPreview->window, daPreview->style->black_gc, x, yR, x + rectWidth, yR) ;  /* bottom margin */
   }
 
-static void print_op_to_dialog (PrintDialog *pd, print_OP *pPO)
+static void print_op_to_dialog (QCADPrintDialog *pd, print_OP *pPO)
   {
   int idxPaper = 0 ;
   // The first tab
@@ -699,17 +699,17 @@ static void print_op_to_dialog (PrintDialog *pd, print_OP *pPO)
     }
 
   // the second tab
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), print_dialog_to_current_units (pd, pPO->dPaperCX)) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), print_dialog_to_current_units (pd, pPO->dPaperCY)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), qcad_print_dialog_to_current_units (pd, pPO->dPaperCX)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), qcad_print_dialog_to_current_units (pd, pPO->dPaperCY)) ;
   if ((idxPaper = get_paper_index (pPO->dPaperCX, pPO->dPaperCY)))
     gtk_option_menu_set_history (GTK_OPTION_MENU (pd->optPaperSize), idxPaper) ;
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pPO->bPortrait ? pd->rbPortrait : pd->rbLandscape), TRUE) ;
 
   // the third tab
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjLMargin), print_dialog_to_current_units (pd, pPO->dLMargin)) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjTMargin), print_dialog_to_current_units (pd, pPO->dTMargin)) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjRMargin), print_dialog_to_current_units (pd, pPO->dRMargin)) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjBMargin), print_dialog_to_current_units (pd, pPO->dBMargin)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjLMargin), qcad_print_dialog_to_current_units (pd, pPO->dLMargin)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjTMargin), qcad_print_dialog_to_current_units (pd, pPO->dTMargin)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjRMargin), qcad_print_dialog_to_current_units (pd, pPO->dRMargin)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjBMargin), qcad_print_dialog_to_current_units (pd, pPO->dBMargin)) ;
 
   // Repaint the drawing area
   gtk_widget_queue_draw (pd->daPreview) ;
@@ -728,11 +728,11 @@ static int get_paper_index (double cx, double cy)
   return 0 ;
   }
 
-void emit_changed_signal (PrintDialog *pd)
+void emit_changed_signal (QCADPrintDialog *pd)
   {
   print_OP po = {0} ;
-  print_dialog_get_options (pd, &po) ;
-  g_signal_emit (G_OBJECT (pd), print_dialog_signals[PRINT_DIALOG_CHANGED_SIGNAL], 0) ;
+  qcad_print_dialog_get_options (pd, &po) ;
+  g_signal_emit (G_OBJECT (pd), qcad_print_dialog_signals[QCAD_PRINT_DIALOG_CHANGED_SIGNAL], 0) ;
   g_free (po.pszPrintString) ;
   }
 
@@ -742,7 +742,7 @@ void emit_changed_signal (PrintDialog *pd)
 
 static void browse_for_file (GtkWidget *widget, gpointer data)
   {
-  PrintDialog *pd = PRINT_DIALOG (data) ;
+  QCADPrintDialog *pd = QCAD_PRINT_DIALOG (data) ;
   gboolean bPrintFile = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pd->rbPrintFile)) ;
   GtkWidget *txt = bPrintFile ? pd->txtFileSelect : pd->txtPipeSelect ;
   gchar
@@ -759,14 +759,14 @@ static void browse_for_file (GtkWidget *widget, gpointer data)
 
 static void units_changed (GtkWidget *widget, gpointer data)
   {
-  PrintDialog *pd = PRINT_DIALOG (data) ;
+  QCADPrintDialog *pd = QCAD_PRINT_DIALOG (data) ;
   double
-    dPaperCX = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnPaperCX))),
-    dPaperCY = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnPaperCY))),
-    dLMargin = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnLMargin))),
-    dTMargin = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnTMargin))),
-    dRMargin = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnRMargin))),
-    dBMargin = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnBMargin))) ;
+    dPaperCX = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnPaperCX))),
+    dPaperCY = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnPaperCY))),
+    dLMargin = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnLMargin))),
+    dTMargin = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnTMargin))),
+    dRMargin = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnRMargin))),
+    dBMargin = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnBMargin))) ;
   char *pszUnits =
     widget == pd->mnuiPoints ? "pt" :
     widget == pd->mnuiInches ? "in" : "cm" ;
@@ -781,27 +781,27 @@ static void units_changed (GtkWidget *widget, gpointer data)
   // set this value so (to|from)_current_units continues to work correctly
   pd->mnuiCurrent = widget ;
 
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), print_dialog_to_current_units (pd, dPaperCX)) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), print_dialog_to_current_units (pd, dPaperCY)) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjLMargin), print_dialog_to_current_units (pd, dLMargin)) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjTMargin), print_dialog_to_current_units (pd, dTMargin)) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjRMargin), print_dialog_to_current_units (pd, dRMargin)) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjBMargin), print_dialog_to_current_units (pd, dBMargin)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), qcad_print_dialog_to_current_units (pd, dPaperCX)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), qcad_print_dialog_to_current_units (pd, dPaperCY)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjLMargin), qcad_print_dialog_to_current_units (pd, dLMargin)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjTMargin), qcad_print_dialog_to_current_units (pd, dTMargin)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjRMargin), qcad_print_dialog_to_current_units (pd, dRMargin)) ;
+  gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjBMargin), qcad_print_dialog_to_current_units (pd, dBMargin)) ;
 
-  g_signal_emit (G_OBJECT (pd), print_dialog_signals[PRINT_DIALOG_UNITS_CHANGED_SIGNAL], 0) ;
+  g_signal_emit (G_OBJECT (pd), qcad_print_dialog_signals[QCAD_PRINT_DIALOG_UNITS_CHANGED_SIGNAL], 0) ;
   }
 
 static void margins_changed (GtkWidget *widget, gpointer data)
   {
   GtkAdjustment *adj = GTK_ADJUSTMENT (widget) ;
-  PrintDialog *pd = PRINT_DIALOG (data) ;
+  QCADPrintDialog *pd = QCAD_PRINT_DIALOG (data) ;
   double
-    dLMargin = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnLMargin))),
-    dTMargin = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnTMargin))),
-    dRMargin = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnRMargin))),
-    dBMargin = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnBMargin))),
-    dPaperCX = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnPaperCX))),
-    dPaperCY = print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnPaperCY))),
+    dLMargin = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnLMargin))),
+    dTMargin = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnTMargin))),
+    dRMargin = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnRMargin))),
+    dBMargin = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnBMargin))),
+    dPaperCX = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnPaperCX))),
+    dPaperCY = qcad_print_dialog_from_current_units (pd, gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (pd->spnPaperCY))),
     dDiff ;
 
   // This ensures that all spin buttons (margins AND paper size) can go up forever
@@ -811,28 +811,28 @@ static void margins_changed (GtkWidget *widget, gpointer data)
   if ((dDiff = dPaperCX - dLMargin - dRMargin) < MIN_MARGIN_SEPARATION)
     {
     if (pd->adjLMargin == adj)
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (widget), print_dialog_to_current_units (pd, dLMargin + dDiff - MIN_MARGIN_SEPARATION)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (widget), qcad_print_dialog_to_current_units (pd, dLMargin + dDiff - MIN_MARGIN_SEPARATION)) ;
     else
     if (pd->adjRMargin == adj)
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (widget), print_dialog_to_current_units (pd, dRMargin + dDiff - MIN_MARGIN_SEPARATION)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (widget), qcad_print_dialog_to_current_units (pd, dRMargin + dDiff - MIN_MARGIN_SEPARATION)) ;
     else
       {
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjLMargin), print_dialog_to_current_units (pd, dLMargin + (dDiff - MIN_MARGIN_SEPARATION) / 2.0)) ;
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjRMargin), print_dialog_to_current_units (pd, dRMargin + (dDiff - MIN_MARGIN_SEPARATION) / 2.0)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjLMargin), qcad_print_dialog_to_current_units (pd, dLMargin + (dDiff - MIN_MARGIN_SEPARATION) / 2.0)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjRMargin), qcad_print_dialog_to_current_units (pd, dRMargin + (dDiff - MIN_MARGIN_SEPARATION) / 2.0)) ;
       }
     }
 
   if ((dDiff = dPaperCY - dTMargin - dBMargin) < MIN_MARGIN_SEPARATION)
     {
     if (pd->adjTMargin == adj)
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (widget), print_dialog_to_current_units (pd, dTMargin + dDiff - MIN_MARGIN_SEPARATION)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (widget), qcad_print_dialog_to_current_units (pd, dTMargin + dDiff - MIN_MARGIN_SEPARATION)) ;
     else
     if (pd->adjBMargin == adj)
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (widget), print_dialog_to_current_units (pd, dBMargin + dDiff - MIN_MARGIN_SEPARATION)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (widget), qcad_print_dialog_to_current_units (pd, dBMargin + dDiff - MIN_MARGIN_SEPARATION)) ;
     else
       {
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjTMargin), print_dialog_to_current_units (pd, dTMargin + (dDiff - MIN_MARGIN_SEPARATION) / 2.0)) ;
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjBMargin), print_dialog_to_current_units (pd, dBMargin + (dDiff - MIN_MARGIN_SEPARATION) / 2.0)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjTMargin), qcad_print_dialog_to_current_units (pd, dTMargin + (dDiff - MIN_MARGIN_SEPARATION) / 2.0)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjBMargin), qcad_print_dialog_to_current_units (pd, dBMargin + (dDiff - MIN_MARGIN_SEPARATION) / 2.0)) ;
       }
     }
   gtk_widget_queue_draw (pd->daPreview) ;
@@ -841,7 +841,7 @@ static void margins_changed (GtkWidget *widget, gpointer data)
 
 static void optPaperSize_changed (GtkWidget *widget, gpointer data)
   {
-  PrintDialog *pd = PRINT_DIALOG (data) ;
+  QCADPrintDialog *pd = QCAD_PRINT_DIALOG (data) ;
   int idx = gtk_option_menu_get_history (GTK_OPTION_MENU (widget)) ;
 
   if (idx)
@@ -859,17 +859,17 @@ static void optPaperSize_changed (GtkWidget *widget, gpointer data)
       cy = paper_types[idx].cy ;
       }
 
-    gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), print_dialog_to_current_units (pd, cx)) ;
-    gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), print_dialog_to_current_units (pd, cy)) ;
+    gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), qcad_print_dialog_to_current_units (pd, cx)) ;
+    gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), qcad_print_dialog_to_current_units (pd, cy)) ;
     }
 
   emit_changed_signal (pd) ;
-  gtk_widget_queue_draw (PRINT_DIALOG (data)->daPreview) ;
+  gtk_widget_queue_draw (QCAD_PRINT_DIALOG (data)->daPreview) ;
   }
 
 static void daPreview_expose (GtkWidget *widget, GdkEventExpose *ev, gpointer data)
   {
-  PrintDialog *pd = PRINT_DIALOG (data) ;
+  QCADPrintDialog *pd = QCAD_PRINT_DIALOG (data) ;
 
   redraw_preview (pd->daPreview,
     gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCX)),
@@ -882,10 +882,10 @@ static void daPreview_expose (GtkWidget *widget, GdkEventExpose *ev, gpointer da
 
 static void paper_size_changed (GtkWidget *widget, gpointer data)
   {
-  PrintDialog *pd = PRINT_DIALOG (data) ;
+  QCADPrintDialog *pd = QCAD_PRINT_DIALOG (data) ;
   double
-    cx = print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCX))),
-    cy = print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCY))) ;
+    cx = qcad_print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCX))),
+    cy = qcad_print_dialog_from_current_units (pd, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCY))) ;
   int idx = get_paper_index (cx, cy) ;
 
   margins_changed (widget, data) ;
@@ -910,7 +910,7 @@ static void paper_size_changed (GtkWidget *widget, gpointer data)
 
 static void print_destination_toggled (GtkWidget *widget, gpointer data)
   {
-  PrintDialog *dlg = (PrintDialog *)data ;
+  QCADPrintDialog *dlg = QCAD_PRINT_DIALOG (data) ;
 
   gtk_widget_set_sensitive (dlg->fmFileSelect, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dlg->rbPrintFile))) ;
   gtk_widget_set_sensitive (dlg->txtFileSelect, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dlg->rbPrintFile))) ;
@@ -926,11 +926,11 @@ static void print_destination_toggled (GtkWidget *widget, gpointer data)
 
 static void paper_orientation_toggled (GtkWidget *widget, gpointer data)
   {
-  PrintDialog *pd = PRINT_DIALOG (data) ;
-  int idx = gtk_option_menu_get_history (GTK_OPTION_MENU (PRINT_DIALOG (data)->optPaperSize)) ;
+  QCADPrintDialog *pd = QCAD_PRINT_DIALOG (data) ;
+  int idx = gtk_option_menu_get_history (GTK_OPTION_MENU (QCAD_PRINT_DIALOG (data)->optPaperSize)) ;
   float
-    cx = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (PRINT_DIALOG (data)->spnPaperCX)),
-    cy = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (PRINT_DIALOG (data)->spnPaperCY)) ;
+    cx = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (QCAD_PRINT_DIALOG (data)->spnPaperCX)),
+    cy = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (QCAD_PRINT_DIALOG (data)->spnPaperCY)) ;
 
   if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) return ;
 
@@ -941,26 +941,26 @@ static void paper_orientation_toggled (GtkWidget *widget, gpointer data)
     }
   else
     {
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (PRINT_DIALOG (data)->rbPortrait)))
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (QCAD_PRINT_DIALOG (data)->rbPortrait)))
       {
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), print_dialog_to_current_units (pd, paper_types[idx].cx)) ;
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), print_dialog_to_current_units (pd, paper_types[idx].cy)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), qcad_print_dialog_to_current_units (pd, paper_types[idx].cx)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), qcad_print_dialog_to_current_units (pd, paper_types[idx].cy)) ;
       }
     else
       {
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), print_dialog_to_current_units (pd, paper_types[idx].cy)) ;
-      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), print_dialog_to_current_units (pd, paper_types[idx].cx)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), qcad_print_dialog_to_current_units (pd, paper_types[idx].cy)) ;
+      gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), qcad_print_dialog_to_current_units (pd, paper_types[idx].cx)) ;
       }
     }
 
   emit_changed_signal (pd) ;
-  gtk_widget_queue_draw (PRINT_DIALOG (data)->daPreview) ;
+  gtk_widget_queue_draw (QCAD_PRINT_DIALOG (data)->daPreview) ;
   }
 
 static void btnPrint_clicked (GtkWidget *widget, gpointer data)
   {
   GtkWidget *msg ;
-  PrintDialog *pd = (PrintDialog *)data ;
+  QCADPrintDialog *pd = QCAD_PRINT_DIALOG (data) ;
   gchar *pszText = NULL ;
   gboolean bPrintFile = TRUE ;
 
@@ -980,4 +980,4 @@ static void btnPrint_clicked (GtkWidget *widget, gpointer data)
   }
 
 static void btnPreview_clicked (GtkWidget *widget, gpointer data)
-  {g_signal_emit (G_OBJECT (data), print_dialog_signals[PRINT_DIALOG_PREVIEW_SIGNAL], 0) ;}
+  {g_signal_emit (G_OBJECT (data), qcad_print_dialog_signals[QCAD_PRINT_DIALOG_PREVIEW_SIGNAL], 0) ;}

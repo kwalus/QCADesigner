@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
 
-bin_PROGRAMS = QCADesigner batch_sim graph_dialog exp_array_test
+bin_PROGRAMS = QCADesigner batch_sim graph_dialog
 
 UNDO_REDO_FILES = \
 	objects/QCADUndoEntry.c      objects/QCADUndoEntry.h \
@@ -215,17 +215,3 @@ graph_dialog_LDADD = \
 	@GTK_LIBS@ \
 	$(INTLLIBS) \
 	@GTHREAD_LIBS@ 
-
-#################### exp_array_test ######################
-exp_array_test_CFLAGS = \
-	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	@GLIB_CFLAGS@
-
-exp_array_test_SOURCES = \
-	exp_array.c                           exp_array.h \
-	main_exp_array_test.c
-
-exp_array_test_LDADD = \
-	-lm \
-	@GLIB_LIBS@

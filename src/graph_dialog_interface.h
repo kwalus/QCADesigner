@@ -22,6 +22,9 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
+// Header for the functions responsible for creating    //
+// the graph dialog display elements, including the     //
+// dialog itself, as well as the trace widgets.         //
 //                                                      //
 //////////////////////////////////////////////////////////
 

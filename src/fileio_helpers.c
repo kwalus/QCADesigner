@@ -22,7 +22,7 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
-// Various file I/O and filesystem-related helpers, in= //
+// Various file I/O and filesystem-related helpers, in- //
 // cluding an implementation of a line-sized "peek"     //
 // buffer for a given FILE *. That is, opening the      //
 // FILE * using the provided wrappers, one can use the  //

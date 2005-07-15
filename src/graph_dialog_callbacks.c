@@ -22,6 +22,9 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
+// Callbacks for the graph dialog. This is where all    //
+// the dialog behaviour is done.                        //
+//                                                      //
 //////////////////////////////////////////////////////////
 
 #include "support.h"

@@ -1,3 +1,35 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@atips.ca).                                 //
+//////////////////////////////////////////////////////////
+// Contents:                                            //
+//                                                      //
+// main() wrapper for turning the graph dialog into a   //
+// standalone app. This is the "Simulation Results      //
+// Viewer". It asks for a file from the user, then      //
+// displays the graph dialog with the data therein,     //
+// after which the graph dialog takes over.             //
+//                                                      //
+//////////////////////////////////////////////////////////
+
 #include "support.h"
 #include "file_selection_window.h"
 #include "graph_dialog.h"

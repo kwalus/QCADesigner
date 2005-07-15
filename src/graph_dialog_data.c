@@ -22,6 +22,11 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
+// Data for the graph dialog. This structure serves the //
+// same purpose as the GtkTreeModel does for a          //
+// GtkTreeView. It provides a centralized way for the   //
+// graph dialog to store the information it fills       //
+// itself out with.                                     //
 //                                                      //
 //////////////////////////////////////////////////////////
 

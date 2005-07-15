@@ -1,20 +1,37 @@
 GObject
+ +----QCADUndoEntry
+ |     +----QCADUndoEntryGroup
+ |
  +----QCADDesignObject
  |     +----QCADCell<QCADCompoundDO,QCADDOContainer>
+ |     |
  |     +----QCADStretchyObject
  |     |     +----QCADLabel
+ |     |     |
  |     |     +----QCADRuler
+ |     |     |
  |     |     +----QCADSubstrate
+ |     |
  |     +----QCADLayer<QCADCompoundDO,QCADDOContainer>
+ |
  +----GtkObject
        +----GtkWidget                                                                     
-             +----GtkContainer
-                   +----GtkBox
-                         +----GtkHBox
-                                +----QCADClockCombo                                                   
+       |     +----GtkContainer
+       |           +----GtkBox
+       |           |     +----GtkHBox
+       |           |            +----QCADClockCombo                                                   
+       |           |
+       |           +----GtkBin
+       |                 +----GtkScrolledWindow
+       |                       +----QCADTreeViewContainer
+       |
+       +----GtkCellRenderer
+             +----GtkCellRendererText
+                   +----QCADCellRendererVT
 
 GTypeInterface
  +----QCADCompoundDO                                                                      
+ |
  +----QCADDOContainer                                                                     
                                                                       
                                                                       

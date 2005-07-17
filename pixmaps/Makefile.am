@@ -56,6 +56,8 @@ pixmap_DATA = \
 	graph_dialog_6_48x48x8.png \
 	graph_dialog_7_32x32x8.png \
 	graph_dialog_8_16x16x8.png \
+	insert_column_before.png \
+	insert_column_before.svg \
 	label.png \
 	landscape.png \
 	no_center_on_pages.png \

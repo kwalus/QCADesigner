@@ -48,7 +48,7 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
 
 #ifdef WIN32
   // Can't do command line printing in Win32
-  gtk_widget_set_sensitive (PRINT_DIALOG (dialog->dlgPrintProps)->rbPrintPipe, FALSE) ;
+  gtk_widget_set_sensitive (QCAD_PRINT_DIALOG (dialog->dlgPrintProps)->rbPrintPipe, FALSE) ;
 #endif
 
   /* Tab 3 - Scale */

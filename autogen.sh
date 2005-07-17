@@ -29,9 +29,9 @@ if [ "" != "$WINDIR" ]; then
   if [ "" = "$GTK_SOURCES" ]; then
     echo "The environment variable GTK_SOURCES is not defined. Please enter the location of your GTK+ development environment (see http://www.gimp.org/~tml/gimp/win32/downloads.html):"
     read
-    ACLOCAL_INCLUDE=${GTK_SOURCES}/share/aclocal
-    export ACLOCAL_INCLUDE
   fi
+  ACLOCAL_INCLUDE=${GTK_SOURCES}/share/aclocal
+  export ACLOCAL_INCLUDE
 # Test for Fink if Darwin
 elif [ "Darwin" = "$(uname)" ]; then
   if ![ -d /sw/share/aclocal ]; then

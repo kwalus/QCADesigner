@@ -407,7 +407,7 @@ static void reflect_layer_type (GtkWidget *widget, gpointer data)
     gtk_list_item_select (GTK_LIST_ITEM (llLstItems->data)) ;
     }
 
-  scrolled_window_set_size (dialog->swObjs, dialog->lstObjs, 0.4, 0.4) ;
+  scrolled_window_set_size (GTK_SCROLLED_WINDOW (dialog->swObjs), dialog->lstObjs, 0.4, 0.4) ;
 
   g_free (pszLayerType) ;
   }

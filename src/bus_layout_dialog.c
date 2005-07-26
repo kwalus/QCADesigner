@@ -171,7 +171,7 @@ static void BusLayoutToDialog (bus_layout_D *dialog, BUS_LAYOUT *bus_layout)
   // a tree store to the tree view, the current tree store will be destroyed
   g_object_unref (ts) ;
 
-  scrolled_window_set_size (dialog->sw, dialog->tview, 0.8, 0.4) ;
+  scrolled_window_set_size (GTK_SCROLLED_WINDOW (dialog->sw), dialog->tview, 0.8, 0.4) ;
   }
 
 static void DialogToBusLayout (bus_layout_D *dialog, BUS_LAYOUT *bus_layout)

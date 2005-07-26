@@ -94,7 +94,7 @@ EXP_ARRAY *get_layer_mapping_from_user (GtkWidget *parent, DESIGN *design, DESIG
   g_object_set_data (G_OBJECT (layer_mapping_dialog.crImport), "model", tm) ;
   gtk_tree_view_set_model (GTK_TREE_VIEW (layer_mapping_dialog.tv), tm) ;
 
-  scrolled_window_set_size (layer_mapping_dialog.sw, layer_mapping_dialog.tv, 0.8, 0.8) ;
+  scrolled_window_set_size (GTK_SCROLLED_WINDOW (layer_mapping_dialog.sw), layer_mapping_dialog.tv, 0.8, 0.8) ;
 
   if (GTK_RESPONSE_OK == gtk_dialog_run(GTK_DIALOG(layer_mapping_dialog.dlgLayerMapping)))
     {

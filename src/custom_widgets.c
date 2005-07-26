@@ -247,13 +247,17 @@ void set_widget_background_colour (GtkWidget *widget, int r, int g, int b)
   g_signal_connect_after (G_OBJECT (widget), "realize",   (GCallback)turn_off_background_pixmap, NULL) ;
   }
 
-void scrolled_window_set_size (GtkWidget *sw, GtkWidget *rqWidget, double dcxMaxScreenPercent, double dcyMaxScreenPercent)
+void scrolled_window_set_size (GtkScrolledWindow *sw, GtkWidget *rqWidget, double dcxMaxScreenPercent, double dcyMaxScreenPercent)
   {
+  GtkPolicyType hpol, vpol ;
   GList *llChildren = gtk_container_get_children (GTK_CONTAINER (sw)) ;
   int xScr, yScr, cxScr, cyScr, depth ;
   GtkRequisition rq = {-1, -1} ;
 
   if (NULL == llChildren) return ;
+
+  gtk_scrolled_window_get_policy (sw, &hpol, &vpol) ;
+  gtk_scrolled_window_set_policy (sw, GTK_POLICY_NEVER, GTK_POLICY_NEVER) ;
 
   gdk_window_get_geometry (gdk_get_default_root_window (), &xScr, &yScr, &cxScr, &cyScr, &depth) ;
 
@@ -262,6 +266,8 @@ void scrolled_window_set_size (GtkWidget *sw, GtkWidget *rqWidget, double dcxMax
   gtk_widget_set_size_request (GTK_WIDGET (llChildren->data),
     MIN (cxScr * dcxMaxScreenPercent, rq.width),
     MIN (cyScr * dcyMaxScreenPercent, rq.height)) ;
+
+  gtk_scrolled_window_set_policy (sw, hpol, vpol) ;
   }
 
 static void signal_isb_adj_value_changed (GtkAdjustment *adj, gpointer data)

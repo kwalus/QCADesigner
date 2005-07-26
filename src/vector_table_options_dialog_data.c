@@ -162,7 +162,7 @@ void vector_table_options_dialog_reflect_state (vector_table_options_D *dialog)
     gtk_widget_set_sensitive (dialog->btnSave, TRUE) ;
     gtk_widget_set_sensitive (dialog->btnOpen, TRUE) ;
     gtk_widget_show (dialog->tblVT) ;
-    scrolled_window_set_size (dialog->sw, dialog->tv, 0.8, 0.8) ;
+    scrolled_window_set_size (GTK_SCROLLED_WINDOW (dialog->sw), dialog->tv, 0.8, 0.8) ;
     gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), TRUE) ;
 
     gtk_window_set_title (GTK_WINDOW (dialog->dialog), 

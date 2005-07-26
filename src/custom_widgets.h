@@ -58,7 +58,7 @@ int clock_select_combo_get_clock (GtkWidget *widget) ;
 void clock_select_combo_set_clock (GtkWidget *widget, int clock) ;
 void swap_container_contents (GtkWidget *src, GtkWidget *dst) ;
 void set_widget_background_colour (GtkWidget *widget, int r, int g, int b) ;
-void scrolled_window_set_size (GtkWidget *sw, GtkWidget *rqWidget, double dcxMaxScreenPercent, double dcyMaxScreenPercent) ;
+void scrolled_window_set_size (GtkScrolledWindow *sw, GtkWidget *rqWidget, double dcxMaxScreenPercent, double dcyMaxScreenPercent) ;
 void get_string_dimensions (char *psz, char *pszFont, int *pcx, int *pcy) ;
 void draw_string (GdkDrawable *dst, GdkGC *gc, char *pszFont, int x, int y, char *psz) ;
 void gtk_widget_get_root_origin (GtkWidget *widget, int *px, int *py) ;

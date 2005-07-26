@@ -84,11 +84,42 @@ typedef struct
 
 typedef void (*DesignObjectCallback) (DESIGN *design, QCADDesignObject *obj, gpointer data) ;
 
+enum
+  {
+  LAYER_MODEL_COLUMN_ICON = 0,
+  LAYER_MODEL_COLUMN_NAME,
+  LAYER_MODEL_COLUMN_LAYER,
+  LAYER_MODEL_COLUMN_LAST
+  } ;
+
+enum
+  {
+  BUS_LAYOUT_MODEL_COLUMN_ICON = 0,
+  BUS_LAYOUT_MODEL_COLUMN_NAME,
+  BUS_LAYOUT_MODEL_COLUMN_TYPE,
+  BUS_LAYOUT_MODEL_COLUMN_INDEX,
+  BUS_LAYOUT_MODEL_COLUMN_CELL,
+  BUS_LAYOUT_MODEL_COLUMN_LAST
+  } ;
+
+#define ROW_TYPE_CELL_INPUT  1 << 0
+#define ROW_TYPE_CELL_OUTPUT 1 << 1
+#define ROW_TYPE_BUS_INPUT   1 << 2
+#define ROW_TYPE_BUS_OUTPUT  1 << 3
+#define ROW_TYPE_CLOCK       1 << 4
+#define ROW_TYPE_BUS     (ROW_TYPE_BUS_INPUT | ROW_TYPE_BUS_OUTPUT)
+#define ROW_TYPE_CELL   (ROW_TYPE_CELL_INPUT | ROW_TYPE_CELL_OUTPUT)
+#define ROW_TYPE_INPUT   (ROW_TYPE_BUS_INPUT | ROW_TYPE_CELL_INPUT)
+#define ROW_TYPE_OUTPUT (ROW_TYPE_BUS_OUTPUT | ROW_TYPE_CELL_OUTPUT)
+#define ROW_TYPE_ANY         (ROW_TYPE_INPUT | ROW_TYPE_OUTPUT | ROW_TYPE_CLOCK)
+
 void              design_serialize (DESIGN *design, FILE *pfile) ;
 DESIGN *          design_new (QCADSubstrate **psubs) ;
 DESIGN *          design_copy (DESIGN *design) ;
 #ifdef GTK_GUI
 void              design_draw (DESIGN *design, GdkDrawable *dst, GdkFunction rop, WorldRectangle *ext, int flags) ;
+GtkTreeStore *    design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_types, int icExtraColumns, ...) ;
+GtkListStore *    design_layer_list_store_new (DESIGN *design, int icExtraColumns, ...) ;
 #endif /* def GTK_GUI */
 DESIGN *          design_destroy (DESIGN *design) ;
 QCADDesignObject *design_hit_test (DESIGN *design, int x, int y) ;

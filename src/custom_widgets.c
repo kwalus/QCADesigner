@@ -344,31 +344,13 @@ void get_string_dimensions (char *psz, char *pszFont, int *pcx, int *pcy)
 
 void gtk_widget_get_root_origin (GtkWidget *widget, int *px, int *py)
   {
-  int x, y, cx, cy, depth ;
-  GdkWindow *window = NULL ;
-  GtkWidget *parent = NULL ;
+  int x_root, y_root ;
 
-  if (NULL != (parent = gtk_widget_get_parent (widget)))
-    if (parent->window != widget->window)
-      window = widget->window ;
-
-  (*px) = widget->allocation.x ;
-  (*py) = widget->allocation.y ;
-
-  while (widget != NULL)
-    {
-    if (window != widget->window)
-      {
-      gdk_window_get_geometry (window = widget->window, &x, &y, &cx, &cy, &depth) ;
-      (*px) += x ;
-      (*py) += y ;
-      }
-    widget = gtk_widget_get_parent (widget) ;
-    }
-  gdk_window_get_root_origin (window, &x, &y) ;
-  (*px) += x ;
-  (*py) += y ;
+  gdk_window_get_origin (widget->window, &x_root, &y_root) ;
+  (*px) = x_root + widget->allocation.x ;
+  (*py) = y_root + widget->allocation.y ;
   }
+
 
 GtkWidget *create_labelled_progress_bar ()
   {
@@ -581,7 +563,7 @@ void set_window_icon (GtkWindow *window, char *pszBaseName)
     }
 
   g_free (pszIconFile) ;
-#endif /* def GAVE_LIBRSVG */
+#endif /* def HAVE_LIBRSVG */
   }
 
 void tree_model_row_changed (GtkTreeModel *model, GtkTreeIter *itr)
@@ -594,6 +576,34 @@ void tree_model_row_changed (GtkTreeModel *model, GtkTreeIter *itr)
   gtk_tree_model_row_changed (model, tp, itr) ;
 
   gtk_tree_path_free (tp) ;
+  }
+
+void gtk_widget_button_press (GtkWidget *widget, int button, int x, int y, GdkModifierType mask)
+  {
+  GdkEventButton *event = NULL ;
+  int x_root, y_root ;
+
+  if (NULL == widget) return ;
+  if (NULL == widget->window) return ;
+
+  gdk_window_get_origin (widget->window, &x_root, &y_root) ;
+
+  event = (GdkEventButton *)gdk_event_new (GDK_BUTTON_PRESS) ;
+
+  event->type = GDK_BUTTON_PRESS ;
+  event->window = widget->window ;
+  event->send_event = TRUE ;
+  event->time = gtk_get_current_event_time () ;
+  event->x = x + widget->allocation.x ;
+  event->y = y + widget->allocation.y ;
+  event->axes = NULL ;
+  event->state = mask ;
+  event->x_root = x_root + event->x ;
+  event->y_root = y_root + event->y ;
+
+  fprintf (stderr, "gtk_widget_button_press: At (%d,%d) = root:(%d,%d)\n", (int)(event->x), (int)(event->y), (int)(event->x_root), (int)(event->y_root)) ;
+
+  gtk_main_do_event ((GdkEvent *)event) ;
   }
 
 #endif /* def GTK_GUI */

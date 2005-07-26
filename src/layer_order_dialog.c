@@ -39,14 +39,6 @@ typedef struct
   GtkWidget *sw ;
   } layer_order_D ;
 
-enum
-  {
-  MODEL_COLUMN_ICON = 0,
-  MODEL_COLUMN_NAME,
-  MODEL_COLUMN_LAYER,
-  MODEL_COLUMN_LAST_COLUMN
-  } ;
-
 extern char *layer_pixmap_stock_id[LAYER_TYPE_LAST_TYPE] ;
 
 static layer_order_D layer_order_dialog = {NULL} ;
@@ -90,7 +82,7 @@ static GList *DialogToLayerOrder (layer_order_D *dialog)
   for (Nix = 0 ; Nix < icChildren ; Nix++)
     {
     gtk_tree_model_get_iter (tm, &itr, tp) ;
-    gtk_tree_model_get (tm, &itr, MODEL_COLUMN_LAYER, &p, -1) ;
+    gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &p, -1) ;
     llRet = g_list_prepend (llRet, p) ;
     gtk_tree_path_next (tp) ;
     }
@@ -103,18 +95,9 @@ static GList *DialogToLayerOrder (layer_order_D *dialog)
 static void LayerOrderToDialog (layer_order_D *dialog, DESIGN *design)
   {
   GtkListStore *ls = NULL ;
-  GList *llItr = NULL ;
-  GtkTreeIter itr ;
 
-  ls = gtk_list_store_new (MODEL_COLUMN_LAST_COLUMN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER) ;
-  for (llItr = design->lstLastLayer ; llItr != NULL ; llItr = llItr->prev)
-    {
-    gtk_list_store_append (ls, &itr) ;
-    gtk_list_store_set (ls, &itr,
-      MODEL_COLUMN_ICON, layer_pixmap_stock_id[(QCAD_LAYER (llItr->data))->type],
-      MODEL_COLUMN_NAME, (QCAD_LAYER (llItr->data))->pszDescription,
-      MODEL_COLUMN_LAYER, llItr->data, -1) ;
-    }
+  ls = design_layer_list_store_new (design, 0) ;
+
   gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->tview), GTK_TREE_MODEL (ls)) ;
 
   scrolled_window_set_size (dialog->sw, dialog->tview, 0.8, 0.8) ;
@@ -159,9 +142,9 @@ static void create_layer_order_dialog (layer_order_D *dialog)
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->tview) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tview), col = gtk_tree_view_column_new ()) ;
   gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_pixbuf_new (), FALSE) ;
-  gtk_tree_view_column_add_attribute (col, cr, "stock-id", MODEL_COLUMN_ICON) ;
+  gtk_tree_view_column_add_attribute (col, cr, "stock-id", LAYER_MODEL_COLUMN_ICON) ;
   gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_text_new (), FALSE) ;
-  gtk_tree_view_column_add_attribute (col, cr, "text", MODEL_COLUMN_NAME) ;
+  gtk_tree_view_column_add_attribute (col, cr, "text", LAYER_MODEL_COLUMN_NAME) ;
   gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (dialog->tview), FALSE) ;
   gtk_tree_view_set_reorderable (GTK_TREE_VIEW (dialog->tview), TRUE) ;
 

@@ -72,6 +72,7 @@ void set_window_icon (GtkWindow *window, char *pszBaseName) ;
 void set_ruler_scale (GtkRuler *ruler, double dLower, double dUpper) ;
 
 void tree_model_row_changed (GtkTreeModel *model, GtkTreeIter *itr) ;
+void gtk_widget_button_press (GtkWidget *widget, int button, int x, int y, GdkModifierType mask) ;
 #endif /* def GTK_GUI */
 void command_history_message (char *pszFmt, ...) ;
 void set_progress_bar_visible (gboolean bVisible) ;

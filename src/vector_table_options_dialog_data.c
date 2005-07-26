@@ -58,7 +58,7 @@ void VectorTableToDialog (vector_table_options_D *dialog, BUS_LAYOUT *bus_layout
 
   g_object_set_data (G_OBJECT (dialog->crActive), "pvt", pvt) ;
 
-  if (NULL != (model = GTK_TREE_MODEL (create_bus_layout_tree_store (bus_layout, ROW_TYPE_INPUT, 1, G_TYPE_BOOLEAN))))
+  if (NULL != (model = GTK_TREE_MODEL (design_bus_layout_tree_store_new (bus_layout, ROW_TYPE_INPUT, 1, G_TYPE_BOOLEAN))))
     {
     gboolean bActive = FALSE ;
     GtkTreeIter itr, itrChild ;

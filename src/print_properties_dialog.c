@@ -78,6 +78,9 @@ gboolean get_print_design_properties_from_user (GtkWindow *parent, print_design_
 
   gtk_widget_hide (print_properties.dlgPrintProps) ;
 
+  if (NULL != parent)
+    gtk_window_present (parent) ;
+
   return bOK ;
   }
 

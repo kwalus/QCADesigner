@@ -85,8 +85,8 @@ dnl Set PACKAGE_SOURCE_DIR in config.h.
 packagesrcdir=`cd $srcdir && pwd`
 if echo $build | grep -q cygwin ; then
   if test -x /usr/bin/cygpath ; then
-    packagesrcdir=`cygpath -d ${packagesrcdir}`
-    prefix=`cygpath -d ${prefix}`
+    packagesrcdir=`cygpath -dm ${packagesrcdir}`
+    prefix=`cygpath -dm ${prefix}`
   fi
 fi
 AC_DEFINE_UNQUOTED(PACKAGE_SOURCE_DIR, "${packagesrcdir}", PACKAGE_SOURCE_DIR)

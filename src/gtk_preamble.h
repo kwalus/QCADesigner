@@ -29,9 +29,17 @@
 #define _GTK_PREAMBLE_H_
 
 #ifdef GTK_GUI
+
 #include "support.h"
 
+#define QCAD_NO_CONSOLE
+
+#ifdef QCAD_NO_CONSOLE
+void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName, char *pszCmdLine) ;
+#else
 void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName) ;
+#endif /* def QCAD_NO_CONSOLE */
+
 #endif /* def GTK_GUI */
 
 #endif /* def _GTK_PREAMBLE_H_ */

@@ -30,6 +30,10 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
+#ifdef WIN32
+  #include <windows.h>
+#endif /* def WIN32 */
+
 #include "support.h"
 #include "file_selection_window.h"
 #include "graph_dialog.h"
@@ -38,11 +42,21 @@
 #include "gtk_preamble.h"
 #include "fileio_helpers.h"
 
+#ifdef QCAD_NO_CONSOLE
+int APIENTRY WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *pszCmdLine, int iCmdShow)
+#else
 int main (int argc, char **argv)
+#endif /* def QCAD_NO_CONSOLE */
   {
   char *psz = NULL ;
+#ifdef QCAD_NO_CONSOLE
+  char **argv = NULL ;
+  int argc = 0 ;
 
+  gtk_preamble (&argc, &argv, "graph_dialog", pszCmdLine) ;
+#else
   gtk_preamble (&argc, &argv, "graph_dialog") ;
+#endif /* def QCAD_NO_CONSOLE */
   SIMULATION_OUTPUT *sim_output = NULL ;
 
   if (1 == argc)

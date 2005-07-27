@@ -43,8 +43,6 @@
 #include "global_consts.h"
 #include "gtk_preamble.h"
 
-#define NO_CONSOLE
-
 #define DBG_MAIN(s)
 
 //!Print options
@@ -54,54 +52,32 @@ extern main_W main_window ;
 
 #ifndef WIN32
   // Can't use WinMain without Win32
-  #undef NO_CONSOLE
+  #undef QCAD_NO_CONSOLE
 #endif  /* ifndef WIN32 */
 
-#ifdef WIN32
-#ifdef NO_CONSOLE
-static char **CmdLineToArgv (char *pszCmdLine, int *pargc) ;
-#endif /* ifdef NO_CONSOLE */
-#endif /* ifdef WIN32 */
-
-#ifdef NO_CONSOLE
+#ifdef QCAD_NO_CONSOLE
 // Use WinMain and set argc and argv to reasonable values
 int APIENTRY WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *pszCmdLine, int iCmdShow)
-#else /* ifndef NO_CONSOLE */
+#else /* ifndef QCAD_NO_CONSOLE */
 // Normally, we have a console
 int main (int argc, char *argv[])
-#endif
+#endif /* def QCAD_NO_CONSOLE */
   {
   GtkWindow *wndAbout = NULL ;
 #ifdef WIN32
-  char *psz = NULL ;
-  char *pszModuleFName = NULL ;
+#ifdef QCAD_NO_CONSOLE
   int argc = 0 ;
-  char **argv ;
-  char *pszHomeHDD = getenv ("HOMEDRIVE") ;
-  char *pszHomeDIR = getenv ("HOMEPATH") ;
-#ifdef NO_CONSOLE
-  if (pszCmdLine[0] != 0)
-    psz = g_strdup_printf ("%s %s", pszModuleFName, pszCmdLine) ;
-  else
-    psz = g_strdup_printf ("%s", pszModuleFName) ;
-  argv = (char **)CmdLineToArgv (psz, &argc) ;
-  g_free (psz) ;
+  char **argv = NULL ;
 #endif
-
-  // Must set the home directory to a reasonable value.  If all else fails,
-  // set it to the current directory
-  if (!(NULL == pszHomeHDD || NULL == pszHomeDIR))
-    {
-    putenv (psz = g_strdup_printf ("HOME=%s%s", pszHomeHDD, pszHomeDIR)) ;
-    g_free (psz) ;
-    }
-  else
-    putenv ("HOME=.") ;
 #endif /* ifdef WIN32 */
 
+#ifdef QCAD_NO_CONSOLE
+  gtk_preamble (&argc, &argv, "QCADesigner", pszCmdLine) ;
+#else
   gtk_preamble (&argc, &argv, "QCADesigner") ;
+#endif /* def QCAD_NO_CONSOLE */
 
-  wndAbout = show_about_dialog (&(main_window.main_window), TRUE) ;
+wndAbout = show_about_dialog (&(main_window.main_window), TRUE) ;
 
   // -- Create the main window and the about dialog -- //
   create_main_window (&main_window);
@@ -128,60 +104,3 @@ int main (int argc, char *argv[])
   return 0;
   }//main
 
-#ifdef WIN32
-#ifdef NO_CONSOLE
-// Turn a string into an argv-style array
-char **CmdLineToArgv (char *pszTmp, int *pargc)
-  {
-  char **argv = NULL, *psz = g_strdup_printf ("%s", pszTmp), *pszAt = psz, *pszStart = psz ;
-  gboolean bString = FALSE ;
-
-  (*pargc) = 0 ;
-
-  for (pszAt = psz ; ; pszAt++)
-    {
-    if (0 == (*pszAt)) break ;
-    if (' ' == (*pszAt))
-      {
-      if (!bString)
-        {
-        (*pszAt) = 0 ;
-        argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-        argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
-        pszAt++ ;
-        while (' ' == (*pszAt))
-          pszAt++ ;
-        pszStart = pszAt ;
-        }
-      }
-
-    if ('\"' == (*pszAt))
-      {
-      if (!bString)
-        pszStart = pszAt = pszAt + 1 ;
-      else
-        {
-        (*pszAt) = 0 ;
-        argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-        argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
-        pszAt++ ;
-        while (' ' == (*pszAt))
-          pszAt++ ;
-        pszStart = pszAt ;
-        }
-      bString = !bString ;
-      }
-    }
-
-  argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-  argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
-  argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-  argv[(*pargc) - 1] = NULL ;
-
-  (*pargc)-- ;
-
-  g_free (psz) ;
-  return argv ;
-  }
-#endif /* NO_CONSOLE */
-#endif /* ifdef WIN32 */

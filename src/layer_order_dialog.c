@@ -100,7 +100,7 @@ static void LayerOrderToDialog (layer_order_D *dialog, DESIGN *design)
 
   gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->tview), GTK_TREE_MODEL (ls)) ;
 
-  scrolled_window_set_size (dialog->sw, dialog->tview, 0.8, 0.8) ;
+  scrolled_window_set_size (GTK_SCROLLED_WINDOW (dialog->sw), dialog->tview, 0.8, 0.8) ;
 
   g_object_unref (ls) ;
   }

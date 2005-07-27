@@ -32,7 +32,9 @@
 
 #include "support.h"
 
-#define QCAD_NO_CONSOLE
+#ifdef WIN32
+  #define QCAD_NO_CONSOLE
+#endif /* def WIN32 */
 
 #ifdef QCAD_NO_CONSOLE
 void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName, char *pszCmdLine) ;

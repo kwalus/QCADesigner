@@ -28,6 +28,19 @@
 [ ] graph dialog: All honeycombs for a given bus trace should show as many
     digits as the largest honeycomb value
 
+2.0.3
+================================================================================
+[X] Switched Windows version from antiquated dropline.net GTK+ distribution to
+    Gaim's own GTK+-2.6. This way we can start excising some of the old widgets.
+[X] Internationalization now works in Windows. To use the alternative languages,
+    set the environment variable LANG to one of de_DE,hu_HU,ro_RO, or fr_FR in
+    the "System" control panel's "Advanced" tab.
+[X] Converted the layer mapping dialog to a GtkTreeView, including a cell 
+    renderer that presents a popup menu of available destination layers (in lieu
+    of a GtkCellRendererComboBox). 
+[X] Updated manual to reflect new layer mapping dialog behaviour
+[X] Cleaned up the gtk_preamble somewhat.
+
 2.0.2
 ================================================================================
 [x] Brand new, more stable, better, cleaner, sharper, neater, greener vector

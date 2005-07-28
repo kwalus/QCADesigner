@@ -89,7 +89,7 @@ EXP_ARRAY *get_layer_mapping_from_user (GtkWidget *parent, DESIGN *design, DESIG
   gtk_window_set_transient_for (GTK_WINDOW (layer_mapping_dialog.dlgLayerMapping), GTK_WINDOW (parent));
 
   tm = layer_mapping_model_new (design, block) ;
-  g_object_set (G_OBJECT (layer_mapping_dialog.crDst), "design", design) ;
+  g_object_set (G_OBJECT (layer_mapping_dialog.crDst), "design", design, NULL) ;
   g_object_set_data (G_OBJECT (layer_mapping_dialog.crDst), "model", tm) ;
   g_object_set_data (G_OBJECT (layer_mapping_dialog.crImport), "model", tm) ;
   gtk_tree_view_set_model (GTK_TREE_VIEW (layer_mapping_dialog.tv), tm) ;
@@ -215,11 +215,19 @@ static void create_layer_mapping_dialog (layer_mapping_D *dialog)
 //  GtkWidget *lbl = NULL;
   GtkTreeViewColumn *col = NULL ;
   GtkCellRenderer *cr = NULL ;
+  GtkWidget *lbl = NULL ;
 
   // create the dialog itself
   dialog->dlgLayerMapping = gtk_dialog_new ();
   gtk_window_set_title(GTK_WINDOW (dialog->dlgLayerMapping), _("Map Layers"));
   gtk_window_set_resizable (GTK_WINDOW (dialog->dlgLayerMapping), TRUE);
+
+  lbl = gtk_label_new (_("Click on any selected destination layer to change it:")) ;
+  gtk_widget_show (lbl) ;
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dlgLayerMapping)->vbox), lbl, TRUE, TRUE, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
+  gtk_label_set_line_wrap (GTK_LABEL (lbl), TRUE) ;
 
   // create the scroll window and add to dialog
   dialog->sw = gtk_scrolled_window_new (

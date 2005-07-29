@@ -146,7 +146,7 @@ static GtkCellEditable *qcad_cell_renderer_layer_list_start_editing (GtkCellRend
   QCADLayerListEditable *lle = NULL ;
   QCADCellRendererLayerList *qcadcrll = QCAD_CELL_RENDERER_LAYER_LIST (cell) ;
 
-#if (GTK_MINOR_VERSION >= 4)
+#if (GTK_MINOR_VERSION >= 6)
   if (!cell->sensitive) return NULL ;
 #endif
 

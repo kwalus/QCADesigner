@@ -22,6 +22,7 @@ EXTRA_DIST = $(doc_DATA) $(app_DATA)
 
 squeaky : distclean
 	rm -rf \
+	Output \
 	Makefile Makefile.in aclocal.m4 autom4te.cache \
 	compile config.log config.status configure depcomp \
 	install-sh missing mkinstalldirs \

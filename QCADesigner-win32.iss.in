@@ -100,6 +100,6 @@ function InitializeSetup(): Boolean;
 begin
   Result := GetGtkInstalled ();
   if not Result then begin
-    MsgBox ('Please install the GTK+ 2.0 Runtime Environment before installing @PACKAGE@. You can obtain GTK+ from http://gaim.sourceforge.net/win32/index.php#wingtk . Look for files of the form gtk-runtime-<Version>.exe.', mbError, MB_OK);
+    MsgBox ('Please install the GTK+ Runtime Environment version 2.2 or higher before installing @PACKAGE@. You can obtain GTK+ from http://gaim.sourceforge.net/win32/index.php#wingtk . Look for files of the form gtk-runtime-<Version>.exe.', mbError, MB_OK);
   end;
 end;

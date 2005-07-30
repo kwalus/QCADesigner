@@ -32,6 +32,8 @@ GObject
        +----GtkCellRenderer
              +----GtkCellRendererText
                    +----QCADCellRendererVT
+                   |
+                   +----QCADCellRendererLayerList
 
 GTypeInterface
  +----QCADCompoundDO

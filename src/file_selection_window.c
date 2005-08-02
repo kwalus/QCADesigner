@@ -33,7 +33,6 @@
 #include "file_selection_window.h"
 #include "fileio_helpers.h"
 #include "custom_widgets.h"
-#include "global_consts.h"
 
 #define DBG_FSW(s) s
 

@@ -84,6 +84,7 @@ static void qcad_tree_view_container_class_init (QCADTreeViewContainerClass *kla
 static void qcad_tree_view_container_instance_init (QCADTreeViewContainer *tvc)
   {
   tvc->n_frozen_columns = 0 ;
+  tvc->old_value = -1 ;
   tvc->fake_hadj = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 1, 1)) ;
   g_signal_connect (G_OBJECT (tvc->fake_hadj), "value-changed", (GCallback)fake_hadj_value_changed, NULL) ;
   }
@@ -184,6 +185,9 @@ static void hscroll_adj_value_changed (GtkAdjustment *adj, gpointer data)
   GList *llCols = NULL, *llItr = NULL ;
   QCADTreeViewContainer *tvc = QCAD_TREE_VIEW_CONTAINER (data) ;
 
+  if ((int)(adj->value) == tvc->old_value) return ;
+
+  tvc->old_value = adj->value ;
   llCols = gtk_tree_view_get_columns (GTK_TREE_VIEW (GTK_BIN (tvc)->child)) ;
 
   for (Nix = adj->value, llItr = g_list_nth (llCols, tvc->n_frozen_columns) ; 

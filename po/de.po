@@ -31,14 +31,14 @@ msgstr "Fügt einen Ebene zum Design hinzu."
 msgid "Add Vector"
 msgstr "Vektor zufügen"
 
-msgid "Alternate Drawing Style"
-msgstr ""
+# msgid "Alternate Drawing Style"
+# msgstr ""
 
-msgid "Alt Style"
-msgstr ""
+# msgid "Alt Style"
+# msgstr ""
 
-msgid "An autosave file more recent than the file you are opening seems to be present.  Load it instead ?"
-msgstr ""
+# msgid "An autosave file more recent than the file you are opening seems to be present.  Load it instead ?"
+# msgstr ""
 
 msgid "Animate"
 msgstr "Animieren"
@@ -46,20 +46,20 @@ msgstr "Animieren"
 msgid "Array"
 msgstr "Reihe"
 
-msgid "<b>Destination Layer</b>"
-msgstr ""
+# msgid "<b>Destination Layer</b>"
+# msgstr ""
 
 msgid "<big><span foreground=\"red\"><b>Note:</b></span> Right-click the vector table for adding/removing vectors.</big>"
 msgstr "<big><span foreground=\"red\"><b>Bemerkung:</b></span> Auf den Vektor rechtsklicken um Vektoren zuzufügen/entfernen.</big>"
 
-msgid "<b>Import</b>"
-msgstr ""
+# msgid "<b>Import</b>"
+# msgstr ""
 
 msgid "Binary"
 msgstr "Binär"
 
-msgid "Bistable Options"
-msgstr ""
+# msgid "Bistable Options"
+# msgstr ""
 
 # msgid "Bistable simulation:"
 # msgstr ""
@@ -73,8 +73,8 @@ msgstr "Unterer Rand:"
 msgid "Browse..."
 msgstr "Datei auswählen..."
 
-msgid "<b>Source Layer</b>"
-msgstr ""
+# msgid "<b>Source Layer</b>"
+# msgstr ""
 
 msgid "_Bus Layout..."
 msgstr "_Busauslegung..."
@@ -91,8 +91,8 @@ msgstr "Berechnet und setzt den Vergrösserungsfaktor so dass die zur Zeit obers
 msgid "Calculates and sets the magnification such that your design fits inside the window."
 msgstr "Berechnet und setzt den Vergrösserungsfactor so dass ihr Design ins Fenster passt."
 
-msgid "Cannot print without having a %s to print to!"
-msgstr ""
+# msgid "Cannot print without having a %s to print to!"
+# msgstr ""
 
 msgid "Cannot simulate with an empty vector table !"
 msgstr "Kann mit leerer Vektortabelle nicht simulieren !"
@@ -112,17 +112,14 @@ msgstr "Zelle"
 msgid "Cell Clock"
 msgstr "Zelltakt"
 
-msgid "Cell Drawing Mode"
-msgstr ""
+# msgid "Cell Drawing Mode"
+# msgstr ""
 
 msgid "Cell Function"
 msgstr "Zellfunktion"
 
 msgid "Cell Function:Normal/Input/Output/Fixed"
 msgstr "Zellfunktion:Keine Fuktion/Input/Output/Fix"
-
-msgid "Cell Height:"
-msgstr "Zellhöhe:"
 
 msgid "Cell Label:"
 msgstr "Zellbeschriftung:"
@@ -175,8 +172,8 @@ msgstr "Takt 2"
 msgid "Clock 3"
 msgstr "Takt 3"
 
-msgid "Clock Amplitude Factor:"
-msgstr ""
+# msgid "Clock Amplitude Factor:"
+# msgstr ""
 
 msgid "Clock High:"
 msgstr "Takt Spannung (hoch):"
@@ -187,8 +184,8 @@ msgstr "Takt"
 msgid "Clock Low:"
 msgstr "Takt Spannung (niedrig):"
 
-msgid "Clock Shift:"
-msgstr ""
+# msgid "Clock Shift:"
+# msgstr ""
 
 msgid "Close"
 msgstr "Schließen"
@@ -205,8 +202,8 @@ msgstr "Fenster Schließen"
 # msgid "cm"
 # msgstr ""
 
-msgid "Coherence Vector Options"
-msgstr ""
+# msgid "Coherence Vector Options"
+# msgstr ""
 
 msgid "Command:"
 msgstr "Befehl:"
@@ -226,8 +223,8 @@ msgstr "Inhalt"
 msgid "Contributers:"
 msgstr "Mitwirkende:"
 
-msgid "Convergence Tolerance:"
-msgstr ""
+# msgid "Convergence Tolerance:"
+# msgstr ""
 
 msgid "Converts graphs to PostScript and prints them to a file or a printer."
 msgstr "Konvertiert Graphen in PostScript und speichert sie in eine Datei oder sendet sie an einen Drucker."
@@ -376,9 +373,6 @@ msgstr "Datei"
 msgid "File:"
 msgstr "Datei:"
 
-msgid "file"
-msgstr "Datei"
-
 msgid "File Name:"
 msgstr "Dateiname:"
 
@@ -415,8 +409,8 @@ msgstr "Einzelne input und output Zellen in Busse einteilen."
 msgid "_Help"
 msgstr "_Hilfe"
 
-msgid "Hex"
-msgstr ""
+# msgid "Hex"
+# msgstr ""
 
 msgid "Hidden"
 msgstr "Unsichtbar"
@@ -427,8 +421,8 @@ msgstr "ausblenden"
 msgid "_Hide All But The Selected Layer"
 msgstr "_Ausschließlich ausgewählte Ebene anzeigen"
 
-msgid "Horizontal:"
-msgstr ""
+# msgid "Horizontal:"
+# msgstr ""
 
 msgid "Horizontally"
 msgstr "Horizontal"
@@ -556,11 +550,11 @@ msgstr "Auswahl spiegeln"
 msgid "Modify the settings for the current layer."
 msgstr "Die Eigenschafter der aktuellen Ebene verändern."
 
-msgid "Move Bus Down"
-msgstr ""
+# msgid "Move Bus Down"
+# msgstr ""
 
-msgid "Move Bus Up"
-msgstr ""
+# msgid "Move Bus Up"
+# msgstr ""
 
 msgid "New Layer"
 msgstr "Neues Layer"
@@ -570,9 +564,6 @@ msgstr "Einfach"
 
 msgid "Normal Cell"
 msgstr "Einfache Zelle"
-
-msgid "Note: If you change the paper size, please also have a look at the margins. They may have changed as a result."
-msgstr "Bemerkung: Wenn Sie die Papiergrösse verändern, bitte überprüfen Sie auch die Ränder. Sie könnten sich folge dessen geändert haben."
 
 msgid "Number of Pages"
 msgstr "Anzahl der Seiten"
@@ -637,8 +628,8 @@ msgstr "Papiergrösse"
 msgid "Paper Width:"
 msgstr "Papierbreite:"
 
-msgid "pipe"
-msgstr ""
+# msgid "pipe"
+# msgstr ""
 
 # msgid "Please Select PostScript Viewer"
 # msgstr ""
@@ -646,8 +637,8 @@ msgstr ""
 # msgid "Please Select Web Browser"
 # msgstr ""
 
-msgid "Points"
-msgstr ""
+# msgid "Points"
+# msgstr ""
 
 msgid "Polarization"
 msgstr "Polarisation"
@@ -709,8 +700,8 @@ msgstr "_Zuletzt geöffnete Dateien"
 msgid "Relative Permittivity:"
 msgstr "Relative Dielektrizitätskonstante:"
 
-msgid "Relaxation Time:"
-msgstr ""
+# msgid "Relaxation Time:"
+# msgstr ""
 
 msgid "Remove a layer from your design."
 msgstr "Ebene von Ihrem Design entfernen."
@@ -832,8 +823,8 @@ msgstr "Einrasten"
 msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
 msgstr "<span foreground=\"red\">Achtung:</span> Der Bus darf nicht namenlos bleiben."
 
-msgid "Specify the default clock for future cells."
-msgstr ""
+# msgid "Specify the default clock for future cells."
+# msgstr ""
 
 msgid "_Start Simulation"
 msgstr "Simulation _beginnen"
@@ -865,11 +856,11 @@ msgstr "Dieser Knopf erlaubt es Ihnen Ihren Design zu manipulieren."
 msgid "Thresholds..."
 msgstr "Grenzwerte..."
 
-msgid "Time Step:"
-msgstr ""
+# msgid "Time Step:"
+# msgstr ""
 
-msgid "Toggle between two different display modes."
-msgstr ""
+# msgid "Toggle between two different display modes."
+# msgstr ""
 
 msgid "_Tools"
 msgstr "_Werkzeuge"
@@ -954,3 +945,4 @@ msgstr "Auf Ebene zoomen"
 
 msgid "Zoom Out"
 msgstr "Wegzoomen"
+

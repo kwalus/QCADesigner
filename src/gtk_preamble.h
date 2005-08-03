@@ -17,6 +17,9 @@
 // This will reduce ramp up time for new people trying  //
 // to contribute to the project.                        //
 //////////////////////////////////////////////////////////
+// This file was contributed by Gabriel Schulhof        //
+// (schulhof@atips.ca).                                 //
+//////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
 // Header for GTK preamble. This is where we call       //

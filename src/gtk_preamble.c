@@ -116,7 +116,7 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   g_free (psz) ;
 #else /* ifndef WIN32 */
   // -- Pixmaps used by the buttons in the main window -- //
-  add_pixmap_directory (PACKAGE_DATA_DIR "/QCADesigner/pixmaps");
+  add_pixmap_directory (PACKAGE_DATA_DIR "/" PACKAGE "/pixmaps");
   add_pixmap_directory (PACKAGE_SOURCE_DIR "/pixmaps");
 #endif /* ifdef WIN32 */
 // Done adding pixmap directories

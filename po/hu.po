@@ -198,8 +198,8 @@ msgstr "Órajelfeszültség (alacsony):"
 msgid "Close the project file"
 msgstr "Projekt fájl bezárása"
 
-# msgid "Close Window"
-# msgstr ""
+msgid "Close Window"
+msgstr "Ablak bezárása"
 
 # msgid "cm"
 # msgstr ""

@@ -531,29 +531,30 @@ static void transform (QCADDesignObject *obj, double m11, double m12, double m21
 
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   {
+  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
   GdkColor clr ;
 
   if (bColour)
-    return g_strdup_printf ("%lf nmx %lf nmy %lf nm %lf nm %lf %lf %lf QCADDesignObject",
-      obj->bounding_box.xWorld,
-      obj->bounding_box.yWorld,
-      obj->bounding_box.cxWorld,
-      obj->bounding_box.cyWorld,
-        ((double)(obj->clr.red)) / 65536.0,
-        ((double)(obj->clr.green)) / 65536.0,
-        ((double)(obj->clr.blue)) / 65536.0) ;
+    return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s QCADDesignObject",
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.red)) / 65536.0),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.green)) / 65536.0),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0)) ;
   else
     {
     memcpy (&clr, &(obj->clr), sizeof (GdkColor)) ;
     RGBToHSL (&clr) ;
-    return g_strdup_printf ("%lf nmx %lf nmy %lf nm %lf nm %lf %lf %lf QCADDesignObject",
-      obj->bounding_box.xWorld,
-      obj->bounding_box.yWorld,
-      obj->bounding_box.cxWorld,
-      obj->bounding_box.cyWorld,
-      ((double)(obj->clr.blue)) / 65536.0,
-      ((double)(obj->clr.blue)) / 65536.0,
-      ((double)(obj->clr.blue)) / 65536.0) ;
+    return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s QCADDesignObject",
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0)) ;
     }
   }
 
@@ -729,20 +730,21 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
 
 static void serialize (QCADDesignObject *obj, FILE *fp)
   {
+  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
   // output object type
   fprintf(fp, "[TYPE:%s]\n", QCAD_TYPE_STRING_DESIGN_OBJECT);
 
   // output variables
-  fprintf(fp, "x=%lf\n", obj->x);
-  fprintf(fp, "y=%lf\n", obj->y);
+  fprintf(fp, "x=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->x));
+  fprintf(fp, "y=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->y));
   fprintf(fp, "bSelected=%s\n", obj->bSelected ? "TRUE" : "FALSE");
   fprintf(fp, "clr.red=%d\n", obj->clr.red);
   fprintf(fp, "clr.green=%d\n", obj->clr.green);
   fprintf(fp, "clr.blue=%d\n", obj->clr.blue);
-  fprintf(fp, "bounding_box.xWorld=%lf\n", obj->bounding_box.xWorld);
-  fprintf(fp, "bounding_box.yWorld=%lf\n", obj->bounding_box.yWorld);
-  fprintf(fp, "bounding_box.cxWorld=%lf\n", obj->bounding_box.cxWorld);
-  fprintf(fp, "bounding_box.cyWorld=%lf\n", obj->bounding_box.cyWorld);
+  fprintf(fp, "bounding_box.xWorld=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld));
+  fprintf(fp, "bounding_box.yWorld=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld));
+  fprintf(fp, "bounding_box.cxWorld=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld));
+  fprintf(fp, "bounding_box.cyWorld=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld));
 
   // output end of object
   fprintf(fp, "[#TYPE:%s]\n", QCAD_TYPE_STRING_DESIGN_OBJECT);

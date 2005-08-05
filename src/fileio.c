@@ -153,8 +153,9 @@ gboolean create_file (gchar *file_name, DESIGN *design)
 
 void create_file_fp (FILE *pfile, DESIGN *design)
   {
+  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
   fprintf (pfile, "[VERSION]\n") ;
-  fprintf (pfile, "qcadesigner_version=%lf\n", qcadesigner_version) ;
+  fprintf (pfile, "qcadesigner_version=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, qcadesigner_version)) ;
   fprintf (pfile, "[#VERSION]\n") ;
 
   design_serialize (design, pfile) ;
@@ -585,6 +586,7 @@ static void serialize_trace (FILE *pfile, struct TRACEDATA *trace, int icSamples
   int Nix ;
   int idx = 0 ;
   int sample_idx = 0 ;
+  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
 
   fprintf (pfile, "[TRACE]\n") ;
   fprintf (pfile, "data_labels=%s\n", trace->data_labels) ;
@@ -595,14 +597,14 @@ static void serialize_trace (FILE *pfile, struct TRACEDATA *trace, int icSamples
     {
     for (idx = 0 ; idx < FLOATS_PER_LINE ; idx++)
       if ((sample_idx = Nix + idx) < icSamples - 1)
-        fprintf (pfile, "%e ", trace->data[sample_idx]) ;
+        fprintf (pfile, "%s ", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, trace->data[sample_idx])) ;
       else
         break ;
     if (sample_idx < icSamples - 1)
       fprintf (pfile, "\n") ;
     }
 
-  fprintf (pfile, "%e\n", trace->data[icSamples - 1]) ;
+  fprintf (pfile, "%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, trace->data[icSamples - 1])) ;
 
   fprintf (pfile, "[#TRACE_DATA]\n") ;
   fprintf (pfile, "[#TRACE]\n") ;

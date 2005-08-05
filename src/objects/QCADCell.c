@@ -734,6 +734,7 @@ static void default_properties_destroy (struct QCADDesignObjectClass *klass, voi
 
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   {
+  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
   char *pszRet = NULL, *pszLabel = NULL ;
   QCADCell *cell = QCAD_CELL (obj) ;
   GdkColor clrBak = {0}, clr = {0} ;
@@ -789,19 +790,34 @@ static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
 
   pszRet =
     g_strdup_printf (
-      "%lf nmx %lf nmy %lf nm %lf nm " // x y cx cy
-      "%lf nm "
-      "%lf nmx %lf nmy %lf nmx %lf nmy %lf nmx %lf nmy %lf nmx %lf nmy " //dot0_x dot0_y dot1_x dot1_y dot2_x dot2_y dot3_x dot3_y
-      "%lf nm %lf nm %lf nm %lf nm %lf %lf %lf %d QCADCell%s%s", //charge0_diam charge1_diam charge2_diam charge3_diam r g b mode
-      obj->bounding_box.xWorld, obj->bounding_box.yWorld, obj->bounding_box.cxWorld, obj->bounding_box.cyWorld,
-      cell->cell_options.dot_diameter,
-      cell->cell_dots[0].x, cell->cell_dots[0].y, cell->cell_dots[1].x, cell->cell_dots[1].y,
-      cell->cell_dots[2].x, cell->cell_dots[2].y, cell->cell_dots[3].x, cell->cell_dots[3].y,
-      (cell->cell_dots[0].diameter * cell->cell_dots[0].charge / QCHARGE),
-      (cell->cell_dots[1].diameter * cell->cell_dots[1].charge / QCHARGE),
-      (cell->cell_dots[2].diameter * cell->cell_dots[2].charge / QCHARGE),
-      (cell->cell_dots[3].diameter * cell->cell_dots[3].charge / QCHARGE),
-      fclr[0], fclr[1], fclr[2],
+      "%s nmx %s nmy %s nm %s nm " // x y cx cy
+      "%s nm "
+      "%s nmx %s nmy %s nmx %s nmy %s nmx %s nmy %s nmx %s nmy " //dot0_x dot0_y dot1_x dot1_y dot2_x dot2_y dot3_x dot3_y
+      "%s nm %s nm %s nm %s nm %s %s %s %d QCADCell%s%s", //charge0_diam charge1_diam charge2_diam charge3_diam r g b mode
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_options.dot_diameter),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[0].x), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[0].y), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[1].x), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[1].y),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[2].x), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[2].y), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[3].x), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[3].y),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, 
+        (cell->cell_dots[0].diameter * cell->cell_dots[0].charge / QCHARGE)),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, 
+        (cell->cell_dots[1].diameter * cell->cell_dots[1].charge / QCHARGE)),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, 
+        (cell->cell_dots[2].diameter * cell->cell_dots[2].charge / QCHARGE)),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, 
+        (cell->cell_dots[3].diameter * cell->cell_dots[3].charge / QCHARGE)),
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, fclr[0]), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, fclr[1]), 
+      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, fclr[2]),
       cell->cell_options.mode,
       NULL == pszLabel ? "" : "\n  ",
       NULL == pszLabel ?  "" : pszLabel) ;
@@ -1146,6 +1162,7 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
 
 static void serialize (QCADDesignObject *obj, FILE *fp)
   {
+  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
   int i;
   char *psz = NULL ;
   QCADCell *cell = QCAD_CELL (obj) ;
@@ -1157,9 +1174,9 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
   QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL)))->serialize (obj, fp) ;
 
   // output variables
-  fprintf(fp, "cell_options.cxCell=%lf\n", cell->cell_options.cxCell);
-  fprintf(fp, "cell_options.cyCell=%lf\n", cell->cell_options.cyCell);
-  fprintf(fp, "cell_options.dot_diameter=%lf\n", cell->cell_options.dot_diameter);
+  fprintf(fp, "cell_options.cxCell=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_options.cxCell));
+  fprintf(fp, "cell_options.cyCell=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_options.cyCell));
+  fprintf(fp, "cell_options.dot_diameter=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_options.dot_diameter));
   fprintf(fp, "cell_options.clock=%d\n", cell->cell_options.clock);
   fprintf(fp, "cell_options.mode=%s\n", psz = get_enum_string_from_value (QCAD_TYPE_CELL_MODE, cell->cell_options.mode));
   g_free (psz) ;
@@ -1170,13 +1187,13 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
   for(i = 0; i < cell->number_of_dots; i++)
     {
     fprintf(fp, "[TYPE:CELL_DOT]\n");
-    fprintf(fp, "x=%lf\n", cell->cell_dots[i].x);
-    fprintf(fp, "y=%lf\n", cell->cell_dots[i].y);
-    fprintf(fp, "diameter=%lf\n", cell->cell_dots[i].diameter);
-    fprintf(fp, "charge=%e\n", cell->cell_dots[i].charge);
-    fprintf(fp, "spin=%f\n", cell->cell_dots[i].spin);
+    fprintf(fp, "x=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[i].x));
+    fprintf(fp, "y=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[i].y));
+    fprintf(fp, "diameter=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[i].diameter));
+    fprintf(fp, "charge=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[i].charge));
+    fprintf(fp, "spin=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[i].spin));
 
-    fprintf(fp, "potential=%f\n", cell->cell_dots[i].potential);
+    fprintf(fp, "potential=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[i].potential));
     fprintf(fp, "[#TYPE:CELL_DOT]\n");
     }
 

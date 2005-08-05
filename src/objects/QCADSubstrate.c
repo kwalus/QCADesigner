@@ -348,6 +348,7 @@ static gboolean properties (QCADDesignObject *obj, GtkWidget *widget)
 #ifdef STDIO_FILEIO
 static void serialize (QCADDesignObject *obj, FILE *fp)
 {
+  char szDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
   // output object type
   fprintf(fp, "[TYPE:%s]\n", QCAD_TYPE_STRING_SUBSTRATE);
 
@@ -355,7 +356,7 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
   QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_SUBSTRATE)))->serialize (obj, fp) ;
 
   // output variables
-  fprintf(fp, "grid_spacing=%lf\n", QCAD_SUBSTRATE(obj)->grid_spacing);
+  fprintf(fp, "grid_spacing=%s\n", g_ascii_dtostr (szDouble, G_ASCII_DTOSTR_BUF_SIZE, QCAD_SUBSTRATE(obj)->grid_spacing));
 
   // output end of object
   fprintf(fp, "[#TYPE:%s]\n", QCAD_TYPE_STRING_SUBSTRATE);

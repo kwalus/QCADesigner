@@ -218,7 +218,7 @@ GtkWidget *gtk_button_new_with_stock_image (gchar *pszStock, gchar *pszLabel)
   gtk_widget_show (img) ;
   gtk_box_pack_start (GTK_BOX (hbox), img, FALSE, FALSE, 0) ;
 
-  label = gtk_label_new (pszLabel) ;
+  label = gtk_label_new_with_mnemonic (pszLabel) ;
   gtk_widget_show (label) ;
   gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0) ;
 

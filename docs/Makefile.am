@@ -122,9 +122,9 @@ manual:$(MANUAL_FILES)
 			if echo $$Nix | grep -qv '^\./menu\.html$$'; then \
 				echo Inserting menu into file $$Nix ; \
 				if echo $(build) | grep -q solaris ; then \
-					echo -e "/<!--MENU-->/\nd\n.r ../manual.src/menu.html\nw ../manual/$$Nix\nq\n" | ed - $$Nix > /dev/null ; \
+					echo -e "/<!--#include virtual="'"'"menu.html"'"'" -->/\nd\n.r ../manual.src/menu.html\nw ../manual/$$Nix\nq\n" | ed - $$Nix > /dev/null ; \
 				else \
-					echo -e "/<!--MENU-->/d\n^r ../manual.src/menu.html\nw ../manual/$$Nix\nq\n" | ed - $$Nix > /dev/null ; \
+					echo -e "/<!--#include virtual="'"'"menu.html"'"'" -->/d\n^r ../manual.src/menu.html\nw ../manual/$$Nix\nq\n" | ed - $$Nix > /dev/null ; \
 				fi ; \
 			fi ; \
 		elif echo $$Nix | grep -qEv '^\./menu\.(html|txt)$$'; then \

@@ -734,7 +734,7 @@ static void default_properties_destroy (struct QCADDesignObjectClass *klass, voi
 
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   {
-  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
+  char pszDouble[20][G_ASCII_DTOSTR_BUF_SIZE] = {""} ;
   char *pszRet = NULL, *pszLabel = NULL ;
   QCADCell *cell = QCAD_CELL (obj) ;
   GdkColor clrBak = {0}, clr = {0} ;
@@ -794,30 +794,30 @@ static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
       "%s nm "
       "%s nmx %s nmy %s nmx %s nmy %s nmx %s nmy %s nmx %s nmy " //dot0_x dot0_y dot1_x dot1_y dot2_x dot2_y dot3_x dot3_y
       "%s nm %s nm %s nm %s nm %s %s %s %d QCADCell%s%s", //charge0_diam charge1_diam charge2_diam charge3_diam r g b mode
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_options.dot_diameter),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[0].x), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[0].y), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[1].x), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[1].y),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[2].x), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[2].y), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[3].x), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[3].y),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, 
+      g_ascii_dtostr (pszDouble[0],  G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld), 
+      g_ascii_dtostr (pszDouble[1],  G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld), 
+      g_ascii_dtostr (pszDouble[2],  G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld), 
+      g_ascii_dtostr (pszDouble[3],  G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
+      g_ascii_dtostr (pszDouble[4],  G_ASCII_DTOSTR_BUF_SIZE, cell->cell_options.dot_diameter),
+      g_ascii_dtostr (pszDouble[5],  G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[0].x), 
+      g_ascii_dtostr (pszDouble[6],  G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[0].y), 
+      g_ascii_dtostr (pszDouble[7],  G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[1].x), 
+      g_ascii_dtostr (pszDouble[8],  G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[1].y),
+      g_ascii_dtostr (pszDouble[9],  G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[2].x), 
+      g_ascii_dtostr (pszDouble[10], G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[2].y), 
+      g_ascii_dtostr (pszDouble[11], G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[3].x), 
+      g_ascii_dtostr (pszDouble[12], G_ASCII_DTOSTR_BUF_SIZE, cell->cell_dots[3].y),
+      g_ascii_dtostr (pszDouble[13], G_ASCII_DTOSTR_BUF_SIZE, 
         (cell->cell_dots[0].diameter * cell->cell_dots[0].charge / QCHARGE)),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, 
+      g_ascii_dtostr (pszDouble[14], G_ASCII_DTOSTR_BUF_SIZE, 
         (cell->cell_dots[1].diameter * cell->cell_dots[1].charge / QCHARGE)),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, 
+      g_ascii_dtostr (pszDouble[15], G_ASCII_DTOSTR_BUF_SIZE, 
         (cell->cell_dots[2].diameter * cell->cell_dots[2].charge / QCHARGE)),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, 
+      g_ascii_dtostr (pszDouble[16], G_ASCII_DTOSTR_BUF_SIZE, 
         (cell->cell_dots[3].diameter * cell->cell_dots[3].charge / QCHARGE)),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, fclr[0]), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, fclr[1]), 
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, fclr[2]),
+      g_ascii_dtostr (pszDouble[17], G_ASCII_DTOSTR_BUF_SIZE, fclr[0]), 
+      g_ascii_dtostr (pszDouble[18], G_ASCII_DTOSTR_BUF_SIZE, fclr[1]), 
+      g_ascii_dtostr (pszDouble[19], G_ASCII_DTOSTR_BUF_SIZE, fclr[2]),
       cell->cell_options.mode,
       NULL == pszLabel ? "" : "\n  ",
       NULL == pszLabel ?  "" : pszLabel) ;

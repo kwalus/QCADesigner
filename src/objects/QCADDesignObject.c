@@ -531,30 +531,30 @@ static void transform (QCADDesignObject *obj, double m11, double m12, double m21
 
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   {
-  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
+  char pszDouble[7][G_ASCII_DTOSTR_BUF_SIZE] = {""} ;
   GdkColor clr ;
 
   if (bColour)
     return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s QCADDesignObject",
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.red)) / 65536.0),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.green)) / 65536.0),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0)) ;
+      g_ascii_dtostr (pszDouble[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
+      g_ascii_dtostr (pszDouble[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
+      g_ascii_dtostr (pszDouble[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
+      g_ascii_dtostr (pszDouble[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
+      g_ascii_dtostr (pszDouble[4], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.red)) / 65536.0),
+      g_ascii_dtostr (pszDouble[5], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.green)) / 65536.0),
+      g_ascii_dtostr (pszDouble[6], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0)) ;
   else
     {
     memcpy (&clr, &(obj->clr), sizeof (GdkColor)) ;
     RGBToHSL (&clr) ;
     return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s QCADDesignObject",
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0),
-      g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0)) ;
+      g_ascii_dtostr (pszDouble[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
+      g_ascii_dtostr (pszDouble[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
+      g_ascii_dtostr (pszDouble[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
+      g_ascii_dtostr (pszDouble[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
+      g_ascii_dtostr (pszDouble[4], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0),
+      g_ascii_dtostr (pszDouble[5], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0),
+      g_ascii_dtostr (pszDouble[6], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0)) ;
     }
   }
 

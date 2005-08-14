@@ -48,11 +48,11 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
 
 static int determine_success (HONEYCOMB_DATA *hcIn, HONEYCOMB_DATA *hcOut) ;
 
-static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, int *number_of_sims, double *dTolerance) ;
+static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance) ;
 
 int main (int argc, char **argv)
   {
-  static char *pszSimEngine = NULL, *pszSimOptsFName = NULL, *pszFName = NULL ;
+  static char *pszSimEngine = NULL, *pszSimOptsFName = NULL, *pszFName = NULL, *pszSimOutputFName = NULL ;
   int number_of_sims = -1 ;
 
   int sim_engine = BISTABLE ;
@@ -69,7 +69,7 @@ int main (int argc, char **argv)
   EXP_ARRAY *icSuccesses = NULL ;
   int icOutputBuses = 0 ;
 
-  parse_cmdline (argc, argv, &sim_engine, &pszSimOptsFName, &pszFName, &number_of_sims, &dTolerance) ;
+  parse_cmdline (argc, argv, &sim_engine, &pszSimOptsFName, &pszFName, &pszSimOutputFName, &number_of_sims, &dTolerance) ;
 
 #ifdef GTK_GUI
   gtk_init (&argc, &argv) ;
@@ -236,7 +236,7 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
           }
   }
 
-static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, int *number_of_sims, double *dTolerance)
+static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance)
   {
   int icParms = 0 ;
   int Nix ;
@@ -270,6 +270,15 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
       }
     else
     if (!strncmp (argv[Nix], "-o", 2))
+      {
+      if (++Nix < argc)
+        {
+        (*pszSimOptsFName) = argv[Nix] ;
+        icParms++ ;
+        }
+      }
+    else
+    if (!strncmp (argv[Nix], "-r", 2))
       {
       if (++Nix < argc)
         {

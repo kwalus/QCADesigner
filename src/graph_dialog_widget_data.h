@@ -92,6 +92,7 @@ void calculate_waveform_coords (WAVEFORM_DATA *hc, int icSamples) ;
 void waveform_data_free (WAVEFORM_DATA *wf) ;
 
 HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr) ;
+HONEYCOMB_DATA *honeycomb_data_new_with_array (GdkColor *clr, simulation_data *sim_data, BUS *bus, int offset, double thresh_lower, double thresh_upper, int base) ;
 void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThreshLower, double dThreshUpper, int base) ;
 #ifdef GTK_GUI
 int calculate_honeycomb_cxWanted (HONEYCOMB_DATA *hc, int icSamples, int base) ;

@@ -85,6 +85,22 @@ HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr)
   return hc ;
   }
 
+HONEYCOMB_DATA *honeycomb_data_new_with_array (GdkColor *clr, simulation_data *sim_data, BUS *bus, int offset, double thresh_lower, double thresh_upper, int base)
+  {
+  struct TRACEDATA *the_trace = NULL ;
+  int Nix2 ;
+  HONEYCOMB_DATA *hc = honeycomb_data_new (clr) ;
+
+  for (Nix2 = 0 ; Nix2 < bus->cell_indices->icUsed ; Nix2++)
+    {
+    the_trace = &(sim_data->trace[exp_array_index_1d (bus->cell_indices, int, Nix2) + offset]) ;
+    exp_array_insert_vals (hc->arTraces, &the_trace, 1, -1) ;
+    }
+  calculate_honeycomb_array (hc, sim_data->number_samples, thresh_lower, thresh_upper, base) ;
+
+  return hc ;
+  }
+
 WAVEFORM_DATA *waveform_data_new (struct TRACEDATA *trace, GdkColor *clr, gboolean bStretch)
   {
   WAVEFORM_DATA *wf = NULL ;

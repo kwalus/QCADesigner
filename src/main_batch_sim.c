@@ -45,9 +45,8 @@ extern bistable_OP bistable_options ;
 extern coherence_OP coherence_options ;
 
 static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius) ;
-
+static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function) ;
 static int determine_success (HONEYCOMB_DATA *hcIn, HONEYCOMB_DATA *hcOut) ;
-
 static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance) ;
 
 int main (int argc, char **argv)
@@ -60,16 +59,24 @@ int main (int argc, char **argv)
   DESIGN *design = NULL, *working_design = NULL ;
   simulation_data *sim_data = NULL ;
   GRand *rnd = NULL ;
-  GdkColor clr = {0, 0, 0, 0} ;
-  EXP_ARRAY *input_hcs = NULL, *output_hcs = NULL, *hc_ar = NULL ;
+  EXP_ARRAY *input_hcs = NULL, *output_hcs = NULL ;
   HONEYCOMB_DATA *hc = NULL ;
-  BUS *bus = NULL ;
-  struct TRACEDATA *the_trace = NULL ;
   double dTolerance = -1.0 ;
   EXP_ARRAY *icSuccesses = NULL ;
   int icOutputBuses = 0 ;
+  SIMULATION_OUTPUT *sim_output = NULL ;
 
   parse_cmdline (argc, argv, &sim_engine, &pszSimOptsFName, &pszFName, &pszSimOutputFName, &number_of_sims, &dTolerance) ;
+
+  fprintf (stderr, 
+    "Simulation engine               : %s\n"
+    "Simulation options file         : %s\n"
+    "Circuit file                    : %s\n"
+    "Reference simulation output file: %s\n"
+    "number of simulations           : %d\n"
+    "tolerance                       : %lf\n",
+    COHERENCE_VECTOR == sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
+    pszSimOptsFName, pszFName, pszSimOutputFName, number_of_sims, dTolerance) ;
 
 #ifdef GTK_GUI
   gtk_init (&argc, &argv) ;
@@ -88,12 +95,18 @@ int main (int argc, char **argv)
   if (!open_project_file (pszFName, &design))
     {
     fprintf (stderr, "Failed to open the circuit file !\n") ;
-    return 3 ;
+    return 1 ;
     }
   else
   if (NULL == design)
     {
     fprintf (stderr, "Failed to open the circuit file !\n") ;
+    return 2 ;
+    }
+
+  if (NULL == (sim_output = open_simulation_output_file (pszSimOutputFName)))
+    {
+    fprintf (stderr, "Failed to open the reference simulation output file !\n") ;
     return 3 ;
     }
 
@@ -104,7 +117,7 @@ int main (int argc, char **argv)
     if (NULL == (bo = open_bistable_options_file (pszSimOptsFName)))
       {
       fprintf (stderr, "Failed to open simulation options file !\n") ;
-      return 2 ;
+      return 4 ;
       }
     bistable_options_dump (bo, stderr) ;
     memcpy (&bistable_options, bo, sizeof (bistable_OP)) ;
@@ -117,13 +130,15 @@ int main (int argc, char **argv)
     if (NULL == (co = open_coherence_options_file (pszSimOptsFName)))
       {
       fprintf (stderr, "Failed to open simulation options file !\n") ;
-      return 2 ;
+      return 5 ;
       }
     coherence_options_dump (co, stderr) ;
     memcpy (&coherence_options, co, sizeof (coherence_OP)) ;
     }
 
   printf ("Running %d simulations with a radial tolerance of %lf\n", number_of_sims, dTolerance) ;
+
+  input_hcs = create_honeycombs_from_buses (sim_output->sim_data, sim_output->bus_layout, QCAD_CELL_OUTPUT) ;
 
   rnd = g_rand_new () ;
 
@@ -144,25 +159,7 @@ int main (int argc, char **argv)
 
       if (NULL != (sim_data = run_simulation (sim_engine, EXHAUSTIVE_VERIFICATION, working_design, NULL)))
         {
-        input_hcs = exp_array_new (sizeof (HONEYCOMB_DATA *), 1) ;
-        output_hcs = exp_array_new (sizeof (HONEYCOMB_DATA *), 1) ;
-        // For each bus, create the appropriate HONEYCOMB_DATA, fill it in with
-        // the TRACEDATA structures, and place each HONEYCOMB_DATA into its
-        // appropriate EXP_ARRAY.
-        for (Nix1 = 0 ; Nix1 < working_design->bus_layout->buses->icUsed ; Nix1++)
-          {
-          bus = &exp_array_index_1d (working_design->bus_layout->buses, BUS, Nix1) ;
-          hc_ar = (QCAD_CELL_INPUT == bus->bus_function ? input_hcs : output_hcs) ;
-          hc = honeycomb_data_new (&clr) ;
-          for (Nix2 = 0 ; Nix2 < bus->cell_indices->icUsed ; Nix2++)
-            {
-            the_trace = &(sim_data->trace[exp_array_index_1d (bus->cell_indices, int, Nix2) + (QCAD_CELL_INPUT == bus->bus_function ? 0 : working_design->bus_layout->inputs->icUsed)]) ;
-            exp_array_insert_vals (hc->arTraces, &the_trace, 1, -1) ;
-            }
-          calculate_honeycomb_array (hc, sim_data->number_samples, -0.5, 0.5, 2) ;
-          exp_array_insert_vals (hc_ar, &hc, 1, -1) ;
-          }
-
+        output_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT) ;
         // Compare the output honeycombs to the input honeycombs
         for (Nix1 = 0 ; Nix1 < output_hcs->icUsed ; Nix1++)
           exp_array_index_1d (icSuccesses, int, Nix1) +=
@@ -176,7 +173,7 @@ int main (int argc, char **argv)
           if (Nix1 < input_hcs->icUsed)
             {
             hc = exp_array_index_1d (input_hcs, HONEYCOMB_DATA *, Nix1) ;
-            fprintf (stderr, "First trace in this bus is \"%s\"\n", exp_array_index_1d (hc->arTraces, struct TRACEDATA *, 0)->data_labels) ;
+            fprintf (stderr, "First trace in this input bus is \"%s\"\n", exp_array_index_1d (hc->arTraces, struct TRACEDATA *, 0)->data_labels) ;
             for (Nix2 = 0 ; Nix2 < hc->arHCs->icUsed ; Nix2++)
               fprintf (stderr, "%d ", (int)(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix2).value)) ;
             fprintf (stderr, "\n") ;
@@ -184,7 +181,7 @@ int main (int argc, char **argv)
           if (Nix1 < output_hcs->icUsed)
             {
             hc = exp_array_index_1d (output_hcs, HONEYCOMB_DATA *, Nix1) ;
-            fprintf (stderr, "First trace in this bus is \"%s\"\n", exp_array_index_1d (hc->arTraces, struct TRACEDATA *, 0)->data_labels) ;
+            fprintf (stderr, "First trace in this output bus is \"%s\"\n", exp_array_index_1d (hc->arTraces, struct TRACEDATA *, 0)->data_labels) ;
             for (Nix2 = 0 ; Nix2 < hc->arHCs->icUsed ; Nix2++)
               fprintf (stderr, "%d ", (int)(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix2).value)) ;
             fprintf (stderr, "\n") ;
@@ -192,9 +189,6 @@ int main (int argc, char **argv)
           }
 
         fprintf (stderr, "*******************\n") ;
-        for (Nix1 = 0 ; Nix1 < input_hcs->icUsed ; Nix1++)
-          honeycomb_data_free (exp_array_index_1d (input_hcs, HONEYCOMB_DATA *, Nix1)) ;
-        input_hcs = exp_array_free (input_hcs) ;
         for (Nix1 = 0 ; Nix1 < output_hcs->icUsed ; Nix1++)
           honeycomb_data_free (exp_array_index_1d (output_hcs, HONEYCOMB_DATA *, Nix1)) ;
         output_hcs = exp_array_free (output_hcs) ;
@@ -204,12 +198,35 @@ int main (int argc, char **argv)
       }
     }
 
+  for (Nix1 = 0 ; Nix1 < input_hcs->icUsed ; Nix1++)
+    honeycomb_data_free (exp_array_index_1d (input_hcs, HONEYCOMB_DATA *, Nix1)) ;
+  input_hcs = exp_array_free (input_hcs) ;
+
   for (Nix = 0 ; Nix < icSuccesses->icUsed ; Nix++)
     printf ("success_rate[%d] = %.2lf%%\n", Nix, (double)(exp_array_index_1d (icSuccesses, int, Nix)) / ((double)(number_of_sims)) * 100.0) ;
 
   g_rand_free (rnd) ;
 
   return 0 ;
+  }
+
+static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function)
+  {
+  GdkColor clr = {0, 0, 0, 0} ;
+  int Nix1 ;
+  HONEYCOMB_DATA *hc = NULL ;
+  BUS *bus = NULL ;
+  EXP_ARRAY *output_hcs = exp_array_new (sizeof (HONEYCOMB_DATA *), 1) ;
+  // For each bus, create the appropriate HONEYCOMB_DATA, fill it in with
+  // the TRACEDATA structures, and place each HONEYCOMB_DATA into its
+  // appropriate EXP_ARRAY.
+  for (Nix1 = 0 ; Nix1 < bus_layout->buses->icUsed ; Nix1++)
+    if (bus_function == (bus = &exp_array_index_1d (bus_layout->buses, BUS, Nix1))->bus_function)
+      {
+      hc = honeycomb_data_new_with_array (&clr, sim_data, bus, (QCAD_CELL_INPUT == bus->bus_function ? 0 : bus_layout->inputs->icUsed), -0.5, 0.5, 2) ;
+      exp_array_insert_vals (output_hcs, &hc, 1, -1) ;
+      }
+  return output_hcs ;
   }
 
 static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius)
@@ -282,7 +299,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
       {
       if (++Nix < argc)
         {
-        (*pszSimOptsFName) = argv[Nix] ;
+        (*pszSimOutputFName) = argv[Nix] ;
         icParms++ ;
         }
       }
@@ -306,11 +323,11 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
       }
     }
 
-  if (icParms < 5)
+  if (icParms < 6)
     {
     printf (
       "Usage:\n"
-      "batch_sim -f qca_file [-e [BISTABLE]|COHERENCE_VECTOR] -o engine_options_file -n number_of_simulations -t radial_tolerance\n") ;
+      "batch_sim -f qca_file -r simulation_output_file [-e [BISTABLE]|COHERENCE_VECTOR] -o engine_options_file -n number_of_simulations -t radial_tolerance\n") ;
     exit (1) ;
     }
   }
@@ -324,6 +341,20 @@ static int determine_success (HONEYCOMB_DATA *hcdIn, HONEYCOMB_DATA *hcdOut)
   if (NULL == hcdIn || NULL == hcdOut) return 0 ;
   if (NULL == hcdIn->arHCs || NULL == hcdOut->arHCs) return 0 ;
   if (0 == hcdIn->arHCs->icUsed || 0 == hcdOut->arHCs->icUsed) return 0 ;
+
+  // If both honeycomb arrays have the same number of honeycombs, compare the values
+  if (hcdIn->arHCs->icUsed == hcdOut->arHCs->icUsed)
+    {
+    for (Nix = 0 ; Nix < hcdIn->arHCs->icUsed ; Nix++)
+      {
+      fprintf (stderr, "Honeycomb value %d: %llu vs %llu\n", Nix,
+        exp_array_index_1d (hcdIn->arHCs, HONEYCOMB, Nix).value, exp_array_index_1d (hcdOut->arHCs, HONEYCOMB, Nix).value) ;
+      if (exp_array_index_1d (hcdIn->arHCs, HONEYCOMB, Nix).value != exp_array_index_1d (hcdOut->arHCs, HONEYCOMB, Nix).value)
+        break ;
+      }
+    fprintf (stderr, "Nix = %d vs. hcdIn->arHCs->icUsed = %d\n", Nix, hcdIn->arHCs->icUsed) ;
+    return (Nix == hcdIn->arHCs->icUsed) ? 1 : 0 ;
+    }
 
   hcIn = &exp_array_index_1d (hcdIn->arHCs, HONEYCOMB, 0) ;
 

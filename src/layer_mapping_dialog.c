@@ -224,7 +224,7 @@ static void create_layer_mapping_dialog (layer_mapping_D *dialog)
 
   lbl = gtk_label_new (_("Click on any selected destination layer to change it:")) ;
   gtk_widget_show (lbl) ;
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dlgLayerMapping)->vbox), lbl, TRUE, TRUE, 2);
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dlgLayerMapping)->vbox), lbl, FALSE, FALSE, 2);
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
   gtk_label_set_line_wrap (GTK_LABEL (lbl), TRUE) ;

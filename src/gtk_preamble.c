@@ -139,9 +139,9 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   add_stock_icon ("clocks_layer.png",       QCAD_STOCK_CLOCKING_LAYER) ;
   add_stock_icon ("cells_layer.png",        QCAD_STOCK_CELL_LAYER) ;
   add_stock_icon ("substrate_layer.png",    QCAD_STOCK_SUBSTRATE_LAYER) ;
-  add_stock_icon ("label.png",              QCAD_STOCK_LABEL) ;
   add_stock_icon ("substrate.png",          QCAD_STOCK_SUBSTRATE) ;
 #ifdef HAVE_LIBRSVG
+  add_stock_icon ("label.svg",                QCAD_STOCK_LABEL) ;
   add_stock_icon ("reorder_layers.svg",       QCAD_STOCK_REORDER_LAYERS) ;
   add_stock_icon ("bus.svg",                  QCAD_STOCK_BUS) ;
   add_stock_icon ("clock.svg",                QCAD_STOCK_CLOCK) ;
@@ -168,6 +168,7 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   add_stock_icon ("ruler.svg",                QCAD_STOCK_MEASURE) ;
   add_stock_icon ("insert_column_before.svg", QCAD_STOCK_INSERT_COL_BEFORE) ;
 #else
+  add_stock_icon ("label.png",                QCAD_STOCK_LABEL) ;
   add_stock_icon ("reorder_layers.png",       QCAD_STOCK_REORDER_LAYERS) ;
   add_stock_icon ("bus.png",                  QCAD_STOCK_BUS) ;
   add_stock_icon ("clock.png",                QCAD_STOCK_CLOCK) ;

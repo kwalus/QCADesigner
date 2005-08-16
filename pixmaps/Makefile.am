@@ -96,6 +96,7 @@ pixmap_DATA = \
 	ruler.png \
 	ruler.svg \
 	substrate.png \
+	substrate.svg \
 	substrate_layer.png \
 	working_with_qcells.svg \
 	zoom_extents.png \

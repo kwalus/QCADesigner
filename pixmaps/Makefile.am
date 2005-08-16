@@ -59,6 +59,7 @@ pixmap_DATA = \
 	insert_column_before.png \
 	insert_column_before.svg \
 	label.png \
+	label.svg \
 	landscape.png \
 	no_center_on_pages.png \
 	portrait.png \

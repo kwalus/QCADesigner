@@ -226,7 +226,6 @@ static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_L
   for (Nix1 = 0 ; Nix1 < bus_layout->buses->icUsed ; Nix1++)
     if (bus_function == (bus = &exp_array_index_1d (bus_layout->buses, BUS, Nix1))->bus_function)
       {
-      fprintf (stderr, "Making new honeycomb_data with thresholds (%lf,%lf)\n", dThreshLower, dThreshUpper) ;
       hc = honeycomb_data_new_with_array (&clr, sim_data, bus, (QCAD_CELL_INPUT == bus->bus_function ? 0 : bus_layout->inputs->icUsed), dThreshLower, dThreshUpper, 2) ;
       exp_array_insert_vals (output_hcs, &hc, 1, -1) ;
       }

@@ -45,7 +45,7 @@ extern bistable_OP bistable_options ;
 extern coherence_OP coherence_options ;
 
 static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius) ;
-static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function) ;
+static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper) ;
 static int determine_success (HONEYCOMB_DATA *hcIn, HONEYCOMB_DATA *hcOut) ;
 static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper) ;
 
@@ -141,7 +141,7 @@ int main (int argc, char **argv)
 
   printf ("Running %d simulations with a radial tolerance of %lf\n", number_of_sims, dTolerance) ;
 
-  input_hcs = create_honeycombs_from_buses (sim_output->sim_data, sim_output->bus_layout, QCAD_CELL_OUTPUT) ;
+  input_hcs = create_honeycombs_from_buses (sim_output->sim_data, sim_output->bus_layout, QCAD_CELL_OUTPUT, dThreshLower, dThreshUpper) ;
 
   rnd = g_rand_new () ;
 
@@ -162,7 +162,7 @@ int main (int argc, char **argv)
 
       if (NULL != (sim_data = run_simulation (sim_engine, EXHAUSTIVE_VERIFICATION, working_design, NULL)))
         {
-        output_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT) ;
+        output_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT, dThreshLower, dThreshUpper) ;
         // Compare the output honeycombs to the input honeycombs
         for (Nix1 = 0 ; Nix1 < output_hcs->icUsed ; Nix1++)
           exp_array_index_1d (icSuccesses, int, Nix1) +=
@@ -213,7 +213,7 @@ int main (int argc, char **argv)
   return 0 ;
   }
 
-static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function)
+static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper)
   {
   GdkColor clr = {0, 0, 0, 0} ;
   int Nix1 ;
@@ -226,7 +226,8 @@ static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_L
   for (Nix1 = 0 ; Nix1 < bus_layout->buses->icUsed ; Nix1++)
     if (bus_function == (bus = &exp_array_index_1d (bus_layout->buses, BUS, Nix1))->bus_function)
       {
-      hc = honeycomb_data_new_with_array (&clr, sim_data, bus, (QCAD_CELL_INPUT == bus->bus_function ? 0 : bus_layout->inputs->icUsed), -0.5, 0.5, 2) ;
+      fprintf (stderr, "Making new honeycomb_data with thresholds (%lf,%lf)\n", dThreshLower, dThreshUpper) ;
+      hc = honeycomb_data_new_with_array (&clr, sim_data, bus, (QCAD_CELL_INPUT == bus->bus_function ? 0 : bus_layout->inputs->icUsed), dThreshLower, dThreshUpper, 2) ;
       exp_array_insert_vals (output_hcs, &hc, 1, -1) ;
       }
   return output_hcs ;
@@ -347,8 +348,17 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
   if (icParms < 6)
     {
     printf (
-      "Usage:\n"
-      "batch_sim -f qca_file -r simulation_output_file [-e [BISTABLE]|COHERENCE_VECTOR] -o engine_options_file -n number_of_simulations -t radial_tolerance [-l lower_polarization_threshold] [-u upper_polarization_threshold]\n") ;
+"Usage: batch_sim options...\n"
+"\n"
+"Options are:\n"
+"  -e file            Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
+"  -f file            Required: The circuit file.\n"
+"  -l polarization    Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
+"  -n number          Required: Number of simulations to perform.\n"
+"  -o file            Required: Simulation engine options file.\n"
+"  -r file            Required: Simulation results file to compare generated results to.\n"
+"  -t tolerance       Required: Radial tolerance. Non-negative floating point value.\n"
+"  -u polarization    Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n") ;
     exit (1) ;
     }
   }

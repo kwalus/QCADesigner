@@ -47,7 +47,7 @@ extern coherence_OP coherence_options ;
 static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function) ;
 static int determine_success (HONEYCOMB_DATA *hcIn, HONEYCOMB_DATA *hcOut) ;
-static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance) ;
+static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper) ;
 
 int main (int argc, char **argv)
   {
@@ -65,18 +65,21 @@ int main (int argc, char **argv)
   EXP_ARRAY *icSuccesses = NULL ;
   int icOutputBuses = 0 ;
   SIMULATION_OUTPUT *sim_output = NULL ;
+  double dThreshLower = -0.5, dThreshUpper = 0.5 ;
 
-  parse_cmdline (argc, argv, &sim_engine, &pszSimOptsFName, &pszFName, &pszSimOutputFName, &number_of_sims, &dTolerance) ;
+  parse_cmdline (argc, argv, &sim_engine, &pszSimOptsFName, &pszFName, &pszSimOutputFName, &number_of_sims, &dTolerance, &dThreshLower, &dThreshUpper) ;
 
-  fprintf (stderr, 
+  fprintf (stderr,
     "Simulation engine               : %s\n"
     "Simulation options file         : %s\n"
     "Circuit file                    : %s\n"
     "Reference simulation output file: %s\n"
     "number of simulations           : %d\n"
-    "tolerance                       : %lf\n",
+    "tolerance                       : %lf\n"
+    "lower polarization threshold    : %lf\n"
+    "upper polarization threshold    : %lf\n",
     COHERENCE_VECTOR == sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
-    pszSimOptsFName, pszFName, pszSimOutputFName, number_of_sims, dTolerance) ;
+    pszSimOptsFName, pszFName, pszSimOutputFName, number_of_sims, dTolerance, dThreshLower, dThreshUpper) ;
 
 #ifdef GTK_GUI
   gtk_init (&argc, &argv) ;
@@ -253,7 +256,7 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
           }
   }
 
-static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance)
+static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper)
   {
   int icParms = 0 ;
   int Nix ;
@@ -321,13 +324,31 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
         icParms++ ;
         }
       }
+    else
+    if (!strncmp (argv[Nix], "-l", 2))
+      {
+      if (++Nix < argc)
+        {
+        (*dThreshLower) = g_ascii_strtod (argv[Nix], NULL) ;
+        icParms++ ;
+        }
+      }
+    else
+    if (!strncmp (argv[Nix], "-u", 2))
+      {
+      if (++Nix < argc)
+        {
+        (*dThreshUpper) = g_ascii_strtod (argv[Nix], NULL) ;
+        icParms++ ;
+        }
+      }
     }
 
   if (icParms < 6)
     {
     printf (
       "Usage:\n"
-      "batch_sim -f qca_file -r simulation_output_file [-e [BISTABLE]|COHERENCE_VECTOR] -o engine_options_file -n number_of_simulations -t radial_tolerance\n") ;
+      "batch_sim -f qca_file -r simulation_output_file [-e [BISTABLE]|COHERENCE_VECTOR] -o engine_options_file -n number_of_simulations -t radial_tolerance [-l lower_polarization_threshold] [-u upper_polarization_threshold]\n") ;
     exit (1) ;
     }
   }

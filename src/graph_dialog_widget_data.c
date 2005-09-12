@@ -260,26 +260,42 @@ void calculate_honeycomb_coords (HONEYCOMB_DATA *hc, int icSamples)
   {
   HONEYCOMB *hcCalc = NULL ;
   int Nix ;
+  int cxHC = 0 ;
+  int cyHC = 0 ;
   int icSlopePixels = 0 ;
-  double pt0x, pt3x ;
 
   for (Nix = hc->arHCs->icUsed - 1 ; Nix > -1 ; Nix--)
     {
     hcCalc = &(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix)) ;
-    icSlopePixels = (int)(((hc->graph_data.cyGiven * (1.0 - 2.0 * MIN_MAX_OFFSET)) / 2.0) * cos (HONEYCOMB_ANGLE)) ;
 
-    hcCalc->pts[0].x = (pt0x = (((double)(((double)(hcCalc->idxBeg)) * ((double)(hc->graph_data.cxGiven)))) / ((double)(icSamples - 1)))) ;
-    hcCalc->pts[3].x = (pt3x = (((double)(((double)(hcCalc->idxEnd)) * ((double)(hc->graph_data.cxGiven)))) / ((double)(icSamples - 1)))) ;
+    hcCalc->pts[0].x = ((((double)(((double)(hcCalc->idxBeg)) * ((double)(hc->graph_data.cxGiven)))) / ((double)(icSamples - 1)))) ;
+    hcCalc->pts[3].x = ((((double)(((double)(hcCalc->idxEnd)) * ((double)(hc->graph_data.cxGiven)))) / ((double)(icSamples - 1)))) ;
     hcCalc->pts[0].y =
     hcCalc->pts[3].y = hc->graph_data.cyGiven >> 1 ;
-    hcCalc->pts[1].x =
-    hcCalc->pts[5].x = (hcCalc->pts[0].x + icSlopePixels) ;
-    hcCalc->pts[2].x =
-    hcCalc->pts[4].x = (hcCalc->pts[3].x - icSlopePixels) ;
+
+    cxHC = hcCalc->pts[3].x - hcCalc->pts[0].x ;
+    cyHC = (hc->graph_data.cyGiven * (1.0 - 2.0 * MIN_MAX_OFFSET)) / 2.0 ;
+    if (cxHC < 2.0 * cyHC / tan (HONEYCOMB_ANGLE))
+      {
+      cyHC = cxHC * tan (HONEYCOMB_ANGLE) ;
+
+      hcCalc->pts[1].x =
+      hcCalc->pts[5].x =
+      hcCalc->pts[2].x =
+      hcCalc->pts[4].x = (hcCalc->pts[3].x + hcCalc->pts[0].x) >> 1 ;
+      }
+    else
+      {
+      icSlopePixels = cyHC / tan (HONEYCOMB_ANGLE) ;
+      hcCalc->pts[1].x =
+      hcCalc->pts[5].x = hcCalc->pts[0].x + icSlopePixels ;
+      hcCalc->pts[2].x =
+      hcCalc->pts[4].x = hcCalc->pts[3].x - icSlopePixels ;
+      }
     hcCalc->pts[1].y =
-    hcCalc->pts[2].y = hc->graph_data.cyGiven * MIN_MAX_OFFSET ;
+    hcCalc->pts[2].y = hcCalc->pts[0].y - cyHC ;
     hcCalc->pts[4].y =
-    hcCalc->pts[5].y = hc->graph_data.cyGiven - hcCalc->pts[1].y ;
+    hcCalc->pts[5].y = hcCalc->pts[0].y + cyHC ;
     }
 
   hc->graph_data.bNeedCalc = FALSE ;

@@ -825,7 +825,7 @@ static void recalculate_honeycombs (GRAPH_DIALOG_DATA *gdd, gboolean bCalcHoneyc
         cxOldWanted = hc->graph_data.cxWanted ;
 
         if (bCalcHoneycombArrays)
-          calculate_honeycomb_array (hc, gdd->sim_data->number_samples, gdd->dHCThreshLower, gdd->dHCThreshLower, gdd->base) ;
+          calculate_honeycomb_array (hc, gdd->sim_data->number_samples, gdd->dHCThreshLower, gdd->dHCThreshUpper, gdd->base) ;
         else
           hc->graph_data.cxWanted = calculate_honeycomb_cxWanted (hc, gdd->sim_data->number_samples, gdd->base) ;
 

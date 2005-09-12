@@ -66,33 +66,36 @@ GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolea
   graph_dialog_data->base            = base ;
   graph_dialog_data->dScale          = 1.0 ;
 
-  gtk_tree_store_append (GTK_TREE_STORE (graph_dialog_data->model), &itr, NULL) ;
-  gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), &itr,
-    BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CLOCK,
-    BUS_LAYOUT_MODEL_COLUMN_NAME, _("Clock 0"),
-    BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CLOCK,
-    BUS_LAYOUT_MODEL_COLUMN_INDEX, 0, -1) ;
+  if (NULL != sim_output->sim_data->clock_data)
+    {
+    gtk_tree_store_append (GTK_TREE_STORE (graph_dialog_data->model), &itr, NULL) ;
+    gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), &itr,
+      BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CLOCK,
+      BUS_LAYOUT_MODEL_COLUMN_NAME, _("Clock 0"),
+      BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CLOCK,
+      BUS_LAYOUT_MODEL_COLUMN_INDEX, 0, -1) ;
 
-  gtk_tree_store_append (GTK_TREE_STORE (graph_dialog_data->model), &itr, NULL) ;
-  gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), &itr,
-    BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CLOCK,
-    BUS_LAYOUT_MODEL_COLUMN_NAME, _("Clock 1"),
-    BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CLOCK,
-    BUS_LAYOUT_MODEL_COLUMN_INDEX, 1, -1) ;
+    gtk_tree_store_append (GTK_TREE_STORE (graph_dialog_data->model), &itr, NULL) ;
+    gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), &itr,
+      BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CLOCK,
+      BUS_LAYOUT_MODEL_COLUMN_NAME, _("Clock 1"),
+      BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CLOCK,
+      BUS_LAYOUT_MODEL_COLUMN_INDEX, 1, -1) ;
 
-  gtk_tree_store_append (GTK_TREE_STORE (graph_dialog_data->model), &itr, NULL) ;
-  gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), &itr,
-    BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CLOCK,
-    BUS_LAYOUT_MODEL_COLUMN_NAME, _("Clock 2"),
-    BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CLOCK,
-    BUS_LAYOUT_MODEL_COLUMN_INDEX, 2, -1) ;
+    gtk_tree_store_append (GTK_TREE_STORE (graph_dialog_data->model), &itr, NULL) ;
+    gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), &itr,
+      BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CLOCK,
+      BUS_LAYOUT_MODEL_COLUMN_NAME, _("Clock 2"),
+      BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CLOCK,
+      BUS_LAYOUT_MODEL_COLUMN_INDEX, 2, -1) ;
 
-  gtk_tree_store_append (GTK_TREE_STORE (graph_dialog_data->model), &itr, NULL) ;
-  gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), &itr,
-    BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CLOCK,
-    BUS_LAYOUT_MODEL_COLUMN_NAME, _("Clock 3"),
-    BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CLOCK,
-    BUS_LAYOUT_MODEL_COLUMN_INDEX, 3, -1) ;
+    gtk_tree_store_append (GTK_TREE_STORE (graph_dialog_data->model), &itr, NULL) ;
+    gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), &itr,
+      BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CLOCK,
+      BUS_LAYOUT_MODEL_COLUMN_NAME, _("Clock 3"),
+      BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CLOCK,
+      BUS_LAYOUT_MODEL_COLUMN_INDEX, 3, -1) ;
+    }
 
   if (!gtk_tree_model_get_iter_first (graph_dialog_data->model, &itr))
     {

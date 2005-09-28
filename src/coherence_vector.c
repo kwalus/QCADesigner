@@ -318,13 +318,13 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
   // perform the iterations over all samples //
   for (j = 0; j < number_samples; j++)
     {
-    if (0 == j % 10000)
+    if (0 == j % 10000 || j == number_samples - 1)
       {
       // Update the progress bar
       set_progress_bar_fraction ((float) j / (float) number_samples) ;
-      // redraw the design if the user wants it to appear animated //
+      // redraw the design if the user wants it to appear animated or if this is the last sample //
 #ifdef DESIGNER
-      if(options->animate_simulation)
+      if(options->animate_simulation || j == number_samples - 1)
         {
         redraw_async(NULL);
         gdk_flush () ;

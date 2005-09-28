@@ -267,12 +267,12 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
 #endif
   for (j = 0; j < sim_data_number_samples ; j++)
     {
-    if (j % 10 == 0)
+    if (j % 10 == 0 || j == sim_data_number_samples - 1)
       {
       // write the completion percentage to the command history window //
       set_progress_bar_fraction ((float) j / (float) sim_data_number_samples) ;
-      // redraw the design if the user wants it to appear animated //
-      if(options->animate_simulation)
+      // redraw the design if the user wants it to appear animated or if this is the last sample //
+      if(options->animate_simulation || j == sim_data_number_samples - 1)
         {
         // update the charges to reflect the polarizations so that they can be animated //
         for(icLayers = 0; icLayers < number_of_cell_layers; icLayers++)

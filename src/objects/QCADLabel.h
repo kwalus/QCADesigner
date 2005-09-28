@@ -72,8 +72,8 @@ void qcad_label_vset_text (QCADLabel *label, char *psz, va_list va) ;
 #define QCAD_TYPE_LABEL (qcad_label_get_type ())
 #define QCAD_LABEL(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_LABEL, QCADLabel))
 #define QCAD_LABEL_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_LABEL, QCADLabelClass))
-#define IS_QCAD_LABEL(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_LABEL))
-#define IS_QCAD_LABEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_LABEL))
+#define QCAD_IS_LABEL(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_LABEL))
+#define QCAD_IS_LABEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_LABEL))
 #define QCAD_LABEL_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_LABEL, QCADLabelClass))
 
 #ifdef __cplusplus

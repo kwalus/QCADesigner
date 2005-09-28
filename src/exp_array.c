@@ -38,6 +38,7 @@ static void exp_array_vremove_vals (EXP_ARRAY *exp_array, int icDimPairs, va_lis
 static void exp_array_dump_priv (EXP_ARRAY *exp_array, FILE *pfile, int icIndent, gboolean bReverseVideo) ;
 static void exp_array_empty (EXP_ARRAY *exp_array) ;
 static void exp_array_insert_vals_flat (EXP_ARRAY *exp_array, void *data, int icElements, int idx) ;
+static int exp_array_1d_find_priv (EXP_ARRAY *exp_array, void *element, EXPArrayCompareFunc fn) ;
 
 EXP_ARRAY *exp_array_new (int cbElementSize, int icDimensions)
   {
@@ -96,6 +97,80 @@ void exp_array_insert_vals (EXP_ARRAY *exp_array, void *data, int icElements, in
   va_end (va) ;
   }
 
+int exp_array_1d_insert_val_sorted (EXP_ARRAY *exp_array, void *data, EXPArrayCompareFunc fn, gboolean bAllowDupes)
+  {
+  int idx = 0 ;
+  if (NULL == exp_array || NULL == data || NULL == fn) return -1 ;
+
+  if (0 == exp_array->icUsed)
+    exp_array_insert_vals_flat (exp_array, data, 1, -1) ;
+  else
+    {
+    if (-1 == (idx = exp_array_1d_find_priv (exp_array, data, fn)))
+      return -1 ;
+    if (bAllowDupes || idx == exp_array->icUsed)
+      exp_array_insert_vals_flat (exp_array, data, 1, idx) ;
+    else
+    if ((*fn) (data, &(((char *)(exp_array->data))[idx * exp_array->cbSize])) != 0)
+      exp_array_insert_vals_flat (exp_array, data, 1, idx) ;
+    else
+      idx = -1 ;
+    }
+  return idx ;
+  }
+
+int exp_array_1d_find (EXP_ARRAY *exp_array, void *element, EXPArrayCompareFunc fn, gboolean bClosest)
+  {
+  int idx = -1 ;
+
+  if (0 == exp_array->icUsed) return -1 ;
+
+  idx = exp_array_1d_find_priv (exp_array, element, fn) ;
+
+  if (bClosest) return idx ;
+
+  if (exp_array->icUsed == idx || idx < 0) return -1 ;
+
+  return ((0 == (*fn) (element, ((void *)(&(((char *)(exp_array->data))[idx * exp_array->cbSize])))))) ? idx : -1 ;
+  }
+
+int compare_ints (void *p1, void *p2)
+  {
+  return (((*((int *)p1)) < (*((int *)p2))) ? -1 :
+          ((*((int *)p1)) > (*((int *)p2))) ?  1 : 0) ;
+  }
+
+static int exp_array_1d_find_priv (EXP_ARRAY *exp_array, void *element, EXPArrayCompareFunc fn)
+  {
+  int upper, lower, Nix1 ;
+  void *ar_element = NULL ;
+
+  if (((*fn) (element, (void *)(&(((char *)exp_array->data)[0])))) <= 0)
+    return 0 ;
+  else
+  if (((*fn) (element, (void *)(&(((char *)exp_array->data)[(exp_array->icUsed - 1) * exp_array->cbSize])))) > 0)
+    return exp_array->icUsed ;
+  else
+    {
+    lower = 0 ;
+    upper = exp_array->icUsed - 1 ;
+    Nix1 = exp_array->icUsed >> 1 ;
+    do
+      {
+      ar_element = (void *)(&(((char *)exp_array->data)[Nix1 * exp_array->cbSize])) ;
+      if ((*fn) (element, ar_element) > 0)
+        lower = Nix1 ;
+      else
+        upper = Nix1 ;
+      Nix1 = (upper + lower) >> 1 ;
+      }
+    while (lower + 1 < upper) ;
+
+    if ((((*fn) (element, (void *)(&(((char *)exp_array->data)[lower * exp_array->cbSize])))) > 0)) lower++ ;
+    return lower ;
+    }
+  }
+
 static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElements, int iDimension, va_list va)
   {
   int idx = -1 ;
@@ -145,6 +220,9 @@ static void exp_array_insert_vals_flat (EXP_ARRAY *exp_array, void *data, int ic
   {
   int icNeeded = -1 ;
   int cbSize = (exp_array->icDimensions > 1 ? sizeof (EXP_ARRAY *) : exp_array->cbSize) ;
+
+  if (-1 == idx) idx = exp_array->icUsed ;
+  idx = CLAMP (idx, 0, exp_array->icUsed) ;
 
   if ((icNeeded = icElements + exp_array->icUsed) > exp_array->icAvail)
     exp_array->data = g_realloc (exp_array->data,

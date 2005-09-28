@@ -66,6 +66,15 @@ typedef struct
   double cyWorld ;
   } WorldRectangle ;
 
+typedef struct
+  {
+  int subs_top_x ;
+  int subs_top_y ;
+  int cxClientArea ;
+  int cyClientArea ;
+  double scale ; // pixels per nano
+  } TRANSFORMATION ;
+
 int world_to_real_x (double xWorld) ;
 int world_to_real_y (double yWorld) ;
 int world_to_real_cx (double cxWorld) ;
@@ -74,21 +83,26 @@ double real_to_world_x (int xReal) ;
 double real_to_world_y (int yReal) ;
 double real_to_world_cx (int cxReal) ;
 double real_to_world_cy (int cyReal) ;
+#ifdef DESIGNER
 void world_to_grid_pt (double *pxWorld, double *pyWorld) ;
-void pan (int cx, int cy) ;
-gboolean is_real_point_visible (int xReal, int yReal) ;
-void set_client_dimension (int cxNew, int cyNew) ;
 void reset_zoom () ;
 void zoom_in ();
 void zoom_out ();
 void zoom_window (int top_x, int top_y, int bot_x, int bot_y) ;
 void set_snap_source (void *new_snap_source) ;
+#endif
+void pan (int cx, int cy) ;
+gboolean is_real_point_visible (int xReal, int yReal) ;
+void set_client_dimension (int cxNew, int cyNew) ;
 gboolean is_real_rect_visible (GdkRectangle *rc) ;
 void get_world_viewport (double *pxMin, double *pyMin, double *pxMax, double *pyMax) ;
 void push_transformation () ;
+void set_transformation (TRANSFORMATION *xform) ;
 void pop_transformation () ;
 WorldRectangle *real_to_world_rect (WorldRectangle *rcWorld, GdkRectangle *rcReal) ;
 GdkRectangle *world_to_real_rect (WorldRectangle *rcWorld, GdkRectangle *rcReal) ;
-void world_rect_union (WorldRectangle *rc1, WorldRectangle *rc2, WorldRectangle *rcDst) ;
+void world_rectangle_union (WorldRectangle *rc1, WorldRectangle *rc2, WorldRectangle *rcDst) ;
+gboolean world_rectangle_intersect (WorldRectangle *rc1, WorldRectangle *rc2, WorldRectangle *rcDst) ;
+int world_rectangle_subtract (WorldRectangle *rc1, WorldRectangle *rc2, WorldRectangle new_rcs[4]) ;
 
 #endif /* _OBJECTS_OBJECT_HELPERS_H_ */

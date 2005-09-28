@@ -68,7 +68,7 @@ static void qcad_ruler_instance_init (GObject *object, gpointer data) ;
 static void qcad_ruler_instance_finalize (GObject *object) ;
 
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop) ;
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
@@ -159,7 +159,7 @@ static void qcad_ruler_instance_finalize (GObject *object)
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
   GdkGC *gc = NULL ;
   GdkRectangle rcReal ;
@@ -214,7 +214,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
         lblGrad = get_label_from_array (ruler->labels, (ruler->icLabelsVisible)++, dCurrentGrad, &(obj->clr)) ;
         qcad_label_shrinkwrap (lblGrad) ;
         qcad_design_object_move_to (QCAD_DESIGN_OBJECT (lblGrad), xEndWorld, yWorld) ;
-        qcad_design_object_draw (QCAD_DESIGN_OBJECT (lblGrad), dst, rop) ;
+        qcad_design_object_draw (QCAD_DESIGN_OBJECT (lblGrad), dst, rop, rcClip) ;
         }
       }
     gdk_draw_line (dst, gc, xBeg, rcReal.y, xBeg, rcReal.y + rcReal.height) ;
@@ -222,7 +222,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
     lblGrad = get_label_from_array (ruler->labels, (ruler->icLabelsVisible)++, ruler->ruler_bounding_box.cyWorld, &(obj->clr)) ;
     qcad_label_shrinkwrap (lblGrad) ;
     qcad_design_object_move_to (QCAD_DESIGN_OBJECT (lblGrad), xBegWorld, ruler->ruler_bounding_box.yWorld + ruler->ruler_bounding_box.cyWorld) ;
-    qcad_design_object_draw (QCAD_DESIGN_OBJECT (lblGrad), dst, rop) ;
+    qcad_design_object_draw (QCAD_DESIGN_OBJECT (lblGrad), dst, rop, rcClip) ;
     }
   else
     {
@@ -253,7 +253,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
         lblGrad = get_label_from_array (ruler->labels, (ruler->icLabelsVisible)++, dCurrentGrad, &(obj->clr)) ;
         qcad_label_shrinkwrap (lblGrad) ;
         qcad_design_object_move_to (QCAD_DESIGN_OBJECT (lblGrad), xWorld, yEndWorld) ;
-        qcad_design_object_draw (QCAD_DESIGN_OBJECT (lblGrad), dst, rop) ;
+        qcad_design_object_draw (QCAD_DESIGN_OBJECT (lblGrad), dst, rop, rcClip) ;
         }
       }
     gdk_draw_line (dst, gc, rcReal.x, yBeg, rcReal.x + rcReal.width, yBeg) ;
@@ -261,7 +261,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
     lblGrad = get_label_from_array (ruler->labels, (ruler->icLabelsVisible)++, ruler->ruler_bounding_box.cxWorld, &(obj->clr)) ;
     qcad_label_shrinkwrap (lblGrad) ;
     qcad_design_object_move_to (QCAD_DESIGN_OBJECT (lblGrad), ruler->ruler_bounding_box.xWorld + ruler->ruler_bounding_box.cxWorld, yBegWorld) ;
-    qcad_design_object_draw (QCAD_DESIGN_OBJECT (lblGrad), dst, rop) ;
+    qcad_design_object_draw (QCAD_DESIGN_OBJECT (lblGrad), dst, rop, rcClip) ;
     }
 
   g_object_unref (gc) ;
@@ -411,7 +411,7 @@ static void stretch_draw_state_change (QCADStretchyObject *obj, int x, int y, in
   memcpy (&(QCAD_DESIGN_OBJECT (obj)->bounding_box), &(ruler->ruler_bounding_box), sizeof (WorldRectangle)) ;
 
   for (Nix = 0 ; Nix < ruler->icLabelsVisible ; Nix++)
-    world_rect_union (&(QCAD_DESIGN_OBJECT (obj)->bounding_box), &(QCAD_DESIGN_OBJECT (exp_array_index_1d (ruler->labels, GRADUATION, Nix).lbl)->bounding_box), &(QCAD_DESIGN_OBJECT (obj)->bounding_box)) ;
+    world_rectangle_union (&(QCAD_DESIGN_OBJECT (obj)->bounding_box), &(QCAD_DESIGN_OBJECT (exp_array_index_1d (ruler->labels, GRADUATION, Nix).lbl)->bounding_box), &(QCAD_DESIGN_OBJECT (obj)->bounding_box)) ;
 
   QCAD_RULER (obj)->orientation =
     QCAD_RULER_CALCULATE_ORIENTATION (

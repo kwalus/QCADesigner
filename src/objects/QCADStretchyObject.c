@@ -172,7 +172,7 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
   if (1 == event->button)
     {
     GObject *obj = g_object_new (current_type, NULL) ;
-    if (!IS_QCAD_STRETCHY_OBJECT (obj))
+    if (!QCAD_IS_STRETCHY_OBJECT (obj))
       {
       g_object_unref (obj) ;
       return FALSE ;
@@ -180,7 +180,7 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
     else
       {
       klass->stretch_draw_state_change (klass->tmpobj = QCAD_STRETCHY_OBJECT (obj), event->x, event->y, klass->xRef = event->x, klass->yRef = event->y) ;
-      qcad_design_object_draw (QCAD_DESIGN_OBJECT (klass->tmpobj), widget->window, GDK_XOR) ;
+      qcad_design_object_draw (QCAD_DESIGN_OBJECT (klass->tmpobj), widget->window, GDK_XOR, NULL) ;
       }
     }
   return FALSE ;
@@ -193,9 +193,9 @@ static gboolean motion_notify (GtkWidget *widget, GdkEventMotion *event, gpointe
   if ((event->state & GDK_BUTTON1_MASK) && (NULL != klass->tmpobj))
     {
     QCADDesignObject *tmpobj = QCAD_DESIGN_OBJECT (klass->tmpobj) ;
-    qcad_design_object_draw (tmpobj, widget->window, GDK_XOR) ;
+    qcad_design_object_draw (tmpobj, widget->window, GDK_XOR, NULL) ;
     klass->stretch_draw_state_change (klass->tmpobj, event->x, event->y, klass->xRef, klass->yRef) ;
-    qcad_design_object_draw (tmpobj, widget->window, GDK_XOR) ;
+    qcad_design_object_draw (tmpobj, widget->window, GDK_XOR, NULL) ;
     }
 
   return FALSE ;
@@ -211,14 +211,14 @@ static gboolean button_released (GtkWidget *widget, GdkEventButton *event, gpoin
   if (NULL == klass->tmpobj) return FALSE ;
 
   tmpobj = QCAD_DESIGN_OBJECT (klass->tmpobj) ;
-  qcad_design_object_draw (tmpobj, widget->window, GDK_XOR) ;
+  qcad_design_object_draw (tmpobj, widget->window, GDK_XOR, NULL) ;
   klass->stretch_draw_state_change (klass->tmpobj, event->x, event->y, klass->xRef, klass->yRef) ;
   // if it's a ruler, get rid of it upon release - this is a temporary hack until I can finish the ruler
-  if (IS_QCAD_RULER (tmpobj))
+  if (QCAD_IS_RULER (tmpobj))
     g_object_unref (tmpobj) ;
   else
     {
-    qcad_design_object_draw (tmpobj, widget->window, GDK_XOR) ;
+    qcad_design_object_draw (tmpobj, widget->window, GDK_XOR, NULL) ;
     if (NULL != drop_function) (*drop_function) (QCAD_DESIGN_OBJECT (klass->tmpobj)) ;
     }
 

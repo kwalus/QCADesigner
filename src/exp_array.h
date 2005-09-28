@@ -44,6 +44,8 @@ typedef struct
   int icDimensions ;
   } EXP_ARRAY ;
 
+typedef int (*EXPArrayCompareFunc) (void *p1, void *p2) ;
+
 EXP_ARRAY *exp_array_new (int cbElementSize, int icDimensions) ;
 EXP_ARRAY *exp_array_copy (EXP_ARRAY *exp_array) ;
 EXP_ARRAY *exp_array_free (EXP_ARRAY *exp_array) ;
@@ -52,6 +54,11 @@ void exp_array_remove_vals (EXP_ARRAY *exp_array, int icDimPairs, ...) ;
 void exp_array_dump (EXP_ARRAY *exp_array, FILE *pfile, int icIndent) ;
 void print_hex_bytes (char *bytes, int icBytes, int icInitBytes, int icCols, FILE *pfile, int icIndent) ;
 guint exp_array_crc32 (EXP_ARRAY *exp_array) ;
+// 1d functions like binary search, sorted array
+int exp_array_1d_insert_val_sorted (EXP_ARRAY *exp_array, void *data, EXPArrayCompareFunc fn, gboolean bAllowDupes) ;
+int exp_array_1d_find (EXP_ARRAY *exp_array, void *element, EXPArrayCompareFunc fn, gboolean bClosest) ;
+// Assorted comparison functions
+int compare_ints (void *p1, void *p2) ;
 
 //#define exp_array_index_1d(a,t,i) (((t*) (a)->data) [(i)])
 //#define exp_array_index_2d(a,t,r,c) (((t*) (exp_array_index_1d((a),EXP_ARRAY *,(r)))->data) [(c)])

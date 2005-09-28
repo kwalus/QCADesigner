@@ -288,7 +288,7 @@ gboolean button_released_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event
         if (!(event->state & GDK_CONTROL_MASK))
           {
           clean_extents (widget->window, world_to_real_rect (&rcWorld, &rcReal)) ;
-          design_draw (project_options->design, widget->window, GDK_COPY, &rcWorld, LAYER_DRAW_NON_SELECTION) ;
+          design_draw (project_options->design, widget->window, GDK_COPY, &rcReal, LAYER_DRAW_NON_SELECTION) ;
           selection_renderer_draw (project_options->srSelection, project_options->design, widget->window, GDK_XOR) ;
           }
 

@@ -2,6 +2,7 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
 
+# bin_PROGRAMS = QCADesigner batch_sim graph_dialog test
 bin_PROGRAMS = QCADesigner batch_sim graph_dialog
 
 UNDO_REDO_FILES = \
@@ -13,15 +14,15 @@ STDIO_FILEIO_FILES = \
 	fileio.c fileio.h
 
 OBJECT_FILES = \
-	objects/QCADCell.c           objects/QCADCell.h \
-	objects/QCADCompoundDO.c     objects/QCADCompoundDO.h \
-	objects/QCADDesignObject.c   objects/QCADDesignObject.h \
-	objects/QCADDOContainer.c    objects/QCADDOContainer.h \
-	objects/QCADLabel.c          objects/QCADLabel.h \
-	objects/QCADLayer.c          objects/QCADLayer.h \
-	objects/QCADRuler.c          objects/QCADRuler.h \
-	objects/QCADStretchyObject.c objects/QCADStretchyObject.h \
-	objects/QCADSubstrate.c      objects/QCADSubstrate.h
+	objects/QCADCell.c                         objects/QCADCell.h \
+	objects/QCADCompoundDO.c                   objects/QCADCompoundDO.h \
+	objects/QCADDesignObject.c                 objects/QCADDesignObject.h \
+	objects/QCADDOContainer.c                  objects/QCADDOContainer.h \
+	objects/QCADLabel.c                        objects/QCADLabel.h \
+	objects/QCADLayer.c                        objects/QCADLayer.h \
+	objects/QCADRuler.c                        objects/QCADRuler.h \
+	objects/QCADStretchyObject.c               objects/QCADStretchyObject.h \
+	objects/QCADSubstrate.c                    objects/QCADSubstrate.h
 
 #################### QCADesigner ####################
 QCADesigner_CFLAGS = \
@@ -68,7 +69,6 @@ QCADesigner_SOURCES = \
 	interface.c                             interface.h \
 	layer_mapping_dialog.c                  layer_mapping_dialog.h \
 	layer_order_dialog.c                    layer_order_dialog.h \
-	layer_properties_dialog.c               layer_properties_dialog.h \
 	objects/mouse_handlers.c                objects/mouse_handlers.h \
 	                                    	  objects/mouse_handler_struct.h \
 	objects/object_helpers.c                objects/object_helpers.h \
@@ -76,11 +76,12 @@ QCADesigner_SOURCES = \
 \
 	$(OBJECT_FILES) \
 \
+	objects/QCADLayer_properties.c          objects/QCADLayer_properties.h \
 	objects/QCADClockCombo.c                objects/QCADClockCombo.h \
 	objects/QCADCellRendererVT.c            objects/QCADCellRendererVT.h \
 	objects/QCADCellRendererLayerList.c     objects/QCADCellRendererLayerList.h \
 	objects/QCADTreeViewContainer.c         objects/QCADTreeViewContainer.h \
-  objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
+        objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
 	print_properties_dialog.c               print_properties_dialog.h \
 	print_graph_properties_dialog.c         print_graph_properties_dialog.h \
 	                                        print_properties_dialog_callbacks.h \
@@ -181,34 +182,35 @@ graph_dialog_CFLAGS = \
 graph_dialog_SOURCES = \
 	$(STDIO_FILEIO_FILES) \
 	$(OBJECT_FILES) \
-	gtk_preamble.c                        gtk_preamble.h \
-	objects/QCADClockCombo.c              objects/QCADClockCombo.h \
-	objects/QCADPrintDialog.c             objects/QCADPrintDialog.h \
-	design.c                              design.h \
-	objects/object_helpers.c              objects/object_helpers.h \
+	objects/QCADLayer_properties.c             objects/QCADLayer_properties.h \
+	objects/QCADClockCombo.c                   objects/QCADClockCombo.h \
+	objects/QCADPrintDialog.c                  objects/QCADPrintDialog.h \
+	gtk_preamble.c                             gtk_preamble.h \
+	design.c                                   design.h \
+	objects/object_helpers.c                   objects/object_helpers.h \
 \
-	graph_dialog.c                        graph_dialog.h \
-	graph_dialog_interface.c              graph_dialog_interface.h \
-	graph_dialog_widget_data.c            graph_dialog_widget_data.h \
-	graph_dialog_data.c                   graph_dialog_data.h \
-	graph_dialog_callbacks.c              graph_dialog_callbacks.h \
+	graph_dialog.c                             graph_dialog.h \
+	graph_dialog_interface.c                   graph_dialog_interface.h \
+	graph_dialog_widget_data.c                 graph_dialog_widget_data.h \
+	graph_dialog_data.c                        graph_dialog_data.h \
+	graph_dialog_callbacks.c                   graph_dialog_callbacks.h \
 \
-	generic_utils.c                       generic_utils.h \
-	custom_widgets.c                      custom_widgets.h \
-	exp_array.c                           exp_array.h \
-	fileio_helpers.c                      fileio_helpers.h \
-	exp_pixmap.c                          exp_pixmap.h \
-	file_selection_window.c               file_selection_window.h \
-	print.c                               print.h \
-	print_util.c                          print_util.h \
+	generic_utils.c                            generic_utils.h \
+	custom_widgets.c                           custom_widgets.h \
+	exp_array.c                                exp_array.h \
+	fileio_helpers.c                           fileio_helpers.h \
+	exp_pixmap.c                               exp_pixmap.h \
+	file_selection_window.c                    file_selection_window.h \
+	print.c                                    print.h \
+	print_util.c                               print_util.h \
 	print_graph.c \
-	print_graph_properties_dialog.c       print_graph_properties_dialog.h \
-	support.c                             support.h \
-	honeycomb_thresholds_dialog.c         honeycomb_thresholds_dialog.h \
-	bus_layout_dialog.c                   bus_layout_dialog.h \
-	print_preview.c                       print_preview.h \
-	simulation_data.c                     simulation_data.h \
-	hsl2rgb.c                             hsl2rgb.h \
+	print_graph_properties_dialog.c            print_graph_properties_dialog.h \
+	support.c                                  support.h \
+	honeycomb_thresholds_dialog.c              honeycomb_thresholds_dialog.h \
+	bus_layout_dialog.c                        bus_layout_dialog.h \
+	print_preview.c                            print_preview.h \
+	simulation_data.c                          simulation_data.h \
+	hsl2rgb.c                                  hsl2rgb.h \
 	main_graph_dialog.c
 
 graph_dialog_LDADD = \
@@ -216,3 +218,35 @@ graph_dialog_LDADD = \
 	@GTK_LIBS@ \
 	$(INTLLIBS) \
 	@GTHREAD_LIBS@ 
+
+#################### test ###########################
+# test_CFLAGS = \
+# 	-DGTK_GUI \
+# 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
+# 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
+# 	@GTK_CFLAGS@ \
+# 	@GTHREAD_CFLAGS@
+# 
+# test_SOURCES = \
+# 	hsl2rgb.c                                  hsl2rgb.h \
+# 	gtk_preamble.c                             gtk_preamble.h \
+# 	exp_array.c                                exp_array.h \
+# 	custom_widgets.c                           custom_widgets.h \
+# 	support.c                                  support.h \
+# 	drag_rect.c                                drag_rect.h \
+# \
+#         $(OBJECT_FILES) \
+# \
+# 	objects/QCADLayer_properties.c             objects/QCADLayer_properties.h \
+# 	objects/QCADClockCombo.c                   objects/QCADClockCombo.h \
+# 	exp_pixmap.c                               exp_pixmap.h \
+# \
+# 	objects/object_helpers.c                   objects/object_helpers.h \
+# 	generic_utils.c                            generic_utils.h \
+# 	main_test.c
+# 
+# test_LDADD = \
+# 	-lm \
+# 	@GTK_LIBS@ \
+# 	$(INTLLIBS) \
+# 	@GTHREAD_LIBS@ 

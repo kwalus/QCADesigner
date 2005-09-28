@@ -36,8 +36,12 @@
 #include "global_consts.h"
 #include "qcadstock.h"
 #include "objects/QCADClockCombo.h"
+#include "objects/QCADCell.h"
+#include "objects/QCADLayer.h"
 
 main_W main_window = {NULL} ;
+extern char *layer_stock_id[] ;
+extern int n_layer_stock_id ;
 
 // -- creates the main application window and returns a pointer to it -- //
 void create_main_window (main_W *main_window){
@@ -67,11 +71,12 @@ void create_main_window (main_W *main_window){
     *recent_files_menu_item          = NULL, *import_block_menu_item    = NULL, *create_block_menu_item            = NULL,
     *load_output_from_file_menu_item = NULL, *preview_menu_item         = NULL,
 #endif /* def STDIO_FILEIO */
-    *img                             = NULL ;
+    *mnu                             = NULL, *mnui                      = NULL, *img                               = NULL ;
 
   GtkAccelGroup *accel_group = NULL ;
   GtkTooltips *tooltips;
   char *psz = NULL ;
+  int Nix ;
 
   tooltips = gtk_tooltips_new ();
 
@@ -116,7 +121,19 @@ void create_main_window (main_W *main_window){
     _("Add Layer to Design"),
     _("Adds a layer to your design."),
     gtk_image_new_from_stock (GTK_STOCK_ADD, QCAD_ICON_SIZE_TOP_TOOLBAR),
-    (GCallback)add_layer_button_clicked, NULL) ;
+    (GCallback)popup_menu_button_clicked, NULL) ;
+
+  mnu = gtk_menu_new () ;
+  g_object_set_data (G_OBJECT (add_layer_button), "mnu", mnu) ;
+
+  for (Nix = 0 ; Nix < n_layer_stock_id ; Nix++)
+    if (!(Nix == LAYER_TYPE_CLOCKING) || (Nix == LAYER_TYPE_DISTRIBUTION))
+      {
+      mnui = gtk_image_menu_item_new_from_stock (layer_stock_id[Nix], NULL) ;
+      gtk_widget_show (mnui) ;
+      gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
+      g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)type_for_new_layer_chosen, (gpointer)Nix) ;
+      }
 
   main_window->remove_layer_button =
   gtk_toolbar_append_element (
@@ -671,7 +688,42 @@ void create_main_window (main_W *main_window){
       _("Alternate Drawing Style"),
       _("Toggle between two different display modes."),
       gtk_image_new_from_stock (QCAD_STOCK_CELL_ALT_CROSSOVER, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)toggle_alt_display_button_clicked, (gpointer)NULL) ;
+      (GCallback)popup_menu_button_clicked, (gpointer)NULL) ;
+
+    mnu = gtk_menu_new () ;
+    g_object_set_data (G_OBJECT (main_window->toggle_alt_display_button), "mnu", mnu) ;
+
+    mnui = gtk_image_menu_item_new_with_label (_("Crossover")) ;
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
+    img = gtk_image_new_from_stock (QCAD_STOCK_CELL_ALT_CROSSOVER, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
+    gtk_widget_show (mnui) ;
+    gtk_widget_show (img) ;
+    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
+    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_CROSSOVER) ;
+
+    mnuiSep = gtk_menu_item_new () ;
+    gtk_widget_show (mnuiSep) ;
+    gtk_container_add (GTK_CONTAINER (mnu), mnuiSep) ;
+
+    mnui = gtk_image_menu_item_new_with_label (_("Normal")) ;
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
+    img = gtk_image_new_from_stock (QCAD_STOCK_CELL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
+    gtk_widget_show (mnui) ;
+    gtk_widget_show (img) ;
+    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
+    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_NORMAL) ;
+
+    mnuiSep = gtk_menu_item_new () ;
+    gtk_widget_show (mnuiSep) ;
+    gtk_container_add (GTK_CONTAINER (mnu), mnuiSep) ;
+
+    mnui = gtk_image_menu_item_new_with_label (_("Vertical")) ;
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
+    img = gtk_image_new_from_stock (QCAD_STOCK_CELL_ALT_VERTICAL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
+    gtk_widget_show (mnui) ;
+    gtk_widget_show (img) ;
+    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
+    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_VERTICAL) ;
 
   // create and add the circular clocking zone button to the toolbar //
   main_window->substrate_button =
@@ -734,7 +786,30 @@ void create_main_window (main_W *main_window){
       _("Mirror Selection"),
       _("Create a mirrored copy of your selection."),
       gtk_image_new_from_stock (QCAD_STOCK_MIRROR_VERTICAL, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)on_mirror_button_clicked, NULL) ;
+      (GCallback)popup_menu_button_clicked, NULL) ;
+
+  mnu = gtk_menu_new () ;
+  g_object_set_data (G_OBJECT (mirror_button), "mnu", mnu) ;
+
+  mnui = gtk_image_menu_item_new_with_label (_("Vertically")) ;
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
+    img = gtk_image_new_from_stock (QCAD_STOCK_MIRROR_VERTICAL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
+  gtk_widget_show (img) ;
+  gtk_widget_show (mnui) ;
+  gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
+  g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)mirror_selection_direction_chosen, (gpointer)TRUE) ;
+
+  mnui = gtk_menu_item_new () ;
+  gtk_widget_show (mnui) ;
+  gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
+
+  mnui = gtk_image_menu_item_new_with_label (_("Horizontally")) ;
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
+    img = gtk_image_new_from_stock (QCAD_STOCK_MIRROR_HORIZONTAL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
+  gtk_widget_show (img) ;
+  gtk_widget_show (mnui) ;
+  gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
+  g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)mirror_selection_direction_chosen, (gpointer)FALSE) ;
 
   // create and add the pan button to the toolbar //
   pan_button =

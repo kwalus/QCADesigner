@@ -65,7 +65,7 @@ static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 #endif /* def STDIO_FILEIO */
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop) ;
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #ifdef UNDO_REDO
 static gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
 #else
@@ -169,7 +169,7 @@ static void copy (QCADDesignObject *src, QCADDesignObject *dst)
   }
 
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
   GdkGC *gc = NULL ;
   char *pszFont = NULL ;
@@ -228,7 +228,7 @@ static gboolean properties (QCADDesignObject *obj, GtkWidget *parent)
   static PROPERTIES dialog = {NULL} ;
   gboolean bRet = FALSE ;
 
-  if (!IS_QCAD_LABEL (obj)) return FALSE ;
+  if (!QCAD_IS_LABEL (obj)) return FALSE ;
 
   if (NULL == dialog.dlg)
     create_properties_dialog (&dialog) ;

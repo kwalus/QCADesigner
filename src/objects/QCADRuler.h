@@ -77,8 +77,8 @@ QCADRuler *qcad_ruler_new () ;
 #define QCAD_TYPE_RULER (qcad_ruler_get_type ())
 #define QCAD_RULER(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_RULER, QCADRuler))
 #define QCAD_RULER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_RULER, QCADRulerClass))
-#define IS_QCAD_RULER(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RULER))
-#define IS_QCAD_RULER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_RULER))
+#define QCAD_IS_RULER(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RULER))
+#define QCAD_IS_RULER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_RULER))
 #define QCAD_RULER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_RULER, QCADRulerClass))
 
 #ifdef __cplusplus

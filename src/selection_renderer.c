@@ -102,7 +102,7 @@ void selection_renderer_update (SELECTION_RENDERER *sr, DESIGN *design)
     world_to_real_rect (&(sr->extSelection), &(sr->rcSelection)) ;
 
     if (gdk_rectangle_intersect (&rcDisplay, &(sr->rcSelection), &(sr->rcVisible)))
-      design_draw (design, sr->pixmap->pixmap, GDK_COPY, real_to_world_rect (&rcWorld, &(sr->rcVisible)), LAYER_DRAW_SELECTION) ;
+      design_draw (design, sr->pixmap->pixmap, GDK_COPY, &(sr->rcVisible), LAYER_DRAW_SELECTION) ;
     }
   }
 

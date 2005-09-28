@@ -74,13 +74,15 @@ static void cell_function_changed (QCADCell *cell, DESIGN *design) ;
 static void design_bus_layout_next_unassigned_cell (BUS_LAYOUT_ITER *bus_layout_iter) ;
 
 #ifdef GTK_GUI
-char *layer_pixmap_stock_id[LAYER_TYPE_LAST_TYPE] =
+char *layer_stock_id[LAYER_TYPE_LAST_TYPE] =
   {
   QCAD_STOCK_SUBSTRATE_LAYER,
   QCAD_STOCK_CELL_LAYER,
   QCAD_STOCK_CLOCKING_LAYER,
-  QCAD_STOCK_DRAWING_LAYER
+  QCAD_STOCK_DRAWING_LAYER,
+  QCAD_STOCK_DISTRIBUTION_LAYER
   } ;
+int n_layer_stock_id = G_N_ELEMENTS (layer_stock_id) ;
 #endif /* def GTK_GUI */
 
 // ASSUMPTION: only active layers can contain selections.
@@ -260,16 +262,198 @@ QCADDesignObject *design_hit_test (DESIGN *design, int x, int y)
   }
 
 #ifdef GTK_GUI
-void design_draw (DESIGN *design, GdkDrawable *dst, GdkFunction rop, WorldRectangle *rc, int flags)
+void design_draw (DESIGN *design, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip, int flags)
   {
   GList *llLayer = NULL ;
 
   for (llLayer = design->lstLayers ; NULL != llLayer ; llLayer = llLayer->next)
     if (LAYER_STATUS_VISIBLE == QCAD_LAYER (llLayer->data)->status ||
         LAYER_STATUS_ACTIVE  == QCAD_LAYER (llLayer->data)->status)
-    qcad_layer_draw (QCAD_LAYER (llLayer->data), dst, rop, rc, flags) ;
+//      {
+//      fprintf (stderr, "Drawing layer \"%s\"\n", QCAD_LAYER (llLayer->data)->pszDescription) ;
+      qcad_layer_draw (QCAD_LAYER (llLayer->data), dst, rop, rcClip, flags) ;
+//      }
   }
 
+GtkListStore *design_layer_list_store_new (DESIGN *design, int icExtraColumns, ...)
+  {
+  GList *llItr = NULL ;
+  int Nix ;
+  GType type = 0 ;
+  GtkListStore *ls = NULL ;
+  EXP_ARRAY *ar = NULL ;
+  GtkTreeIter itr ;
+
+  if (NULL == design) return NULL ;
+
+  ar = exp_array_new (sizeof (GType), 1) ;
+
+  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_POINTER ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+
+  if (icExtraColumns > 0)
+    {
+    va_list va ;
+
+    va_start (va, icExtraColumns) ;
+    for (Nix = 0 ; Nix < icExtraColumns ; Nix++)
+      {type = va_arg (va, GType) ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;}
+    va_end (va) ;
+    }
+
+  ls = gtk_list_store_newv (ar->icUsed, (GType *)(ar->data)) ;
+
+  exp_array_free (ar) ;
+
+  for (llItr = design->lstLastLayer ; llItr != NULL ; llItr = llItr->prev)
+    {
+    gtk_list_store_append (ls, &itr) ;
+    gtk_list_store_set (ls, &itr,
+      LAYER_MODEL_COLUMN_ICON, layer_stock_id[(QCAD_LAYER (llItr->data))->type],
+      LAYER_MODEL_COLUMN_NAME, (QCAD_LAYER (llItr->data))->pszDescription,
+      LAYER_MODEL_COLUMN_LAYER, llItr->data, -1) ;
+    }
+
+  return ls ;
+  }
+
+GtkTreeStore *design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_types, int icExtraColumns, ...)
+  {
+  GtkTreeStore *ts = NULL ;
+  EXP_ARRAY *ar = NULL ;
+  GType type = 0 ;
+  va_list va ;
+  BUS *bus = NULL ;
+  int bus_type = -1 ;
+  int cell_type = -1 ;
+  GtkTreeIter gtiBus, gtiCell ;
+  int Nix = -1, Nix1 = -1, idx = -1 ;
+  EXP_ARRAY *cell_list = NULL ;
+  char *pszStockCell = NULL, *pszStockBus = NULL ;
+  QCADCell *cell = NULL ;
+
+  if (NULL == bus_layout) return NULL ;
+
+  ar = exp_array_new (sizeof (GType), 1) ;
+
+  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_POINTER ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+
+  if (icExtraColumns > 0)
+    {
+    va_start (va, icExtraColumns) ;
+    for (Nix = 0 ; Nix < icExtraColumns ; Nix++)
+      {type = va_arg (va, GType) ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;}
+    va_end (va) ;
+    }
+
+  ts = gtk_tree_store_newv (ar->icUsed, (GType *)(ar->data)) ;
+
+  exp_array_free (ar) ;
+
+// Add all the buses
+  for (Nix = 0 ; Nix < bus_layout->buses->icUsed ; Nix++)
+    {
+    bus = &(exp_array_index_1d (bus_layout->buses, BUS, Nix)) ;
+    if (bus->bus_function & row_types)
+      {
+      if (QCAD_CELL_INPUT == bus->bus_function)
+        {
+        bus_type = ROW_TYPE_BUS_INPUT ;
+        cell_type = ROW_TYPE_CELL_INPUT ;
+        cell_list = bus_layout->inputs ;
+        pszStockCell = QCAD_STOCK_CELL_INPUT ;
+        pszStockBus = QCAD_STOCK_BUS_INPUT ;
+        cell = NULL ;
+        }
+      else
+        {
+        bus_type = ROW_TYPE_BUS_OUTPUT ;
+        cell_type = ROW_TYPE_CELL_OUTPUT ;
+        cell_list = bus_layout->outputs ;
+        pszStockCell = QCAD_STOCK_CELL_OUTPUT ;
+        pszStockBus = QCAD_STOCK_BUS_OUTPUT ;
+        cell = NULL ;
+        }
+      gtk_tree_store_append (ts, &gtiBus, NULL) ;
+      gtk_tree_store_set (ts, &gtiBus,
+        BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockBus,
+        BUS_LAYOUT_MODEL_COLUMN_NAME, bus->pszName,
+        BUS_LAYOUT_MODEL_COLUMN_TYPE, bus_type,
+        BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix,
+        BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
+
+      for (Nix1 = 0 ; Nix1 < bus->cell_indices->icUsed ; Nix1++)
+        {
+        idx = exp_array_index_1d (bus->cell_indices, int, Nix1) ;
+        gtk_tree_store_append (ts, &gtiCell, &gtiBus) ;
+        gtk_tree_store_set (ts, &gtiCell,
+          BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockCell,
+          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (QCAD_CELL (exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, idx).cell)),
+          BUS_LAYOUT_MODEL_COLUMN_TYPE, cell_type,
+          BUS_LAYOUT_MODEL_COLUMN_INDEX, idx,
+          BUS_LAYOUT_MODEL_COLUMN_CELL, exp_array_index_1d ((QCAD_CELL_INPUT == bus->bus_function ? bus_layout->inputs : bus_layout->outputs), BUS_LAYOUT_CELL, idx).cell,
+          -1) ;
+        }
+      }
+    }
+
+// Add whatever remaining free inputs and outputs to their respective lists
+  if (row_types & ROW_TYPE_INPUT)
+    for (Nix = 0 ; Nix < bus_layout->inputs->icUsed ; Nix++)
+      if (!(exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
+        {
+        cell = QCAD_CELL (exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).cell) ;
+        gtk_tree_store_append (ts, &gtiCell, NULL) ;
+        gtk_tree_store_set (ts, &gtiCell,
+          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_INPUT,
+          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
+          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_INPUT,
+          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
+          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
+        }
+
+  if (row_types & ROW_TYPE_OUTPUT)
+    for (Nix = 0 ; Nix < bus_layout->outputs->icUsed ; Nix++)
+      if (!(exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
+        {
+        cell = QCAD_CELL (exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).cell) ;
+        gtk_tree_store_append (ts, &gtiCell, NULL) ;
+        gtk_tree_store_set (ts, &gtiCell,
+          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_OUTPUT,
+          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
+          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_OUTPUT,
+          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
+          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
+        }
+
+  return ts ;
+  }
+/*
+GtkTreeStore *design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_types, int icExtraColumns, ...)
+  {
+  GtkTreeStore *ts = NULL ;
+  EXP_ARRAY *ar = NULL ;
+  GType type = 0 ;
+  va_list va ;
+  BUS *bus = NULL ;
+  int bus_type = -1 ;
+  int cell_type = -1 ;
+  GtkTreeIter gtiBus, gtiCell ;
+  int Nix = -1, Nix1 = -1, idx = -1 ;
+  EXP_ARRAY *cell_list = NULL ;
+  char *pszStockCell = NULL, *pszStockBus = NULL ;
+  QCADCell *cell = NULL ;
+
+  if (NULL == bus_layout) return NULL ;
+
+  ar = exp_array_new (sizeof (GType), 1) ;
+
+<<<<<<< design.c
 GtkListStore *design_layer_list_store_new (DESIGN *design, int icExtraColumns, ...)
   {
   GList *llItr = NULL ;
@@ -429,6 +613,105 @@ GtkTreeStore *design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_
   return ts ;
   }
 
+=======
+  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_POINTER ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+
+  if (icExtraColumns > 0)
+    {
+    va_start (va, icExtraColumns) ;
+    for (Nix = 0 ; Nix < icExtraColumns ; Nix++)
+      {type = va_arg (va, GType) ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;}
+    va_end (va) ;
+    }
+
+  ts = gtk_tree_store_newv (ar->icUsed, (GType *)(ar->data)) ;
+
+  exp_array_free (ar) ;
+
+// Add all the buses
+  for (Nix = 0 ; Nix < bus_layout->buses->icUsed ; Nix++)
+    {
+    bus = &(exp_array_index_1d (bus_layout->buses, BUS, Nix)) ;
+    if (bus->bus_function & row_types)
+      {
+      if (QCAD_CELL_INPUT == bus->bus_function)
+        {
+        bus_type = ROW_TYPE_BUS_INPUT ;
+        cell_type = ROW_TYPE_CELL_INPUT ;
+        cell_list = bus_layout->inputs ;
+        pszStockCell = QCAD_STOCK_CELL_INPUT ;
+        pszStockBus = QCAD_STOCK_BUS_INPUT ;
+        cell = NULL ;
+        }
+      else
+        {
+        bus_type = ROW_TYPE_BUS_OUTPUT ;
+        cell_type = ROW_TYPE_CELL_OUTPUT ;
+        cell_list = bus_layout->outputs ;
+        pszStockCell = QCAD_STOCK_CELL_OUTPUT ;
+        pszStockBus = QCAD_STOCK_BUS_OUTPUT ;
+        cell = NULL ;
+        }
+      gtk_tree_store_append (ts, &gtiBus, NULL) ;
+      gtk_tree_store_set (ts, &gtiBus,
+        BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockBus,
+        BUS_LAYOUT_MODEL_COLUMN_NAME, bus->pszName,
+        BUS_LAYOUT_MODEL_COLUMN_TYPE, bus_type,
+        BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix,
+        BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
+
+      for (Nix1 = 0 ; Nix1 < bus->cell_indices->icUsed ; Nix1++)
+        {
+        idx = exp_array_index_1d (bus->cell_indices, int, Nix1) ;
+        gtk_tree_store_append (ts, &gtiCell, &gtiBus) ;
+        gtk_tree_store_set (ts, &gtiCell,
+          BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockCell,
+          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (QCAD_CELL (exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, idx).cell)),
+          BUS_LAYOUT_MODEL_COLUMN_TYPE, cell_type,
+          BUS_LAYOUT_MODEL_COLUMN_INDEX, idx,
+          BUS_LAYOUT_MODEL_COLUMN_CELL, exp_array_index_1d ((QCAD_CELL_INPUT == bus->bus_function ? bus_layout->inputs : bus_layout->outputs), BUS_LAYOUT_CELL, idx).cell,
+          -1) ;
+        }
+      }
+    }
+
+// Add whatever remaining free inputs and outputs to their respective lists
+  if (row_types & ROW_TYPE_INPUT)
+    for (Nix = 0 ; Nix < bus_layout->inputs->icUsed ; Nix++)
+      if (!(exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
+        {
+        cell = QCAD_CELL (exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).cell) ;
+        gtk_tree_store_append (ts, &gtiCell, NULL) ;
+        gtk_tree_store_set (ts, &gtiCell,
+          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_INPUT,
+          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
+          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_INPUT,
+          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
+          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
+        }
+
+  if (row_types & ROW_TYPE_OUTPUT)
+    for (Nix = 0 ; Nix < bus_layout->outputs->icUsed ; Nix++)
+      if (!(exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
+        {
+        cell = QCAD_CELL (exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).cell) ;
+        gtk_tree_store_append (ts, &gtiCell, NULL) ;
+        gtk_tree_store_set (ts, &gtiCell,
+          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_OUTPUT,
+          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
+          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_OUTPUT,
+          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
+          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
+        }
+
+  return ts ;
+  }
+>>>>>>> 1.3.2.9
+*/
 // Used for copying selections
 QCADDesignObject *design_selection_create_from_selection (DESIGN *design, GdkWindow *window, GdkFunction rop)
   {
@@ -485,32 +768,26 @@ gboolean design_get_extents (DESIGN *design, WorldRectangle *extents, gboolean b
   WorldRectangle ext = {0.0} ;
   GList *lstLayer = NULL ;
   gboolean bHaveBaseline = FALSE ;
-  double x, y ;
 
   extents->xWorld =
   extents->yWorld =
   extents->cxWorld =
   extents->cyWorld = 0.0 ;
+
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
     if (LAYER_STATUS_VISIBLE == (QCAD_LAYER (lstLayer->data))->status ||
         LAYER_STATUS_ACTIVE  == (QCAD_LAYER (lstLayer->data))->status)
-      {
-      if (bHaveBaseline)
+      if (qcad_layer_get_extents (QCAD_LAYER (lstLayer->data), &ext, bSelection))
         {
-        if (qcad_layer_get_extents ((QCAD_LAYER (lstLayer->data)), &ext, bSelection))
+        if (bHaveBaseline)
+          world_rectangle_union (extents, &ext, extents) ;
+        else
           {
-          x = extents->xWorld ;
-          y = extents->yWorld ;
-          extents->xWorld = MIN (extents->xWorld, ext.xWorld) ;
-          extents->yWorld = MIN (extents->yWorld, ext.yWorld) ;
-          extents->cxWorld = MAX (extents->cxWorld + x, ext.cxWorld + ext.xWorld) - extents->xWorld ;
-          extents->cyWorld = MAX (extents->cyWorld + y, ext.cyWorld + ext.yWorld) - extents->yWorld ;
+          memcpy (extents, &ext, sizeof (WorldRectangle)) ;
+          bHaveBaseline = TRUE ;
           }
         }
-      else
-      if ((bHaveBaseline = qcad_layer_get_extents (QCAD_LAYER (lstLayer->data), extents, bSelection)))
-        memcpy (&ext, extents, sizeof (WorldRectangle)) ;
-      }
+
   return bHaveBaseline ;
   }//get_extents
 
@@ -541,21 +818,22 @@ EXP_ARRAY *design_selection_create_from_window (DESIGN *design, WorldRectangle *
     {
     // This function is not responsible for destroying an existing selection.
     if (LAYER_STATUS_ACTIVE == (layer = QCAD_LAYER (lstLayer->data))->status)
-      for (lstObj = layer->lstObjs ; lstObj != NULL ; lstObj = lstObj->next)
-        if (NULL != lstObj->data)
-          {
-          if (qcad_design_object_select_test (obj = QCAD_DESIGN_OBJECT (lstObj->data), rcWorld, SELECTION_CONTAINMENT))
-            ar = design_select_single_object (obj, ar) ;
-          else
-          if (QCAD_IS_COMPOUND_DO (obj))
-            for (obj_child = qcad_compound_do_first (QCAD_COMPOUND_DO (obj)) ;; obj_child = qcad_compound_do_next (QCAD_COMPOUND_DO (obj)))
-              {
-              if (NULL != obj_child)
-                if (qcad_design_object_select_test (obj_child, rcWorld, SELECTION_CONTAINMENT))
-                  ar = design_select_single_object (obj_child, ar) ;
-              if (qcad_compound_do_last (QCAD_COMPOUND_DO (obj))) break ;
-              }
-          }
+      if (LAYER_TYPE_DISTRIBUTION != layer->type)
+        for (lstObj = layer->lstObjs ; lstObj != NULL ; lstObj = lstObj->next)
+          if (NULL != lstObj->data)
+            {
+            if (qcad_design_object_select_test (obj = QCAD_DESIGN_OBJECT (lstObj->data), rcWorld, SELECTION_CONTAINMENT))
+              ar = design_select_single_object (obj, ar) ;
+            else
+            if (QCAD_IS_COMPOUND_DO (obj))
+              for (obj_child = qcad_compound_do_first (QCAD_COMPOUND_DO (obj)) ;; obj_child = qcad_compound_do_next (QCAD_COMPOUND_DO (obj)))
+                {
+                if (NULL != obj_child)
+                  if (qcad_design_object_select_test (obj_child, rcWorld, SELECTION_CONTAINMENT))
+                    ar = design_select_single_object (obj_child, ar) ;
+                if (qcad_compound_do_last (QCAD_COMPOUND_DO (obj))) break ;
+                }
+            }
     }
 
   return design_selection_object_array_add_weak_pointers (ar) ;
@@ -580,24 +858,24 @@ EXP_ARRAY *design_selection_add_window (DESIGN *design, WorldRectangle *rcWorld)
 
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
     if (LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
-
-      for (lstObj = layer->lstObjs ; lstObj != NULL ; lstObj = lstObj->next)
-        if (NULL != lstObj->data)
-          if (!((obj = QCAD_DESIGN_OBJECT (lstObj->data))->bSelected))
-            {
-            if (qcad_design_object_select_test (obj, rcWorld, SELECTION_CONTAINMENT))
-              ar = design_select_single_object (obj, ar) ;
-            else
-            if (QCAD_IS_COMPOUND_DO (obj))
-              for (obj_child = qcad_compound_do_first (QCAD_COMPOUND_DO (obj)) ;; obj_child = qcad_compound_do_next (QCAD_COMPOUND_DO (obj)))
-                {
-                if (NULL != obj_child)
-                  if (!obj_child->bSelected)
-                    if (qcad_design_object_select_test (obj_child, rcWorld, SELECTION_CONTAINMENT))
-                      ar = design_select_single_object (obj_child, ar) ;
-                if (qcad_compound_do_last (QCAD_COMPOUND_DO (obj))) break ;
-                }
-            }
+      if (LAYER_TYPE_DISTRIBUTION != layer->type)
+        for (lstObj = layer->lstObjs ; lstObj != NULL ; lstObj = lstObj->next)
+          if (NULL != lstObj->data)
+            if (!((obj = QCAD_DESIGN_OBJECT (lstObj->data))->bSelected))
+              {
+              if (qcad_design_object_select_test (obj, rcWorld, SELECTION_CONTAINMENT))
+                ar = design_select_single_object (obj, ar) ;
+              else
+              if (QCAD_IS_COMPOUND_DO (obj))
+                for (obj_child = qcad_compound_do_first (QCAD_COMPOUND_DO (obj)) ;; obj_child = qcad_compound_do_next (QCAD_COMPOUND_DO (obj)))
+                  {
+                  if (NULL != obj_child)
+                    if (!obj_child->bSelected)
+                      if (qcad_design_object_select_test (obj_child, rcWorld, SELECTION_CONTAINMENT))
+                        ar = design_select_single_object (obj_child, ar) ;
+                  if (qcad_compound_do_last (QCAD_COMPOUND_DO (obj))) break ;
+                  }
+              }
 
   return design_selection_object_array_add_weak_pointers (ar) ;
   }

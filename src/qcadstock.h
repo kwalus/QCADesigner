@@ -41,10 +41,12 @@
 #define QCAD_STOCK_BUS_OUTPUT         "qcad-bus-output"
 #define QCAD_STOCK_CELL_INPUT         "qcad-cell-input"
 #define QCAD_STOCK_CELL_OUTPUT        "qcad-cell-output"
+
 #define QCAD_STOCK_CELL_LAYER         "qcad-cell-layer"
 #define QCAD_STOCK_CLOCKING_LAYER     "qcad-clocking-layer"
 #define QCAD_STOCK_SUBSTRATE_LAYER    "qcad-substrate-layer"
 #define QCAD_STOCK_DRAWING_LAYER      "qcad-drawing-layer"
+#define QCAD_STOCK_DISTRIBUTION_LAYER "qcad-distribution-layer"
 #define QCAD_STOCK_GRAPH_BIN          "qcad-graph-binary"
 #define QCAD_STOCK_GRAPH_DEC          "qcad-graph-decimal"
 #define QCAD_STOCK_GRAPH_HEX          "qcad-graph-hexadecimal"

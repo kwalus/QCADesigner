@@ -88,7 +88,7 @@ typedef struct QCADDesignObjectClass
   QCADDesignObject *(*hit_test) (QCADDesignObject *obj, int xReal, int yReal) ;
   gboolean (*select_test) (QCADDesignObject *obj, WorldRectangle *rc, QCADSelectionMethod method) ;
 #ifdef GTK_GUI
-  void (*draw) (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop) ;
+  void (*draw) (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
   GCallback (*default_properties_ui) (struct QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData) ;
 #ifdef UNDO_REDO
   gboolean (*properties) (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
@@ -134,7 +134,7 @@ gboolean qcad_design_object_overlaps (QCADDesignObject *obj1, QCADDesignObject *
 gboolean qcad_design_object_select_test (QCADDesignObject *obj, WorldRectangle *rc, QCADSelectionMethod method) ;
 QCADDesignObject *qcad_design_object_hit_test (QCADDesignObject *obj, int x, int y) ;
 #ifdef GTK_GUI
-void qcad_design_object_draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop) ;
+void qcad_design_object_draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 GCallback qcad_design_object_class_get_properties_ui (QCADDesignObjectClass *klass, void *default_propeties, GtkWidget **pTopContainer, gpointer *pData) ;
 #ifdef UNDO_REDO
 gboolean qcad_design_object_get_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;

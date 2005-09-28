@@ -33,8 +33,17 @@
 #ifndef _ADD_LAYER_DIALOG_H_
 #define _ADD_LAYER_DIALOG_H_
 
+#include <gtk/gtk.h>
 #include "design.h"
+#ifdef UNDO_REDO
+  #include "QCADUndoEntry.h"
+#endif
 
-gboolean get_layer_properties_from_user (GtkWindow *wnd, QCADLayer *layer, gboolean bAllowLayerType, gboolean bAllowLayerStatus) ;
+#ifdef UNDO_REDO
+  gboolean qcad_layer_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry) ;
+#else
+  gboolean qcad_layer_properties (QCADDesignObject *obj, GtkWidget *widget) ;
+#endif /* def UNDO_REDO */
 
+LayerStatus layer_status_from_description (char *pszDescription) ;
 #endif /* _ADD_LAYER_DIALOG_H_ */

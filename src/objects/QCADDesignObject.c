@@ -76,7 +76,7 @@ static gboolean button_released (GtkWidget *widget, GdkEventButton *event, gpoin
 static QCADDesignObject *hit_test (QCADDesignObject *obj, int xReal, int yReal) ;
 static gboolean select_test (QCADDesignObject *obj, WorldRectangle *rc, QCADSelectionMethod method) ;
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop) ;
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData) ;
 #ifdef UNDO_REDO
 static gboolean properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry) ;
@@ -255,8 +255,16 @@ char *qcad_design_object_get_PostScript_instance (QCADDesignObject *obj, gboolea
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->PostScript_instance (obj, bColour) ;}
 
 #ifdef GTK_GUI
-void qcad_design_object_draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
-  {QCAD_DESIGN_OBJECT_GET_CLASS (obj)->draw (obj, dst, rop) ;}
+void qcad_design_object_draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
+  {
+  GdkRectangle *rcPass = rcClip, rc = {0} ;
+  if (NULL == rcClip)
+    {
+    gdk_window_get_size (dst, &(rc.width), &(rc.height)) ;
+    rcPass = &rc ;
+    }
+  QCAD_DESIGN_OBJECT_GET_CLASS (obj)->draw (obj, dst, rop, rcPass) ;
+  }
 
 GCallback qcad_design_object_class_get_properties_ui (QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData)
   {return QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_ui (klass, default_options, pTopContainer, pData) ;}
@@ -461,7 +469,7 @@ static void default_properties_set (struct QCADDesignObjectClass *klass, void *p
 static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props) {}
 
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop) {}
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) {}
 
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData)
   {
@@ -620,6 +628,11 @@ static QCADDesignObject *hit_test (QCADDesignObject *obj, int xReal, int yReal)
 
 static gboolean select_test (QCADDesignObject *obj, WorldRectangle *rc, QCADSelectionMethod method)
   {
+//  if (!QCAD_IS_SUBSTRATE (obj))
+//    fprintf (stderr, "QCADDesignObject::select_test for 0x%08X:(%.2lf,%.2lf)[%.2lfx%.2lf] %s (%.2lf,%.2lf)[%.2lfx%.2lf]\n", (int)obj,
+//      obj->bounding_box.xWorld, obj->bounding_box.yWorld, obj->bounding_box.cxWorld, obj->bounding_box.cyWorld, 
+//      SELECTION_CONTAINMENT == method ? "contained in" : "intersects",
+//      rc->xWorld, rc->yWorld, rc->cxWorld, rc->cyWorld) ;
   return
     (((SELECTION_CONTAINMENT == method) &&
        (RECT_IN_RECT (

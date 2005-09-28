@@ -54,6 +54,8 @@
 #include "objects/object_helpers.h"
 #include "objects/QCADDOContainer.h"
 #include "objects/QCADCompoundDO.h"
+#include "objects/QCADLayer.h"
+#include "objects/QCADLayerDistribution.h"
 #ifdef UNDO_REDO
   #include "selection_undo.h"
   #include "objects/QCADUndoEntryGroup.h"
@@ -74,7 +76,6 @@
 #include "sim_engine_setup_dialog.h"
 #include "graph_dialog.h"
 #include "custom_widgets.h"
-#include "layer_properties_dialog.h"
 #include "layer_order_dialog.h"
 #include "translate_selection_dialog.h"
 #include "layer_mapping_dialog.h"
@@ -109,7 +110,8 @@ extern GdkColor clrBlack ;
 static print_design_OP print_options =
   {{612, 792, 72, 72, 72, 72, TRUE, TRUE, NULL}, 3, TRUE, FALSE, TRUE, TRUE, NULL, 0, 1, 1} ;
 
-extern char *layer_pixmap_stock_id[LAYER_TYPE_LAST_TYPE] ;
+extern char *layer_stock_id[] ;
+extern int n_layer_stock_id ;
 
 static project_OP project_options =
   {
@@ -171,8 +173,6 @@ static void layer_select (GtkWidget *widget, gpointer data) ;
 static void cell_function_changed (QCADCell *cell, gpointer data) ;
 static void move_selection_to_pointer (QCADDesignObject *anchor) ;
 static void place_popup_menu (GtkMenu *menu, int *x, int *y, gboolean *push_in, gpointer data) ;
-static void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data) ;
-static void cell_display_mode_chosen (GtkWidget *widget, gpointer data) ;
 static void real_coords_from_rulers (int *px, int *py) ;
 #ifdef UNDO_REDO
 static void undo_state_changed (QCADUndoEntryGroup *stack, QCADUndoState state, gpointer data) ;
@@ -312,15 +312,15 @@ void on_hide_layers_menu_item_activate (GtkWidget *widget, gpointer data)
   GtkWidget *chkVisible = NULL ;
   GList *llItr = NULL ;
 
+  if (NULL != (combo_item = QCAD_LAYER (project_options.design->lstCurrentLayer->data)->combo_item))
+    if (NULL != (chkVisible = g_object_get_data (G_OBJECT (combo_item), "chkVisible")))
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkVisible), TRUE) ;
+
   for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
     if (llItr != project_options.design->lstCurrentLayer)
       if (NULL != (combo_item = QCAD_LAYER (llItr->data)->combo_item))
         if (NULL != (chkVisible = g_object_get_data (G_OBJECT (combo_item), "chkVisible")))
           gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkVisible), FALSE) ;
-
-  if (NULL != (combo_item = QCAD_LAYER (project_options.design->lstCurrentLayer->data)->combo_item))
-    if (NULL != (chkVisible = g_object_get_data (G_OBJECT (combo_item), "chkVisible")))
-      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkVisible), TRUE) ;
 
   layer_selected (NULL, NULL) ;
   }
@@ -387,56 +387,64 @@ gboolean drawing_area_button_released (GtkWidget *widget, GdkEventButton *event,
   return FALSE ;
   }
 
-void toggle_alt_display_button_clicked (GtkWidget *widget, gpointer data)
+void popup_menu_button_clicked (GtkWidget *widget, gpointer data)
   {
   static GtkWidget *mnu = NULL ;
-  static GdkPoint pt = {-1, -1} ;
+  GdkPoint pt ;
 
-  if (NULL == mnu)
-    {
-    GtkWidget *mnui = NULL, *sep = NULL, *img = NULL ;
-
-    mnu = gtk_menu_new () ;
-
-    mnui = gtk_image_menu_item_new_with_label (_("Crossover")) ;
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
-    img = gtk_image_new_from_stock (QCAD_STOCK_CELL_ALT_CROSSOVER, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
-    gtk_widget_show (mnui) ;
-    gtk_widget_show (img) ;
-    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
-    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_CROSSOVER) ;
-
-    sep = gtk_menu_item_new () ;
-    gtk_widget_show (sep) ;
-    gtk_container_add (GTK_CONTAINER (mnu), sep) ;
-
-    mnui = gtk_image_menu_item_new_with_label (_("Normal")) ;
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
-    img = gtk_image_new_from_stock (QCAD_STOCK_CELL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
-    gtk_widget_show (mnui) ;
-    gtk_widget_show (img) ;
-    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
-    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_NORMAL) ;
-
-    sep = gtk_menu_item_new () ;
-    gtk_widget_show (sep) ;
-    gtk_container_add (GTK_CONTAINER (mnu), sep) ;
-
-    mnui = gtk_image_menu_item_new_with_label (_("Vertical")) ;
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
-    img = gtk_image_new_from_stock (QCAD_STOCK_CELL_ALT_VERTICAL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
-    gtk_widget_show (mnui) ;
-    gtk_widget_show (img) ;
-    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
-    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_VERTICAL) ;
-    }
+  mnu = g_object_get_data (G_OBJECT (widget), "mnu") ;
 
   gtk_widget_get_root_origin (widget, &(pt.x), &(pt.y)) ;
 
   gtk_menu_popup (GTK_MENU (mnu), NULL, NULL, (GtkMenuPositionFunc)place_popup_menu, &pt, 1, gtk_get_current_event_time ()) ;
   }
 
-static void cell_display_mode_chosen (GtkWidget *widget, gpointer data)
+static void place_popup_menu (GtkMenu *menu, int *x, int *y, gboolean *push_in, gpointer data)
+  {
+  (*x) = ((GdkPoint *)data)->x ;
+  (*y) = ((GdkPoint *)data)->y ;
+  (*push_in) = TRUE ;
+  }
+
+void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data)
+  {
+  WorldRectangle rcWorld ;
+  double xWorld, yWorld ;
+  QCADDesignObject *obj = NULL ;
+  double mtx[2][2] = {{1, 0}, {0, 1}} ;
+
+  if ((gboolean)data)
+    {
+    mtx[0][0] = -1 ; mtx[0][1] =  0 ;
+    mtx[1][0] =  0 ; mtx[1][1] =  1 ;
+    }
+  else
+    {
+    mtx[0][0] =  1 ; mtx[0][1] =  0 ;
+    mtx[1][0] =  0 ; mtx[1][1] = -1 ;
+    }
+
+  design_get_extents (project_options.design, &rcWorld, TRUE) ;
+
+  xWorld = rcWorld.xWorld + rcWorld.cxWorld / 2.0 ;
+  yWorld = rcWorld.yWorld + rcWorld.cyWorld / 2.0 ;
+
+  selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
+
+  if (NULL != (obj = design_selection_transform (project_options.design, mtx[0][0], mtx[0][1], mtx[1][0], mtx[1][1])))
+    {
+#ifdef UNDO_REDO
+    push_undo_selection_transform (project_options.design, project_options.srSelection, main_window.drawing_area->window, mtx, mtx) ;
+#endif /* def UNDO_REDO */
+    design_get_extents (project_options.design, &rcWorld, TRUE) ;
+    design_selection_move (project_options.design,
+      xWorld - (rcWorld.xWorld + rcWorld.cxWorld / 2.0),
+      yWorld - (rcWorld.yWorld + rcWorld.cyWorld / 2.0)) ;
+    move_selection_to_pointer (obj) ;
+    }
+  }
+
+void cell_display_mode_chosen (GtkWidget *widget, gpointer data)
   {
   EXP_ARRAY *objs = NULL ;
   GValue val ;
@@ -456,11 +464,30 @@ static void cell_display_mode_chosen (GtkWidget *widget, gpointer data)
   selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
   }
 
-void add_layer_button_clicked (GtkWidget *widget, gpointer data)
+void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
   {
-  QCADLayer *layer = qcad_layer_new (LAYER_TYPE_CELLS, LAYER_STATUS_VISIBLE, _("New Layer")) ;
-
-  if (get_layer_properties_from_user (GTK_WINDOW (main_window.main_window), layer, TRUE, TRUE))
+//  GList *llItr = NULL ;
+  QCADLayer *layer = NULL ;
+/*
+  if (LAYER_TYPE_DISTRIBUTION == (int)data)
+    {
+    for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
+      if (NULL != llItr->data)
+        if (LAYER_TYPE_DISTRIBUTION == QCAD_LAYER (llItr->data)->type)
+          {
+          gdk_beep () ;
+          return ;
+          }
+    layer = qcad_layer_distribution_new (project_options.design, LAYER_STATUS_ACTIVE, _("Distribution Layer")) ;
+    }
+  else
+*/
+    layer = qcad_layer_new ((int)data, LAYER_STATUS_VISIBLE, _("New Layer")) ;
+#ifdef UNDO_REDO
+  if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer), main_window.main_window, NULL))
+#else
+  if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer), main_window.main_window))
+#endif
     {
     // If there was only one layer, enable its check buttons
     if (project_options.design->lstLayers == project_options.design->lstLastLayer)
@@ -490,13 +517,14 @@ void add_layer_button_clicked (GtkWidget *widget, gpointer data)
 
 void remove_layer_button_clicked (GtkWidget *widget, gpointer data)
   {
+  QCADLayer *layer = NULL ;
   GList *llItem = NULL ;
 
   // If there is more than one layer in the design ...
   if (project_options.design->lstLastLayer != project_options.design->lstLayers)
     {
     GtkWidget *msg = NULL ;
-    QCADLayer *layer = g_object_get_data (G_OBJECT (selected_layer_item), "layer") ;
+    layer = g_object_get_data (G_OBJECT (selected_layer_item), "layer") ;
 
     if (GTK_RESPONSE_YES == gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (GTK_WINDOW (main_window.main_window), GTK_DIALOG_MODAL, GTK_MESSAGE_WARNING, GTK_BUTTONS_YES_NO,
       _("Once deleted, a layer cannot be undeleted. Do you really want to delete layer \"%s\"?"),
@@ -518,7 +546,29 @@ void remove_layer_button_clicked (GtkWidget *widget, gpointer data)
       }
     }
 
-  gtk_widget_set_sensitive (widget, (project_options.design->lstLastLayer != project_options.design->lstLayers)) ;
+  if (project_options.design->lstLastLayer == project_options.design->lstLayers)
+    {
+    if (NULL != project_options.design->lstLayers->data)
+      {
+      layer = QCAD_LAYER (project_options.design->lstLayers->data) ;
+      if (NULL != layer->combo_item)
+        {
+        GtkWidget *chk = NULL ;
+
+        if (NULL != (chk = g_object_get_data (G_OBJECT (layer->combo_item), "chkVisible")))
+          {
+          gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chk), TRUE) ;
+          gtk_widget_set_sensitive (chk, FALSE) ;
+          }
+        if (NULL != (chk = g_object_get_data (G_OBJECT (layer->combo_item), "chkActive")))
+          gtk_widget_set_sensitive (chk, TRUE) ;
+        }
+      }
+    gtk_widget_set_sensitive (widget, FALSE) ;
+    }
+  else
+    gtk_widget_set_sensitive (widget, TRUE) ;
+  
   }
 
 void layer_properties_button_clicked (GtkWidget *widget, gpointer data)
@@ -527,9 +577,16 @@ void layer_properties_button_clicked (GtkWidget *widget, gpointer data)
 
   if (NULL != project_options.design->lstCurrentLayer)
     if (NULL != project_options.design->lstCurrentLayer->data)
-      if (get_layer_properties_from_user (GTK_WINDOW (main_window.main_window),
-        layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data)), FALSE,
-        !(project_options.design->lstLayers == project_options.design->lstLastLayer)))
+#ifdef UNDO_REDO
+      if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data))),
+        main_window.main_window, NULL))
+#else
+      if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data))),
+        main_window.main_window))
+#endif
+//      if (get_layer_properties_from_user (GTK_WINDOW (main_window.main_window),
+//        layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data)), FALSE,
+//        !(project_options.design->lstLayers == project_options.design->lstLastLayer)))
           {
           if (NULL != layer->combo_item)
             layers_combo_refresh_item (layer->combo_item) ;
@@ -1069,88 +1126,6 @@ void on_zoom_layer_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data
     command_history_message (_("Cannot zoom to the layer extents, because the design is empty")) ;
   }
 
-void on_mirror_button_clicked (GtkButton *button, gpointer user_data)
-  {
-  static GdkPoint pt = {0, 0} ;
-  static GtkWidget *mnu = NULL ;
-
-  if (NULL == mnu)
-    {
-    GtkWidget *img = NULL, *mnui = NULL ;
-    // Create the mirror popup menu
-    mnu = gtk_menu_new () ;
-
-    mnui = gtk_image_menu_item_new_with_label (_("Vertically")) ;
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
-      img = gtk_image_new_from_stock (QCAD_STOCK_MIRROR_VERTICAL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
-    gtk_widget_show (img) ;
-    gtk_widget_show (mnui) ;
-    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
-    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)mirror_selection_direction_chosen, (gpointer)TRUE) ;
-
-    mnui = gtk_menu_item_new () ;
-    gtk_widget_show (mnui) ;
-    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
-
-    mnui = gtk_image_menu_item_new_with_label (_("Horizontally")) ;
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
-      img = gtk_image_new_from_stock (QCAD_STOCK_MIRROR_HORIZONTAL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
-    gtk_widget_show (img) ;
-    gtk_widget_show (mnui) ;
-    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
-    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)mirror_selection_direction_chosen, (gpointer)FALSE) ;
-    }
-
-  gtk_widget_get_root_origin (GTK_WIDGET (button), &(pt.x), &(pt.y)) ;
-
-  gtk_menu_popup (GTK_MENU (mnu), NULL, NULL, (GtkMenuPositionFunc)place_popup_menu, &pt, 1, gtk_get_current_event_time ()) ;
-  }
-
-static void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data)
-  {
-  WorldRectangle rcWorld ;
-  double xWorld, yWorld ;
-  QCADDesignObject *obj = NULL ;
-  double mtx[2][2] = {{1, 0}, {0, 1}} ;
-
-  if ((gboolean)data)
-    {
-    mtx[0][0] = -1 ; mtx[0][1] =  0 ;
-    mtx[1][0] =  0 ; mtx[1][1] =  1 ;
-    }
-  else
-    {
-    mtx[0][0] =  1 ; mtx[0][1] =  0 ;
-    mtx[1][0] =  0 ; mtx[1][1] = -1 ;
-    }
-
-  design_get_extents (project_options.design, &rcWorld, TRUE) ;
-
-  xWorld = rcWorld.xWorld + rcWorld.cxWorld / 2.0 ;
-  yWorld = rcWorld.yWorld + rcWorld.cyWorld / 2.0 ;
-
-  selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
-
-  if (NULL != (obj = design_selection_transform (project_options.design, mtx[0][0], mtx[0][1], mtx[1][0], mtx[1][1])))
-    {
-#ifdef UNDO_REDO
-    push_undo_selection_transform (project_options.design, project_options.srSelection, main_window.drawing_area->window, mtx, mtx) ;
-#endif /* def UNDO_REDO */
-    design_get_extents (project_options.design, &rcWorld, TRUE) ;
-    design_selection_move (project_options.design,
-      xWorld - (rcWorld.xWorld + rcWorld.cxWorld / 2.0),
-      yWorld - (rcWorld.yWorld + rcWorld.cyWorld / 2.0)) ;
-    move_selection_to_pointer (obj) ;
-    }
-  }
-
-static void place_popup_menu (GtkMenu *menu, int *x, int *y, gboolean *push_in, gpointer data)
-  {
-  (*x) = ((GdkPoint *)data)->x ;
-  (*y) = ((GdkPoint *)data)->y ;
-  (*push_in) = TRUE ;
-  }
-
 void on_copy_cell_button_clicked (GtkButton *button, gpointer user_data)
   {
   EXP_ARRAY *arSelObjs = NULL ;
@@ -1188,7 +1163,7 @@ void on_copy_cell_button_clicked (GtkButton *button, gpointer user_data)
 
     design_get_extents (project_options.design, &rcWorld, TRUE) ;
     world_to_real_rect (&rcWorld, &rcReal) ;
-    design_draw (project_options.design, main_window.drawing_area->window, GDK_COPY, &rcWorld, LAYER_DRAW_NON_SELECTION) ;
+    design_draw (project_options.design, main_window.drawing_area->window, GDK_COPY, &rcReal, LAYER_DRAW_NON_SELECTION) ;
     move_selection_to_pointer (obj) ;
     // For now - we'll have to have a VectorTable function that merges new inputs into the table.
     VectorTable_fill (project_options.pvt, project_options.design) ;
@@ -1452,10 +1427,12 @@ void layer_selected (GtkWidget *widget, gpointer data)
 static void layer_status_change (GtkWidget *widget, gpointer data)
   {
   GtkWidget
+    *chk         = NULL,
     *chkActivate = GTK_WIDGET (g_object_get_data (G_OBJECT (data), "chkActive")),
     *chkVisible  = GTK_WIDGET (g_object_get_data (G_OBJECT (data), "chkVisible")) ;
   QCADLayer *layer = QCAD_LAYER (g_object_get_data (G_OBJECT (data), "layer")) ;
   gboolean bActive = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)) ;
+  GList *llItr = NULL ;
 
   if (NULL == layer) return ;
 
@@ -1507,9 +1484,46 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
       gtk_widget_set_sensitive (chkActivate, TRUE) ;
       gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActivate),
         (gboolean)g_object_get_data (G_OBJECT (widget), "bWasActive")) ;
+      for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
+        if (NULL != llItr->data)
+          if (NULL != QCAD_LAYER (llItr->data)->combo_item)
+            if (NULL != (chk = g_object_get_data (G_OBJECT (QCAD_LAYER (llItr->data)->combo_item), "chkVisible")))
+              if (!GTK_WIDGET_SENSITIVE (chk))
+                {
+                gtk_widget_set_sensitive (chk, TRUE) ;
+                break ;
+                }
       }
     else
       {
+      QCADLayer *other_visible_layer = NULL ;
+      int icOtherVisibleLayers = 0 ;
+
+      for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
+        if (layer != llItr->data)
+          if (NULL != llItr->data)
+            if (LAYER_STATUS_ACTIVE == QCAD_LAYER (llItr->data)->status || LAYER_STATUS_VISIBLE == QCAD_LAYER (llItr->data)->status)
+              {
+              if (NULL == other_visible_layer)
+                other_visible_layer = QCAD_LAYER (llItr->data) ;
+              icOtherVisibleLayers++ ;
+              }
+
+      if (1 == icOtherVisibleLayers)
+        {
+        if (NULL != other_visible_layer)
+          if (NULL != other_visible_layer->combo_item)
+            if (NULL != (chk = g_object_get_data (G_OBJECT (other_visible_layer->combo_item), "chkVisible")))
+              gtk_widget_set_sensitive (chk, FALSE) ;
+        }
+      // We should never get here (TM)
+      else
+      if (0 == icOtherVisibleLayers)
+        {
+        gtk_widget_set_sensitive (widget, FALSE) ;
+        return ;
+        }
+
       layer->status = LAYER_STATUS_HIDDEN ;
       g_object_set_data (G_OBJECT (widget), "bWasActive",
         (gpointer)gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chkActivate))) ;
@@ -1689,7 +1703,7 @@ static gboolean drop_single_object_cb (QCADDesignObject *obj)
 
   if (bRet)
     {
-    qcad_design_object_draw (obj, main_window.drawing_area->window, GDK_COPY) ;
+    qcad_design_object_draw (obj, main_window.drawing_area->window, GDK_COPY, NULL) ;
     project_options.bDesignAltered = TRUE ;
     }
   else
@@ -1710,7 +1724,7 @@ static gboolean redraw_async_cb (REDRAW_ASYNC_PARAMS *parms)
 
 void redraw_sync (GdkRegion *rgn, gboolean bDestroyRegion)
   {
-  WorldRectangle rcWorld ;
+//  WorldRectangle rcWorld ;
   GdkRectangle *rcRgn = NULL ;
   int icRects = 0 ;
   int Nix ;
@@ -1730,8 +1744,7 @@ void redraw_sync (GdkRegion *rgn, gboolean bDestroyRegion)
   gdk_window_begin_paint_region (main_window.drawing_area->window, rgn) ;
 
   for (Nix = 0 ; Nix < icRects ; Nix++)
-    design_draw (project_options.design, main_window.drawing_area->window, GDK_COPY,
-      real_to_world_rect (&rcWorld, &(rcRgn[Nix])), LAYER_DRAW_NON_SELECTION) ;
+    design_draw (project_options.design, main_window.drawing_area->window, GDK_COPY, &(rcRgn[Nix]), LAYER_DRAW_NON_SELECTION) ;
 
   if (NULL != project_options.srSelection)
     {
@@ -1918,7 +1931,7 @@ static void layers_combo_fill_from_design (main_W *wndMain, DESIGN *new_design)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActive), TRUE) ;
 
     gtk_widget_set_sensitive (chkVisible, FALSE) ;
-    gtk_widget_set_sensitive (chkActive, FALSE) ;
+//    gtk_widget_set_sensitive (chkActive, FALSE) ;
     }
 
   if (NULL != new_design->lstLayers)
@@ -1941,7 +1954,7 @@ static GtkWidget *layers_combo_add_layer (GtkCombo *combo, GList *layer)
   gtk_widget_show (tbl) ;
   gtk_container_add (GTK_CONTAINER (item), tbl) ;
 
-  img = gtk_image_new_from_stock (layer_pixmap_stock_id[(QCAD_LAYER (layer->data))->type], GTK_ICON_SIZE_MENU) ;
+  img = gtk_image_new_from_stock (layer_stock_id[(QCAD_LAYER (layer->data))->type], GTK_ICON_SIZE_MENU) ;
   gtk_widget_show (img) ;
   gtk_table_attach (GTK_TABLE (tbl), img, 0, 1, 0, 1,
     (GtkAttachOptions)(0),
@@ -2058,8 +2071,6 @@ static void destroy_notify_layer_combo_item_layer_data (QCADLayer *layer)
   if (NULL == layer) return ;
   if (NULL == project_options.design) return ;
 
-  fprintf (stderr, "destroy_notify_layer_combo_item_layer_data: combo_item is being destroyed !\n") ;
-
   if (NULL != (layer = design_layer_remove (project_options.design, (layer))))
     {
     project_options.bDesignAltered = TRUE ;
@@ -2127,6 +2138,18 @@ static void reflect_layer_status (QCADLayer *layer)
 
     gtk_widget_show (main_window.label_button) ;
     gtk_widget_set_sensitive (main_window.label_button, bSensitive) ;
+    }
+  else
+  if (LAYER_TYPE_DISTRIBUTION == layer->type)
+    {
+    DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_DRAWING\n")) ;
+    gtk_widget_hide (main_window.insert_type_1_cell_button) ;
+    gtk_widget_hide (main_window.insert_cell_array_button) ;
+    gtk_widget_hide (main_window.substrate_button) ;
+    gtk_widget_hide (main_window.toggle_alt_display_button) ;
+    gtk_widget_hide (main_window.rotate_cell_button) ;
+    gtk_widget_hide (main_window.clocks_combo_table) ;
+    gtk_widget_hide (main_window.label_button) ;
     }
   redraw_async (NULL) ;
   }

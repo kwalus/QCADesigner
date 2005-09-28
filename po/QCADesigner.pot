@@ -157,6 +157,9 @@ msgstr ""
 msgid "Click on a cell to rotate it (repeatedly)."
 msgstr ""
 
+msgid "Click on any selected destination layer to change it:"
+msgstr ""
+
 msgid "Clock:"
 msgstr ""
 

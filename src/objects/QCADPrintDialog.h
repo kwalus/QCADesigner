@@ -136,8 +136,8 @@ QCADPrintDialogUnits qcad_print_dialog_get_units (QCADPrintDialog *pd) ;
 #define QCAD_TYPE_PRINT_DIALOG (qcad_print_dialog_get_type ())
 #define QCAD_PRINT_DIALOG(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_PRINT_DIALOG, QCADPrintDialog))
 #define QCAD_PRINT_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_PRINT_DIALOG, QCADPrintDialogClass))
-#define IS_QCAD_PRINT_DIALOG(object) (G_TYPE_CHECK_INSTANCE_TYPE (object, QCAD_TYPE_PRINT_DIALOG))
-#define IS_QCAD_PRINT_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_PRINT_DIALOG))
+#define QCAD_IS_PRINT_DIALOG(object) (G_TYPE_CHECK_INSTANCE_TYPE (object, QCAD_TYPE_PRINT_DIALOG))
+#define QCAD_IS_PRINT_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_PRINT_DIALOG))
 #define QCAD_PRINT_DIALOG_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_PRINT_DIALOG, QCADPrintDialogClass))
 
 #ifdef __cplusplus

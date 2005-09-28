@@ -135,10 +135,12 @@ GType qcad_cell_mode_get_type () ;
 // World coordinates
 QCADDesignObject *qcad_cell_new (double x, double y) ;
 QCADDesignObject *qcad_cell_new_with_function (QCADCellFunction cell_function, char *pszLabel) ;
+#ifdef DESIGNER
 #ifdef GTK_GUI
 void qcad_cell_drexp_array (GdkDrawable *dst, GdkFunction rop, GtkOrientation orientation, double dRangeBeg, double dRangeEnd, double dOtherCoord) ;
 #endif /* def GTK_GUI */
 EXP_ARRAY *qcad_cell_create_array (gboolean bHorizontal, double dRangeBeg, double dRangeEnd, double dOtherCoord) ;
+#endif /* def DESIGNER */
 double qcad_cell_calculate_polarization (QCADCell *cell) ;
 
 void qcad_cell_set_polarization (QCADCell *cell, double dPolarization) ;

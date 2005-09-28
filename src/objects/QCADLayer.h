@@ -28,13 +28,14 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#ifndef _QCADLayer_H_
-#define _QCADLayer_H_
+#ifndef _OBJECTS_QCADLayer_H_
+#define _OBJECTS_QCADLayer_H_
 
 #ifdef GTK_GUI
   #include <gtk/gtk.h>
 #endif /* def GTK_GUI */
 #include "QCADDesignObject.h"
+#include "QCADDOContainer.h"
 #include "../exp_array.h"
 
 #ifdef __cplusplus
@@ -49,6 +50,7 @@ typedef enum
   LAYER_TYPE_CELLS,
   LAYER_TYPE_CLOCKING,
   LAYER_TYPE_DRAWING,
+  LAYER_TYPE_DISTRIBUTION,
   LAYER_TYPE_LAST_TYPE
   } LayerType ;
 
@@ -110,7 +112,7 @@ gboolean qcad_layer_selection_drop (QCADLayer *layer) ;
 #ifdef GTK_GUI
 EXP_ARRAY *qcad_layer_selection_subtract_window (QCADLayer *layer, GdkWindow *dst, GdkFunction rop, WorldRectangle *rcWorld, EXP_ARRAY *ar) ;
 EXP_ARRAY *qcad_layer_selection_release (QCADLayer *layer, GdkWindow *dst, GdkFunction rop, EXP_ARRAY *ar) ;
-void qcad_layer_draw (QCADLayer *layer, GdkDrawable *dst, GdkFunction rop, WorldRectangle *rc, int flags) ;
+void qcad_layer_draw (QCADLayer *layer, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip, int flags) ;
 #endif /* def GTK_GUI */
 gboolean qcad_layer_get_extents (QCADLayer *layer, WorldRectangle *extents, gboolean bSelection) ;
 void qcad_layer_dump (QCADLayer *layer, FILE *pfile) ;

@@ -32,6 +32,7 @@
 
 #include <glib-object.h>
 #include <glib.h>
+#include "objects/object_helpers.h"
 
 #define MAX_SLOPE_DIFF 0.1
 
@@ -44,5 +45,6 @@ void RunCmdLineAsync (char *pszCmdLine, char *pszTmpFName) ;
 #endif /* def GTK_GUI */
 char *get_enum_string_from_value (GType enum_type, int value) ;
 int get_enum_value_from_string (GType enum_type, char *psz) ;
+double spread_seq (int idx) ;
 
 #endif /* _GENERIC_UTILS_H_ */

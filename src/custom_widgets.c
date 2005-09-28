@@ -287,14 +287,12 @@ static void signal_isb_spn_text_changed (GtkWidget *widget, gpointer data)
   {
   GtkAdjustment *adj = gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (widget)) ;
   ISBDirection direction = (ISBDirection)data ;
-  char *pszText = gtk_editable_get_chars (GTK_EDITABLE (widget), 0, -1) ;
+  const char *pszText = gtk_entry_get_text (GTK_ENTRY (widget)) ;
   double dVal = (NULL == pszText ? 0.0 : atof (pszText)) ;
-
-  g_free (pszText) ;
 
   if (direction & ISB_DIR_UP)
     adj->upper = MAX (dVal, adj->upper) ;
-  else
+//  else
   if (direction & ISB_DIR_DN)
     adj->lower = MIN (dVal, adj->lower) ;
   }
@@ -610,6 +608,15 @@ void gtk_widget_button_press (GtkWidget *widget, int button, int x, int y, GdkMo
   fprintf (stderr, "gtk_widget_button_press: At (%d,%d) = root:(%d,%d)\n", (int)(event->x), (int)(event->y), (int)(event->x_root), (int)(event->y_root)) ;
 
   gtk_main_do_event ((GdkEvent *)event) ;
+  }
+
+void tile_pixbuf (GdkDrawable *dst, GdkGC *gc, GdkPixbuf *pixbuf, int cxPb, int cyPb, GdkRectangle *rcDst)
+  {
+  int Nix, Nix1 ;
+
+  for (Nix = 0 ; Nix * cxPb < rcDst->width ; Nix++)
+    for (Nix1 = 0 ; Nix1 * cyPb < rcDst->height ; Nix1++)
+      gdk_draw_pixbuf (dst, gc, pixbuf, 0, 0, rcDst->x + Nix * cxPb, rcDst->y + Nix1 * cyPb, cxPb, cyPb, GDK_RGB_DITHER_NONE, 0, 0) ;
   }
 
 #endif /* def GTK_GUI */

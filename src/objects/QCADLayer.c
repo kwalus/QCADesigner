@@ -34,6 +34,7 @@
 
 #ifdef GTK_GUI
   #include <gtk/gtk.h>
+#include "QCADLayer_properties.h"
 #endif /* def GTK_GUI */
 
 #include "../support.h"
@@ -45,6 +46,7 @@
 #include "QCADLabel.h"
 #include "QCADCompoundDO.h"
 #include "QCADDOContainer.h"
+#include "QCADDensityMap.h"
 #include "objects_debug.h"
 
 #define DBG_REFS(s)
@@ -63,7 +65,8 @@ typedef struct
     int flags ;
     GdkDrawable *dst ;
     GdkFunction rop ;
-    WorldRectangle *rc ;
+    GdkRectangle *rcClip ;
+    WorldRectangle *rcClipWorld ;
     } QCAD_LAYER_DRAW_PARAMS ;
 #endif /* def GTK_GUI */
 
@@ -151,6 +154,9 @@ static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   G_OBJECT_CLASS (klass)->finalize = qcad_layer_instance_finalize ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->hit_test         = hit_test ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->copy             = copy ;
+#ifdef GTK_GUI
+  QCAD_DESIGN_OBJECT_CLASS (klass)->properties       = qcad_layer_properties ;
+#endif /* def GTK_GUI */
   }
 
 static void qcad_compound_do_interface_init (gpointer interface, gpointer interface_data)
@@ -280,9 +286,12 @@ static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDes
       }
     }
   else
-  if (IS_QCAD_LABEL (obj) &&
+  if (QCAD_IS_LABEL (obj) &&
       (!(LAYER_TYPE_DRAWING == layer->type && obj->bounding_box.cxWorld > 10 && obj->bounding_box.cyWorld > 10)))
     return FALSE ;
+//  else
+//  if (QCAD_IS_DENSITY_MAP (obj) && layer->type != LAYER_TYPE_DISTRIBUTION)
+//    return FALSE ;
 
   qcad_layer_track_new_object (layer, obj, layer->lstObjs = g_list_prepend (layer->lstObjs, obj), NULL) ;
   if (QCAD_IS_COMPOUND_DO (obj))
@@ -498,18 +507,22 @@ static EXP_ARRAY *qcad_layer_selection_release_object (QCADDesignObject *obj, Gd
     ar = exp_array_new (sizeof (QCADDesignObject *), 1) ;
   qcad_design_object_set_selected (obj, FALSE) ;
   exp_array_insert_vals (ar, &obj, 1, 1, -1) ;
-  qcad_design_object_draw (obj, dst, rop) ;
+  qcad_design_object_draw (obj, dst, rop, NULL) ;
 
   return ar ;
   }
 
-void qcad_layer_draw (QCADLayer *layer, GdkDrawable *dst, GdkFunction rop, WorldRectangle *rc, int flags)
+void qcad_layer_draw (QCADLayer *layer, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip, int flags)
   {
-  QCAD_LAYER_DRAW_PARAMS cb_parms = {flags, dst, rop, rc} ;
+  WorldRectangle rcClipWorld ;
+  QCAD_LAYER_DRAW_PARAMS cb_parms = {flags, dst, rop, rcClip, real_to_world_rect (&rcClipWorld, rcClip)} ;
 
   if (NULL == layer || NULL == dst) return ;
 
   if (!(LAYER_STATUS_VISIBLE == layer->status || LAYER_STATUS_ACTIVE  == layer->status)) return ;
+
+//  if (LAYER_TYPE_DISTRIBUTION == layer->type)
+//    fprintf (stderr, "qcad_layer_draw: Distro layer: Calling qcad_layer_object_foreach\n") ;
 
   qcad_layer_objects_foreach (layer, (LAYER_DRAW_SELECTION == flags && LAYER_STATUS_ACTIVE == layer->status), TRUE, qcad_layer_draw_foreach, &cb_parms) ;
   }
@@ -520,14 +533,19 @@ static void qcad_layer_draw_foreach (QCADDesignObject *obj, gpointer data)
 
   if (NULL == obj) return ;
 
-  if (NULL != cb_params->rc)
-    if (!qcad_design_object_select_test (obj, cb_params->rc, SELECTION_INTERSECTION))
+  if (NULL != cb_params->rcClipWorld)
+    if (!qcad_design_object_select_test (obj, cb_params->rcClipWorld, SELECTION_INTERSECTION))
+      {
+//      fprintf (stderr, "qcad_layer_draw_foreach: Not drawing 0x%08X, because it fails select test\n", (int)obj) ;
       return ;
+      }
 
   if ((LAYER_DRAW_NON_SELECTION == cb_params->flags && !obj->bSelected) ||
       (LAYER_DRAW_SELECTION     == cb_params->flags &&  obj->bSelected) ||
       (LAYER_DRAW_EVERYTHING    == cb_params->flags))
-    qcad_design_object_draw (obj, cb_params->dst, cb_params->rop) ;
+    qcad_design_object_draw (obj, cb_params->dst, cb_params->rop, cb_params->rcClip) ;
+//  else
+//    fprintf (stderr, "qcad_layer_draw_foreach: Not drawing 0x%08X because it doesn't line up with the flags\n", (int)obj) ;
   }
 #endif /* def GTK_GUI */
 

@@ -83,7 +83,7 @@ int select_cells_in_radius(QCADCell ***sorted_cells,
                   ((double) ABS (the_cells_layer-i) * layer_separation)) < world_radius)
           number_of_selected_cells++;
 
-  if (number_of_selected_cells > 0)
+  if (number_of_selected_cells > 0 && !(NULL == p_selected_cells || NULL == p_neighbour_layer))
     {
     //printf("there were %d neighours\n", number_of_selected_cells);
 

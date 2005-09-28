@@ -101,7 +101,7 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
 
 static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop) ;
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #ifdef UNDO_REDO
 static gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
 #else
@@ -127,7 +127,9 @@ static gboolean qcad_cell_compound_do_last (QCADCompoundDO *cdo) ;
 static gboolean qcad_cell_do_container_add (QCADDOContainer *container, QCADDesignObject *obj) ;
 static gboolean qcad_cell_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
 
+#ifdef DESIGNER
 static void qcad_cell_array_next_coord (int idx[2], double coord[2], double length[2], double dDir) ;
+#endif /* def DESIGNER */
 #ifdef GTK_GUI
 static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog) ;
 static void create_properties_dialog (PROPERTIES *dialog) ;
@@ -512,6 +514,7 @@ const char *qcad_cell_get_label (QCADCell *cell)
 void qcad_cell_set_display_mode (QCADCell *cell, int cell_mode)
   {cell->cell_options.mode = cell_mode ;}
 
+#ifdef DESIGNER
 #ifdef GTK_GUI
 void qcad_cell_drexp_array (GdkDrawable *dst, GdkFunction rop, GtkOrientation orientation, double dRangeBeg, double dRangeEnd, double dOtherCoord)
   {
@@ -582,6 +585,7 @@ EXP_ARRAY *qcad_cell_create_array (gboolean bHorizontal, double dRangeBeg, doubl
     }
   return ret ;
   }
+#endif /* def DESIGNER */
 
 void qcad_cell_rotate_dots (QCADCell *cell, double angle)
   {
@@ -1007,7 +1011,7 @@ static void move (QCADDesignObject *obj, double dxDelta, double dyDelta)
   }
 
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
   GdkRectangle rc ;
   QCADCell *cell = QCAD_CELL (obj) ;
@@ -1018,6 +1022,8 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
 
   // If this cell is not visible, return
   if (!is_real_rect_visible (&rc)) return ;
+
+//  fprintf (stderr, "QCADCell::draw (0x%08X):Entering\n", (int)obj) ;
 
   gc = gdk_gc_new (dst) ;
 
@@ -1060,7 +1066,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
   g_object_unref (gc) ;
 
   if (!(cell->bLabelRemoved || NULL == cell->label) && QCAD_DESIGN_OBJECT (cell)->bSelected == QCAD_DESIGN_OBJECT (cell->label)->bSelected)
-    qcad_design_object_draw (QCAD_DESIGN_OBJECT (cell->label), dst, rop) ;
+    qcad_design_object_draw (QCAD_DESIGN_OBJECT (cell->label), dst, rop, rcClip) ;
   }
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
@@ -1375,7 +1381,9 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
 
   if (1 != event->button) return FALSE ;
 
+#ifdef DESIGNER
   world_to_grid_pt (&xWorld, &yWorld) ;
+#endif /* def DESIGNER */
 
   obj = qcad_cell_new (xWorld, yWorld) ;
 
@@ -1403,6 +1411,8 @@ static void default_properties_apply (gpointer data)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef GTK_GUI
+#ifdef DESIGNER
 static void qcad_cell_array_next_coord (int idx[2], double coord[2], double length[2], double dDir)
   {
   double coord_last, coord_old ;
@@ -1420,8 +1430,8 @@ static void qcad_cell_array_next_coord (int idx[2], double coord[2], double leng
     world_to_grid_pt (&(coord[0]), &(coord[1])) ;
     }
   }
+#endif /* def DESIGNER */
 
-#ifdef GTK_GUI
 static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   {
   GtkWidget *lbl = NULL, *spn = NULL, *tbl = NULL ;

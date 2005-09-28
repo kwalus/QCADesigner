@@ -27,6 +27,7 @@
 //////////////////////////////////////////////////////////
 
 #include <math.h>
+#include <string.h>
 #include <stdlib.h>
 #ifndef WIN32
   #include <unistd.h>
@@ -35,6 +36,7 @@
 #include "exp_array.h"
 #include "generic_utils.h"
 #include "global_consts.h"
+#include "objects/object_helpers.h"
 
 #ifdef GTK_GUI
 typedef struct
@@ -201,4 +203,25 @@ int get_enum_value_from_string (GType enum_type, char *psz)
     return g_ascii_strtod (psz, NULL) ;
   else
     return val->value ;
+  }
+
+double spread_seq (int idx)
+  {
+  int numer = 0, denom = 1, ic = 0, idx_copy ;
+
+  if (idx < 2) return idx ;
+  if (idx == 2) return 0.5 ;
+  idx-- ;
+  idx_copy = idx ;
+
+  // Fancy shmancy log base 2
+  while (idx)
+    {
+    ic++ ;
+    idx = idx >> 1 ;
+    }
+  denom = 1 << ic ;
+  numer = ((idx_copy << 1) % denom) + 1 ;
+
+  return ((double)numer) / ((double)denom) ;
   }

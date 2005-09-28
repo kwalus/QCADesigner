@@ -58,7 +58,7 @@ static void qcad_substrate_get_property (GObject *object, guint property_id, GVa
 
 static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop) ;
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #ifdef UNDO_REDO
 static gboolean properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry) ;
 #else
@@ -241,11 +241,11 @@ static const char *PostScript_preamble ()
   }
 
 #ifdef GTK_GUI
-static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
   GdkGC *gc = gdk_gc_new (dst) ;
   GdkPoint *pts = NULL ;
-  GdkRectangle rc, rcOffset ;
+  GdkRectangle rc, rcOffset, rcRealBoundingBox ;
   QCADSubstrate *subs = QCAD_SUBSTRATE (obj) ;
   double Nix1, Nix2, dot_spacing = subs->grid_spacing,
     xTopView, yTopView, xBotView, yBotView, magnitude, actual_spacing, divisor = 1.0 ;
@@ -254,7 +254,9 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
     xIdxEnd = -1, yIdxEnd = -1 ;
   int icPts = 0, real_dot_spacing = -1 ;
 
-  world_to_real_rect (&(obj->bounding_box), &rc) ;
+  // Copy the real coords both into rc and into rcRealBoundingBox
+  memcpy (&rcRealBoundingBox, world_to_real_rect (&(obj->bounding_box), &rc), sizeof (GdkRectangle)) ; 
+//  if (!gdk_rectangle_intersect (rcClip, &rc, &rc)) return ;
 
   magnitude = pow (10, ceil (log10 (actual_spacing = real_to_world_cx (10)))) ;
   divisor =
@@ -296,7 +298,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop)
 
   gdk_gc_set_foreground (gc, obj->bSelected ? &(QCAD_DESIGN_OBJECT_GET_CLASS (obj)->clrSelected) : &(obj->clr)) ;
   gdk_gc_set_function (gc, rop) ;
-  gdk_draw_rectangle (dst, gc, FALSE, rc.x, rc.y, rc.width, rc.height) ;
+  gdk_draw_rectangle (dst, gc, FALSE, rcRealBoundingBox.x, rcRealBoundingBox.y, rcRealBoundingBox.width, rcRealBoundingBox.height) ;
 
   if (!(0 == icPts || NULL == pts))
     {

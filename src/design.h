@@ -117,7 +117,7 @@ void              design_serialize (DESIGN *design, FILE *pfile) ;
 DESIGN *          design_new (QCADSubstrate **psubs) ;
 DESIGN *          design_copy (DESIGN *design) ;
 #ifdef GTK_GUI
-void              design_draw (DESIGN *design, GdkDrawable *dst, GdkFunction rop, WorldRectangle *ext, int flags) ;
+void              design_draw (DESIGN *design, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip, int flags) ;
 GtkTreeStore *    design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_types, int icExtraColumns, ...) ;
 GtkListStore *    design_layer_list_store_new (DESIGN *design, int icExtraColumns, ...) ;
 #endif /* def GTK_GUI */

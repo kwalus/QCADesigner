@@ -29,11 +29,10 @@
 
 #include <gtk/gtk.h>
 
-void add_layer_button_clicked (GtkWidget *widget, gpointer data) ;
+void popup_menu_button_clicked (GtkWidget *widget, gpointer data) ;
 void remove_layer_button_clicked (GtkWidget *widget, gpointer data) ;
 void layer_properties_button_clicked (GtkWidget *widget, gpointer data) ;
 void main_window_show (GtkWidget *widget, gpointer data) ;
-void on_mirror_button_clicked (GtkButton *button, gpointer user_data) ;
 void on_cell_properties_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
 void on_show_tb_icons_menu_item_activate (GtkMenuItem * menuitem, gpointer user_data) ;
 void on_snap_to_grid_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
@@ -74,10 +73,12 @@ void layer_selected (GtkWidget *widget, gpointer data) ;
 void on_translate_selection_button_clicked (GtkWidget *widget, gpointer user_data) ;
 void reorder_layers_button_clicked (GtkWidget *widget, gpointer user_data) ;
 void action_button_clicked (GtkWidget *widget, gpointer data) ;
-void toggle_alt_display_button_clicked (GtkWidget *widget, gpointer data) ;
 void on_clocks_combo_changed (GtkWidget *widget, gpointer data) ;
 void bus_layout_button_clicked (GtkWidget *widget, gpointer data) ;
 void on_hide_layers_menu_item_activate (GtkWidget *widget, gpointer data) ;
+void type_for_new_layer_chosen (GtkWidget *widget, gpointer data) ;
+void cell_display_mode_chosen (GtkWidget *widget, gpointer data) ;
+void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data) ;
 gboolean drawing_area_motion_notify (GtkWidget *widget, GdkEventMotion *event, gpointer user_data);
 gboolean drawing_area_button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 gboolean drawing_area_button_released (GtkWidget *widget, GdkEventButton *event, gpointer user_data);

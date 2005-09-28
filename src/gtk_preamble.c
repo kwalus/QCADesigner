@@ -43,6 +43,16 @@ static void my_logger (const gchar *log_domain, GLogLevelFlags log_level, const 
 #endif /* ifdef QCAD_NO_CONSOLE */
 #endif /* ifdef WIN32 */
 
+static GtkStockItem stock_layers[] =
+  {
+  {QCAD_STOCK_SUBSTRATE_LAYER,    "Substrate",    0, 0, PACKAGE},
+  {QCAD_STOCK_CELL_LAYER,         "Cells",        0, 0, PACKAGE},
+  {QCAD_STOCK_CLOCKING_LAYER,     "Clocking",     0, 0, PACKAGE},
+  {QCAD_STOCK_DRAWING_LAYER,      "Drawing",      0, 0, PACKAGE},
+  {QCAD_STOCK_DISTRIBUTION_LAYER, "Distribution", 0, 0, PACKAGE},
+  } ;
+static int n_stock_layers = G_N_ELEMENTS (stock_layers) ;
+
 #ifdef QCAD_NO_CONSOLE
 void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName, char *pszCmdLine)
 #else
@@ -135,10 +145,13 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
 
   set_window_icon (NULL, pszBaseName) ;
 
+  gtk_stock_add (stock_layers, n_stock_layers) ;
+
   add_stock_icon ("drawing_layer.png",      QCAD_STOCK_DRAWING_LAYER) ;
   add_stock_icon ("clocks_layer.png",       QCAD_STOCK_CLOCKING_LAYER) ;
   add_stock_icon ("cells_layer.png",        QCAD_STOCK_CELL_LAYER) ;
   add_stock_icon ("substrate_layer.png",    QCAD_STOCK_SUBSTRATE_LAYER) ;
+  add_stock_icon ("distribution_layer.png", QCAD_STOCK_DISTRIBUTION_LAYER) ;
 #ifdef HAVE_LIBRSVG
   add_stock_icon ("substrate.svg",            QCAD_STOCK_SUBSTRATE) ;
   add_stock_icon ("label.svg",                QCAD_STOCK_LABEL) ;

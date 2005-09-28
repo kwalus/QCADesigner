@@ -149,7 +149,7 @@ static void qcad_clock_combo_item_activate (GtkWidget *widget, gpointer data)
 
   if (NULL == widget || NULL == data) return ;
 
-  if (!IS_QCAD_CLOCK_COMBO (data)) return ;
+  if (!QCAD_IS_CLOCK_COMBO (data)) return ;
 
   ui = QCAD_CLOCK_COMBO (data)->widget ;
 

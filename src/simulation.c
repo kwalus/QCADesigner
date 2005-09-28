@@ -74,50 +74,49 @@ int select_cells_in_radius(QCADCell ***sorted_cells,
 
   for(i = 0; i < number_of_cell_layers; i++)
     for(j = 0; j < number_of_cells_in_layer[i]; j++)
-	    if (sorted_cells[i][j] != cell)
-		    if (sqrt ((QCAD_DESIGN_OBJECT(sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT(cell)->x) *
-			            (QCAD_DESIGN_OBJECT(sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT(cell)->x) +
-                  (QCAD_DESIGN_OBJECT(sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT(cell)->y) *
-                  (QCAD_DESIGN_OBJECT(sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT(cell)->y) +
-                  ((double) ABS(the_cells_layer-i)*layer_separation) *
-                  ((double) ABS(the_cells_layer-i)*layer_separation)) < world_radius)
-			    number_of_selected_cells++;
+      if (sorted_cells[i][j] != cell)
+        if (sqrt ((QCAD_DESIGN_OBJECT (sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT (cell)->x) *
+                  (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT (cell)->x) +
+                  (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT (cell)->y) *
+                  (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT (cell)->y) +
+                  ((double) ABS (the_cells_layer-i) * layer_separation) *
+                  ((double) ABS (the_cells_layer-i) * layer_separation)) < world_radius)
+          number_of_selected_cells++;
 
   if (number_of_selected_cells > 0)
     {
-	  //printf("there were %d neighours\n", number_of_selected_cells);
+    //printf("there were %d neighours\n", number_of_selected_cells);
 
-	  (*p_selected_cells) = g_malloc0 (sizeof (QCADCell *) * number_of_selected_cells);
-	  (*p_neighbour_layer) = g_malloc0 (sizeof (int) * number_of_selected_cells);
+    (*p_selected_cells) = g_malloc0 (sizeof (QCADCell *) * number_of_selected_cells);
+    (*p_neighbour_layer) = g_malloc0 (sizeof (int) * number_of_selected_cells);
 
-	  // catch any memory allocation errors //
-	  if ((*p_selected_cells) == NULL)
+    // catch any memory allocation errors //
+    if ((*p_selected_cells) == NULL)
       {
-		  fprintf (stderr, "memory allocation error in select_cells_in_radius();\n");
-		  exit (1);
-  	  }
+      fprintf (stderr, "memory allocation error in select_cells_in_radius();\n");
+      exit (1);
+      }
 
-	  k = 0;
-	  for(i = 0; i < number_of_cell_layers; i++)
-   	  for(j = 0; j < number_of_cells_in_layer[i]; j++)
+    k = 0;
+    for(i = 0; i < number_of_cell_layers; i++)
+      for(j = 0; j < number_of_cells_in_layer[i]; j++)
         {
-
-		    if (sorted_cells[i][j] != cell)
+        if (sorted_cells[i][j] != cell)
           {
-			    if (sqrt ((QCAD_DESIGN_OBJECT(sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT(cell)->x) *
-			              (QCAD_DESIGN_OBJECT(sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT(cell)->x) +
-                    (QCAD_DESIGN_OBJECT(sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT(cell)->y) *
-                    (QCAD_DESIGN_OBJECT(sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT(cell)->y) +
-                    ((double) ABS(the_cells_layer-i)*layer_separation) *
-                    ((double) ABS(the_cells_layer-i)*layer_separation)) < world_radius)
+          if (sqrt ((QCAD_DESIGN_OBJECT (sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT (cell)->x) *
+                    (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT (cell)->x) +
+                    (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT (cell)->y) *
+                    (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT (cell)->y) +
+                    ((double) ABS (the_cells_layer-i) * layer_separation) *
+                    ((double) ABS (the_cells_layer-i) * layer_separation)) < world_radius)
             {
-				    //if(sorted_cells[i][j] == NULL)printf("sorted cells appear to have null member\n");
-				    (*p_selected_cells)[k] = sorted_cells[i][j];
-				    (*p_neighbour_layer)[k] = i;
-				    k++;
-  			    }
-		      }
-	      }
+            //if(sorted_cells[i][j] == NULL)printf("sorted cells appear to have null member\n");
+            (*p_selected_cells)[k] = sorted_cells[i][j];
+            (*p_neighbour_layer)[k] = i;
+            k++;
+            }
+          }
+        }
     }
 
   return number_of_selected_cells;

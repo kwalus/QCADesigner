@@ -46,7 +46,6 @@
 #include "QCADLabel.h"
 #include "QCADCompoundDO.h"
 #include "QCADDOContainer.h"
-#include "QCADDensityMap.h"
 #include "objects_debug.h"
 
 #define DBG_REFS(s)

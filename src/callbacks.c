@@ -55,7 +55,6 @@
 #include "objects/QCADDOContainer.h"
 #include "objects/QCADCompoundDO.h"
 #include "objects/QCADLayer.h"
-#include "objects/QCADLayerDistribution.h"
 #ifdef UNDO_REDO
   #include "selection_undo.h"
   #include "objects/QCADUndoEntryGroup.h"

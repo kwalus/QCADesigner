@@ -33,6 +33,6 @@
 #ifndef _HONEYCOMB_THRESHOLDS_DIALOG_H_
 #define _HONEYCOMB_THRESHOLDS_DIALOG_H_
 
-gboolean get_honeycomb_thresholds_from_user (GtkWidget *parent, double *pdThreshLower, double *pdThreshUpper) ;
+gboolean get_honeycomb_thresholds_from_user (GtkWidget *parent, double *pdThreshLower, double *pdThreshUpper, int *icAverageSamples) ;
 
 #endif /* _HONEYCOMB_THRESHOLDS_DIALOG_H_ */

@@ -44,6 +44,7 @@ void show_graph_dialog (GtkWindow *parent, SIMULATION_OUTPUT *sim_output, gboole
   int base = 10 ;
   GRAPH_DIALOG_DATA *gdd = NULL ;
   double dThreshLower = -0.5, dThreshUpper = 0.5 ;
+  int icAverageSamples = 0 ;
 
   if (NULL == graph.dialog)
     create_graph_dialog (&graph) ;
@@ -58,7 +59,7 @@ void show_graph_dialog (GtkWindow *parent, SIMULATION_OUTPUT *sim_output, gboole
     }
 
   g_object_set_data_full (G_OBJECT (graph.dialog), "graph_dialog_data",
-    gdd = graph_dialog_data_new (sim_output, bOKToFree, dThreshLower, dThreshUpper, base),
+    gdd = graph_dialog_data_new (sim_output, bOKToFree, dThreshLower, dThreshUpper, icAverageSamples, base),
     (GDestroyNotify)graph_dialog_data_free) ;
 
   apply_graph_dialog_data (&graph, gdd) ;
@@ -98,10 +99,10 @@ void apply_graph_dialog_data (graph_D *dialog, GRAPH_DIALOG_DATA *dialog_data)
       GRAPH_MODEL_COLUMN_RULER,     &trace_ruler_widget,
       GRAPH_MODEL_COLUMN_UI,        &trace_ui_widget, -1) ;
     attach_graph_widgets (dialog, dialog->table_of_traces, trace_drawing_widget, trace_ruler_widget, trace_ui_widget, idxTbl++) ;
-    g_object_set_data (G_OBJECT (trace_drawing_widget), "label", dialog->lbl_status) ;
-    g_object_set_data (G_OBJECT (trace_drawing_widget), "table", dialog->table_of_traces) ;
+    g_object_set_data (G_OBJECT (trace_drawing_widget), "label",   dialog->lbl_status) ;
+    g_object_set_data (G_OBJECT (trace_drawing_widget), "table",   dialog->table_of_traces) ;
     g_object_set_data (G_OBJECT (trace_drawing_widget), "hscroll", dialog->hscroll) ;
-    g_object_set_data (G_OBJECT (trace_ruler_widget), "label", dialog->lbl_status) ;
+    g_object_set_data (G_OBJECT (trace_ruler_widget),   "label",   dialog->lbl_status) ;
     if (!gtk_tree_model_iter_next_dfs (dialog_data->model, &itr)) break ;
     }
   dialog_data->icGraphLines = idxTbl ;

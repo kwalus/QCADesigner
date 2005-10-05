@@ -158,9 +158,9 @@ void create_graph_dialog (graph_D *dialog)
     GTK_TOOLBAR (toolbar),
     GTK_TOOLBAR_CHILD_BUTTON,
     NULL,
-    _("Thresholds..."),
-    _("Set Thresholds"),
-    _("Set thresholds for interpreting logical bits from polarizations."),
+    _("Interpretation..."),
+    _("Digital Interpretation Options"),
+    _("Set parameters for interpreting logical bits from polarizations."),
     gtk_image_new_from_stock (GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_LARGE_TOOLBAR),
     (GCallback)btnThresh_clicked,
     dialog) ;
@@ -446,7 +446,7 @@ static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTre
     if (!gtk_tree_model_iter_next (graph_dialog_data->model, &itrChildren)) break ;
     }
 
-  calculate_honeycomb_array (hc, graph_dialog_data->sim_data->number_samples, graph_dialog_data->dHCThreshLower, graph_dialog_data->dHCThreshUpper, base) ;
+  calculate_honeycomb_array (hc, graph_dialog_data->sim_data->number_samples, graph_dialog_data->dHCThreshLower, graph_dialog_data->dHCThreshUpper, graph_dialog_data->icAverageSamples, base) ;
 
   gtk_tree_model_get (graph_dialog_data->model, itr, BUS_LAYOUT_MODEL_COLUMN_NAME, &pszBusName, -1) ;
 

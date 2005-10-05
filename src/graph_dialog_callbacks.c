@@ -37,7 +37,7 @@
 #include "print_preview.h"
 #include "file_selection_window.h"
 #include "print_graph_properties_dialog.h"
-#include "honeycomb_thresholds_dialog.h"
+#include "waveform_interpretation_dialog.h"
 #include "graph_dialog.h"
 #include "graph_dialog_interface.h"
 #include "graph_dialog_widget_data.h"
@@ -449,6 +449,7 @@ void btnOpen_clicked (GtkWidget *widget, gpointer user_data)
   SIMULATION_OUTPUT *sim_output = NULL ;
   GRAPH_DIALOG_DATA *gdd = NULL ;
   double dThreshLower = -0.5, dThreshUpper = 0.5 ;
+  int icAverageSamples ;
   int base = 10 ;
 
   if (NULL == (pszTempFName = get_file_name_from_user (GTK_WINDOW (dialog->dialog), _("Open Simulation Results"), pszFName, FALSE)))
@@ -474,11 +475,12 @@ void btnOpen_clicked (GtkWidget *widget, gpointer user_data)
     {
     dThreshLower = gdd->dHCThreshLower ;
     dThreshUpper = gdd->dHCThreshUpper ;
+    icAverageSamples = gdd->icAverageSamples ;
     base = gdd->base ;
     }
 
   g_object_set_data_full (G_OBJECT (dialog->dialog), "graph_dialog_data",
-    gdd = graph_dialog_data_new (sim_output, TRUE, dThreshLower, dThreshUpper, base),
+    gdd = graph_dialog_data_new (sim_output, TRUE, dThreshLower, dThreshUpper, icAverageSamples, base),
     (GDestroyNotify)graph_dialog_data_free) ;
 
   apply_graph_dialog_data (dialog, gdd) ;
@@ -526,18 +528,21 @@ void btnThresh_clicked (GtkWidget *widget, gpointer user_data)
   graph_D *dialog = (graph_D *)user_data ;
   GRAPH_DIALOG_DATA *gdd = NULL ;
   double lower, upper ;
+  int icAverageSamples = -1 ;
 
   if (NULL == dialog) return ;
   if (NULL == (gdd = g_object_get_data (G_OBJECT (dialog->dialog), "graph_dialog_data"))) return ;
 
   lower = gdd->dHCThreshLower ;
   upper = gdd->dHCThreshUpper ;
+  icAverageSamples = gdd->icAverageSamples ;
 
-  if (get_honeycomb_thresholds_from_user (dialog->dialog, &lower, &upper))
+  if (get_honeycomb_thresholds_from_user (dialog->dialog, &lower, &upper, &icAverageSamples))
     {
     gdd->bOneTime = TRUE ;
     gdd->dHCThreshLower = lower ;
     gdd->dHCThreshUpper = upper ;
+    gdd->icAverageSamples = icAverageSamples ;
     recalculate_honeycombs (gdd, TRUE, dialog) ;
     }
   }
@@ -825,7 +830,7 @@ static void recalculate_honeycombs (GRAPH_DIALOG_DATA *gdd, gboolean bCalcHoneyc
         cxOldWanted = hc->graph_data.cxWanted ;
 
         if (bCalcHoneycombArrays)
-          calculate_honeycomb_array (hc, gdd->sim_data->number_samples, gdd->dHCThreshLower, gdd->dHCThreshUpper, gdd->base) ;
+          calculate_honeycomb_array (hc, gdd->sim_data->number_samples, gdd->dHCThreshLower, gdd->dHCThreshUpper, gdd->icAverageSamples, gdd->base) ;
         else
           hc->graph_data.cxWanted = calculate_honeycomb_cxWanted (hc, gdd->sim_data->number_samples, gdd->base) ;
 

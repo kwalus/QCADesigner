@@ -59,7 +59,7 @@ QCADesigner_SOURCES = \
 	fileio_helpers.c                        fileio_helpers.h \
 	generic_utils.c                         generic_utils.h \
 	                                        global_consts.h \
-	honeycomb_thresholds_dialog.c           honeycomb_thresholds_dialog.h \
+	waveform_interpretation_dialog.c        waveform_interpretation_dialog.h \
 	graph_dialog.c                          graph_dialog.h \
 	graph_dialog_interface.c                graph_dialog_interface.h \
 	graph_dialog_widget_data.c              graph_dialog_widget_data.h \
@@ -159,7 +159,7 @@ batch_sim_SOURCES = \
 #	objects/QCADPrintDialog.c             objects/QCADPrintDialog.h \
 #	print_graph_properties_dialog.c       print_graph_properties_dialog.h \
 #	support.c                             support.h \
-#	honeycomb_thresholds_dialog.c         honeycomb_thresholds_dialog.h \
+#	waveform_interpretation_dialog.c      waveform_interpretation_dialog.h \
 #	bus_layout_dialog.c                   bus_layout_dialog.h \
 #	print_preview.c                       print_preview.h \
 #	objects/QCADClockCombo.c              objects/QCADClockCombo.h \
@@ -206,7 +206,7 @@ graph_dialog_SOURCES = \
 	print_graph.c \
 	print_graph_properties_dialog.c            print_graph_properties_dialog.h \
 	support.c                                  support.h \
-	honeycomb_thresholds_dialog.c              honeycomb_thresholds_dialog.h \
+	waveform_interpretation_dialog.c           waveform_interpretation_dialog.h \
 	bus_layout_dialog.c                        bus_layout_dialog.h \
 	print_preview.c                            print_preview.h \
 	simulation_data.c                          simulation_data.h \

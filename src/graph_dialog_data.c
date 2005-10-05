@@ -36,7 +36,7 @@
 #include "graph_dialog_interface.h"
 #include "graph_dialog_data.h"
 
-GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int base)
+GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int icAverageSamples, int base)
   {
   GtkTreeStore *ts = NULL ;
   GtkTreeIter itr ;
@@ -47,24 +47,25 @@ GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolea
 
   graph_dialog_data = g_malloc0 (sizeof (GRAPH_DIALOG_DATA)) ;
 
-  graph_dialog_data->sim_data        = sim_output->sim_data ;
-  graph_dialog_data->bus_layout      = sim_output->bus_layout ;
-  graph_dialog_data->bFakeCells      = sim_output->bFakeIOLists ;
-  graph_dialog_data->bFreeSourceData = bOKToFree ;
-  graph_dialog_data->model           =
+  graph_dialog_data->sim_data         = sim_output->sim_data ;
+  graph_dialog_data->bus_layout       = sim_output->bus_layout ;
+  graph_dialog_data->bFakeCells       = sim_output->bFakeIOLists ;
+  graph_dialog_data->bFreeSourceData  = bOKToFree ;
+  graph_dialog_data->model            =
     GTK_TREE_MODEL (ts = design_bus_layout_tree_store_new (sim_output->bus_layout, ROW_TYPE_ANY,
       5, G_TYPE_BOOLEAN, G_TYPE_POINTER, G_TYPE_POINTER, G_TYPE_POINTER, G_TYPE_POINTER)) ;
-  graph_dialog_data->dHCThreshLower  = dThreshLower ;
-  graph_dialog_data->dHCThreshUpper  = dThreshUpper ;
-  graph_dialog_data->icDrawingArea   =
-  graph_dialog_data->icUIWidget      =
-  graph_dialog_data->cyDrawingArea   =
-  graph_dialog_data->cxUIWidget      =
-  graph_dialog_data->cyUIWidget      =
-  graph_dialog_data->icGraphLines    =  0 ;
-  graph_dialog_data->bOneTime        = TRUE ;
-  graph_dialog_data->base            = base ;
-  graph_dialog_data->dScale          = 1.0 ;
+  graph_dialog_data->dHCThreshLower   = dThreshLower ;
+  graph_dialog_data->dHCThreshUpper   = dThreshUpper ;
+  graph_dialog_data->icAverageSamples = icAverageSamples ;
+  graph_dialog_data->icDrawingArea    =
+  graph_dialog_data->icUIWidget       =
+  graph_dialog_data->cyDrawingArea    =
+  graph_dialog_data->cxUIWidget       =
+  graph_dialog_data->cyUIWidget       =
+  graph_dialog_data->icGraphLines     =  0 ;
+  graph_dialog_data->bOneTime         = TRUE ;
+  graph_dialog_data->base             = base ;
+  graph_dialog_data->dScale           = 1.0 ;
 
   if (NULL != sim_output->sim_data->clock_data)
     {

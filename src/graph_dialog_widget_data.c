@@ -52,7 +52,8 @@ typedef enum
 
 static long long unsigned int calculate_honeycomb_value (EXP_ARRAY *bits) ;
 static HoneycombTransition calculate_honeycomb_transition (EXP_ARRAY *old_bits, EXP_ARRAY *new_bits) ;
-static void calculate_trace_bits (EXP_ARRAY *arTraces, EXP_ARRAY *bits, int idxSample, double dThreshLower, double dThreshUpper) ;
+static void calculate_trace_bits (EXP_ARRAY *arTraces, EXP_ARRAY *bits, int idxSample, int icSamples, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
+static double calculate_average_polarization (double *data, int idxSample, int icSamples, int icAverageSamples) ;
 /*
 void fit_graph_data_to_window (GRAPH_DATA *graph_data, int cxWindow, int cxWanted, int beg_sample, int end_sample, int icSamples)
   {
@@ -85,7 +86,7 @@ HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr)
   return hc ;
   }
 
-HONEYCOMB_DATA *honeycomb_data_new_with_array (GdkColor *clr, simulation_data *sim_data, BUS *bus, int offset, double thresh_lower, double thresh_upper, int base)
+HONEYCOMB_DATA *honeycomb_data_new_with_array (GdkColor *clr, simulation_data *sim_data, BUS *bus, int offset, double thresh_lower, double thresh_upper, int icAverageSamples, int base)
   {
   struct TRACEDATA *the_trace = NULL ;
   int Nix2 ;
@@ -96,7 +97,7 @@ HONEYCOMB_DATA *honeycomb_data_new_with_array (GdkColor *clr, simulation_data *s
     the_trace = &(sim_data->trace[exp_array_index_1d (bus->cell_indices, int, Nix2) + offset]) ;
     exp_array_insert_vals (hc->arTraces, &the_trace, 1, -1) ;
     }
-  calculate_honeycomb_array (hc, sim_data->number_samples, thresh_lower, thresh_upper, base) ;
+  calculate_honeycomb_array (hc, sim_data->number_samples, thresh_lower, thresh_upper, icAverageSamples, base) ;
 
   return hc ;
   }
@@ -123,7 +124,7 @@ WAVEFORM_DATA *waveform_data_new (struct TRACEDATA *trace, GdkColor *clr, gboole
   }
 
 // Returns an array of honeycombs and sets hc->cxWanted based on the array
-void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThreshLower, double dThreshUpper, int base)
+void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThreshLower, double dThreshUpper, int icAverageSamples, int base)
   {
   HoneycombTransition hct = HCT_NONE ;
   int Nix ;
@@ -149,7 +150,7 @@ void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThres
 
   for (Nix = 0 ; Nix < icSamples ; Nix++)
     {
-    calculate_trace_bits (hc->arTraces, bits, Nix, dThreshLower, dThreshUpper) ;
+    calculate_trace_bits (hc->arTraces, bits, Nix, icSamples, dThreshLower, dThreshUpper, icAverageSamples) ;
     hct = calculate_honeycomb_transition (old_bits, bits) ;
     // First, eliminate impossible transitions
     if (HCT_HONEYCOMB_TO_GARBAGE == hct && idxStart < 0)
@@ -181,8 +182,9 @@ void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThres
 #endif /* def GTK_GUI */
   }
 
-static void calculate_trace_bits (EXP_ARRAY *arTraces, EXP_ARRAY *bits, int idxSample, double dThreshLower, double dThreshUpper)
+static void calculate_trace_bits (EXP_ARRAY *arTraces, EXP_ARRAY *bits, int idxSample, int icSamples, double dThreshLower, double dThreshUpper, int icAverageSamples)
   {
+  double polarization = 0 ;
   int Nix ;
 
   // bits[idx], for all valid idx can have 3 values:
@@ -191,9 +193,29 @@ static void calculate_trace_bits (EXP_ARRAY *arTraces, EXP_ARRAY *bits, int idxS
   //  -1 represents the indeterminate state (the cell is not polarized enough for there to be a clear logic interpretation)
 
   for (Nix = 0 ; Nix < arTraces->icUsed ; Nix++)
+    {
+    polarization = calculate_average_polarization (exp_array_index_1d (arTraces, struct TRACEDATA *, Nix)->data, idxSample, icSamples, icAverageSamples) ;
     exp_array_index_1d (bits, int, Nix) =
-      exp_array_index_1d (arTraces, struct TRACEDATA *, Nix)->data[idxSample] < dThreshLower ? 0 :
-      exp_array_index_1d (arTraces, struct TRACEDATA *, Nix)->data[idxSample] > dThreshUpper ? 1 : -1 ;
+      polarization < dThreshLower ? 0 :
+      polarization > dThreshUpper ? 1 : -1 ;
+    }
+  }
+
+static double calculate_average_polarization (double *data, int idxSample, int icSamples, int icAverageSamples)
+  {
+  double dSum = 0 ;
+  int Nix, icSamplesUsed ;
+
+  if (icAverageSamples < 2 || idxSample == icSamples - 1) return data[idxSample] ;
+  else
+    {
+    for (Nix = idxSample, icSamplesUsed = 0 ; Nix < icSamples && Nix < idxSample + icAverageSamples ; Nix++, icSamplesUsed++)
+      dSum += data[Nix] ;
+    if (icSamplesUsed > 0)
+      return dSum / (double)icSamplesUsed ;
+    else
+      return data[idxSample] ;
+    }
   }
 
 static HoneycombTransition calculate_honeycomb_transition (EXP_ARRAY *old_bits, EXP_ARRAY *new_bits)

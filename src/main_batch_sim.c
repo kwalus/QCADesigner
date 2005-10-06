@@ -44,31 +44,55 @@
 extern bistable_OP bistable_options ;
 extern coherence_OP coherence_options ;
 
+typedef struct
+  {
+  gboolean bExitOnFailure ;
+  int number_of_sims ;
+  int sim_engine ;
+  double dTolerance ;
+  double dThreshLower ;
+  double dThreshUpper ;
+  int icAverageSamples ;
+  char *pszFailureSimOutputFName ;
+  char *pszSimOptsFName ;
+  char *pszReferenceSimOutputFName ;
+  char *pszFName ;
+  } CMDLINE_ARGS ;
+
 static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
 static int determine_success (HONEYCOMB_DATA *hcIn, HONEYCOMB_DATA *hcOut) ;
-static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper, int *picAverageSamples) ;
+static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args) ;
 
 int main (int argc, char **argv)
   {
-  static char *pszSimEngine = NULL, *pszSimOptsFName = NULL, *pszFName = NULL, *pszSimOutputFName = NULL ;
-  int number_of_sims = -1 ;
-
-  int sim_engine = BISTABLE ;
   int Nix, Nix1, Nix2 ;
   DESIGN *design = NULL, *working_design = NULL ;
   simulation_data *sim_data = NULL ;
   GRand *rnd = NULL ;
   EXP_ARRAY *input_hcs = NULL, *output_hcs = NULL ;
   HONEYCOMB_DATA *hc = NULL ;
-  double dTolerance = -1.0 ;
   EXP_ARRAY *icSuccesses = NULL ;
   int icOutputBuses = 0 ;
   SIMULATION_OUTPUT *sim_output = NULL ;
-  double dThreshLower = -0.5, dThreshUpper = 0.5 ;
-  int icAverageSamples = 1 ;
+  int single_success = 0 ;
+  gboolean bDie = FALSE ;
+  CMDLINE_ARGS cmdline_args = 
+    {
+    .bExitOnFailure             = FALSE,
+    .number_of_sims             =  1,
+    .sim_engine                 = BISTABLE,
+    .dTolerance                 =  0.0,
+    .dThreshLower               = -0.5,
+    .dThreshUpper               =  0.5,
+    .icAverageSamples           =  1,
+    .pszFailureSimOutputFName   = NULL,
+    .pszSimOptsFName            = NULL,
+    .pszReferenceSimOutputFName = NULL,
+    .pszFName                   = NULL
+    } ;
 
-  parse_cmdline (argc, argv, &sim_engine, &pszSimOptsFName, &pszFName, &pszSimOutputFName, &number_of_sims, &dTolerance, &dThreshLower, &dThreshUpper, &icAverageSamples) ;
+  parse_cmdline (argc, argv, &cmdline_args) ;
 
   fprintf (stderr,
     "Simulation engine               : %s\n"
@@ -79,9 +103,14 @@ int main (int argc, char **argv)
     "tolerance                       : %lf\n"
     "lower polarization threshold    : %lf\n"
     "upper polarization threshold    : %lf\n"
-    "samples for running average     : %d\n",
-    COHERENCE_VECTOR == sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
-    pszSimOptsFName, pszFName, pszSimOutputFName, number_of_sims, dTolerance, dThreshLower, dThreshUpper, icAverageSamples) ;
+    "samples for running average     : %d\n"
+    "exit on failure ?               : %s\n"
+    "  failure output file name        : %s\n",
+    COHERENCE_VECTOR == cmdline_args.sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
+    cmdline_args.pszSimOptsFName,         cmdline_args.pszFName,         cmdline_args.pszReferenceSimOutputFName, 
+    cmdline_args.number_of_sims,          cmdline_args.dTolerance,       cmdline_args.dThreshLower, 
+    cmdline_args.dThreshUpper,            cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
+    cmdline_args.pszFailureSimOutputFName) ;
 
 #ifdef GTK_GUI
   gtk_init (&argc, &argv) ;
@@ -89,15 +118,7 @@ int main (int argc, char **argv)
   g_type_init () ;
 #endif /* def GTK_GUI */
 
-  if (pszSimEngine != NULL)
-    sim_engine =
-      !strncmp (pszSimEngine, "BISTABLE", sizeof ("BISTABLE") - 1)
-        ? BISTABLE
-        : !strncmp (pszSimEngine, "COHERENCE_VECTOR", sizeof ("COHERENCE_VECTOR") - 1)
-          ? COHERENCE_VECTOR
-          : BISTABLE /* default */ ;
-
-  if (!open_project_file (pszFName, &design))
+  if (!open_project_file (cmdline_args.pszFName, &design))
     {
     fprintf (stderr, "Failed to open the circuit file !\n") ;
     return 1 ;
@@ -109,17 +130,17 @@ int main (int argc, char **argv)
     return 2 ;
     }
 
-  if (NULL == (sim_output = open_simulation_output_file (pszSimOutputFName)))
+  if (NULL == (sim_output = open_simulation_output_file (cmdline_args.pszReferenceSimOutputFName)))
     {
     fprintf (stderr, "Failed to open the reference simulation output file !\n") ;
     return 3 ;
     }
 
-  if (BISTABLE == sim_engine)
+  if (BISTABLE == cmdline_args.sim_engine)
     {
     bistable_OP *bo = NULL ;
 
-    if (NULL == (bo = open_bistable_options_file (pszSimOptsFName)))
+    if (NULL == (bo = open_bistable_options_file (cmdline_args.pszSimOptsFName)))
       {
       fprintf (stderr, "Failed to open simulation options file !\n") ;
       return 4 ;
@@ -128,11 +149,11 @@ int main (int argc, char **argv)
     memcpy (&bistable_options, bo, sizeof (bistable_OP)) ;
     }
   else
-  if (COHERENCE_VECTOR == sim_engine)
+  if (COHERENCE_VECTOR == cmdline_args.sim_engine)
     {
     coherence_OP *co = NULL ;
 
-    if (NULL == (co = open_coherence_options_file (pszSimOptsFName)))
+    if (NULL == (co = open_coherence_options_file (cmdline_args.pszSimOptsFName)))
       {
       fprintf (stderr, "Failed to open simulation options file !\n") ;
       return 5 ;
@@ -141,9 +162,9 @@ int main (int argc, char **argv)
     memcpy (&coherence_options, co, sizeof (coherence_OP)) ;
     }
 
-  printf ("Running %d simulations with a radial tolerance of %lf\n", number_of_sims, dTolerance) ;
+  printf ("Running %d simulations with a radial tolerance of %lf\n", cmdline_args.number_of_sims, cmdline_args.dTolerance) ;
 
-  input_hcs = create_honeycombs_from_buses (sim_output->sim_data, sim_output->bus_layout, QCAD_CELL_OUTPUT, dThreshLower, dThreshUpper, icAverageSamples) ;
+  input_hcs = create_honeycombs_from_buses (sim_output->sim_data, sim_output->bus_layout, QCAD_CELL_OUTPUT, cmdline_args.dThreshLower, cmdline_args.dThreshUpper, cmdline_args.icAverageSamples) ;
 
   rnd = g_rand_new () ;
 
@@ -155,22 +176,37 @@ int main (int argc, char **argv)
   for (Nix = 0 ; Nix < icSuccesses->icUsed ; Nix++)
     exp_array_index_1d (icSuccesses, int, Nix) = 0 ;
 
-  for (Nix = 0 ; Nix < number_of_sims ; Nix++)
+  for (Nix = 0 ; Nix < cmdline_args.number_of_sims && !bDie ; Nix++)
     {
     fprintf (stderr, "Running simulation %d\n", Nix) ;
     if (NULL != (working_design = design_copy (design)))
       {
-      randomize_design_cells (rnd, working_design, 0.0, dTolerance) ;
+      randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance) ;
 
-      if (NULL != (sim_data = run_simulation (sim_engine, EXHAUSTIVE_VERIFICATION, working_design, NULL)))
+      if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, EXHAUSTIVE_VERIFICATION, working_design, NULL)))
         {
-        output_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT, dThreshLower, dThreshUpper, icAverageSamples) ;
+        output_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT, cmdline_args.dThreshLower, cmdline_args.dThreshUpper, cmdline_args.icAverageSamples) ;
         // Compare the output honeycombs to the input honeycombs
-        for (Nix1 = 0 ; Nix1 < output_hcs->icUsed ; Nix1++)
-          exp_array_index_1d (icSuccesses, int, Nix1) +=
+        for (Nix1 = 0 ; Nix1 < output_hcs->icUsed && !bDie ; Nix1++)
+          {
+          single_success =
             determine_success (
               exp_array_index_1d (input_hcs, HONEYCOMB_DATA *, Nix1),
               exp_array_index_1d (output_hcs, HONEYCOMB_DATA *, Nix1)) ;
+
+          if (0 == single_success && cmdline_args.bExitOnFailure)
+            {
+            if (NULL != cmdline_args.pszFailureSimOutputFName)
+              {
+              SIMULATION_OUTPUT failed_sim_output = {sim_data, design->bus_layout, FALSE} ;
+
+              create_simulation_output_file (cmdline_args.pszFailureSimOutputFName, &failed_sim_output) ;
+              }
+            bDie = TRUE ;
+            }
+          else
+            exp_array_index_1d (icSuccesses, int, Nix1) += single_success ;
+          }
 
         // Print out the results
         for (Nix1 = 0 ; Nix1 < MAX (input_hcs->icUsed, output_hcs->icUsed) ; Nix1++)
@@ -208,7 +244,7 @@ int main (int argc, char **argv)
   input_hcs = exp_array_free (input_hcs) ;
 
   for (Nix = 0 ; Nix < icSuccesses->icUsed ; Nix++)
-    printf ("success_rate[%d] = %.2lf%%\n", Nix, (double)(exp_array_index_1d (icSuccesses, int, Nix)) / ((double)(number_of_sims)) * 100.0) ;
+    printf ("success_rate[%d] = %.2lf%%\n", Nix, (double)(exp_array_index_1d (icSuccesses, int, Nix)) / ((double)(cmdline_args.number_of_sims)) * 100.0) ;
 
   g_rand_free (rnd) ;
 
@@ -258,45 +294,54 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
           }
   }
 
-static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper, int *picAverageSamples)
+static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
   {
   gboolean bDie = FALSE ;
   int icParms = 0 ;
   int Nix ;
 
   // defaults
-  (*sim_engine) = BISTABLE ;
+  cmdline_args->sim_engine = BISTABLE ;
 
   for (Nix = 0 ; Nix < argc ; Nix++)
     {
     if (!(strcmp (argv[Nix], "-a") && strcmp (argv[Nix], "--average")))
       {
       if (++Nix < argc)
-        {
-        (*picAverageSamples) = atoi (argv[Nix]) ;
-        icParms++ ;
-        }
+        cmdline_args->icAverageSamples = atoi (argv[Nix]) ;
+      }
+    else
+    if (!(strcmp (argv[Nix], "-e") && strcmp (argv[Nix], "--engine")))
+      {
+      if (++Nix < argc)
+        cmdline_args->sim_engine =
+          !strcmp (argv[Nix], "BISTABLE")
+            ? BISTABLE
+            : !strcmp (argv[Nix], "COHERENCE_VECTOR")
+              ? COHERENCE_VECTOR
+              : BISTABLE /* default */ ;
       }
     else
     if (!(strcmp (argv[Nix], "-f") && strcmp (argv[Nix], "--file")))
       {
       if (++Nix < argc)
         {
-        (*pszFName) = argv[Nix] ;
+        cmdline_args->pszFName = argv[Nix] ;
         icParms++ ;
         }
       }
     else
-    if (!(strcmp (argv[Nix], "-e") && strcmp (argv[Nix], "--engine")))
+    if (!(strcmp (argv[Nix], "-l") && strcmp (argv[Nix], "--lower")))
+      {
+      if (++Nix < argc)
+        cmdline_args->dThreshLower = g_ascii_strtod (argv[Nix], NULL) ;
+      }
+    else
+    if (!(strcmp (argv[Nix], "-n") && strcmp (argv[Nix], "--number")))
       {
       if (++Nix < argc)
         {
-        (*sim_engine) =
-          !strncmp (argv[Nix], "BISTABLE", 8)
-            ? BISTABLE
-            : !strncmp (argv[Nix], "COHERENCE_VECTOR", 16)
-              ? COHERENCE_VECTOR
-              : BISTABLE /* default */ ;
+        cmdline_args->number_of_sims = atoi (argv[Nix]) ;
         icParms++ ;
         }
       }
@@ -305,7 +350,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
       {
       if (++Nix < argc)
         {
-        (*pszSimOptsFName) = argv[Nix] ;
+        cmdline_args->pszSimOptsFName = argv[Nix] ;
         icParms++ ;
         }
       }
@@ -314,16 +359,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
       {
       if (++Nix < argc)
         {
-        (*pszSimOutputFName) = argv[Nix] ;
-        icParms++ ;
-        }
-      }
-    else
-    if (!(strcmp (argv[Nix], "-n") && strcmp (argv[Nix], "--number")))
-      {
-      if (++Nix < argc)
-        {
-        (*number_of_sims) = atoi (argv[Nix]) ;
+        cmdline_args->pszReferenceSimOutputFName = argv[Nix] ;
         icParms++ ;
         }
       }
@@ -332,16 +368,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
       {
       if (++Nix < argc)
         {
-        (*dTolerance) = g_ascii_strtod (argv[Nix], NULL) ;
-        icParms++ ;
-        }
-      }
-    else
-    if (!(strcmp (argv[Nix], "-l") && strcmp (argv[Nix], "--lower")))
-      {
-      if (++Nix < argc)
-        {
-        (*dThreshLower) = g_ascii_strtod (argv[Nix], NULL) ;
+        cmdline_args->dTolerance = g_ascii_strtod (argv[Nix], NULL) ;
         icParms++ ;
         }
       }
@@ -349,14 +376,20 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
     if (!(strcmp (argv[Nix], "-u") && strcmp (argv[Nix], "--upper")))
       {
       if (++Nix < argc)
-        {
-        (*dThreshUpper) = g_ascii_strtod (argv[Nix], NULL) ;
-        icParms++ ;
-        }
+        cmdline_args->dThreshUpper = g_ascii_strtod (argv[Nix], NULL) ;
+      }
+    else
+    if (!(strcmp (argv[Nix], "-x") && strcmp (argv[Nix], "--exit")))
+      cmdline_args->bExitOnFailure = TRUE ;
+    else
+    if (!(strcmp (argv[Nix], "-s") && strcmp (argv[Nix], "--save")))
+      {
+      if (++Nix < argc)
+        cmdline_args->pszFailureSimOutputFName = argv[Nix] ;
       }
     }
 
-  if (icParms < 6 || bDie)
+  if (icParms < 5 || bDie)
     {
     printf (
 "Usage: batch_sim options...\n"
@@ -370,7 +403,10 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
 "  -o  --options   file          Required: Simulation engine options file.\n"
 "  -r  --results   file          Required: Simulation results file to compare generated results to.\n"
 "  -t  --tolerance tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
-"  -u  --upper     polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n") ;
+"  -u  --upper     polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n"
+"  -x  --exit                    Optional: Turn on exit-on-first-failure.\n"
+"    -s  --save      file          Optional: Save failing simulation output to file.\n"
+) ;
     exit (1) ;
     }
   }

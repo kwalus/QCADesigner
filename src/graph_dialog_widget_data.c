@@ -135,6 +135,8 @@ void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThres
 
   hc->icHCSamples = 0 ;
 
+  fprintf (stderr, "calculate_honeycomb_array: Entering with icAverageSamples = %d\n", icAverageSamples) ;
+
   if (NULL == hc->arHCs)
     hc->arHCs = exp_array_new (sizeof (HONEYCOMB), 1) ;
   else

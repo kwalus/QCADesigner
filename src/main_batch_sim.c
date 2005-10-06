@@ -53,7 +53,7 @@ typedef struct
   double dThreshLower ;
   double dThreshUpper ;
   int icAverageSamples ;
-  char *pszFailureSimOutputFName ;
+  char *pszFailureFNamePrefix ;
   char *pszSimOptsFName ;
   char *pszReferenceSimOutputFName ;
   char *pszFName ;
@@ -86,7 +86,7 @@ int main (int argc, char **argv)
     .dThreshLower               = -0.5,
     .dThreshUpper               =  0.5,
     .icAverageSamples           =  1,
-    .pszFailureSimOutputFName   = NULL,
+    .pszFailureFNamePrefix      = NULL,
     .pszSimOptsFName            = NULL,
     .pszReferenceSimOutputFName = NULL,
     .pszFName                   = NULL
@@ -396,7 +396,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
 "\n"
 "Options are:\n"
 "  -a  --average   samples       Optional: Number of samples to use for running average. Default is 1.\n"
-"  -e  --engnine   engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
+"  -e  --engine    engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
 "  -f  --file      file          Required: The circuit file.\n"
 "  -l  --lower     polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
 "  -n  --number    number        Required: Number of simulations to perform.\n"
@@ -405,7 +405,8 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
 "  -t  --tolerance tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
 "  -u  --upper     polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n"
 "  -x  --exit                    Optional: Turn on exit-on-first-failure.\n"
-"    -s  --save      file          Optional: Save failing simulation output to file.\n"
+"    -s  --save      file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
+"                                            and the circuit to file_prefix.qca.\n"
 ) ;
     exit (1) ;
     }

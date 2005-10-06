@@ -47,7 +47,7 @@ extern coherence_OP coherence_options ;
 static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
 static int determine_success (HONEYCOMB_DATA *hcIn, HONEYCOMB_DATA *hcOut) ;
-static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper) ;
+static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper, int *picAverageSamples) ;
 
 int main (int argc, char **argv)
   {
@@ -66,9 +66,9 @@ int main (int argc, char **argv)
   int icOutputBuses = 0 ;
   SIMULATION_OUTPUT *sim_output = NULL ;
   double dThreshLower = -0.5, dThreshUpper = 0.5 ;
-  int icAverageSamples = 0 ;
+  int icAverageSamples = 1 ;
 
-  parse_cmdline (argc, argv, &sim_engine, &pszSimOptsFName, &pszFName, &pszSimOutputFName, &number_of_sims, &dTolerance, &dThreshLower, &dThreshUpper) ;
+  parse_cmdline (argc, argv, &sim_engine, &pszSimOptsFName, &pszFName, &pszSimOutputFName, &number_of_sims, &dTolerance, &dThreshLower, &dThreshUpper, &icAverageSamples) ;
 
   fprintf (stderr,
     "Simulation engine               : %s\n"
@@ -78,9 +78,10 @@ int main (int argc, char **argv)
     "number of simulations           : %d\n"
     "tolerance                       : %lf\n"
     "lower polarization threshold    : %lf\n"
-    "upper polarization threshold    : %lf\n",
+    "upper polarization threshold    : %lf\n"
+    "samples for running average     : %d\n",
     COHERENCE_VECTOR == sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
-    pszSimOptsFName, pszFName, pszSimOutputFName, number_of_sims, dTolerance, dThreshLower, dThreshUpper) ;
+    pszSimOptsFName, pszFName, pszSimOutputFName, number_of_sims, dTolerance, dThreshLower, dThreshUpper, icAverageSamples) ;
 
 #ifdef GTK_GUI
   gtk_init (&argc, &argv) ;
@@ -257,7 +258,7 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
           }
   }
 
-static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper)
+static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper, int *picAverageSamples)
   {
   int icParms = 0 ;
   int Nix ;
@@ -267,6 +268,15 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
 
   for (Nix = 0 ; Nix < argc ; Nix++)
     {
+    if (!strncmp (argv[Nix], "-a", 2))
+      {
+      if (++Nix < argc)
+        {
+        (*picAverageSamples) = atoi (argv[Nix]) ;
+        icParms++ ;
+        }
+      }
+    else
     if (!strncmp (argv[Nix], "-f", 2))
       {
       if (++Nix < argc)
@@ -351,14 +361,15 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
 "Usage: batch_sim options...\n"
 "\n"
 "Options are:\n"
-"  -e file            Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
-"  -f file            Required: The circuit file.\n"
-"  -l polarization    Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
-"  -n number          Required: Number of simulations to perform.\n"
-"  -o file            Required: Simulation engine options file.\n"
-"  -r file            Required: Simulation results file to compare generated results to.\n"
-"  -t tolerance       Required: Radial tolerance. Non-negative floating point value.\n"
-"  -u polarization    Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n") ;
+"  -a samples       Optional: Number of samples to use for running average. Default is 1.\n"
+"  -e engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
+"  -f file          Required: The circuit file.\n"
+"  -l polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
+"  -n number        Required: Number of simulations to perform.\n"
+"  -o file          Required: Simulation engine options file.\n"
+"  -r file          Required: Simulation results file to compare generated results to.\n"
+"  -t tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
+"  -u polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n") ;
     exit (1) ;
     }
   }

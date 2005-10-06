@@ -178,7 +178,7 @@ int main (int argc, char **argv)
           if (Nix1 < input_hcs->icUsed)
             {
             hc = exp_array_index_1d (input_hcs, HONEYCOMB_DATA *, Nix1) ;
-            fprintf (stderr, "First trace in this input bus is \"%s\"\n", exp_array_index_1d (hc->arTraces, struct TRACEDATA *, 0)->data_labels) ;
+            fprintf (stderr, "First trace in this reference output bus is \"%s\"\n", exp_array_index_1d (hc->arTraces, struct TRACEDATA *, 0)->data_labels) ;
             for (Nix2 = 0 ; Nix2 < hc->arHCs->icUsed ; Nix2++)
               fprintf (stderr, "%d ", (int)(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix2).value)) ;
             fprintf (stderr, "\n") ;
@@ -260,6 +260,7 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
 
 static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSimOptsFName, char **pszFName, char **pszSimOutputFName, int *number_of_sims, double *dTolerance, double *dThreshLower, double *dThreshUpper, int *picAverageSamples)
   {
+  gboolean bDie = FALSE ;
   int icParms = 0 ;
   int Nix ;
 
@@ -268,7 +269,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
 
   for (Nix = 0 ; Nix < argc ; Nix++)
     {
-    if (!strncmp (argv[Nix], "-a", 2))
+    if (!(strcmp (argv[Nix], "-a") && strcmp (argv[Nix], "--average")))
       {
       if (++Nix < argc)
         {
@@ -277,7 +278,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
         }
       }
     else
-    if (!strncmp (argv[Nix], "-f", 2))
+    if (!(strcmp (argv[Nix], "-f") && strcmp (argv[Nix], "--file")))
       {
       if (++Nix < argc)
         {
@@ -286,7 +287,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
         }
       }
     else
-    if (!strncmp (argv[Nix], "-e", 2))
+    if (!(strcmp (argv[Nix], "-e") && strcmp (argv[Nix], "--engine")))
       {
       if (++Nix < argc)
         {
@@ -300,7 +301,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
         }
       }
     else
-    if (!strncmp (argv[Nix], "-o", 2))
+    if (!(strcmp (argv[Nix], "-o") && strcmp (argv[Nix], "--options")))
       {
       if (++Nix < argc)
         {
@@ -309,7 +310,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
         }
       }
     else
-    if (!strncmp (argv[Nix], "-r", 2))
+    if (!(strcmp (argv[Nix], "-r") && strcmp (argv[Nix], "--results")))
       {
       if (++Nix < argc)
         {
@@ -318,7 +319,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
         }
       }
     else
-    if (!strncmp (argv[Nix], "-n", 2))
+    if (!(strcmp (argv[Nix], "-n") && strcmp (argv[Nix], "--number")))
       {
       if (++Nix < argc)
         {
@@ -327,7 +328,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
         }
       }
     else
-    if (!strncmp (argv[Nix], "-t", 2))
+    if (!(strcmp (argv[Nix], "-t") && strcmp (argv[Nix], "--tolerance")))
       {
       if (++Nix < argc)
         {
@@ -336,7 +337,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
         }
       }
     else
-    if (!strncmp (argv[Nix], "-l", 2))
+    if (!(strcmp (argv[Nix], "-l") && strcmp (argv[Nix], "--lower")))
       {
       if (++Nix < argc)
         {
@@ -345,7 +346,7 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
         }
       }
     else
-    if (!strncmp (argv[Nix], "-u", 2))
+    if (!(strcmp (argv[Nix], "-u") && strcmp (argv[Nix], "--upper")))
       {
       if (++Nix < argc)
         {
@@ -355,21 +356,21 @@ static void parse_cmdline (int argc, char **argv, int *sim_engine, char **pszSim
       }
     }
 
-  if (icParms < 6)
+  if (icParms < 6 || bDie)
     {
     printf (
 "Usage: batch_sim options...\n"
 "\n"
 "Options are:\n"
-"  -a samples       Optional: Number of samples to use for running average. Default is 1.\n"
-"  -e engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
-"  -f file          Required: The circuit file.\n"
-"  -l polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
-"  -n number        Required: Number of simulations to perform.\n"
-"  -o file          Required: Simulation engine options file.\n"
-"  -r file          Required: Simulation results file to compare generated results to.\n"
-"  -t tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
-"  -u polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n") ;
+"  -a  --average   samples       Optional: Number of samples to use for running average. Default is 1.\n"
+"  -e  --engnine   engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
+"  -f  --file      file          Required: The circuit file.\n"
+"  -l  --lower     polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
+"  -n  --number    number        Required: Number of simulations to perform.\n"
+"  -o  --options   file          Required: Simulation engine options file.\n"
+"  -r  --results   file          Required: Simulation results file to compare generated results to.\n"
+"  -t  --tolerance tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
+"  -u  --upper     polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n") ;
     exit (1) ;
     }
   }

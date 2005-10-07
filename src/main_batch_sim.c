@@ -105,12 +105,12 @@ int main (int argc, char **argv)
     "upper polarization threshold    : %lf\n"
     "samples for running average     : %d\n"
     "exit on failure ?               : %s\n"
-    "  failure output file name        : %s\n",
+    "  failure output file name prefix : %s\n",
     COHERENCE_VECTOR == cmdline_args.sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
     cmdline_args.pszSimOptsFName,         cmdline_args.pszFName,         cmdline_args.pszReferenceSimOutputFName, 
     cmdline_args.number_of_sims,          cmdline_args.dTolerance,       cmdline_args.dThreshLower, 
     cmdline_args.dThreshUpper,            cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
-    cmdline_args.pszFailureSimOutputFName) ;
+    cmdline_args.pszFailureFNamePrefix) ;
 
 #ifdef GTK_GUI
   gtk_init (&argc, &argv) ;
@@ -196,11 +196,15 @@ int main (int argc, char **argv)
 
           if (0 == single_success && cmdline_args.bExitOnFailure)
             {
-            if (NULL != cmdline_args.pszFailureSimOutputFName)
+            if (NULL != cmdline_args.pszFailureFNamePrefix)
               {
+              char *psz = NULL ;
               SIMULATION_OUTPUT failed_sim_output = {sim_data, design->bus_layout, FALSE} ;
 
-              create_simulation_output_file (cmdline_args.pszFailureSimOutputFName, &failed_sim_output) ;
+              create_simulation_output_file (psz = g_strdup_printf ("%s.sim_output", cmdline_args.pszFailureFNamePrefix), &failed_sim_output) ;
+              g_free (psz) ;
+              create_file (psz = g_strdup_printf ("%s.qca", cmdline_args.pszFailureFNamePrefix), working_design) ;
+              g_free (psz) ;
               }
             bDie = TRUE ;
             }
@@ -385,7 +389,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
     if (!(strcmp (argv[Nix], "-s") && strcmp (argv[Nix], "--save")))
       {
       if (++Nix < argc)
-        cmdline_args->pszFailureSimOutputFName = argv[Nix] ;
+        cmdline_args->pszFailureFNamePrefix = argv[Nix] ;
       }
     }
 

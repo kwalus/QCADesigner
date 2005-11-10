@@ -85,7 +85,7 @@ static coherence_optimizations optimization_options;
 static double coherence_determine_Ek (QCADCell *cell1, QCADCell *cell2, int layer_separation, coherence_OP *options);
 static void coherence_refresh_all_Ek (int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, coherence_OP *options);
 
-static void run_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt);
+static void run_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy);
 
 static inline double calculate_clock_value (unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
 static inline double lambda_ss_x (double t, double PEk, double Gamma, const coherence_OP *options);
@@ -117,6 +117,8 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
   double old_lambda_x;
   double old_lambda_y;
   double old_lambda_z;
+  double *energy;
+  double average_power=0;
   time_t start_time, end_time;
   simulation_data *sim_data = NULL ;
   // for randomization
@@ -135,6 +137,8 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
   // determine the number of samples from the user options //
   number_samples = (unsigned long int)(ceil (options->duration/options->time_step));
 
+  energy = malloc(number_samples*sizeof(double));
+  
   // if the number of samples is larger then the number of recorded samples then change the
   // time step to ensure only number_recorded_samples is used //
   if (number_recorded_samples >= number_samples)
@@ -375,8 +379,12 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
           }
 
     // -- run the iteration with the given clock value -- //
-    run_coherence_iteration (j, number_of_cell_layers, number_of_cells_in_layer, sorted_cells, total_number_of_inputs, number_samples, options, sim_data, SIMULATION_TYPE, pvt);
+    run_coherence_iteration (j, number_of_cell_layers, number_of_cells_in_layer, sorted_cells, total_number_of_inputs, number_samples, options, sim_data, SIMULATION_TYPE, pvt, energy);
 
+	// -- Calculate Power -- //
+	if(j>=1)
+		//printf("%e\n",(energy[j]-energy[j-1])/options->time_step);
+		average_power+=(energy[j]-energy[j-1])/options->time_step;
     // -- Set the cell polarizations to the lambda_z value -- //
     for (k = 0; k < number_of_cell_layers; k++)
       for (l = 0; l < number_of_cells_in_layer[k]; l++)
@@ -419,18 +427,20 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
   if (VECTOR_TABLE == SIMULATION_TYPE)
     for (i = 0 ; i < pvt->inputs->icUsed ; i++)
       exp_array_index_1d (pvt->inputs, BUS_LAYOUT_CELL, i).cell->cell_function = QCAD_CELL_INPUT ;
-
+  
+  command_history_message ("Circuit consumed an average power of: %e Watts\n", average_power/(number_samples-1));
+  
   // -- get and print the total simulation time -- //
   if ((end_time = time (NULL)) < 0)
     fprintf (stderr, "Could not get end time\n");
-
+	
   command_history_message ("Total simulation time: %g s\n", (double)(end_time - start_time));
   set_progress_bar_visible (FALSE) ;
   return sim_data;
   }//run_coherence
 
 // -- completes one simulation iteration performs the approximations until the entire design has stabalized -- //
-static void run_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt)
+static void run_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy)
   {
   unsigned int i,j,q;
   double lambda_x_new;
@@ -444,8 +454,10 @@ static void run_coherence_iteration (int sample_number, int number_of_cell_layer
   double clock_value;
   unsigned int num_neighbours;
 
+  
   t = options->time_step * (double)sample_number;
-
+  energy[sample_number]=0;
+  
   // loop through all the cells in the design //
   for (i = 0 ; i < number_of_cell_layers ; i++)
     for (j = 0 ; j < number_of_cells_in_layer[i] ; j++)
@@ -462,7 +474,7 @@ static void run_coherence_iteration (int sample_number, int number_of_cell_layer
       num_neighbours = ((coherence_model *)sorted_cells[i][j]->cell_model)->number_of_neighbours;
       for (q = 0 ; q < num_neighbours ; q++)
         PEk += (qcad_cell_calculate_polarization (((coherence_model *)sorted_cells[i][j]->cell_model)->neighbours[q]))*((coherence_model *)sorted_cells[i][j]->cell_model)->Ek[q];
-
+		  
       lambda_x = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x;
       lambda_y = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y;
       lambda_z = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z;
@@ -471,10 +483,13 @@ static void run_coherence_iteration (int sample_number, int number_of_cell_layer
       lambda_y_new = lambda_y_next (t, PEk, clock_value, lambda_x, lambda_y, lambda_z, options);
       lambda_z_new = lambda_z_next (t, PEk, clock_value, lambda_x, lambda_y, lambda_z, options);
 
+	  energy[sample_number] += (-clock_value*lambda_x_new + PEk*lambda_z_new/2);
+	
       ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x = lambda_x_new;
       ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y = lambda_y_new;
       ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z = lambda_z_new;
       }
+	  
   }//run_iteration
 
 //-------------------------------------------------------------------//

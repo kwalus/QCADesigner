@@ -22,6 +22,8 @@ OBJECT_FILES = \
 	objects/QCADLayer.c                        objects/QCADLayer.h \
 	objects/QCADRuler.c                        objects/QCADRuler.h \
 	objects/QCADStretchyObject.c               objects/QCADStretchyObject.h \
+	objects/QCADClockingZone.c                 objects/QCADClockingZone.h \
+	objects/QCADRectangleClockingZone.c        objects/QCADRectangleClockingZone.h \
 	objects/QCADSubstrate.c                    objects/QCADSubstrate.h
 
 #################### QCADesigner ####################

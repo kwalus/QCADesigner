@@ -45,6 +45,7 @@ typedef struct
   GtkWidget *insert_cell_array_button;
   GtkWidget *insert_type_1_cell_button;
   GtkWidget *label_button;
+  GtkWidget *rect_clocking_zone_button ;
   GtkWidget *layers_combo;
   GtkWidget *main_window;
 #ifdef STDIO_FILEIO

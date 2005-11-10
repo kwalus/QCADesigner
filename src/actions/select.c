@@ -34,6 +34,7 @@
 #include "../selection_undo.h"
 #include "objects/QCADUndoEntry.h"
 #include "objects/QCADUndoEntryGroup.h"
+#include "objects/QCADRectangleClockingZone.h"
 #endif /* def UNDO_REDO */
 
 extern GdkColor clrBlack ;
@@ -340,8 +341,9 @@ static gboolean selection_needs_snap_p (DESIGN *design)
   GList *lstSelTypes = design_selection_get_type_list (design), *llItr = NULL ;
 
   for (llItr = lstSelTypes ; llItr != NULL ; llItr = llItr->next)
-    if (QCAD_TYPE_CELL      == (G_TYPE_FROM_INSTANCE (llItr->data)) ||
-        QCAD_TYPE_SUBSTRATE == (G_TYPE_FROM_INSTANCE (llItr->data)))
+    if (QCAD_TYPE_CELL                    == (G_TYPE_FROM_INSTANCE (llItr->data)) ||
+        QCAD_TYPE_SUBSTRATE               == (G_TYPE_FROM_INSTANCE (llItr->data)) ||
+        QCAD_TYPE_RECTANGLE_CLOCKING_ZONE == (G_TYPE_FROM_INSTANCE (llItr->data)))
       return TRUE ;
 
   return FALSE ;

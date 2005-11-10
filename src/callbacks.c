@@ -51,21 +51,13 @@
 #include "vector_table.h"
 #include "callback_helpers.h"
 #include "actions.h"
-#include "objects/object_helpers.h"
-#include "objects/QCADDOContainer.h"
-#include "objects/QCADCompoundDO.h"
-#include "objects/QCADLayer.h"
-#ifdef UNDO_REDO
-  #include "selection_undo.h"
-  #include "objects/QCADUndoEntryGroup.h"
-#endif /* def UNDO_REDO */
-#include "objects/QCADRuler.h"
-#include "objects/mouse_handlers.h"
 #include "actions/action_handlers.h"
 #include "global_consts.h"
 #include "qcadstock.h"
-#include "objects/QCADClockCombo.h"
 #include "generic_utils.h"
+#ifdef UNDO_REDO
+  #include "selection_undo.h"
+#endif /* def UNDO_REDO */
 
 // dialogs and windows used //
 #include "about.h"
@@ -80,6 +72,19 @@
 #include "layer_mapping_dialog.h"
 #include "bus_layout_dialog.h"
 #include "vector_table_options_dialog.h"
+
+// objects
+#include "objects/object_helpers.h"
+#include "objects/QCADDOContainer.h"
+#include "objects/QCADCompoundDO.h"
+#include "objects/QCADLayer.h"
+#ifdef UNDO_REDO
+  #include "objects/QCADUndoEntryGroup.h"
+#endif /* def UNDO_REDO */
+#include "objects/QCADRuler.h"
+#include "objects/mouse_handlers.h"
+#include "objects/QCADClockCombo.h"
+#include "objects/QCADRectangleClockingZone.h"
 
 #define DBG_CB(s)
 #define DBG_CB_HERE(s)
@@ -245,7 +250,13 @@ static ACTION actions[ACTION_LAST_ACTION] =
     NULL,
     NULL
     },
-  (gpointer)&project_options, NULL}
+  (gpointer)&project_options, NULL},
+
+  // ACTION_RECTANGLE_CLOCKING_ZONE
+  {0, // Needs to be set to QCAD_TYPE_RECT_CLOCKING_ZONE in main_window_show
+    {NULL, NULL, NULL},
+  NULL, drop_single_object_with_undo_cb}
+
   } ;
 
 static int xRef, yRef, xOld, yOld ; // zoom window coordinates
@@ -266,10 +277,11 @@ void main_window_show (GtkWidget *widget, gpointer data)
   fill_recent_files_menu (main_window.recent_files_menu, GTK_SIGNAL_FUNC (file_operations), (gpointer)FILEOP_OPEN_RECENT) ;
 #endif /* def STDIO_FILEIO */
   // The .type fields need to be initialized here, because type numbers are assigned at runtime
-      actions[ACTION_QCELL].type = QCAD_TYPE_CELL ;
-  actions[ACTION_SUBSTRATE].type = QCAD_TYPE_SUBSTRATE ;
-      actions[ACTION_LABEL].type = QCAD_TYPE_LABEL ;
-      actions[ACTION_RULER].type = QCAD_TYPE_RULER ;
+                  actions[ACTION_QCELL].type = QCAD_TYPE_CELL ;
+              actions[ACTION_SUBSTRATE].type = QCAD_TYPE_SUBSTRATE ;
+                  actions[ACTION_LABEL].type = QCAD_TYPE_LABEL ;
+                  actions[ACTION_RULER].type = QCAD_TYPE_RULER ;
+actions[ACTION_RECTANGLE_CLOCKING_ZONE].type = QCAD_TYPE_RECTANGLE_CLOCKING_ZONE ;
 
   gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrWhite)) ;
   gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrCyan)) ;
@@ -2086,6 +2098,7 @@ static void reflect_layer_status (QCADLayer *layer)
     DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_CELLS\n")) ;
     gtk_widget_hide (main_window.substrate_button) ;
     gtk_widget_hide (main_window.label_button) ;
+    gtk_widget_hide (main_window.rect_clocking_zone_button) ;
 
     gtk_widget_show (main_window.toggle_alt_display_button) ;
     gtk_widget_set_sensitive (main_window.toggle_alt_display_button, bSensitive) ;
@@ -2109,6 +2122,9 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.toggle_alt_display_button) ;
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
+
+    gtk_widget_show (main_window.rect_clocking_zone_button) ;
+    gtk_widget_set_sensitive (main_window.rect_clocking_zone_button, bSensitive) ;
     }
   else
   if (LAYER_TYPE_SUBSTRATE == layer->type)
@@ -2120,6 +2136,7 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.toggle_alt_display_button) ;
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
+    gtk_widget_hide (main_window.rect_clocking_zone_button) ;
 
     gtk_widget_show (main_window.substrate_button) ;
     gtk_widget_set_sensitive (main_window.substrate_button, bSensitive) ;
@@ -2134,6 +2151,7 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.toggle_alt_display_button) ;
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
+    gtk_widget_hide (main_window.rect_clocking_zone_button) ;
 
     gtk_widget_show (main_window.label_button) ;
     gtk_widget_set_sensitive (main_window.label_button, bSensitive) ;
@@ -2149,6 +2167,7 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
     gtk_widget_hide (main_window.label_button) ;
+    gtk_widget_hide (main_window.rect_clocking_zone_button) ;
     }
   redraw_async (NULL) ;
   }

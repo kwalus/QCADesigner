@@ -47,6 +47,7 @@
 #include "QCADCompoundDO.h"
 #include "QCADDOContainer.h"
 #include "objects_debug.h"
+#include "QCADRectangleClockingZone.h"
 
 #define DBG_REFS(s)
 
@@ -796,7 +797,7 @@ GHashTable *qcad_layer_object_containment_rules ()
 
   // Clocking Layer
   llObjs = NULL ;
-  // No objects in the clocking layer - yet
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_RECTANGLE_CLOCKING_ZONE) ;
   g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CLOCKING, llObjs) ;
 
   //Drawing Layer

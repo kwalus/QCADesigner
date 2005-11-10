@@ -127,7 +127,7 @@ void create_main_window (main_W *main_window){
   g_object_set_data (G_OBJECT (add_layer_button), "mnu", mnu) ;
 
   for (Nix = 0 ; Nix < n_layer_stock_id ; Nix++)
-    if (!(Nix == LAYER_TYPE_CLOCKING) || (Nix == LAYER_TYPE_DISTRIBUTION))
+    if (Nix != LAYER_TYPE_DISTRIBUTION)
       {
       mnui = gtk_image_menu_item_new_from_stock (layer_stock_id[Nix], NULL) ;
       gtk_widget_show (mnui) ;
@@ -748,6 +748,18 @@ void create_main_window (main_W *main_window){
       _("Creates a new label."),
       gtk_image_new_from_stock (QCAD_STOCK_LABEL, QCAD_ICON_SIZE_SIDE_TOOLBAR),
       (GCallback)action_button_clicked, (gpointer)ACTION_LABEL) ;
+
+  // Clocking layer buttons
+  main_window->rect_clocking_zone_button =
+    gtk_toolbar_append_element (
+      GTK_TOOLBAR (main_window->toolbar),
+      GTK_TOOLBAR_CHILD_RADIOBUTTON,
+      main_window->insert_type_1_cell_button,
+      _("Rectangular"),
+      _("Rectangular Clocking Zone"),
+      _("Creates a new rectangular clocking zone."),
+      gtk_image_new_from_stock (QCAD_STOCK_RECT_CLOCKING_ZONE, QCAD_ICON_SIZE_SIDE_TOOLBAR),
+      (GCallback)action_button_clicked, (gpointer)ACTION_RECTANGLE_CLOCKING_ZONE) ;
 
   // This will separate layer-specific commands from generic ones like zoom & pan
   gtk_toolbar_append_space (GTK_TOOLBAR (main_window->toolbar)) ;

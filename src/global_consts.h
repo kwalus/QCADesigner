@@ -77,6 +77,7 @@
 #define DIGITAL_SIM 2
 #define SCQCA 3
 #define COHERENCE_VECTOR 4
+#define TS_COHERENCE_VECTOR 5
 
 //!Simulation Types
 #define EXHAUSTIVE_VERIFICATION 0

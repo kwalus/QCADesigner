@@ -53,6 +53,7 @@ QCADesigner_SOURCES = \
 	                                        callback_helpers.h \
 	callbacks.c                             callbacks.h \
 	coherence_vector_properties_dialog.c    coherence_vector_properties_dialog.h \
+	ts_coherence_vector_properties_dialog.c	ts_coherence_vector_properties_dialog.h \
 	custom_widgets.c                        custom_widgets.h \
 	design.c                                design.h \
 	exp_array.c                             exp_array.h \
@@ -106,6 +107,8 @@ QCADesigner_SOURCES = \
 	print_preview.c                         print_preview.h \
 	bistable_simulation.c                   bistable_simulation.h \
 	coherence_vector.c                      coherence_vector.h \
+	three_state_coherence.c									three_state_coherence.h \
+	matrixlib_3x3.c													matrixlib_3x3.h \
 	simulation.c                            simulation.h \
 	simulation_data.c                       simulation_data.h \
 	main.c
@@ -137,6 +140,8 @@ batch_sim_SOURCES = \
 	simulation_data.c                     simulation_data.h \
 	bistable_simulation.c                 bistable_simulation.h \
 	coherence_vector.c                    coherence_vector.h \
+	three_state_coherence.c		      three_state_coherence.h \
+	matrixlib_3x3.c			      matrixlib_3x3.h \
 \
 	design.c                              design.h \
 \

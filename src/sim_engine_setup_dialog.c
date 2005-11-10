@@ -32,6 +32,7 @@
 #include "sim_engine_setup_dialog.h"
 #include "coherence_vector_properties_dialog.h"
 #include "bistable_properties_dialog.h"
+#include "ts_coherence_vector_properties_dialog.h"
 
 typedef struct
   {
@@ -41,11 +42,13 @@ typedef struct
   GSList    *vbox1_group;
   GtkWidget *bistable_radio;
   GtkWidget *coherence_radio;
+	GtkWidget *ts_coherence_radio;
   GtkWidget *digital_radio;
   GtkWidget *scqca_radio;
   GtkWidget *dialog_action_area1;
   GtkWidget *hbox1;
   GtkWidget *coherence_options_button;
+	GtkWidget *ts_coherence_options_button;
   GtkWidget *bistable_options_button;
   GtkWidget *scqca_options_button;
   GtkWidget *sim_engine_ok_button;
@@ -55,6 +58,7 @@ typedef struct
 
 extern bistable_OP bistable_options ;
 extern coherence_OP coherence_options ;
+extern ts_coherence_OP ts_coherence_options ;
 
 static sim_engine_setup_D sim_engine_setup_dialog = {NULL} ;
 
@@ -81,13 +85,23 @@ void get_sim_engine_from_user (GtkWindow *parent, int *piSimEng)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.coherence_radio), TRUE) ;
     gtk_widget_set_sensitive (sim_engine_setup_dialog.options_button, TRUE) ;
     }
+	else
+	if (TS_COHERENCE_VECTOR == *piSimEng)
+    {
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.ts_coherence_radio), TRUE) ;
+    gtk_widget_set_sensitive (sim_engine_setup_dialog.options_button, TRUE) ;
+    }
 
   gtk_object_set_data (GTK_OBJECT (sim_engine_setup_dialog.sim_engine_setup_dialog), "piSimEng", piSimEng) ;
   gtk_object_set_data (GTK_OBJECT (sim_engine_setup_dialog.sim_engine_setup_dialog), "dialog", &sim_engine_setup_dialog) ;
 
   if (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (sim_engine_setup_dialog.sim_engine_setup_dialog)))
     if (NULL != piSimEng)
-      *piSimEng = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.coherence_radio)) ? COHERENCE_VECTOR : BISTABLE ;
+      *piSimEng = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.coherence_radio)) 
+				? COHERENCE_VECTOR 
+				: gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sim_engine_setup_dialog.bistable_radio))
+					? BISTABLE
+					: TS_COHERENCE_VECTOR ;
 
   gtk_widget_hide (sim_engine_setup_dialog.sim_engine_setup_dialog) ;
 
@@ -109,7 +123,7 @@ static void create_sim_engine_dialog (sim_engine_setup_D *dialog)
   dialog->dialog_vbox1 = GTK_DIALOG (dialog->sim_engine_setup_dialog)->vbox;
   gtk_widget_show (dialog->dialog_vbox1);
 
-  dialog->vbox1 = gtk_table_new (3, 2, FALSE);
+  dialog->vbox1 = gtk_table_new (3, 1, FALSE);
   gtk_widget_show (dialog->vbox1);
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->vbox1, TRUE, TRUE, 0);
 
@@ -118,18 +132,27 @@ static void create_sim_engine_dialog (sim_engine_setup_D *dialog)
   dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->coherence_radio));
   gtk_widget_show (dialog->coherence_radio);
   g_object_set_data (G_OBJECT (dialog->coherence_radio), "options_button", dialog->coherence_options_button) ;
-  gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->coherence_radio, 1, 2, 0, 1,
+  gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->coherence_radio, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+                    (GtkAttachOptions) (GTK_FILL), 2, 2);
 
   dialog->bistable_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, "Bistable Approximation");
   gtk_object_set_data (GTK_OBJECT (dialog->bistable_radio), "which_options", (gpointer)BISTABLE) ;
   dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->bistable_radio));
   gtk_widget_show (dialog->bistable_radio);
   g_object_set_data (G_OBJECT (dialog->bistable_radio), "options_button", dialog->bistable_options_button) ;
-  gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->bistable_radio, 1, 2, 1, 2,
+  gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->bistable_radio, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+                    (GtkAttachOptions) (GTK_FILL), 2, 2);
+										
+	dialog->ts_coherence_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, "Three State Coherence");
+  gtk_object_set_data (GTK_OBJECT (dialog->ts_coherence_radio), "which_options", (gpointer)TS_COHERENCE_VECTOR) ;
+  dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->ts_coherence_radio));
+  gtk_widget_show (dialog->ts_coherence_radio);
+  g_object_set_data (G_OBJECT (dialog->ts_coherence_radio), "options_button", dialog->ts_coherence_options_button) ;
+  gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->ts_coherence_radio, 0, 1, 2, 3,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 2, 2);
 
   // Options
   dialog->options_button = gtk_button_new ();
@@ -152,6 +175,7 @@ static void create_sim_engine_dialog (sim_engine_setup_D *dialog)
   g_signal_connect (G_OBJECT (dialog->options_button),  "clicked", (GCallback)(options_button_clicked), dialog->sim_engine_setup_dialog);
   g_signal_connect (G_OBJECT (dialog->bistable_radio),  "toggled", (GCallback)(engine_toggled),         dialog->options_button) ;
   g_signal_connect (G_OBJECT (dialog->coherence_radio), "toggled", (GCallback)(engine_toggled),         dialog->options_button) ;
+	g_signal_connect (G_OBJECT (dialog->ts_coherence_radio), "toggled", (GCallback)(engine_toggled),      dialog->options_button) ;
   }
 
 static void options_button_clicked (GtkButton *button, gpointer user_data)
@@ -167,8 +191,12 @@ static void options_button_clicked (GtkButton *button, gpointer user_data)
     case BISTABLE:
       get_bistable_properties_from_user (GTK_WINDOW (user_data), &bistable_options) ;
       break ;
-
-    case DIGITAL_SIM:
+		
+		case TS_COHERENCE_VECTOR:
+			get_ts_coherence_properties_from_user (GTK_WINDOW (user_data), &ts_coherence_options) ;
+			break;
+    
+		case DIGITAL_SIM:
       break;
     }//switch
   }

@@ -40,10 +40,22 @@ extern "C" {
 
 typedef struct
   {
+  QCADClockingZoneOptions clocking_zone_options ;
+  double angle ;
+  int n_x_divisions ;
+  int n_y_divisions ;
+  double cxWorld ;
+  double cyWorld ;
+  } QCADRectangleClockingZoneOptions ;
+
+typedef struct
+  {
   QCADClockingZone parent_instance ;
   double angle ;
   int n_x_divisions ;
   int n_y_divisions ;
+  double default_cxWorld ;
+  double default_cyWorld ;
   } QCADRectangleClockingZone ;
 
 typedef struct
@@ -53,6 +65,8 @@ typedef struct
   double default_angle ;
   int default_n_x_divisions ;
   int default_n_y_divisions ;
+  double default_cxWorld ;
+  double default_cyWorld ;
   } QCADRectangleClockingZoneClass ;
 
 GType qcad_rectangle_clocking_zone_get_type () ;
@@ -65,7 +79,7 @@ GType qcad_rectangle_clocking_zone_get_type () ;
 #define QCAD_IS_RECTANGLE_CLOCKING_ZONE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_RECTANGLE_CLOCKING_ZONE))
 #define QCAD_RECTANGLE_CLOCKING_ZONE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_RECTANGLE_CLOCKING_ZONE, QCADRectangleClockingZoneClass))
 
-QCADDesignObject *qcad_rectangle_clocking_zone_new (double (*clock_function) (double), double amplitude, double frequency, double phase, double min_clock, double max_clock, double dc_offset, double angle) ;
+QCADDesignObject *qcad_rectangle_clocking_zone_new () ;
 
 ///////////////////////////////////////////////////////////////////////////////
 

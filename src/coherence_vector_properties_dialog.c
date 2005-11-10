@@ -92,8 +92,8 @@ void get_coherence_properties_from_user (GtkWindow *parent, coherence_OP *pbo)
 
 static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   {
-  GtkWidget *label = NULL ;
-  GtkWidget *lblunits = NULL ;
+  GtkWidget *label = NULL, *lblunits = NULL, *frm = NULL, *tblAlgo = NULL ;
+
   if (NULL != dialog->coherence_properties_dialog) return ;
 
   dialog->coherence_properties_dialog = gtk_dialog_new ();
@@ -121,21 +121,31 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   create_coherence_properties_line (dialog->table, 10, &(label), &(dialog->epsilonR_entry),               NULL,      _("Relative Permittivity:"),  NULL, TRUE) ;
   create_coherence_properties_line (dialog->table, 11, &(label), &(dialog->layer_separation_entry),       &lblunits, _("Layer Separation:"),       "nm", TRUE) ;
 
+  frm = gtk_frame_new (_("Algorithm")) ;
+  gtk_widget_show (frm) ;
+  gtk_table_attach (GTK_TABLE (dialog->table), frm, 0, 3, 12, 13, GTK_EXPAND | GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_container_set_border_width (GTK_CONTAINER (frm), 2) ;
+
+  tblAlgo = gtk_table_new (2, 1, FALSE) ;
+  gtk_widget_show (tblAlgo) ;
+  gtk_container_add (GTK_CONTAINER (frm), tblAlgo) ;
+  gtk_container_set_border_width (GTK_CONTAINER (tblAlgo), 2) ;
+
   dialog->euler_method_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Euler Method");
   gtk_object_set_data (GTK_OBJECT (dialog->euler_method_radio), "which_options", (gpointer)EULER_METHOD) ;
   dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->euler_method_radio));
   gtk_widget_show (dialog->euler_method_radio);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->euler_method_radio, 0, 2, 12, 13,
+  gtk_table_attach (GTK_TABLE (tblAlgo), dialog->euler_method_radio, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+                    (GtkAttachOptions) (GTK_FILL), 2, 2);
 
   dialog->runge_kutta_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Runge Kutta");
   gtk_object_set_data (GTK_OBJECT (dialog->runge_kutta_radio), "which_options", (gpointer)RUNGE_KUTTA) ;
   dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->runge_kutta_radio));
   gtk_widget_show (dialog->runge_kutta_radio);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->runge_kutta_radio, 0, 2, 14, 15,
+  gtk_table_attach (GTK_TABLE (tblAlgo), dialog->runge_kutta_radio, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+                    (GtkAttachOptions) (GTK_FILL), 2, 2);
 
   // Randomize Cells ?
   dialog->chkRandomizeCells = gtk_check_button_new_with_label (_("Randomize Simulation Order")) ;

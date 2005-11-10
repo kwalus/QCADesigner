@@ -53,6 +53,7 @@ typedef enum
   } ISBDirection ;
 
 GtkWidget *gtk_spin_button_new_infinite (GtkAdjustment *adj, gdouble climb_rate, guint digits, ISBDirection direction) ;
+void gtk_adjustment_set_value_infinite (GtkAdjustment *adj, gdouble value) ;
 GtkWidget *clock_select_combo_new () ;
 int clock_select_combo_get_clock (GtkWidget *widget) ;
 void clock_select_combo_set_clock (GtkWidget *widget, int clock) ;

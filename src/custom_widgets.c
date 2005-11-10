@@ -228,9 +228,25 @@ GtkWidget *gtk_button_new_with_stock_image (gchar *pszStock, gchar *pszLabel)
 GtkWidget *gtk_spin_button_new_infinite (GtkAdjustment *adj, gdouble climb_rate, guint digits, ISBDirection direction)
   {
   GtkWidget *ret = gtk_spin_button_new (adj, climb_rate, digits) ;
+
+  g_object_set_data (G_OBJECT (adj), "direction", (gpointer)direction) ;
   g_signal_connect (adj, "value_changed", (GCallback)signal_isb_adj_value_changed, (gpointer)direction) ;
   g_signal_connect (ret, "changed",       (GCallback)signal_isb_spn_text_changed,  (gpointer)direction) ;
   return ret ;
+  }
+
+void gtk_adjustment_set_value_infinite (GtkAdjustment *adj, gdouble value)
+  {
+  ISBDirection direction = (ISBDirection)g_object_get_data (G_OBJECT (adj), "direction") ;
+
+  if (0 == direction)
+    gtk_adjustment_set_value (adj, value) ;
+
+  adj->value = value ;
+  signal_isb_adj_value_changed (adj, (gpointer)direction) ;
+
+  gtk_adjustment_changed (adj) ;
+  gtk_adjustment_value_changed (adj) ;
   }
 
 void set_widget_background_colour (GtkWidget *widget, int r, int g, int b)

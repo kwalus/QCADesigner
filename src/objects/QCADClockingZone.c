@@ -77,22 +77,24 @@ GType qcad_clocking_zone_get_type ()
 static void qcad_clocking_zone_class_init (GObjectClass *klass, gpointer data)
   {
   G_OBJECT_CLASS (klass)->finalize = qcad_clocking_zone_instance_finalize ;
+
+  QCAD_CLOCKING_ZONE_CLASS (klass)->default_clocking_zone_options.clock_function = sin ;
+  QCAD_CLOCKING_ZONE_CLASS (klass)->default_clocking_zone_options.amplitude      =  1 ;
+  QCAD_CLOCKING_ZONE_CLASS (klass)->default_clocking_zone_options.frequency      =  1e6 ;
+  QCAD_CLOCKING_ZONE_CLASS (klass)->default_clocking_zone_options.phase          =  0 ;
+  QCAD_CLOCKING_ZONE_CLASS (klass)->default_clocking_zone_options.dc_offset      =  0 ;
+  QCAD_CLOCKING_ZONE_CLASS (klass)->default_clocking_zone_options.min_clock      = -1 ;
+  QCAD_CLOCKING_ZONE_CLASS (klass)->default_clocking_zone_options.max_clock      =  1 ;
   DBG_OO (fprintf (stderr, "QCADClockingZone::class_init:Leaving\n")) ;
   }
 
 static void qcad_clocking_zone_instance_init (GObject *object, gpointer data)
   {
+  QCADClockingZoneClass *klass = QCAD_CLOCKING_ZONE_GET_CLASS (object) ;
+  QCADClockingZone *clocking_zone = QCAD_CLOCKING_ZONE (object) ;
   DBG_OO (fprintf (stderr, "QCADClockingZone::instance_init:Entering\n")) ;
 
-  QCADClockingZone *clocking_zone = QCAD_CLOCKING_ZONE (object) ;
-
-  clocking_zone->clocking_zone_options.clock_function = NULL ;
-  clocking_zone->clocking_zone_options.amplitude      =
-  clocking_zone->clocking_zone_options.frequency      =
-  clocking_zone->clocking_zone_options.phase          =
-  clocking_zone->clocking_zone_options.dc_offset      =
-  clocking_zone->clocking_zone_options.min_clock      =
-  clocking_zone->clocking_zone_options.max_clock      = 0 ;
+  memcpy (&(clocking_zone->clocking_zone_options), &(klass->default_clocking_zone_options), sizeof (QCADClockingZoneOptions)) ;
 
   DBG_OO (fprintf (stderr, "QCADClockingZone::instance_init:Leaving\n")) ;
   }

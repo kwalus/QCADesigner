@@ -73,6 +73,7 @@ char *pszLayerStati[] =
 static layer_properties_D layer_properties_dialog ;
 
 static void create_layer_properties_dialog (layer_properties_D *dialog) ;
+static void build_default_properties_hash_tables (GType type, GtkWidget *tblObjUI, int *pidx, GHashTable *htObjUI, GHashTable *htObjCB, GHashTable *htObjCBData) ;
 static LayerType layer_type_from_description (char *pszDescription) ;
 
 static void reflect_layer_type (GtkWidget *widget, gpointer data) ;
@@ -179,14 +180,8 @@ static void create_layer_properties_dialog (layer_properties_D *dialog)
     *tbl = NULL,
     *tblMain = NULL,
     *frm = NULL,
-    *objUI = NULL,
     *lbl = NULL ;
   GList *lstComboItems = NULL ;
-  GCallback cbObj = NULL ;
-  gpointer data = NULL ;
-  QCADDesignObjectClass *klass = NULL ;
-  GType *types = NULL ;
-  guint icChildren = 0 ;
 
   DBG_LPD_PROPS (fprintf (stderr, "create_layer_properties_dialog:Entering\n")) ;
 
@@ -196,7 +191,7 @@ static void create_layer_properties_dialog (layer_properties_D *dialog)
 
   tblMain = gtk_table_new (2, 1, FALSE) ;
   gtk_widget_show (tblMain) ;
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dlg)->vbox), tblMain, TRUE, FALSE, FALSE) ;
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dlg)->vbox), tblMain, TRUE, TRUE, 0) ;
   gtk_container_set_border_width (GTK_CONTAINER (tblMain), 2) ;
 
   tbl = gtk_table_new (3, 2, FALSE) ;
@@ -292,42 +287,17 @@ static void create_layer_properties_dialog (layer_properties_D *dialog)
   dialog->tblObjUI = gtk_table_new (1, 1, FALSE) ;
   gtk_widget_show (dialog->tblObjUI) ;
   gtk_table_attach (GTK_TABLE (tbl), dialog->tblObjUI, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
 
   dialog->htObjUI = g_hash_table_new (NULL, NULL) ;
   dialog->htObjCB = g_hash_table_new (NULL, NULL) ;
   dialog->htObjCBData = g_hash_table_new (NULL, NULL) ;
 
-  // Fill the hash tables with the UIs and callbacks, respectively, for each of the classes
-
-  types = g_type_children (QCAD_TYPE_DESIGN_OBJECT, &icChildren) ;
-
   lstComboItems = NULL ;
 
-  for (Nix = 0 ; Nix < icChildren && 0 != types[Nix] ; Nix++)
-    {
-    cbObj = NULL ;
-    objUI = NULL ;
-    if (NULL != (klass = QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (types[Nix]))))
-      {
-      // FIXME: Pass current layer-stored properties to this function, so the UI may properly init itself
-      cbObj = qcad_design_object_class_get_properties_ui (klass, NULL, &objUI, &data) ;
-      if (!(NULL == cbObj || NULL == objUI))
-        {
-        g_hash_table_insert (dialog->htObjUI, (gpointer)types[Nix], objUI) ;
-        g_hash_table_insert (dialog->htObjCB, (gpointer)types[Nix], (gpointer)cbObj) ;
-        g_hash_table_insert (dialog->htObjCBData, (gpointer)types[Nix], data) ;
-
-        gtk_table_attach (GTK_TABLE (dialog->tblObjUI), objUI, 0, 1, idx, idx + 1,
-          (GtkAttachOptions)0,
-          (GtkAttachOptions)0, 2, 2) ;
-        idx++ ;
-        }
-      }
-    }
-
-  g_free (types) ;
+  // Fill the hash tables with the UIs and callbacks, respectively, for each of the classes
+  build_default_properties_hash_tables (QCAD_TYPE_DESIGN_OBJECT, dialog->tblObjUI, &idx, dialog->htObjUI, dialog->htObjCB, dialog->htObjCBData) ;
 
   gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
   gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
@@ -375,3 +345,62 @@ static void object_type_selected (GtkWidget *widget, gpointer data)
 
 static void hide_object_UIs (gpointer key, gpointer value, gpointer data)
   {gtk_widget_hide (GTK_WIDGET (value)) ;}
+
+static void build_default_properties_hash_tables (GType type, GtkWidget *tblObjUI, int *pidx, GHashTable *htObjUI, GHashTable *htObjCB, GHashTable *htObjCBData)
+  {
+  int Nix ;
+  int icChildren = 0 ;
+  GType *types = NULL ;
+  GCallback cbObj = NULL ;
+  GtkWidget *objUI = NULL ;
+  gpointer data = NULL ;
+  QCADDesignObjectClass *klass = NULL ;
+
+  types = g_type_children (type, &icChildren) ;
+
+  if (NULL != (klass = QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (type))))
+    {
+    // FIXME: Pass current layer-stored properties to this function, so the UI may properly init itself
+//    fprintf (stderr, "create_layer_properties_dialog: Adding UI for type \"%s\"\n", g_type_name (type)) ;
+    cbObj = qcad_design_object_class_get_properties_ui (klass, NULL, &objUI, &data) ;
+    if (!(NULL == cbObj || NULL == objUI))
+      {
+      g_hash_table_insert (htObjUI, (gpointer)type, objUI) ;
+      g_hash_table_insert (htObjCB, (gpointer)type, (gpointer)cbObj) ;
+      g_hash_table_insert (htObjCBData, (gpointer)type, data) ;
+
+      gtk_table_attach (GTK_TABLE (tblObjUI), objUI, 0, 1, (*pidx), (*pidx) + 1,
+        (GtkAttachOptions)0,
+        (GtkAttachOptions)0, 2, 2) ;
+      (*pidx)++ ;
+      }
+    }
+
+  for (Nix = 0 ; Nix < icChildren && 0 != types[Nix] ; Nix++)
+/*
+    {
+    cbObj = NULL ;
+    objUI = NULL ;
+    if (NULL != (klass = QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (types[Nix]))))
+      {
+      // FIXME: Pass current layer-stored properties to this function, so the UI may properly init itself
+      fprintf (stderr, "create_layer_properties_dialog: Adding UI for type \"%s\"\n", g_type_name (types[Nix])) ;
+      cbObj = qcad_design_object_class_get_properties_ui (klass, NULL, &objUI, &data) ;
+      if (!(NULL == cbObj || NULL == objUI))
+        {
+        g_hash_table_insert (htObjUI, (gpointer)types[Nix], objUI) ;
+        g_hash_table_insert (htObjCB, (gpointer)types[Nix], (gpointer)cbObj) ;
+        g_hash_table_insert (htObjCBData, (gpointer)types[Nix], data) ;
+
+        gtk_table_attach (GTK_TABLE (tblObjUI), objUI, 0, 1, (*pidx), (*pidx) + 1,
+          (GtkAttachOptions)0,
+          (GtkAttachOptions)0, 2, 2) ;
+        (*pidx)++ ;
+        }
+      }
+*/
+    build_default_properties_hash_tables (types[Nix], tblObjUI, pidx, htObjUI, htObjCB, htObjCBData) ;
+//    }
+
+  g_free (types) ;
+  }

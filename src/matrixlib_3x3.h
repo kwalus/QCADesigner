@@ -29,14 +29,30 @@ typedef struct
 	double im;
 }complex;
 
+void complexCheckRealMatrix(complex A[3][3]);
 complex complexMultiply(complex A, complex B);
+complex complexDivide(complex denominator, complex numerator);
 complex complexAdd(complex A, complex B);
 complex complexSub(complex A, complex B);
 void complexConstMatrixMultiplication(complex A, complex B[3][3], complex result[3][3]);
+void complexConstMatrixDivision(complex A, complex B[3][3], complex result[3][3]);
 void complexMatrixMultiplication(complex A[3][3], complex B[3][3], complex result[3][3]);
 void complexMatrixAddition(complex A[3][3], complex B[3][3], complex result[3][3]);
 void complexMatrixSubtraction(complex A[3][3], complex B[3][3], complex result[3][3]);
+void complexMatrixRealExponential(complex result[3][3]);
 complex complexTr(complex A[3][3]);
 void complexIdentityMatrix(complex result[3][3]);
 void complexExtractRow(int row, complex A[3][3], complex vector[3]);
 void complexExtractColumn(int column, complex A[3][3], complex vector[3]);
+
+#define IS_REAL_3X3(A) \
+	(0 == (A)[0][0].im &&  \
+	 0 == (A)[0][1].im &&  \
+	 0 == (A)[0][2].im &&  \
+	 0 == (A)[1][0].im &&  \
+	 0 == (A)[1][1].im &&  \
+	 0 == (A)[1][2].im &&  \
+	 0 == (A)[2][0].im &&  \
+	 0 == (A)[2][1].im &&  \
+	 0 == (A)[2][2].im)
+	 

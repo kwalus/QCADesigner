@@ -51,8 +51,10 @@
 //!Print options
 print_design_OP print_options ;
 
+
 extern main_W main_window ;
 extern coherence_OP coherence_options ;
+
 
 static void parse_cmdline (int argc, char **argv, char **pszFileToOpen, char **pszCoherenceOptionsFile) ;
 
@@ -87,8 +89,8 @@ int main (int argc, char *argv[])
 #endif /* def QCAD_NO_CONSOLE */
 
   parse_cmdline (argc, argv, &pszFileToOpen, &pszCoherenceOptionsFile) ;
-
-  if (NULL != pszCoherenceOptionsFile)
+	
+	if (NULL != pszCoherenceOptionsFile)
     if (NULL != (co = open_coherence_options_file (pszCoherenceOptionsFile)))
       {
       memcpy (&coherence_options, co, sizeof (coherence_OP)) ;

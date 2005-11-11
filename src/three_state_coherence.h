@@ -51,6 +51,7 @@ typedef struct
 	double relaxation;
 	double time_step;
 	double duration;
+	double gamma;
 	double clock_high;
 	double clock_low;
 	double clock_shift;

@@ -61,7 +61,7 @@ void complexMatrixAddition(complex A[3][3], complex B[3][3], complex result[3][3
 
 void complexMatrixSubtraction(complex A[3][3], complex B[3][3], complex result[3][3]){
 	
-	result[0][0] = complexSub(A[0][0], B[0][0]);
+	result[0][0] = complexSub(A[0][0], B[0][0]);	
 	result[0][1] = complexSub(A[0][1], B[0][1]);
 	result[0][2] = complexSub(A[0][2], B[0][2]);
 	result[1][0] = complexSub(A[1][0], B[1][0]);
@@ -87,6 +87,42 @@ void complexConstMatrixMultiplication(complex A, complex B[3][3], complex result
 	
 }
 
+void complexConstMatrixDivision(complex A, complex B[3][3], complex result[3][3]){
+	
+	result[0][0] = complexDivide(A, B[0][0]);
+	result[0][1] = complexDivide(A, B[0][1]);
+	result[0][2] = complexDivide(A, B[0][2]);
+	result[1][0] = complexDivide(A, B[1][0]);
+	result[1][1] = complexDivide(A, B[1][1]);
+	result[1][2] = complexDivide(A, B[1][2]);
+	result[2][0] = complexDivide(A, B[2][0]);
+	result[2][1] = complexDivide(A, B[2][1]);
+	result[2][2] = complexDivide(A, B[2][2]);
+	
+}
+
+void complexMatrixRealExponential(complex result[3][3]){
+	//takes the exponent of the real part
+	//basically we assume that this will be used only on real matricies 
+	//that had to be made complex for other calculations
+	//checks if a matrix is real
+	if(!IS_REAL_3X3(result)){
+		printf("Critical Error: complex matrix was passed to complexMatrixRealExponential()\n");
+		exit(1);
+	}
+	
+	result[0][0].re = exp(result[0][0].re);
+	result[0][1].re = exp(result[0][1].re);
+	result[0][2].re = exp(result[0][2].re);
+	result[1][0].re = exp(result[1][0].re);
+	result[1][1].re = exp(result[1][1].re);
+	result[1][2].re = exp(result[1][2].re);
+	result[2][0].re = exp(result[2][0].re);
+	result[2][1].re = exp(result[2][1].re);
+	result[2][2].re = exp(result[2][2].re);
+
+}
+
 complex complexTr(complex A[3][3]){
 	return(complexAdd(complexAdd(A[0][0],A[1][1]), A[2][2]));
 }
@@ -96,6 +132,15 @@ complex complexMultiply(complex A, complex B){
 	
 	result.re = A.re*B.re - A.im*B.im;
 	result.im = A.re*B.im + A.im*B.re;
+	return result;
+}
+
+complex complexDivide(complex denominator, complex numerator){
+	complex result;
+	double denom = denominator.re*denominator.re + denominator.im*denominator.im;
+	
+	result.re = (numerator.re*denominator.re+numerator.im*denominator.im)/denom;
+	result.im = (numerator.im*denominator.re-numerator.re*denominator.im)/denom;
 	return result;
 }
 

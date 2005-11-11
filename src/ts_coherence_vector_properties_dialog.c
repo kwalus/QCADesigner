@@ -43,6 +43,7 @@ typedef struct
   GtkWidget *relaxation_entry;
   GtkWidget *time_step_entry;
   GtkWidget *duration_entry;
+	GtkWidget *gamma_entry;
   GtkWidget *clock_high_entry;
   GtkWidget *clock_low_entry;
   GtkWidget *clock_shift_entry;
@@ -104,7 +105,7 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
   dialog->dialog_vbox1 = GTK_DIALOG (dialog->ts_coherence_properties_dialog)->vbox;
   gtk_widget_show (dialog->dialog_vbox1);
 
-  dialog->table = gtk_table_new (16, 3, FALSE);
+  dialog->table = gtk_table_new (17, 3, FALSE);
   gtk_widget_show (dialog->table);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->table), 2);
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->table, TRUE, TRUE, 0);
@@ -113,8 +114,9 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
   create_ts_coherence_properties_line (dialog->table,  1, &(label), &(dialog->relaxation_entry),             &lblunits, _("Relaxation Time:"),        "s",  TRUE) ;
   create_ts_coherence_properties_line (dialog->table,  2, &(label), &(dialog->time_step_entry),              &lblunits, _("Time Step:"),              "s",  TRUE) ;
   create_ts_coherence_properties_line (dialog->table,  3, &(label), &(dialog->duration_entry),               &lblunits, _("Total Simulation Time:"),  "s",  TRUE) ;
-  create_ts_coherence_properties_line (dialog->table,  4, &(label), &(dialog->clock_high_entry),             &lblunits, _("Clock High:"),             "J",  TRUE) ;
-  create_ts_coherence_properties_line (dialog->table,  5, &(label), &(dialog->clock_low_entry),              &lblunits, _("Clock Low:"),              "J",  TRUE) ;
+	create_ts_coherence_properties_line (dialog->table,  4, &(label), &(dialog->gamma_entry),									 &lblunits, _("Tunneling Energy:"),  "J",  TRUE) ;
+  create_ts_coherence_properties_line (dialog->table,  5, &(label), &(dialog->clock_high_entry),             &lblunits, _("Clock High:"),             "J",  TRUE) ;
+  create_ts_coherence_properties_line (dialog->table,  6, &(label), &(dialog->clock_low_entry),              &lblunits, _("Clock Low:"),              "J",  TRUE) ;
   create_ts_coherence_properties_line (dialog->table,  7, &(label), &(dialog->clock_shift_entry),            &lblunits, _("Clock Shift:"),            NULL, TRUE) ;
   create_ts_coherence_properties_line (dialog->table,  8, &(label), &(dialog->clock_amplitude_factor_entry), &lblunits, _("Clock Amplitude Factor:"), NULL, TRUE) ;
   create_ts_coherence_properties_line (dialog->table,  9, &(label), &(dialog->radius_of_effect_entry),       &lblunits, _("Radius of Effect:"),       "nm", TRUE) ;
@@ -155,6 +157,7 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
   g_signal_connect (G_OBJECT (dialog->relaxation_entry),             "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->time_step_entry),              "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->duration_entry),               "changed", (GCallback)properties_changed, dialog) ;
+	g_signal_connect (G_OBJECT (dialog->gamma_entry),                  "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->clock_high_entry),             "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->clock_low_entry),              "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->clock_shift_entry),            "changed", (GCallback)properties_changed, dialog) ;
@@ -226,6 +229,9 @@ static void ts_coherence_OP_to_dialog (ts_coherence_OP *psco, ts_coherence_prope
 
   g_snprintf (sz, 16, "%e", psco->duration) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->duration_entry), sz) ;
+	
+	g_snprintf (sz, 16, "%e", psco->gamma) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->gamma_entry), sz) ;
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->chkRandomizeCells), psco->randomize_cells) ;
 
@@ -265,6 +271,7 @@ static void dialog_to_ts_coherence_OP (ts_coherence_OP *psco, ts_coherence_prope
   psco->relaxation             = atof (gtk_entry_get_text (GTK_ENTRY (dialog->relaxation_entry))) ;
   psco->time_step              = atof (gtk_entry_get_text (GTK_ENTRY (dialog->time_step_entry))) ;
   psco->duration               = atof (gtk_entry_get_text (GTK_ENTRY (dialog->duration_entry))) ;
+	psco->gamma               = atof (gtk_entry_get_text (GTK_ENTRY (dialog->gamma_entry))) ;
   psco->clock_high             = atof (gtk_entry_get_text (GTK_ENTRY (dialog->clock_high_entry))) ;
   psco->clock_low              = atof (gtk_entry_get_text (GTK_ENTRY (dialog->clock_low_entry))) ;
   psco->clock_shift            = atof (gtk_entry_get_text (GTK_ENTRY (dialog->clock_shift_entry))) ;

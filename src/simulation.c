@@ -133,15 +133,14 @@ int select_cells_in_radius(QCADCell ***sorted_cells,
 // -- determine the distance between the centers of two qdots in different cells **** [IN nm]****** -- //
 double determine_distance(QCADCell *cell1, QCADCell *cell2, int dot_cell_1, int dot_cell_2, double layer_separation)
   {
-  double x, y, z;
+  double x, y ;
 
-  x = fabs (cell1->cell_dots[dot_cell_1].x - cell2->cell_dots[dot_cell_2].x);
-  y = fabs (cell1->cell_dots[dot_cell_1].y - cell2->cell_dots[dot_cell_2].y);
-  z = fabs (layer_separation);
+  x = cell1->cell_dots[dot_cell_1].x - cell2->cell_dots[dot_cell_2].x;
+  y = cell1->cell_dots[dot_cell_1].y - cell2->cell_dots[dot_cell_2].y;
 
 	//printf("x = %e y = %e z = %e\n",x,y,z);
 
-  return sqrt (x * x + y * y + z * z);
+  return sqrt (x * x + y * y + layer_separation * layer_separation);
   }//determine_distance
 
 // Used by all simulation engines (so far) to assemble design into desirable structures

@@ -95,9 +95,11 @@
 #define ONE_OVER_FOUR_HALF_QCHARGE 3.12109e18
 #define EPSILON 8.8541878e-12
 #define PI (double)(3.1415926535897932384626433832795)
+#define TWO_PI 6.283185
 #define FOUR_PI 12.56637061
 #define FOUR_PI_EPSILON 1.112650056e-10
 #define HBAR 1.0545887e-34
+#define OVER_HBAR 9.482523555e33
 #define PRECISION 1e-5
 
 // Maximum length of a file system path

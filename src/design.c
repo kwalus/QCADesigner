@@ -269,10 +269,10 @@ void design_draw (DESIGN *design, GdkDrawable *dst, GdkFunction rop, GdkRectangl
   for (llLayer = design->lstLayers ; NULL != llLayer ; llLayer = llLayer->next)
     if (LAYER_STATUS_VISIBLE == QCAD_LAYER (llLayer->data)->status ||
         LAYER_STATUS_ACTIVE  == QCAD_LAYER (llLayer->data)->status)
-//      {
-//      fprintf (stderr, "Drawing layer \"%s\"\n", QCAD_LAYER (llLayer->data)->pszDescription) ;
-      qcad_layer_draw (QCAD_LAYER (llLayer->data), dst, rop, rcClip, flags) ;
-//      }
+      {
+      QCAD_LAYER_SET_DRAW_FLAGS (llLayer->data, flags) ;
+      qcad_design_object_draw (QCAD_DESIGN_OBJECT (llLayer->data), dst, rop, rcClip) ;
+      }
   }
 
 GtkListStore *design_layer_list_store_new (DESIGN *design, int icExtraColumns, ...)

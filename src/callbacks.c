@@ -493,7 +493,7 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
     }
   else
 */
-    layer = qcad_layer_new ((int)data, LAYER_STATUS_VISIBLE, _("New Layer")) ;
+    layer = qcad_layer_new ((int)data, LAYER_STATUS_ACTIVE, _("New Layer")) ;
 #ifdef UNDO_REDO
   if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer), main_window.main_window, NULL))
 #else

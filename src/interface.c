@@ -725,7 +725,6 @@ void create_main_window (main_W *main_window){
     gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
     g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_VERTICAL) ;
 
-  // create and add the circular clocking zone button to the toolbar //
   main_window->substrate_button =
     gtk_toolbar_append_element (
       GTK_TOOLBAR (main_window->toolbar),
@@ -750,16 +749,16 @@ void create_main_window (main_W *main_window){
       (GCallback)action_button_clicked, (gpointer)ACTION_LABEL) ;
 
   // Clocking layer buttons
-  main_window->rect_clocking_zone_button =
+  main_window->rectangle_electrode_button =
     gtk_toolbar_append_element (
       GTK_TOOLBAR (main_window->toolbar),
       GTK_TOOLBAR_CHILD_RADIOBUTTON,
       main_window->insert_type_1_cell_button,
-      _("Rectangular"),
-      _("Rectangular Clocking Zone"),
-      _("Creates a new rectangular clocking zone."),
-      gtk_image_new_from_stock (QCAD_STOCK_RECT_CLOCKING_ZONE, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_RECTANGLE_CLOCKING_ZONE) ;
+      _("Rectangle"),
+      _("Rectangular Electrode"),
+      _("Creates a new rectangular electrode."),
+      gtk_image_new_from_stock (QCAD_STOCK_RECT_ELECTRODE, QCAD_ICON_SIZE_SIDE_TOOLBAR),
+      (GCallback)action_button_clicked, (gpointer)ACTION_RECTANGLE_ELECTRODE) ;
 
   // This will separate layer-specific commands from generic ones like zoom & pan
   gtk_toolbar_append_space (GTK_TOOLBAR (main_window->toolbar)) ;

@@ -86,7 +86,7 @@ void selection_renderer_draw (SELECTION_RENDERER *sr, DESIGN *design, GdkWindow 
 
 void selection_renderer_update (SELECTION_RENDERER *sr, DESIGN *design)
   {
-  WorldRectangle rcWorld ;
+//  WorldRectangle rcWorld ;
   GdkRectangle rcDisplay = {0} ;
 
   rcDisplay.width = sr->pixmap->cxUsed ;
@@ -102,7 +102,7 @@ void selection_renderer_update (SELECTION_RENDERER *sr, DESIGN *design)
     world_to_real_rect (&(sr->extSelection), &(sr->rcSelection)) ;
 
     if (gdk_rectangle_intersect (&rcDisplay, &(sr->rcSelection), &(sr->rcVisible)))
-      design_draw (design, sr->pixmap->pixmap, GDK_COPY, &(sr->rcVisible), LAYER_DRAW_SELECTION) ;
+      design_draw (design, sr->pixmap->pixmap, GDK_COPY, &(sr->rcVisible), QCAD_LAYER_DRAW_SELECTION) ;
     }
   }
 

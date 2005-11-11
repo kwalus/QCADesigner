@@ -69,6 +69,6 @@
 #define QCAD_STOCK_LABEL              "qcad-label"
 #define QCAD_STOCK_SUBSTRATE          "qcad-substrate"
 #define QCAD_STOCK_INSERT_COL_BEFORE  "qcad-insert-column-before"
-#define QCAD_STOCK_RECT_CLOCKING_ZONE "qcad-rect-clocking-zone"
+#define QCAD_STOCK_RECT_ELECTRODE     "qcad-rect-clocking-zone"
 
 #endif /* _QCADSTOCK_H_ */

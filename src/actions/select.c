@@ -34,7 +34,7 @@
 #include "../selection_undo.h"
 #include "objects/QCADUndoEntry.h"
 #include "objects/QCADUndoEntryGroup.h"
-#include "objects/QCADRectangleClockingZone.h"
+#include "objects/QCADRectangleElectrode.h"
 #endif /* def UNDO_REDO */
 
 extern GdkColor clrBlack ;
@@ -289,7 +289,7 @@ gboolean button_released_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event
         if (!(event->state & GDK_CONTROL_MASK))
           {
           clean_extents (widget->window, world_to_real_rect (&rcWorld, &rcReal)) ;
-          design_draw (project_options->design, widget->window, GDK_COPY, &rcReal, LAYER_DRAW_NON_SELECTION) ;
+          design_draw (project_options->design, widget->window, GDK_COPY, &rcReal, QCAD_LAYER_DRAW_NON_SELECTION) ;
           selection_renderer_draw (project_options->srSelection, project_options->design, widget->window, GDK_XOR) ;
           }
 
@@ -343,7 +343,7 @@ static gboolean selection_needs_snap_p (DESIGN *design)
   for (llItr = lstSelTypes ; llItr != NULL ; llItr = llItr->next)
     if (QCAD_TYPE_CELL                    == (G_TYPE_FROM_INSTANCE (llItr->data)) ||
         QCAD_TYPE_SUBSTRATE               == (G_TYPE_FROM_INSTANCE (llItr->data)) ||
-        QCAD_TYPE_RECTANGLE_CLOCKING_ZONE == (G_TYPE_FROM_INSTANCE (llItr->data)))
+        QCAD_TYPE_RECTANGLE_ELECTRODE     == (G_TYPE_FROM_INSTANCE (llItr->data)))
       return TRUE ;
 
   return FALSE ;

@@ -26,13 +26,13 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#ifndef _OBJECTS_QCADRectangleClockingZone_H_
-#define _OBJECTS_QCADRectangleClockingZone_H_
+#ifndef _OBJECTS_QCADRectangleElectrode_H_
+#define _OBJECTS_QCADRectangleElectrode_H_
 
 #include <glib-object.h>
 #include "../gdk_structs.h"
 #include "../exp_array.h"
-#include "QCADClockingZone.h"
+#include "QCADElectrode.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,50 +40,52 @@ extern "C" {
 
 typedef struct
   {
-  QCADClockingZoneOptions clocking_zone_options ;
+  QCADElectrodeOptions electrode_options ;
   double angle ;
   int n_x_divisions ;
   int n_y_divisions ;
   double cxWorld ;
   double cyWorld ;
-  } QCADRectangleClockingZoneOptions ;
+  } QCADRectangleElectrodeOptions ;
 
 typedef struct
   {
-  QCADClockingZone parent_instance ;
+  QCADElectrode parent_instance ;
   double angle ;
   int n_x_divisions ;
   int n_y_divisions ;
-  double default_cxWorld ;
-  double default_cyWorld ;
-  } QCADRectangleClockingZone ;
+  int n_divisions ; // == n_x_divisions * n_y_divisions
+  double cxWorld ;
+  double cyWorld ;
+  WorldPoint pt[4] ;
+  } QCADRectangleElectrode ;
 
 typedef struct
   {
   /* public */
-  QCADClockingZoneClass parent_class ;
+  QCADElectrodeClass parent_class ;
   double default_angle ;
   int default_n_x_divisions ;
   int default_n_y_divisions ;
   double default_cxWorld ;
   double default_cyWorld ;
-  } QCADRectangleClockingZoneClass ;
+  } QCADRectangleElectrodeClass ;
 
-GType qcad_rectangle_clocking_zone_get_type () ;
+GType qcad_rectangle_electrode_get_type () ;
 
-#define QCAD_TYPE_STRING_RECTANGLE_CLOCKING_ZONE "QCADRectangleClockingZone"
-#define QCAD_TYPE_RECTANGLE_CLOCKING_ZONE (qcad_rectangle_clocking_zone_get_type ())
-#define QCAD_RECTANGLE_CLOCKING_ZONE(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_RECTANGLE_CLOCKING_ZONE, QCADRectangleClockingZone))
-#define QCAD_RECTANGLE_CLOCKING_ZONE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_RECTANGLE_CLOCKING_ZONE, QCADRectangleClockingZoneClass))
-#define QCAD_IS_RECTANGLE_CLOCKING_ZONE(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RECTANGLE_CLOCKING_ZONE))
-#define QCAD_IS_RECTANGLE_CLOCKING_ZONE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_RECTANGLE_CLOCKING_ZONE))
-#define QCAD_RECTANGLE_CLOCKING_ZONE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_RECTANGLE_CLOCKING_ZONE, QCADRectangleClockingZoneClass))
+#define QCAD_TYPE_STRING_RECTANGLE_ELECTRODE "QCADRectangleElectrode"
+#define QCAD_TYPE_RECTANGLE_ELECTRODE (qcad_rectangle_electrode_get_type ())
+#define QCAD_RECTANGLE_ELECTRODE(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrode))
+#define QCAD_RECTANGLE_ELECTRODE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrodeClass))
+#define QCAD_IS_RECTANGLE_ELECTRODE(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RECTANGLE_ELECTRODE))
+#define QCAD_IS_RECTANGLE_ELECTRODE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_RECTANGLE_ELECTRODE))
+#define QCAD_RECTANGLE_ELECTRODE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrodeClass))
 
-QCADDesignObject *qcad_rectangle_clocking_zone_new () ;
+QCADDesignObject *qcad_rectangle_electrode_new () ;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _OBJECTS_QCADClockingZone_H_ */
+#endif /* _OBJECTS_QCADElectrode_H_ */

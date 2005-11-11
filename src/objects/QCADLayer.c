@@ -47,7 +47,7 @@
 #include "QCADCompoundDO.h"
 #include "QCADDOContainer.h"
 #include "objects_debug.h"
-#include "QCADRectangleClockingZone.h"
+#include "QCADRectangleElectrode.h"
 
 #define DBG_REFS(s)
 
@@ -91,6 +91,7 @@ static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDes
 static gboolean qcad_layer_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
 static void qcad_layer_track_new_object (QCADLayer *layer, QCADDesignObject *obj, GList *llDeSel, QCADDesignObject *parent) ;
 #ifdef GTK_GUI
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 static EXP_ARRAY *qcad_layer_selection_release_object (QCADDesignObject *obj, GdkWindow *dst, GdkFunction rop, EXP_ARRAY *ar) ;
 static void qcad_layer_draw_foreach (QCADDesignObject *obj, gpointer data) ;
 #endif /* def GTK_GUI */
@@ -155,6 +156,7 @@ static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->hit_test         = hit_test ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->copy             = copy ;
 #ifdef GTK_GUI
+  QCAD_DESIGN_OBJECT_CLASS (klass)->draw             = draw ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->properties       = qcad_layer_properties ;
 #endif /* def GTK_GUI */
   }
@@ -512,10 +514,11 @@ static EXP_ARRAY *qcad_layer_selection_release_object (QCADDesignObject *obj, Gd
   return ar ;
   }
 
-void qcad_layer_draw (QCADLayer *layer, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip, int flags)
+static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
+  QCADLayer *layer = QCAD_LAYER (obj) ;
   WorldRectangle rcClipWorld ;
-  QCAD_LAYER_DRAW_PARAMS cb_parms = {flags, dst, rop, rcClip, real_to_world_rect (&rcClipWorld, rcClip)} ;
+  QCAD_LAYER_DRAW_PARAMS cb_parms = {layer->draw_flags, dst, rop, rcClip, real_to_world_rect (&rcClipWorld, rcClip)} ;
 
   if (NULL == layer || NULL == dst) return ;
 
@@ -524,7 +527,7 @@ void qcad_layer_draw (QCADLayer *layer, GdkDrawable *dst, GdkFunction rop, GdkRe
 //  if (LAYER_TYPE_DISTRIBUTION == layer->type)
 //    fprintf (stderr, "qcad_layer_draw: Distro layer: Calling qcad_layer_object_foreach\n") ;
 
-  qcad_layer_objects_foreach (layer, (LAYER_DRAW_SELECTION == flags && LAYER_STATUS_ACTIVE == layer->status), TRUE, qcad_layer_draw_foreach, &cb_parms) ;
+  qcad_layer_objects_foreach (layer, ((QCAD_LAYER_DRAW_SELECTION & layer->draw_flags) && LAYER_STATUS_ACTIVE == layer->status), TRUE, qcad_layer_draw_foreach, &cb_parms) ;
   }
 
 static void qcad_layer_draw_foreach (QCADDesignObject *obj, gpointer data)
@@ -540,9 +543,9 @@ static void qcad_layer_draw_foreach (QCADDesignObject *obj, gpointer data)
       return ;
       }
 
-  if ((LAYER_DRAW_NON_SELECTION == cb_params->flags && !obj->bSelected) ||
-      (LAYER_DRAW_SELECTION     == cb_params->flags &&  obj->bSelected) ||
-      (LAYER_DRAW_EVERYTHING    == cb_params->flags))
+  if ((QCAD_LAYER_DRAW_NON_SELECTION == cb_params->flags && !obj->bSelected) ||
+      (QCAD_LAYER_DRAW_SELECTION     == cb_params->flags &&  obj->bSelected) ||
+      (QCAD_LAYER_DRAW_EVERYTHING    == cb_params->flags))
     qcad_design_object_draw (obj, cb_params->dst, cb_params->rop, cb_params->rcClip) ;
 //  else
 //    fprintf (stderr, "qcad_layer_draw_foreach: Not drawing 0x%08X because it doesn't line up with the flags\n", (int)obj) ;
@@ -797,7 +800,7 @@ GHashTable *qcad_layer_object_containment_rules ()
 
   // Clocking Layer
   llObjs = NULL ;
-  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_RECTANGLE_CLOCKING_ZONE) ;
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_RECTANGLE_ELECTRODE) ;
   g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CLOCKING, llObjs) ;
 
   //Drawing Layer

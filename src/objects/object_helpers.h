@@ -62,6 +62,12 @@ typedef struct
   {
   double xWorld ;
   double yWorld ;
+  } WorldPoint ;
+
+typedef struct
+  {
+  double xWorld ;
+  double yWorld ;
   double cxWorld ;
   double cyWorld ;
   } WorldRectangle ;

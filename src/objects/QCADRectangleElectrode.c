@@ -42,7 +42,7 @@
 #include "../support.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
-#include "QCADRectangleClockingZone.h"
+#include "QCADRectangleElectrode.h"
 #include "mouse_handlers.h"
 
 #ifdef GTK_GUI
@@ -80,9 +80,9 @@ static struct { ClockFunction clock_function ; char *pszDescription ; } clock_fu
 
 int n_clock_functions = G_N_ELEMENTS (clock_functions) ;
 
-static void qcad_rectangle_clocking_zone_class_init (GObjectClass *klass, gpointer data) ;
-static void qcad_rectangle_clocking_zone_instance_init (GObject *object, gpointer data) ;
-static void qcad_rectangle_clocking_zone_instance_finalize (GObject *object) ;
+static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer data) ;
+static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer data) ;
+static void qcad_rectangle_electrode_instance_finalize (GObject *object) ;
 
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
@@ -92,127 +92,150 @@ static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *defa
 static void *default_properties_get (struct QCADDesignObjectClass *klass) ;
 static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) ;
 static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props) ;
+static void move (QCADDesignObject *obj, double dxDelta, double dyDelta) ;
+static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
+static double get_area (QCADElectrode *electrode) ;
 
 #ifdef GTK_GUI
 static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog) ;
 static void create_properties_dialog (PROPERTIES *dialog) ;
 static void default_properties_apply (gpointer data) ;
 #endif
+static void qcad_rectangle_electrode_calculate_coords (QCADRectangleElectrode *rc_electrode, double cx, double cy, double angle) ;
 
-GType qcad_rectangle_clocking_zone_get_type ()
+GType qcad_rectangle_electrode_get_type ()
   {
-  static GType qcad_rectangle_clocking_zone_type = 0 ;
+  static GType qcad_rectangle_electrode_type = 0 ;
 
-  if (!qcad_rectangle_clocking_zone_type)
+  if (!qcad_rectangle_electrode_type)
     {
-    static const GTypeInfo qcad_rectangle_clocking_zone_info =
+    static const GTypeInfo qcad_rectangle_electrode_info =
       {
-      sizeof (QCADRectangleClockingZoneClass),
+      sizeof (QCADRectangleElectrodeClass),
       (GBaseInitFunc)NULL,
       (GBaseFinalizeFunc)NULL,
-      (GClassInitFunc)qcad_rectangle_clocking_zone_class_init,
+      (GClassInitFunc)qcad_rectangle_electrode_class_init,
       (GClassFinalizeFunc)NULL,
       NULL,
-      sizeof (QCADRectangleClockingZone),
+      sizeof (QCADRectangleElectrode),
       0,
-      (GInstanceInitFunc)qcad_rectangle_clocking_zone_instance_init
+      (GInstanceInitFunc)qcad_rectangle_electrode_instance_init
       } ;
 
-    if ((qcad_rectangle_clocking_zone_type = g_type_register_static (QCAD_TYPE_CLOCKING_ZONE, QCAD_TYPE_STRING_RECTANGLE_CLOCKING_ZONE, &qcad_rectangle_clocking_zone_info, 0)))
-      g_type_class_ref (qcad_rectangle_clocking_zone_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADClockingZone as %d\n", qcad_cell_type)) ;
+    if ((qcad_rectangle_electrode_type = g_type_register_static (QCAD_TYPE_ELECTRODE, QCAD_TYPE_STRING_RECTANGLE_ELECTRODE, &qcad_rectangle_electrode_info, 0)))
+      g_type_class_ref (qcad_rectangle_electrode_type) ;
+    DBG_OO (fprintf (stderr, "Registered QCADElectrode as %d\n", qcad_cell_type)) ;
     }
-  return qcad_rectangle_clocking_zone_type ;
+  return qcad_rectangle_electrode_type ;
   }
 
-static void qcad_rectangle_clocking_zone_class_init (GObjectClass *klass, gpointer data)
+static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "QCADClockingZone::class_init:Leaving\n")) ;
-  G_OBJECT_CLASS (klass)->finalize = qcad_rectangle_clocking_zone_instance_finalize ;
+  DBG_OO (fprintf (stderr, "QCADElectrode::class_init:Leaving\n")) ;
+  G_OBJECT_CLASS (klass)->finalize = qcad_rectangle_electrode_instance_finalize ;
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                       = draw ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_ui      = default_properties_ui ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed          = (GCallback)button_pressed ;
 #endif /* def GTK_GUI */
+  QCAD_DESIGN_OBJECT_CLASS (klass)->move                       = move ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_get     = default_properties_get ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_set     = default_properties_set ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_destroy = default_properties_destroy ;
 
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_angle = 0.0 ;
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_n_x_divisions = 24 ;
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_n_y_divisions = 80 ;
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_cxWorld =  6.0 ;
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_cyWorld = 20.0 ;
+  QCAD_ELECTRODE_CLASS (klass)->get_potential = get_potential ;
+  QCAD_ELECTRODE_CLASS (klass)->get_area      = get_area ;
+
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle = 0.0 ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions = 24 ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_y_divisions = 80 ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cxWorld =  6.0 ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cyWorld = 20.0 ;
   }
 
-static void qcad_rectangle_clocking_zone_instance_init (GObject *object, gpointer data)
+static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer data)
   {
-  QCADRectangleClockingZone *rc_clocking_zone = QCAD_RECTANGLE_CLOCKING_ZONE (object) ;
-  QCADRectangleClockingZoneClass *klass = QCAD_RECTANGLE_CLOCKING_ZONE_GET_CLASS (object) ;
-  DBG_OO (fprintf (stderr, "QCADClockingZone::instance_init:Entering\n")) ;
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (object) ;
+  QCADRectangleElectrodeClass *klass = QCAD_RECTANGLE_ELECTRODE_GET_CLASS (object) ;
+  DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Entering\n")) ;
 
-  rc_clocking_zone->angle         = klass->default_angle ;
-  rc_clocking_zone->n_x_divisions = klass->default_n_x_divisions ;
-  rc_clocking_zone->n_y_divisions = klass->default_n_y_divisions ;
-  QCAD_DESIGN_OBJECT (object)->bounding_box.cxWorld = klass->default_cxWorld ;
-  QCAD_DESIGN_OBJECT (object)->bounding_box.cyWorld = klass->default_cyWorld ;
+  rc_electrode->n_x_divisions = klass->default_n_x_divisions ;
+  rc_electrode->n_y_divisions = klass->default_n_y_divisions ;
+  rc_electrode->n_divisions   = klass->default_n_x_divisions * klass->default_n_y_divisions ;
+  qcad_rectangle_electrode_calculate_coords (rc_electrode, klass->default_cxWorld, klass->default_cyWorld, klass->default_angle) ;
 
-  DBG_OO (fprintf (stderr, "QCADClockingZone::instance_init:Leaving\n")) ;
+  DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Leaving\n")) ;
   }
 
-static void qcad_rectangle_clocking_zone_instance_finalize (GObject *object)
+static void qcad_rectangle_electrode_instance_finalize (GObject *object)
   {
-  DBG_OO (fprintf (stderr, "QCADClockingZone::instance_finalize:Entering\n")) ;
-  G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_CLOCKING_ZONE)))->finalize (object) ;
-  DBG_OO (fprintf (stderr, "QCADClockingZone::instance_finalize:Leaving\n")) ;
+  DBG_OO (fprintf (stderr, "QCADElectrode::instance_finalize:Entering\n")) ;
+  G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->finalize (object) ;
+  DBG_OO (fprintf (stderr, "QCADElectrode::instance_finalize:Leaving\n")) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-QCADDesignObject *qcad_rectangle_clocking_zone_new ()
-  {return QCAD_DESIGN_OBJECT (g_object_new (QCAD_TYPE_RECTANGLE_CLOCKING_ZONE, NULL)) ;}
+QCADDesignObject *qcad_rectangle_electrode_new ()
+  {return QCAD_DESIGN_OBJECT (g_object_new (QCAD_TYPE_RECTANGLE_ELECTRODE, NULL)) ;}
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static void move (QCADDesignObject *obj, double dxDelta, double dyDelta)
+  {
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
+
+  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek_parent (QCAD_DESIGN_OBJECT_GET_CLASS (obj)))->move (obj, dxDelta, dyDelta) ;
+
+  rc_electrode->pt[0].xWorld += dxDelta ;
+  rc_electrode->pt[0].yWorld += dyDelta ;
+  rc_electrode->pt[1].xWorld += dxDelta ;
+  rc_electrode->pt[1].yWorld += dyDelta ;
+  rc_electrode->pt[2].xWorld += dxDelta ;
+  rc_electrode->pt[2].yWorld += dyDelta ;
+  rc_electrode->pt[3].xWorld += dxDelta ;
+  rc_electrode->pt[3].yWorld += dyDelta ;
+  }
 
 #ifdef GTK_GUI
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData)
   {
   int Nix ;
-  QCADClockingZoneClass *clocking_zone_class = QCAD_CLOCKING_ZONE_CLASS (klass) ;
-  QCADRectangleClockingZoneClass *rc_clocking_zone_class = QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass) ;
+  QCADElectrodeClass *electrode_class = QCAD_ELECTRODE_CLASS (klass) ;
+  QCADRectangleElectrodeClass *rc_electrode_class = QCAD_RECTANGLE_ELECTRODE_CLASS (klass) ;
   static DEFAULT_PROPERTIES dialog = {NULL} ;
-  QCADRectangleClockingZoneOptions rcz_options ;
+  QCADRectangleElectrodeOptions rcz_options ;
 
   if (NULL == dialog.tbl)
     create_default_properties_dialog (&dialog) ;
 
   if (NULL == default_properties)
     {
-    memcpy (&rcz_options, &(clocking_zone_class->default_clocking_zone_options), sizeof (QCADClockingZoneOptions)) ;
-    rcz_options.angle         = rc_clocking_zone_class->default_angle ;
-    rcz_options.n_x_divisions = rc_clocking_zone_class->default_n_x_divisions ;
-    rcz_options.n_y_divisions = rc_clocking_zone_class->default_n_y_divisions ;
-    rcz_options.cxWorld       = rc_clocking_zone_class->default_cxWorld ;
-    rcz_options.cyWorld       = rc_clocking_zone_class->default_cyWorld ;
+    memcpy (&rcz_options, &(electrode_class->default_electrode_options), sizeof (QCADElectrodeOptions)) ;
+    rcz_options.angle         = rc_electrode_class->default_angle ;
+    rcz_options.n_x_divisions = rc_electrode_class->default_n_x_divisions ;
+    rcz_options.n_y_divisions = rc_electrode_class->default_n_y_divisions ;
+    rcz_options.cxWorld       = rc_electrode_class->default_cxWorld ;
+    rcz_options.cyWorld       = rc_electrode_class->default_cyWorld ;
     }
   else
-    memcpy (&rcz_options, default_properties, sizeof (QCADRectangleClockingZoneOptions)) ;
+    memcpy (&rcz_options, default_properties, sizeof (QCADRectangleElectrodeOptions)) ;
 
   for (Nix = 0 ; Nix < n_clock_functions ; Nix++)
-    if (clock_functions[Nix].clock_function == rcz_options.clocking_zone_options.clock_function) break ;
+    if (clock_functions[Nix].clock_function == rcz_options.electrode_options.clock_function) break ;
   if (Nix == n_clock_functions) Nix = -1 ;
 
   gtk_option_menu_set_history (GTK_OPTION_MENU (dialog.clock_function_option_menu), Nix) ;
-  gtk_adjustment_set_value_infinite (dialog.adjAmplitude,   rcz_options.clocking_zone_options.amplitude) ;
-  gtk_adjustment_set_value_infinite (dialog.adjFrequency,   rcz_options.clocking_zone_options.frequency / 1000000.0) ;
-  gtk_adjustment_set_value_infinite (dialog.adjDCOffset,    rcz_options.clocking_zone_options.dc_offset) ;
-  gtk_adjustment_set_value_infinite (dialog.adjMinClock,    rcz_options.clocking_zone_options.min_clock) ;
-  gtk_adjustment_set_value_infinite (dialog.adjMaxClock,    rcz_options.clocking_zone_options.max_clock) ;
+  gtk_adjustment_set_value_infinite (dialog.adjAmplitude,   rcz_options.electrode_options.amplitude) ;
+  gtk_adjustment_set_value_infinite (dialog.adjFrequency,   rcz_options.electrode_options.frequency / 1000000.0) ;
+  gtk_adjustment_set_value_infinite (dialog.adjDCOffset,    rcz_options.electrode_options.dc_offset) ;
+  gtk_adjustment_set_value_infinite (dialog.adjMinClock,    rcz_options.electrode_options.min_clock) ;
+  gtk_adjustment_set_value_infinite (dialog.adjMaxClock,    rcz_options.electrode_options.max_clock) ;
   gtk_adjustment_set_value_infinite (dialog.adjNXDivisions, rcz_options.n_x_divisions) ;
   gtk_adjustment_set_value_infinite (dialog.adjNYDivisions, rcz_options.n_y_divisions) ;
   gtk_adjustment_set_value_infinite (dialog.adjCX,          rcz_options.cxWorld) ;
   gtk_adjustment_set_value_infinite (dialog.adjCY,          rcz_options.cyWorld) ;
-  gtk_adjustment_set_value (dialog.adjPhase,       (rcz_options.clocking_zone_options.phase * 180.0) / PI) ;
+  gtk_adjustment_set_value (dialog.adjPhase,       (rcz_options.electrode_options.phase * 180.0) / PI) ;
   gtk_adjustment_set_value (dialog.adjAngle,       (rcz_options.angle * 180.0) / PI) ;
 
   (*pTopContainer) = dialog.tbl ;
@@ -222,8 +245,14 @@ static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *defa
 
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
+  int Nix, Nix1 ;
   GdkGC *gc = NULL ;
   GdkRectangle rcReal ;
+  GdkPoint ptSrc, ptDst ;
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
+  WorldPoint ptSrcLine, ptDstLine ;
+  // point radius
+//  int cxRealPtRadius = world_to_real_cx (0.) ;
 
   world_to_real_rect (&(obj->bounding_box), &rcReal) ;
 
@@ -236,7 +265,38 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   gdk_gc_set_function (gc, rop) ;
   gdk_gc_set_clip_rectangle (gc, rcClip) ;
 
-  gdk_draw_rectangle (dst, gc, FALSE, rcReal.x, rcReal.y, rcReal.width, rcReal.height) ;
+  ptSrc.x = world_to_real_x (rc_electrode->pt[0].xWorld) ;
+  ptSrc.y = world_to_real_y (rc_electrode->pt[0].yWorld) ;
+  ptDst.x = world_to_real_x (rc_electrode->pt[1].xWorld) ;
+  ptDst.y = world_to_real_y (rc_electrode->pt[1].yWorld) ;
+  gdk_draw_line (dst, gc, ptSrc.x, ptSrc.y, ptDst.x, ptDst.y) ;
+  ptSrc = ptDst ;
+  ptDst.x = world_to_real_x (rc_electrode->pt[2].xWorld) ;
+  ptDst.y = world_to_real_y (rc_electrode->pt[2].yWorld) ;
+  gdk_draw_line (dst, gc, ptSrc.x, ptSrc.y, ptDst.x, ptDst.y) ;
+  ptSrc = ptDst ;
+  ptDst.x = world_to_real_x (rc_electrode->pt[3].xWorld) ;
+  ptDst.y = world_to_real_y (rc_electrode->pt[3].yWorld) ;
+  gdk_draw_line (dst, gc, ptSrc.x, ptSrc.y, ptDst.x, ptDst.y) ;
+  ptSrc = ptDst ;
+  ptDst.x = world_to_real_x (rc_electrode->pt[0].xWorld) ;
+  ptDst.y = world_to_real_y (rc_electrode->pt[0].yWorld) ;
+  gdk_draw_line (dst, gc, ptSrc.x, ptSrc.y, ptDst.x, ptDst.y) ;
+
+  for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
+    {
+    ptSrcLine.xWorld = rc_electrode->pt[0].xWorld + (rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
+    ptSrcLine.yWorld = rc_electrode->pt[0].yWorld + (rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
+    ptDstLine.xWorld = rc_electrode->pt[2].xWorld + (rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
+    ptDstLine.yWorld = rc_electrode->pt[2].yWorld + (rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
+    for (Nix1 = 0 ; Nix1 < rc_electrode->n_y_divisions ; Nix1++)
+      {
+      ptSrc.x = world_to_real_x (ptSrcLine.xWorld + (ptDstLine.xWorld - ptSrcLine.xWorld) / (rc_electrode->n_y_divisions * 2) * (2 * Nix1 + 1)) ;
+      ptSrc.y = world_to_real_y (ptSrcLine.yWorld + (ptDstLine.yWorld - ptSrcLine.yWorld) / (rc_electrode->n_y_divisions * 2) * (2 * Nix1 + 1)) ;
+      if (PT_IN_RECT (ptSrc.x, ptSrc.y, rcClip->x, rcClip->y, rcClip->width, rcClip->height))
+        gdk_draw_point (dst, gc, ptSrc.x, ptSrc.y) ;
+      }
+    }
 
   g_object_unref (gc) ;
   }
@@ -252,9 +312,8 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
   world_to_grid_pt (&xWorld, &yWorld) ;
 #endif /* def DESIGNER */
 
-  obj = qcad_rectangle_clocking_zone_new () ;
-  obj->bounding_box.xWorld = xWorld - obj->bounding_box.cxWorld / 2.0 ;
-  obj->bounding_box.yWorld = yWorld - obj->bounding_box.cyWorld / 2.0 ;
+  obj = qcad_rectangle_electrode_new () ;
+  qcad_design_object_move (obj, xWorld - obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0, yWorld - obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0) ;
 
 #ifdef DESIGNER
   if (NULL != drop_function)
@@ -270,31 +329,79 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
 
 static void *default_properties_get (struct QCADDesignObjectClass *klass)
   {
-  QCADClockingZoneOptions *pDefaults = g_malloc (sizeof (QCADRectangleClockingZoneOptions)) ;
-  QCADRectangleClockingZoneOptions *p_rcz_Defaults = (QCADRectangleClockingZoneOptions *)pDefaults ;
+  QCADElectrodeClass *parent_class = QCAD_ELECTRODE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE))) ;
+  QCADElectrodeOptions *pDefaults = g_malloc (sizeof (QCADRectangleElectrodeOptions)) ;
+  QCADRectangleElectrodeOptions *p_rcz_Defaults = (QCADRectangleElectrodeOptions *)pDefaults ;
 
-  memcpy (pDefaults, &(QCAD_CLOCKING_ZONE_CLASS (klass)->default_clocking_zone_options), sizeof (QCADClockingZoneOptions)) ;
-  p_rcz_Defaults->angle         = QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_angle ;
-  p_rcz_Defaults->n_x_divisions = QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_n_x_divisions ;
-  p_rcz_Defaults->n_y_divisions = QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_n_y_divisions ;
-  p_rcz_Defaults->cxWorld       = QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_cxWorld ;
-  p_rcz_Defaults->cyWorld       = QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_cyWorld ;
+  memcpy (pDefaults, &(parent_class->default_electrode_options), sizeof (QCADElectrodeOptions)) ;
+  p_rcz_Defaults->angle         = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle ;
+  p_rcz_Defaults->n_x_divisions = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions ;
+  p_rcz_Defaults->n_y_divisions = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_y_divisions ;
+  p_rcz_Defaults->cxWorld       = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cxWorld ;
+  p_rcz_Defaults->cyWorld       = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cyWorld ;
   return (void *)pDefaults ;
   }
 
 static void default_properties_set (struct QCADDesignObjectClass *klass, void *props)
   {
-  memcpy (&(QCAD_CLOCKING_ZONE_CLASS (klass)->default_clocking_zone_options), props, sizeof (QCADClockingZoneOptions)) ;
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_angle = ((QCADRectangleClockingZoneOptions *)props)->angle ;
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_n_x_divisions = ((QCADRectangleClockingZoneOptions *)props)->n_x_divisions ;
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_n_y_divisions = ((QCADRectangleClockingZoneOptions *)props)->n_y_divisions ;
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_cxWorld = ((QCADRectangleClockingZoneOptions *)props)->cxWorld ;
-  QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (klass)->default_cyWorld = ((QCADRectangleClockingZoneOptions *)props)->cyWorld ;
+  QCADElectrodeClass *parent_class = QCAD_ELECTRODE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE))) ;
+
+  memcpy (&(parent_class->default_electrode_options), props, sizeof (QCADElectrodeOptions)) ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle = ((QCADRectangleElectrodeOptions *)props)->angle ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions = ((QCADRectangleElectrodeOptions *)props)->n_x_divisions ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_y_divisions = ((QCADRectangleElectrodeOptions *)props)->n_y_divisions ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cxWorld = ((QCADRectangleElectrodeOptions *)props)->cxWorld ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cyWorld = ((QCADRectangleElectrodeOptions *)props)->cyWorld ;
   }
 
 static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props)
   {g_free (props) ;}
 
+static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t)
+  {
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
+  int Nix, Nix1 ;
+  double potential = 0, rho = 0 ;
+  WorldPoint ptSrcLine, ptDstLine, ptSrc ;
+  double cx, cy, cz_mir, cx_sq_plus_cy_sq ;
+
+  if (z < 0) return 0 ;
+
+  rho = electrode->capacitance * qcad_electrode_get_voltage (electrode, t) / rc_electrode->n_divisions ;
+  
+  for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
+    {
+    ptSrcLine.xWorld = rc_electrode->pt[0].xWorld + (rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
+    ptSrcLine.yWorld = rc_electrode->pt[0].yWorld + (rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
+    ptDstLine.xWorld = rc_electrode->pt[2].xWorld + (rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
+    ptDstLine.yWorld = rc_electrode->pt[2].yWorld + (rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
+    for (Nix1 = 0 ; Nix1 < rc_electrode->n_y_divisions ; Nix1++)
+      {
+      ptSrc.xWorld = ptSrcLine.xWorld + (ptDstLine.xWorld - ptSrcLine.xWorld) / (rc_electrode->n_y_divisions * 2) * (2 * Nix1 + 1) ;
+      ptSrc.yWorld = ptSrcLine.yWorld + (ptDstLine.yWorld - ptSrcLine.yWorld) / (rc_electrode->n_y_divisions * 2) * (2 * Nix1 + 1) ;
+
+      cx = x - ptSrc.xWorld ;
+      cy = y - ptSrc.yWorld ;
+      cx_sq_plus_cy_sq = cx * cx + cy * cy ;
+
+      cz_mir = 2.0 * electrode->z_to_ground - z ;
+
+      potential +=
+        rho * ((1.0 / sqrt (cx_sq_plus_cy_sq +   z    *   z   )) - 
+               (1.0 / sqrt (cx_sq_plus_cy_sq + cz_mir * cz_mir)))
+        / FOUR_PI * electrode->permittivity ;
+      }
+    }
+
+  return potential ;
+  }
+
+static double get_area (QCADElectrode *electrode)
+  {
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
+
+  return rc_electrode->cxWorld * rc_electrode->cyWorld * 1e-18 ;
+  }
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef GTK_GUI
@@ -493,20 +600,85 @@ static void create_properties_dialog (PROPERTIES *dialog)
 static void default_properties_apply (gpointer data)
   {
   DEFAULT_PROPERTIES *dialog = (DEFAULT_PROPERTIES *)data ;
-  QCADClockingZoneClass *clocking_zone_class = QCAD_CLOCKING_ZONE_CLASS (g_type_class_peek (QCAD_TYPE_RECTANGLE_CLOCKING_ZONE)) ;
-  QCADRectangleClockingZoneClass *rc_clocking_zone_class = QCAD_RECTANGLE_CLOCKING_ZONE_CLASS (clocking_zone_class) ;
+  QCADElectrodeClass *electrode_class = QCAD_ELECTRODE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE))) ;
+  QCADRectangleElectrodeClass *rc_electrode_class = QCAD_RECTANGLE_ELECTRODE_CLASS (g_type_class_peek (QCAD_TYPE_RECTANGLE_ELECTRODE)) ;
 
-  clocking_zone_class->default_clocking_zone_options.clock_function = clock_functions[gtk_option_menu_get_history (GTK_OPTION_MENU (dialog->clock_function_option_menu))].clock_function ;
-  clocking_zone_class->default_clocking_zone_options.amplitude      = gtk_adjustment_get_value (dialog->adjAmplitude) ;
-  clocking_zone_class->default_clocking_zone_options.frequency      = gtk_adjustment_get_value (dialog->adjFrequency) * 1000000.0 ;
-  clocking_zone_class->default_clocking_zone_options.phase          = (gtk_adjustment_get_value (dialog->adjPhase) * PI) / 180.0 ;
-  clocking_zone_class->default_clocking_zone_options.dc_offset      = gtk_adjustment_get_value (dialog->adjDCOffset) ;
-  clocking_zone_class->default_clocking_zone_options.min_clock      = gtk_adjustment_get_value (dialog->adjMinClock) ;
-  clocking_zone_class->default_clocking_zone_options.max_clock      = gtk_adjustment_get_value (dialog->adjMaxClock) ;
-  rc_clocking_zone_class->default_angle         = gtk_adjustment_get_value (dialog->adjAngle) ;
-  rc_clocking_zone_class->default_n_x_divisions = (int)gtk_adjustment_get_value (dialog->adjNXDivisions) ;
-  rc_clocking_zone_class->default_n_y_divisions = (int)gtk_adjustment_get_value (dialog->adjNYDivisions) ;
-  rc_clocking_zone_class->default_cxWorld       = gtk_adjustment_get_value (dialog->adjCX) ;
-  rc_clocking_zone_class->default_cyWorld       = gtk_adjustment_get_value (dialog->adjCY) ;
+  electrode_class->default_electrode_options.clock_function = clock_functions[gtk_option_menu_get_history (GTK_OPTION_MENU (dialog->clock_function_option_menu))].clock_function ;
+  electrode_class->default_electrode_options.amplitude      = gtk_adjustment_get_value (dialog->adjAmplitude) ;
+  electrode_class->default_electrode_options.frequency      = gtk_adjustment_get_value (dialog->adjFrequency) * 1000000.0 ;
+  electrode_class->default_electrode_options.phase          = (gtk_adjustment_get_value (dialog->adjPhase) * PI) / 180.0 ;
+  electrode_class->default_electrode_options.dc_offset      = gtk_adjustment_get_value (dialog->adjDCOffset) ;
+  electrode_class->default_electrode_options.min_clock      = gtk_adjustment_get_value (dialog->adjMinClock) ;
+  electrode_class->default_electrode_options.max_clock      = gtk_adjustment_get_value (dialog->adjMaxClock) ;
+  rc_electrode_class->default_angle         = (gtk_adjustment_get_value (dialog->adjAngle) * PI) / 180.0 ;
+  rc_electrode_class->default_n_x_divisions = (int)gtk_adjustment_get_value (dialog->adjNXDivisions) ;
+  rc_electrode_class->default_n_y_divisions = (int)gtk_adjustment_get_value (dialog->adjNYDivisions) ;
+  rc_electrode_class->default_cxWorld       = gtk_adjustment_get_value (dialog->adjCX) ;
+  rc_electrode_class->default_cyWorld       = gtk_adjustment_get_value (dialog->adjCY) ;
   }
 #endif
+
+static void qcad_rectangle_electrode_calculate_coords (QCADRectangleElectrode *rc_electrode, double cx, double cy, double angle)
+  {
+  QCADDesignObject *obj = QCAD_DESIGN_OBJECT (rc_electrode) ;
+  double 
+    kose =  cos (angle),
+    msin = -sin (angle),
+    sine =  sin (angle),
+    half_cx = cx / 2.0,
+    half_cy = cy / 2.0,
+    xMin, yMin, xMax, yMax ;
+  WorldPoint pt[4] = {{0,0},{0,0},{0,0},{0,0}}, ptCenter = {0,0} ;
+
+  rc_electrode->cxWorld = cx ;
+  rc_electrode->cyWorld = cy ;
+  rc_electrode->angle   = angle ;
+
+  ptCenter.xWorld = obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0 ;
+  ptCenter.yWorld = obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0 ;
+
+  // Create corner points
+  pt[0].xWorld = ptCenter.xWorld - half_cx ;
+  pt[0].yWorld = ptCenter.yWorld - half_cy ;
+  pt[1].xWorld = ptCenter.xWorld + half_cx ;
+  pt[1].yWorld = ptCenter.yWorld - half_cy ;
+  pt[2].xWorld = ptCenter.xWorld + half_cx ;
+  pt[2].yWorld = ptCenter.yWorld + half_cy ;
+  pt[3].xWorld = ptCenter.xWorld - half_cx ;
+  pt[3].yWorld = ptCenter.yWorld + half_cy ;
+
+  if (0 != angle)
+    {
+    // rotate corner points
+    rc_electrode->pt[0].xWorld = kose * pt[0].xWorld + sine * pt[0].yWorld ;
+    rc_electrode->pt[0].yWorld = msin * pt[0].xWorld + kose * pt[0].yWorld ;
+    rc_electrode->pt[1].xWorld = kose * pt[1].xWorld + sine * pt[1].yWorld ;
+    rc_electrode->pt[1].yWorld = msin * pt[1].xWorld + kose * pt[1].yWorld ;
+    rc_electrode->pt[2].xWorld = kose * pt[2].xWorld + sine * pt[2].yWorld ;
+    rc_electrode->pt[2].yWorld = msin * pt[2].xWorld + kose * pt[2].yWorld ;
+    rc_electrode->pt[3].xWorld = kose * pt[3].xWorld + sine * pt[3].yWorld ;
+    rc_electrode->pt[3].yWorld = msin * pt[3].xWorld + kose * pt[3].yWorld ;
+
+    // move corner points back
+    xMin = MIN (rc_electrode->pt[0].xWorld, MIN (rc_electrode->pt[1].xWorld, MIN (rc_electrode->pt[2].xWorld, rc_electrode->pt[3].xWorld))) ;
+    xMax = MAX (rc_electrode->pt[0].xWorld, MAX (rc_electrode->pt[1].xWorld, MAX (rc_electrode->pt[2].xWorld, rc_electrode->pt[3].xWorld))) ;
+    yMin = MIN (rc_electrode->pt[0].yWorld, MIN (rc_electrode->pt[1].yWorld, MIN (rc_electrode->pt[2].yWorld, rc_electrode->pt[3].yWorld))) ;
+    yMax = MAX (rc_electrode->pt[0].yWorld, MAX (rc_electrode->pt[1].yWorld, MAX (rc_electrode->pt[2].yWorld, rc_electrode->pt[3].yWorld))) ;
+
+    obj->bounding_box.xWorld = xMin ;
+    obj->bounding_box.yWorld = yMin ;
+    obj->bounding_box.cxWorld = xMax - xMin ;
+    obj->bounding_box.cyWorld = yMax - yMin ;
+    }
+  else
+    {
+    rc_electrode->pt[0] = pt[0] ;
+    rc_electrode->pt[1] = pt[1] ;
+    rc_electrode->pt[2] = pt[2] ;
+    rc_electrode->pt[3] = pt[3] ;
+    obj->bounding_box.xWorld = pt[0].xWorld ;
+    obj->bounding_box.yWorld = pt[0].yWorld ;
+    obj->bounding_box.cxWorld = cx ;
+    obj->bounding_box.cyWorld = cy ;
+    }
+  }

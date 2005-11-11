@@ -26,8 +26,8 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#ifndef _OBJECTS_QCADClockingZone_H_
-#define _OBJECTS_QCADClockingZone_H_
+#ifndef _OBJECTS_QCADElectrode_H_
+#define _OBJECTS_QCADElectrode_H_
 
 #include <glib-object.h>
 #include "../gdk_structs.h"
@@ -51,34 +51,46 @@ typedef struct
   double max_clock ; // Volts
 
   double distance_to_draw ;
-  } QCADClockingZoneOptions ;
+  } QCADElectrodeOptions ;
 
 typedef struct
   {
   QCADDesignObject parent_instance ;
-  QCADClockingZoneOptions clocking_zone_options ;
-  } QCADClockingZone ;
+  QCADElectrodeOptions electrode_options ;
+  double capacitance ;
+  double permittivity ; // epsilon_nought * epsilon_r
+  double z_to_ground ;
+  } QCADElectrode ;
 
 typedef struct
   {
   /* public */
   QCADDesignObjectClass parent_class ;
-  QCADClockingZoneOptions default_clocking_zone_options ;
-  } QCADClockingZoneClass ;
+  QCADElectrodeOptions default_electrode_options ;
 
-GType qcad_clocking_zone_get_type () ;
+  double (*get_potential) (QCADElectrode *electrode, double x, double y, double z, double t) ;
+  double (*get_voltage) (QCADElectrode *electrode, double t) ;
+  double (*get_area) (QCADElectrode *electrode) ;
+  } QCADElectrodeClass ;
 
-#define QCAD_TYPE_STRING_CLOCKING_ZONE "QCADClockingZone"
-#define QCAD_TYPE_CLOCKING_ZONE (qcad_clocking_zone_get_type ())
-#define QCAD_CLOCKING_ZONE(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CLOCKING_ZONE, QCADClockingZone))
-#define QCAD_CLOCKING_ZONE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_CLOCKING_ZONE, QCADClockingZoneClass))
-#define QCAD_IS_CLOCKING_ZONE(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CLOCKING_ZONE))
-#define QCAD_IS_CLOCKING_ZONE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_CLOCKING_ZONE))
-#define QCAD_CLOCKING_ZONE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_CLOCKING_ZONE, QCADClockingZoneClass))
+GType qcad_electrode_get_type () ;
+
+double qcad_electrode_get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
+double qcad_electrode_get_voltage (QCADElectrode *electrode, double t) ;
+double qcad_electrode_get_area (QCADElectrode *electrode) ;
+void qcad_electrode_set_capacitance (QCADElectrode *electrode, double relative_permittivity, double z_to_ground) ;
+
+#define QCAD_TYPE_STRING_ELECTRODE "QCADElectrode"
+#define QCAD_TYPE_ELECTRODE (qcad_electrode_get_type ())
+#define QCAD_ELECTRODE(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_ELECTRODE, QCADElectrode))
+#define QCAD_ELECTRODE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_ELECTRODE, QCADElectrodeClass))
+#define QCAD_IS_ELECTRODE(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_ELECTRODE))
+#define QCAD_IS_ELECTRODE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_ELECTRODE))
+#define QCAD_ELECTRODE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_ELECTRODE, QCADElectrodeClass))
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _OBJECTS_QCADClockingZone_H_ */
+#endif /* _OBJECTS_QCADElectrode_H_ */

@@ -62,17 +62,18 @@ typedef enum
   LAYER_STATUS_LAST_STATUS
   } LayerStatus ;
 
-enum
-  {
-  LAYER_DRAW_SELECTION = 0,
-  LAYER_DRAW_NON_SELECTION,
-  LAYER_DRAW_EVERYTHING
-  } ;
+#define QCAD_LAYER_DRAW_SELECTION     1 << 0
+#define QCAD_LAYER_DRAW_NON_SELECTION 1 << 1
+#define QCAD_LAYER_DRAW_EVERYTHING (QCAD_LAYER_DRAW_SELECTION | QCAD_LAYER_DRAW_NON_SELECTION)
+#define QCAD_LAYER_ADD_DRAW_FLAGS(layer,flags) ((QCAD_LAYER ((layer))->draw_flags) |= flags)
+#define QCAD_LAYER_RMV_DRAW_FLAGS(layer,flags) ((QCAD_LAYER ((layer))->draw_flags) &= ~flags)
+#define QCAD_LAYER_SET_DRAW_FLAGS(layer,flags) ((QCAD_LAYER ((layer))->draw_flags) = flags)
 
 typedef struct
   {
   QCADDesignObject parent_instance ;
 
+  int draw_flags ;
   LayerType type ;
   LayerStatus status ;
   char *pszDescription ;
@@ -112,7 +113,6 @@ gboolean qcad_layer_selection_drop (QCADLayer *layer) ;
 #ifdef GTK_GUI
 EXP_ARRAY *qcad_layer_selection_subtract_window (QCADLayer *layer, GdkWindow *dst, GdkFunction rop, WorldRectangle *rcWorld, EXP_ARRAY *ar) ;
 EXP_ARRAY *qcad_layer_selection_release (QCADLayer *layer, GdkWindow *dst, GdkFunction rop, EXP_ARRAY *ar) ;
-void qcad_layer_draw (QCADLayer *layer, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip, int flags) ;
 #endif /* def GTK_GUI */
 gboolean qcad_layer_get_extents (QCADLayer *layer, WorldRectangle *extents, gboolean bSelection) ;
 void qcad_layer_dump (QCADLayer *layer, FILE *pfile) ;

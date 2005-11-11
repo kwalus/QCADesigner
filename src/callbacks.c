@@ -84,7 +84,7 @@
 #include "objects/QCADRuler.h"
 #include "objects/mouse_handlers.h"
 #include "objects/QCADClockCombo.h"
-#include "objects/QCADRectangleClockingZone.h"
+#include "objects/QCADRectangleElectrode.h"
 
 #define DBG_CB(s)
 #define DBG_CB_HERE(s)
@@ -252,8 +252,8 @@ static ACTION actions[ACTION_LAST_ACTION] =
     },
   (gpointer)&project_options, NULL},
 
-  // ACTION_RECTANGLE_CLOCKING_ZONE
-  {0, // Needs to be set to QCAD_TYPE_RECT_CLOCKING_ZONE in main_window_show
+  // ACTION_RECTANGLE_ELECTRODE
+  {0, // Needs to be set to QCAD_TYPE_RECTANGLE_ELECTRODE in main_window_show
     {NULL, NULL, NULL},
   NULL, drop_single_object_with_undo_cb}
 
@@ -281,7 +281,7 @@ void main_window_show (GtkWidget *widget, gpointer data)
               actions[ACTION_SUBSTRATE].type = QCAD_TYPE_SUBSTRATE ;
                   actions[ACTION_LABEL].type = QCAD_TYPE_LABEL ;
                   actions[ACTION_RULER].type = QCAD_TYPE_RULER ;
-actions[ACTION_RECTANGLE_CLOCKING_ZONE].type = QCAD_TYPE_RECTANGLE_CLOCKING_ZONE ;
+actions[ACTION_RECTANGLE_ELECTRODE].type = QCAD_TYPE_RECTANGLE_ELECTRODE ;
 
   gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrWhite)) ;
   gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrCyan)) ;
@@ -1174,7 +1174,7 @@ void on_copy_cell_button_clicked (GtkButton *button, gpointer user_data)
 
     design_get_extents (project_options.design, &rcWorld, TRUE) ;
     world_to_real_rect (&rcWorld, &rcReal) ;
-    design_draw (project_options.design, main_window.drawing_area->window, GDK_COPY, &rcReal, LAYER_DRAW_NON_SELECTION) ;
+    design_draw (project_options.design, main_window.drawing_area->window, GDK_COPY, &rcReal, QCAD_LAYER_DRAW_NON_SELECTION) ;
     move_selection_to_pointer (obj) ;
     // For now - we'll have to have a VectorTable function that merges new inputs into the table.
     VectorTable_fill (project_options.pvt, project_options.design) ;
@@ -1755,7 +1755,7 @@ void redraw_sync (GdkRegion *rgn, gboolean bDestroyRegion)
   gdk_window_begin_paint_region (main_window.drawing_area->window, rgn) ;
 
   for (Nix = 0 ; Nix < icRects ; Nix++)
-    design_draw (project_options.design, main_window.drawing_area->window, GDK_COPY, &(rcRgn[Nix]), LAYER_DRAW_NON_SELECTION) ;
+    design_draw (project_options.design, main_window.drawing_area->window, GDK_COPY, &(rcRgn[Nix]), QCAD_LAYER_DRAW_NON_SELECTION) ;
 
   if (NULL != project_options.srSelection)
     {
@@ -2098,7 +2098,7 @@ static void reflect_layer_status (QCADLayer *layer)
     DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_CELLS\n")) ;
     gtk_widget_hide (main_window.substrate_button) ;
     gtk_widget_hide (main_window.label_button) ;
-    gtk_widget_hide (main_window.rect_clocking_zone_button) ;
+    gtk_widget_hide (main_window.rectangle_electrode_button) ;
 
     gtk_widget_show (main_window.toggle_alt_display_button) ;
     gtk_widget_set_sensitive (main_window.toggle_alt_display_button, bSensitive) ;
@@ -2123,8 +2123,8 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
 
-    gtk_widget_show (main_window.rect_clocking_zone_button) ;
-    gtk_widget_set_sensitive (main_window.rect_clocking_zone_button, bSensitive) ;
+    gtk_widget_show (main_window.rectangle_electrode_button) ;
+    gtk_widget_set_sensitive (main_window.rectangle_electrode_button, bSensitive) ;
     }
   else
   if (LAYER_TYPE_SUBSTRATE == layer->type)
@@ -2136,7 +2136,7 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.toggle_alt_display_button) ;
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
-    gtk_widget_hide (main_window.rect_clocking_zone_button) ;
+    gtk_widget_hide (main_window.rectangle_electrode_button) ;
 
     gtk_widget_show (main_window.substrate_button) ;
     gtk_widget_set_sensitive (main_window.substrate_button, bSensitive) ;
@@ -2151,7 +2151,7 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.toggle_alt_display_button) ;
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
-    gtk_widget_hide (main_window.rect_clocking_zone_button) ;
+    gtk_widget_hide (main_window.rectangle_electrode_button) ;
 
     gtk_widget_show (main_window.label_button) ;
     gtk_widget_set_sensitive (main_window.label_button, bSensitive) ;
@@ -2167,7 +2167,7 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
     gtk_widget_hide (main_window.label_button) ;
-    gtk_widget_hide (main_window.rect_clocking_zone_button) ;
+    gtk_widget_hide (main_window.rectangle_electrode_button) ;
     }
   redraw_async (NULL) ;
   }

@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////
 // Contents:                                            //
 //                                                      //
-// Complex 3x3 Matrix Library							//
+// Complex 3x3 Matrix Library														//
 //                                                      //
 //////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@
 
 #include		"matrixlib_3x3.h"
 
-void complexMatrixMultiplication(complex A[3][3], complex B[3][3], complex result[3][3]){
+inline void complexMatrixMultiplication(complex A[3][3], complex B[3][3], complex result[3][3]){
 	
 	result[0][0] = complexAdd(complexAdd(complexMultiply(A[0][0], B[0][0]), complexMultiply(A[0][1], B[1][0])), complexMultiply(A[0][2], B[2][0]));
 	result[0][1] = complexAdd(complexAdd(complexMultiply(A[0][0], B[0][1]), complexMultiply(A[0][1], B[1][1])), complexMultiply(A[0][2], B[2][1]));
@@ -45,7 +45,7 @@ void complexMatrixMultiplication(complex A[3][3], complex B[3][3], complex resul
 	
 }
 
-void complexMatrixAddition(complex A[3][3], complex B[3][3], complex result[3][3]){
+inline void complexMatrixAddition(complex A[3][3], complex B[3][3], complex result[3][3]){
 	
 	result[0][0] = complexAdd(A[0][0], B[0][0]);
 	result[0][1] = complexAdd(A[0][1], B[0][1]);
@@ -59,7 +59,7 @@ void complexMatrixAddition(complex A[3][3], complex B[3][3], complex result[3][3
 	
 }
 
-void complexMatrixSubtraction(complex A[3][3], complex B[3][3], complex result[3][3]){
+inline void complexMatrixSubtraction(complex A[3][3], complex B[3][3], complex result[3][3]){
 	
 	result[0][0] = complexSub(A[0][0], B[0][0]);	
 	result[0][1] = complexSub(A[0][1], B[0][1]);
@@ -73,7 +73,7 @@ void complexMatrixSubtraction(complex A[3][3], complex B[3][3], complex result[3
 	
 }
 
-void complexConstMatrixMultiplication(complex A, complex B[3][3], complex result[3][3]){
+inline void complexConstMatrixMultiplication(complex A, complex B[3][3], complex result[3][3]){
 	
 	result[0][0] = complexMultiply(A, B[0][0]);
 	result[0][1] = complexMultiply(A, B[0][1]);
@@ -87,7 +87,7 @@ void complexConstMatrixMultiplication(complex A, complex B[3][3], complex result
 	
 }
 
-void complexConstMatrixDivision(complex A, complex B[3][3], complex result[3][3]){
+inline void complexConstMatrixDivision(complex A, complex B[3][3], complex result[3][3]){
 	
 	result[0][0] = complexDivide(A, B[0][0]);
 	result[0][1] = complexDivide(A, B[0][1]);
@@ -101,41 +101,51 @@ void complexConstMatrixDivision(complex A, complex B[3][3], complex result[3][3]
 	
 }
 
-void complexMatrixRealExponential(complex result[3][3]){
+inline void complexMatrixRealExponential(complex result[3][3]){
 	//takes the exponent of the real part
 	//basically we assume that this will be used only on real matricies 
 	//that had to be made complex for other calculations
 	//checks if a matrix is real
-	if(!IS_REAL_3X3(result)){
-		printf("Critical Error: complex matrix was passed to complexMatrixRealExponential()\n");
-		exit(1);
-	}
+	//if(!IS_REAL_3X3(result)){
+	//	printf("Critical Error: complex matrix was passed to complexMatrixRealExponential()\n");
+	//	exit(1);
+	//}
 	
-	result[0][0].re = exp(result[0][0].re);
-	result[0][1].re = exp(result[0][1].re);
-	result[0][2].re = exp(result[0][2].re);
-	result[1][0].re = exp(result[1][0].re);
-	result[1][1].re = exp(result[1][1].re);
-	result[1][2].re = exp(result[1][2].re);
-	result[2][0].re = exp(result[2][0].re);
-	result[2][1].re = exp(result[2][1].re);
-	result[2][2].re = exp(result[2][2].re);
+	result[0][0].re = exp(result[0][0].re);	result[0][1].re = exp(result[0][1].re);	result[0][2].re = exp(result[0][2].re);
+	result[1][0].re = exp(result[1][0].re);	result[1][1].re = exp(result[1][1].re);	result[1][2].re = exp(result[1][2].re);
+	result[2][0].re = exp(result[2][0].re);	result[2][1].re = exp(result[2][1].re);	result[2][2].re = exp(result[2][2].re);
 
 }
 
-complex complexTr(complex A[3][3]){
-	return(complexAdd(complexAdd(A[0][0],A[1][1]), A[2][2]));
-}
-
-complex complexMultiply(complex A, complex B){
+// complex matrix trace
+inline complex complexTr(complex A[3][3]){
 	complex result;
+	
+	result.re = A[0][0].re + A[1][1].re + A[2][2].re;
+	result.im = A[0][0].im + A[1][1].im + A[2][2].im;
+	
+	return(result);
+}
+
+//complex multiplication using only three real multiplications
+inline complex complexMultiply(complex A, complex B){
+	/*complex result;
 	
 	result.re = A.re*B.re - A.im*B.im;
 	result.im = A.re*B.im + A.im*B.re;
 	return result;
+	*/
+	complex result;
+	double temp = A.re*B.re;
+	double temp2 = A.im*B.im;
+	
+	result.re = temp - temp2;
+	result.im = (A.re+A.im)*(B.re+B.im) - temp - temp2;
+	return result;
+	
 }
 
-complex complexDivide(complex denominator, complex numerator){
+inline complex complexDivide(complex denominator, complex numerator){
 	complex result;
 	double denom = denominator.re*denominator.re + denominator.im*denominator.im;
 	
@@ -144,7 +154,7 @@ complex complexDivide(complex denominator, complex numerator){
 	return result;
 }
 
-complex complexAdd(complex A, complex B){
+inline complex complexAdd(complex A, complex B){
 	complex result;
 	
 	result.re = A.re + B.re;
@@ -152,7 +162,7 @@ complex complexAdd(complex A, complex B){
 	return result;
 }
 
-complex complexSub(complex A, complex B){
+inline complex complexSub(complex A, complex B){
 	complex result;
 	
 	result.re = A.re - B.re;
@@ -160,7 +170,7 @@ complex complexSub(complex A, complex B){
 	return result;
 }
 
-void complexIdentityMatrix(complex result[3][3]){
+inline void complexIdentityMatrix(complex result[3][3]){
 	
 	result[0][0].re = 1;
 	result[0][1].re = 0;
@@ -184,13 +194,13 @@ void complexIdentityMatrix(complex result[3][3]){
 		
 }
 
-void complexExtractColumn(int column, complex A[3][3], complex vector[3]){
+inline void complexExtractColumn(int column, complex A[3][3], complex vector[3]){
 	vector[0] = A[0][column];
 	vector[1] = A[1][column];
 	vector[2] = A[2][column];
 }
 
-void complexExtractRow(int row, complex A[3][3], complex vector[3]){
+inline void complexExtractRow(int row, complex A[3][3], complex vector[3]){
 	vector[0] = A[row][0];
 	vector[1] = A[row][1];
 	vector[2] = A[row][2];

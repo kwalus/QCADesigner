@@ -66,6 +66,12 @@ typedef struct
   GtkWidget *vbox1;
   GtkWidget *vertical_ruler;
   GtkWidget *vpaned1;
+  GtkWidget *show_potential_slice_button ;
+  GtkWidget *tblPotentialSlice ;
+  GtkAdjustment *adjPotentialSlice ;
+  GtkAdjustment *adjPotentialTileSize ;
+  GtkAdjustment *adjPotentialTimeCoord ;
+  GtkWidget *cell_layer_default_clock_combo ;
   } main_W ;
 
 void create_main_window (main_W *main_window);

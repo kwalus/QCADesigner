@@ -48,6 +48,8 @@
 #include "QCADDOContainer.h"
 #include "objects_debug.h"
 #include "QCADRectangleElectrode.h"
+#include "QCADLayer_priv.h"
+#include "QCADClockingLayer.h"
 
 #define DBG_REFS(s)
 
@@ -70,8 +72,6 @@ typedef struct
     } QCAD_LAYER_DRAW_PARAMS ;
 #endif /* def GTK_GUI */
 
-static GHashTable *qcad_layer_create_default_properties (LayerType type) ;
-static GHashTable *qcad_layer_free_default_properties (GHashTable *ht) ;
 static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data) ;
 static void qcad_layer_instance_init (QCADDesignObject *object, gpointer data) ;
 static void qcad_layer_instance_finalize (GObject *object) ;
@@ -100,8 +100,6 @@ static void qcad_layer_compound_do_added (QCADCompoundDO *cdo, QCADDesignObject 
 static void qcad_layer_compound_do_removed (QCADCompoundDO *cdo, QCADDesignObject *obj, gpointer data) ;
 static void qcad_design_object_selected (QCADDesignObject *obj, gpointer data) ;
 static void qcad_design_object_destroyed (gpointer data, GObject *obj) ;
-
-static void free_default_properties (gpointer key, gpointer value, gpointer user_data) ;
 
 GType qcad_layer_get_type ()
   {
@@ -159,15 +157,20 @@ static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw             = draw ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->properties       = qcad_layer_properties ;
 #endif /* def GTK_GUI */
+  QCAD_LAYER_CLASS (klass)->compound_do_first  = qcad_layer_compound_do_first ;
+  QCAD_LAYER_CLASS (klass)->compound_do_next   = qcad_layer_compound_do_next ;
+  QCAD_LAYER_CLASS (klass)->compound_do_last   = qcad_layer_compound_do_last ;
+  QCAD_LAYER_CLASS (klass)->do_container_add    = qcad_layer_do_container_add ;
+  QCAD_LAYER_CLASS (klass)->do_container_remove = qcad_layer_do_container_remove ;
   }
 
 static void qcad_compound_do_interface_init (gpointer interface, gpointer interface_data)
   {
   QCADCompoundDOClass *klass = (QCADCompoundDOClass *)interface ;
 
-  klass->first  = qcad_layer_compound_do_first ;
-  klass->next   = qcad_layer_compound_do_next ;
-  klass->last   = qcad_layer_compound_do_last ;
+  klass->first = qcad_layer_compound_do_first ;
+  klass->next  = qcad_layer_compound_do_next ;
+  klass->last  = qcad_layer_compound_do_last ;
   }
 
 static void qcad_do_container_interface_init (gpointer interface, gpointer interface_data)
@@ -260,6 +263,23 @@ static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDes
   if (QCAD_IS_CELL (obj))
     {
     if (layer->type != LAYER_TYPE_CELLS)
+      return FALSE ;
+    else
+    // If the object is selected, we don't care that it overlaps, because it's floating
+    if (!(obj->bSelected))
+      {
+#ifdef ALLOW_UNSERIALIZE_OVERLAP
+      if (!(layer->bAllowOverlap))
+#endif /* def ALLOW_UNSERIALIZE_OVERLAP */
+      for (lstIter = layer->lstObjs ; lstIter != NULL ; lstIter = lstIter->next)
+        if (qcad_design_object_overlaps (obj, QCAD_DESIGN_OBJECT (lstIter->data)))
+          return FALSE ;
+      }
+    }
+  // Rules for electrodes
+  if (QCAD_IS_ELECTRODE (obj))
+    {
+    if (layer->type != LAYER_TYPE_CLOCKING)
       return FALSE ;
     else
     // If the object is selected, we don't care that it overlaps, because it's floating
@@ -392,9 +412,9 @@ static gboolean qcad_layer_do_container_remove (QCADDOContainer *container, QCAD
 
 QCADLayer *qcad_layer_new (LayerType type, LayerStatus status, char *pszDescription)
   {
-  QCADLayer *layer = NULL ;
+  QCADLayer *layer = g_object_new ((LAYER_TYPE_CLOCKING == type ? QCAD_TYPE_CLOCKING_LAYER : QCAD_TYPE_LAYER), NULL) ;
 
-  if (NULL != (layer = g_object_new (QCAD_TYPE_LAYER, NULL)))
+  if (NULL != layer)
     {
     layer->status = status ;
     if (NULL != layer->pszDescription)
@@ -428,8 +448,7 @@ gboolean qcad_layer_selection_drop (QCADLayer *layer)
           llOverlap = g_list_prepend (llOverlap, obj) ;
 
   // Sometimes it's OK for objects to overlap, and other times it's not. The following rules
-  // (only one rule so far - "cells in the same layer mustn't overlap") determine whether the
-  // selection can be dropped
+  // determine whether the selection can be dropped
 
   // Rules for cell layers
   if (LAYER_TYPE_CELLS == layer->type)
@@ -448,6 +467,14 @@ gboolean qcad_layer_selection_drop (QCADLayer *layer)
         if (!(NULL == llItrSel->data || NULL == llItr->data))
           if (qcad_design_object_overlaps (QCAD_DESIGN_OBJECT (llItr->data), QCAD_DESIGN_OBJECT (llItrSel->data)) && 
             (QCAD_IS_SUBSTRATE (llItr->data) && QCAD_IS_SUBSTRATE (llItrSel->data)))
+            bNoOverlap = FALSE ;
+  else
+  if (LAYER_TYPE_CLOCKING == layer->type)
+    for (llItr = llOverlap ; llItr != NULL && bNoOverlap ; llItr = llItr->next)
+      for (llItrSel = layer->lstSelObjs ; llItrSel != NULL && bNoOverlap ; llItrSel = llItrSel->next)
+        if (!(NULL == llItrSel->data || NULL == llItr->data))
+          if (qcad_design_object_overlaps (QCAD_DESIGN_OBJECT (llItr->data), QCAD_DESIGN_OBJECT (llItrSel->data)) && 
+            (QCAD_IS_ELECTRODE (llItr->data) && QCAD_IS_ELECTRODE (llItrSel->data)))
             bNoOverlap = FALSE ;
 
   if (NULL != llOverlap)
@@ -538,10 +565,10 @@ static void qcad_layer_draw_foreach (QCADDesignObject *obj, gpointer data)
 
   if (NULL != cb_params->rcClipWorld)
     if (!qcad_design_object_select_test (obj, cb_params->rcClipWorld, SELECTION_INTERSECTION))
-      {
+//      {
 //      fprintf (stderr, "qcad_layer_draw_foreach: Not drawing 0x%08X, because it fails select test\n", (int)obj) ;
       return ;
-      }
+//      }
 
   if ((QCAD_LAYER_DRAW_NON_SELECTION == cb_params->flags && !obj->bSelected) ||
       (QCAD_LAYER_DRAW_SELECTION     == cb_params->flags &&  obj->bSelected) ||
@@ -756,64 +783,6 @@ static void qcad_design_object_selected (QCADDesignObject *obj, gpointer data)
     }
   }
 
-static GHashTable *qcad_layer_create_default_properties (LayerType type)
-  {
-  GHashTable *props = NULL ;
-  GList *llItr = NULL ;
-
-  props = g_hash_table_new (NULL, NULL) ;
-  for (llItr = g_hash_table_lookup (qcad_layer_object_containment_rules (), (gpointer)(type)) ; llItr != NULL ; llItr = llItr->next)
-    g_hash_table_insert (props, llItr->data, qcad_design_object_class_get_properties (QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek ((GType)(llItr->data))))) ;
-
-  return props ;
-  }
-
-// This function destroys the default_properies hash table and always returns NULL
-static GHashTable *qcad_layer_free_default_properties (GHashTable *ht)
-  {
-  g_hash_table_foreach (ht, free_default_properties, NULL) ;
-  g_hash_table_destroy (ht) ;
-  return NULL ;
-  }
-
-// This is a hash table such that the keys are layer types and the data for each layer type is a
-// linked list of GTypes for that particular layer type - it basically defines the
-// layer_type->object_type one-to-many constraints
-GHashTable *qcad_layer_object_containment_rules ()
-  {
-  static GHashTable *ht = NULL ;
-  GList *llObjs = NULL ;
-
-  if (NULL != ht) return ht ;
-
-  ht = g_hash_table_new (NULL, NULL) ;
-
-  // Substrate Layer
-  llObjs = NULL ;
-  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_SUBSTRATE) ;
-  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_SUBSTRATE, llObjs) ;
-
-  // Cells Layer
-  llObjs = NULL ;
-  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_CELL) ;
-  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CELLS, llObjs) ;
-
-  // Clocking Layer
-  llObjs = NULL ;
-  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_RECTANGLE_ELECTRODE) ;
-  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CLOCKING, llObjs) ;
-
-  //Drawing Layer
-  llObjs = NULL ;
-  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_LABEL) ;
-  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_DRAWING, llObjs) ;
-
-  return ht ;
-  }
-
-static void free_default_properties (gpointer key, gpointer value, gpointer user_data)
-  {if (NULL != value) g_free (value) ;}
-
 #ifdef STDIO_FILEIO
 static gboolean unserialize (QCADDesignObject *obj, FILE *pfile)
   {
@@ -986,4 +955,39 @@ static gboolean qcad_layer_compound_do_last (QCADCompoundDO *cdo)
   if (NULL == (QCAD_LAYER (cdo)->llContainerIter)->next) return TRUE ;
 
   return FALSE ;
+  }
+
+// This is a hash table such that the keys are layer types and the data for each layer type is a
+// linked list of GTypes for that particular layer type - it basically defines the
+// layer_type->object_type one-to-many constraints
+GHashTable *qcad_layer_object_containment_rules ()
+  {
+  static GHashTable *ht = NULL ;
+  GList *llObjs = NULL ;
+
+  if (NULL != ht) return ht ;
+
+  ht = g_hash_table_new (NULL, NULL) ;
+
+  // Substrate Layer
+  llObjs = NULL ;
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_SUBSTRATE) ;
+  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_SUBSTRATE, llObjs) ;
+
+  // Cells Layer
+  llObjs = NULL ;
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_CELL) ;
+  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CELLS, llObjs) ;
+
+  // Clocking Layer
+  llObjs = NULL ;
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_RECTANGLE_ELECTRODE) ;
+  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CLOCKING, llObjs) ;
+
+  //Drawing Layer
+  llObjs = NULL ;
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_LABEL) ;
+  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_DRAWING, llObjs) ;
+
+  return ht ;
   }

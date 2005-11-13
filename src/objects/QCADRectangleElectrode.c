@@ -251,6 +251,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   GdkPoint ptSrc, ptDst ;
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
   WorldPoint ptSrcLine, ptDstLine ;
+  GdkColor *clr = NULL ;
   // point radius
 //  int cxRealPtRadius = world_to_real_cx (0.) ;
 
@@ -259,9 +260,10 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   if (!RECT_INTERSECT_RECT (rcReal.x, rcReal.y, rcReal.width, rcReal.height, rcClip->x, rcClip->y, rcClip->width, rcClip->height))
     return ;
 
+  clr = obj->bSelected ? clr_idx_to_clr_struct (RED) : &(obj->clr) ;
   gc = gdk_gc_new (dst) ;
-  gdk_gc_set_foreground (gc, &(obj->clr)) ;
-  gdk_gc_set_background (gc, &(obj->clr)) ;
+  gdk_gc_set_foreground (gc, clr) ;
+  gdk_gc_set_background (gc, clr) ;
   gdk_gc_set_function (gc, rop) ;
   gdk_gc_set_clip_rectangle (gc, rcClip) ;
 

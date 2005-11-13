@@ -20,10 +20,12 @@ OBJECT_FILES = \
 	objects/QCADDOContainer.c                  objects/QCADDOContainer.h \
 	objects/QCADLabel.c                        objects/QCADLabel.h \
 	objects/QCADLayer.c                        objects/QCADLayer.h \
+	objects/QCADLayer_priv.c                   objects/QCADLayer_priv.h \
+	objects/QCADClockingLayer.c                objects/QCADClockingLayer.h \
 	objects/QCADRuler.c                        objects/QCADRuler.h \
 	objects/QCADStretchyObject.c               objects/QCADStretchyObject.h \
-	objects/QCADElectrode.c                 objects/QCADElectrode.h \
-	objects/QCADRectangleElectrode.c        objects/QCADRectangleElectrode.h \
+	objects/QCADElectrode.c                    objects/QCADElectrode.h \
+	objects/QCADRectangleElectrode.c           objects/QCADRectangleElectrode.h \
 	objects/QCADSubstrate.c                    objects/QCADSubstrate.h
 
 #################### QCADesigner ####################

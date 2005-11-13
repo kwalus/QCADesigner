@@ -49,7 +49,7 @@ void create_main_window (main_W *main_window){
   GtkWidget
     *mnuiSep                         = NULL, *about_menu_item           = NULL, *zoom_extents_menu_item            = NULL,
     *progress                        = NULL, *tbl                       = NULL, *vbProgress                        = NULL,
-    *add_layer_button                = NULL, *clock_increment_menu_item = NULL, *clocks_combo                      = NULL,
+    *add_layer_button                = NULL, *clock_increment_menu_item = NULL,
     *close_menu_item                 = NULL, *command_history           = NULL, *contents_menu_item                = NULL,
     *copy_cell_button                = NULL, *delete_menu_item          = NULL, *zoom_plus_button                  = NULL,
     *edit_menu                       = NULL, *edit_menu_menu            = NULL, *file_menu                         = NULL,
@@ -69,7 +69,8 @@ void create_main_window (main_W *main_window){
 #ifdef STDIO_FILEIO
     *open_menu_item                  = NULL, *save_menu_item            = NULL, *save_as_menu_item                 = NULL,
     *recent_files_menu_item          = NULL, *import_block_menu_item    = NULL, *create_block_menu_item            = NULL,
-    *load_output_from_file_menu_item = NULL, *preview_menu_item         = NULL,
+    *load_output_from_file_menu_item = NULL, *preview_menu_item         = NULL, *spn                               = NULL,
+    *lbl                       = NULL,
 #endif /* def STDIO_FILEIO */
     *mnu                             = NULL, *mnui                      = NULL, *img                               = NULL ;
 
@@ -196,16 +197,107 @@ void create_main_window (main_W *main_window){
     GTK_TOOLBAR_CHILD_WIDGET,
     main_window->clocks_combo_table,
     "",
-    _("Default Clock"),
-    _("Specify the default clock for future cells."),
+    _(""),
+    _(""),
     NULL,
     NULL,
     NULL) ;
 
-  clocks_combo = qcad_clock_combo_new () ;
-  GTK_WIDGET_UNSET_FLAGS (clocks_combo, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
-  gtk_widget_show (clocks_combo) ;
-  gtk_table_attach (GTK_TABLE (main_window->clocks_combo_table), clocks_combo, 1, 2, 0, 1, 0, 0, 0, 0) ;
+  main_window->cell_layer_default_clock_combo = qcad_clock_combo_new () ;
+  GTK_WIDGET_UNSET_FLAGS (main_window->cell_layer_default_clock_combo, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
+  gtk_widget_show (main_window->cell_layer_default_clock_combo) ;
+  gtk_table_attach (GTK_TABLE (main_window->clocks_combo_table), main_window->cell_layer_default_clock_combo, 1, 2, 0, 1, 0, 0, 0, 0) ;
+  gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, main_window->cell_layer_default_clock_combo, 
+    _("Default Clock"),
+    _("Specify the default clock for future cells.")) ;
+
+  main_window->tblPotentialSlice = gtk_table_new (1, 6, FALSE) ;
+  gtk_widget_show (main_window->tblPotentialSlice) ;
+  gtk_container_set_border_width (GTK_CONTAINER (main_window->tblPotentialSlice), 2) ;
+  gtk_widget_set_sensitive (main_window->tblPotentialSlice, FALSE) ;
+
+  lbl = gtk_label_new ("Distance:") ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 0, 1, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
+
+  spn = gtk_spin_button_new_infinite (main_window->adjPotentialSlice = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 10, 0)), 1, 1, ISB_DIR_UP) ;
+  gtk_widget_show (spn) ;
+  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), spn, 1, 2, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, spn, 
+    _("Distance from clocking layer"),
+    _("Distance from clocking layer to display cross-section for.")) ;
+
+  lbl = gtk_label_new ("nm") ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 2, 3, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
+
+  lbl = gtk_label_new ("Tile size:") ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 3, 4, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
+
+  spn = gtk_spin_button_new (main_window->adjPotentialTileSize = GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 1024, 1, 10, 0)), 1, 0) ;
+  gtk_widget_show (spn) ;
+  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), spn, 4, 5, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, spn, 
+    _("Field Resolution"),
+    _("One potential value is used for a square of such a size.")) ;
+  g_object_set_data (G_OBJECT (main_window->adjPotentialTileSize), "obj_val", (gpointer)1) ;
+
+  lbl = gtk_label_new ("pixels") ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 5, 6, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
+
+  lbl = gtk_label_new ("Time:") ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 6, 7, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
+
+  spn = gtk_spin_button_new_infinite (main_window->adjPotentialTimeCoord = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 10, 0)), 1, 6, ISB_DIR_UP) ;
+  gtk_widget_show (spn) ;
+  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), spn, 7, 8, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, spn, 
+    _("Time coordinate"),
+    _("Time coordinate to draw the potential for.")) ;
+
+  lbl = gtk_label_new ("ns") ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 5, 6, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
+
+  main_window->show_potential_slice_button = 
+    gtk_toolbar_append_element (
+      GTK_TOOLBAR (layers_toolbar),
+      GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
+      NULL,
+      _("Show Potential"),
+      _("Show Potential Cross-section"),
+      _("Show potential cross-section for a given distance"),
+      gtk_image_new_from_stock (GTK_STOCK_NO, QCAD_ICON_SIZE_TOP_TOOLBAR),
+      (GCallback)show_potential_slice_button_clicked, main_window->tblPotentialSlice) ;
+
+  gtk_toolbar_append_element (
+    GTK_TOOLBAR (layers_toolbar),
+    GTK_TOOLBAR_CHILD_WIDGET,
+    main_window->tblPotentialSlice,
+    "",
+    _(""),
+    _(""),
+    NULL,
+    NULL,
+    NULL) ;
+
+  // This will separate the layer-specific ops from the bus layout
+  gtk_toolbar_append_space (GTK_TOOLBAR (layers_toolbar)) ;
 
   main_window->bus_layout_button =
   gtk_toolbar_append_element (
@@ -1030,20 +1122,20 @@ void create_main_window (main_W *main_window){
   g_signal_connect (G_OBJECT (about_menu_item),                                "activate", (GCallback)on_about_menu_item_activate,                   NULL);
   g_signal_connect (G_OBJECT (main_window->main_window),                       "show",     (GCallback)main_window_show,                              NULL);
 
-  g_signal_connect (G_OBJECT (clocks_combo),                                   "changed",  (GCallback)on_clocks_combo_changed,    clocks_combo);
+  g_signal_connect (G_OBJECT (main_window->cell_layer_default_clock_combo),    "changed",  (GCallback)on_clocks_combo_changed,    main_window->cell_layer_default_clock_combo);
   g_signal_connect_swapped (G_OBJECT (quit_menu_item),                         "activate", (GCallback)on_quit_menu_item_activate, main_window->main_window);
   // attach the necessary signals to the drawing area widget //
-  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "scroll_event",         (GCallback)scroll_event,                 NULL);
-  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "expose_event",         (GCallback)expose_event,                 NULL);
-  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "motion_notify_event",  (GCallback)drawing_area_motion_notify,   NULL);
-  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "button_press_event",   (GCallback)drawing_area_button_pressed,  NULL);
-  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "button_release_event", (GCallback)drawing_area_button_released, NULL);
-  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "configure_event",      (GCallback)configure_event,              NULL);
+  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "scroll-event",         (GCallback)scroll_event,                      NULL);
+  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "expose-event",         (GCallback)expose_event,                      NULL);
+  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "motion-notify-event",  (GCallback)drawing_area_motion_notify,        NULL);
+  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "button-press-event",   (GCallback)drawing_area_button_pressed,       NULL);
+  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "button-release-event", (GCallback)drawing_area_button_released,      NULL);
+  g_signal_connect (G_OBJECT (main_window->drawing_area),                      "configure-event",      (GCallback)configure_event,                   NULL);
+  g_signal_connect (G_OBJECT (main_window->adjPotentialTileSize),              "value-changed",        (GCallback)potential_tile_size_changed,       NULL) ;
   // -- Trap the act of hiding the popup window for the layers combo
   g_signal_connect (G_OBJECT (GTK_COMBO (main_window->layers_combo)->popwin),  "hide", (GCallback)layer_selected, NULL) ;
   // -- Connect the shutdown callback signal to the main window -- //
-  g_signal_connect_swapped (G_OBJECT (main_window->main_window),               "delete_event", (GCallback)on_quit_menu_item_activate, main_window->main_window);
-
+  g_signal_connect_swapped (G_OBJECT (main_window->main_window),               "delete-event", (GCallback)on_quit_menu_item_activate, main_window->main_window);
 ////////////////////////////////////////////////////////////////////////////////////////
 // Connect the callback signals to each of the buttons and menu items in the menus  ////
 ////////////////////////////////////////////////////////////////////////////////////////

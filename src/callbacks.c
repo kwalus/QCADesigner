@@ -261,6 +261,37 @@ static ACTION actions[ACTION_LAST_ACTION] =
 
 static int xRef, yRef, xOld, yOld ; // zoom window coordinates
 
+// A spin button showing powers of 2
+void potential_tile_size_changed (GtkAdjustment *adj, gpointer data)
+  {
+  int bits = 0 ;
+  int val = (int)gtk_adjustment_get_value (adj) ;
+  int obj_val = (int)g_object_get_data (G_OBJECT (adj), "obj_val") ;
+
+//  fprintf (stderr, "potential_tile_size_changed: val:%d vs. obj_val:%d\n", val, obj_val) ;
+
+  bits = floor (log (val) / log (2)) + 1 ;
+
+  if (val == (1 << (bits - 1))) return ;
+
+  // User wants to increase
+  if (val > obj_val)
+    bits = MAX (bits, floor (log (val) / log (2)) + 1) ;
+  // User wants to decrease
+  else
+    bits = MIN (bits, floor (log (val) / log (2))) ;
+
+//  fprintf (stderr, "potential_tile_size_changed: setting value %d\n", (1 << bits)) ;
+  g_object_set_data (G_OBJECT (adj), "obj_val", (gpointer)(val = 1 << bits)) ;
+  gtk_adjustment_set_value (adj, val) ;
+
+  g_object_set (G_OBJECT (project_options.design->lstCurrentLayer->data), "tile-size", val, NULL) ;
+  redraw_async (NULL) ;
+  }
+
+void show_potential_slice_button_clicked (GtkWidget *widget, gpointer data)
+  {gtk_widget_set_sensitive (GTK_WIDGET (data), gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) ;}
+
 void main_window_show (GtkWidget *widget, gpointer data)
   {
   DESIGN *new_design = NULL ;
@@ -603,7 +634,10 @@ void layer_properties_button_clicked (GtkWidget *widget, gpointer data)
             layers_combo_refresh_item (layer->combo_item) ;
           // Apply default properties for all object classes in this layer
           if (NULL != layer->default_properties)
+            {
+            fprintf (stderr, "layer_properties_button_clicked: Calling hashtable iter to apply default properties!\n") ;
             g_hash_table_foreach (layer->default_properties, layer_apply_default_properties, NULL) ;
+            }
           }
   }
 
@@ -1426,11 +1460,11 @@ void layer_selected (GtkWidget *widget, gpointer data)
   gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (main_window.layers_combo)->entry),
     NULL == layer->pszDescription ? "" : layer->pszDescription) ;
 
-  reflect_layer_status (layer) ;
-
   // Apply default properties for all object classes in this layer
   if (NULL != layer->default_properties)
     g_hash_table_foreach (layer->default_properties, layer_apply_default_properties, NULL) ;
+
+  reflect_layer_status (layer) ;
 
   gtk_widget_queue_draw (main_window.toolbar) ;
   }
@@ -1876,6 +1910,14 @@ static void layer_apply_default_properties (gpointer key, gpointer value, gpoint
 
   if (NULL != klass)
     qcad_design_object_class_set_properties (klass, (void *)value) ;
+
+  if (QCAD_TYPE_CELL == (GType)key)
+    {
+    fprintf (stderr, "layer_apply_default_properties: QCAD_TYPE_CELL: setting clock to %d\n",
+      QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock) ;
+    qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (main_window.cell_layer_default_clock_combo),
+      QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock) ;
+    }
   }
 
 // Does whatever else must be done to restore QCADesigner to its initial, pristine state
@@ -2099,6 +2141,8 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.substrate_button) ;
     gtk_widget_hide (main_window.label_button) ;
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
+    gtk_widget_hide (main_window.tblPotentialSlice) ;
+    gtk_widget_hide (main_window.show_potential_slice_button) ;
 
     gtk_widget_show (main_window.toggle_alt_display_button) ;
     gtk_widget_set_sensitive (main_window.toggle_alt_display_button, bSensitive) ;
@@ -2123,6 +2167,8 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
 
+    gtk_widget_show (main_window.tblPotentialSlice) ;
+    gtk_widget_show (main_window.show_potential_slice_button) ;
     gtk_widget_show (main_window.rectangle_electrode_button) ;
     gtk_widget_set_sensitive (main_window.rectangle_electrode_button, bSensitive) ;
     }
@@ -2137,6 +2183,8 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
+    gtk_widget_hide (main_window.tblPotentialSlice) ;
+    gtk_widget_hide (main_window.show_potential_slice_button) ;
 
     gtk_widget_show (main_window.substrate_button) ;
     gtk_widget_set_sensitive (main_window.substrate_button, bSensitive) ;
@@ -2152,6 +2200,8 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.rotate_cell_button) ;
     gtk_widget_hide (main_window.clocks_combo_table) ;
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
+    gtk_widget_hide (main_window.tblPotentialSlice) ;
+    gtk_widget_hide (main_window.show_potential_slice_button) ;
 
     gtk_widget_show (main_window.label_button) ;
     gtk_widget_set_sensitive (main_window.label_button, bSensitive) ;
@@ -2168,6 +2218,8 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.clocks_combo_table) ;
     gtk_widget_hide (main_window.label_button) ;
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
+    gtk_widget_hide (main_window.tblPotentialSlice) ;
+    gtk_widget_hide (main_window.show_potential_slice_button) ;
     }
   redraw_async (NULL) ;
   }

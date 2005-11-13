@@ -55,4 +55,3 @@ inline void complexExtractColumn(int column, complex A[3][3], complex vector[3])
 	 0 == (A)[2][0].im &&  \
 	 0 == (A)[2][1].im &&  \
 	 0 == (A)[2][2].im)
-	 

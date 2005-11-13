@@ -89,6 +89,8 @@ void selection_renderer_update (SELECTION_RENDERER *sr, DESIGN *design)
 //  WorldRectangle rcWorld ;
   GdkRectangle rcDisplay = {0} ;
 
+//  fprintf (stderr, "selection_renderer_update:Entering:\n") ;
+
   rcDisplay.width = sr->pixmap->cxUsed ;
   rcDisplay.height = sr->pixmap->cyUsed ;
 
@@ -102,7 +104,10 @@ void selection_renderer_update (SELECTION_RENDERER *sr, DESIGN *design)
     world_to_real_rect (&(sr->extSelection), &(sr->rcSelection)) ;
 
     if (gdk_rectangle_intersect (&rcDisplay, &(sr->rcSelection), &(sr->rcVisible)))
+//      {
+//      fprintf (stderr, "selection_renderer_update: Calling design_draw for the selection\n") ;
       design_draw (design, sr->pixmap->pixmap, GDK_COPY, &(sr->rcVisible), QCAD_LAYER_DRAW_SELECTION) ;
+//      }
     }
   }
 

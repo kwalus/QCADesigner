@@ -30,7 +30,7 @@
 #ifndef _OBJECTS_MOUSE_HANDLER_STRUCT_H_
 #define _OBJECTS_MOUSE_HANDLER_STRUCT_H_
 
-#include <glib.h>
+#include <glib-object.h>
 
 typedef struct
   {

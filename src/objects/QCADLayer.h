@@ -36,6 +36,7 @@
 #endif /* def GTK_GUI */
 #include "QCADDesignObject.h"
 #include "QCADDOContainer.h"
+#include "QCADCompoundDO.h"
 #include "../exp_array.h"
 
 #ifdef __cplusplus
@@ -93,6 +94,14 @@ typedef struct
   {
   QCADDesignObjectClass parent_class ;
 
+  //CompoundDO and DOContainer functions
+  QCADDesignObject *(*compound_do_first) (QCADCompoundDO *compound_do) ;
+  QCADDesignObject *(*compound_do_next)  (QCADCompoundDO *compound_do) ;
+  gboolean          (*compound_do_last)  (QCADCompoundDO *compound_do) ;
+  gboolean          (*do_container_add)    (QCADDOContainer *container, QCADDesignObject *obj) ;
+  gboolean          (*do_container_remove) (QCADDOContainer *container, QCADDesignObject *obj) ;
+
+  // Signals
   void (*object_added) (QCADLayer *layer, QCADDesignObject *object, gpointer data) ;
   void (*object_removed) (QCADLayer *layer, QCADDesignObject *object, gpointer data) ;
   } QCADLayerClass ;

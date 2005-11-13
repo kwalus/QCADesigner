@@ -172,13 +172,34 @@ static void qcad_clocking_layer_get_property (GObject *object, guint property_id
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
+  int xStart, yStart, Nix, Nix1 ;
   QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (obj) ;
+  QCADLayer *layer = QCAD_LAYER (obj) ;
   GdkPixbuf *pb = NULL ;
+  GdkGC *gc = NULL ;
+  double xWorld, yWorld, potential ;
+
+  gdk_window_get_size (dst, &cx, &cy) ;
 
   QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->draw (obj, dst, rop, rcClip) ;
 
+  gc = gdk_gc_new (dst) ;
   pb = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, clocking_layer->tile_size, clocking_layer->tile_size) ;
 
+  xStart = ((int)(rcClip.x / clocking_layer->tile_size)) * clocking_layer->tile_size ;
+  yStart = ((int)(rcClip.y / clocking_layer->tile_size)) * clocking_layer->tile_size ;
+
+  for (Nix = 0 ; xStart < rcClip.x + rcClip.width ; xStart += clocking_layer->tile_size,Nix++)
+    for (Nix1 = 0 ; yStart < rcClip.y + rcClip.height ; yStart += clocking_layer->tile_size,Nix1++)
+      {
+      xWorld = real_to_world_x (xStart + (clocking_layer->tile_size >> 1) ;
+      yWorld = real_to_world_y (yStart + (clocking_layer->tile_size >> 1) ;
+
+      potential = 0 ;
+      for (ll
+      }
+      
   g_object_unref (pb) ;
+  g_object_unref (gc) ;
   }
 #endif /* def GTK_GUI */

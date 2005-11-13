@@ -703,8 +703,12 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	double two_over_root_3 = 2.0/sqrt(3.0);
 	double two_over_hbar = 2.0 * OVER_HBAR;
 	GList *llItr = NULL;
-	double potential[6];
-
+	double potential[6]={1,1,1,1,1,1};
+  double Constant = 1 / (4 * PI * EPSILON * options->epsilonR);
+  double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
+  double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
+	double energyPlus, energyMinus, energyNull;
+	
 	//fill in the complex constants
 	minusOverKBT.re = -1.0 / (kB * options->T);
 	minusOverKBT.im = 0;
@@ -728,11 +732,16 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 					potential[1] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
 					potential[2] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
 					potential[3] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-					potential[4] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y/2.0, options->cell_elevation+fabs((double)i*options->layer_separation)-options->cell_height, t);
-					potential[5] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y/2.0, options->cell_elevation+fabs((double)i*options->layer_separation)-options->cell_height, t);
+					potential[4] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
+					potential[5] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
 					}
-																																				
-			printf("Potential: %e, %e, %e, %e, %e, %e\n", potential[0],potential[1],potential[2],potential[3],potential[4],potential[5]);
+			
+			energyPlus = potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
+			energyPlus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
+			energyNull = potential[4] * -QCHARGE + potential[5] * -QCHARGE;
+			
+			//printf("Z: %e cell->elevation: %e\n", options->cell_elevation+fabs((double)i*options->layer_separation), options->cell_elevation);																																	
+			printf("Potential: %e, %e, %e, %e, %e, %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
       
 			clock_value = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
 

@@ -71,6 +71,7 @@ typedef struct
   double (*get_potential) (QCADElectrode *electrode, double x, double y, double z, double t) ;
   double (*get_voltage) (QCADElectrode *electrode, double t) ;
   double (*get_area) (QCADElectrode *electrode) ;
+  void (*precompute) (QCADElectrode *electrode) ;
   } QCADElectrodeClass ;
 
 GType qcad_electrode_get_type () ;

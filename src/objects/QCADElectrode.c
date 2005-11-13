@@ -51,6 +51,7 @@ static void qcad_electrode_instance_finalize (GObject *object) ;
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 static double get_voltage (QCADElectrode *electrode, double t) ;
 static double get_area (QCADElectrode *electrode) ;
+static void precompute (QCADElectrode *electrode) ;
 
 GType qcad_electrode_get_type ()
   {
@@ -85,6 +86,7 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   QCAD_ELECTRODE_CLASS (klass)->get_voltage   = get_voltage ;
   QCAD_ELECTRODE_CLASS (klass)->get_potential = get_potential ;
   QCAD_ELECTRODE_CLASS (klass)->get_area      = get_area ;
+  QCAD_ELECTRODE_CLASS (klass)->precompute    = precompute ;
 
   QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.clock_function = sin ;
   QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.amplitude      =  1 ;
@@ -145,9 +147,13 @@ void qcad_electrode_set_capacitance (QCADElectrode *electrode, double relative_p
   electrode->permittivity = relative_permittivity * EPSILON ;
   electrode->capacitance = (qcad_electrode_get_area (electrode) * electrode->permittivity) / (z_to_ground * 1e-9) ;
   electrode->two_z_to_ground = 2.0 * z_to_ground ;
+
+  QCAD_ELECTRODE_GET_CLASS (electrode)->precompute (electrode) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static void precompute (QCADElectrode *electrode) {}
 
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t)
   {return 0 ;}

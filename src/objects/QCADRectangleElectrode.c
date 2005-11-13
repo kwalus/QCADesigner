@@ -95,6 +95,7 @@ static void default_properties_destroy (struct QCADDesignObjectClass *klass, voi
 static void move (QCADDesignObject *obj, double dxDelta, double dyDelta) ;
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 static double get_area (QCADElectrode *electrode) ;
+static void precompute (QCADElectrode *electrode) ;
 
 #ifdef GTK_GUI
 static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog) ;
@@ -145,6 +146,7 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
 
   QCAD_ELECTRODE_CLASS (klass)->get_potential = get_potential ;
   QCAD_ELECTRODE_CLASS (klass)->get_area      = get_area ;
+  QCAD_ELECTRODE_CLASS (klass)->precompute    = precompute ;
 
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle = 0.0 ;
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions = 24 ;
@@ -194,6 +196,18 @@ static void move (QCADDesignObject *obj, double dxDelta, double dyDelta)
   rc_electrode->pt[2].yWorld += dyDelta ;
   rc_electrode->pt[3].xWorld += dxDelta ;
   rc_electrode->pt[3].yWorld += dyDelta ;
+  }
+
+static void precompute (QCADElectrode *electrode)
+  {
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
+  rc_electrode->precompute_params.rho_factor = QCAD_ELECTRODE (rc_electrode)->capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;
+  rc_electrode->precompute_params.pt1x_minus_pt0x = rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld ;
+  rc_electrode->precompute_params.pt1y_minus_pt0y = rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld ;
+  rc_electrode->precompute_params.pt3x_minus_pt2x = rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld ;
+  rc_electrode->precompute_params.pt3y_minus_pt2y = rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld ;
+  rc_electrode->precompute_params.reciprocal_of_x_divisions = 1.0 / rc_electrode->n_x_divisions ;
+  rc_electrode->precompute_params.reciprocal_of_y_divisions = 1.0 / rc_electrode->n_y_divisions ;
   }
 
 #ifdef GTK_GUI
@@ -707,11 +721,5 @@ static void qcad_rectangle_electrode_calculate_precompute (QCADRectangleElectrod
     obj->bounding_box.cyWorld = cy ;
     }
 
-  rc_electrode->precompute_params.rho_factor = QCAD_ELECTRODE (rc_electrode)->capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;
-  rc_electrode->precompute_params.pt1x_minus_pt0x = rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld ;
-  rc_electrode->precompute_params.pt1y_minus_pt0y = rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld ;
-  rc_electrode->precompute_params.pt3x_minus_pt2x = rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld ;
-  rc_electrode->precompute_params.pt3y_minus_pt2y = rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld ;
-  rc_electrode->precompute_params.reciprocal_of_x_divisions = 1.0 / rc_electrode->n_x_divisions ;
-  rc_electrode->precompute_params.reciprocal_of_y_divisions = 1.0 / rc_electrode->n_y_divisions ;
+  precompute (QCAD_ELECTRODE (rc_electrode)) ;
   }

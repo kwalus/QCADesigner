@@ -49,7 +49,7 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 1e-22, 2e-22, -2e-22, 0.0, 2.0, 80, 12.9, 11.5, EULER_METHOD, TRUE, FALSE} ;
+ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 1e-22, 2e-22, -2e-22, 0.0, 2.0, 80, 12.9, 11.5, 11.0, 10.0, EULER_METHOD, TRUE, FALSE} ;
 
 typedef struct
   {
@@ -728,8 +728,8 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 					potential[1] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
 					potential[2] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
 					potential[3] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-					potential[4] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->x+sorted_cells[i][j]->cell_options.cell_width/4.0, sorted_cells[i][j]->y, options->cell_elevation+fabs((double)i*options->layer_separation)-options->cell_height, t);
-					potential[5] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->x-sorted_cells[i][j]->cell_options.cell_width/4.0, sorted_cells[i][j]->y, options->cell_elevation+fabs((double)i*options->layer_separation)-options->cell_height, t);
+					potential[4] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y/2.0, options->cell_elevation+fabs((double)i*options->layer_separation)-options->cell_height, t);
+					potential[5] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y/2.0, options->cell_elevation+fabs((double)i*options->layer_separation)-options->cell_height, t);
 					}
 																																				
 			printf("Potential: %e, %e, %e, %e, %e, %e\n", potential[0],potential[1],potential[2],potential[3],potential[4],potential[5]);

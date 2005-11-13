@@ -51,6 +51,8 @@ typedef struct
   GtkWidget *radius_of_effect_entry;
   GtkWidget *epsilonR_entry;
 	GtkWidget *layer_separation_entry;
+	GtkWidget *cell_elevation_entry;
+	GtkWidget *cell_height_entry;
 	GtkWidget *euler_method_radio;
 	GtkWidget *runge_kutta_radio;
 	GtkWidget *chkRandomizeCells;
@@ -122,7 +124,10 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
   create_ts_coherence_properties_line (dialog->table,  9, &(label), &(dialog->radius_of_effect_entry),       &lblunits, _("Radius of Effect:"),       "nm", TRUE) ;
   create_ts_coherence_properties_line (dialog->table, 10, &(label), &(dialog->epsilonR_entry),               NULL,      _("Relative Permittivity:"),  NULL, TRUE) ;
   create_ts_coherence_properties_line (dialog->table, 11, &(label), &(dialog->layer_separation_entry),       &lblunits, _("Layer Separation:"),       "nm", TRUE) ;
-
+	create_ts_coherence_properties_line (dialog->table, 12, &(label), &(dialog->cell_elevation_entry),				 &lblunits, _("Cell Elevation:"),         "nm", TRUE) ;
+  create_ts_coherence_properties_line (dialog->table, 13, &(label), &(dialog->cell_height_entry),            &lblunits, _("Cell Height:"),						"nm", TRUE) ;
+	
+	/*
   dialog->euler_method_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Euler Method");
   gtk_object_set_data (GTK_OBJECT (dialog->euler_method_radio), "which_options", (gpointer)EULER_METHOD) ;
   dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->euler_method_radio));
@@ -138,7 +143,7 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->runge_kutta_radio, 0, 2, 14, 15,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-
+*/
   // Randomize Cells ?
   dialog->chkRandomizeCells = gtk_check_button_new_with_label (_("Randomize Simulation Order")) ;
   gtk_widget_show (dialog->chkRandomizeCells) ;
@@ -166,7 +171,9 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
   g_signal_connect (G_OBJECT (dialog->epsilonR_entry),               "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->layer_separation_entry),       "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->clock_amplitude_factor_entry), "changed", (GCallback)properties_changed, dialog) ;
-
+  g_signal_connect (G_OBJECT (dialog->cell_elevation_entry),				 "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->cell_height_entry),						 "changed", (GCallback)properties_changed, dialog) ;
+	
   gtk_dialog_add_button (GTK_DIALOG (dialog->ts_coherence_properties_dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
   gtk_dialog_add_button (GTK_DIALOG (dialog->ts_coherence_properties_dialog), GTK_STOCK_OK,     GTK_RESPONSE_OK) ;
   gtk_dialog_set_default_response (GTK_DIALOG (dialog->ts_coherence_properties_dialog), GTK_RESPONSE_OK) ;
@@ -257,13 +264,21 @@ static void ts_coherence_OP_to_dialog (ts_coherence_OP *psco, ts_coherence_prope
 
   g_snprintf (sz, 16, "%lf", psco->layer_separation) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->layer_separation_entry), sz) ;
+  
+	g_snprintf (sz, 16, "%lf", psco->cell_elevation) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->cell_elevation_entry), sz) ;
 
+  g_snprintf (sz, 16, "%lf", psco->cell_height) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->cell_height_entry), sz) ;
+
+	/*
   if (EULER_METHOD == psco->algorithm)
   	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->euler_method_radio), TRUE);
   else
   if (RUNGE_KUTTA == psco->algorithm)
   	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->runge_kutta_radio), TRUE);
-  }
+  */
+	}
 
 static void dialog_to_ts_coherence_OP (ts_coherence_OP *psco, ts_coherence_properties_D *dialog)
   {
@@ -271,7 +286,7 @@ static void dialog_to_ts_coherence_OP (ts_coherence_OP *psco, ts_coherence_prope
   psco->relaxation             = atof (gtk_entry_get_text (GTK_ENTRY (dialog->relaxation_entry))) ;
   psco->time_step              = atof (gtk_entry_get_text (GTK_ENTRY (dialog->time_step_entry))) ;
   psco->duration               = atof (gtk_entry_get_text (GTK_ENTRY (dialog->duration_entry))) ;
-	psco->gamma               = atof (gtk_entry_get_text (GTK_ENTRY (dialog->gamma_entry))) ;
+	psco->gamma									 = atof (gtk_entry_get_text (GTK_ENTRY (dialog->gamma_entry))) ;
   psco->clock_high             = atof (gtk_entry_get_text (GTK_ENTRY (dialog->clock_high_entry))) ;
   psco->clock_low              = atof (gtk_entry_get_text (GTK_ENTRY (dialog->clock_low_entry))) ;
   psco->clock_shift            = atof (gtk_entry_get_text (GTK_ENTRY (dialog->clock_shift_entry))) ;
@@ -279,7 +294,10 @@ static void dialog_to_ts_coherence_OP (ts_coherence_OP *psco, ts_coherence_prope
   psco->radius_of_effect       = atof (gtk_entry_get_text (GTK_ENTRY (dialog->radius_of_effect_entry))) ;
   psco->epsilonR               = atof (gtk_entry_get_text (GTK_ENTRY (dialog->epsilonR_entry))) ;
   psco->layer_separation       = atof (gtk_entry_get_text (GTK_ENTRY (dialog->layer_separation_entry))) ;
-  psco->algorithm          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->euler_method_radio)) ? EULER_METHOD : RUNGE_KUTTA;
+	psco->cell_elevation				 = atof (gtk_entry_get_text (GTK_ENTRY (dialog->cell_elevation_entry))) ;
+  psco->cell_height            = atof (gtk_entry_get_text (GTK_ENTRY (dialog->cell_height_entry))) ;
+	
+  //psco->algorithm          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->euler_method_radio)) ? EULER_METHOD : RUNGE_KUTTA;
   psco->randomize_cells    = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkRandomizeCells)) ;
   psco->animate_simulation = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkAnimate)) ;
   }

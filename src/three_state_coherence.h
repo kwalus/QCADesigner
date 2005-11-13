@@ -59,6 +59,8 @@ typedef struct
 	double radius_of_effect;
 	double epsilonR;
 	double layer_separation;
+	double cell_elevation;
+	double cell_height;
 	int algorithm;
 	gboolean randomize_cells;
 	gboolean animate_simulation;

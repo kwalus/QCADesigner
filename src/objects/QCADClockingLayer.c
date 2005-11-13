@@ -172,7 +172,8 @@ static void qcad_clocking_layer_get_property (GObject *object, guint property_id
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
-  int xStart, yStart, Nix, Nix1 ;
+  /*
+	int xStart, yStart, Nix, Nix1 ;
   QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (obj) ;
   QCADLayer *layer = QCAD_LAYER (obj) ;
   GdkPixbuf *pb = NULL ;
@@ -180,9 +181,9 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   double xWorld, yWorld, potential ;
 
   gdk_window_get_size (dst, &cx, &cy) ;
-
+*/
   QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->draw (obj, dst, rop, rcClip) ;
-
+/*
   gc = gdk_gc_new (dst) ;
   pb = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, clocking_layer->tile_size, clocking_layer->tile_size) ;
 
@@ -201,5 +202,6 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
       
   g_object_unref (pb) ;
   g_object_unref (gc) ;
-  }
+  */
+	}
 #endif /* def GTK_GUI */

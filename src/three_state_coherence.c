@@ -32,6 +32,7 @@
 #include <time.h>
 
 #include "objects/QCADCell.h"
+#include "objects/QCADElectrode.h"
 #include "matrixlib_3x3.h"
 #include "simulation.h"
 #include "three_state_coherence.h"
@@ -113,7 +114,9 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
   BUS_LAYOUT_ITER bli ;
   double dPolarization = 2.0 ;
   int idxMasterBitOrder = -1.0 ;
-	int stable=0;
+  int stable=0;
+	GList *llItr = NULL;
+	QCADLayer *clocking_layer = NULL;
 	
 	double lambdaSS[8];
 	double old_lambda[8];
@@ -121,6 +124,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	double omegaDotLambda[8];
 	complex densityMatrixSS[3][3];
 	complex minusOverKBT;
+	double potential;
 	
 	// variables required for generating the structure constants
 	complex structureC = {0,-0.25};
@@ -190,7 +194,6 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	{{0,0},{0,0},{0,0}}
 	}
 	};
-	
 
 	// fill in the elements that could not be done at initialization
 	generator[7][0][0].re = -1.0/sqrt(3.0);
@@ -212,7 +215,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 
   // determine the number of samples from the user options //
   number_samples = (unsigned long int)(ceil (options->duration/options->time_step));
-
+			
 	// array of energy values for each simulation sample //
 	// later used to determine power flow P = dE/dt
   energy = malloc(number_samples*sizeof(double));
@@ -364,7 +367,25 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				structureConst[i][j][k] = (complexMultiply(structureC, complexTr(tempMatrix4))).re;
 				//printf("structure constant %d %d %d is : %lf\n", i,j,k,structureConst[i][j][k]);
 			}
-
+	
+	// find the clocking layer
+	for (llItr = design->lstLayers ; llItr != NULL ; llItr = llItr->next){
+		if(LAYER_TYPE_CLOCKING == QCAD_LAYER (llItr->data)->type)
+			clocking_layer = (QCADLayer *)(llItr->data);
+		}
+		
+	//check to make sure there actually is a clocking layer
+	if(clocking_layer == NULL){
+		command_history_message ("Critical Error: No clocking layer found!\n");
+		return(sim_data);
+	}
+	
+	printf("Debug point A\n");
+	//setup the electrodes and ground plate
+	for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
+		qcad_electrode_set_capacitance((QCADElectrode *)llItr, options->epsilonR, 20e-9);
+	printf("Debug point B\n");
+		
   // Converge the steady state coherence vector for each cell so that the simulation starts without any transients //
   stable = FALSE;
   k = 0;
@@ -388,6 +409,16 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
           PEk += (qcad_cell_calculate_polarization (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->neighbours[q])) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Ek[q];
 					PEk *= 0.5;
 				//printf("This cell PEk = %e\n", PEk);
+				
+				//find the poential
+				for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
+					potential = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	
+																									sorted_cells[i][j]->cell_dots[0].x,
+																									sorted_cells[i][j]->cell_dots[0].y,
+																									options->layer_separation,
+																									1e-9);
+																																				
+				printf("Electrode Potential is: %e", potential);
 				
 				// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -PEk;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;

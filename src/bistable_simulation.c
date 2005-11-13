@@ -507,8 +507,8 @@ static inline void bistable_refresh_all_Ek (int number_of_cell_layers, int *numb
         for (k = 0; k < icNeighbours; k++)
           //if(cell_model->neighbours[k]==NULL)printf("Null neighbour prior to passing into determine Ek for k = %d\n", k);
           // set the Ek of this cell and its neighbour //
+          
           cell_model->Ek[k] = bistable_determine_Ek (sorted_cells[i][j], cell_model->neighbours[k], ABS (i - cell_model->neighbour_layer[k]), options);
-          //printf("Ek = %e\n", cell_model->Ek[k]/1.602e-19);
         }
       }
     }

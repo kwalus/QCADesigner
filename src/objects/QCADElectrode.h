@@ -57,9 +57,9 @@ typedef struct
   {
   QCADDesignObject parent_instance ;
   QCADElectrodeOptions electrode_options ;
-  double capacitance ;
+  double capacitance ; // Farads
   double permittivity ; // epsilon_nought * epsilon_r
-  double z_to_ground ;
+  double two_z_to_ground ; // nm
   } QCADElectrode ;
 
 typedef struct

@@ -366,11 +366,14 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
   double potential = 0, rho = 0 ;
   WorldPoint ptSrcLine, ptDstLine, ptSrc ;
   double cx, cy, cz_mir, cx_sq_plus_cy_sq ;
-  // precomputation
+  // precomputation - can be moved into object
   double 
     factor1, factor2, 
     pt1x_minus_pt0x, pt1y_minus_pt0y, pt3x_minus_pt2x, pt3y_minus_pt2y,
-    reciprocal_of_x_divisions ;
+    reciprocal_of_x_divisions, reciprocal_of_y_divisions ;
+  // precomputation - cannot be moved into object
+  double
+    dstx_minus_srcx, dsty_minus_srcy ;
 
   if (z < 0 || NULL == electrode) return 0 ;
 
@@ -380,6 +383,7 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
   pt3x_minus_pt2x = rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld ;
   pt3y_minus_pt2y = rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld ;
   reciprocal_of_x_divisions = 1.0 / rc_electrode->n_x_divisions ;
+  reciprocal_of_y_divisions = 1.0 / rc_electrode->n_y_divisions ;
   
   for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
     {
@@ -396,16 +400,19 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
     ptSrcLine.yWorld = rc_electrode->pt[0].yWorld + pt1y_minus_pt0y * factor1 ;
     ptDstLine.xWorld = rc_electrode->pt[2].xWorld + pt3x_minus_pt2x * factor2 ;
     ptDstLine.yWorld = rc_electrode->pt[2].yWorld + pt3y_minus_pt2y * factor2 ;
+
+    dstx_minus_srcx = ptDstLine.xWorld - ptSrcLine.xWorld ;
+    dsty_minus_srcy = ptDstLine.yWorld - ptSrcLine.yWorld ;
     for (Nix1 = 0 ; Nix1 < rc_electrode->n_y_divisions ; Nix1++)
       {
-      ptSrc.xWorld = ptSrcLine.xWorld + (ptDstLine.xWorld - ptSrcLine.xWorld) / (rc_electrode->n_y_divisions * 2) * (2 * Nix1 + 1) ;
-      ptSrc.yWorld = ptSrcLine.yWorld + (ptDstLine.yWorld - ptSrcLine.yWorld) / (rc_electrode->n_y_divisions * 2) * (2 * Nix1 + 1) ;
+      ptSrc.xWorld = ptSrcLine.xWorld + dstx_minus_srcx * reciprocal_of_y_divisions * (Nix1 + 0.5) ;
+      ptSrc.yWorld = ptSrcLine.yWorld + dsty_minus_srcy * reciprocal_of_y_divisions * (Nix1 + 0.5) ;
 
       cx = x - ptSrc.xWorld ;
       cy = y - ptSrc.yWorld ;
       cx_sq_plus_cy_sq = cx * cx + cy * cy ;
 
-      cz_mir = 2.0 * electrode->z_to_ground - z ;
+      cz_mir = electrode->two_z_to_ground - z ;
 
       potential +=
         (rho * ((1.0 / sqrt (cx_sq_plus_cy_sq +   z    *   z   )) - 

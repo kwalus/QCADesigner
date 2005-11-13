@@ -143,8 +143,8 @@ void qcad_electrode_set_capacitance (QCADElectrode *electrode, double relative_p
   if (0 == z_to_ground) return ;
 
   electrode->permittivity = relative_permittivity * EPSILON ;
-  electrode->capacitance = (qcad_electrode_get_area (electrode) * electrode->permittivity) / z_to_ground ;
-  electrode->z_to_ground = z_to_ground ;
+  electrode->capacitance = (qcad_electrode_get_area (electrode) * electrode->permittivity) / (z_to_ground * 1e-9) ;
+  electrode->two_z_to_ground = 2.0 * z_to_ground ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

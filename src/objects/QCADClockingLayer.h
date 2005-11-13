@@ -46,6 +46,7 @@ typedef struct
   gboolean bDrawPotential ;
   double z_to_draw ; // nm
   int tile_size ; // pixels
+  double time_coord ; // ns
   } QCADClockingLayer ;
 
 typedef struct

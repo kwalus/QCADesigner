@@ -489,7 +489,7 @@ void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data)
 void cell_display_mode_chosen (GtkWidget *widget, gpointer data)
   {
   EXP_ARRAY *objs = NULL ;
-  GValue val ;
+  GValue val = {0} ;
 
   selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
   if (NULL != (objs = design_selection_get_object_array (project_options.design)))
@@ -638,6 +638,7 @@ void layer_properties_button_clicked (GtkWidget *widget, gpointer data)
             fprintf (stderr, "layer_properties_button_clicked: Calling hashtable iter to apply default properties!\n") ;
             g_hash_table_foreach (layer->default_properties, layer_apply_default_properties, NULL) ;
             }
+          reflect_layer_status (layer) ;
           }
   }
 
@@ -1463,7 +1464,6 @@ void layer_selected (GtkWidget *widget, gpointer data)
   // Apply default properties for all object classes in this layer
   if (NULL != layer->default_properties)
     g_hash_table_foreach (layer->default_properties, layer_apply_default_properties, NULL) ;
-
   reflect_layer_status (layer) ;
 
   gtk_widget_queue_draw (main_window.toolbar) ;
@@ -1910,14 +1910,6 @@ static void layer_apply_default_properties (gpointer key, gpointer value, gpoint
 
   if (NULL != klass)
     qcad_design_object_class_set_properties (klass, (void *)value) ;
-
-  if (QCAD_TYPE_CELL == (GType)key)
-    {
-    fprintf (stderr, "layer_apply_default_properties: QCAD_TYPE_CELL: setting clock to %d\n",
-      QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock) ;
-    qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (main_window.cell_layer_default_clock_combo),
-      QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock) ;
-    }
   }
 
 // Does whatever else must be done to restore QCADesigner to its initial, pristine state
@@ -2154,10 +2146,33 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_set_sensitive (main_window.rotate_cell_button, bSensitive) ;
     gtk_widget_show (main_window.clocks_combo_table) ;
     gtk_widget_set_sensitive (main_window.clocks_combo_table, bSensitive) ;
+
+//    fprintf (stderr, "reflect_layer_status:Setting clock combo to %d\n", QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock) ;
+    qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (main_window.cell_layer_default_clock_combo),
+      QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock) ;
     }
   else
   if (LAYER_TYPE_CLOCKING == layer->type)
     {
+    GValue val ;
+
+    memset (&val, 0, sizeof (GValue)) ;
+
+    g_object_get_property (G_OBJECT (layer), "show-potential", g_value_init (&val, G_TYPE_BOOLEAN)) ;
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.show_potential_slice_button), g_value_get_boolean (&val)) ;
+    g_value_unset (&val) ;
+
+    g_object_get_property (G_OBJECT (layer), "distance", g_value_init (&val, G_TYPE_DOUBLE)) ;
+    gtk_adjustment_set_value_infinite (GTK_ADJUSTMENT (main_window.adjPotentialSliceDistance), g_value_get_double (&val)) ;
+    g_value_unset (&val) ;
+
+    g_object_get_property (G_OBJECT (layer), "tile-size", g_value_init (&val, G_TYPE_UINT)) ;
+    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialTileSize), g_value_get_uint (&val)) ;
+    g_value_unset (&val) ;
+
+    g_object_get_property (G_OBJECT (layer), "time-coord", g_value_init (&val, G_TYPE_DOUBLE)) ;
+    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialTimeCoord), g_value_get_double (&val)) ;
+    g_value_unset (&val) ;
     DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_CLOCKING\n")) ;
     gtk_widget_hide (main_window.insert_type_1_cell_button) ;
     gtk_widget_hide (main_window.insert_cell_array_button) ;

@@ -124,14 +124,14 @@ GType qcad_rectangle_electrode_get_type ()
 
     if ((qcad_rectangle_electrode_type = g_type_register_static (QCAD_TYPE_ELECTRODE, QCAD_TYPE_STRING_RECTANGLE_ELECTRODE, &qcad_rectangle_electrode_info, 0)))
       g_type_class_ref (qcad_rectangle_electrode_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADElectrode as %d\n", qcad_cell_type)) ;
+    DBG_OO (fprintf (stderr, "Registered QCADRectangleElectrode as %d\n", qcad_cell_type)) ;
     }
   return qcad_rectangle_electrode_type ;
   }
 
 static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "QCADElectrode::class_init:Leaving\n")) ;
+  DBG_OO (fprintf (stderr, "QCADRectangleElectrode::class_init:Leaving\n")) ;
   G_OBJECT_CLASS (klass)->finalize = qcad_rectangle_electrode_instance_finalize ;
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                       = draw ;
@@ -144,6 +144,7 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_destroy = default_properties_destroy ;
 
   QCAD_ELECTRODE_CLASS (klass)->get_potential = get_potential ;
+  fprintf (stderr, "QCADRectangleElectrode::class_init:get_area = 0x%08X\n", (int)get_area) ;
   QCAD_ELECTRODE_CLASS (klass)->get_area      = get_area ;
 
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle = 0.0 ;

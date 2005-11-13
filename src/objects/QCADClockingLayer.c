@@ -41,6 +41,7 @@ enum
   QCAD_CLOCKING_LAYER_PROPERTY_SHOW_POTENTIAL = 1,
   QCAD_CLOCKING_LAYER_PROPERTY_DISTANCE,
   QCAD_CLOCKING_LAYER_PROPERTY_TILE_SIZE,
+  QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD,
   QCAD_CLOCKING_LAYER_PROPERTY_LAST
   } ;
 
@@ -99,6 +100,10 @@ static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpoint
     g_param_spec_uint ("tile-size", _("Tile Size"), _("Resolution (n x n pixels) used to draw the potential"),
       1, G_MAXUINT, 16, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD,
+    g_param_spec_double ("time-coord", _("Time Coordinate"), _("Time coordinate to draw the potential for"),
+      0, G_MAXDOUBLE, 0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
   }
 
 static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointer data)
@@ -108,8 +113,9 @@ static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointe
   layer->type = LAYER_TYPE_CLOCKING ;
   layer->default_properties = qcad_layer_create_default_properties (LAYER_TYPE_CLOCKING) ;
   QCAD_CLOCKING_LAYER (layer)->bDrawPotential = FALSE ;
-  QCAD_CLOCKING_LAYER (layer)->z_to_draw = 0 ;
-  QCAD_CLOCKING_LAYER (layer)->tile_size = 16 ;
+  QCAD_CLOCKING_LAYER (layer)->z_to_draw  =  0 ;
+  QCAD_CLOCKING_LAYER (layer)->tile_size  = 16 ;
+  QCAD_CLOCKING_LAYER (layer)->time_coord =  0 ;
   }
 
 static void qcad_clocking_layer_instance_finalize (GObject *object)
@@ -132,6 +138,10 @@ static void qcad_clocking_layer_set_property (GObject *object, guint property_id
     case QCAD_CLOCKING_LAYER_PROPERTY_TILE_SIZE:
       layer->tile_size = g_value_get_uint (value) ;
       break ;
+
+    case QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD:
+      layer->time_coord = g_value_get_double (value) ;
+      break ;
     }
   }
 
@@ -151,6 +161,10 @@ static void qcad_clocking_layer_get_property (GObject *object, guint property_id
 
     case QCAD_CLOCKING_LAYER_PROPERTY_TILE_SIZE:
        g_value_set_uint (value, layer->tile_size) ;
+      break ;
+
+    case QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD:
+       g_value_set_double (value, layer->time_coord) ;
       break ;
     }
   }

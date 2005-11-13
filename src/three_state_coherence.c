@@ -383,7 +383,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	printf("Debug point A\n");
 	//setup the electrodes and ground plate
 	for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
-		qcad_electrode_set_capacitance((QCADElectrode *)llItr, options->epsilonR, 20e-9);
+		qcad_electrode_set_capacitance ((QCADElectrode *)(llItr->data), options->epsilonR, 20e-9);
 	printf("Debug point B\n");
 		
   // Converge the steady state coherence vector for each cell so that the simulation starts without any transients //

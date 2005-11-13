@@ -144,7 +144,6 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_destroy = default_properties_destroy ;
 
   QCAD_ELECTRODE_CLASS (klass)->get_potential = get_potential ;
-  fprintf (stderr, "QCADRectangleElectrode::class_init:get_area = 0x%08X\n", (int)get_area) ;
   QCAD_ELECTRODE_CLASS (klass)->get_area      = get_area ;
 
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle = 0.0 ;
@@ -368,7 +367,7 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
   WorldPoint ptSrcLine, ptDstLine, ptSrc ;
   double cx, cy, cz_mir, cx_sq_plus_cy_sq ;
 
-  if (z < 0) return 0 ;
+  if (z < 0 || NULL == electrode) return 0 ;
 
   rho = electrode->capacitance * qcad_electrode_get_voltage (electrode, t) / rc_electrode->n_divisions ;
   

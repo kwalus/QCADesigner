@@ -85,7 +85,7 @@ static ts_coherence_optimizations optimization_options;
 
 static double ts_coherence_determine_Ek (QCADCell *cell1, QCADCell *cell2, int layer_separation, ts_coherence_OP *options);
 static void ts_coherence_refresh_all_Ek (int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, ts_coherence_OP *options);
-static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8]);
+static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8], QCADLayer *clocking_layer);
 static inline double calculate_clock_value (unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const ts_coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
 static int compareCoherenceQCells (const void *p1, const void *p2) ;
 void dump_3x3_complexMatrix(complex A[3][3]);
@@ -380,11 +380,9 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 		return(sim_data);
 	}
 	
-	printf("Debug point A\n");
 	//setup the electrodes and ground plate
 	for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
-		qcad_electrode_set_capacitance ((QCADElectrode *)(llItr->data), options->epsilonR, 20e-9);
-	printf("Debug point B\n");
+		if(llItr->data != NULL)qcad_electrode_set_capacitance ((QCADElectrode *)(llItr->data), options->epsilonR, 20);
 		
   // Converge the steady state coherence vector for each cell so that the simulation starts without any transients //
   stable = FALSE;
@@ -411,14 +409,16 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				//printf("This cell PEk = %e\n", PEk);
 				
 				//find the poential
-				for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
-					potential = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	
+				for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
+					if(llItr->data != NULL)
+						potential = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	
 																									sorted_cells[i][j]->cell_dots[0].x,
 																									sorted_cells[i][j]->cell_dots[0].y,
 																									options->layer_separation,
-																									1e-9);
+																									0);
+					}
 																																				
-				printf("Electrode Potential is: %e", potential);
+				printf("Electrode Potential is: %e\n", potential);
 				
 				// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -PEk;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
@@ -623,7 +623,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
           }
 
     // -- run the iteration with the given clock value -- //
-    run_ts_coherence_iteration (j, number_of_cell_layers, number_of_cells_in_layer, sorted_cells, total_number_of_inputs, number_samples, options, sim_data, SIMULATION_TYPE, pvt, energy, generator, structureConst);
+    run_ts_coherence_iteration (j, number_of_cell_layers, number_of_cells_in_layer, sorted_cells, total_number_of_inputs, number_samples, options, sim_data, SIMULATION_TYPE, pvt, energy, generator, structureConst, clocking_layer);
 
 	// -- Calculate Power -- //
 	if(j>=1)
@@ -685,7 +685,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 
 // -- completes one simulation iteration performs the approximations until the entire design has stabalized -- //
 
-static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8])
+static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8], QCADLayer *clocking_layer)
   {
   unsigned int i,j,q, row, col, Nix, Nix1;
   double PEk;
@@ -702,6 +702,8 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	complex minusOverKBT;
 	double two_over_root_3 = 2.0/sqrt(3.0);
 	double two_over_hbar = 2.0 * OVER_HBAR;
+	GList *llItr = NULL;
+	double potential[6];
 
 	//fill in the complex constants
 	minusOverKBT.re = -1.0 / (kB * options->T);
@@ -718,8 +720,21 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
       if (((QCAD_CELL_INPUT == sorted_cells[i][j]->cell_function) ||
            (QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function)))
         continue;
-
-      clock_value = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
+				
+			//find the poential
+			for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
+				if(llItr->data != NULL)
+					potential[0] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
+					potential[1] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
+					potential[2] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
+					potential[3] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
+					potential[4] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->x+sorted_cells[i][j]->cell_options.cell_width/4.0, sorted_cells[i][j]->y, options->cell_elevation+fabs((double)i*options->layer_separation)-options->cell_height, t);
+					potential[5] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->x-sorted_cells[i][j]->cell_options.cell_width/4.0, sorted_cells[i][j]->y, options->cell_elevation+fabs((double)i*options->layer_separation)-options->cell_height, t);
+					}
+																																				
+			printf("Potential: %e, %e, %e, %e, %e, %e\n", potential[0],potential[1],potential[2],potential[3],potential[4],potential[5]);
+      
+			clock_value = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
 
       PEk = 0;
       // Calculate the sum of neighboring polarizations //

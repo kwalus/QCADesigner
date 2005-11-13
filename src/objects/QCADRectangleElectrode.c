@@ -366,17 +366,36 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
   double potential = 0, rho = 0 ;
   WorldPoint ptSrcLine, ptDstLine, ptSrc ;
   double cx, cy, cz_mir, cx_sq_plus_cy_sq ;
+  // precomputation
+  double 
+    factor1, factor2, 
+    pt1x_minus_pt0x, pt1y_minus_pt0y, pt3x_minus_pt2x, pt3y_minus_pt2y,
+    reciprocal_of_x_divisions ;
 
   if (z < 0 || NULL == electrode) return 0 ;
 
   rho = electrode->capacitance * qcad_electrode_get_voltage (electrode, t) / rc_electrode->n_divisions ;
+  pt1x_minus_pt0x = rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld ;
+  pt1y_minus_pt0y = rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld ;
+  pt3x_minus_pt2x = rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld ;
+  pt3y_minus_pt2y = rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld ;
+  reciprocal_of_x_divisions = 1.0 / rc_electrode->n_x_divisions ;
   
   for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
     {
-    ptSrcLine.xWorld = rc_electrode->pt[0].xWorld + (rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
-    ptSrcLine.yWorld = rc_electrode->pt[0].yWorld + (rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
-    ptDstLine.xWorld = rc_electrode->pt[2].xWorld + (rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
-    ptDstLine.yWorld = rc_electrode->pt[2].yWorld + (rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
+// This is how it is:
+//    ptSrcLine.xWorld = rc_electrode->pt[0].xWorld + (rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
+//    ptSrcLine.yWorld = rc_electrode->pt[0].yWorld + (rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
+//    ptDstLine.xWorld = rc_electrode->pt[2].xWorld + (rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
+//    ptDstLine.yWorld = rc_electrode->pt[2].yWorld + (rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
+// This is how it is, optimized:
+    factor1 = reciprocal_of_x_divisions * (Nix + 0.5) ;
+    factor2 = reciprocal_of_x_divisions * ((rc_electrode->n_x_divisions - Nix) - 0.5) ;
+
+    ptSrcLine.xWorld = rc_electrode->pt[0].xWorld + pt1x_minus_pt0x * factor1 ;
+    ptSrcLine.yWorld = rc_electrode->pt[0].yWorld + pt1y_minus_pt0y * factor1 ;
+    ptDstLine.xWorld = rc_electrode->pt[2].xWorld + pt3x_minus_pt2x * factor2 ;
+    ptDstLine.yWorld = rc_electrode->pt[2].yWorld + pt3y_minus_pt2y * factor2 ;
     for (Nix1 = 0 ; Nix1 < rc_electrode->n_y_divisions ; Nix1++)
       {
       ptSrc.xWorld = ptSrcLine.xWorld + (ptDstLine.xWorld - ptSrcLine.xWorld) / (rc_electrode->n_y_divisions * 2) * (2 * Nix1 + 1) ;
@@ -389,9 +408,9 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
       cz_mir = 2.0 * electrode->z_to_ground - z ;
 
       potential +=
-        rho * ((1.0 / sqrt (cx_sq_plus_cy_sq +   z    *   z   )) - 
-               (1.0 / sqrt (cx_sq_plus_cy_sq + cz_mir * cz_mir)))
-        / FOUR_PI * electrode->permittivity ;
+        (rho * ((1.0 / sqrt (cx_sq_plus_cy_sq +   z    *   z   )) - 
+                (1.0 / sqrt (cx_sq_plus_cy_sq + cz_mir * cz_mir))) * 1e9)
+        / (FOUR_PI * electrode->permittivity) ;
       }
     }
 

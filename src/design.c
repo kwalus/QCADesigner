@@ -34,6 +34,7 @@
 #include "objects/object_helpers.h"
 #include "objects/QCADDOContainer.h"
 #include "objects/QCADCompoundDO.h"
+#include "objects/QCADClockingLayer.h"
 #include "fileio_helpers.h"
 #include "custom_widgets.h"
 #include "support.h"
@@ -1109,29 +1110,33 @@ gboolean design_unserialize (DESIGN **pdesign, FILE *pfile)
       break ;
       }
 
-    if (!strcmp (pszLine, "[TYPE:" QCAD_TYPE_STRING_LAYER "]"))
+    if (strlen (pszLine) > 6)
       {
-      set_progress_bar_fraction (get_file_percent (pfile)) ;
-      if (NULL != (layer = QCAD_LAYER (qcad_design_object_new_from_stream (pfile))))
+      if (!(strncmp (&pszLine[6], g_type_name (QCAD_TYPE_LAYER),          strlen (g_type_name (QCAD_TYPE_LAYER))) && 
+            strncmp (&pszLine[6], g_type_name (QCAD_TYPE_CLOCKING_LAYER), strlen (g_type_name (QCAD_TYPE_CLOCKING_LAYER)))))
         {
-        g_signal_connect (G_OBJECT (layer), "added",   (GCallback)qcad_layer_design_object_added,   (*pdesign)) ;
-        g_signal_connect (G_OBJECT (layer), "removed", (GCallback)qcad_layer_design_object_removed, (*pdesign)) ;
-        (*pdesign)->lstLayers = g_list_prepend ((*pdesign)->lstLayers, layer) ;
-        if (NULL == (*pdesign)->lstLastLayer)
-          (*pdesign)->lstLastLayer = (*pdesign)->lstLayers ;
-        if (LAYER_TYPE_CELLS == layer->type)
-          for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
-            if (QCAD_IS_CELL (llItr->data))
-              g_signal_connect (G_OBJECT (llItr->data), "cell-function-changed", (GCallback)cell_function_changed, (*pdesign)) ;
+        set_progress_bar_fraction (get_file_percent (pfile)) ;
+        if (NULL != (layer = QCAD_LAYER (qcad_design_object_new_from_stream (pfile))))
+          {
+          g_signal_connect (G_OBJECT (layer), "added",   (GCallback)qcad_layer_design_object_added,   (*pdesign)) ;
+          g_signal_connect (G_OBJECT (layer), "removed", (GCallback)qcad_layer_design_object_removed, (*pdesign)) ;
+          (*pdesign)->lstLayers = g_list_prepend ((*pdesign)->lstLayers, layer) ;
+          if (NULL == (*pdesign)->lstLastLayer)
+            (*pdesign)->lstLastLayer = (*pdesign)->lstLayers ;
+          if (LAYER_TYPE_CELLS == layer->type)
+            for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
+              if (QCAD_IS_CELL (llItr->data))
+                g_signal_connect (G_OBJECT (llItr->data), "cell-function-changed", (GCallback)cell_function_changed, (*pdesign)) ;
+          }
         }
-      }
-    else
-    if (!strcmp (pszLine, "[TYPE:BUS_LAYOUT]"))
-      (*pdesign)->bus_layout = design_bus_layout_unserialize (pfile) ;
+      else
+      if (!strcmp (pszLine, "[TYPE:BUS_LAYOUT]"))
+        (*pdesign)->bus_layout = design_bus_layout_unserialize (pfile) ;
 
-    g_free (pszLine) ;
-    //having peeked the line, consume it
-    g_free (ReadLine (pfile, '\0', FALSE)) ;
+      g_free (pszLine) ;
+      //having peeked the line, consume it
+      g_free (ReadLine (pfile, '\0', FALSE)) ;
+      }
     }
 
   if (bEOF)

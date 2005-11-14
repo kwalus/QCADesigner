@@ -42,6 +42,7 @@
 #include "../support.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
+#include "../fileio_helpers.h"
 #include "QCADRectangleElectrode.h"
 #include "mouse_handlers.h"
 
@@ -95,14 +96,15 @@ static void default_properties_destroy (struct QCADDesignObjectClass *klass, voi
 static void move (QCADDesignObject *obj, double dxDelta, double dyDelta) ;
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 static double get_area (QCADElectrode *electrode) ;
-static void precompute (QCADElectrode *electrode) ;
+static void serialize (QCADDesignObject *obj, FILE *fp) ;
+static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 
 #ifdef GTK_GUI
 static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog) ;
 static void create_properties_dialog (PROPERTIES *dialog) ;
 static void default_properties_apply (gpointer data) ;
 #endif
-static void qcad_rectangle_electrode_calculate_precompute (QCADRectangleElectrode *rc_electrode, double cx, double cy, double angle) ;
+static void precompute (QCADElectrode *electrode) ;
 
 GType qcad_rectangle_electrode_get_type ()
   {
@@ -143,6 +145,8 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_get     = default_properties_get ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_set     = default_properties_set ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_destroy = default_properties_destroy ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->serialize                  = serialize ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize                = unserialize ;
 
   QCAD_ELECTRODE_CLASS (klass)->get_potential = get_potential ;
   QCAD_ELECTRODE_CLASS (klass)->get_area      = get_area ;
@@ -163,7 +167,10 @@ static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer da
 
   rc_electrode->n_x_divisions = klass->default_n_x_divisions ;
   rc_electrode->n_y_divisions = klass->default_n_y_divisions ;
-  qcad_rectangle_electrode_calculate_precompute (rc_electrode, klass->default_cxWorld, klass->default_cyWorld, klass->default_angle) ;
+  rc_electrode->cxWorld       = klass->default_cxWorld ;
+  rc_electrode->cyWorld       = klass->default_cyWorld ;
+  rc_electrode->angle         = klass->default_angle ;
+  precompute (QCAD_ELECTRODE (object)) ;
 
   DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Leaving\n")) ;
   }
@@ -182,6 +189,83 @@ QCADDesignObject *qcad_rectangle_electrode_new ()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static void serialize (QCADDesignObject *obj, FILE *fp)
+  {
+  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
+
+  fprintf (fp, "[TYPE:" QCAD_TYPE_STRING_RECTANGLE_ELECTRODE "]\n") ;
+  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->serialize (obj, fp) ;
+  fprintf (fp, "angle=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, rc_electrode->angle)) ;
+  fprintf (fp, "n_x_divisions=%d\n", rc_electrode->n_x_divisions) ;
+  fprintf (fp, "n_y_divisions=%d\n", rc_electrode->n_y_divisions) ;
+  fprintf (fp, "cxWorld=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, rc_electrode->cxWorld)) ;
+  fprintf (fp, "cyWorld=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, rc_electrode->cyWorld)) ;
+  fprintf (fp, "[#TYPE:" QCAD_TYPE_STRING_RECTANGLE_ELECTRODE "]\n") ;
+  }
+
+static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
+  {
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
+  char *pszLine = NULL, *pszValue = NULL ;
+  gboolean bStopReading = FALSE, bParentInit = FALSE ;
+
+  if (!SkipPast (fp, '\0', "[TYPE:" QCAD_TYPE_STRING_RECTANGLE_ELECTRODE "]", NULL)) return FALSE ;
+
+  while (TRUE)
+    {
+    if (NULL == (pszLine = ReadLine (fp, '\0', TRUE))) break ;
+
+    if (!strcmp ("[#TYPE:" QCAD_TYPE_STRING_RECTANGLE_ELECTRODE "]", pszLine))
+      {
+      g_free (pszLine) ;
+      break ;
+      }
+
+    if (!bStopReading)
+      {
+      tokenize_line (pszLine, strlen (pszLine), &pszValue, '=') ;
+
+      if (!strncmp (pszLine, "[TYPE:", 6))
+        {
+        tokenize_line_type (pszLine, strlen (pszLine), &pszValue, ':') ;
+
+        if (!strcmp (pszValue, QCAD_TYPE_STRING_ELECTRODE))
+          {
+          if (!(bParentInit = QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->unserialize (obj, fp)))
+            bStopReading = TRUE ;
+          }
+        }
+      else
+      if (!strcmp (pszLine, "angle"))
+        rc_electrode->angle = g_ascii_strtod (pszValue, NULL) ;
+      else
+      if (!strcmp (pszLine, "n_x_divisions"))
+        rc_electrode->n_x_divisions = atoi (pszValue) ;
+      else
+      if (!strcmp (pszLine, "n_y_divisions"))
+        rc_electrode->n_y_divisions = atoi (pszValue) ;
+      else
+      if (!strcmp (pszLine, "cxWorld"))
+        rc_electrode->cxWorld = g_ascii_strtod (pszValue, NULL) ;
+      else
+      if (!strcmp (pszLine, "cyWorld"))
+        rc_electrode->cyWorld = g_ascii_strtod (pszValue, NULL) ;
+      }
+    g_free (pszLine) ;
+    g_free (ReadLine (fp, '\0', FALSE)) ;
+    }
+
+  if (bParentInit && !bStopReading)
+    {
+    if (QCAD_DESIGN_OBJECT_CLASS (QCAD_RECTANGLE_ELECTRODE_GET_CLASS (rc_electrode))->unserialize == unserialize)
+      QCAD_ELECTRODE_GET_CLASS (rc_electrode)->precompute (QCAD_ELECTRODE (rc_electrode)) ;
+    return TRUE ;
+    }
+  else
+    return FALSE ;
+  }
+
 static void move (QCADDesignObject *obj, double dxDelta, double dyDelta)
   {
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
@@ -196,18 +280,6 @@ static void move (QCADDesignObject *obj, double dxDelta, double dyDelta)
   rc_electrode->pt[2].yWorld += dyDelta ;
   rc_electrode->pt[3].xWorld += dxDelta ;
   rc_electrode->pt[3].yWorld += dyDelta ;
-  }
-
-static void precompute (QCADElectrode *electrode)
-  {
-  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
-  rc_electrode->precompute_params.rho_factor = QCAD_ELECTRODE (rc_electrode)->capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;
-  rc_electrode->precompute_params.pt1x_minus_pt0x = rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld ;
-  rc_electrode->precompute_params.pt1y_minus_pt0y = rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld ;
-  rc_electrode->precompute_params.pt3x_minus_pt2x = rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld ;
-  rc_electrode->precompute_params.pt3y_minus_pt2y = rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld ;
-  rc_electrode->precompute_params.reciprocal_of_x_divisions = 1.0 / rc_electrode->n_x_divisions ;
-  rc_electrode->precompute_params.reciprocal_of_y_divisions = 1.0 / rc_electrode->n_y_divisions ;
   }
 
 #ifdef GTK_GUI
@@ -657,21 +729,18 @@ static void default_properties_apply (gpointer data)
   }
 #endif
 
-static void qcad_rectangle_electrode_calculate_precompute (QCADRectangleElectrode *rc_electrode, double cx, double cy, double angle)
+static void precompute (QCADElectrode *electrode)
   {
-  QCADDesignObject *obj = QCAD_DESIGN_OBJECT (rc_electrode) ;
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
+  QCADDesignObject *obj = QCAD_DESIGN_OBJECT (electrode) ;
   double 
-    kose =  cos (angle),
-    msin = -sin (angle),
-    sine =  sin (angle),
-    half_cx = cx / 2.0,
-    half_cy = cy / 2.0,
+    kose =  cos (rc_electrode->angle),
+    msin = -sin (rc_electrode->angle),
+    sine =  sin (rc_electrode->angle),
+    half_cx = rc_electrode->cxWorld / 2.0,
+    half_cy = rc_electrode->cyWorld / 2.0,
     xMin, yMin, xMax, yMax ;
   WorldPoint pt[4] = {{0,0},{0,0},{0,0},{0,0}}, ptCenter = {0,0} ;
-
-  rc_electrode->cxWorld = cx ;
-  rc_electrode->cyWorld = cy ;
-  rc_electrode->angle   = angle ;
 
   ptCenter.xWorld = obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0 ;
   ptCenter.yWorld = obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0 ;
@@ -686,7 +755,7 @@ static void qcad_rectangle_electrode_calculate_precompute (QCADRectangleElectrod
   pt[3].xWorld = ptCenter.xWorld - half_cx ;
   pt[3].yWorld = ptCenter.yWorld + half_cy ;
 
-  if (0 != angle)
+  if (0 != rc_electrode->angle)
     {
     // rotate corner points
     rc_electrode->pt[0].xWorld = kose * pt[0].xWorld + sine * pt[0].yWorld ;
@@ -717,9 +786,15 @@ static void qcad_rectangle_electrode_calculate_precompute (QCADRectangleElectrod
     rc_electrode->pt[3] = pt[3] ;
     obj->bounding_box.xWorld = pt[0].xWorld ;
     obj->bounding_box.yWorld = pt[0].yWorld ;
-    obj->bounding_box.cxWorld = cx ;
-    obj->bounding_box.cyWorld = cy ;
+    obj->bounding_box.cxWorld = rc_electrode->cxWorld ;
+    obj->bounding_box.cyWorld = rc_electrode->cyWorld ;
     }
 
-  precompute (QCAD_ELECTRODE (rc_electrode)) ;
+  rc_electrode->precompute_params.rho_factor = QCAD_ELECTRODE (rc_electrode)->capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;
+  rc_electrode->precompute_params.pt1x_minus_pt0x = rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld ;
+  rc_electrode->precompute_params.pt1y_minus_pt0y = rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld ;
+  rc_electrode->precompute_params.pt3x_minus_pt2x = rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld ;
+  rc_electrode->precompute_params.pt3y_minus_pt2y = rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld ;
+  rc_electrode->precompute_params.reciprocal_of_x_divisions = 1.0 / rc_electrode->n_x_divisions ;
+  rc_electrode->precompute_params.reciprocal_of_y_divisions = 1.0 / rc_electrode->n_y_divisions ;
   }

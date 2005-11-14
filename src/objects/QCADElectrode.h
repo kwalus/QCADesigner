@@ -49,8 +49,6 @@ typedef struct
   double dc_offset ; // Volts
   double min_clock ; // Volts
   double max_clock ; // Volts
-
-  double distance_to_draw ;
   } QCADElectrodeOptions ;
 
 typedef struct

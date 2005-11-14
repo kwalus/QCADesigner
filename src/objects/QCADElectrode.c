@@ -41,6 +41,7 @@
 #include "../support.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
+#include "../fileio_helpers.h"
 #include "QCADElectrode.h"
 #include "mouse_handlers.h"
 
@@ -48,6 +49,8 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_electrode_instance_init (GObject *object, gpointer data) ;
 static void qcad_electrode_instance_finalize (GObject *object) ;
 
+static void serialize (QCADDesignObject *obj, FILE *fp) ;
+static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 static double get_voltage (QCADElectrode *electrode, double t) ;
 static double get_area (QCADElectrode *electrode) ;
@@ -82,6 +85,9 @@ GType qcad_electrode_get_type ()
 static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   {
   G_OBJECT_CLASS (klass)->finalize = qcad_electrode_instance_finalize ;
+
+  QCAD_DESIGN_OBJECT_CLASS(klass)->unserialize = unserialize ;
+  QCAD_DESIGN_OBJECT_CLASS(klass)->serialize   = serialize ;
 
   QCAD_ELECTRODE_CLASS (klass)->get_voltage   = get_voltage ;
   QCAD_ELECTRODE_CLASS (klass)->get_potential = get_potential ;
@@ -152,6 +158,103 @@ void qcad_electrode_set_capacitance (QCADElectrode *electrode, double relative_p
   }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static void serialize (QCADDesignObject *obj, FILE *fp)
+  {
+  char pszDouble[G_ASCII_DTOSTR_BUF_SIZE] = "" ;
+  QCADElectrode *electrode = NULL ;
+
+  if (NULL == obj || NULL == fp) return ;
+
+  electrode = QCAD_ELECTRODE (obj) ;
+
+  fprintf (fp, "[TYPE:" QCAD_TYPE_STRING_ELECTRODE "]\n") ;
+  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_ELECTRODE)))->serialize (obj, fp) ;
+  fprintf (fp, "electrode_options.clock_function=%s\n", sin == electrode->electrode_options.clock_function ? "sin" : "unknown") ;
+  fprintf (fp, "electrode_options.amplitude=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.amplitude)) ;
+  fprintf (fp, "electrode_options.frequency=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.frequency)) ;
+  fprintf (fp, "electrode_options.phase=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.phase)) ;
+  fprintf (fp, "electrode_options.dc_offset=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.dc_offset)) ;
+  fprintf (fp, "electrode_options.min_clock=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.min_clock)) ;
+  fprintf (fp, "electrode_options.max_clock=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.max_clock)) ;
+  fprintf (fp, "capacitance=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->capacitance)) ;
+  fprintf (fp, "permittivity=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->permittivity)) ;
+  fprintf (fp, "two_z_to_ground=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->two_z_to_ground)) ;
+  fprintf (fp, "[#TYPE:" QCAD_TYPE_STRING_ELECTRODE "]\n") ;
+  }
+
+static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
+  {
+  QCADElectrode *electrode = QCAD_ELECTRODE (obj) ;
+  char *pszLine = NULL, *pszValue = NULL ;
+  gboolean bStopReading = FALSE, bParentInit = FALSE ;
+
+  if (!SkipPast (fp, '\0', "[TYPE:" QCAD_TYPE_STRING_ELECTRODE "]", NULL)) return FALSE ;
+
+  while (TRUE)
+    {
+    if (NULL == (pszLine = ReadLine (fp, '\0', TRUE))) break ;
+
+    if (!strcmp ("[#TYPE:" QCAD_TYPE_STRING_ELECTRODE "]", pszLine))
+      {
+      g_free (pszLine) ;
+      break ;
+      }
+
+    if (!bStopReading)
+      {
+      tokenize_line (pszLine, strlen (pszLine), &pszValue, '=') ;
+
+      if (!strncmp (pszLine, "[TYPE:", 6))
+        {
+        tokenize_line_type (pszLine, strlen (pszLine), &pszValue, ':') ;
+
+        if (!strcmp (pszValue, QCAD_TYPE_STRING_DESIGN_OBJECT))
+          {
+          if (!(bParentInit = QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_ELECTRODE)))->unserialize (obj, fp)))
+            bStopReading = TRUE ;
+          }
+        }
+      else
+      if (!strcmp (pszLine, "capapcitance"))
+        electrode->capacitance = g_ascii_strtod (pszValue, NULL) ;
+      else
+      if (!strcmp (pszLine, "permittivity"))
+        electrode->permittivity = g_ascii_strtod (pszValue, NULL) ;
+      else
+      if (!strcmp (pszLine, "two_z_to_ground"))
+        electrode->two_z_to_ground = g_ascii_strtod (pszValue, NULL) ;
+      else
+      if (!strcmp (pszLine, "electrode_options.clock_function"))
+        electrode->electrode_options.clock_function = (strcmp (pszValue, "sin") ? NULL : sin) ;
+      else
+      if (!strcmp (pszLine, "electrode_options.amplitude"))
+        electrode->electrode_options.amplitude = strtod (pszValue, NULL) ;
+      if (!strcmp (pszLine, "electrode_options.frequency"))
+        electrode->electrode_options.frequency = strtod (pszValue, NULL) ;
+      if (!strcmp (pszLine, "electrode_options.phase"))
+        electrode->electrode_options.phase = strtod (pszValue, NULL) ;
+      if (!strcmp (pszLine, "electrode_options.dc_offset"))
+        electrode->electrode_options.dc_offset = strtod (pszValue, NULL) ;
+      if (!strcmp (pszLine, "electrode_options.min_clock"))
+        electrode->electrode_options.min_clock = strtod (pszValue, NULL) ;
+      if (!strcmp (pszLine, "electrode_options.max_clock"))
+        electrode->electrode_options.max_clock = strtod (pszValue, NULL) ;
+      }
+    g_free (pszLine) ;
+    g_free (ReadLine (fp, '\0', FALSE)) ;
+    }
+
+
+  if (bParentInit && !bStopReading)
+    {
+    if (QCAD_DESIGN_OBJECT_CLASS (QCAD_ELECTRODE_GET_CLASS (electrode))->unserialize == unserialize)
+      QCAD_ELECTRODE_GET_CLASS (electrode)->precompute (electrode) ;
+    return TRUE ;
+    }
+  else
+    return FALSE ;
+  }
 
 static void precompute (QCADElectrode *electrode) {}
 

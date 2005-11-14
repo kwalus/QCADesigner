@@ -87,6 +87,10 @@
 #define RUNGE_KUTTA 1
 #define EULER_METHOD 2
 
+//!Clocking Schemes
+#define ZONE_CLOCKING 1
+#define ELECTRODE_CLOCKING 2
+
 //!Some useful physical constants
 #define QCHARGE_SQUAR_OVER_FOUR 6.417423538e-39
 #define QCHARGE 1.602176462e-19

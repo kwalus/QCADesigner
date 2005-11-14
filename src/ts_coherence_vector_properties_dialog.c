@@ -53,6 +53,8 @@ typedef struct
 	GtkWidget *layer_separation_entry;
 	GtkWidget *cell_elevation_entry;
 	GtkWidget *cell_height_entry;
+	GtkWidget *zone_clocking_radio;
+	GtkWidget *electrode_clocking_radio;
 	GtkWidget *euler_method_radio;
 	GtkWidget *runge_kutta_radio;
 	GtkWidget *chkRandomizeCells;
@@ -107,7 +109,7 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
   dialog->dialog_vbox1 = GTK_DIALOG (dialog->ts_coherence_properties_dialog)->vbox;
   gtk_widget_show (dialog->dialog_vbox1);
 
-  dialog->table = gtk_table_new (17, 3, FALSE);
+  dialog->table = gtk_table_new (19, 3, FALSE);
   gtk_widget_show (dialog->table);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->table), 2);
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->table, TRUE, TRUE, 0);
@@ -144,17 +146,35 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 */
+  
+	
+	dialog->zone_clocking_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Zone Clocking");
+  gtk_object_set_data (GTK_OBJECT (dialog->zone_clocking_radio), "which_options", (gpointer)ZONE_CLOCKING) ;
+  dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->zone_clocking_radio));
+  gtk_widget_show (dialog->zone_clocking_radio);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->zone_clocking_radio, 0, 2, 14, 15,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+
+  dialog->electrode_clocking_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Electrode Clocking");
+  gtk_object_set_data (GTK_OBJECT (dialog->electrode_clocking_radio), "which_options", (gpointer)ELECTRODE_CLOCKING) ;
+  dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->electrode_clocking_radio));
+  gtk_widget_show (dialog->electrode_clocking_radio);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->electrode_clocking_radio, 0, 2, 15, 16,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+										
   // Randomize Cells ?
   dialog->chkRandomizeCells = gtk_check_button_new_with_label (_("Randomize Simulation Order")) ;
   gtk_widget_show (dialog->chkRandomizeCells) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkRandomizeCells, 0, 2, 16, 17,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkRandomizeCells, 0, 2, 17, 18,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
   // Animate ?
   dialog->chkAnimate = gtk_check_button_new_with_label (_("Animate")) ;
   gtk_widget_show (dialog->chkAnimate) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 17, 18,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 18, 19,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
@@ -270,7 +290,13 @@ static void ts_coherence_OP_to_dialog (ts_coherence_OP *psco, ts_coherence_prope
 
   g_snprintf (sz, 16, "%lf", psco->cell_height) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->cell_height_entry), sz) ;
-
+	
+	if (ZONE_CLOCKING == psco->clocking_scheme)
+  	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->zone_clocking_radio), TRUE);
+  else
+  if (ELECTRODE_CLOCKING == psco->clocking_scheme)
+  	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->electrode_clocking_radio), TRUE);
+	
 	/*
   if (EULER_METHOD == psco->algorithm)
   	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->euler_method_radio), TRUE);
@@ -297,7 +323,8 @@ static void dialog_to_ts_coherence_OP (ts_coherence_OP *psco, ts_coherence_prope
 	psco->cell_elevation				 = atof (gtk_entry_get_text (GTK_ENTRY (dialog->cell_elevation_entry))) ;
   psco->cell_height            = atof (gtk_entry_get_text (GTK_ENTRY (dialog->cell_height_entry))) ;
 	
-  //psco->algorithm          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->euler_method_radio)) ? EULER_METHOD : RUNGE_KUTTA;
-  psco->randomize_cells    = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkRandomizeCells)) ;
-  psco->animate_simulation = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkAnimate)) ;
+	psco->clocking_scheme        = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->zone_clocking_radio)) ? ZONE_CLOCKING : ELECTRODE_CLOCKING;
+  //psco->algorithm            = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->euler_method_radio)) ? EULER_METHOD : RUNGE_KUTTA;
+  psco->randomize_cells        = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkRandomizeCells)) ;
+  psco->animate_simulation     = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkAnimate)) ;
   }

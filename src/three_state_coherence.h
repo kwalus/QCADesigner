@@ -62,6 +62,7 @@ typedef struct
 	double cell_elevation;
 	double cell_height;
 	int algorithm;
+	int clocking_scheme;
 	gboolean randomize_cells;
 	gboolean animate_simulation;
   } ts_coherence_OP;

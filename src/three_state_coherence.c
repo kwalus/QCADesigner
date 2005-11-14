@@ -49,7 +49,7 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 1e-22, 2e-22, -2e-22, 0.0, 2.0, 80, 12.9, 11.5, 18.0, 3.0, EULER_METHOD, TRUE, FALSE} ;
+ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 1e-22, 2e-22, -2e-22, 0.0, 2.0, 80, 12.9, 11.5, 18.0, 3.0, EULER_METHOD, ZONE_CLOCKING, TRUE, FALSE} ;
 
 typedef struct
   {
@@ -104,6 +104,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
   unsigned long int number_recorded_samples = 3000;
   unsigned long int record_interval;
   double PEk = 0;
+	double half_PEk=0;
   double *energy;
   double average_power=0;
   time_t start_time, end_time;
@@ -127,7 +128,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	double potential[6]={1,1,1,1,1,1};
   static double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
   static double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
-	double energyPlus, energyMinus, energyNull;
+	double energyPlus = 0, energyMinus = 0, energyNull = 0;
 	
 	// variables required for generating the structure constants
 	complex structureC = {0,-0.25};
@@ -371,21 +372,27 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				//printf("structure constant %d %d %d is : %lf\n", i,j,k,structureConst[i][j][k]);
 			}
 	
-	// find the clocking layer
-	for (llItr = design->lstLayers ; llItr != NULL ; llItr = llItr->next){
-		if(LAYER_TYPE_CLOCKING == QCAD_LAYER (llItr->data)->type)
-			clocking_layer = (QCADLayer *)(llItr->data);
-		}
+	// if users wants to use the electrode clocking then find the clocking layer
+	if(options->clocking_scheme == ELECTRODE_CLOCKING){
+		command_history_message ("Simulation will use the electrode clocking scheme.\n");
+		// find the clocking layer
+		for (llItr = design->lstLayers ; llItr != NULL ; llItr = llItr->next){
+			if(LAYER_TYPE_CLOCKING == QCAD_LAYER (llItr->data)->type)
+				clocking_layer = (QCADLayer *)(llItr->data);
+			}
 		
-	//check to make sure there actually is a clocking layer
-	if(clocking_layer == NULL){
-		command_history_message ("Critical Error: No clocking layer found!\n");
-		return(sim_data);
-	}
+		//check to make sure there actually is a clocking layer
+		if(clocking_layer == NULL){
+			command_history_message ("Critical Error: No clocking layer found!\n");
+			return(sim_data);
+		}
 	
-	//setup the electrodes and ground plate
-	for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
-		if(llItr->data != NULL)qcad_electrode_set_capacitance ((QCADElectrode *)(llItr->data), options->epsilonR, 20);
+		//setup the electrodes and ground plate
+		for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
+			if(llItr->data != NULL)qcad_electrode_set_capacitance ((QCADElectrode *)(llItr->data), options->epsilonR, 20);
+		}else{
+			command_history_message ("Simulation will use the zone clocking scheme.\n");
+		}
 		
   // Converge the steady state coherence vector for each cell so that the simulation starts without any transients //
   stable = FALSE;
@@ -408,38 +415,49 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
         // Calculate the sum of neighboring polarizations * the kink energy between them//
         for (q = 0; q < ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->number_of_neighbours; q++)
           PEk += (qcad_cell_calculate_polarization (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->neighbours[q])) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Ek[q];
-					PEk *= 0.5;
+					half_PEk = 0.5 * PEk;
 				//printf("This cell PEk = %e\n", PEk);
 				
-				//find the poential
-			for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
-				if(llItr->data != NULL){
-					potential[0] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
-					potential[1] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
-					potential[2] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
-					potential[3] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
-					potential[4] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0);
-					potential[5] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0);
+				//get energy values depending on the user clocking scheme choice
+				if(options->clocking_scheme == ELECTRODE_CLOCKING){
+					
+					//find the poential at the location of each of the celll dots
+					potential[0] = potential[1] = potential[2] = potential[3] = potential[4] = potential[5] = 0;	
+			
+					for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
+						if(llItr->data != NULL){
+							potential[0] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
+							potential[1] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
+							potential[2] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
+							potential[3] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
+							potential[4] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0);
+							potential[5] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0);
+						}
+					}
+				
+					energyPlus = potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
+					energyMinus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
+					energyNull = potential[4] * -QCHARGE + potential[5] * -QCHARGE;
 				}
-			}
-			
-			energyPlus = potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
-			energyMinus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
-			energyNull = potential[4] * -QCHARGE + potential[5] * -QCHARGE;
-			
+				else if(options->clocking_scheme == ZONE_CLOCKING){
+					
+					energyPlus = 0;
+					energyMinus = 0;
+					energyNull = sim_data->clock_data[sorted_cells[i][j]->cell_options.clock].data[0];
+				}
 	
 				// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -PEk;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;								((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].re = -options->gamma;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -half_PEk + energyPlus;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].im = 0;
 				
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].re = 0;								((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].re = PEk;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].re = -options->gamma;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].re = half_PEk + energyMinus;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].im = 0;
 				
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
 				
 				//printf("Hamiltonian:\n");
 				//dump_3x3_complexMatrix(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian);
@@ -701,9 +719,9 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8], QCADLayer *clocking_layer)
   {
   unsigned int i,j,q, row, col, Nix, Nix1;
-  double PEk;
-	double t;
-  double clock_value;
+  double PEk = 0;
+	double half_PEk = 0;
+	double t = 0;
   unsigned int num_neighbours;
 	double lambda[8];
 	complex tempMatrix1[3][3];
@@ -716,11 +734,11 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	double two_over_root_3 = 2.0/sqrt(3.0);
 	double two_over_hbar = 2.0 * OVER_HBAR;
 	GList *llItr = NULL;
-	double potential[6]={1,1,1,1,1,1};
+	double potential[6]={0,0,0,0,0,0};
   static double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
   static double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
-	double energyPlus, energyMinus, energyNull;
-	static double min=0, max=0;
+	double energyPlus = 0, energyMinus = 0, energyNull = 0;
+
 	//fill in the complex constants
 	minusOverKBT.re = -1.0 / (kB * options->T);
 	minusOverKBT.im = 0;
@@ -737,60 +755,59 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
            (QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function)))
         continue;
 				
-			//find the poential
-			for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
-				if(llItr->data != NULL){
-					potential[0] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-					potential[1] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-					potential[2] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-					potential[3] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-					potential[4] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
-					potential[5] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
+			//get energy values depending on the user clocking scheme choice
+			if(options->clocking_scheme == ELECTRODE_CLOCKING){
+				//find the poential at the location of each of the celll dots
+				potential[0] = potential[1] = potential[2] = potential[3] = potential[4] = potential[5] = 0;	
+			
+				for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
+					if(llItr->data != NULL){
+						potential[0] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
+						potential[1] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
+						potential[2] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
+						potential[3] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
+						potential[4] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
+						potential[5] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
+					}
 				}
+				
+				energyPlus  =	potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
+				energyMinus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
+				energyNull  =	potential[4] * -QCHARGE + potential[5] * -QCHARGE;
+			}
+			else if(options->clocking_scheme == ZONE_CLOCKING){
+				energyPlus = 0;
+				energyMinus = 0;
+				energyNull = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
 			}
 			
-			energyPlus = potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
-			energyMinus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
-			energyNull = potential[4] * -QCHARGE + potential[5] * -QCHARGE;
-			
-			if(energyNull < min)min = energyNull;
-			if(energyNull > max)max = energyNull;
-			
-			if(sample_number%5000==0){
-				printf("cell height = %e\n", options->cell_height);
-				printf("min:%e max:%e\n", min, max);
-				//printf("+1: %e -1: %e NULL: %e\n", energyPlus, energyMinus, energyNull);																																	
-				//printf("Potential: %e, %e, %e, %e, %e, %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
-				}
-      
-			clock_value = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
-
       PEk = 0;
       // Calculate the sum of neighboring polarizations //
       num_neighbours = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->number_of_neighbours;
       for (q = 0 ; q < num_neighbours ; q++)
         PEk += (qcad_cell_calculate_polarization (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->neighbours[q]))*((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Ek[q];
-				PEk *= 0.5;
+				half_PEk = 0.5 * PEk;
 		  
 				//printf("This cell PEk = %e\n", PEk);
 				
 				// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -PEk;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;									((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].re = -options->gamma;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -half_PEk + energyPlus;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].im = 0;
 				
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].re = 0;									((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].re = PEk;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].re = -options->gamma;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].re = half_PEk + energyMinus;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].im = 0;
 				
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
 				
 				//printf("Hamiltonian:\n");
 				//dump_3x3_complexMatrix(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian);
 				
 				//generate the hamiltonian in the space of SU(3)
+				
 				
 				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[0],tempMatrix1);
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = OVER_HBAR * (complexTr(tempMatrix1)).re;
@@ -809,6 +826,8 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[7],tempMatrix1);
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = OVER_HBAR * (complexTr(tempMatrix1)).re;
 				
+				
+				
 				/*
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = -two_over_hbar * options->gamma ;
@@ -816,8 +835,8 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3] = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4] = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * PEk;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = two_over_root_3 * clock_value;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (PEk);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = two_over_root_3 * energyNull;
 				*/
 				
 				/*printf("Gamma: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0], 

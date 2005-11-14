@@ -505,7 +505,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
-  spn = gtk_spin_button_new (dialog->adjPhase = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 360, 1, 5, 0)), 1, 0) ;
+  spn = gtk_spin_button_new (dialog->adjPhase = GTK_ADJUSTMENT (gtk_adjustment_new (0, -360, 360, 1, 5, 0)), 1, 0) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 3, 4, GTK_FILL, GTK_FILL, 2, 2) ;
 

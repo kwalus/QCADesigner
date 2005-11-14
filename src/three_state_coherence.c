@@ -49,7 +49,7 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 1e-22, 2e-22, -2e-22, 0.0, 2.0, 80, 12.9, 11.5, 11.0, 10.0, EULER_METHOD, TRUE, FALSE} ;
+ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 1e-22, 2e-22, -2e-22, 0.0, 2.0, 80, 12.9, 11.5, 18.0, 3.0, EULER_METHOD, TRUE, FALSE} ;
 
 typedef struct
   {
@@ -124,7 +124,10 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	double omegaDotLambda[8];
 	complex densityMatrixSS[3][3];
 	complex minusOverKBT;
-	double potential;
+	double potential[6]={1,1,1,1,1,1};
+  static double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
+  static double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
+	double energyPlus, energyMinus, energyNull;
 	
 	// variables required for generating the structure constants
 	complex structureC = {0,-0.25};
@@ -409,17 +412,22 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				//printf("This cell PEk = %e\n", PEk);
 				
 				//find the poential
-				for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
-					if(llItr->data != NULL)
-						potential = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	
-																									sorted_cells[i][j]->cell_dots[0].x,
-																									sorted_cells[i][j]->cell_dots[0].y,
-																									options->layer_separation,
-																									0);
-					}
-																																				
-				printf("Electrode Potential is: %e\n", potential);
-				
+			for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
+				if(llItr->data != NULL){
+					potential[0] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
+					potential[1] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
+					potential[2] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
+					potential[3] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
+					potential[4] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0);
+					potential[5] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0);
+				}
+			}
+			
+			energyPlus = potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
+			energyMinus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
+			energyNull = potential[4] * -QCHARGE + potential[5] * -QCHARGE;
+			
+	
 				// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -PEk;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;								((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
@@ -431,7 +439,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = sim_data->clock_data[sorted_cells[i][j]->cell_options.clock].data[0]; ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
 				
 				//printf("Hamiltonian:\n");
 				//dump_3x3_complexMatrix(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian);
@@ -637,7 +645,12 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
         if (((QCAD_CELL_INPUT == sorted_cells[k][l]->cell_function) ||
              (QCAD_CELL_FIXED == sorted_cells[k][l]->cell_function)))
           continue;
-        if (fabs (((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6]) > 1.0)
+        if(isnan(((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6])){
+					command_history_message ("Critical Error: Simulation enging was trying to set cell polarization to NaN at sample number %d\n", j);
+          return sim_data;
+				}
+				
+				if (fabs (((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6]) > 1.0)
           {
           command_history_message ("I had to abort the simulation at iteration %d because the polarization = %e was diverging.\nPossible cause is the time step is too large.\nAlternatively, you can decrease the relaxation time to reduce oscillations.\n",j, -1*((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[7]);
           command_history_message ("time step was set to %e\n", options->time_step);
@@ -704,10 +717,10 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	double two_over_hbar = 2.0 * OVER_HBAR;
 	GList *llItr = NULL;
 	double potential[6]={1,1,1,1,1,1};
-  double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
-  double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
+  static double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
+  static double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
 	double energyPlus, energyMinus, energyNull;
-	
+	static double min=0, max=0;
 	//fill in the complex constants
 	minusOverKBT.re = -1.0 / (kB * options->T);
 	minusOverKBT.im = 0;
@@ -726,21 +739,27 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				
 			//find the poential
 			for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
-				if(llItr->data != NULL)
+				if(llItr->data != NULL){
 					potential[0] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
 					potential[1] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
 					potential[2] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
 					potential[3] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
 					potential[4] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
 					potential[5] = qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
-					}
+				}
+			}
 			
 			energyPlus = potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
 			energyMinus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
 			energyNull = potential[4] * -QCHARGE + potential[5] * -QCHARGE;
 			
-			if(sample_number%50==0){
-				printf("+1: %e -1: %e NULL: %e\n", energyPlus, energyMinus, energyNull);																																	
+			if(energyNull < min)min = energyNull;
+			if(energyNull > max)max = energyNull;
+			
+			if(sample_number%5000==0){
+				printf("cell height = %e\n", options->cell_height);
+				printf("min:%e max:%e\n", min, max);
+				//printf("+1: %e -1: %e NULL: %e\n", energyPlus, energyMinus, energyNull);																																	
 				//printf("Potential: %e, %e, %e, %e, %e, %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
 				}
       
@@ -766,7 +785,7 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = clock_value;				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
 				
 				//printf("Hamiltonian:\n");
 				//dump_3x3_complexMatrix(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian);

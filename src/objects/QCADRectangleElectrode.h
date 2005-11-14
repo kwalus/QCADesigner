@@ -57,6 +57,7 @@ typedef struct
   double reciprocal_of_x_divisions ;
   double reciprocal_of_y_divisions ;
   double rho_factor ;
+  WorldPoint pt[4] ;
   } QCADRectangleElectrodePrecompute ;
 
 typedef struct
@@ -67,7 +68,6 @@ typedef struct
   int n_y_divisions ;
   double cxWorld ;
   double cyWorld ;
-  WorldPoint pt[4] ;
   QCADRectangleElectrodePrecompute precompute_params ;
   } QCADRectangleElectrode ;
 

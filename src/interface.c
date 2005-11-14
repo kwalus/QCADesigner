@@ -222,7 +222,7 @@ void create_main_window (main_W *main_window){
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
-  spn = gtk_spin_button_new_infinite (main_window->adjPotentialSliceDistance = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 10, 0)), 1, 1, ISB_DIR_UP) ;
+  spn = gtk_spin_button_new (main_window->adjPotentialSliceDistance = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 10, 0)), 1, 1) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), spn, 1, 2, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
   gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, spn, 

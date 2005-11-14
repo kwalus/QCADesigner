@@ -49,15 +49,22 @@ typedef struct
   double dc_offset ; // Volts
   double min_clock ; // Volts
   double max_clock ; // Volts
+  double relative_permittivity ;
+  double z_to_ground ; // nm
   } QCADElectrodeOptions ;
+
+typedef struct
+  {
+  double permittivity ; // epsilon_nought * epsilon_r
+  double two_z_to_ground ; // nm
+  double capacitance ; // Farads
+  } QCADElectrodePrecompute ;
 
 typedef struct
   {
   QCADDesignObject parent_instance ;
   QCADElectrodeOptions electrode_options ;
-  double capacitance ; // Farads
-  double permittivity ; // epsilon_nought * epsilon_r
-  double two_z_to_ground ; // nm
+  QCADElectrodePrecompute precompute_params ;
   } QCADElectrode ;
 
 typedef struct
@@ -69,6 +76,7 @@ typedef struct
   double (*get_potential) (QCADElectrode *electrode, double x, double y, double z, double t) ;
   double (*get_voltage) (QCADElectrode *electrode, double t) ;
   double (*get_area) (QCADElectrode *electrode) ;
+  void (*extreme_potentials) (QCADElectrode *electrode, double z, double *dMin, double *dMax) ;
   void (*precompute) (QCADElectrode *electrode) ;
   } QCADElectrodeClass ;
 
@@ -77,7 +85,7 @@ GType qcad_electrode_get_type () ;
 double qcad_electrode_get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 double qcad_electrode_get_voltage (QCADElectrode *electrode, double t) ;
 double qcad_electrode_get_area (QCADElectrode *electrode) ;
-void qcad_electrode_set_capacitance (QCADElectrode *electrode, double relative_permittivity, double z_to_ground) ;
+void qcad_electrode_get_extreme_potentials (QCADElectrode *electrode, double *dMin, double *dMax) ;
 
 #define QCAD_TYPE_STRING_ELECTRODE "QCADElectrode"
 #define QCAD_TYPE_ELECTRODE (qcad_electrode_get_type ())

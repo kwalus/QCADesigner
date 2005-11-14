@@ -36,6 +36,7 @@
 #include "../design.h"
 #include "../custom_widgets.h"
 #include "QCADLayer.h"
+#include "QCADClockingLayer.h"
 
 #define DBG_LPD_FLAGS(s)
 #define DBG_LPD_PROPS(s)
@@ -52,6 +53,14 @@ typedef struct
  GHashTable *htObjUI ;
  GHashTable *htObjCB ;
  GHashTable *htObjCBData ;
+ // Widgets for clocking layer - HACK-A-DEE-DOO-DAH!
+ GtkWidget *lblZToGround ;
+ GtkWidget *spnZToGround ;
+ GtkWidget *lblZToGroundUnits ;
+ GtkWidget *lblEpsilonR ;
+ GtkWidget *spnEpsilonR ;
+ GtkAdjustment *adjZToGround ;
+ GtkAdjustment *adjEpsilonR ;
  } layer_properties_D ;
 
 static char *pszLayerTypes[] = 
@@ -105,6 +114,28 @@ gboolean qcad_layer_properties (QCADDesignObject *obj, GtkWidget *widget)
 
   gtk_window_set_transient_for (GTK_WINDOW (layer_properties_dialog.dlg), GTK_WINDOW (widget)) ;
 
+  // The following is a hack of Biblical proportions
+  if (QCAD_IS_CLOCKING_LAYER (obj))
+    {
+    double z_to_ground, epsilon_r ;
+    gtk_widget_show (layer_properties_dialog.lblZToGround) ;
+    gtk_widget_show (layer_properties_dialog.spnZToGround) ;
+    g_object_get (G_OBJECT (obj), "z-to-ground", &z_to_ground, "relative-permittivity", &epsilon_r, NULL) ;
+    gtk_widget_show (layer_properties_dialog.lblZToGroundUnits) ;
+    gtk_widget_show (layer_properties_dialog.lblEpsilonR) ;
+    gtk_widget_show (layer_properties_dialog.spnEpsilonR) ;
+    gtk_adjustment_set_value_infinite (layer_properties_dialog.adjZToGround, z_to_ground) ;
+    gtk_adjustment_set_value_infinite (layer_properties_dialog.adjEpsilonR, epsilon_r) ;
+    }
+  else
+    {
+    gtk_widget_hide (layer_properties_dialog.lblZToGround) ;
+    gtk_widget_hide (layer_properties_dialog.spnZToGround) ;
+    gtk_widget_hide (layer_properties_dialog.lblZToGroundUnits) ;
+    gtk_widget_hide (layer_properties_dialog.lblEpsilonR) ;
+    gtk_widget_hide (layer_properties_dialog.spnEpsilonR) ;
+    }
+
   gtk_label_set_text (GTK_LABEL (layer_properties_dialog.lblLayerType), _(pszLayerTypes[layer->type])) ;
   gtk_list_select_item (GTK_LIST (GTK_COMBO (layer_properties_dialog.cbLayerStatus)->list), layer->status) ;
   gtk_entry_set_text (GTK_ENTRY (layer_properties_dialog.txtLayerDescription), NULL == layer->pszDescription ? "" : layer->pszDescription) ;
@@ -121,6 +152,13 @@ gboolean qcad_layer_properties (QCADDesignObject *obj, GtkWidget *widget)
       layer_status_from_description (pszText =
         gtk_editable_get_chars (GTK_EDITABLE (GTK_COMBO (layer_properties_dialog.cbLayerStatus)->entry), 0, -1)) ;
     g_free (pszText) ;
+
+  // The following is the continuation of the above, Biblically-proportioned hack
+    if (QCAD_IS_CLOCKING_LAYER (obj))
+      g_object_set (G_OBJECT (obj),
+        "relative-permittivity", gtk_adjustment_get_value (layer_properties_dialog.adjEpsilonR), 
+        "z-to-ground",           gtk_adjustment_get_value (layer_properties_dialog.adjZToGround), 
+        NULL) ;
 
 //    set_layer_type (GTK_WINDOW (widget), layer,
 //      layer_type_from_description (pszText =
@@ -206,16 +244,16 @@ static void create_layer_properties_dialog (layer_properties_D *dialog)
   lbl = gtk_label_new (_("Layer Type:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
   dialog->lblLayerType = gtk_label_new ("") ;
   gtk_widget_show (dialog->lblLayerType) ;
   gtk_table_attach (GTK_TABLE (tbl), dialog->lblLayerType, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_label_set_justify (GTK_LABEL (dialog->lblLayerType), GTK_JUSTIFY_LEFT) ;
   gtk_misc_set_alignment (GTK_MISC (dialog->lblLayerType), 0.0, 0.5) ;
 
@@ -226,8 +264,8 @@ static void create_layer_properties_dialog (layer_properties_D *dialog)
   lbl = gtk_label_new (_("Layer Status:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
@@ -235,7 +273,7 @@ static void create_layer_properties_dialog (layer_properties_D *dialog)
   gtk_widget_show (dialog->cbLayerStatus) ;
   gtk_table_attach (GTK_TABLE (tbl), dialog->cbLayerStatus, 1, 2, 1, 2,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_combo_set_value_in_list (GTK_COMBO (dialog->cbLayerStatus), TRUE, FALSE) ;
   gtk_entry_set_editable (GTK_ENTRY (GTK_COMBO (dialog->cbLayerStatus)->entry), FALSE) ;
   lstComboItems = NULL ;
@@ -246,8 +284,8 @@ static void create_layer_properties_dialog (layer_properties_D *dialog)
   lbl = gtk_label_new (_("Layer Description:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 2, 3,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
@@ -255,8 +293,47 @@ static void create_layer_properties_dialog (layer_properties_D *dialog)
   gtk_widget_show (dialog->txtLayerDescription) ;
   gtk_table_attach (GTK_TABLE (tbl), dialog->txtLayerDescription, 1, 2, 2, 3,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->txtLayerDescription), TRUE) ;
+
+  lbl =
+  dialog->lblZToGround = gtk_label_new (_("Distance To Ground:")) ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 3, 4,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
+
+  dialog->spnZToGround = gtk_spin_button_new_infinite (dialog->adjZToGround = GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 2, 1, 10, 0)), 1, 1, ISB_DIR_UP) ;
+  gtk_widget_show (dialog->spnZToGround) ;
+  gtk_table_attach (GTK_TABLE (tbl), dialog->spnZToGround, 1, 2, 3, 4,
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+
+  lbl =
+  dialog->lblZToGroundUnits = gtk_label_new (_("nm")) ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (tbl), lbl, 2, 3, 3, 4,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
+
+  lbl =
+  dialog->lblEpsilonR = gtk_label_new (_("Relative Permittivity:")) ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 4, 5,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
+
+  dialog->spnEpsilonR = gtk_spin_button_new_infinite (dialog->adjEpsilonR = GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 2, 1, 10, 0)), 1, 1, ISB_DIR_UP) ;
+  gtk_widget_show (dialog->spnEpsilonR) ;
+  gtk_table_attach (GTK_TABLE (tbl), dialog->spnEpsilonR, 1, 2, 4, 5,
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
 
   frm = gtk_frame_new (_("Object Properties")) ;
   gtk_widget_show (frm) ;

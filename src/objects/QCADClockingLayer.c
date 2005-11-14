@@ -36,21 +36,24 @@
 #include "QCADLayer_priv.h"
 #include "support.h"
 #include "../fileio_helpers.h"
+#include "QCADElectrode.h"
 
 enum
   {
   QCAD_CLOCKING_LAYER_PROPERTY_SHOW_POTENTIAL = 1,
-  QCAD_CLOCKING_LAYER_PROPERTY_DISTANCE,
+  QCAD_CLOCKING_LAYER_PROPERTY_Z_SHOWING,
   QCAD_CLOCKING_LAYER_PROPERTY_TILE_SIZE,
   QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD,
+  QCAD_CLOCKING_LAYER_PROPERTY_Z_TO_GROUND,
+  QCAD_CLOCKING_LAYER_PROPERTY_EPSILON_R,
   QCAD_CLOCKING_LAYER_PROPERTY_LAST
   } ;
 
 static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpointer data) ;
 static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointer data) ;
 static void qcad_clocking_layer_instance_finalize (GObject *object) ;
-static void qcad_clocking_layer_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
-static void qcad_clocking_layer_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) ;
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
+static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) ;
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 #ifdef GTK_GUI
@@ -85,8 +88,8 @@ GType qcad_clocking_layer_get_type ()
 static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   {
   G_OBJECT_CLASS (klass)->finalize     = qcad_clocking_layer_instance_finalize ;
-  G_OBJECT_CLASS (klass)->set_property = qcad_clocking_layer_set_property ;
-  G_OBJECT_CLASS (klass)->get_property = qcad_clocking_layer_get_property ;
+  G_OBJECT_CLASS (klass)->set_property = set_property ;
+  G_OBJECT_CLASS (klass)->get_property = get_property ;
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw        = draw ;
 #endif /* def GTK_GUI */
@@ -97,8 +100,8 @@ static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpoint
     g_param_spec_boolean ("show-potential", _("Show Potential"), _("Show potential created by the electrodes on this layer"),
       FALSE, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
-  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_DISTANCE,
-    g_param_spec_double ("distance", _("Distance from layer"), _("Distance from clocking layer to show the cross-section for"),
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_Z_SHOWING,
+    g_param_spec_double ("z-showing", _("Distance from layer"), _("Distance from clocking layer to show the cross-section for"),
       -G_MAXDOUBLE, G_MAXDOUBLE, 0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_TILE_SIZE,
@@ -109,6 +112,13 @@ static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpoint
     g_param_spec_double ("time-coord", _("Time Coordinate"), _("Time coordinate to draw the potential for"),
       0, G_MAXDOUBLE, 0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_Z_TO_GROUND,
+    g_param_spec_double ("z-to-ground", _("Distance to ground"), _("Distance from clocking layer to ground electrode"),
+      1, G_MAXDOUBLE, 1, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_EPSILON_R,
+    g_param_spec_double ("relative-permittivity", _("Relative permittivity"), _("Relative permittivity of the environment between the clocking layer and the ground"),
+      1, G_MAXDOUBLE, 1, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
   }
 
 static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointer data)
@@ -118,39 +128,72 @@ static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointe
   layer->type = LAYER_TYPE_CLOCKING ;
   layer->default_properties = qcad_layer_create_default_properties (LAYER_TYPE_CLOCKING) ;
   QCAD_CLOCKING_LAYER (layer)->bDrawPotential = FALSE ;
-  QCAD_CLOCKING_LAYER (layer)->z_to_draw  =  0 ;
-  QCAD_CLOCKING_LAYER (layer)->tile_size  = 16 ;
-  QCAD_CLOCKING_LAYER (layer)->time_coord =  0 ;
+  QCAD_CLOCKING_LAYER (layer)->z_to_draw             =  0 ;
+  QCAD_CLOCKING_LAYER (layer)->tile_size             = 16.0 ;
+  QCAD_CLOCKING_LAYER (layer)->time_coord            =  0.0 ;
+  QCAD_CLOCKING_LAYER (layer)->z_to_ground           = 20.0 ;
+  QCAD_CLOCKING_LAYER (layer)->relative_permittivity = 12.9 ;
   }
 
 static void qcad_clocking_layer_instance_finalize (GObject *object)
   {G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_LAYER)))->finalize (object) ;}
 
-static void qcad_clocking_layer_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
   {
-  QCADClockingLayer *layer = QCAD_CLOCKING_LAYER (object) ;
+  GList *llItr = NULL ;
+  QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (object) ;
+  QCADLayer *layer = QCAD_LAYER (object) ;
 
   switch (property_id)
     {
     case QCAD_CLOCKING_LAYER_PROPERTY_SHOW_POTENTIAL:
-      layer->bDrawPotential = g_value_get_boolean (value) ;
+      clocking_layer->bDrawPotential = g_value_get_boolean (value) ;
+      g_object_notify (object, "show-potential") ;
       break ;
 
-    case QCAD_CLOCKING_LAYER_PROPERTY_DISTANCE:
-      layer->z_to_draw = g_value_get_double (value) ;
+    case QCAD_CLOCKING_LAYER_PROPERTY_Z_SHOWING:
+      clocking_layer->z_to_draw = g_value_get_double (value) ;
+      g_object_notify (object, "z-showing") ;
       break ;
 
     case QCAD_CLOCKING_LAYER_PROPERTY_TILE_SIZE:
-      layer->tile_size = g_value_get_uint (value) ;
+      clocking_layer->tile_size = g_value_get_uint (value) ;
+      g_object_notify (object, "tile-size") ;
       break ;
 
     case QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD:
-      layer->time_coord = g_value_get_double (value) ;
+      clocking_layer->time_coord = g_value_get_double (value) ;
+      g_object_notify (object, "time-coord") ;
+      break ;
+
+    case QCAD_CLOCKING_LAYER_PROPERTY_Z_TO_GROUND:
+      clocking_layer->z_to_ground = g_value_get_double (value) ;
+      if (clocking_layer->z_to_ground < clocking_layer->z_to_draw) ;
+        {
+        clocking_layer->z_to_draw = clocking_layer->z_to_ground ;
+        g_object_notify (object, "z-showing") ;
+        }
+      for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
+        if (NULL != llItr->data)
+          if (QCAD_IS_ELECTRODE (llItr->data))
+            g_object_set (G_OBJECT (llItr->data), "z-to-ground", clocking_layer->z_to_ground, NULL) ;
+      QCAD_ELECTRODE_CLASS (g_type_class_peek (QCAD_TYPE_ELECTRODE))->default_electrode_options.z_to_ground = clocking_layer->z_to_ground ;
+      g_object_notify (object, "z-to-ground") ;
+      break ;
+
+    case QCAD_CLOCKING_LAYER_PROPERTY_EPSILON_R:
+      clocking_layer->relative_permittivity = g_value_get_double (value) ;
+      for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
+        if (NULL != llItr->data)
+          if (QCAD_IS_ELECTRODE (llItr->data))
+            g_object_set (G_OBJECT (llItr->data), "relative-permittivity", clocking_layer->relative_permittivity, NULL) ;
+      QCAD_ELECTRODE_CLASS (g_type_class_peek (QCAD_TYPE_ELECTRODE))->default_electrode_options.relative_permittivity = clocking_layer->relative_permittivity ;
+      g_object_notify (object, "relative-permittivity") ;
       break ;
     }
   }
 
-static void qcad_clocking_layer_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
   {
   QCADClockingLayer *layer = QCAD_CLOCKING_LAYER (object) ;
 
@@ -160,7 +203,7 @@ static void qcad_clocking_layer_get_property (GObject *object, guint property_id
       g_value_set_boolean (value, layer->bDrawPotential) ;
       break ;
 
-    case QCAD_CLOCKING_LAYER_PROPERTY_DISTANCE:
+    case QCAD_CLOCKING_LAYER_PROPERTY_Z_SHOWING:
       g_value_set_double (value, layer->z_to_draw) ;
       break ;
 
@@ -170,6 +213,14 @@ static void qcad_clocking_layer_get_property (GObject *object, guint property_id
 
     case QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD:
        g_value_set_double (value, layer->time_coord) ;
+      break ;
+
+    case QCAD_CLOCKING_LAYER_PROPERTY_Z_TO_GROUND:
+       g_value_set_double (value, layer->z_to_ground) ;
+      break ;
+
+    case QCAD_CLOCKING_LAYER_PROPERTY_EPSILON_R:
+       g_value_set_double (value, layer->relative_permittivity) ;
       break ;
     }
   }
@@ -189,6 +240,8 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
   fprintf (fp, "z_to_draw=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, clocking_layer->z_to_draw)) ;
   fprintf (fp, "tile_size=%d\n", clocking_layer->tile_size) ;
   fprintf (fp, "time_coord=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, clocking_layer->time_coord)) ;
+  fprintf (fp, "relative_permittivity=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, clocking_layer->relative_permittivity)) ;
+  fprintf (fp, "z_to_ground=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, clocking_layer->z_to_ground)) ;
   fprintf (fp, "[#TYPE:" QCAD_TYPE_STRING_CLOCKING_LAYER "]\n") ;
   }
 
@@ -235,6 +288,12 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
       else
       if (!strcmp (pszLine, "time_coord"))
         clocking_layer->time_coord = g_ascii_strtod (pszValue, NULL) ;
+      else
+      if (!strcmp (pszLine, "z_to_ground"))
+        clocking_layer->z_to_ground = g_ascii_strtod (pszValue, NULL) ;
+      else
+      if (!strcmp (pszLine, "relative_permittivity"))
+        clocking_layer->relative_permittivity = g_ascii_strtod (pszValue, NULL) ;
       }
     g_free (pszLine) ;
     g_free (ReadLine (fp, '\0', FALSE)) ;
@@ -252,6 +311,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   GdkPixbuf *pb = NULL ;
   GdkGC *gc = NULL ;
   double xWorld, yWorld, potential ;
+  GList *llItr = NULL ;
 
   gdk_window_get_size (dst, &cx, &cy) ;
 */
@@ -270,7 +330,6 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
       yWorld = real_to_world_y (yStart + (clocking_layer->tile_size >> 1) ;
 
       potential = 0 ;
-      for (ll
       }
       
   g_object_unref (pb) ;

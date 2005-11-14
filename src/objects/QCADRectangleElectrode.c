@@ -67,6 +67,7 @@ typedef struct
 typedef struct
   {
   GtkWidget *dlg ;
+  DEFAULT_PROPERTIES contents ;
   } PROPERTIES ;
 #endif /* def GTK_GUI */
 
@@ -89,6 +90,11 @@ static void qcad_rectangle_electrode_instance_finalize (GObject *object) ;
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData) ;
+#ifdef UNDO_REDO
+gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
+#else
+gboolean properties (QCADDesignObject *obj, GtkWidget *parent) ;
+#endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 static void *default_properties_get (struct QCADDesignObjectClass *klass) ;
 static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) ;
@@ -98,7 +104,6 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
 static double get_area (QCADElectrode *electrode) ;
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
-
 #ifdef GTK_GUI
 static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog) ;
 static void create_properties_dialog (PROPERTIES *dialog) ;
@@ -139,6 +144,7 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                       = draw ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_ui      = default_properties_ui ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->properties                 = properties ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed          = (GCallback)button_pressed ;
 #endif /* def GTK_GUI */
   QCAD_DESIGN_OBJECT_CLASS (klass)->move                       = move ;
@@ -153,10 +159,10 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   QCAD_ELECTRODE_CLASS (klass)->precompute    = precompute ;
 
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle = 0.0 ;
-  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions = 24 ;
-  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_y_divisions = 80 ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions = 2 ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_y_divisions = 40 ;
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cxWorld =  6.0 ;
-  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cyWorld = 20.0 ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cyWorld = 40.0 ;
   }
 
 static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer data)
@@ -272,17 +278,64 @@ static void move (QCADDesignObject *obj, double dxDelta, double dyDelta)
 
   QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek_parent (QCAD_DESIGN_OBJECT_GET_CLASS (obj)))->move (obj, dxDelta, dyDelta) ;
 
-  rc_electrode->pt[0].xWorld += dxDelta ;
-  rc_electrode->pt[0].yWorld += dyDelta ;
-  rc_electrode->pt[1].xWorld += dxDelta ;
-  rc_electrode->pt[1].yWorld += dyDelta ;
-  rc_electrode->pt[2].xWorld += dxDelta ;
-  rc_electrode->pt[2].yWorld += dyDelta ;
-  rc_electrode->pt[3].xWorld += dxDelta ;
-  rc_electrode->pt[3].yWorld += dyDelta ;
+  rc_electrode->precompute_params.pt[0].xWorld += dxDelta ;
+  rc_electrode->precompute_params.pt[0].yWorld += dyDelta ;
+  rc_electrode->precompute_params.pt[1].xWorld += dxDelta ;
+  rc_electrode->precompute_params.pt[1].yWorld += dyDelta ;
+  rc_electrode->precompute_params.pt[2].xWorld += dxDelta ;
+  rc_electrode->precompute_params.pt[2].yWorld += dyDelta ;
+  rc_electrode->precompute_params.pt[3].xWorld += dxDelta ;
+  rc_electrode->precompute_params.pt[3].yWorld += dyDelta ;
   }
 
 #ifdef GTK_GUI
+#ifdef UNDO_REDO
+gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry)
+#else
+gboolean properties (QCADDesignObject *obj, GtkWidget *parent)
+#endif /* def UNDO_REDO */
+  {
+  QCADElectrode *electrode = QCAD_ELECTRODE (obj) ;
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
+  static PROPERTIES dialog = {NULL} ;
+
+  if (NULL == dialog.dlg)
+    create_properties_dialog (&dialog) ;
+  
+  gtk_option_menu_set_history (GTK_OPTION_MENU (dialog.contents.clock_function_option_menu), (sin == electrode->electrode_options.clock_function) ? 0 : -1) ;
+  gtk_adjustment_set_value (dialog.contents.adjAmplitude,   electrode->electrode_options.amplitude) ;
+  gtk_adjustment_set_value (dialog.contents.adjFrequency,   electrode->electrode_options.frequency) ;
+  gtk_adjustment_set_value (dialog.contents.adjPhase,       electrode->electrode_options.phase) ;
+  gtk_adjustment_set_value (dialog.contents.adjMinClock,    electrode->electrode_options.min_clock) ;
+  gtk_adjustment_set_value (dialog.contents.adjMaxClock,    electrode->electrode_options.max_clock) ;
+  gtk_adjustment_set_value (dialog.contents.adjDCOffset,    electrode->electrode_options.dc_offset) ;
+  gtk_adjustment_set_value (dialog.contents.adjAngle,       rc_electrode->angle) ;
+  gtk_adjustment_set_value (dialog.contents.adjNXDivisions, rc_electrode->n_x_divisions) ;
+  gtk_adjustment_set_value (dialog.contents.adjNYDivisions, rc_electrode->n_y_divisions) ;
+  gtk_adjustment_set_value (dialog.contents.adjCX,          rc_electrode->cxWorld) ;
+  gtk_adjustment_set_value (dialog.contents.adjCY,          rc_electrode->cyWorld) ;
+
+  if (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (dialog.dlg)))
+    {
+    
+    electrode->electrode_options.amplitude = gtk_adjustment_get_value (dialog.contents.adjAmplitude) ;
+    electrode->electrode_options.frequency = gtk_adjustment_get_value (dialog.contents.adjFrequency) ;
+    electrode->electrode_options.phase     = gtk_adjustment_get_value (dialog.contents.adjPhase) ;
+    electrode->electrode_options.min_clock = gtk_adjustment_get_value (dialog.contents.adjMinClock) ;
+    electrode->electrode_options.max_clock = gtk_adjustment_get_value (dialog.contents.adjMaxClock) ;
+    electrode->electrode_options.dc_offset = gtk_adjustment_get_value (dialog.contents.adjDCOffset) ;
+    rc_electrode->angle                    = gtk_adjustment_get_value (dialog.contents.adjAngle) ;
+    rc_electrode->n_x_divisions            = gtk_adjustment_get_value (dialog.contents.adjNXDivisions) ;
+    rc_electrode->n_y_divisions            = gtk_adjustment_get_value (dialog.contents.adjNYDivisions) ;
+    rc_electrode->cxWorld                  = gtk_adjustment_get_value (dialog.contents.adjCX) ;
+    rc_electrode->cyWorld                  = gtk_adjustment_get_value (dialog.contents.adjCY) ;
+    }
+
+  gtk_widget_hide (dialog.dlg) ;
+
+  return FALSE ;
+  }
+
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData)
   {
   int Nix ;
@@ -355,22 +408,22 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   gdk_gc_set_function (gc, rop) ;
   gdk_gc_set_clip_rectangle (gc, rcClip) ;
 
-  ptSrc.x = world_to_real_x (rc_electrode->pt[0].xWorld) ;
-  ptSrc.y = world_to_real_y (rc_electrode->pt[0].yWorld) ;
-  ptDst.x = world_to_real_x (rc_electrode->pt[1].xWorld) ;
-  ptDst.y = world_to_real_y (rc_electrode->pt[1].yWorld) ;
+  ptSrc.x = world_to_real_x (rc_electrode->precompute_params.pt[0].xWorld) ;
+  ptSrc.y = world_to_real_y (rc_electrode->precompute_params.pt[0].yWorld) ;
+  ptDst.x = world_to_real_x (rc_electrode->precompute_params.pt[1].xWorld) ;
+  ptDst.y = world_to_real_y (rc_electrode->precompute_params.pt[1].yWorld) ;
   gdk_draw_line (dst, gc, ptSrc.x, ptSrc.y, ptDst.x, ptDst.y) ;
   ptSrc = ptDst ;
-  ptDst.x = world_to_real_x (rc_electrode->pt[2].xWorld) ;
-  ptDst.y = world_to_real_y (rc_electrode->pt[2].yWorld) ;
+  ptDst.x = world_to_real_x (rc_electrode->precompute_params.pt[2].xWorld) ;
+  ptDst.y = world_to_real_y (rc_electrode->precompute_params.pt[2].yWorld) ;
   gdk_draw_line (dst, gc, ptSrc.x, ptSrc.y, ptDst.x, ptDst.y) ;
   ptSrc = ptDst ;
-  ptDst.x = world_to_real_x (rc_electrode->pt[3].xWorld) ;
-  ptDst.y = world_to_real_y (rc_electrode->pt[3].yWorld) ;
+  ptDst.x = world_to_real_x (rc_electrode->precompute_params.pt[3].xWorld) ;
+  ptDst.y = world_to_real_y (rc_electrode->precompute_params.pt[3].yWorld) ;
   gdk_draw_line (dst, gc, ptSrc.x, ptSrc.y, ptDst.x, ptDst.y) ;
   ptSrc = ptDst ;
-  ptDst.x = world_to_real_x (rc_electrode->pt[0].xWorld) ;
-  ptDst.y = world_to_real_y (rc_electrode->pt[0].yWorld) ;
+  ptDst.x = world_to_real_x (rc_electrode->precompute_params.pt[0].xWorld) ;
+  ptDst.y = world_to_real_y (rc_electrode->precompute_params.pt[0].yWorld) ;
   gdk_draw_line (dst, gc, ptSrc.x, ptSrc.y, ptDst.x, ptDst.y) ;
 
   for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
@@ -378,10 +431,10 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
     factor1 = rc_electrode->precompute_params.reciprocal_of_x_divisions * (Nix + 0.5) ;
     factor2 = rc_electrode->precompute_params.reciprocal_of_x_divisions * ((rc_electrode->n_x_divisions - Nix) - 0.5) ;
 
-    ptSrcLine.xWorld = rc_electrode->pt[0].xWorld + rc_electrode->precompute_params.pt1x_minus_pt0x * factor1 ;
-    ptSrcLine.yWorld = rc_electrode->pt[0].yWorld + rc_electrode->precompute_params.pt1y_minus_pt0y * factor1 ;
-    ptDstLine.xWorld = rc_electrode->pt[2].xWorld + rc_electrode->precompute_params.pt3x_minus_pt2x * factor2 ;
-    ptDstLine.yWorld = rc_electrode->pt[2].yWorld + rc_electrode->precompute_params.pt3y_minus_pt2y * factor2 ;
+    ptSrcLine.xWorld = rc_electrode->precompute_params.pt[0].xWorld + rc_electrode->precompute_params.pt1x_minus_pt0x * factor1 ;
+    ptSrcLine.yWorld = rc_electrode->precompute_params.pt[0].yWorld + rc_electrode->precompute_params.pt1y_minus_pt0y * factor1 ;
+    ptDstLine.xWorld = rc_electrode->precompute_params.pt[2].xWorld + rc_electrode->precompute_params.pt3x_minus_pt2x * factor2 ;
+    ptDstLine.yWorld = rc_electrode->precompute_params.pt[2].yWorld + rc_electrode->precompute_params.pt3y_minus_pt2y * factor2 ;
 
     dstx_minus_srcx = ptDstLine.xWorld - ptSrcLine.xWorld ;
     dsty_minus_srcy = ptDstLine.yWorld - ptSrcLine.yWorld ;
@@ -479,10 +532,10 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
     factor1 = rc_electrode->precompute_params.reciprocal_of_x_divisions * (Nix + 0.5) ;
     factor2 = rc_electrode->precompute_params.reciprocal_of_x_divisions * ((rc_electrode->n_x_divisions - Nix) - 0.5) ;
 
-    ptSrcLine.xWorld = rc_electrode->pt[0].xWorld + rc_electrode->precompute_params.pt1x_minus_pt0x * factor1 ;
-    ptSrcLine.yWorld = rc_electrode->pt[0].yWorld + rc_electrode->precompute_params.pt1y_minus_pt0y * factor1 ;
-    ptDstLine.xWorld = rc_electrode->pt[2].xWorld + rc_electrode->precompute_params.pt3x_minus_pt2x * factor2 ;
-    ptDstLine.yWorld = rc_electrode->pt[2].yWorld + rc_electrode->precompute_params.pt3y_minus_pt2y * factor2 ;
+    ptSrcLine.xWorld = rc_electrode->precompute_params.pt[0].xWorld + rc_electrode->precompute_params.pt1x_minus_pt0x * factor1 ;
+    ptSrcLine.yWorld = rc_electrode->precompute_params.pt[0].yWorld + rc_electrode->precompute_params.pt1y_minus_pt0y * factor1 ;
+    ptDstLine.xWorld = rc_electrode->precompute_params.pt[2].xWorld + rc_electrode->precompute_params.pt3x_minus_pt2x * factor2 ;
+    ptDstLine.yWorld = rc_electrode->precompute_params.pt[2].yWorld + rc_electrode->precompute_params.pt3y_minus_pt2y * factor2 ;
 
     dstx_minus_srcx = ptDstLine.xWorld - ptSrcLine.xWorld ;
     dsty_minus_srcy = ptDstLine.yWorld - ptSrcLine.yWorld ;
@@ -495,12 +548,12 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
       cy = y - (ptSrcLine.yWorld + dsty_minus_srcy * rc_electrode->precompute_params.reciprocal_of_y_divisions * (Nix1 + 0.5)) ;
       cx_sq_plus_cy_sq = cx * cx + cy * cy ;
 
-      cz_mir = electrode->two_z_to_ground - z ;
+      cz_mir = electrode->precompute_params.two_z_to_ground - z ;
 
       potential +=
         (rho * ((1.0 / sqrt (cx_sq_plus_cy_sq +   z    *   z   )) - 
                 (1.0 / sqrt (cx_sq_plus_cy_sq + cz_mir * cz_mir))) * 1e9)
-        / (FOUR_PI * electrode->permittivity) ;
+        / (FOUR_PI * electrode->precompute_params.permittivity) ;
       }
     }
 
@@ -554,6 +607,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjAmplitude = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 0.0001, 0.001, 0)), 0.0001, 4, ISB_DIR_UP) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 1, 2, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("Frequency:")) ;
   gtk_widget_show (lbl) ;
@@ -564,6 +618,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjFrequency = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 0.1, 1, 0)), 0.1, 4, ISB_DIR_UP) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 2, 3, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("MHz")) ;
   gtk_widget_show (lbl) ;
@@ -580,6 +635,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new (dialog->adjPhase = GTK_ADJUSTMENT (gtk_adjustment_new (0, -360, 360, 1, 5, 0)), 1, 0) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 3, 4, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("°")) ;
   gtk_widget_show (lbl) ;
@@ -596,6 +652,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjDCOffset = GTK_ADJUSTMENT (gtk_adjustment_new (0, -1, 1, 0.1, 1, 0)), 0.1, 3, ISB_DIR_UP | ISB_DIR_DN) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 4, 5, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("V")) ;
   gtk_widget_show (lbl) ;
@@ -612,6 +669,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjMinClock = GTK_ADJUSTMENT (gtk_adjustment_new (0, -1, 1, 0.1, 1, 0)), 0.1, 3, ISB_DIR_UP | ISB_DIR_DN) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 5, 6, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("V")) ;
   gtk_widget_show (lbl) ;
@@ -628,6 +686,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjMaxClock = GTK_ADJUSTMENT (gtk_adjustment_new (0, -1, 1, 0.1, 1, 0)), 0.1, 3, ISB_DIR_UP | ISB_DIR_DN) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 6, 7, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("V")) ;
   gtk_widget_show (lbl) ;
@@ -644,6 +703,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new (dialog->adjAngle = GTK_ADJUSTMENT (gtk_adjustment_new (0, -360, 360, 1, 5, 0)), 1, 0) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 7, 8, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("°")) ;
   gtk_widget_show (lbl) ;
@@ -660,6 +720,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjNXDivisions = GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 2, 1, 1, 0)), 1, 0, ISB_DIR_UP) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 8, 9, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("Number of y divisions:")) ;
   gtk_widget_show (lbl) ;
@@ -670,6 +731,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjNYDivisions = GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 2, 1, 1, 0)), 1, 0, ISB_DIR_UP) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 9, 10, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("Width:")) ;
   gtk_widget_show (lbl) ;
@@ -680,6 +742,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjCX = GTK_ADJUSTMENT (gtk_adjustment_new (1, 0, 2, 1, 10, 0)), 1, 1, ISB_DIR_UP) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 10, 11, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("nm")) ;
   gtk_widget_show (lbl) ;
@@ -696,6 +759,7 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjCY = GTK_ADJUSTMENT (gtk_adjustment_new (1, 0, 2, 1, 10, 0)), 1, 1, ISB_DIR_UP) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (dialog->tbl), spn, 1, 2, 11, 12, GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
   lbl = gtk_label_new (_("nm")) ;
   gtk_widget_show (lbl) ;
@@ -706,6 +770,16 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
 
 static void create_properties_dialog (PROPERTIES *dialog)
   {
+  dialog->dlg = gtk_dialog_new () ;
+  gtk_widget_show (dialog->dlg) ;
+
+  create_default_properties_dialog (&(dialog->contents)) ;
+  gtk_widget_show (dialog->contents.tbl) ;
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dlg)->vbox), dialog->contents.tbl, TRUE, TRUE, 0) ;
+
+  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
+  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
+  gtk_dialog_set_default_response (GTK_DIALOG (dialog->dlg), GTK_RESPONSE_OK) ;
   }
 
 static void default_properties_apply (gpointer data)
@@ -742,6 +816,9 @@ static void precompute (QCADElectrode *electrode)
     xMin, yMin, xMax, yMax ;
   WorldPoint pt[4] = {{0,0},{0,0},{0,0},{0,0}}, ptCenter = {0,0} ;
 
+  // Call parent precompute function
+  QCAD_ELECTRODE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->precompute (electrode) ;
+
   ptCenter.xWorld = obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0 ;
   ptCenter.yWorld = obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0 ;
 
@@ -758,20 +835,20 @@ static void precompute (QCADElectrode *electrode)
   if (0 != rc_electrode->angle)
     {
     // rotate corner points
-    rc_electrode->pt[0].xWorld = kose * pt[0].xWorld + sine * pt[0].yWorld ;
-    rc_electrode->pt[0].yWorld = msin * pt[0].xWorld + kose * pt[0].yWorld ;
-    rc_electrode->pt[1].xWorld = kose * pt[1].xWorld + sine * pt[1].yWorld ;
-    rc_electrode->pt[1].yWorld = msin * pt[1].xWorld + kose * pt[1].yWorld ;
-    rc_electrode->pt[2].xWorld = kose * pt[2].xWorld + sine * pt[2].yWorld ;
-    rc_electrode->pt[2].yWorld = msin * pt[2].xWorld + kose * pt[2].yWorld ;
-    rc_electrode->pt[3].xWorld = kose * pt[3].xWorld + sine * pt[3].yWorld ;
-    rc_electrode->pt[3].yWorld = msin * pt[3].xWorld + kose * pt[3].yWorld ;
+    rc_electrode->precompute_params.pt[0].xWorld = kose * pt[0].xWorld + sine * pt[0].yWorld ;
+    rc_electrode->precompute_params.pt[0].yWorld = msin * pt[0].xWorld + kose * pt[0].yWorld ;
+    rc_electrode->precompute_params.pt[1].xWorld = kose * pt[1].xWorld + sine * pt[1].yWorld ;
+    rc_electrode->precompute_params.pt[1].yWorld = msin * pt[1].xWorld + kose * pt[1].yWorld ;
+    rc_electrode->precompute_params.pt[2].xWorld = kose * pt[2].xWorld + sine * pt[2].yWorld ;
+    rc_electrode->precompute_params.pt[2].yWorld = msin * pt[2].xWorld + kose * pt[2].yWorld ;
+    rc_electrode->precompute_params.pt[3].xWorld = kose * pt[3].xWorld + sine * pt[3].yWorld ;
+    rc_electrode->precompute_params.pt[3].yWorld = msin * pt[3].xWorld + kose * pt[3].yWorld ;
 
-    // move corner points back
-    xMin = MIN (rc_electrode->pt[0].xWorld, MIN (rc_electrode->pt[1].xWorld, MIN (rc_electrode->pt[2].xWorld, rc_electrode->pt[3].xWorld))) ;
-    xMax = MAX (rc_electrode->pt[0].xWorld, MAX (rc_electrode->pt[1].xWorld, MAX (rc_electrode->pt[2].xWorld, rc_electrode->pt[3].xWorld))) ;
-    yMin = MIN (rc_electrode->pt[0].yWorld, MIN (rc_electrode->pt[1].yWorld, MIN (rc_electrode->pt[2].yWorld, rc_electrode->pt[3].yWorld))) ;
-    yMax = MAX (rc_electrode->pt[0].yWorld, MAX (rc_electrode->pt[1].yWorld, MAX (rc_electrode->pt[2].yWorld, rc_electrode->pt[3].yWorld))) ;
+    // Find binding box
+    xMin = MIN (rc_electrode->precompute_params.pt[0].xWorld, MIN (rc_electrode->precompute_params.pt[1].xWorld, MIN (rc_electrode->precompute_params.pt[2].xWorld, rc_electrode->precompute_params.pt[3].xWorld))) ;
+    xMax = MAX (rc_electrode->precompute_params.pt[0].xWorld, MAX (rc_electrode->precompute_params.pt[1].xWorld, MAX (rc_electrode->precompute_params.pt[2].xWorld, rc_electrode->precompute_params.pt[3].xWorld))) ;
+    yMin = MIN (rc_electrode->precompute_params.pt[0].yWorld, MIN (rc_electrode->precompute_params.pt[1].yWorld, MIN (rc_electrode->precompute_params.pt[2].yWorld, rc_electrode->precompute_params.pt[3].yWorld))) ;
+    yMax = MAX (rc_electrode->precompute_params.pt[0].yWorld, MAX (rc_electrode->precompute_params.pt[1].yWorld, MAX (rc_electrode->precompute_params.pt[2].yWorld, rc_electrode->precompute_params.pt[3].yWorld))) ;
 
     obj->bounding_box.xWorld = xMin ;
     obj->bounding_box.yWorld = yMin ;
@@ -780,21 +857,21 @@ static void precompute (QCADElectrode *electrode)
     }
   else
     {
-    rc_electrode->pt[0] = pt[0] ;
-    rc_electrode->pt[1] = pt[1] ;
-    rc_electrode->pt[2] = pt[2] ;
-    rc_electrode->pt[3] = pt[3] ;
+    rc_electrode->precompute_params.pt[0] = pt[0] ;
+    rc_electrode->precompute_params.pt[1] = pt[1] ;
+    rc_electrode->precompute_params.pt[2] = pt[2] ;
+    rc_electrode->precompute_params.pt[3] = pt[3] ;
     obj->bounding_box.xWorld = pt[0].xWorld ;
     obj->bounding_box.yWorld = pt[0].yWorld ;
     obj->bounding_box.cxWorld = rc_electrode->cxWorld ;
     obj->bounding_box.cyWorld = rc_electrode->cyWorld ;
     }
 
-  rc_electrode->precompute_params.rho_factor = QCAD_ELECTRODE (rc_electrode)->capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;
-  rc_electrode->precompute_params.pt1x_minus_pt0x = rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld ;
-  rc_electrode->precompute_params.pt1y_minus_pt0y = rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld ;
-  rc_electrode->precompute_params.pt3x_minus_pt2x = rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld ;
-  rc_electrode->precompute_params.pt3y_minus_pt2y = rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld ;
+  rc_electrode->precompute_params.rho_factor = QCAD_ELECTRODE (rc_electrode)->precompute_params.capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;
+  rc_electrode->precompute_params.pt1x_minus_pt0x = rc_electrode->precompute_params.pt[1].xWorld - rc_electrode->precompute_params.pt[0].xWorld ;
+  rc_electrode->precompute_params.pt1y_minus_pt0y = rc_electrode->precompute_params.pt[1].yWorld - rc_electrode->precompute_params.pt[0].yWorld ;
+  rc_electrode->precompute_params.pt3x_minus_pt2x = rc_electrode->precompute_params.pt[3].xWorld - rc_electrode->precompute_params.pt[2].xWorld ;
+  rc_electrode->precompute_params.pt3y_minus_pt2y = rc_electrode->precompute_params.pt[3].yWorld - rc_electrode->precompute_params.pt[2].yWorld ;
   rc_electrode->precompute_params.reciprocal_of_x_divisions = 1.0 / rc_electrode->n_x_divisions ;
   rc_electrode->precompute_params.reciprocal_of_y_divisions = 1.0 / rc_electrode->n_y_divisions ;
   }

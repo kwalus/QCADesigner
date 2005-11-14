@@ -379,7 +379,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 		for (llItr = design->lstLayers ; llItr != NULL ; llItr = llItr->next){
 			if(LAYER_TYPE_CLOCKING == QCAD_LAYER (llItr->data)->type)
 				clocking_layer = (QCADLayer *)(llItr->data);
-			}
+		}
 		
 		//check to make sure there actually is a clocking layer
 		if(clocking_layer == NULL){
@@ -388,8 +388,9 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 		}
 	
 		//setup the electrodes and ground plate
-		for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
-			if(llItr->data != NULL)qcad_electrode_set_capacitance ((QCADElectrode *)(llItr->data), options->epsilonR, 20);
+//		for (llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
+//      if (NULL != llItr->data)
+//        g_object_set (G_OBJECT (llItr->data), "relative-permittivity", options->epsilonR, NULL) ;
 		}else{
 			command_history_message ("Simulation will use the zone clocking scheme.\n");
 		}

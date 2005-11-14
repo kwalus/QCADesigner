@@ -49,12 +49,21 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_electrode_instance_init (GObject *object, gpointer data) ;
 static void qcad_electrode_instance_finalize (GObject *object) ;
 
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
+static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) ;
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 static double get_voltage (QCADElectrode *electrode, double t) ;
 static double get_area (QCADElectrode *electrode) ;
 static void precompute (QCADElectrode *electrode) ;
+
+enum
+  {
+  QCAD_ELECTRODE_PROPERTY_Z_TO_GROUND = 1,
+  QCAD_ELECTRODE_PROPERTY_EPSILON_R,
+  QCAD_ELECTRODE_PROPERTY_LAST
+  } ;
 
 GType qcad_electrode_get_type ()
   {
@@ -85,6 +94,8 @@ GType qcad_electrode_get_type ()
 static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   {
   G_OBJECT_CLASS (klass)->finalize = qcad_electrode_instance_finalize ;
+  G_OBJECT_CLASS (klass)->set_property = set_property ;
+  G_OBJECT_CLASS (klass)->get_property = get_property ;
 
   QCAD_DESIGN_OBJECT_CLASS(klass)->unserialize = unserialize ;
   QCAD_DESIGN_OBJECT_CLASS(klass)->serialize   = serialize ;
@@ -101,6 +112,16 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.dc_offset      =  0 ;
   QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.min_clock      = -1 ;
   QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.max_clock      =  1 ;
+  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.relative_permittivity = 12.9 ;
+  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.z_to_ground = 20.0 ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_Z_TO_GROUND,
+    g_param_spec_double ("z-to-ground", _("Distance to ground"), _("Distance from electrode to ground electrode"),
+      1, G_MAXDOUBLE, 1, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_EPSILON_R,
+    g_param_spec_double ("relative-permittivity", _("Relative permittivity"), _("Relative permittivity of the environment between the electrode and the ground"),
+      1, G_MAXDOUBLE, 1, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
   DBG_OO (fprintf (stderr, "QCADElectrode::class_init:Leaving\n")) ;
   }
 
@@ -113,8 +134,7 @@ static void qcad_electrode_instance_init (GObject *object, gpointer data)
 
   memcpy (&(electrode->electrode_options), &(klass->default_electrode_options), sizeof (QCADElectrodeOptions)) ;
 
-  electrode->permittivity =
-  electrode->capacitance  = 0.0 ;
+  precompute (electrode) ;
 
   qcad_obj->clr.red = (int)((electrode->electrode_options.phase * 65535) / TWO_PI) ;
   qcad_obj->clr.green = 0xFFFF ;
@@ -145,16 +165,49 @@ double qcad_electrode_get_voltage (QCADElectrode *electrode, double t)
 double qcad_electrode_get_area (QCADElectrode *electrode)
   {return QCAD_ELECTRODE_GET_CLASS (electrode)->get_area (electrode) ;}
 
-void qcad_electrode_set_capacitance (QCADElectrode *electrode, double relative_permittivity, double z_to_ground)
+///////////////////////////////////////////////////////////////////////////////
+
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
   {
-  if (!QCAD_IS_ELECTRODE (electrode)) return ;
-  if (0 == z_to_ground) return ;
+  QCADElectrode *electrode = QCAD_ELECTRODE (object) ;
 
-  electrode->permittivity = relative_permittivity * EPSILON ;
-  electrode->capacitance = (qcad_electrode_get_area (electrode) * electrode->permittivity) / (z_to_ground * 1e-9) ;
-  electrode->two_z_to_ground = 2.0 * z_to_ground ;
+  switch (property_id)
+    {
+    case QCAD_ELECTRODE_PROPERTY_Z_TO_GROUND:
+      electrode->electrode_options.z_to_ground = g_value_get_double (value) ;
+      QCAD_ELECTRODE_GET_CLASS (electrode)->precompute (electrode) ;
+      g_object_notify (object, "z-to-ground") ;
+      break ;
 
-  QCAD_ELECTRODE_GET_CLASS (electrode)->precompute (electrode) ;
+    case QCAD_ELECTRODE_PROPERTY_EPSILON_R:
+      electrode->electrode_options.relative_permittivity = g_value_get_double (value) ;
+      QCAD_ELECTRODE_GET_CLASS (electrode)->precompute (electrode) ;
+      g_object_notify (object, "relative-permittivity") ;
+      break ;
+    }
+  }
+
+static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+  {
+  QCADElectrode *electrode = QCAD_ELECTRODE (object) ;
+
+  switch (property_id)
+    {
+    case QCAD_ELECTRODE_PROPERTY_Z_TO_GROUND:
+      g_value_set_double (value, electrode->electrode_options.z_to_ground) ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_EPSILON_R:
+      g_value_set_double (value, electrode->electrode_options.relative_permittivity) ;
+      break ;
+    }
+  }
+
+static void precompute (QCADElectrode *electrode)
+  {
+  electrode->precompute_params.permittivity = electrode->electrode_options.relative_permittivity * EPSILON ;
+  electrode->precompute_params.two_z_to_ground = electrode->electrode_options.z_to_ground * 2.0 ;
+  electrode->precompute_params.capacitance = QCAD_ELECTRODE_GET_CLASS (electrode)->get_area (electrode) * electrode->precompute_params.permittivity / (electrode->electrode_options.z_to_ground * 1e-9) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -177,9 +230,8 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
   fprintf (fp, "electrode_options.dc_offset=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.dc_offset)) ;
   fprintf (fp, "electrode_options.min_clock=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.min_clock)) ;
   fprintf (fp, "electrode_options.max_clock=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.max_clock)) ;
-  fprintf (fp, "capacitance=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->capacitance)) ;
-  fprintf (fp, "permittivity=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->permittivity)) ;
-  fprintf (fp, "two_z_to_ground=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->two_z_to_ground)) ;
+  fprintf (fp, "relative_permittivity=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.relative_permittivity)) ;
+  fprintf (fp, "z_to_ground=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.z_to_ground)) ;
   fprintf (fp, "[#TYPE:" QCAD_TYPE_STRING_ELECTRODE "]\n") ;
   }
 
@@ -216,14 +268,11 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
           }
         }
       else
-      if (!strcmp (pszLine, "capapcitance"))
-        electrode->capacitance = g_ascii_strtod (pszValue, NULL) ;
+      if (!strcmp (pszLine, "electrode_options.relative_permittivity"))
+        electrode->electrode_options.relative_permittivity = g_ascii_strtod (pszValue, NULL) ;
       else
-      if (!strcmp (pszLine, "permittivity"))
-        electrode->permittivity = g_ascii_strtod (pszValue, NULL) ;
-      else
-      if (!strcmp (pszLine, "two_z_to_ground"))
-        electrode->two_z_to_ground = g_ascii_strtod (pszValue, NULL) ;
+      if (!strcmp (pszLine, "electrode_options.z_to_ground"))
+        electrode->electrode_options.z_to_ground = g_ascii_strtod (pszValue, NULL) ;
       else
       if (!strcmp (pszLine, "electrode_options.clock_function"))
         electrode->electrode_options.clock_function = (strcmp (pszValue, "sin") ? NULL : sin) ;
@@ -255,8 +304,6 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
   else
     return FALSE ;
   }
-
-static void precompute (QCADElectrode *electrode) {}
 
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t)
   {return 0 ;}

@@ -2162,8 +2162,8 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.show_potential_slice_button), g_value_get_boolean (&val)) ;
     g_value_unset (&val) ;
 
-    g_object_get_property (G_OBJECT (layer), "distance", g_value_init (&val, G_TYPE_DOUBLE)) ;
-    gtk_adjustment_set_value_infinite (GTK_ADJUSTMENT (main_window.adjPotentialSliceDistance), g_value_get_double (&val)) ;
+    g_object_get_property (G_OBJECT (layer), "z-showing", g_value_init (&val, G_TYPE_DOUBLE)) ;
+    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialSliceDistance), g_value_get_double (&val)) ;
     g_value_unset (&val) ;
 
     g_object_get_property (G_OBJECT (layer), "tile-size", g_value_init (&val, G_TYPE_UINT)) ;

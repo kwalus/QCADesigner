@@ -704,7 +704,6 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	double two_over_hbar = 2.0 * OVER_HBAR;
 	GList *llItr = NULL;
 	double potential[6]={1,1,1,1,1,1};
-  double Constant = 1 / (4 * PI * EPSILON * options->epsilonR);
   double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
   double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
 	double energyPlus, energyMinus, energyNull;
@@ -737,11 +736,13 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 					}
 			
 			energyPlus = potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
-			energyPlus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
+			energyMinus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
 			energyNull = potential[4] * -QCHARGE + potential[5] * -QCHARGE;
 			
-			//printf("Z: %e cell->elevation: %e\n", options->cell_elevation+fabs((double)i*options->layer_separation), options->cell_elevation);																																	
-			printf("Potential: %e, %e, %e, %e, %e, %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
+			if(sample_number%50==0){
+				printf("+1: %e -1: %e NULL: %e\n", energyPlus, energyMinus, energyNull);																																	
+				//printf("Potential: %e, %e, %e, %e, %e, %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
+				}
       
 			clock_value = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
 
@@ -755,12 +756,12 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				//printf("This cell PEk = %e\n", PEk);
 				
 				// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -PEk;								((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -PEk;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;									((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].re = -options->gamma;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].im = 0;
 				
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].re = 0;									((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].re = PEk;								((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].im = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].re = PEk;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].im = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].re = -options->gamma;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].im = 0;
 				
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
@@ -772,7 +773,24 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				
 				//generate the hamiltonian in the space of SU(3)
 				
+				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[0],tempMatrix1);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[1],tempMatrix1);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[2],tempMatrix1);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[3],tempMatrix1);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[4],tempMatrix1);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[5],tempMatrix1);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[6],tempMatrix1);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[7],tempMatrix1);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = OVER_HBAR * (complexTr(tempMatrix1)).re;
 				
+				/*
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = -two_over_hbar * options->gamma ;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = -two_over_hbar * options->gamma ;
@@ -781,6 +799,7 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = 0;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * PEk;
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = two_over_root_3 * clock_value;
+				*/
 				
 				/*printf("Gamma: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0], 
 																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1],

@@ -386,6 +386,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 		//check to make sure there actually is a clocking layer
 		if(clocking_layer == NULL){
 			command_history_message ("Critical Error: No clocking layer found!\n");
+			set_progress_bar_visible (FALSE) ;
 			return(sim_data);
 		}
 	
@@ -494,6 +495,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				//dump_3x3_complexMatrix(tempMatrix1);
 				if(tempMatrix1[2][0].re >= max_exponent){
 					command_history_message ("Critical simulation error! You will have to choose a smaller value for the tunneling energy.\n", number_samples);
+					set_progress_bar_visible (FALSE) ;
 					return sim_data;
 					}
 				
@@ -593,7 +595,8 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 #ifdef DESIGNER
       if(options->animate_simulation || j == number_samples - 1)
         {
-        redraw_async(NULL);
+        g_object_set((GObject*)clocking_layer, "time-coord", (double)j * options->time_step, NULL);
+				redraw_async(NULL);
         gdk_flush () ;
         }
 #endif /* def DESIGNER */
@@ -659,6 +662,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
         if(isnan(((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6])){
 					command_history_message ("Critical Error: Simulation engine was trying to set cell polarization to NaN at sample number %d\n", j);
 					command_history_message ("This can happen if the cells are to close to the electrodes. Try increasing the Cell Elevation. %d\n", j);
+					set_progress_bar_visible (FALSE) ;
           return sim_data;
 				}
 				
@@ -666,6 +670,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
           {
           command_history_message ("I had to abort the simulation at iteration %d because the polarization = %e was diverging.\nPossible cause is the time step is too large.\nAlternatively, you can decrease the relaxation time to reduce oscillations.\n",j, -1*((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[7]);
           command_history_message ("time step was set to %e\n", options->time_step);
+					set_progress_bar_visible (FALSE) ;
           return sim_data;
           }
         qcad_cell_set_polarization (sorted_cells[k][l], -1 * ((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6]);

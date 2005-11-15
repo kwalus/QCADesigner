@@ -148,7 +148,7 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
 */
   
 	
-	dialog->zone_clocking_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Zone Clocking");
+	dialog->zone_clocking_radio = gtk_radio_button_new_with_mnemonic (dialog->radio_group, _("_Zone Clocking"));
   gtk_object_set_data (GTK_OBJECT (dialog->zone_clocking_radio), "which_options", (gpointer)ZONE_CLOCKING) ;
   dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->zone_clocking_radio));
   gtk_widget_show (dialog->zone_clocking_radio);
@@ -156,7 +156,7 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
-  dialog->electrode_clocking_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Electrode Clocking");
+  dialog->electrode_clocking_radio = gtk_radio_button_new_with_mnemonic (dialog->radio_group, _("_Electrode Clocking"));
   gtk_object_set_data (GTK_OBJECT (dialog->electrode_clocking_radio), "which_options", (gpointer)ELECTRODE_CLOCKING) ;
   dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->electrode_clocking_radio));
   gtk_widget_show (dialog->electrode_clocking_radio);

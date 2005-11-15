@@ -56,9 +56,13 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
 static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) ;
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
+static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *obj) ;
+static gboolean do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #endif /* def GTK_GUI */
+
+static void qcad_clocking_layer_calculate_extreme_potentials (QCADClockingLayer *clocking_layer) ;
 
 GType qcad_clocking_layer_get_type ()
   {
@@ -133,10 +137,32 @@ static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointe
   QCAD_CLOCKING_LAYER (layer)->time_coord            =  0.0 ;
   QCAD_CLOCKING_LAYER (layer)->z_to_ground           = 20.0 ;
   QCAD_CLOCKING_LAYER (layer)->relative_permittivity = 12.9 ;
+  QCAD_CLOCKING_LAYER (layer)->dMinPotential         =  0 ;
+  QCAD_CLOCKING_LAYER (layer)->dMaxPotential         =  0 ;
   }
 
 static void qcad_clocking_layer_instance_finalize (GObject *object)
   {G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_LAYER)))->finalize (object) ;}
+
+static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *obj)
+  {
+  clocking_layer = QCAD_CLOCKING_LAYER (container) ;
+  if (QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_add (container, obj))
+    if (QCAD_IS_ELECTRODE (obj))
+      {
+      double dMin = 0, dMax = 0 ;
+      qcad_electrode_get_extreme_potentials (QCAD_ELECTRODE (obj), &dMin, &dMax, clocking_layer->z_to_draw, clocking_layer->time_coord) ;
+      clocking_layer->dMinPotential = MIN (dMin, clocking_layer->dMinPotential) ;
+      clocking_layer->dMaxPotential = MAX (dMax, clocking_layer->dMaxPotential) ;
+      }
+  }
+
+static gboolean do_container_remove (QCADDOContainer *container, QCADDesignObject *obj)
+  {
+  if (QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_remove (container, obj))
+    if (QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_add (container, obj))
+      qcad_clocking_layer_calculate_extreme_potentials (QCAD_CLOCKING_LAYER (container)) ;
+  }
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
   {
@@ -304,8 +330,8 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
-  /*
-	int xStart, yStart, Nix, Nix1 ;
+/*
+	int xStart, yStart, Nix, Nix1, cx, cy ;
   QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (obj) ;
   QCADLayer *layer = QCAD_LAYER (obj) ;
   GdkPixbuf *pb = NULL ;
@@ -330,10 +356,27 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
       yWorld = real_to_world_y (yStart + (clocking_layer->tile_size >> 1) ;
 
       potential = 0 ;
+      
       }
       
   g_object_unref (pb) ;
   g_object_unref (gc) ;
-  */
+*/
 	}
 #endif /* def GTK_GUI */
+
+static void qcad_clocking_layer_calculate_extreme_potentials (QCADClockingLayer *clocking_layer)
+  {
+  GList *llItr = NULL ;
+  double dMin = 0, dMax = 0 ;
+
+  for (llItr = QCAD_LAYER (clocking_layer)->lstObjs ; llItr != NULL ; llItr = llItr->next)
+    if (NULL != llItr->data)
+      if (QCAD_IS_ELECTRODE (llItr->data))
+        {
+        dMin = dMax = 0 ;
+        qcad_electrode_get_extreme_potentials (QCAD_ELECTRODE (llItr->data), &dMin, &dMax, clocking_layer->z_to_draw, clocking_layer->time_coord) ;
+        clocking_layer->dMinPotential = MIN (dMin, clocking_layer->dMinPotential) ;
+        clocking_layer->dMaxPotential = MAX (dMax, clocking_layer->dMaxPotential) ;
+        }
+  }

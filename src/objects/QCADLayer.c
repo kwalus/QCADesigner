@@ -84,11 +84,25 @@ static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
 
 static void qcad_compound_do_interface_init (gpointer interface, gpointer interface_data) ;
 static void qcad_do_container_interface_init (gpointer interface, gpointer interface_data) ;
+
 static QCADDesignObject *qcad_layer_compound_do_first (QCADCompoundDO *container) ;
 static QCADDesignObject *qcad_layer_compound_do_next (QCADCompoundDO *container) ;
 static gboolean qcad_layer_compound_do_last (QCADCompoundDO *container) ;
 static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDesignObject *obj) ;
 static gboolean qcad_layer_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
+
+static QCADDesignObject *qcad_layer_compound_do_first (QCADCompoundDO *container) ;
+static QCADDesignObject *qcad_layer_compound_do_next (QCADCompoundDO *container) ;
+static gboolean qcad_layer_compound_do_last (QCADCompoundDO *container) ;
+static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDesignObject *obj) ;
+static gboolean qcad_layer_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
+
+static QCADDesignObject *compound_do_first (QCADCompoundDO *container) ;
+static QCADDesignObject *compound_do_next (QCADCompoundDO *container) ;
+static gboolean compound_do_last (QCADCompoundDO *container) ;
+static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *obj) ;
+static gboolean do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
+
 static void qcad_layer_track_new_object (QCADLayer *layer, QCADDesignObject *obj, GList *llDeSel, QCADDesignObject *parent) ;
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
@@ -157,11 +171,11 @@ static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw             = draw ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->properties       = qcad_layer_properties ;
 #endif /* def GTK_GUI */
-  QCAD_LAYER_CLASS (klass)->compound_do_first  = qcad_layer_compound_do_first ;
-  QCAD_LAYER_CLASS (klass)->compound_do_next   = qcad_layer_compound_do_next ;
-  QCAD_LAYER_CLASS (klass)->compound_do_last   = qcad_layer_compound_do_last ;
-  QCAD_LAYER_CLASS (klass)->do_container_add    = qcad_layer_do_container_add ;
-  QCAD_LAYER_CLASS (klass)->do_container_remove = qcad_layer_do_container_remove ;
+  QCAD_LAYER_CLASS (klass)->compound_do_first  = compound_do_first ;
+  QCAD_LAYER_CLASS (klass)->compound_do_next   = compound_do_next ;
+  QCAD_LAYER_CLASS (klass)->compound_do_last   = compound_do_last ;
+  QCAD_LAYER_CLASS (klass)->do_container_add    = do_container_add ;
+  QCAD_LAYER_CLASS (klass)->do_container_remove = do_container_remove ;
   }
 
 static void qcad_compound_do_interface_init (gpointer interface, gpointer interface_data)
@@ -225,7 +239,7 @@ static void qcad_layer_instance_finalize (GObject *object)
     (*parent_finalize) (object) ;
   }
 
-static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDesignObject *obj)
+static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *obj)
   {
   GList *lstIter = NULL ;
   OBJECT_TRACK_STRUCT *ots = NULL ;
@@ -331,6 +345,87 @@ static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDes
   return TRUE ;
   }
 
+static gboolean do_container_remove (QCADDOContainer *container, QCADDesignObject *obj)
+  {
+  OBJECT_TRACK_STRUCT *ots = NULL ;
+
+  if (NULL == obj) return FALSE ;
+
+  if (NULL == (ots = g_object_get_data (G_OBJECT (obj), "ots"))) return FALSE ;
+
+  if (NULL != ots->parent)
+    if (QCAD_IS_DO_CONTAINER (ots->parent))
+      return qcad_do_container_remove (QCAD_DO_CONTAINER (ots->parent), obj) ;
+
+  ots->llDeSel->data = NULL ;
+
+  if (NULL != ots->llSel)
+    if (NULL != ots->layer)
+      {
+      ots->layer->lstSelObjs = g_list_delete_link (ots->layer->lstSelObjs, ots->llSel) ;
+      ots->llSel = NULL ;
+      }
+
+  DBG_REFS (fprintf (stderr, "qcad_layer_remove_object:Finally, unref-ing object 0x%08X\n", (int)obj)) ;
+  g_object_unref (G_OBJECT (obj)) ;
+
+  return TRUE ;
+  }
+
+static QCADDesignObject *compound_do_first (QCADCompoundDO *cdo)
+  {
+  if (NULL == cdo) return NULL ;
+
+  if (!QCAD_IS_LAYER (cdo)) return NULL ;
+
+  return NULL == ((QCAD_LAYER (cdo)->llContainerIter = QCAD_LAYER (cdo)->lstObjs))
+    ? NULL
+    : (QCAD_LAYER (cdo)->llContainerIter)->data ;
+  }
+
+static QCADDesignObject *compound_do_next (QCADCompoundDO *cdo)
+  {
+  if (NULL == cdo) return NULL ;
+
+  if (!QCAD_IS_LAYER (cdo)) return NULL ;
+
+  if (NULL == QCAD_LAYER (cdo)->llContainerIter) return NULL ;
+
+  QCAD_LAYER (cdo)->llContainerIter = (QCAD_LAYER (cdo)->llContainerIter)->next ;
+
+  if (NULL == QCAD_LAYER (cdo)->llContainerIter) return NULL ;
+
+  return (QCAD_LAYER (cdo)->llContainerIter)->data ;
+  }
+
+static gboolean compound_do_last (QCADCompoundDO *cdo)
+  {
+  if (NULL == cdo) return TRUE ;
+
+  if (!QCAD_IS_LAYER (cdo)) return TRUE ;
+
+  if (NULL == QCAD_LAYER (cdo)->llContainerIter) return TRUE ;
+
+  if (NULL == (QCAD_LAYER (cdo)->llContainerIter)->next) return TRUE ;
+
+  return FALSE ;
+  }
+
+static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDesignObject *obj)
+  {return QCAD_LAYER_GET_CLASS (container)->do_container_add (container, obj) ;}
+
+static gboolean qcad_layer_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj)
+  {return QCAD_LAYER_GET_CLASS (container)->do_container_remove (container, obj) ;}
+
+static QCADDesignObject *qcad_layer_compound_do_first (QCADCompoundDO *cdo)
+  {return QCAD_LAYER_GET_CLASS (cdo)->compound_do_first (cdo) ;}
+
+static QCADDesignObject *qcad_layer_compound_do_next (QCADCompoundDO *cdo)
+  {return QCAD_LAYER_GET_CLASS (cdo)->compound_do_next (cdo) ;}
+
+static gboolean qcad_layer_compound_do_last (QCADCompoundDO *cdo)
+  {return QCAD_LAYER_GET_CLASS (cdo)->compound_do_last (cdo) ;}
+
 static void qcad_layer_compound_do_removed (QCADCompoundDO *cdo, QCADDesignObject *obj, gpointer data)
   {
   OBJECT_TRACK_STRUCT *ots = g_object_get_data (G_OBJECT (obj), "ots") ;
@@ -381,33 +476,6 @@ static void qcad_layer_track_new_object (QCADLayer *layer, QCADDesignObject *obj
 
   // Simulate a selected event on the object so we may NULL out the appropriate list link
   qcad_design_object_selected (obj, ots) ;
-  }
-
-static gboolean qcad_layer_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj)
-  {
-  OBJECT_TRACK_STRUCT *ots = NULL ;
-
-  if (NULL == obj) return FALSE ;
-
-  if (NULL == (ots = g_object_get_data (G_OBJECT (obj), "ots"))) return FALSE ;
-
-  if (NULL != ots->parent)
-    if (QCAD_IS_DO_CONTAINER (ots->parent))
-      return qcad_do_container_remove (QCAD_DO_CONTAINER (ots->parent), obj) ;
-
-  ots->llDeSel->data = NULL ;
-
-  if (NULL != ots->llSel)
-    if (NULL != ots->layer)
-      {
-      ots->layer->lstSelObjs = g_list_delete_link (ots->layer->lstSelObjs, ots->llSel) ;
-      ots->llSel = NULL ;
-      }
-
-  DBG_REFS (fprintf (stderr, "qcad_layer_remove_object:Finally, unref-ing object 0x%08X\n", (int)obj)) ;
-  g_object_unref (G_OBJECT (obj)) ;
-
-  return TRUE ;
   }
 
 QCADLayer *qcad_layer_new (LayerType type, LayerStatus status, char *pszDescription)
@@ -916,45 +984,6 @@ static QCADDesignObject *hit_test (QCADDesignObject *obj, int x, int y)
         return hit_object ;
 
   return NULL ;
-  }
-
-static QCADDesignObject *qcad_layer_compound_do_first (QCADCompoundDO *cdo)
-  {
-  if (NULL == cdo) return NULL ;
-
-  if (!QCAD_IS_LAYER (cdo)) return NULL ;
-
-  return NULL == ((QCAD_LAYER (cdo)->llContainerIter = QCAD_LAYER (cdo)->lstObjs))
-    ? NULL
-    : (QCAD_LAYER (cdo)->llContainerIter)->data ;
-  }
-
-static QCADDesignObject *qcad_layer_compound_do_next (QCADCompoundDO *cdo)
-  {
-  if (NULL == cdo) return NULL ;
-
-  if (!QCAD_IS_LAYER (cdo)) return NULL ;
-
-  if (NULL == QCAD_LAYER (cdo)->llContainerIter) return NULL ;
-
-  QCAD_LAYER (cdo)->llContainerIter = (QCAD_LAYER (cdo)->llContainerIter)->next ;
-
-  if (NULL == QCAD_LAYER (cdo)->llContainerIter) return NULL ;
-
-  return (QCAD_LAYER (cdo)->llContainerIter)->data ;
-  }
-
-static gboolean qcad_layer_compound_do_last (QCADCompoundDO *cdo)
-  {
-  if (NULL == cdo) return TRUE ;
-
-  if (!QCAD_IS_LAYER (cdo)) return TRUE ;
-
-  if (NULL == QCAD_LAYER (cdo)->llContainerIter) return TRUE ;
-
-  if (NULL == (QCAD_LAYER (cdo)->llContainerIter)->next) return TRUE ;
-
-  return FALSE ;
   }
 
 // This is a hash table such that the keys are layer types and the data for each layer type is a

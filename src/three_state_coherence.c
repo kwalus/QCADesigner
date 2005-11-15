@@ -558,8 +558,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 					for(Nix1=0; Nix1 < 8; Nix1++)
 						omegaDotLambda[Nix]+=omega[Nix][Nix1]*((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[Nix1];
 					}
-					
-					
+
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[0] = lambdaSS[0];
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[1] = lambdaSS[1];
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[2] = lambdaSS[2];
@@ -576,14 +575,13 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
         // if the lambda values are different by more then the tolerance then they have not converged //
         stable =
           !(fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[0]-old_lambda[0]) > 1e-7 ||
-					fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[1]-old_lambda[1]) > 1e-7 ||
-					fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[2]-old_lambda[2]) > 1e-7 ||
-					fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[3]-old_lambda[3]) > 1e-7 ||
-					fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[4]-old_lambda[4]) > 1e-7 ||
-					fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[5]-old_lambda[5]) > 1e-7 ||
-					fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[6]-old_lambda[6]) > 1e-7 ||
-					fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[7]-old_lambda[7]) > 1e-7);
-            
+					  fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[1]-old_lambda[1]) > 1e-7 ||
+					  fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[2]-old_lambda[2]) > 1e-7 ||
+					  fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[3]-old_lambda[3]) > 1e-7 ||
+					  fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[4]-old_lambda[4]) > 1e-7 ||
+					  fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[5]-old_lambda[5]) > 1e-7 ||
+					  fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[6]-old_lambda[6]) > 1e-7 ||
+					  fabs (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[7]-old_lambda[7]) > 1e-7);
         }
     k++;
     }
@@ -665,7 +663,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
              (QCAD_CELL_FIXED == sorted_cells[k][l]->cell_function)))
           continue;
         if(isnan(((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6])){
-					command_history_message ("Critical Error: Simulation enging was trying to set cell polarization to NaN at sample number %d\n", j);
+					command_history_message ("Critical Error: Simulation engine was trying to set cell polarization to NaN at sample number %d\n", j);
           return sim_data;
 				}
 				

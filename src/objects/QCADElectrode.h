@@ -76,7 +76,7 @@ typedef struct
   double (*get_potential) (QCADElectrode *electrode, double x, double y, double z, double t) ;
   double (*get_voltage) (QCADElectrode *electrode, double t) ;
   double (*get_area) (QCADElectrode *electrode) ;
-  void (*extreme_potentials) (QCADElectrode *electrode, double z, double *dMin, double *dMax) ;
+  double (*extreme_potential) (QCADElectrode *electrode, double z, double t) ;
   void (*precompute) (QCADElectrode *electrode) ;
   } QCADElectrodeClass ;
 
@@ -85,7 +85,7 @@ GType qcad_electrode_get_type () ;
 double qcad_electrode_get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 double qcad_electrode_get_voltage (QCADElectrode *electrode, double t) ;
 double qcad_electrode_get_area (QCADElectrode *electrode) ;
-void qcad_electrode_get_extreme_potentials (QCADElectrode *electrode, double *dMin, double *dMax) ;
+double qcad_electrode_get_extreme_potential (QCADElectrode *electrode, double z, double t) ;
 
 #define QCAD_TYPE_STRING_ELECTRODE "QCADElectrode"
 #define QCAD_TYPE_ELECTRODE (qcad_electrode_get_type ())

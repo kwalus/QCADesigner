@@ -57,6 +57,7 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
 static double get_voltage (QCADElectrode *electrode, double t) ;
 static double get_area (QCADElectrode *electrode) ;
 static void precompute (QCADElectrode *electrode) ;
+static double extreme_potentials (QCADElectrode *electrode, double z, double t) ;
 
 enum
   {
@@ -100,10 +101,11 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS(klass)->unserialize = unserialize ;
   QCAD_DESIGN_OBJECT_CLASS(klass)->serialize   = serialize ;
 
-  QCAD_ELECTRODE_CLASS (klass)->get_voltage   = get_voltage ;
-  QCAD_ELECTRODE_CLASS (klass)->get_potential = get_potential ;
-  QCAD_ELECTRODE_CLASS (klass)->get_area      = get_area ;
-  QCAD_ELECTRODE_CLASS (klass)->precompute    = precompute ;
+  QCAD_ELECTRODE_CLASS (klass)->get_voltage        = get_voltage ;
+  QCAD_ELECTRODE_CLASS (klass)->get_potential      = get_potential ;
+  QCAD_ELECTRODE_CLASS (klass)->get_area           = get_area ;
+  QCAD_ELECTRODE_CLASS (klass)->precompute         = precompute ;
+  QCAD_ELECTRODE_CLASS (klass)->extreme_potentials = extreme_potentials ;
 
   QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.clock_function = sin ;
   QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.amplitude      =  1 ;
@@ -165,6 +167,9 @@ double qcad_electrode_get_voltage (QCADElectrode *electrode, double t)
 double qcad_electrode_get_area (QCADElectrode *electrode)
   {return QCAD_ELECTRODE_GET_CLASS (electrode)->get_area (electrode) ;}
 
+void qcad_electrode_get_extreme_potentials (QCADElectrode *electrode, double z, double t, double *dMin, double *dMax)
+  {QCAD_ELECTRODE_GET_CLASS (electrode)->extreme_potentials (electrode, z, t, dMin, dMax) ;}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -210,7 +215,7 @@ static void precompute (QCADElectrode *electrode)
   electrode->precompute_params.capacitance = QCAD_ELECTRODE_GET_CLASS (electrode)->get_area (electrode) * electrode->precompute_params.permittivity / (electrode->electrode_options.z_to_ground * 1e-9) ;
   }
 
-///////////////////////////////////////////////////////////////////////////////
+static void extreme_potentials (QCADElectrode *electrode, double z, double t, double *dMin, double *dMax) {}
 
 static void serialize (QCADDesignObject *obj, FILE *fp)
   {

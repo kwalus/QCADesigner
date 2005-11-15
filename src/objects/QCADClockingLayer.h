@@ -49,6 +49,9 @@ typedef struct
   int tile_size ; // pixels
   double time_coord ; // ns
   double relative_permittivity ;
+
+  double dMinPotential ;
+  double dMaxPotential ;
   } QCADClockingLayer ;
 
 typedef struct

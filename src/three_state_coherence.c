@@ -107,6 +107,8 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	double half_PEk=0;
   double *energy;
   double average_power=0;
+	double two_over_root_3_hbar = -2.0/sqrt(3.0)*OVER_HBAR;
+	double two_over_hbar = 2.0 * OVER_HBAR;
   time_t start_time, end_time;
   simulation_data *sim_data = NULL ;
   // for randomization
@@ -465,22 +467,14 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				
 				//generate the hamiltonian in the space of SU(3)
 				
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[0],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[1],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[2],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[3],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[4],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[5],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[6],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[7],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = -two_over_hbar * options->gamma ;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = -two_over_hbar * options->gamma ;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3] = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4] = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = 0;
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (PEk+energyMinus-energyPlus);
+				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = two_over_root_3_hbar * (energyNull-energyMinus-energyPlus);
 				
 				/*
 				printf("Gamma: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0], 
@@ -845,96 +839,85 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = two_over_root_3_hbar * (energyNull-energyMinus-energyPlus);
 			
 				
-			/*printf("Gamma: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0], 
-																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1],
-																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2],
-																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3],
-																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4],
-																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5],
-																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6],
-																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7]); 
-																															
-				*/
+			// generate the steady-state density matrix
 				
-				// generate the steady-state density matrix
+			complexConstMatrixMultiplication(minusOverKBT, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, tempMatrix1);
+			//printf("Density Matrix [step1 division H/kBT]:\n");
+			//dump_3x3_complexMatrix(tempMatrix1);
+			if(tempMatrix1[2][0].re >= max_exponent){
+				command_history_message ("Critical simulation error! You will have to choose a smaller value for the tunneling energy.\n", number_samples);
+				return;
+				}
 				
-				complexConstMatrixMultiplication(minusOverKBT, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, tempMatrix1);
-				//printf("Density Matrix [step1 division H/kBT]:\n");
-				//dump_3x3_complexMatrix(tempMatrix1);
-				if(tempMatrix1[2][0].re >= max_exponent){
-					command_history_message ("Critical simulation error! You will have to choose a smaller value for the tunneling energy.\n", number_samples);
-					return;
-					}
-				
-				complexMatrixRealExponential(tempMatrix1);
-				//printf("Density Matrix [step2 Real exponential]:\n");
-				//dump_3x3_complexMatrix(tempMatrix1);
+			complexMatrixRealExponential(tempMatrix1);
+			//printf("Density Matrix [step2 Real exponential]:\n");
+			//dump_3x3_complexMatrix(tempMatrix1);
 								
-				//printf("Trace of step2: %e+j%e\n",complexTr(tempMatrix1).re, complexTr(tempMatrix1).im);
-				complexConstMatrixDivision(complexTr(tempMatrix1), tempMatrix1, densityMatrixSS);
+			//printf("Trace of step2: %e+j%e\n",complexTr(tempMatrix1).re, complexTr(tempMatrix1).im);
+			complexConstMatrixDivision(complexTr(tempMatrix1), tempMatrix1, densityMatrixSS);
 				
-				//printf("Density Matrix:\n");
-				//dump_3x3_complexMatrix(densityMatrixSS);
+			//printf("Density Matrix:\n");
+			//dump_3x3_complexMatrix(densityMatrixSS);
 				
-				// generate the steady-state coherence vector
+			// generate the steady-state coherence vector
 	
-				complexMatrixMultiplication(densityMatrixSS, generator[0], tempMatrix1);
-				lambdaSS[0] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[1], tempMatrix1);
-				lambdaSS[1] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[2], tempMatrix1);
-				lambdaSS[2] = (complexTr(tempMatrix1)).re;
-				lambdaSS[3] = 0;
-				lambdaSS[4] = 0;
-				lambdaSS[5] = 0;
-				complexMatrixMultiplication(densityMatrixSS, generator[6], tempMatrix1);
-				lambdaSS[6] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[7], tempMatrix1);
-				lambdaSS[7] = (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(densityMatrixSS, generator[0], tempMatrix1);
+			lambdaSS[0] = (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(densityMatrixSS, generator[1], tempMatrix1);
+			lambdaSS[1] = (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(densityMatrixSS, generator[2], tempMatrix1);
+			lambdaSS[2] = (complexTr(tempMatrix1)).re;
+			lambdaSS[3] = 0;
+			lambdaSS[4] = 0;
+			lambdaSS[5] = 0;
+			complexMatrixMultiplication(densityMatrixSS, generator[6], tempMatrix1);
+			lambdaSS[6] = (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(densityMatrixSS, generator[7], tempMatrix1);
+			lambdaSS[7] = (complexTr(tempMatrix1)).re;
 				
-				//printf("LambdaSS: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", lambdaSS[0], lambdaSS[1], lambdaSS[2], lambdaSS[3], lambdaSS[4], lambdaSS[5], lambdaSS[6], lambdaSS[7] );
+			//printf("LambdaSS: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", lambdaSS[0], lambdaSS[1], lambdaSS[2], lambdaSS[3], lambdaSS[4], lambdaSS[5], lambdaSS[6], lambdaSS[7] );
 				
-				// generate the omega matrix
-				for(row = 0; row < 8; row++)
-					for(col = 0; col < 8; col++){
-							omega[row][col] = 0;
-							for(Nix=0; Nix < 8; Nix++)
-								omega[row][col] = structureConst[row][Nix][col]*((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[Nix];
-						}
-				
-				// calculate the dot product of omega and lambda				
-				for(Nix=0; Nix < 8; Nix++){
-					omegaDotLambda[Nix] = 0;
-					for(Nix1=0; Nix1 < 8; Nix1++)
-						omegaDotLambda[Nix]+=omega[Nix][Nix1]*((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[Nix1];
+			// generate the omega matrix
+			for(row = 0; row < 8; row++)
+				for(col = 0; col < 8; col++){
+						omega[row][col] = 0;
+						for(Nix=0; Nix < 8; Nix++)
+							omega[row][col] = structureConst[row][Nix][col]*((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[Nix];
 					}
+				
+			// calculate the dot product of omega and lambda				
+			for(Nix=0; Nix < 8; Nix++){
+				omegaDotLambda[Nix] = 0;
+				for(Nix1=0; Nix1 < 8; Nix1++)
+					omegaDotLambda[Nix]+=omega[Nix][Nix1]*((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[Nix1];
+				}
 					
-				lambda[0] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[0];
-				lambda[1] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[1];
-				lambda[2] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[2];
-				lambda[3] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[3];
-				lambda[4] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[4];
-				lambda[5] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[5];
-				lambda[6] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[6];
-				lambda[7] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[7];
+			lambda[0] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[0];
+			lambda[1] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[1];
+			lambda[2] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[2];
+			lambda[3] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[3];
+			lambda[4] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[4];
+			lambda[5] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[5];
+			lambda[6] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[6];
+			lambda[7] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[7];
 					
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[0] = options->time_step * (omegaDotLambda[0] - over_relaxation*(lambda[0] - lambdaSS[0])) + lambda[0];
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[1] = options->time_step * (omegaDotLambda[1] - over_relaxation*(lambda[1] - lambdaSS[1])) + lambda[1];
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[2] = options->time_step * (omegaDotLambda[2] - over_relaxation*(lambda[2] - lambdaSS[2])) + lambda[2];
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[3] = options->time_step * (omegaDotLambda[3] - over_relaxation*(lambda[3] - lambdaSS[3])) + lambda[3];
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[4] = options->time_step * (omegaDotLambda[4] - over_relaxation*(lambda[4] - lambdaSS[4])) + lambda[4];
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[5] = options->time_step * (omegaDotLambda[5] - over_relaxation*(lambda[5] - lambdaSS[5])) + lambda[5];
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[6] = options->time_step * (omegaDotLambda[6] - over_relaxation*(lambda[6] - lambdaSS[6])) + lambda[6];
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[7] = options->time_step * (omegaDotLambda[7] - over_relaxation*(lambda[7] - lambdaSS[7])) + lambda[7];
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[0] = options->time_step * (omegaDotLambda[0] - over_relaxation*(lambda[0] - lambdaSS[0])) + lambda[0];
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[1] = options->time_step * (omegaDotLambda[1] - over_relaxation*(lambda[1] - lambdaSS[1])) + lambda[1];
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[2] = options->time_step * (omegaDotLambda[2] - over_relaxation*(lambda[2] - lambdaSS[2])) + lambda[2];
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[3] = options->time_step * (omegaDotLambda[3] - over_relaxation*(lambda[3] - lambdaSS[3])) + lambda[3];
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[4] = options->time_step * (omegaDotLambda[4] - over_relaxation*(lambda[4] - lambdaSS[4])) + lambda[4];
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[5] = options->time_step * (omegaDotLambda[5] - over_relaxation*(lambda[5] - lambdaSS[5])) + lambda[5];
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[6] = options->time_step * (omegaDotLambda[6] - over_relaxation*(lambda[6] - lambdaSS[6])) + lambda[6];
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[7] = options->time_step * (omegaDotLambda[7] - over_relaxation*(lambda[7] - lambdaSS[7])) + lambda[7];
 
 						
-        //printf("\n\n\n");
-			
-				//energy[sample_number] += (-clock_value*lambda_x_new + PEk*lambda_z_new/2);
+       //printf("\n\n\n");
+		
+			//energy[sample_number] += (-clock_value*lambda_x_new + PEk*lambda_z_new/2);
 					
-			}
+		}
 	  
-  }//run_iteration
+ }//run_iteration
 
 //-------------------------------------------------------------------//
 // -- refreshes the array of Ek values for each cell in the design this is done to speed up the simulation

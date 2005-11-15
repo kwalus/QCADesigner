@@ -664,6 +664,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
           continue;
         if(isnan(((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6])){
 					command_history_message ("Critical Error: Simulation engine was trying to set cell polarization to NaN at sample number %d\n", j);
+					command_history_message ("This can happen if the cells are to close to the electrodes. Try increasing the Cell Elevation. %d\n", j);
           return sim_data;
 				}
 				
@@ -730,13 +731,14 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	double omegaDotLambda[8];
 	complex densityMatrixSS[3][3];
 	complex minusOverKBT;
-	double two_over_root_3 = 2.0/sqrt(3.0);
+	double two_over_root_3_hbar = -2.0/sqrt(3.0)*OVER_HBAR;
 	double two_over_hbar = 2.0 * OVER_HBAR;
 	GList *llItr = NULL;
 	double potential[6]={0,0,0,0,0,0};
   static double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
   static double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
+	double elevation = 0;
 
 	//fill in the complex constants
 	minusOverKBT.re = -1.0 / (kB * options->T);
@@ -756,17 +758,21 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				
 			//get energy values depending on the user clocking scheme choice
 			if(options->clocking_scheme == ELECTRODE_CLOCKING){
-				//find the poential at the location of each of the celll dots
+				
+				//How far above the electrode are the cell active dots
+				elevation = options->cell_elevation+fabs((double)i*options->layer_separation);
+				
+				//find the potential at the location of each of the celll dots
 				potential[0] = potential[1] = potential[2] = potential[3] = potential[4] = potential[5] = 0;	
-			
+				
 				for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
 					if(llItr->data != NULL){
-						potential[0] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-						potential[1] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-						potential[2] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-						potential[3] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), t);
-						potential[4] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
-						potential[5] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, t);
+						potential[0] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, elevation, t);
+						potential[1] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, elevation, t);
+						potential[2] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, elevation, t);
+						potential[3] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, elevation, t);
+						potential[4] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0, elevation - options->cell_height, t);
+						potential[5] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0, elevation - options->cell_height, t);
 					}
 				}
 				
@@ -785,67 +791,68 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
       num_neighbours = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->number_of_neighbours;
       for (q = 0 ; q < num_neighbours ; q++)
         PEk += (qcad_cell_calculate_polarization (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->neighbours[q]))*((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Ek[q];
-				half_PEk = 0.5 * PEk;
+			
+			half_PEk = 0.5 * PEk;
 		  
-				//printf("This cell PEk = %e\n", PEk);
+			//printf("This cell PEk = %e\n", PEk);
 				
-				// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -half_PEk + energyPlus;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].im = 0;
+			// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -half_PEk + energyPlus;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].im = 0;
+			
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].im = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].re = half_PEk + energyMinus;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].im = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].im = 0;
 				
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].re = half_PEk + energyMinus;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].im = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
 				
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
+			//printf("Hamiltonian:\n");
+			//dump_3x3_complexMatrix(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian);
 				
-				//printf("Hamiltonian:\n");
-				//dump_3x3_complexMatrix(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian);
+			//generate the hamiltonian in the space of SU(3)
 				
-				//generate the hamiltonian in the space of SU(3)
-				
-				
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[0],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[1],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[2],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[3],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[4],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[5],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[6],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[7],tempMatrix1);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+			/*	
+			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[0],tempMatrix1);
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[1],tempMatrix1);
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[2],tempMatrix1);
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[3],tempMatrix1);
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[4],tempMatrix1);
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[5],tempMatrix1);
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[6],tempMatrix1);
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[7],tempMatrix1);
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = OVER_HBAR * (complexTr(tempMatrix1)).re;
+			*/	
 				
 				
+			
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = -two_over_hbar * options->gamma ;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = -two_over_hbar * options->gamma ;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3] = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4] = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = 0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (PEk+energyMinus-energyPlus);
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = two_over_root_3_hbar * (energyNull-energyMinus-energyPlus);
+			
 				
-				/*
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = -two_over_hbar * options->gamma ;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = -two_over_hbar * options->gamma ;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3] = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4] = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (PEk);
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = two_over_root_3 * energyNull;
-				*/
-				
-				/*printf("Gamma: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0], 
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7]); 
+			/*printf("Gamma: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0], 
+																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1],
+																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2],
+																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3],
+																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4],
+																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5],
+																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6],
+																														((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7]); 
 																															
 				*/
 				

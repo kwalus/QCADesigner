@@ -147,10 +147,27 @@ inline complex complexMultiply(complex A, complex B){
 
 inline complex complexDivide(complex denominator, complex numerator){
 	complex result;
-	double denom = denominator.re*denominator.re + denominator.im*denominator.im;
+	long double nre = numerator.re;
+	long double nim = numerator.im;
+	long double dre = denominator.re;
+	long double dim = denominator.im;
+	long double denom;
 	
-	result.re = (numerator.re*denominator.re+numerator.im*denominator.im)/denom;
-	result.im = (numerator.im*denominator.re-numerator.re*denominator.im)/denom;
+	//if numbers are too large they could cause an overflow in the division
+	//so instead I multiply the numerator and denominator by a very small number
+	//the result should be the same. However .....
+	if(nre > 1e150 || nim > 1e150 || dre > 1e150 || dim > 1e150)
+		{
+		nre*=1e-150;
+		nim*=1e-150;
+		dre*=1e-150;
+		dim*=1e-150;
+		}
+		
+	denom = dre*dre + dim*dim;
+	
+	result.re = (long double)((nre*dre+nim*dim)/denom);
+	result.im = (long double)((nim*dre-nre*dim)/denom);
 	return result;
 }
 

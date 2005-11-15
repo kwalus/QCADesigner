@@ -50,8 +50,7 @@ typedef struct
   double time_coord ; // ns
   double relative_permittivity ;
 
-  double dMinPotential ;
-  double dMaxPotential ;
+  double dExtremePotential ;
   } QCADClockingLayer ;
 
 typedef struct

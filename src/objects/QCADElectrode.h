@@ -62,6 +62,12 @@ typedef struct
 
 typedef struct
   {
+  double min ;
+  double max ;
+  } EXTREME_POTENTIALS ;
+
+typedef struct
+  {
   QCADDesignObject parent_instance ;
   QCADElectrodeOptions electrode_options ;
   QCADElectrodePrecompute precompute_params ;
@@ -76,7 +82,7 @@ typedef struct
   double (*get_potential) (QCADElectrode *electrode, double x, double y, double z, double t) ;
   double (*get_voltage) (QCADElectrode *electrode, double t) ;
   double (*get_area) (QCADElectrode *electrode) ;
-  double (*extreme_potential) (QCADElectrode *electrode, double z, double t) ;
+  EXTREME_POTENTIALS (*extreme_potential) (QCADElectrode *electrode, double z) ;
   void (*precompute) (QCADElectrode *electrode) ;
   } QCADElectrodeClass ;
 
@@ -85,7 +91,7 @@ GType qcad_electrode_get_type () ;
 double qcad_electrode_get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 double qcad_electrode_get_voltage (QCADElectrode *electrode, double t) ;
 double qcad_electrode_get_area (QCADElectrode *electrode) ;
-double qcad_electrode_get_extreme_potential (QCADElectrode *electrode, double z, double t) ;
+EXTREME_POTENTIALS qcad_electrode_get_extreme_potential (QCADElectrode *electrode, double z) ;
 
 #define QCAD_TYPE_STRING_ELECTRODE "QCADElectrode"
 #define QCAD_TYPE_ELECTRODE (qcad_electrode_get_type ())

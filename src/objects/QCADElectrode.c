@@ -57,7 +57,7 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
 static double get_voltage (QCADElectrode *electrode, double t) ;
 static double get_area (QCADElectrode *electrode) ;
 static void precompute (QCADElectrode *electrode) ;
-static double extreme_potential (QCADElectrode *electrode, double z, double t) ;
+static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z) ;
 
 enum
   {
@@ -167,8 +167,8 @@ double qcad_electrode_get_voltage (QCADElectrode *electrode, double t)
 double qcad_electrode_get_area (QCADElectrode *electrode)
   {return QCAD_ELECTRODE_GET_CLASS (electrode)->get_area (electrode) ;}
 
-double qcad_electrode_get_extreme_potential (QCADElectrode *electrode, double z, double t)
-  {return QCAD_ELECTRODE_GET_CLASS (electrode)->extreme_potential (electrode, z, t) ;}
+EXTREME_POTENTIALS qcad_electrode_get_extreme_potential (QCADElectrode *electrode, double z)
+  {return QCAD_ELECTRODE_GET_CLASS (electrode)->extreme_potential (electrode, z) ;}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -215,8 +215,11 @@ static void precompute (QCADElectrode *electrode)
   electrode->precompute_params.capacitance = QCAD_ELECTRODE_GET_CLASS (electrode)->get_area (electrode) * electrode->precompute_params.permittivity / (electrode->electrode_options.z_to_ground * 1e-9) ;
   }
 
-static double extreme_potential (QCADElectrode *electrode, double z, double t) 
-  {return 0 ;}
+static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z) 
+  {
+  EXTREME_POTENTIALS xp = {0, 0} ;
+  return xp ;
+  }
 
 static void serialize (QCADDesignObject *obj, FILE *fp)
   {

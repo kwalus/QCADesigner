@@ -104,7 +104,7 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
 static double get_area (QCADElectrode *electrode) ;
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
-static double extreme_potential (QCADElectrode *electrode, double z, double t) ;
+static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z) ;
 #ifdef GTK_GUI
 static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog) ;
 static void create_properties_dialog (PROPERTIES *dialog) ;
@@ -197,8 +197,19 @@ QCADDesignObject *qcad_rectangle_electrode_new ()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static double extreme_potential (QCADElectrode *electrode, double z, double t)
-  {return get_potential (electrode, QCAD_DESIGN_OBJECT (electrode)->x, QCAD_DESIGN_OBJECT (electrode)->y, z, t) ;}
+static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z)
+  {
+  EXTREME_POTENTIALS ret = {0, 0} ;
+  double p_over_two_pi_f = (electrode->electrode_options.phase / (TWO_PI * electrode->electrode_options.frequency)) ;
+  double one_over_four_f = (1.0 / (4.0 * electrode->electrode_options.frequency)) ;
+  // This assumes a sin function
+  ret.max = get_potential (electrode, QCAD_DESIGN_OBJECT (electrode)->x, QCAD_DESIGN_OBJECT (electrode)->y, z, 
+    p_over_two_pi_f + one_over_four_f) ;
+  ret.min = get_potential (electrode, QCAD_DESIGN_OBJECT (electrode)->x, QCAD_DESIGN_OBJECT (electrode)->y, z, 
+    p_over_two_pi_f - one_over_four_f) ;
+
+  return ret ;
+  }
 
 static void serialize (QCADDesignObject *obj, FILE *fp)
   {

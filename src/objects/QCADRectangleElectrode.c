@@ -104,7 +104,7 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
 static double get_area (QCADElectrode *electrode) ;
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
-static void extreme_potentials (QCADElectrode *electrode, double z, double t, double *dMin, double *dMax) ;
+static double extreme_potential (QCADElectrode *electrode, double z, double t) ;
 #ifdef GTK_GUI
 static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog) ;
 static void create_properties_dialog (PROPERTIES *dialog) ;
@@ -155,10 +155,10 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize                  = serialize ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize                = unserialize ;
 
-  QCAD_ELECTRODE_CLASS (klass)->get_potential      = get_potential ;
-  QCAD_ELECTRODE_CLASS (klass)->get_area           = get_area ;
-  QCAD_ELECTRODE_CLASS (klass)->precompute         = precompute ;
-  QCAD_ELECTRODE_CLASS (klass)->extreme_potentials = extreme_potentials ;
+  QCAD_ELECTRODE_CLASS (klass)->get_potential     = get_potential ;
+  QCAD_ELECTRODE_CLASS (klass)->get_area          = get_area ;
+  QCAD_ELECTRODE_CLASS (klass)->precompute        = precompute ;
+  QCAD_ELECTRODE_CLASS (klass)->extreme_potential = extreme_potential ;
 
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle = 0.0 ;
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions = 2 ;
@@ -197,17 +197,8 @@ QCADDesignObject *qcad_rectangle_electrode_new ()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void extreme_potentials (QCADElectrode *electrode, double z, double t, double *dMin, double *dMax)
-  {
-  double dMyPotential ;
-
-  if (NULL == electrode || NULL == dMin || NULL == dMax) return ;
-
-  dMyPotential = get_potential (electrode, QCAD_DESIGN_OBJECT (electrode)->x, QCAD_DESIGN_OBJECT (electrode)->y, z, t) ;
-
-  (*dMin) = MIN ((*dMin), dMyPotential) ;
-  (*dMax) = MAX ((*dMax), dMyPotential) ;
-  }
+static double extreme_potential (QCADElectrode *electrode, double z, double t)
+  {return get_potential (electrode, QCAD_DESIGN_OBJECT (electrode)->x, QCAD_DESIGN_OBJECT (electrode)->y, z, t) ;}
 
 static void serialize (QCADDesignObject *obj, FILE *fp)
   {

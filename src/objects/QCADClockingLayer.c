@@ -94,11 +94,15 @@ static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpoint
   G_OBJECT_CLASS (klass)->finalize     = qcad_clocking_layer_instance_finalize ;
   G_OBJECT_CLASS (klass)->set_property = set_property ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
+
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw        = draw ;
 #endif /* def GTK_GUI */
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize   = serialize ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize = unserialize ;
+
+  QCAD_LAYER_CLASS (klass)->do_container_add    = do_container_add ;
+  QCAD_LAYER_CLASS (klass)->do_container_remove = do_container_remove ;
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_SHOW_POTENTIAL,
     g_param_spec_boolean ("show-potential", _("Show Potential"), _("Show potential created by the electrodes on this layer"),
@@ -146,22 +150,41 @@ static void qcad_clocking_layer_instance_finalize (GObject *object)
 
 static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *obj)
   {
-  clocking_layer = QCAD_CLOCKING_LAYER (container) ;
-  if (QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_add (container, obj))
+  gboolean bRet = FALSE ;
+  QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (container) ;
+
+  if ((bRet = QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_add (container, obj)))
     if (QCAD_IS_ELECTRODE (obj))
       {
-      double dMin = 0, dMax = 0 ;
-      qcad_electrode_get_extreme_potentials (QCAD_ELECTRODE (obj), &dMin, &dMax, clocking_layer->z_to_draw, clocking_layer->time_coord) ;
-      clocking_layer->dMinPotential = MIN (dMin, clocking_layer->dMinPotential) ;
-      clocking_layer->dMaxPotential = MAX (dMax, clocking_layer->dMaxPotential) ;
+      double dElectrodeExtremePotential = qcad_electrode_get_extreme_potential (QCAD_ELECTRODE (obj), clocking_layer->z_to_draw, clocking_layer->time_coord) ;
+
+      fprintf (stderr, "QCADClockingLayer::do_container_add:Adding electrode 0x%08X with potential %e\n", (int)obj, dElectrodeExtremePotential) ;
+
+      clocking_layer->dMinPotential = MIN (dElectrodeExtremePotential, clocking_layer->dMinPotential) ;
+      clocking_layer->dMaxPotential = MAX (dElectrodeExtremePotential, clocking_layer->dMaxPotential) ;
+
+      fprintf (stderr, "QCADClockingLayer::do_container_add:Resulting extreme potentials are (%e,%e)\n", 
+        clocking_layer->dMinPotential, clocking_layer->dMaxPotential) ;
       }
+
+  return bRet ;
   }
 
 static gboolean do_container_remove (QCADDOContainer *container, QCADDesignObject *obj)
   {
-  if (QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_remove (container, obj))
-    if (QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_add (container, obj))
+  gboolean bRet = FALSE ;
+  QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (container) ;
+
+  if ((bRet = QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_remove (container, obj)))
+    if (QCAD_IS_ELECTRODE (obj))
+      {
+      fprintf (stderr, "QCADClockingLayer::do_container_remove:Removing electrode 0x%08X\n", (int)obj) ;
       qcad_clocking_layer_calculate_extreme_potentials (QCAD_CLOCKING_LAYER (container)) ;
+      fprintf (stderr, "QCADClockingLayer::do_container_remove:Resulting extreme potentials are (%e,%e)\n",
+        clocking_layer->dMinPotential, clocking_layer->dMaxPotential) ;
+      }
+
+  return bRet ;
   }
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -368,15 +391,17 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
 static void qcad_clocking_layer_calculate_extreme_potentials (QCADClockingLayer *clocking_layer)
   {
   GList *llItr = NULL ;
-  double dMin = 0, dMax = 0 ;
+  double dElectrodeExtremePotential = 0 ;
+
+  clocking_layer->dMinPotential =
+  clocking_layer->dMaxPotential = 0 ;
 
   for (llItr = QCAD_LAYER (clocking_layer)->lstObjs ; llItr != NULL ; llItr = llItr->next)
     if (NULL != llItr->data)
       if (QCAD_IS_ELECTRODE (llItr->data))
         {
-        dMin = dMax = 0 ;
-        qcad_electrode_get_extreme_potentials (QCAD_ELECTRODE (llItr->data), &dMin, &dMax, clocking_layer->z_to_draw, clocking_layer->time_coord) ;
-        clocking_layer->dMinPotential = MIN (dMin, clocking_layer->dMinPotential) ;
-        clocking_layer->dMaxPotential = MAX (dMax, clocking_layer->dMaxPotential) ;
+        dElectrodeExtremePotential = qcad_electrode_get_extreme_potential (QCAD_ELECTRODE (llItr->data), clocking_layer->z_to_draw, clocking_layer->time_coord) ;
+        clocking_layer->dMinPotential = MIN (dElectrodeExtremePotential, clocking_layer->dMinPotential) ;
+        clocking_layer->dMaxPotential = MAX (dElectrodeExtremePotential, clocking_layer->dMaxPotential) ;
         }
   }

@@ -355,11 +355,11 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
-	int xStart, yStart, Nix, Nix1, cx, cy ;
+	int Nix, Nix1, cx, cy ;
   QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (obj) ;
   QCADLayer *layer = QCAD_LAYER (obj) ;
   GdkGC *gc = NULL ;
-  double xWorld, yWorld, potential, abs_potential ;
+  double potential ;
   GList *llItr = NULL ;
 
   gdk_window_get_size (dst, &cx, &cy) ;
@@ -371,15 +371,13 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   gdk_gc_set_background (gc, clr_idx_to_clr_struct (RED)) ;
   gdk_gc_set_clip_rectangle (gc, rcClip) ;
 
-  if (NULL != layer->lstObjs)
+  if (NULL != layer->lstObjs/* && clocking_layer->bDrawPotential*/)
     {
     GdkPixbuf *pb = NULL ;
 
-    fprintf (stderr, "Drawing halo for time %lf and z_to_draw %lf\n", clocking_layer->time_coord, clocking_layer->z_to_draw) ;
-
     pb = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, clocking_layer->tile_size, clocking_layer->tile_size) ;
-    for (Nix = rcClip->x / clocking_layer->tile_size ; Nix * clocking_layer->tile_size < cx ; Nix++)
-      for (Nix1 = rcClip->y / clocking_layer->tile_size ; Nix1 * clocking_layer->tile_size < cx ; Nix1++)
+    for (Nix = rcClip->x / clocking_layer->tile_size ; Nix * clocking_layer->tile_size < rcClip->x + rcClip->width ; Nix++)
+      for (Nix1 = rcClip->y / clocking_layer->tile_size ; Nix1 * clocking_layer->tile_size < rcClip->y + rcClip->height ; Nix1++)
         {
         potential = 0 ;
         for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
@@ -389,7 +387,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
                 qcad_electrode_get_potential (QCAD_ELECTRODE (llItr->data), real_to_world_x (Nix * clocking_layer->tile_size + (clocking_layer->tile_size >> 1)), real_to_world_y (Nix1 * clocking_layer->tile_size + (clocking_layer->tile_size >> 1)), clocking_layer->z_to_draw, clocking_layer->time_coord) ;
 
         gdk_pixbuf_fill (pb,
-          ((potential > 0) ? 0xFF000000 : 0x0000FF00) | (((int)((fabs (potential) / clocking_layer->dExtremePotential) * 255.0)) & 0xFF)) ;
+          ((potential > 0) ? 0xFF000000 : 0x0000FF00) | (((int)((fabs (potential) / clocking_layer->dExtremePotential) * 128.0)) & 0xFF)) ;
 //        fprintf (stderr, "opacity = %lf/%lf * 255\n", potential, clocking_layer->dExtremePotential) ;
 
         gdk_draw_pixbuf (dst, gc, pb, 0, 0, Nix * clocking_layer->tile_size, Nix1 * clocking_layer->tile_size, clocking_layer->tile_size, clocking_layer->tile_size, GDK_RGB_DITHER_NONE, 0, 0) ;

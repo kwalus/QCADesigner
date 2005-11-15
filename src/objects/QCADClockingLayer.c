@@ -355,14 +355,12 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
-	int Nix, Nix1, cx, cy ;
+	int Nix, Nix1 ;
   QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (obj) ;
   QCADLayer *layer = QCAD_LAYER (obj) ;
   GdkGC *gc = NULL ;
   double potential ;
   GList *llItr = NULL ;
-
-  gdk_window_get_size (dst, &cx, &cy) ;
 
   QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->draw (obj, dst, rop, rcClip) ;
 
@@ -371,9 +369,11 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   gdk_gc_set_background (gc, clr_idx_to_clr_struct (RED)) ;
   gdk_gc_set_clip_rectangle (gc, rcClip) ;
 
-  if (NULL != layer->lstObjs/* && clocking_layer->bDrawPotential*/)
+  if (NULL != layer->lstObjs && clocking_layer->bDrawPotential)
     {
     GdkPixbuf *pb = NULL ;
+
+    fprintf (stderr, "QCADClockingLayer::draw:Drawing halo for %e s\n", clocking_layer->time_coord) ;
 
     pb = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, clocking_layer->tile_size, clocking_layer->tile_size) ;
     for (Nix = rcClip->x / clocking_layer->tile_size ; Nix * clocking_layer->tile_size < rcClip->x + rcClip->width ; Nix++)
@@ -384,7 +384,10 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
           if (NULL != llItr->data)
             if (QCAD_IS_ELECTRODE (llItr->data))
               potential += 
-                qcad_electrode_get_potential (QCAD_ELECTRODE (llItr->data), real_to_world_x (Nix * clocking_layer->tile_size + (clocking_layer->tile_size >> 1)), real_to_world_y (Nix1 * clocking_layer->tile_size + (clocking_layer->tile_size >> 1)), clocking_layer->z_to_draw, clocking_layer->time_coord) ;
+                qcad_electrode_get_potential (QCAD_ELECTRODE (llItr->data), 
+                  real_to_world_x (Nix * clocking_layer->tile_size + (clocking_layer->tile_size >> 1)), 
+                  real_to_world_y (Nix1 * clocking_layer->tile_size + (clocking_layer->tile_size >> 1)), 
+                  clocking_layer->z_to_draw, clocking_layer->time_coord) ;
 
         gdk_pixbuf_fill (pb,
           ((potential > 0) ? 0xFF000000 : 0x0000FF00) | (((int)((fabs (potential) / clocking_layer->dExtremePotential) * 128.0)) & 0xFF)) ;
@@ -408,6 +411,8 @@ static void qcad_clocking_layer_calculate_extreme_potentials (QCADClockingLayer 
   {
   GList *llItr = NULL ;
   EXTREME_POTENTIALS dElectrodeExtremePotential = {0, 0} ;
+
+  fprintf (stderr, "QCADClockingLayer::calculate_extreme_potentials:Entering\n") ;
 
   clocking_layer->dExtremePotential = 0 ;
 

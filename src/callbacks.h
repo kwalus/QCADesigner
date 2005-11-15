@@ -81,6 +81,8 @@ void cell_display_mode_chosen (GtkWidget *widget, gpointer data) ;
 void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data) ;
 void show_potential_slice_button_clicked (GtkWidget *widget, gpointer data) ;
 void potential_tile_size_changed (GtkAdjustment *adj, gpointer data) ;
+void potential_z_to_show_changed (GtkAdjustment *adj, gpointer data) ;
+void potential_time_coord_changed (GObject *obj, gpointer data) ;
 
 gboolean drawing_area_motion_notify (GtkWidget *widget, GdkEventMotion *event, gpointer user_data);
 gboolean drawing_area_button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer user_data);

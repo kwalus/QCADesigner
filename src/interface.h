@@ -68,7 +68,7 @@ typedef struct
   GtkWidget *vpaned1;
   GtkWidget *show_potential_slice_button ;
   GtkWidget *tblPotentialSlice ;
-  GtkAdjustment *adjPotentialSliceDistance ;
+  GtkAdjustment *adjPotentialSliceZToShow ;
   GtkAdjustment *adjPotentialTileSize ;
   GtkAdjustment *adjPotentialTimeCoord ;
   GtkWidget *cell_layer_default_clock_combo ;

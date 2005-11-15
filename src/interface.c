@@ -222,7 +222,7 @@ void create_main_window (main_W *main_window){
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
-  spn = gtk_spin_button_new (main_window->adjPotentialSliceDistance = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 10, 0)), 1, 1) ;
+  spn = gtk_spin_button_new (main_window->adjPotentialSliceZToShow = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 10, 0)), 1, 1) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), spn, 1, 2, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
   gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, spn, 
@@ -1069,7 +1069,7 @@ void create_main_window (main_W *main_window){
   gtk_widget_add_accelerator (zoom_out_menu_item,                "activate", GTK_ACCEL_GROUP (accel_group), GDK_q,      0,                                 GTK_ACCEL_VISIBLE);
   gtk_widget_add_accelerator (zoom_out_menu_item,                "activate", GTK_ACCEL_GROUP (accel_group), GDK_minus,  0,                                 GTK_ACCEL_VISIBLE);
   gtk_widget_add_accelerator (zoom_extents_menu_item,            "activate", GTK_ACCEL_GROUP (accel_group), GDK_e,      GDK_CONTROL_MASK,                  GTK_ACCEL_VISIBLE);
-  gtk_widget_add_accelerator (reset_zoom_menu_item,              "activate", GTK_ACCEL_GROUP (accel_group), GDK_1,      0,                                 GTK_ACCEL_VISIBLE);
+  gtk_widget_add_accelerator (reset_zoom_menu_item,              "activate", GTK_ACCEL_GROUP (accel_group), GDK_1,      GDK_CONTROL_MASK,                  GTK_ACCEL_VISIBLE);
   gtk_widget_add_accelerator (zoom_layer_menu_item,              "activate", GTK_ACCEL_GROUP (accel_group), GDK_l,      GDK_CONTROL_MASK,                  GTK_ACCEL_VISIBLE);
   gtk_widget_add_accelerator (rotate_selection_menu_item ,       "activate", GTK_ACCEL_GROUP (accel_group), GDK_r,      GDK_CONTROL_MASK,                  GTK_ACCEL_VISIBLE);
   gtk_widget_add_accelerator (clock_increment_menu_item,         "activate", GTK_ACCEL_GROUP (accel_group), GDK_i,      GDK_CONTROL_MASK,                  GTK_ACCEL_VISIBLE);
@@ -1132,6 +1132,8 @@ void create_main_window (main_W *main_window){
   g_signal_connect (G_OBJECT (main_window->drawing_area),                      "button-release-event", (GCallback)drawing_area_button_released,      NULL);
   g_signal_connect (G_OBJECT (main_window->drawing_area),                      "configure-event",      (GCallback)configure_event,                   NULL);
   g_signal_connect (G_OBJECT (main_window->adjPotentialTileSize),              "value-changed",        (GCallback)potential_tile_size_changed,       NULL) ;
+  g_signal_connect (G_OBJECT (main_window->adjPotentialSliceZToShow),          "value-changed",        (GCallback)potential_z_to_show_changed,       NULL) ;
+  g_signal_connect (G_OBJECT (main_window->adjPotentialTimeCoord),             "value-changed",        (GCallback)potential_time_coord_changed,      main_window->adjPotentialTimeCoord) ;
   // -- Trap the act of hiding the popup window for the layers combo
   g_signal_connect (G_OBJECT (GTK_COMBO (main_window->layers_combo)->popwin),  "hide", (GCallback)layer_selected, NULL) ;
   // -- Connect the shutdown callback signal to the main window -- //

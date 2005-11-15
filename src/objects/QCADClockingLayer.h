@@ -47,7 +47,7 @@ typedef struct
   double z_to_draw ; // nm
   double z_to_ground ; // nm
   int tile_size ; // pixels
-  double time_coord ; // ns
+  double time_coord ; // s
   double relative_permittivity ;
 
   double dExtremePotential ;

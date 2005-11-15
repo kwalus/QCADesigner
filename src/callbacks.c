@@ -85,6 +85,7 @@
 #include "objects/mouse_handlers.h"
 #include "objects/QCADClockCombo.h"
 #include "objects/QCADRectangleElectrode.h"
+#include "objects/QCADClockingLayer.h"
 
 #define DBG_CB(s)
 #define DBG_CB_HERE(s)
@@ -261,12 +262,63 @@ static ACTION actions[ACTION_LAST_ACTION] =
 
 static int xRef, yRef, xOld, yOld ; // zoom window coordinates
 
+// obj is either the GtkAdjustment or the QCADClockingLayer, but
+// data is always the GtkAdjustment
+void potential_time_coord_changed (GObject *obj, gpointer data)
+  {
+  QCADClockingLayer *clocking_layer = NULL ;
+  double val ;
+  GList *llItr = NULL ;
+  GtkAdjustment *adj = GTK_ADJUSTMENT (data) ;
+
+  if (QCAD_IS_CLOCKING_LAYER (obj))
+    clocking_layer = QCAD_CLOCKING_LAYER (obj) ;
+  else
+  for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
+    if (QCAD_IS_CLOCKING_LAYER (llItr->data))
+      {
+      clocking_layer = QCAD_CLOCKING_LAYER (llItr->data) ;
+      break ;
+      }
+
+  if (NULL == clocking_layer) return ;
+
+  g_object_get (G_OBJECT (clocking_layer), "time-coord", &val, NULL) ;
+  // Avoids infinite loops
+  if (val == gtk_adjustment_get_value (adj)) return ;
+
+  if (QCAD_IS_CLOCKING_LAYER (obj))
+    gtk_adjustment_set_value (adj, val * 1e9) ;
+  else
+    g_object_set (G_OBJECT (llItr->data), "time-coord", gtk_adjustment_get_value (adj) * 1e-9, NULL) ;
+  redraw_async (NULL) ;
+  }
+
+void potential_z_to_show_changed (GtkAdjustment *adj, gpointer data)
+  {
+  GList *llItr = NULL ;
+
+  for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
+    if (QCAD_IS_CLOCKING_LAYER (llItr->data))
+      break ;
+
+  if (NULL == llItr) return ;
+
+  g_object_set (G_OBJECT (llItr->data), "z-showing", gtk_adjustment_get_value (adj), NULL) ;
+  redraw_async (NULL) ;
+  }
+
 // A spin button showing powers of 2
 void potential_tile_size_changed (GtkAdjustment *adj, gpointer data)
   {
+  GList *llItr = NULL ;
   int bits = 0 ;
   int val = (int)gtk_adjustment_get_value (adj) ;
   int obj_val = (int)g_object_get_data (G_OBJECT (adj), "obj_val") ;
+
+  for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
+    if (QCAD_IS_CLOCKING_LAYER (llItr->data))
+      break ;
 
 //  fprintf (stderr, "potential_tile_size_changed: val:%d vs. obj_val:%d\n", val, obj_val) ;
 
@@ -285,12 +337,31 @@ void potential_tile_size_changed (GtkAdjustment *adj, gpointer data)
   g_object_set_data (G_OBJECT (adj), "obj_val", (gpointer)(val = 1 << bits)) ;
   gtk_adjustment_set_value (adj, val) ;
 
-  g_object_set (G_OBJECT (project_options.design->lstCurrentLayer->data), "tile-size", val, NULL) ;
+  if (NULL == llItr) return ;
+
+  g_object_set (G_OBJECT (llItr->data), "tile-size", val, NULL) ;
   redraw_async (NULL) ;
   }
 
 void show_potential_slice_button_clicked (GtkWidget *widget, gpointer data)
-  {gtk_widget_set_sensitive (GTK_WIDGET (data), gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) ;}
+  {
+  GList *llItr = NULL ;
+
+  gtk_widget_set_sensitive (GTK_WIDGET (data), gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) ;
+
+  for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
+    if (QCAD_IS_CLOCKING_LAYER (llItr->data))
+      break ;
+
+  if (NULL == llItr)
+    {
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), FALSE) ;
+    return ;
+    }
+
+  g_object_set (G_OBJECT (llItr->data), "show-potential", gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)), NULL) ;
+  redraw_async (NULL) ;
+  }
 
 void main_window_show (GtkWidget *widget, gpointer data)
   {
@@ -2163,12 +2234,12 @@ static void reflect_layer_status (QCADLayer *layer)
     g_value_unset (&val) ;
 
     g_object_get_property (G_OBJECT (layer), "z-to-ground", g_value_init (&val, G_TYPE_DOUBLE)) ;
-    main_window.adjPotentialSliceDistance->upper = g_value_get_double (&val) ;
-    gtk_adjustment_changed (main_window.adjPotentialSliceDistance) ;
+    main_window.adjPotentialSliceZToShow->upper = g_value_get_double (&val) ;
+    gtk_adjustment_changed (main_window.adjPotentialSliceZToShow) ;
     g_value_unset (&val) ;
 
     g_object_get_property (G_OBJECT (layer), "z-showing", g_value_init (&val, G_TYPE_DOUBLE)) ;
-    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialSliceDistance), g_value_get_double (&val)) ;
+    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialSliceZToShow), g_value_get_double (&val)) ;
     g_value_unset (&val) ;
 
     g_object_get_property (G_OBJECT (layer), "tile-size", g_value_init (&val, G_TYPE_UINT)) ;
@@ -2176,7 +2247,7 @@ static void reflect_layer_status (QCADLayer *layer)
     g_value_unset (&val) ;
 
     g_object_get_property (G_OBJECT (layer), "time-coord", g_value_init (&val, G_TYPE_DOUBLE)) ;
-    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialTimeCoord), g_value_get_double (&val)) ;
+    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialTimeCoord), g_value_get_double (&val) * 1e9) ;
     g_value_unset (&val) ;
     DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_CLOCKING\n")) ;
     gtk_widget_hide (main_window.insert_type_1_cell_button) ;
@@ -2380,10 +2451,25 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
   QCADLayer *layer = NULL ;
   QCADSubstrate *snap_source = NULL ;
   GList *llItrLayers = NULL, *llItrCells = NULL ;
-
+/*
+  // Disconnect time coord spin button object-notify signal handler
+  for (llItrLayers = project_options.design->lstLayers ; llItrLayers != NULL ; llItrLayers = llItrLayers->next)
+    if (QCAD_IS_CLOCKING_LAYER (llItrLayers->data))
+      break ;
+  if (NULL != llItrLayers)
+    g_signal_handlers_disconnect_matched (G_OBJECT (llItrLayers->data), G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
+      clocking_layer_time_coord_changed, project_options.main_window.adjPotentialTimeCoord) ;
+*/
   project_options.design = design_destroy (project_options.design) ;
 
   project_options.design = new_design ;
+
+  // Connect time coord spin button object-notify signal handler
+  for (llItrLayers = project_options.design->lstLayers ; llItrLayers != NULL ; llItrLayers = llItrLayers->next)
+    if (QCAD_IS_CLOCKING_LAYER (llItrLayers->data))
+      break ;
+  if (NULL != llItrLayers)
+    g_signal_connect (G_OBJECT (llItrLayers->data), "notify::time-coord", (GCallback)potential_time_coord_changed, project_options.main_window->adjPotentialTimeCoord) ;
 
   if (NULL != project_options.srSelection)
     selection_renderer_update (project_options.srSelection, new_design) ;

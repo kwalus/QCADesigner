@@ -50,14 +50,15 @@ typedef struct
 
 typedef struct
   {
-  double pt1x_minus_pt0x ;
-  double pt1y_minus_pt0y ;
-  double pt3x_minus_pt2x ;
-  double pt3y_minus_pt2y ;
-  double reciprocal_of_x_divisions ;
-  double reciprocal_of_y_divisions ;
+//  double pt1x_minus_pt0x ;
+//  double pt1y_minus_pt0y ;
+//  double pt3x_minus_pt2x ;
+//  double pt3y_minus_pt2y ;
+//  double reciprocal_of_x_divisions ;
+//  double reciprocal_of_y_divisions ;
   double rho_factor ;
   WorldPoint pt[4] ;
+  EXP_ARRAY *pts ;
   } QCADRectangleElectrodePrecompute ;
 
 typedef struct

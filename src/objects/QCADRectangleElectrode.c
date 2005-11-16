@@ -290,6 +290,7 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
 
 static void move (QCADDesignObject *obj, double dxDelta, double dyDelta)
   {
+  int Nix, Nix1 ;
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
 
   QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek_parent (QCAD_DESIGN_OBJECT_GET_CLASS (obj)))->move (obj, dxDelta, dyDelta) ;
@@ -302,6 +303,14 @@ static void move (QCADDesignObject *obj, double dxDelta, double dyDelta)
   rc_electrode->precompute_params.pt[2].yWorld += dyDelta ;
   rc_electrode->precompute_params.pt[3].xWorld += dxDelta ;
   rc_electrode->precompute_params.pt[3].yWorld += dyDelta ;
+
+  if (NULL != rc_electrode->precompute_params.pts)
+    for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
+      for (Nix1 = 0 ; Nix1 < rc_electrode->n_y_divisions ; Nix1++)
+        {
+        exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).xWorld += dxDelta ;
+        exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).yWorld += dyDelta ;
+        }
   }
 
 #ifdef GTK_GUI
@@ -404,13 +413,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   GdkRectangle rcReal ;
   GdkPoint ptSrc, ptDst ;
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
-  WorldPoint ptSrcLine, ptDstLine ;
   GdkColor *clr = NULL ;
-  // precomputation - cannot be moved into object
-  double
-    factor1, factor2, dstx_minus_srcx, dsty_minus_srcy ;
-  // point radius
-//  int cxRealPtRadius = world_to_real_cx (0.) ;
 
   world_to_real_rect (&(obj->bounding_box), &rcReal) ;
 
@@ -443,25 +446,13 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   gdk_draw_line (dst, gc, ptSrc.x, ptSrc.y, ptDst.x, ptDst.y) ;
 
   for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
-    {
-    factor1 = rc_electrode->precompute_params.reciprocal_of_x_divisions * (Nix + 0.5) ;
-    factor2 = rc_electrode->precompute_params.reciprocal_of_x_divisions * ((rc_electrode->n_x_divisions - Nix) - 0.5) ;
-
-    ptSrcLine.xWorld = rc_electrode->precompute_params.pt[0].xWorld + rc_electrode->precompute_params.pt1x_minus_pt0x * factor1 ;
-    ptSrcLine.yWorld = rc_electrode->precompute_params.pt[0].yWorld + rc_electrode->precompute_params.pt1y_minus_pt0y * factor1 ;
-    ptDstLine.xWorld = rc_electrode->precompute_params.pt[2].xWorld + rc_electrode->precompute_params.pt3x_minus_pt2x * factor2 ;
-    ptDstLine.yWorld = rc_electrode->precompute_params.pt[2].yWorld + rc_electrode->precompute_params.pt3y_minus_pt2y * factor2 ;
-
-    dstx_minus_srcx = ptDstLine.xWorld - ptSrcLine.xWorld ;
-    dsty_minus_srcy = ptDstLine.yWorld - ptSrcLine.yWorld ;
     for (Nix1 = 0 ; Nix1 < rc_electrode->n_y_divisions ; Nix1++)
       {
-      ptSrc.x = world_to_real_x (ptSrcLine.xWorld + dstx_minus_srcx * rc_electrode->precompute_params.reciprocal_of_y_divisions * (Nix1 + 0.5)) ;
-      ptSrc.y = world_to_real_y (ptSrcLine.yWorld + dsty_minus_srcy * rc_electrode->precompute_params.reciprocal_of_y_divisions * (Nix1 + 0.5)) ;
+      ptSrc.x = world_to_real_x (exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).xWorld) ;
+      ptSrc.y = world_to_real_y (exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).yWorld) ;
       if (PT_IN_RECT (ptSrc.x, ptSrc.y, rcClip->x, rcClip->y, rcClip->width, rcClip->height))
         gdk_draw_point (dst, gc, ptSrc.x, ptSrc.y) ;
       }
-    }
 
   g_object_unref (gc) ;
   }
@@ -477,7 +468,9 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
   world_to_grid_pt (&xWorld, &yWorld) ;
 #endif /* def DESIGNER */
 
+  fprintf (stderr, "QCADRectangleElectrode::button_pressed:Calling qcad_rectangle_electrode_new\n") ;
   obj = qcad_rectangle_electrode_new () ;
+  fprintf (stderr, "QCADRectangleElectrode::button_pressed:Calling qcad_design_object_move\n") ;
   qcad_design_object_move (obj, xWorld - obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0, yWorld - obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0) ;
 
 #ifdef DESIGNER
@@ -527,41 +520,17 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
   int Nix, Nix1 ;
   double potential = 0, rho = 0 ;
-  WorldPoint ptSrcLine, ptDstLine ;
   double cx, cy, cz_mir, cx_sq_plus_cy_sq ;
-  // precomputation - cannot be moved into object
-  double
-    factor1, factor2, dstx_minus_srcx, dsty_minus_srcy ;
 
   if (z < 0 || NULL == electrode) return 0 ;
 
   rho = rc_electrode->precompute_params.rho_factor * qcad_electrode_get_voltage (electrode, t) ;
   
   for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
-    {
-// This is how it is:
-//    ptSrcLine.xWorld = rc_electrode->pt[0].xWorld + (rc_electrode->pt[1].xWorld - rc_electrode->pt[0].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
-//    ptSrcLine.yWorld = rc_electrode->pt[0].yWorld + (rc_electrode->pt[1].yWorld - rc_electrode->pt[0].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * Nix + 1) ;
-//    ptDstLine.xWorld = rc_electrode->pt[2].xWorld + (rc_electrode->pt[3].xWorld - rc_electrode->pt[2].xWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
-//    ptDstLine.yWorld = rc_electrode->pt[2].yWorld + (rc_electrode->pt[3].yWorld - rc_electrode->pt[2].yWorld) / (rc_electrode->n_x_divisions * 2) * (2 * (rc_electrode->n_x_divisions - Nix) - 1) ;
-// This is how it is, optimized:
-    factor1 = rc_electrode->precompute_params.reciprocal_of_x_divisions * (Nix + 0.5) ;
-    factor2 = rc_electrode->precompute_params.reciprocal_of_x_divisions * ((rc_electrode->n_x_divisions - Nix) - 0.5) ;
-
-    ptSrcLine.xWorld = rc_electrode->precompute_params.pt[0].xWorld + rc_electrode->precompute_params.pt1x_minus_pt0x * factor1 ;
-    ptSrcLine.yWorld = rc_electrode->precompute_params.pt[0].yWorld + rc_electrode->precompute_params.pt1y_minus_pt0y * factor1 ;
-    ptDstLine.xWorld = rc_electrode->precompute_params.pt[2].xWorld + rc_electrode->precompute_params.pt3x_minus_pt2x * factor2 ;
-    ptDstLine.yWorld = rc_electrode->precompute_params.pt[2].yWorld + rc_electrode->precompute_params.pt3y_minus_pt2y * factor2 ;
-
-    dstx_minus_srcx = ptDstLine.xWorld - ptSrcLine.xWorld ;
-    dsty_minus_srcy = ptDstLine.yWorld - ptSrcLine.yWorld ;
     for (Nix1 = 0 ; Nix1 < rc_electrode->n_y_divisions ; Nix1++)
       {
-//      ptSrc.xWorld = ptSrcLine.xWorld + dstx_minus_srcx * reciprocal_of_y_divisions * (Nix1 + 0.5) ;
-//      ptSrc.yWorld = ptSrcLine.yWorld + dsty_minus_srcy * reciprocal_of_y_divisions * (Nix1 + 0.5) ;
-
-      cx = x - (ptSrcLine.xWorld + dstx_minus_srcx * rc_electrode->precompute_params.reciprocal_of_y_divisions * (Nix1 + 0.5)) ;
-      cy = y - (ptSrcLine.yWorld + dsty_minus_srcy * rc_electrode->precompute_params.reciprocal_of_y_divisions * (Nix1 + 0.5)) ;
+      cx = x - exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).xWorld ;
+      cy = y - exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).yWorld ;
       cx_sq_plus_cy_sq = cx * cx + cy * cy ;
 
       cz_mir = electrode->precompute_params.two_z_to_ground - z ;
@@ -571,7 +540,6 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
                 (1.0 / sqrt (cx_sq_plus_cy_sq + cz_mir * cz_mir))) * 1e9)
         / (FOUR_PI * electrode->precompute_params.permittivity) ;
       }
-    }
 
   return potential ;
   }
@@ -821,6 +789,11 @@ static void default_properties_apply (gpointer data)
 
 static void precompute (QCADElectrode *electrode)
   {
+  int Nix, Nix1 ;
+  WorldPoint ptSrcLine, ptDstLine ;
+  double factor1, factor2, dstx_minus_srcx, dsty_minus_srcy ;
+  double pt1x_minus_pt0x, pt1y_minus_pt0y, pt3x_minus_pt2x, pt3y_minus_pt2y ;
+  double reciprocal_of_x_divisions, reciprocal_of_y_divisions ;
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
   QCADDesignObject *obj = QCAD_DESIGN_OBJECT (electrode) ;
   double 
@@ -886,11 +859,43 @@ static void precompute (QCADElectrode *electrode)
   obj->x = obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0 ;
   obj->y = obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0 ;
 
+  if (NULL != rc_electrode->precompute_params.pts)
+    exp_array_free (rc_electrode->precompute_params.pts) ;
+
+  rc_electrode->precompute_params.pts = exp_array_new (sizeof (WorldPoint), 2) ;
+
+  for (Nix = 0 ; Nix < rc_electrode->n_y_divisions ; Nix++)
+    exp_array_insert_vals (rc_electrode->precompute_params.pts, NULL, rc_electrode->n_x_divisions, 2, -1, 0) ;
+
   rc_electrode->precompute_params.rho_factor = QCAD_ELECTRODE (rc_electrode)->precompute_params.capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;
-  rc_electrode->precompute_params.pt1x_minus_pt0x = rc_electrode->precompute_params.pt[1].xWorld - rc_electrode->precompute_params.pt[0].xWorld ;
-  rc_electrode->precompute_params.pt1y_minus_pt0y = rc_electrode->precompute_params.pt[1].yWorld - rc_electrode->precompute_params.pt[0].yWorld ;
-  rc_electrode->precompute_params.pt3x_minus_pt2x = rc_electrode->precompute_params.pt[3].xWorld - rc_electrode->precompute_params.pt[2].xWorld ;
-  rc_electrode->precompute_params.pt3y_minus_pt2y = rc_electrode->precompute_params.pt[3].yWorld - rc_electrode->precompute_params.pt[2].yWorld ;
-  rc_electrode->precompute_params.reciprocal_of_x_divisions = 1.0 / rc_electrode->n_x_divisions ;
-  rc_electrode->precompute_params.reciprocal_of_y_divisions = 1.0 / rc_electrode->n_y_divisions ;
+  pt1x_minus_pt0x = rc_electrode->precompute_params.pt[1].xWorld - rc_electrode->precompute_params.pt[0].xWorld ;
+  pt1y_minus_pt0y = rc_electrode->precompute_params.pt[1].yWorld - rc_electrode->precompute_params.pt[0].yWorld ;
+  pt3x_minus_pt2x = rc_electrode->precompute_params.pt[3].xWorld - rc_electrode->precompute_params.pt[2].xWorld ;
+  pt3y_minus_pt2y = rc_electrode->precompute_params.pt[3].yWorld - rc_electrode->precompute_params.pt[2].yWorld ;
+  reciprocal_of_x_divisions = 1.0 / rc_electrode->n_x_divisions ;
+  reciprocal_of_y_divisions = 1.0 / rc_electrode->n_y_divisions ;
+  
+  for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
+    {
+    factor1 = reciprocal_of_x_divisions * (Nix + 0.5) ;
+    factor2 = reciprocal_of_x_divisions * ((rc_electrode->n_x_divisions - Nix) - 0.5) ;
+
+    ptSrcLine.xWorld = rc_electrode->precompute_params.pt[0].xWorld + pt1x_minus_pt0x * factor1 ;
+    ptSrcLine.yWorld = rc_electrode->precompute_params.pt[0].yWorld + pt1y_minus_pt0y * factor1 ;
+    ptDstLine.xWorld = rc_electrode->precompute_params.pt[2].xWorld + pt3x_minus_pt2x * factor2 ;
+    ptDstLine.yWorld = rc_electrode->precompute_params.pt[2].yWorld + pt3y_minus_pt2y * factor2 ;
+
+    dstx_minus_srcx = ptDstLine.xWorld - ptSrcLine.xWorld ;
+    dsty_minus_srcy = ptDstLine.yWorld - ptSrcLine.yWorld ;
+    for (Nix1 = 0 ; Nix1 < rc_electrode->n_y_divisions ; Nix1++)
+      {
+      exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).xWorld = 
+        ptSrcLine.xWorld + dstx_minus_srcx * reciprocal_of_y_divisions * (Nix1 + 0.5) ;
+      exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).yWorld = 
+        ptSrcLine.yWorld + dsty_minus_srcy * reciprocal_of_y_divisions * (Nix1 + 0.5) ;
+      fprintf (stderr, "QCADRectangleElectrode::precompute:(%lf,%lf)\n",
+        exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).xWorld,
+        exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).yWorld) ;
+      }
+    }
   }

@@ -373,8 +373,6 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
     {
     GdkPixbuf *pb = NULL ;
 
-    fprintf (stderr, "QCADClockingLayer::draw:Drawing halo for %e s\n", clocking_layer->time_coord) ;
-
     pb = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, clocking_layer->tile_size, clocking_layer->tile_size) ;
     for (Nix = rcClip->x / clocking_layer->tile_size ; Nix * clocking_layer->tile_size < rcClip->x + rcClip->width ; Nix++)
       for (Nix1 = rcClip->y / clocking_layer->tile_size ; Nix1 * clocking_layer->tile_size < rcClip->y + rcClip->height ; Nix1++)

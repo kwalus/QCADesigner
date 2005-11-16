@@ -823,7 +823,7 @@ static void precompute (QCADElectrode *electrode)
     half_cx = rc_electrode->cxWorld / 2.0,
     half_cy = rc_electrode->cyWorld / 2.0,
     xMin, yMin, xMax, yMax ;
-  WorldPoint pt[4] = {{0,0},{0,0},{0,0},{0,0}}, ptCenter = {0,0} ;
+  WorldPoint pt[4] = {{0,0},{0,0},{0,0},{0,0}}, ptCenter = {0,0}, ptNewCenter = {0,0} ;
 
   // Call parent precompute function
   QCAD_ELECTRODE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->precompute (electrode) ;
@@ -863,6 +863,22 @@ static void precompute (QCADElectrode *electrode)
     obj->bounding_box.yWorld = yMin ;
     obj->bounding_box.cxWorld = xMax - xMin ;
     obj->bounding_box.cyWorld = yMax - yMin ;
+    obj->x = obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0 ;
+    obj->y = obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0 ;
+
+    // move points back
+    rc_electrode->precompute_params.pt[0].xWorld += ptCenter.xWorld - obj->x ;
+    rc_electrode->precompute_params.pt[0].yWorld += ptCenter.yWorld - obj->y ;
+    rc_electrode->precompute_params.pt[1].xWorld += ptCenter.xWorld - obj->x ;
+    rc_electrode->precompute_params.pt[1].yWorld += ptCenter.yWorld - obj->y ;
+    rc_electrode->precompute_params.pt[2].xWorld += ptCenter.xWorld - obj->x ;
+    rc_electrode->precompute_params.pt[2].yWorld += ptCenter.yWorld - obj->y ;
+    rc_electrode->precompute_params.pt[3].xWorld += ptCenter.xWorld - obj->x ;
+    rc_electrode->precompute_params.pt[3].yWorld += ptCenter.yWorld - obj->y ;
+    obj->bounding_box.xWorld += ptCenter.xWorld - obj->x ;
+    obj->bounding_box.yWorld += ptCenter.yWorld - obj->y ;
+    obj->x = ptCenter.xWorld ;
+    obj->y = ptCenter.yWorld ;
     }
   else
     {
@@ -874,10 +890,9 @@ static void precompute (QCADElectrode *electrode)
     obj->bounding_box.yWorld = pt[0].yWorld ;
     obj->bounding_box.cxWorld = rc_electrode->cxWorld ;
     obj->bounding_box.cyWorld = rc_electrode->cyWorld ;
+    obj->x = obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0 ;
+    obj->y = obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0 ;
     }
-
-  obj->x = obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0 ;
-  obj->y = obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0 ;
 
   if (NULL != rc_electrode->precompute_params.pts)
     exp_array_free (rc_electrode->precompute_params.pts) ;

@@ -340,6 +340,7 @@ gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **p
 gboolean properties (QCADDesignObject *obj, GtkWidget *parent)
 #endif /* def UNDO_REDO */
   {
+  gboolean bRet = FALSE ;
   QCADElectrode *electrode = QCAD_ELECTRODE (obj) ;
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (obj) ;
   static PROPERTIES dialog = {NULL} ;
@@ -348,28 +349,27 @@ gboolean properties (QCADDesignObject *obj, GtkWidget *parent)
     create_properties_dialog (&dialog) ;
   
   gtk_option_menu_set_history (GTK_OPTION_MENU (dialog.contents.clock_function_option_menu), (sin == electrode->electrode_options.clock_function) ? 0 : -1) ;
-  gtk_adjustment_set_value (dialog.contents.adjAmplitude,   electrode->electrode_options.amplitude) ;
-  gtk_adjustment_set_value (dialog.contents.adjFrequency,   electrode->electrode_options.frequency) ;
-  gtk_adjustment_set_value (dialog.contents.adjPhase,       electrode->electrode_options.phase) ;
-  gtk_adjustment_set_value (dialog.contents.adjMinClock,    electrode->electrode_options.min_clock) ;
-  gtk_adjustment_set_value (dialog.contents.adjMaxClock,    electrode->electrode_options.max_clock) ;
-  gtk_adjustment_set_value (dialog.contents.adjDCOffset,    electrode->electrode_options.dc_offset) ;
-  gtk_adjustment_set_value (dialog.contents.adjAngle,       rc_electrode->angle) ;
-  gtk_adjustment_set_value (dialog.contents.adjNXDivisions, rc_electrode->n_x_divisions) ;
-  gtk_adjustment_set_value (dialog.contents.adjNYDivisions, rc_electrode->n_y_divisions) ;
-  gtk_adjustment_set_value (dialog.contents.adjCX,          rc_electrode->cxWorld) ;
-  gtk_adjustment_set_value (dialog.contents.adjCY,          rc_electrode->cyWorld) ;
+  gtk_adjustment_set_value_infinite (dialog.contents.adjAmplitude,   electrode->electrode_options.amplitude) ;
+  gtk_adjustment_set_value_infinite (dialog.contents.adjFrequency,   electrode->electrode_options.frequency * 1e-6) ;
+  gtk_adjustment_set_value (dialog.contents.adjPhase,               (electrode->electrode_options.phase * 180.0) / PI) ;
+  gtk_adjustment_set_value_infinite (dialog.contents.adjMinClock,    electrode->electrode_options.min_clock) ;
+  gtk_adjustment_set_value_infinite (dialog.contents.adjMaxClock,    electrode->electrode_options.max_clock) ;
+  gtk_adjustment_set_value_infinite (dialog.contents.adjDCOffset,    electrode->electrode_options.dc_offset) ;
+  gtk_adjustment_set_value (dialog.contents.adjAngle,               (rc_electrode->angle * 180.0) / PI) ;
+  gtk_adjustment_set_value_infinite (dialog.contents.adjNXDivisions, rc_electrode->n_x_divisions) ;
+  gtk_adjustment_set_value_infinite (dialog.contents.adjNYDivisions, rc_electrode->n_y_divisions) ;
+  gtk_adjustment_set_value_infinite (dialog.contents.adjCX,          rc_electrode->cxWorld) ;
+  gtk_adjustment_set_value_infinite (dialog.contents.adjCY,          rc_electrode->cyWorld) ;
 
-  if (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (dialog.dlg)))
+  if ((bRet = (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (dialog.dlg)))))
     {
-    
     electrode->electrode_options.amplitude = gtk_adjustment_get_value (dialog.contents.adjAmplitude) ;
-    electrode->electrode_options.frequency = gtk_adjustment_get_value (dialog.contents.adjFrequency) ;
-    electrode->electrode_options.phase     = gtk_adjustment_get_value (dialog.contents.adjPhase) ;
+    electrode->electrode_options.frequency = gtk_adjustment_get_value (dialog.contents.adjFrequency) * 1e6 ;
+    electrode->electrode_options.phase     = (gtk_adjustment_get_value (dialog.contents.adjPhase) * PI) / 180.0 ;
     electrode->electrode_options.min_clock = gtk_adjustment_get_value (dialog.contents.adjMinClock) ;
     electrode->electrode_options.max_clock = gtk_adjustment_get_value (dialog.contents.adjMaxClock) ;
     electrode->electrode_options.dc_offset = gtk_adjustment_get_value (dialog.contents.adjDCOffset) ;
-    rc_electrode->angle                    = gtk_adjustment_get_value (dialog.contents.adjAngle) ;
+    rc_electrode->angle                    = (gtk_adjustment_get_value (dialog.contents.adjAngle) * PI) / 180.0 ;
     rc_electrode->n_x_divisions            = gtk_adjustment_get_value (dialog.contents.adjNXDivisions) ;
     rc_electrode->n_y_divisions            = gtk_adjustment_get_value (dialog.contents.adjNYDivisions) ;
     rc_electrode->cxWorld                  = gtk_adjustment_get_value (dialog.contents.adjCX) ;
@@ -378,7 +378,9 @@ gboolean properties (QCADDesignObject *obj, GtkWidget *parent)
 
   gtk_widget_hide (dialog.dlg) ;
 
-  return FALSE ;
+  precompute (electrode) ;
+
+  return bRet ;
   }
 
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData)
@@ -823,7 +825,7 @@ static void precompute (QCADElectrode *electrode)
     half_cx = rc_electrode->cxWorld / 2.0,
     half_cy = rc_electrode->cyWorld / 2.0,
     xMin, yMin, xMax, yMax ;
-  WorldPoint pt[4] = {{0,0},{0,0},{0,0},{0,0}}, ptCenter = {0,0}, ptNewCenter = {0,0} ;
+  WorldPoint pt[4] = {{0,0},{0,0},{0,0},{0,0}}, ptCenter = {0,0} ;
 
   // Call parent precompute function
   QCAD_ELECTRODE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->precompute (electrode) ;

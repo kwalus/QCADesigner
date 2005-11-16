@@ -58,6 +58,7 @@ static double get_voltage (QCADElectrode *electrode, double t) ;
 static double get_area (QCADElectrode *electrode) ;
 static void precompute (QCADElectrode *electrode) ;
 static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z) ;
+static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
 
 enum
   {
@@ -100,6 +101,7 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
 
   QCAD_DESIGN_OBJECT_CLASS(klass)->unserialize = unserialize ;
   QCAD_DESIGN_OBJECT_CLASS(klass)->serialize   = serialize ;
+  QCAD_DESIGN_OBJECT_CLASS(klass)->copy        = copy ;
 
   QCAD_ELECTRODE_CLASS (klass)->get_voltage       = get_voltage ;
   QCAD_ELECTRODE_CLASS (klass)->get_potential     = get_potential ;
@@ -171,6 +173,18 @@ EXTREME_POTENTIALS qcad_electrode_get_extreme_potential (QCADElectrode *electrod
   {return QCAD_ELECTRODE_GET_CLASS (electrode)->extreme_potential (electrode, z) ;}
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static void copy (QCADDesignObject *src, QCADDesignObject *dst)
+  {
+  QCADElectrode *electrode_src = NULL, *electrode_dst = NULL ;
+
+  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_ELECTRODE)))->copy (src, dst) ;
+
+  electrode_src = QCAD_ELECTRODE (src) ; electrode_dst = QCAD_ELECTRODE (dst) ;
+
+  memcpy (&(electrode_dst->electrode_options), &(electrode_src->electrode_options), sizeof (QCADElectrodeOptions)) ;
+  memcpy (&(electrode_dst->precompute_params), &(electrode_src->precompute_params), sizeof (QCADElectrodePrecompute)) ;
+  }
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
   {

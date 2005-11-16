@@ -96,6 +96,7 @@ gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **p
 gboolean properties (QCADDesignObject *obj, GtkWidget *parent) ;
 #endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
+static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
 static void *default_properties_get (struct QCADDesignObjectClass *klass) ;
 static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) ;
 static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props) ;
@@ -148,6 +149,7 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   QCAD_DESIGN_OBJECT_CLASS (klass)->properties                 = properties ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed          = (GCallback)button_pressed ;
 #endif /* def GTK_GUI */
+  QCAD_DESIGN_OBJECT_CLASS (klass)->copy                       = copy ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->move                       = move ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_get     = default_properties_get ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_set     = default_properties_set ;
@@ -196,6 +198,24 @@ QCADDesignObject *qcad_rectangle_electrode_new ()
   {return QCAD_DESIGN_OBJECT (g_object_new (QCAD_TYPE_RECTANGLE_ELECTRODE, NULL)) ;}
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static void copy (QCADDesignObject *src, QCADDesignObject *dst)
+  {
+  QCADRectangleElectrode *rc_electrode_src, *rc_electrode_dst ;
+
+  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->copy (src, dst) ;
+
+  rc_electrode_src = QCAD_RECTANGLE_ELECTRODE (src) ; rc_electrode_dst = QCAD_RECTANGLE_ELECTRODE (dst) ;
+
+  rc_electrode_dst->angle         = rc_electrode_src->angle ;
+  rc_electrode_dst->n_x_divisions = rc_electrode_src->n_x_divisions ;
+  rc_electrode_dst->n_y_divisions = rc_electrode_src->n_y_divisions ;
+  rc_electrode_dst->cxWorld       = rc_electrode_src->cxWorld ;
+  rc_electrode_dst->cyWorld       = rc_electrode_src->cyWorld ;
+  memcpy (&(rc_electrode_dst->precompute_params), &(rc_electrode_src->precompute_params), sizeof (QCADRectangleElectrodePrecompute)) ;
+  if (NULL != rc_electrode_src->precompute_params.pts)
+    rc_electrode_dst->precompute_params.pts = exp_array_copy (rc_electrode_src->precompute_params.pts) ;
+  }
 
 static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z)
   {
@@ -471,7 +491,7 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
   fprintf (stderr, "QCADRectangleElectrode::button_pressed:Calling qcad_rectangle_electrode_new\n") ;
   obj = qcad_rectangle_electrode_new () ;
   fprintf (stderr, "QCADRectangleElectrode::button_pressed:Calling qcad_design_object_move\n") ;
-  qcad_design_object_move (obj, xWorld - obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0, yWorld - obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0) ;
+  qcad_design_object_move (obj, xWorld - obj->x, yWorld - obj->y) ;
 
 #ifdef DESIGNER
   if (NULL != drop_function)
@@ -893,9 +913,6 @@ static void precompute (QCADElectrode *electrode)
         ptSrcLine.xWorld + dstx_minus_srcx * reciprocal_of_y_divisions * (Nix1 + 0.5) ;
       exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).yWorld = 
         ptSrcLine.yWorld + dsty_minus_srcy * reciprocal_of_y_divisions * (Nix1 + 0.5) ;
-      fprintf (stderr, "QCADRectangleElectrode::precompute:(%lf,%lf)\n",
-        exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).xWorld,
-        exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).yWorld) ;
       }
     }
   }

@@ -595,9 +595,13 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 #ifdef DESIGNER
       if(options->animate_simulation || j == number_samples - 1)
         {
-        if(options->clocking_scheme == ELECTRODE_CLOCKING){
+        if(options->clocking_scheme == ELECTRODE_CLOCKING)
+          {
 					g_object_set((GObject*)clocking_layer, "time-coord", (double)j * options->time_step, NULL);
-				redraw_sync(NULL, FALSE);
+  				redraw_sync(NULL, FALSE);
+          }
+        else
+          redraw_async(NULL);
         gdk_flush () ;
         while (gtk_events_pending ())
           gtk_main_iteration () ;

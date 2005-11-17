@@ -597,11 +597,10 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
         {
         if(options->clocking_scheme == ELECTRODE_CLOCKING){
 					g_object_set((GObject*)clocking_layer, "time-coord", (double)j * options->time_step, NULL);
-					redraw_sync(NULL, FALSE);
-					}
-				else
-					redraw_async(NULL);
+				redraw_sync(NULL, FALSE);
         gdk_flush () ;
+        while (gtk_events_pending ())
+          gtk_main_iteration () ;
         }
 #endif /* def DESIGNER */
       }

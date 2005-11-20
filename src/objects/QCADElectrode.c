@@ -58,7 +58,7 @@ static double get_voltage (QCADElectrode *electrode, double t) ;
 static double get_area (QCADElectrode *electrode) ;
 static void precompute (QCADElectrode *electrode) ;
 static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z) ;
-static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
+static void copy (QCADObject *src, QCADObject *dst) ;
 
 enum
   {
@@ -99,25 +99,16 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   G_OBJECT_CLASS (klass)->set_property = set_property ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
 
+  QCAD_OBJECT_CLASS(klass)->copy = copy ;
+
   QCAD_DESIGN_OBJECT_CLASS(klass)->unserialize = unserialize ;
   QCAD_DESIGN_OBJECT_CLASS(klass)->serialize   = serialize ;
-  QCAD_DESIGN_OBJECT_CLASS(klass)->copy        = copy ;
 
   QCAD_ELECTRODE_CLASS (klass)->get_voltage       = get_voltage ;
   QCAD_ELECTRODE_CLASS (klass)->get_potential     = get_potential ;
   QCAD_ELECTRODE_CLASS (klass)->get_area          = get_area ;
   QCAD_ELECTRODE_CLASS (klass)->precompute        = precompute ;
   QCAD_ELECTRODE_CLASS (klass)->extreme_potential = extreme_potential ;
-
-  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.clock_function = sin ;
-  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.amplitude      =  1 ;
-  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.frequency      =  1e6 ;
-  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.phase          =  0 ;
-  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.dc_offset      =  0 ;
-  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.min_clock      = -1 ;
-  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.max_clock      =  1 ;
-  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.relative_permittivity = 12.9 ;
-  QCAD_ELECTRODE_CLASS (klass)->default_electrode_options.z_to_ground = 20.0 ;
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_Z_TO_GROUND,
     g_param_spec_double ("z-to-ground", _("Distance to ground"), _("Distance from electrode to ground electrode"),
@@ -131,12 +122,19 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
 
 static void qcad_electrode_instance_init (GObject *object, gpointer data)
   {
-  QCADElectrodeClass *klass = QCAD_ELECTRODE_GET_CLASS (object) ;
   QCADElectrode *electrode = QCAD_ELECTRODE (object) ;
   QCADDesignObject *qcad_obj = QCAD_DESIGN_OBJECT (object) ;
   DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Entering\n")) ;
 
-  memcpy (&(electrode->electrode_options), &(klass->default_electrode_options), sizeof (QCADElectrodeOptions)) ;
+  electrode->electrode_options.clock_function        = sin ;
+  electrode->electrode_options.amplitude             =  1 ;
+  electrode->electrode_options.frequency             =  1e6 ;
+  electrode->electrode_options.phase                 =  0 ;
+  electrode->electrode_options.dc_offset             =  0 ;
+  electrode->electrode_options.min_clock             = -1 ;
+  electrode->electrode_options.max_clock             =  1 ;
+  electrode->electrode_options.relative_permittivity = 12.9 ;
+  electrode->electrode_options.z_to_ground           = 20.0 ;
 
   precompute (electrode) ;
 
@@ -174,11 +172,11 @@ EXTREME_POTENTIALS qcad_electrode_get_extreme_potential (QCADElectrode *electrod
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void copy (QCADDesignObject *src, QCADDesignObject *dst)
+static void copy (QCADObject *src, QCADObject *dst)
   {
   QCADElectrode *electrode_src = NULL, *electrode_dst = NULL ;
 
-  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_ELECTRODE)))->copy (src, dst) ;
+  QCAD_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_ELECTRODE)))->copy (src, dst) ;
 
   electrode_src = QCAD_ELECTRODE (src) ; electrode_dst = QCAD_ELECTRODE (dst) ;
 

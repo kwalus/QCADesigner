@@ -77,7 +77,6 @@ typedef struct
   {
   /* public */
   QCADDesignObjectClass parent_class ;
-  QCADElectrodeOptions default_electrode_options ;
 
   double (*get_potential) (QCADElectrode *electrode, double x, double y, double z, double t) ;
   double (*get_voltage) (QCADElectrode *electrode, double t) ;

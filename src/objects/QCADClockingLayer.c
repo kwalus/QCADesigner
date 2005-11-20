@@ -137,6 +137,7 @@ static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointe
   QCADLayer *layer = QCAD_LAYER (object) ;
 
   layer->type = LAYER_TYPE_CLOCKING ;
+  fprintf (stderr, "qcad_clocking_layer_instance_init:Creating default_properties\n") ;
   layer->default_properties = qcad_layer_create_default_properties (LAYER_TYPE_CLOCKING) ;
   QCAD_CLOCKING_LAYER (layer)->bDrawPotential = FALSE ;
   QCAD_CLOCKING_LAYER (layer)->z_to_draw             =  1 ;
@@ -193,6 +194,7 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
   GList *llItr = NULL ;
   QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (object) ;
   QCADLayer *layer = QCAD_LAYER (object) ;
+  QCADObject *default_object = NULL ;
 
   switch (property_id)
     {
@@ -224,21 +226,31 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
         clocking_layer->z_to_draw = clocking_layer->z_to_ground ;
         g_object_notify (object, "z-showing") ;
         }
+      // Update the z_to_ground for all objects in this layer
       for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
         if (NULL != llItr->data)
           if (QCAD_IS_ELECTRODE (llItr->data))
             g_object_set (G_OBJECT (llItr->data), "z-to-ground", clocking_layer->z_to_ground, NULL) ;
-      QCAD_ELECTRODE_CLASS (g_type_class_peek (QCAD_TYPE_ELECTRODE))->default_electrode_options.z_to_ground = clocking_layer->z_to_ground ;
+      // Set the z_to_ground for all the default objects, copies of which can end up in this layer
+      for (llItr = g_hash_table_lookup (qcad_layer_object_containment_rules (), (gpointer)LAYER_TYPE_CLOCKING) ; llItr != NULL ; llItr = llItr->next)
+        if (0 != ((GType)(llItr->data)))
+          if (NULL != (default_object = qcad_object_get_default ((GType)(llItr->data))))
+            g_object_set (G_OBJECT (default_object), "z-to-ground", clocking_layer->z_to_ground, NULL) ;
       g_object_notify (object, "z-to-ground") ;
       break ;
 
     case QCAD_CLOCKING_LAYER_PROPERTY_EPSILON_R:
       clocking_layer->relative_permittivity = g_value_get_double (value) ;
+      // Update the relative_permittivity for all objects in this layer
       for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
         if (NULL != llItr->data)
           if (QCAD_IS_ELECTRODE (llItr->data))
             g_object_set (G_OBJECT (llItr->data), "relative-permittivity", clocking_layer->relative_permittivity, NULL) ;
-      QCAD_ELECTRODE_CLASS (g_type_class_peek (QCAD_TYPE_ELECTRODE))->default_electrode_options.relative_permittivity = clocking_layer->relative_permittivity ;
+      // Set the relative_permittivity for all the default objects, copies of which can end up in this layer
+      for (llItr = g_hash_table_lookup (qcad_layer_object_containment_rules (), (gpointer)LAYER_TYPE_CLOCKING) ; llItr != NULL ; llItr = llItr->next)
+        if (0 != ((GType)(llItr->data)))
+          if (NULL != (default_object = qcad_object_get_default ((GType)(llItr->data))))
+            g_object_set (G_OBJECT (default_object), "relative-permittivity", clocking_layer->relative_permittivity, NULL) ;
       g_object_notify (object, "relative-permittivity") ;
       break ;
     }

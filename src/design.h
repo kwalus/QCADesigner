@@ -65,6 +65,7 @@ typedef struct
   GList *lstLayers ;
   GList *lstLastLayer ;
   GList *lstCurrentLayer ;
+  GList *lstClockingLayer ;
   BUS_LAYOUT *bus_layout ;
   } DESIGN ;
 

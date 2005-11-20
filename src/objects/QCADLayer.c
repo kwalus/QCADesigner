@@ -80,7 +80,7 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *pfile) ;
 static void serialize (QCADDesignObject *obj, FILE *pfile) ;
 #endif /* def STDIO_FILEIO */
 static QCADDesignObject *hit_test (QCADDesignObject *obj, int x, int y) ;
-static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
+static void copy (QCADObject *src, QCADObject *dst) ;
 
 static void qcad_compound_do_interface_init (gpointer interface, gpointer interface_data) ;
 static void qcad_do_container_interface_init (gpointer interface, gpointer interface_data) ;
@@ -160,20 +160,20 @@ GType qcad_layer_get_type ()
 
 static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   {
-#ifdef STDIO_FILEIO
-  QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize      = unserialize ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->serialize        = serialize ;
-#endif /* def STDIO_FILEIO */
   G_OBJECT_CLASS (klass)->finalize = qcad_layer_instance_finalize ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->hit_test         = hit_test ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->copy             = copy ;
+  QCAD_OBJECT_CLASS (klass)->copy = copy ;
+#ifdef STDIO_FILEIO
+  QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize    = unserialize ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->serialize      = serialize ;
+#endif /* def STDIO_FILEIO */
+  QCAD_DESIGN_OBJECT_CLASS (klass)->hit_test       = hit_test ;
 #ifdef GTK_GUI
-  QCAD_DESIGN_OBJECT_CLASS (klass)->draw             = draw ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->properties       = qcad_layer_properties ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->draw           = draw ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties = qcad_layer_properties ;
 #endif /* def GTK_GUI */
-  QCAD_LAYER_CLASS (klass)->compound_do_first  = compound_do_first ;
-  QCAD_LAYER_CLASS (klass)->compound_do_next   = compound_do_next ;
-  QCAD_LAYER_CLASS (klass)->compound_do_last   = compound_do_last ;
+  QCAD_LAYER_CLASS (klass)->compound_do_first   = compound_do_first ;
+  QCAD_LAYER_CLASS (klass)->compound_do_next    = compound_do_next ;
+  QCAD_LAYER_CLASS (klass)->compound_do_last    = compound_do_last ;
   QCAD_LAYER_CLASS (klass)->do_container_add    = do_container_add ;
   QCAD_LAYER_CLASS (klass)->do_container_remove = do_container_remove ;
   }
@@ -204,6 +204,7 @@ static void qcad_layer_instance_init (QCADDesignObject *object, gpointer data)
   layer->pszDescription = g_strdup (_("Untitled Layer")) ;
   layer->lstObjs =
   layer->lstSelObjs = NULL ;
+  fprintf (stderr, "qcad_clocking_layer_instance_init:Creating default_properties\n") ;
   layer->default_properties = qcad_layer_create_default_properties (LAYER_TYPE_CELLS) ;
   #ifdef ALLOW_UNSERIALIZE_OVERLAP
   layer->bAllowOverlap = FALSE ;
@@ -739,15 +740,15 @@ void qcad_layer_selection_serialize (QCADLayer *layer, FILE *pfile)
 void qcad_layer_selection_create_from_selection (QCADLayer *layer)
   {
   GList *llItr = NULL, *llOldObjs = NULL, *llNext = NULL ;
-  QCADDesignObject *obj = NULL ;
+  QCADObject *obj = NULL ;
   if (NULL == layer) return ;
 
   llOldObjs = layer->lstSelObjs ;
 
   for (llItr = layer->lstSelObjs ; llItr != NULL ; llItr = llItr->next)
-    if (NULL != (obj = qcad_design_object_new_from_object (QCAD_DESIGN_OBJECT (llItr->data))))
+    if (NULL != (obj = qcad_object_new_from_object (QCAD_OBJECT (llItr->data))))
       {
-      qcad_layer_do_container_add (QCAD_DO_CONTAINER (layer), obj) ;
+      qcad_layer_do_container_add (QCAD_DO_CONTAINER (layer), QCAD_DESIGN_OBJECT (obj)) ;
       DBG_REFS (fprintf (stderr, "qcad_layer_selection_create_from_selection:Added object 0x%08X to layer 0x%08X, so unref-ing it\n", (int)obj, (int)layer)) ;
       g_object_unref (obj) ;
       }
@@ -940,7 +941,7 @@ static void serialize (QCADDesignObject *obj, FILE *pfile)
   }
 #endif /* def STDIO_FILEIO */
 
-static void copy (QCADDesignObject *src, QCADDesignObject *dst)
+static void copy (QCADObject *src, QCADObject *dst)
   {
   GList *llItr = NULL ;
   QCADLayer *srcLayer = NULL, *dstLayer = NULL ;
@@ -958,7 +959,7 @@ static void copy (QCADDesignObject *src, QCADDesignObject *dst)
     {
     if (NULL != llItr->data)
       qcad_do_container_add (QCAD_DO_CONTAINER (dstLayer),
-        qcad_design_object_new_from_object (QCAD_DESIGN_OBJECT (llItr->data))) ;
+        QCAD_DESIGN_OBJECT (qcad_object_new_from_object (QCAD_OBJECT (llItr->data)))) ;
     if (llItr == srcLayer->llContainerIter)
       dstLayer->llContainerIter = dstLayer->lstObjs ;
     }

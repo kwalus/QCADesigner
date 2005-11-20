@@ -91,12 +91,12 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
 static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData) ;
 #ifdef UNDO_REDO
-gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
+gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
 #else
-gboolean properties (QCADDesignObject *obj, GtkWidget *parent) ;
+gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent) ;
 #endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
-static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
+static void copy (QCADObject *src, QCADObject *dst) ;
 static void *default_properties_get (struct QCADDesignObjectClass *klass) ;
 static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) ;
 static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props) ;
@@ -112,6 +112,7 @@ static void create_properties_dialog (PROPERTIES *dialog) ;
 static void default_properties_apply (gpointer data) ;
 #endif
 static void precompute (QCADElectrode *electrode) ;
+static QCADObject *class_get_default_object () ;
 
 GType qcad_rectangle_electrode_get_type ()
   {
@@ -143,13 +144,14 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   {
   DBG_OO (fprintf (stderr, "QCADRectangleElectrode::class_init:Leaving\n")) ;
   G_OBJECT_CLASS (klass)->finalize = qcad_rectangle_electrode_instance_finalize ;
+  QCAD_OBJECT_CLASS (klass)->copy                     = copy ;
+  QCAD_OBJECT_CLASS (klass)->class_get_default_object = class_get_default_object ;
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                       = draw ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_ui      = default_properties_ui ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->properties                 = properties ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties             = old_properties ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed          = (GCallback)button_pressed ;
 #endif /* def GTK_GUI */
-  QCAD_DESIGN_OBJECT_CLASS (klass)->copy                       = copy ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->move                       = move ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_get     = default_properties_get ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_set     = default_properties_set ;
@@ -194,16 +196,16 @@ static void qcad_rectangle_electrode_instance_finalize (GObject *object)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-QCADDesignObject *qcad_rectangle_electrode_new ()
-  {return QCAD_DESIGN_OBJECT (g_object_new (QCAD_TYPE_RECTANGLE_ELECTRODE, NULL)) ;}
-
 ///////////////////////////////////////////////////////////////////////////////
 
-static void copy (QCADDesignObject *src, QCADDesignObject *dst)
+static QCADObject *class_get_default_object ()
+  {return g_object_new (QCAD_TYPE_RECTANGLE_ELECTRODE, NULL) ;}
+
+static void copy (QCADObject *src, QCADObject *dst)
   {
   QCADRectangleElectrode *rc_electrode_src, *rc_electrode_dst ;
 
-  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->copy (src, dst) ;
+  QCAD_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->copy (src, dst) ;
 
   rc_electrode_src = QCAD_RECTANGLE_ELECTRODE (src) ; rc_electrode_dst = QCAD_RECTANGLE_ELECTRODE (dst) ;
 
@@ -335,9 +337,9 @@ static void move (QCADDesignObject *obj, double dxDelta, double dyDelta)
 
 #ifdef GTK_GUI
 #ifdef UNDO_REDO
-gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry)
+gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry)
 #else
-gboolean properties (QCADDesignObject *obj, GtkWidget *parent)
+gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent)
 #endif /* def UNDO_REDO */
   {
   gboolean bRet = FALSE ;
@@ -386,42 +388,32 @@ gboolean properties (QCADDesignObject *obj, GtkWidget *parent)
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData)
   {
   int Nix ;
-  QCADElectrodeClass *electrode_class = QCAD_ELECTRODE_CLASS (klass) ;
-  QCADRectangleElectrodeClass *rc_electrode_class = QCAD_RECTANGLE_ELECTRODE_CLASS (klass) ;
+  QCADRectangleElectrode *default_rc_electrode = NULL ;
+  QCADElectrode *default_electrode = NULL ;
   static DEFAULT_PROPERTIES dialog = {NULL} ;
-  QCADRectangleElectrodeOptions rcz_options ;
 
   if (NULL == dialog.tbl)
     create_default_properties_dialog (&dialog) ;
 
-  if (NULL == default_properties)
-    {
-    memcpy (&rcz_options, &(electrode_class->default_electrode_options), sizeof (QCADElectrodeOptions)) ;
-    rcz_options.angle         = rc_electrode_class->default_angle ;
-    rcz_options.n_x_divisions = rc_electrode_class->default_n_x_divisions ;
-    rcz_options.n_y_divisions = rc_electrode_class->default_n_y_divisions ;
-    rcz_options.cxWorld       = rc_electrode_class->default_cxWorld ;
-    rcz_options.cyWorld       = rc_electrode_class->default_cyWorld ;
-    }
-  else
-    memcpy (&rcz_options, default_properties, sizeof (QCADRectangleElectrodeOptions)) ;
+  default_rc_electrode = QCAD_RECTANGLE_ELECTRODE (NULL == default_properties ? qcad_object_get_default (QCAD_TYPE_RECTANGLE_ELECTRODE) : default_properties) ;
+  default_electrode = QCAD_ELECTRODE (default_rc_electrode) ;
 
   for (Nix = 0 ; Nix < n_clock_functions ; Nix++)
-    if (clock_functions[Nix].clock_function == rcz_options.electrode_options.clock_function) break ;
+    if (clock_functions[Nix].clock_function == default_electrode->electrode_options.clock_function) break ;
   if (Nix == n_clock_functions) Nix = -1 ;
 
   gtk_option_menu_set_history (GTK_OPTION_MENU (dialog.clock_function_option_menu), Nix) ;
-  gtk_adjustment_set_value_infinite (dialog.adjAmplitude,   rcz_options.electrode_options.amplitude) ;
-  gtk_adjustment_set_value_infinite (dialog.adjFrequency,   rcz_options.electrode_options.frequency / 1000000.0) ;
-  gtk_adjustment_set_value_infinite (dialog.adjDCOffset,    rcz_options.electrode_options.dc_offset) ;
-  gtk_adjustment_set_value_infinite (dialog.adjMinClock,    rcz_options.electrode_options.min_clock) ;
-  gtk_adjustment_set_value_infinite (dialog.adjMaxClock,    rcz_options.electrode_options.max_clock) ;
-  gtk_adjustment_set_value_infinite (dialog.adjNXDivisions, rcz_options.n_x_divisions) ;
-  gtk_adjustment_set_value_infinite (dialog.adjNYDivisions, rcz_options.n_y_divisions) ;
-  gtk_adjustment_set_value_infinite (dialog.adjCX,          rcz_options.cxWorld) ;
-  gtk_adjustment_set_value_infinite (dialog.adjCY,          rcz_options.cyWorld) ;
-  gtk_adjustment_set_value (dialog.adjPhase,       (rcz_options.electrode_options.phase * 180.0) / PI) ;
-  gtk_adjustment_set_value (dialog.adjAngle,       (rcz_options.angle * 180.0) / PI) ;
+  gtk_adjustment_set_value_infinite (dialog.adjAmplitude,   default_electrode->electrode_options.amplitude) ;
+  gtk_adjustment_set_value_infinite (dialog.adjFrequency,   default_electrode->electrode_options.frequency / 1e6) ;
+  gtk_adjustment_set_value_infinite (dialog.adjDCOffset,    default_electrode->electrode_options.dc_offset) ;
+  gtk_adjustment_set_value_infinite (dialog.adjMinClock,    default_electrode->electrode_options.min_clock) ;
+  gtk_adjustment_set_value_infinite (dialog.adjMaxClock,    default_electrode->electrode_options.max_clock) ;
+  gtk_adjustment_set_value          (dialog.adjPhase,      (default_electrode->electrode_options.phase * 180.0) / PI) ;
+  gtk_adjustment_set_value_infinite (dialog.adjNXDivisions, default_rc_electrode->n_x_divisions) ;
+  gtk_adjustment_set_value_infinite (dialog.adjNYDivisions, default_rc_electrode->n_y_divisions) ;
+  gtk_adjustment_set_value_infinite (dialog.adjCX,          default_rc_electrode->cxWorld) ;
+  gtk_adjustment_set_value_infinite (dialog.adjCY,          default_rc_electrode->cyWorld) ;
+  gtk_adjustment_set_value          (dialog.adjAngle,      (default_rc_electrode->angle * 180.0) / PI) ;
 
   (*pTopContainer) = dialog.tbl ;
   (*pData) = &dialog ;
@@ -491,9 +483,9 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
 #endif /* def DESIGNER */
 
   fprintf (stderr, "QCADRectangleElectrode::button_pressed:Calling qcad_rectangle_electrode_new\n") ;
-  obj = qcad_rectangle_electrode_new () ;
+  obj = QCAD_DESIGN_OBJECT (qcad_object_new_from_object (qcad_object_get_default (QCAD_TYPE_RECTANGLE_ELECTRODE))) ;
   fprintf (stderr, "QCADRectangleElectrode::button_pressed:Calling qcad_design_object_move\n") ;
-  qcad_design_object_move (obj, xWorld - obj->x, yWorld - obj->y) ;
+  qcad_design_object_move_to (obj, xWorld, yWorld) ;
 
 #ifdef DESIGNER
   if (NULL != drop_function)
@@ -508,34 +500,13 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
 #endif /* def GTK_GUI */
 
 static void *default_properties_get (struct QCADDesignObjectClass *klass)
-  {
-  QCADElectrodeClass *parent_class = QCAD_ELECTRODE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE))) ;
-  QCADElectrodeOptions *pDefaults = g_malloc (sizeof (QCADRectangleElectrodeOptions)) ;
-  QCADRectangleElectrodeOptions *p_rcz_Defaults = (QCADRectangleElectrodeOptions *)pDefaults ;
-
-  memcpy (pDefaults, &(parent_class->default_electrode_options), sizeof (QCADElectrodeOptions)) ;
-  p_rcz_Defaults->angle         = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle ;
-  p_rcz_Defaults->n_x_divisions = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions ;
-  p_rcz_Defaults->n_y_divisions = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_y_divisions ;
-  p_rcz_Defaults->cxWorld       = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cxWorld ;
-  p_rcz_Defaults->cyWorld       = QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cyWorld ;
-  return (void *)pDefaults ;
-  }
+  {return qcad_object_new_from_object (qcad_object_get_default (QCAD_TYPE_RECTANGLE_ELECTRODE)) ;}
 
 static void default_properties_set (struct QCADDesignObjectClass *klass, void *props)
-  {
-  QCADElectrodeClass *parent_class = QCAD_ELECTRODE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE))) ;
-
-  memcpy (&(parent_class->default_electrode_options), props, sizeof (QCADElectrodeOptions)) ;
-  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle = ((QCADRectangleElectrodeOptions *)props)->angle ;
-  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions = ((QCADRectangleElectrodeOptions *)props)->n_x_divisions ;
-  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_y_divisions = ((QCADRectangleElectrodeOptions *)props)->n_y_divisions ;
-  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cxWorld = ((QCADRectangleElectrodeOptions *)props)->cxWorld ;
-  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cyWorld = ((QCADRectangleElectrodeOptions *)props)->cyWorld ;
-  }
+  {qcad_object_set_default (QCAD_TYPE_RECTANGLE_ELECTRODE, qcad_object_new_from_object (QCAD_OBJECT (props))) ;}
 
 static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props)
-  {g_free (props) ;}
+  {g_object_unref (G_OBJECT (props)) ;}
 
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t)
   {
@@ -791,21 +762,22 @@ static void create_properties_dialog (PROPERTIES *dialog)
 static void default_properties_apply (gpointer data)
   {
   DEFAULT_PROPERTIES *dialog = (DEFAULT_PROPERTIES *)data ;
-  QCADElectrodeClass *electrode_class = QCAD_ELECTRODE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE))) ;
-  QCADRectangleElectrodeClass *rc_electrode_class = QCAD_RECTANGLE_ELECTRODE_CLASS (g_type_class_peek (QCAD_TYPE_RECTANGLE_ELECTRODE)) ;
+  QCADRectangleElectrode *default_rc_electrode = QCAD_RECTANGLE_ELECTRODE (qcad_object_get_default (QCAD_TYPE_RECTANGLE_ELECTRODE)) ;
+  QCADElectrode *default_electrode = QCAD_ELECTRODE (default_rc_electrode) ;
 
-  electrode_class->default_electrode_options.clock_function = clock_functions[gtk_option_menu_get_history (GTK_OPTION_MENU (dialog->clock_function_option_menu))].clock_function ;
-  electrode_class->default_electrode_options.amplitude      = gtk_adjustment_get_value (dialog->adjAmplitude) ;
-  electrode_class->default_electrode_options.frequency      = gtk_adjustment_get_value (dialog->adjFrequency) * 1000000.0 ;
-  electrode_class->default_electrode_options.phase          = (gtk_adjustment_get_value (dialog->adjPhase) * PI) / 180.0 ;
-  electrode_class->default_electrode_options.dc_offset      = gtk_adjustment_get_value (dialog->adjDCOffset) ;
-  electrode_class->default_electrode_options.min_clock      = gtk_adjustment_get_value (dialog->adjMinClock) ;
-  electrode_class->default_electrode_options.max_clock      = gtk_adjustment_get_value (dialog->adjMaxClock) ;
-  rc_electrode_class->default_angle         = (gtk_adjustment_get_value (dialog->adjAngle) * PI) / 180.0 ;
-  rc_electrode_class->default_n_x_divisions = (int)gtk_adjustment_get_value (dialog->adjNXDivisions) ;
-  rc_electrode_class->default_n_y_divisions = (int)gtk_adjustment_get_value (dialog->adjNYDivisions) ;
-  rc_electrode_class->default_cxWorld       = gtk_adjustment_get_value (dialog->adjCX) ;
-  rc_electrode_class->default_cyWorld       = gtk_adjustment_get_value (dialog->adjCY) ;
+  default_electrode->electrode_options.amplitude =  gtk_adjustment_get_value (dialog->adjAmplitude) ;
+  default_electrode->electrode_options.frequency =  gtk_adjustment_get_value (dialog->adjFrequency) * 1e6 ;
+  default_electrode->electrode_options.phase     = (gtk_adjustment_get_value (dialog->adjPhase) * PI) / 180.0 ;
+  default_electrode->electrode_options.min_clock =  gtk_adjustment_get_value (dialog->adjMinClock) ;
+  default_electrode->electrode_options.max_clock =  gtk_adjustment_get_value (dialog->adjMaxClock) ;
+  default_electrode->electrode_options.dc_offset =  gtk_adjustment_get_value (dialog->adjDCOffset) ;
+  default_rc_electrode->angle                    = (gtk_adjustment_get_value (dialog->adjAngle) * PI) / 180.0 ;
+  default_rc_electrode->n_x_divisions            =  gtk_adjustment_get_value (dialog->adjNXDivisions) ;
+  default_rc_electrode->n_y_divisions            =  gtk_adjustment_get_value (dialog->adjNYDivisions) ;
+  default_rc_electrode->cxWorld                  =  gtk_adjustment_get_value (dialog->adjCX) ;
+  default_rc_electrode->cyWorld                  =  gtk_adjustment_get_value (dialog->adjCY) ;
+
+  precompute (default_electrode) ;
   }
 #endif
 

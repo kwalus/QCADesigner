@@ -46,6 +46,7 @@
   #include "QCADUndoEntry.h"
 #endif /* def UNDO_REDO */
 #include "../exp_array.h"
+#include "QCADObject.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,7 +54,7 @@ extern "C" {
 
 typedef struct
   {
-  GObject parent_instance ;
+  QCADObject parent_instance ;
 
   /* public */
 
@@ -73,7 +74,7 @@ typedef enum
 typedef struct QCADDesignObjectClass
   {
   /* polymorphic behaviour */
-  GObjectClass parent_class ;
+  QCADObjectClass parent_class ;
 #ifdef STDIO_FILEIO
   void (*serialize) (QCADDesignObject *obj, FILE *fp) ;
   gboolean (*unserialize) (QCADDesignObject *obj, FILE *fp) ;
@@ -81,7 +82,6 @@ typedef struct QCADDesignObjectClass
   const char *(*PostScript_preamble) () ;
   char *(*PostScript_instance) (QCADDesignObject *obj, gboolean bColour) ;
   GList *(*add_unique_types) (QCADDesignObject *obj, GList *lst) ;
-  void (*copy) (QCADDesignObject *objSrc, QCADDesignObject *objDst) ;
   void (*get_bounds_box) (QCADDesignObject *obj, WorldRectangle *rcWorld) ;
   gboolean (*set_selected) (QCADDesignObject *obj, gboolean bSelected) ;
   void (*move) (QCADDesignObject *obj, double dxDelta, double dyDelta) ;
@@ -91,9 +91,9 @@ typedef struct QCADDesignObjectClass
   void (*draw) (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
   GCallback (*default_properties_ui) (struct QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData) ;
 #ifdef UNDO_REDO
-  gboolean (*properties) (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
+  gboolean (*old_properties) (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
 #else
-  gboolean (*properties) (QCADDesignObject *obj, GtkWidget *parent) ;
+  gboolean (*old_properties) (QCADDesignObject *obj, GtkWidget *parent) ;
 #endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
   void *(*default_properties_get) (struct QCADDesignObjectClass *klass) ;
@@ -125,7 +125,6 @@ GType qcad_design_object_get_type () ;
 void qcad_design_object_serialize (QCADDesignObject *obj, FILE *fp) ;
 QCADDesignObject *qcad_design_object_new_from_stream (FILE *fp) ;
 #endif /* def STDIO_FILEIO */
-QCADDesignObject *qcad_design_object_new_from_object (QCADDesignObject *src) ;
 void qcad_design_object_move (QCADDesignObject *obj, double dxDelta, double dyDelta) ;
 void qcad_design_object_move_to (QCADDesignObject *obj, double xWorld, double yWorld) ;
 void qcad_design_object_get_bounds_box (QCADDesignObject *obj, WorldRectangle *rcWorld) ;

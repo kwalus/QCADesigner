@@ -59,7 +59,7 @@ static void qcad_label_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_label_instance_init (GObject *object, gpointer data) ;
 static void qcad_label_instance_finalize (GObject *object) ;
 
-static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
+static void copy (QCADObject *src, QCADObject *dst) ;
 #ifdef STDIO_FILEIO
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
@@ -67,9 +67,9 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #ifdef UNDO_REDO
-static gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
 #else
-static gboolean properties (QCADDesignObject *obj, GtkWidget *parent) ;
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent) ;
 #endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 static const char *PostScript_preamble () ;
@@ -111,18 +111,18 @@ GType qcad_label_get_type ()
 static void qcad_label_class_init (GObjectClass *klass, gpointer data)
   {
   DBG_OO (fprintf (stderr, "QCADLabel::class_init:Entering\n")) ;
+  G_OBJECT_CLASS (klass)->finalize = qcad_label_instance_finalize ;
 #ifdef GTK_GUI
   if (0 == clrBlue.pixel)
     gdk_colormap_alloc_color (gdk_colormap_get_system (), &clrBlue, FALSE, TRUE) ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->draw = draw ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->properties = properties ;
+  QCAD_OBJECT_CLASS (klass)->copy                       = copy ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->draw                = draw ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties      = old_properties ;
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
-  QCAD_DESIGN_OBJECT_CLASS (klass)->serialize = serialize ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize = unserialize ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->serialize           = serialize ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize         = unserialize ;
 #endif /* def STDIO_FILEIO */
-  G_OBJECT_CLASS (klass)->finalize = qcad_label_instance_finalize ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->copy = copy ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_preamble = PostScript_preamble ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance = PostScript_instance ;
   DBG_OO (fprintf (stderr, "QCADLabel::class_init:Leaving\n")) ;
@@ -161,9 +161,9 @@ static void qcad_label_instance_finalize (GObject *object)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void copy (QCADDesignObject *src, QCADDesignObject *dst)
+static void copy (QCADObject *src, QCADObject *dst)
   {
-  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_LABEL)))->copy (src, dst) ;
+  QCAD_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_LABEL)))->copy (src, dst) ;
   QCAD_LABEL (dst)->psz = g_strdup (QCAD_LABEL (src)->psz) ;
   QCAD_LABEL (dst)->bNeedsEPMDraw = TRUE ;
   }
@@ -220,9 +220,9 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   }
 
 #ifdef UNDO_REDO
-static gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry)
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry)
 #else
-static gboolean properties (QCADDesignObject *obj, GtkWidget *parent)
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent)
 #endif /* UNDO_REDO */
   {
   static PROPERTIES dialog = {NULL} ;

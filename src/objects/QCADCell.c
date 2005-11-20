@@ -99,13 +99,14 @@ static void qcad_cell_get_property (GObject *object, guint property_id, GValue *
 static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
 #endif /* def GTK_GUI */
 
-static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
+static void copy (QCADObject *src, QCADObject *dst) ;
+static QCADObject *class_get_default_object () ;
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #ifdef UNDO_REDO
-static gboolean properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
 #else
-static gboolean properties (QCADDesignObject *obj, GtkWidget *parent) ;
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent) ;
 #endif /* def UNDO_REDO */
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData) ;
 #endif /* def GTK_GUI */
@@ -143,6 +144,7 @@ static void *default_properties_get (struct QCADDesignObjectClass *klass) ;
 static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) ;
 static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props) ;
 static void qcad_cell_apply_transformation (QCADCell *cell, double xOld, double yOld) ;
+static void qcad_cell_calculate_coords (QCADCell *cell) ;
 
 GdkColor clrBlack  = {0, 0x0000, 0x0000, 0x0000} ;
 GdkColor clrOrange = {0, 0xFFFF, 0x8000, 0x0000} ;
@@ -298,6 +300,8 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   DBG_OO (fprintf (stderr, "QCADCell::class_init:Entering\n")) ;
 #endif /* def GTK_GUI */
 
+  QCAD_OBJECT_CLASS (klass)->copy                     = copy ;
+  QCAD_OBJECT_CLASS (klass)->class_get_default_object = class_get_default_object ;
   memcpy (&(QCAD_DESIGN_OBJECT_CLASS (klass)->clrDefault), &(clrClock[0]), sizeof (GdkColor)) ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->hit_test                   = hit_test ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->get_bounds_box             = get_bounds_box ;
@@ -307,7 +311,7 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance        = PostScript_instance ;
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                       = draw ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->properties                 = properties ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties             = old_properties ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_ui      = default_properties_ui ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed          = (GCallback)button_pressed ;
 #endif /* def GTK_GUI */
@@ -315,16 +319,11 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize                  = serialize ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize                = unserialize ;
 #endif /* def STDIO_FILEIO */
-  QCAD_DESIGN_OBJECT_CLASS (klass)->copy                       = copy ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->move                       = move ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->transform                  = transform ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_get     = default_properties_get ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_set     = default_properties_set ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_destroy = default_properties_destroy ;
-  QCAD_CELL_CLASS (klass)->default_cell_options.cxCell         = 18 ;
-  QCAD_CELL_CLASS (klass)->default_cell_options.cyCell         = 18 ;
-  QCAD_CELL_CLASS (klass)->default_cell_options.dot_diameter   =  5 ;
-  QCAD_CELL_CLASS (klass)->default_cell_options.mode           = QCAD_CELL_MODE_NORMAL ;
   G_OBJECT_CLASS (klass)->finalize                             = qcad_cell_instance_finalize ;
   G_OBJECT_CLASS (klass)->set_property                         = qcad_cell_set_property ;
   G_OBJECT_CLASS (klass)->get_property                         = qcad_cell_get_property ;
@@ -422,20 +421,32 @@ static void qcad_cell_get_property (GObject *object, guint property_id, GValue *
 
 static void qcad_cell_instance_init (GObject *object, gpointer data)
   {
-  QCADCellClass *klass = QCAD_CELL_GET_CLASS (object) ;
+  double dcx, dcy, ddiam ;
+//  QCADCellClass *klass = QCAD_CELL_GET_CLASS (object) ;
+  QCADCell *cell = QCAD_CELL (object) ;
 
   DBG_OO (fprintf (stderr, "QCADCell::instance_init:Entering\n")) ;
 
-  memcpy (&(QCAD_CELL (object)->cell_options), &(klass->default_cell_options), sizeof (QCADCellOptions)) ;
-  memcpy (&(QCAD_DESIGN_OBJECT (object)->clr), &(clrClock[klass->default_cell_options.clock]), sizeof (GdkColor)) ;
-  QCAD_CELL (object)->id = (int)object ;
-  QCAD_CELL (object)->host_name = NULL ;
-  QCAD_CELL (object)->cell_function = QCAD_CELL_NORMAL ;
-  QCAD_CELL (object)->cell_model = NULL ;
-  QCAD_CELL (object)->cell_dots = malloc (4 * sizeof (QCADCellDot)) ;
-  QCAD_CELL (object)->number_of_dots = 4 ;
-  QCAD_CELL (object)->label = NULL ;
-  QCAD_CELL (object)->bLabelRemoved = TRUE ;
+  dcx = 
+  cell->cell_options.cxCell         = 18 ;
+  dcy = 
+  cell->cell_options.cyCell         = 18 ;
+  ddiam =
+  cell->cell_options.dot_diameter   =  5 ;
+  cell->cell_options.mode           = QCAD_CELL_MODE_NORMAL ;
+  cell->cell_options.clock          =  0 ;
+  
+  memcpy (&(QCAD_DESIGN_OBJECT (object)->clr), &(clrClock[0]), sizeof (GdkColor)) ;
+  cell->id = (int)object ;
+  cell->host_name = NULL ;
+  cell->cell_function = QCAD_CELL_NORMAL ;
+  cell->cell_model = NULL ;
+  cell->cell_dots = malloc (4 * sizeof (QCADCellDot)) ;
+  cell->number_of_dots = 4 ;
+  cell->label = NULL ;
+  cell->bLabelRemoved = TRUE ;
+
+  qcad_cell_calculate_coords (cell) ;
   DBG_OO (fprintf (stderr, "QCADCell::instance_init:Leaving\n")) ;
   }
 
@@ -454,7 +465,7 @@ static void qcad_cell_instance_finalize (GObject *object)
   }
 
 ///////////////////////////////////////////////////////////////////////////////
-
+/*
 QCADDesignObject *qcad_cell_new_with_function (QCADCellFunction cell_function, char *pszLabel)
   {return g_object_new (QCAD_TYPE_CELL, "function", cell_function, "label", pszLabel, NULL) ;}
 
@@ -497,7 +508,7 @@ QCADDesignObject *qcad_cell_new (double x, double y)
 
   return ret ;
   }
-
+*/
 const char *qcad_cell_get_label (QCADCell *cell)
   {
   if (NULL == cell) return "" ;
@@ -519,21 +530,26 @@ void qcad_cell_set_display_mode (QCADCell *cell, int cell_mode)
 void qcad_cell_drexp_array (GdkDrawable *dst, GdkFunction rop, GtkOrientation orientation, double dRangeBeg, double dRangeEnd, double dOtherCoord)
   {
   int idx[2] = {-1} ;
-  GdkGC *gc = gdk_gc_new (dst) ;
-  QCADCellClass *klass = NULL ;
+  GdkGC *gc = NULL ;
+  QCADCell *default_cell = NULL ;
   double
     dDir = 0,
     coord[2], length[2] = {-1} ;
 
+  if (NULL == (QCAD_OBJECT_CLASS (g_type_class_peek (QCAD_TYPE_CELL)))->default_object) return ;
+
+  default_cell = QCAD_CELL ((QCAD_OBJECT_CLASS (g_type_class_peek (QCAD_TYPE_CELL)))->default_object) ;
+
+  gc = gdk_gc_new (dst) ;
+
   idx[0] = GTK_ORIENTATION_HORIZONTAL == orientation ? 0 : 1 ;
   idx[1] = GTK_ORIENTATION_HORIZONTAL == orientation ? 1 : 0 ;
-  klass = g_type_class_peek (QCAD_TYPE_CELL) ;
   dDir = dRangeBeg < dRangeEnd ? 1 : -1 ;
-  length[0] = klass->default_cell_options.cxCell ;
-  length[1] = klass->default_cell_options.cyCell ;
+  length[0] = default_cell->cell_options.cxCell ;
+  length[1] = default_cell->cell_options.cyCell ;
 
   gdk_gc_set_function (gc, rop) ;
-  gdk_gc_set_foreground (gc, &(clrClock[QCAD_CELL_CLASS (klass)->default_cell_options.clock])) ;
+  gdk_gc_set_foreground (gc, &(clrClock[default_cell->cell_options.clock])) ;
 
   coord[idx[0]] = dRangeBeg ;
   coord[idx[1]] = dOtherCoord ;
@@ -555,20 +571,22 @@ void qcad_cell_drexp_array (GdkDrawable *dst, GdkFunction rop, GtkOrientation or
 EXP_ARRAY *qcad_cell_create_array (gboolean bHorizontal, double dRangeBeg, double dRangeEnd, double dOtherCoord)
   {
   int idx[2] = {-1} ;
-  QCADCellClass *klass = g_type_class_peek (QCAD_TYPE_CELL) ;
   double
     dDir = dRangeBeg < dRangeEnd ? 1 : -1,
     coord[2], length[2] = {-1} ;
   EXP_ARRAY *ret = NULL ;
+  QCADCell *default_cell = NULL ;
   QCADDesignObject *cell = NULL ;
 
-  if (NULL == klass) return NULL ;
+  if (NULL == (QCAD_OBJECT_CLASS (g_type_class_peek (QCAD_TYPE_CELL)))->default_object) return NULL ;
+
+  default_cell = QCAD_CELL ((QCAD_OBJECT_CLASS (g_type_class_peek (QCAD_TYPE_CELL)))->default_object) ;
 
   idx[0] = bHorizontal ? 0 : 1 ;
   idx[1] = bHorizontal ? 1 : 0 ;
   dDir = dRangeBeg < dRangeEnd ? 1 : -1 ;
-  length[0] = klass->default_cell_options.cxCell ;
-  length[1] = klass->default_cell_options.cyCell ;
+  length[0] = default_cell->cell_options.cxCell ;
+  length[1] = default_cell->cell_options.cyCell ;
 
   coord[idx[0]] = dRangeBeg ;
   coord[idx[1]] = dOtherCoord ;
@@ -579,7 +597,8 @@ EXP_ARRAY *qcad_cell_create_array (gboolean bHorizontal, double dRangeBeg, doubl
     {
     if (NULL == ret)
       ret = exp_array_new (sizeof (QCADCell *), 1) ;
-    cell = qcad_cell_new (coord[0], coord[1]) ;
+    cell = QCAD_DESIGN_OBJECT (qcad_object_new_from_object (qcad_object_get_default (QCAD_TYPE_CELL))) ;
+    qcad_design_object_move_to (cell, coord[0], coord[1]) ;
     exp_array_insert_vals (ret, &cell, 1, 1, -1) ;
     qcad_cell_array_next_coord (idx, coord, length, dDir) ;
     }
@@ -611,6 +630,9 @@ void qcad_cell_set_host_name (QCADCell *cell, char *pszHostName)
   {cell->host_name = g_strdup (pszHostName) ;}
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static QCADObject *class_get_default_object ()
+  {return g_object_new (QCAD_TYPE_CELL, NULL) ;}
 
 static gboolean qcad_cell_do_container_add (QCADDOContainer *container, QCADDesignObject *obj)
   {
@@ -646,12 +668,12 @@ static QCADDesignObject *qcad_cell_compound_do_next (QCADCompoundDO *cdo)
 static gboolean qcad_cell_compound_do_last (QCADCompoundDO *cdo)
   {return TRUE ;}
 
-static void copy (QCADDesignObject *src, QCADDesignObject *dst)
+static void copy (QCADObject *src, QCADObject *dst)
   {
   int Nix = -1 ;
   QCADCell *cellSrc = QCAD_CELL (src), *cellDst = QCAD_CELL (dst) ;
 
-  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL)))->copy (src, dst) ;
+  QCAD_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL)))->copy (src, dst) ;
 
   cellDst->cell_options.cxCell       = cellSrc->cell_options.cxCell ;
   cellDst->cell_options.clock        = cellSrc->cell_options.clock ;
@@ -664,7 +686,7 @@ static void copy (QCADDesignObject *src, QCADDesignObject *dst)
   cellDst->cell_model                = cellSrc->cell_model ;
   if (NULL != cellSrc->label)
     {
-    cellDst->label = QCAD_LABEL (qcad_design_object_new_from_object (QCAD_DESIGN_OBJECT (cellSrc->label))) ;
+    cellDst->label = QCAD_LABEL (qcad_object_new_from_object (QCAD_OBJECT (cellSrc->label))) ;
     g_object_add_weak_pointer (G_OBJECT (cellDst->label), (gpointer *)&(cellDst->label)) ;
     }
   else
@@ -724,17 +746,13 @@ static GList *add_unique_types (QCADDesignObject *obj, GList *lst)
   }
 
 static void *default_properties_get (struct QCADDesignObjectClass *klass)
-  {
-  QCADCellOptions *pDefaults = g_malloc (sizeof (QCADCellOptions)) ;
-  memcpy (pDefaults, &(QCAD_CELL_CLASS (klass)->default_cell_options), sizeof (QCADCellOptions)) ;
-  return (void *)pDefaults ;
-  }
+  {return qcad_object_new_from_object (qcad_object_get_default (QCAD_TYPE_CELL)) ;}
 
-static void default_properties_set (struct QCADDesignObjectClass *klass, void *props)
-  {memcpy (&(QCAD_CELL_CLASS (klass)->default_cell_options), props, sizeof (QCADCellOptions)) ;}
+static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) 
+  {qcad_object_set_default (QCAD_TYPE_CELL, qcad_object_new_from_object (QCAD_OBJECT (props))) ;}
 
 static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props)
-  {g_free (props) ;}
+  {g_object_unref (G_OBJECT (props)) ;}
 
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   {
@@ -1213,21 +1231,22 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
 #ifdef GTK_GUI
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData)
   {
-  QCADCellClass *cklass = QCAD_CELL_CLASS (klass) ;
   static DEFAULT_PROPERTIES dialog = {NULL} ;
-  QCADCellOptions *default_cell_options = (NULL == default_properties ? &(cklass->default_cell_options) : default_properties) ;
+  QCADCell *default_cell = NULL ;
+
+  default_cell = QCAD_CELL (NULL == default_properties ? qcad_object_get_default (QCAD_TYPE_CELL) : default_properties) ;
 
   if (NULL == dialog.tbl)
     create_default_properties_dialog (&dialog) ;
 
-  dialog.adjCXCell->upper = MAX (dialog.adjCXCell->upper, default_cell_options->cxCell) ;
-  dialog.adjCYCell->upper = MAX (dialog.adjCYCell->upper, default_cell_options->cyCell) ;
-  dialog.adjDotDiam->upper = MAX (dialog.adjDotDiam->upper, default_cell_options->dot_diameter) ;
+  dialog.adjCXCell->upper = MAX (dialog.adjCXCell->upper, default_cell->cell_options.cxCell) ;
+  dialog.adjCYCell->upper = MAX (dialog.adjCYCell->upper, default_cell->cell_options.cyCell) ;
+  dialog.adjDotDiam->upper = MAX (dialog.adjDotDiam->upper, default_cell->cell_options.dot_diameter) ;
 
-  gtk_adjustment_set_value (dialog.adjCXCell, default_cell_options->cxCell) ;
-  gtk_adjustment_set_value (dialog.adjCYCell, default_cell_options->cyCell) ;
-  gtk_adjustment_set_value (dialog.adjDotDiam, default_cell_options->dot_diameter) ;
-  qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (dialog.cbClock), default_cell_options->clock) ;
+  gtk_adjustment_set_value (dialog.adjCXCell, default_cell->cell_options.cxCell) ;
+  gtk_adjustment_set_value (dialog.adjCYCell, default_cell->cell_options.cyCell) ;
+  gtk_adjustment_set_value (dialog.adjDotDiam, default_cell->cell_options.dot_diameter) ;
+  qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (dialog.cbClock), default_cell->cell_options.clock) ;
 
   (*pTopContainer) = dialog.tbl ;
   (*pData) = &dialog ;
@@ -1235,9 +1254,9 @@ static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *defa
   }
 
 #ifdef UNDO_REDO
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry)
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry)
 #else
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget)
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget)
 #endif /* def UNDO_REDO */
   {
   static PROPERTIES dialog = {NULL} ;
@@ -1385,7 +1404,8 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
   world_to_grid_pt (&xWorld, &yWorld) ;
 #endif /* def DESIGNER */
 
-  obj = qcad_cell_new (xWorld, yWorld) ;
+  obj = QCAD_DESIGN_OBJECT (qcad_object_new_from_object (qcad_object_get_default (QCAD_TYPE_CELL))) ;
+  qcad_design_object_move_to (obj, xWorld, yWorld) ;
 
 #ifdef DESIGNER
   if (NULL != drop_function)
@@ -1401,11 +1421,14 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
 static void default_properties_apply (gpointer data)
   {
   DEFAULT_PROPERTIES *dialog = (DEFAULT_PROPERTIES *)data ;
-  QCADCellClass *cklass = g_type_class_peek (QCAD_TYPE_CELL) ;
-  cklass->default_cell_options.cxCell = gtk_adjustment_get_value (dialog->adjCXCell) ;
-  cklass->default_cell_options.cyCell = gtk_adjustment_get_value (dialog->adjCYCell) ;
-  cklass->default_cell_options.dot_diameter = gtk_adjustment_get_value (dialog->adjDotDiam) ;
-  cklass->default_cell_options.clock = qcad_clock_combo_get_clock (QCAD_CLOCK_COMBO (dialog->cbClock)) ;
+  QCADCell *default_cell = QCAD_CELL (qcad_object_get_default (QCAD_TYPE_CELL)) ;
+  QCAD_DESIGN_OBJECT (default_cell)->bounding_box.cxWorld = 
+  default_cell->cell_options.cxCell = gtk_adjustment_get_value (dialog->adjCXCell) ;
+  QCAD_DESIGN_OBJECT (default_cell)->bounding_box.cyWorld = 
+  default_cell->cell_options.cyCell = gtk_adjustment_get_value (dialog->adjCYCell) ;
+  default_cell->cell_options.dot_diameter = gtk_adjustment_get_value (dialog->adjDotDiam) ;
+  qcad_cell_calculate_coords (default_cell) ;
+  g_object_set (G_OBJECT (default_cell), "clock", qcad_clock_combo_get_clock (QCAD_CLOCK_COMBO (dialog->cbClock)), NULL) ;
   }
 #endif /* def GTK_GUI */
 
@@ -1443,8 +1466,8 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   lbl = gtk_label_new (_("Cell Width:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
@@ -1452,15 +1475,23 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjCXCell, 1, 1, ISB_DIR_UP) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (tbl), spn, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
+
+  lbl = gtk_label_new ("nm") ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (tbl), lbl, 2, 3, 0, 1,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
 
   lbl = gtk_label_new (_("Cell Height:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
@@ -1468,15 +1499,23 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   spn = gtk_spin_button_new_infinite (dialog->adjCYCell, 1, 1, ISB_DIR_UP) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (tbl), spn, 1, 2, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
+
+  lbl = gtk_label_new ("nm") ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (tbl), lbl, 2, 3, 1, 2,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
 
   lbl = gtk_label_new (_("Dot Diameter:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 2, 3,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
@@ -1485,15 +1524,23 @@ static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
   g_object_set (G_OBJECT (spn), "snap-to-ticks", FALSE, "update-policy", GTK_UPDATE_IF_VALID, NULL) ;
   gtk_widget_show (spn) ;
   gtk_table_attach (GTK_TABLE (tbl), spn, 1, 2, 2, 3,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
+
+  lbl = gtk_label_new ("nm") ;
+  gtk_widget_show (lbl) ;
+  gtk_table_attach (GTK_TABLE (tbl), lbl, 2, 3, 2, 3,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
 
   lbl = gtk_label_new (_("Default Clock:")) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 3, 4,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
@@ -1836,3 +1883,39 @@ static gboolean qcad_cell_dot_unserialize (FILE *fp, QCADCellDot *pdots, int idx
   }
 
 #endif /* STDIO_FILEIO */
+
+// Calculate all coordinates given a cell x, y, cx, cy and a dot diam
+static void qcad_cell_calculate_coords (QCADCell *cell)
+  {
+  QCADDesignObject *qcad_design_object = QCAD_DESIGN_OBJECT (cell) ;
+  double
+    x = qcad_design_object->x,
+    y = qcad_design_object->y,
+    dcx   = cell->cell_options.cxCell,
+    dcy   = cell->cell_options.cyCell,
+    ddiam = cell->cell_options.dot_diameter ;
+
+  qcad_design_object->bounding_box.xWorld = x - dcx / 2.0 ;
+  qcad_design_object->bounding_box.yWorld = y - dcy / 2.0 ;
+  qcad_design_object->bounding_box.cxWorld = dcx ;
+  qcad_design_object->bounding_box.cyWorld = dcy ;
+
+  cell->cell_dots[0].charge =
+  cell->cell_dots[1].charge =
+  cell->cell_dots[2].charge =
+  cell->cell_dots[3].charge = HALF_QCHARGE ;
+
+  cell->cell_dots[0].diameter =
+  cell->cell_dots[1].diameter =
+  cell->cell_dots[2].diameter =
+  cell->cell_dots[3].diameter = ddiam ;
+
+  cell->cell_dots[3].x = x - (dcx / 2 - cell->cell_dots[3].diameter) / 2 - cell->cell_dots[3].diameter / 2;
+  cell->cell_dots[3].y = y - (dcy / 2 - cell->cell_dots[3].diameter) / 2 - cell->cell_dots[3].diameter / 2;
+  cell->cell_dots[0].x = x + (dcx / 2 - cell->cell_dots[0].diameter) / 2 + cell->cell_dots[0].diameter / 2;
+  cell->cell_dots[0].y = y - (dcy / 2 - cell->cell_dots[0].diameter) / 2 - cell->cell_dots[0].diameter / 2;
+  cell->cell_dots[2].x = x - (dcx / 2 - cell->cell_dots[2].diameter) / 2 - cell->cell_dots[2].diameter / 2;
+  cell->cell_dots[2].y = y + (dcy / 2 - cell->cell_dots[2].diameter) / 2 + cell->cell_dots[2].diameter / 2;
+  cell->cell_dots[1].x = x + (dcx / 2 - cell->cell_dots[1].diameter) / 2 + cell->cell_dots[1].diameter / 2;
+  cell->cell_dots[1].y = y + (dcy / 2 - cell->cell_dots[1].diameter) / 2 + cell->cell_dots[1].diameter / 2;
+  }

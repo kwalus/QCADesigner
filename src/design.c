@@ -114,6 +114,8 @@ DESIGN *design_new (QCADSubstrate **psubs)
 
   design_rebuild_io_lists (design) ;
 
+  design->lstClockingLayer = NULL ;
+
   return design ;
   }
 
@@ -132,6 +134,7 @@ DESIGN *design_copy (DESIGN *design)
   new_design = g_malloc0 (sizeof (DESIGN)) ;
   new_design->lstLayers =
   new_design->lstLastLayer =
+  new_design->lstClockingLayer =
   new_design->lstCurrentLayer = NULL ;
 
   new_design->bus_layout = design_bus_layout_new () ;
@@ -139,7 +142,10 @@ DESIGN *design_copy (DESIGN *design)
   for (llItr = design->lstLastLayer ; llItr != NULL ; llItr = llItr->prev)
     {
     new_design->lstLayers = g_list_prepend (new_design->lstLayers,
-      new_layer = QCAD_LAYER (qcad_design_object_new_from_object (QCAD_DESIGN_OBJECT (llItr->data)))) ;
+      new_layer = QCAD_LAYER (qcad_object_new_from_object (QCAD_OBJECT (llItr->data)))) ;
+
+    if (QCAD_IS_CLOCKING_LAYER (new_layer))
+      new_design->lstClockingLayer = new_design->lstLayers ;
 
     g_signal_connect (G_OBJECT (new_layer), "added",   (GCallback)qcad_layer_design_object_added,   new_design) ;
     g_signal_connect (G_OBJECT (new_layer), "removed", (GCallback)qcad_layer_design_object_removed, new_design) ;
@@ -187,6 +193,7 @@ DESIGN *design_destroy (DESIGN *design)
 
   design->lstLayers =
   design->lstCurrentLayer =
+  design->lstClockingLayer =
   design->lstLastLayer = NULL ;
 
   design->bus_layout = design_bus_layout_free (design->bus_layout) ;
@@ -201,6 +208,10 @@ void design_layer_add (DESIGN *design, QCADLayer *layer)
   GList *llItr = NULL ;
 
   design->lstLayers = g_list_prepend (design->lstLayers, layer) ;
+  if (NULL != design->lstClockingLayer)
+    if (QCAD_IS_CLOCKING_LAYER (layer))
+      design->lstClockingLayer = design->lstLayers ;
+    
   g_signal_connect (G_OBJECT (layer), "added", (GCallback)qcad_layer_design_object_added, design) ;
   g_signal_connect (G_OBJECT (layer), "removed", (GCallback)qcad_layer_design_object_removed, design) ;
 
@@ -233,6 +244,8 @@ QCADLayer *design_layer_remove (DESIGN *design, QCADLayer *layer)
       if (QCAD_CELL_INPUT  == QCAD_CELL (llCellItr->data)->cell_function ||
           QCAD_CELL_OUTPUT == QCAD_CELL (llCellItr->data)->cell_function)
         design_bus_layout_remove_cell (design, QCAD_CELL (llCellItr->data), QCAD_CELL (llCellItr->data)->cell_function) ;
+  if (QCAD_IS_CLOCKING_LAYER (layer))
+    design->lstClockingLayer = NULL ;
 
   if (llLayer == design->lstLastLayer)
     design->lstLastLayer = design->lstLastLayer->prev ;

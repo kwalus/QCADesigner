@@ -106,7 +106,6 @@ typedef struct
   {
   /* public */
   QCADDesignObjectClass parent_class ;
-  QCADCellOptions default_cell_options ;
 
   /* signals */
   void (*cell_function_changed) (GObject *object, gpointer user_data) ;
@@ -133,8 +132,8 @@ GType qcad_cell_mode_get_type () ;
 ///////////////////////////////////////////////////////////////////////////////
 
 // World coordinates
-QCADDesignObject *qcad_cell_new (double x, double y) ;
-QCADDesignObject *qcad_cell_new_with_function (QCADCellFunction cell_function, char *pszLabel) ;
+//QCADDesignObject *qcad_cell_new (double x, double y) ;
+//QCADDesignObject *qcad_cell_new_with_function (QCADCellFunction cell_function, char *pszLabel) ;
 #ifdef DESIGNER
 #ifdef GTK_GUI
 void qcad_cell_drexp_array (GdkDrawable *dst, GdkFunction rop, GtkOrientation orientation, double dRangeBeg, double dRangeEnd, double dOtherCoord) ;

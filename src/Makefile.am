@@ -16,6 +16,7 @@ STDIO_FILEIO_FILES = \
 OBJECT_FILES = \
 	objects/QCADCell.c                         objects/QCADCell.h \
 	objects/QCADCompoundDO.c                   objects/QCADCompoundDO.h \
+	objects/QCADObject.c                       objects/QCADObject.h \
 	objects/QCADDesignObject.c                 objects/QCADDesignObject.h \
 	objects/QCADDOContainer.c                  objects/QCADDOContainer.h \
 	objects/QCADLabel.c                        objects/QCADLabel.h \

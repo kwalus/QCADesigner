@@ -40,16 +40,6 @@ extern "C" {
 
 typedef struct
   {
-  QCADElectrodeOptions electrode_options ;
-  double angle ;
-  int n_x_divisions ;
-  int n_y_divisions ;
-  double cxWorld ;
-  double cyWorld ;
-  } QCADRectangleElectrodeOptions ;
-
-typedef struct
-  {
 //  double pt1x_minus_pt0x ;
 //  double pt1y_minus_pt0y ;
 //  double pt3x_minus_pt2x ;
@@ -92,8 +82,6 @@ GType qcad_rectangle_electrode_get_type () ;
 #define QCAD_IS_RECTANGLE_ELECTRODE(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RECTANGLE_ELECTRODE))
 #define QCAD_IS_RECTANGLE_ELECTRODE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_RECTANGLE_ELECTRODE))
 #define QCAD_RECTANGLE_ELECTRODE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrodeClass))
-
-QCADDesignObject *qcad_rectangle_electrode_new () ;
 
 ///////////////////////////////////////////////////////////////////////////////
 

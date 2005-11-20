@@ -56,13 +56,13 @@ static void qcad_substrate_instance_finalize (GObject *object) ;
 static void qcad_substrate_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
 static void qcad_substrate_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) ;
 
-static void copy (QCADDesignObject *src, QCADDesignObject *dst) ;
+static void copy (QCADObject *src, QCADObject *dst) ;
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #ifdef UNDO_REDO
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry) ;
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry) ;
 #else
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget) ;
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget) ;
 #endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
@@ -110,20 +110,20 @@ GType qcad_substrate_get_type ()
 static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer data)
   {
   DBG_OO (fprintf (stderr, "QCADSubstrate::class_init:Entering\n")) ;
-  G_OBJECT_CLASS (klass)->finalize = qcad_substrate_instance_finalize ;
+  G_OBJECT_CLASS (klass)->finalize     = qcad_substrate_instance_finalize ;
   G_OBJECT_CLASS (klass)->get_property = qcad_substrate_get_property ;
   G_OBJECT_CLASS (klass)->set_property = qcad_substrate_set_property ;
+  QCAD_OBJECT_CLASS (klass)->copy = copy ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_preamble = PostScript_preamble ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance = PostScript_instance ;
 #ifdef GTK_GUI
-  QCAD_DESIGN_OBJECT_CLASS (klass)->draw = draw ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->properties = properties ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->draw                = draw ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties      = old_properties ;
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
-  QCAD_DESIGN_OBJECT_CLASS (klass)->serialize = serialize ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize = unserialize ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->serialize           = serialize ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize         = unserialize ;
 #endif /* def STDIO_FILEIO */
-  QCAD_DESIGN_OBJECT_CLASS (klass)->copy = copy ;
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_SUBSTRATE_PROPERTY_SPACING,
     g_param_spec_double ("spacing", _("Grid Spacing"), _("Grid Spacing [nm]"),
@@ -199,10 +199,10 @@ void qcad_substrate_snap_point (QCADSubstrate *subs, double *px, double *py)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void copy (QCADDesignObject *src, QCADDesignObject *dst)
+static void copy (QCADObject *src, QCADObject *dst)
   {
   DBG_OO_CP (fprintf (stderr, "QCADSubstrate::copy:Entering\n")) ;
-  QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_SUBSTRATE)))->copy (src, dst) ;
+  QCAD_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_SUBSTRATE)))->copy (src, dst) ;
   QCAD_SUBSTRATE (dst)->grid_spacing = QCAD_SUBSTRATE (src)->grid_spacing ;
   DBG_OO_CP (fprintf (stderr, "QCADSubstrate::copy:Leaving\n")) ;
   }
@@ -310,9 +310,9 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   }
 
 #ifdef UNDO_REDO
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry)
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry)
 #else
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget)
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget)
 #endif /* def UNDO_REDO */
   {
   gboolean bRet = FALSE ;

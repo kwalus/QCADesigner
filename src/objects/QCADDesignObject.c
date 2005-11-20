@@ -79,9 +79,9 @@ static gboolean select_test (QCADDesignObject *obj, WorldRectangle *rc, QCADSele
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData) ;
 #ifdef UNDO_REDO
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry) ;
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry) ;
 #else
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget) ;
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget) ;
 #endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
@@ -91,7 +91,7 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 static void get_bounds_box (QCADDesignObject *obj, WorldRectangle *rcWorld) ;
 static gboolean set_selected (QCADDesignObject *obj, gboolean bSelected) ;
 static void move (QCADDesignObject *obj, double dxDelta, double dyDelta) ;
-static void copy (QCADDesignObject *objSrc, QCADDesignObject *objDst) ;
+static void copy (QCADObject *objSrc, QCADObject *objDst) ;
 static const char *PostScript_preamble () ;
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
 static GList *add_unique_types (QCADDesignObject *obj, GList *lst) ;
@@ -136,7 +136,7 @@ GType qcad_design_object_get_type ()
       (GInstanceInitFunc)qcad_design_object_instance_init
       } ;
 
-    if ((qcad_design_object_type = g_type_register_static (G_TYPE_OBJECT, QCAD_TYPE_STRING_DESIGN_OBJECT, &qcad_design_object_info, 0)))
+    if ((qcad_design_object_type = g_type_register_static (QCAD_TYPE_OBJECT, QCAD_TYPE_STRING_DESIGN_OBJECT, &qcad_design_object_info, 0)))
       g_type_class_ref (qcad_design_object_type) ;
     DBG_OO (fprintf (stderr, "Registered QCADDesignObject as %d\n", (int)qcad_design_object_type)) ;
     }
@@ -147,7 +147,7 @@ static void qcad_design_object_class_init (GObjectClass *klass, gpointer data)
   {
   DBG_OO (fprintf (stderr, "QCADDesignObject::class_init:Entering.\n")) ;
 
-  QCAD_DESIGN_OBJECT_CLASS (klass)->copy = copy ;
+  QCAD_OBJECT_CLASS (klass)->copy = copy ;
 #ifdef STDIO_FILEIO
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize = serialize ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize = unserialize ;
@@ -178,12 +178,12 @@ static void qcad_design_object_class_init (GObjectClass *klass, gpointer data)
   G_OBJECT_CLASS (klass)->finalize = qcad_design_object_instance_finalize ;
 
 #ifdef GTK_GUI
-  QCAD_DESIGN_OBJECT_CLASS (klass)->properties = properties ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties        = old_properties ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_ui = default_properties_ui ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->draw = draw ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed = (GCallback)button_pressed ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->mh.motion_notify = (GCallback)motion_notify ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_released = (GCallback)button_released ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->draw                  = draw ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed     = (GCallback)button_pressed ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->mh.motion_notify      = (GCallback)motion_notify ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_released    = (GCallback)button_released ;
 
   clrmap = gdk_colormap_get_system () ;
 
@@ -224,27 +224,6 @@ static void qcad_design_object_instance_finalize (GObject *object)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-QCADDesignObject *qcad_design_object_new_from_object (QCADDesignObject *src)
-  {
-  GType type = G_TYPE_FROM_INSTANCE (src) ;
-  QCADDesignObject *dst = NULL ;
-  DBG_OO_CP (fprintf (stderr, "Copying the following object:\n")) ;
-  DBG_OO_CP (qcad_design_object_serialize (src, stderr)) ;
-  DBG_OO_CP (fprintf (stderr, "qcad_design_object_new_from_object:Found type %s\n",
-    NULL == g_type_name (type) ? "NULL" : g_type_name (type))) ;
-  if (type)
-    {
-    dst = g_object_new (type, NULL) ;
-    QCAD_DESIGN_OBJECT_GET_CLASS (src)->copy (src, dst) ;
-    }
-
-  DBG_OO_CP (qcad_design_object_serialize (dst, stderr)) ;
-
-  DBG_OO_CP (fprintf (stderr, "qcad_design_object_new_from_object:Copied object.\n")) ;
-
-  return dst ;
-  }
-
 GList *qcad_design_object_add_types (QCADDesignObject *obj, GList *lst)
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->add_unique_types (obj, lst) ;}
 
@@ -271,10 +250,10 @@ GCallback qcad_design_object_class_get_properties_ui (QCADDesignObjectClass *kla
 
 #ifdef UNDO_REDO
 gboolean qcad_design_object_get_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry)
-  {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->properties (obj, parent, pentry) ;}
+  {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->old_properties (obj, parent, pentry) ;}
 #else
 gboolean qcad_design_object_get_properties (QCADDesignObject *obj, GtkWidget *parent)
-  {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->properties (obj, parent) ;}
+  {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->old_properties (obj, parent) ;}
 #endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
@@ -479,7 +458,7 @@ static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *defa
   }
 
 #ifdef UNDO_REDO
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry)
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry)
   {
   if (NULL != pentry)
     (*pentry) = NULL ;
@@ -487,22 +466,23 @@ static gboolean properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEn
   return FALSE ;
   }
 #else
-static gboolean properties (QCADDesignObject *obj, GtkWidget *widget)
+static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget)
   {return FALSE ;}
 #endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 
-static void copy (QCADDesignObject *objSrc, QCADDesignObject *objDst)
+static void copy (QCADObject *objSrc, QCADObject *objDst)
   {
+  QCADDesignObject *src = QCAD_DESIGN_OBJECT (objSrc), *dst = QCAD_DESIGN_OBJECT (objDst) ;
   DBG_OO_CP (fprintf (stderr, "QCADDesignObject::copy:Entering\n")) ;
-  objDst->x         = objSrc->x ;
-  objDst->y         = objSrc->y ;
-  memcpy (&(objDst->bounding_box), &(objSrc->bounding_box), sizeof (WorldRectangle)) ;
-  objDst->bSelected = objSrc->bSelected ;
-  objDst->clr.red   = objSrc->clr.red ;
-  objDst->clr.green = objSrc->clr.green ;
-  objDst->clr.blue  = objSrc->clr.blue ;
-  objDst->clr.pixel = objSrc->clr.pixel ;
+  dst->x         = src->x ;
+  dst->y         = src->y ;
+  memcpy (&(dst->bounding_box), &(src->bounding_box), sizeof (WorldRectangle)) ;
+  dst->bSelected = src->bSelected ;
+  dst->clr.red   = src->clr.red ;
+  dst->clr.green = src->clr.green ;
+  dst->clr.blue  = src->clr.blue ;
+  dst->clr.pixel = src->clr.pixel ;
   DBG_OO_CP (fprintf (stderr, "QCADDesignObject::copy:Leaving\n")) ;
   }
 

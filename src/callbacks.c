@@ -185,6 +185,7 @@ static void scale_cells_undo_apply (QCADUndoEntry *entry, gboolean bUndo, gpoint
 #endif /* def UNDO_REDO */
 static void qcad_layer_design_object_added (QCADLayer *layer, QCADDesignObject *obj, gpointer data) ;
 static void qcad_layer_design_object_removed (QCADLayer *layer, QCADDesignObject *obj, gpointer data) ;
+static void potential_time_coord_changed_notify (GObject *obj, GParamSpec *param, gpointer data) ;
 
 static ACTION actions[ACTION_LAST_ACTION] =
   {
@@ -268,18 +269,13 @@ void potential_time_coord_changed (GObject *obj, gpointer data)
   {
   QCADClockingLayer *clocking_layer = NULL ;
   double val ;
-  GList *llItr = NULL ;
   GtkAdjustment *adj = GTK_ADJUSTMENT (data) ;
 
   if (QCAD_IS_CLOCKING_LAYER (obj))
     clocking_layer = QCAD_CLOCKING_LAYER (obj) ;
   else
-  for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
-    if (QCAD_IS_CLOCKING_LAYER (llItr->data))
-      {
-      clocking_layer = QCAD_CLOCKING_LAYER (llItr->data) ;
-      break ;
-      }
+  if (NULL != project_options.design->lstClockingLayer)
+    clocking_layer = QCAD_CLOCKING_LAYER (project_options.design->lstClockingLayer->data) ;
 
   if (NULL == clocking_layer) return ;
 
@@ -290,9 +286,13 @@ void potential_time_coord_changed (GObject *obj, gpointer data)
   if (QCAD_IS_CLOCKING_LAYER (obj))
     gtk_adjustment_set_value (adj, val * 1e9) ;
   else
-    g_object_set (G_OBJECT (llItr->data), "time-coord", gtk_adjustment_get_value (adj) * 1e-9, NULL) ;
+    g_object_set (G_OBJECT (clocking_layer), "time-coord", gtk_adjustment_get_value (adj) * 1e-9, NULL) ;
   redraw_async (NULL) ;
   }
+
+// St00pid GParamSpec
+static void potential_time_coord_changed_notify (GObject *obj, GParamSpec *param, gpointer data)
+  {potential_time_coord_changed (obj, data) ;}
 
 void potential_z_to_show_changed (GtkAdjustment *adj, gpointer data)
   {
@@ -1491,6 +1491,7 @@ void on_clocks_combo_changed (GtkWidget *widget, gpointer data)
 
   if (idxClock > -1 && idxClock < 4)
     {
+    QCADObject *default_cell = NULL ;
     EXP_ARRAY *arSelObjs = NULL ;
     arSelObjs = design_selection_get_object_array (project_options.design) ;
 #ifdef UNDO_REDO
@@ -1509,7 +1510,9 @@ void on_clocks_combo_changed (GtkWidget *widget, gpointer data)
 
     // Set the default clock in the default_cell_properties of the QCADCellClass, if the current layer is a cell layer
     if (LAYER_TYPE_CELLS == (QCAD_LAYER (project_options.design->lstCurrentLayer->data))->type)
-      QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock = idxClock ;
+      if (NULL != (default_cell = qcad_object_get_default (QCAD_TYPE_CELL)))
+        g_object_set (G_OBJECT (default_cell), "clock", idxClock, NULL) ;
+//      QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock = idxClock ;
     }
   }
 
@@ -1976,12 +1979,7 @@ static gboolean DoSave (GtkWindow *parent, int fFileOp)
 #endif /* def STDIO_FILEIO */
 
 static void layer_apply_default_properties (gpointer key, gpointer value, gpointer user_data)
-  {
-  QCADDesignObjectClass *klass = g_type_class_peek ((GType)key) ;
-
-  if (NULL != klass)
-    qcad_design_object_class_set_properties (klass, (void *)value) ;
-  }
+  {qcad_object_set_default ((GType)key, qcad_object_new_from_object (QCAD_OBJECT (value))) ;}
 
 // Does whatever else must be done to restore QCADesigner to its initial, pristine state
 static void tabula_rasa (GtkWindow *wndMain)
@@ -2198,8 +2196,13 @@ static void destroy_notify_layer_combo_item_layer_data (QCADLayer *layer)
 static void reflect_layer_status (QCADLayer *layer)
   {
   gboolean bSensitive = (LAYER_STATUS_ACTIVE == layer->status) ;
+  GValue val ;
+
+  memset (&val, 0, sizeof (GValue)) ;
+
   if (LAYER_TYPE_CELLS == layer->type)
     {
+    QCADCell *default_cell = QCAD_CELL (qcad_object_get_default (QCAD_TYPE_CELL)) ;
     DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_CELLS\n")) ;
     gtk_widget_hide (main_window.substrate_button) ;
     gtk_widget_hide (main_window.label_button) ;
@@ -2218,17 +2221,14 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_show (main_window.clocks_combo_table) ;
     gtk_widget_set_sensitive (main_window.clocks_combo_table, bSensitive) ;
 
-//    fprintf (stderr, "reflect_layer_status:Setting clock combo to %d\n", QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock) ;
-    qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (main_window.cell_layer_default_clock_combo),
-      QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock) ;
+    g_object_get_property (G_OBJECT (default_cell), "clock", g_value_init (&val, G_TYPE_UINT)) ;
+    fprintf (stderr, "reflect_layer_status:Setting clock combo to %d\n", g_value_get_uint (&val)) ;
+    qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (main_window.cell_layer_default_clock_combo), g_value_get_uint (&val)) ;
+    g_value_unset (&val) ;
     }
   else
   if (LAYER_TYPE_CLOCKING == layer->type)
     {
-    GValue val ;
-
-    memset (&val, 0, sizeof (GValue)) ;
-
     g_object_get_property (G_OBJECT (layer), "show-potential", g_value_init (&val, G_TYPE_BOOLEAN)) ;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.show_potential_slice_button), g_value_get_boolean (&val)) ;
     g_value_unset (&val) ;
@@ -2469,7 +2469,7 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
     if (QCAD_IS_CLOCKING_LAYER (llItrLayers->data))
       break ;
   if (NULL != llItrLayers)
-    g_signal_connect (G_OBJECT (llItrLayers->data), "notify::time-coord", (GCallback)potential_time_coord_changed, project_options.main_window->adjPotentialTimeCoord) ;
+    g_signal_connect (G_OBJECT (llItrLayers->data), "notify::time-coord", (GCallback)potential_time_coord_changed_notify, project_options.main_window->adjPotentialTimeCoord) ;
 
   if (NULL != project_options.srSelection)
     selection_renderer_update (project_options.srSelection, new_design) ;

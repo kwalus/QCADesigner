@@ -47,7 +47,7 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 //!Options for the coherence simulation engine
-coherence_OP coherence_options = {1, 1e-15, 1e-16, 7e-11, 9.8e-22, 3.8e-23, 0.0, 2.0, 80, 12.9, 11.5, EULER_METHOD, TRUE, FALSE} ;
+coherence_OP coherence_options = {1, 1e-15, 1e-17, 7e-11, 3.88e-19, 1.50e-20, 0.0, 2.0, 8, 1.0, 0.639, EULER_METHOD, TRUE, FALSE} ;
 
 typedef struct
   {
@@ -109,6 +109,7 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
   //simulations can have millions of points and there is no need to plot them all //
   unsigned long int number_recorded_samples = 3000;
   unsigned long int record_interval;
+	unsigned int divergence_count =0;
   double PEk = 0;
   gboolean stable;
   double old_lambda_x;
@@ -390,12 +391,31 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
         if (((QCAD_CELL_INPUT == sorted_cells[k][l]->cell_function) ||
              (QCAD_CELL_FIXED == sorted_cells[k][l]->cell_function)))
           continue;
-        if (fabs (((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z) > 1.0)
+        if (fabs (((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z) > 2.0)
           {
           command_history_message ("I had to abort the simulation at iteration %d because the polarization = %e was diverging.\nPossible cause is the time step is too large.\nAlternatively, you can decrease the relaxation time to reduce oscillations.\n",j, ((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z);
           command_history_message ("time step was set to %e\n", options->time_step);
           return sim_data;
           }
+					
+				//Clamp the coherence vector to (-1,1)
+				if(((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z > 1.0) {
+					((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z = 1.0;
+					divergence_count++;
+					if(divergence_count ==1){
+						command_history_message ("Coherence vector divergence detected! Results may be incorrect\n");
+						command_history_message ("Reducing the time step may fix this.\n");
+						}
+				}else if(((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z < -1.0) {
+					((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z = -1.0;
+					divergence_count++;
+					if(divergence_count ==1){
+						command_history_message ("Coherence vector divergence detected! Results may be incorrect\n");
+						command_history_message ("Reducing the time step may fix this.\n");
+						}
+				}
+				
+												
         qcad_cell_set_polarization (sorted_cells[k][l], ((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z);
         }
 
@@ -480,7 +500,7 @@ static void run_coherence_iteration (int sample_number, int number_of_cell_layer
       lambda_y_new = lambda_y_next (t, PEk, clock_value, lambda_x, lambda_y, lambda_z, options);
       lambda_z_new = lambda_z_next (t, PEk, clock_value, lambda_x, lambda_y, lambda_z, options);
 
-	  energy[sample_number] += (-clock_value*lambda_x_new + PEk*lambda_z_new/2);
+			energy[sample_number] += (-clock_value*lambda_x_new + PEk*lambda_z_new/2);
 	
       ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x = lambda_x_new;
       ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y = lambda_y_new;

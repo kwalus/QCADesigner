@@ -383,7 +383,7 @@ void main_window_show (GtkWidget *widget, gpointer data)
               actions[ACTION_SUBSTRATE].type = QCAD_TYPE_SUBSTRATE ;
                   actions[ACTION_LABEL].type = QCAD_TYPE_LABEL ;
                   actions[ACTION_RULER].type = QCAD_TYPE_RULER ;
-actions[ACTION_RECTANGLE_ELECTRODE].type = QCAD_TYPE_RECTANGLE_ELECTRODE ;
+		actions[ACTION_RECTANGLE_ELECTRODE].type = QCAD_TYPE_RECTANGLE_ELECTRODE ;
 
   gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrWhite)) ;
   gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrCyan)) ;
@@ -394,7 +394,7 @@ actions[ACTION_RECTANGLE_ELECTRODE].type = QCAD_TYPE_RECTANGLE_ELECTRODE ;
   new_design = design_new (&subs) ;
   set_current_design (new_design, subs) ;
   action_button_clicked (main_window.default_action_button, ACTION_SELECT) ;
-
+	zoom_window (-5, -5, 95, 60) ;
   gtk_paned_set_position (GTK_PANED (main_window.vpaned1), gtk_paned_get_position (GTK_PANED (main_window.vpaned1))) ;
   }
 

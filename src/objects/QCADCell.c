@@ -324,6 +324,7 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_get     = default_properties_get ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_set     = default_properties_set ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_destroy = default_properties_destroy ;
+
   G_OBJECT_CLASS (klass)->finalize                             = qcad_cell_instance_finalize ;
   G_OBJECT_CLASS (klass)->set_property                         = qcad_cell_set_property ;
   G_OBJECT_CLASS (klass)->get_property                         = qcad_cell_get_property ;
@@ -428,11 +429,11 @@ static void qcad_cell_instance_init (GObject *object, gpointer data)
   DBG_OO (fprintf (stderr, "QCADCell::instance_init:Entering\n")) ;
 
   dcx = 
-  cell->cell_options.cxCell         = 18 ;
+  cell->cell_options.cxCell         = 1 ;
   dcy = 
-  cell->cell_options.cyCell         = 18 ;
+  cell->cell_options.cyCell         = 1 ;
   ddiam =
-  cell->cell_options.dot_diameter   =  5 ;
+  cell->cell_options.dot_diameter   =  0.25 ;
   cell->cell_options.mode           = QCAD_CELL_MODE_NORMAL ;
   cell->cell_options.clock          =  0 ;
   

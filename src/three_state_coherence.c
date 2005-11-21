@@ -49,7 +49,7 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 1e-22, 2e-22, -2e-22, 0.0, 2.0, 80, 12.9, 11.5, 18.0, 3.0, EULER_METHOD, ZONE_CLOCKING, TRUE, FALSE} ;
+ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-17, 7e-11, 3.96e-20, 7.93e-20, -7.93e-20, 0.0, 2.0, 8, 1.0, 0.639, 13, 1.0, EULER_METHOD, ZONE_CLOCKING, TRUE, FALSE} ;
 
 typedef struct
   {

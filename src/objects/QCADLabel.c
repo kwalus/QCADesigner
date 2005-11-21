@@ -45,7 +45,7 @@
 #define XTOP_LABEL_OFFSET 2
 #define YTOP_LABEL_OFFSET 2
 
-#define CYFONT 12 /* nanometers */
+#define CYFONT 0.5 /* nanometers */
 
 #ifdef GTK_GUI
 typedef struct

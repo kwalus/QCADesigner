@@ -47,7 +47,7 @@
 
 //!Options for the bistable simulation engine
 //This variable is used by multiple source files
-bistable_OP bistable_options = {12800, FALSE, 1e-3, 65, 12.9, 9.8e-22, 3.8e-23, 0.0, 2.0, 100, 11.5, TRUE} ;
+bistable_OP bistable_options = {128000, FALSE, 1e-3, 2.5, 1.0, 3.88e-19, 1.50e-20, 0.0, 2.0, 100, 0.639, TRUE} ;
 
 #ifdef GTK_GUI
 extern int STOP_SIMULATION;

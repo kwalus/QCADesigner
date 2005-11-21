@@ -161,13 +161,13 @@ static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *
       {
       EXTREME_POTENTIALS dElectrodeExtremePotential = qcad_electrode_get_extreme_potential (QCAD_ELECTRODE (obj), clocking_layer->z_to_draw) ;
 
-      fprintf (stderr, "QCADClockingLayer::do_container_add:Adding electrode 0x%08X with potentials (%e,%e)\n", (int)obj, dElectrodeExtremePotential.min, dElectrodeExtremePotential.max) ;
+//      fprintf (stderr, "QCADClockingLayer::do_container_add:Adding electrode 0x%08X with potentials (%e,%e)\n", (int)obj, dElectrodeExtremePotential.min, dElectrodeExtremePotential.max) ;
 
       dElectrodeExtremePotential.min = fabs (dElectrodeExtremePotential.min) ;
       dElectrodeExtremePotential.max = fabs (dElectrodeExtremePotential.max) ;
       clocking_layer->dExtremePotential = MAX (dElectrodeExtremePotential.min, MAX (dElectrodeExtremePotential.max, clocking_layer->dExtremePotential)) ;
 
-      fprintf (stderr, "QCADClockingLayer::do_container_add:Resulting extreme potential is %e\n", clocking_layer->dExtremePotential) ;
+//      fprintf (stderr, "QCADClockingLayer::do_container_add:Resulting extreme potential is %e\n", clocking_layer->dExtremePotential) ;
       }
 
   return bRet ;
@@ -176,14 +176,14 @@ static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *
 static gboolean do_container_remove (QCADDOContainer *container, QCADDesignObject *obj)
   {
   gboolean bRet = FALSE ;
-  QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (container) ;
+//  QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (container) ;
 
   if ((bRet = QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_remove (container, obj)))
     if (QCAD_IS_ELECTRODE (obj))
       {
-      fprintf (stderr, "QCADClockingLayer::do_container_remove:Removing electrode 0x%08X\n", (int)obj) ;
+//      fprintf (stderr, "QCADClockingLayer::do_container_remove:Removing electrode 0x%08X\n", (int)obj) ;
       qcad_clocking_layer_calculate_extreme_potentials (QCAD_CLOCKING_LAYER (container)) ;
-      fprintf (stderr, "QCADClockingLayer::do_container_remove:Resulting extreme potential is %e\n", clocking_layer->dExtremePotential) ;
+//      fprintf (stderr, "QCADClockingLayer::do_container_remove:Resulting extreme potential is %e\n", clocking_layer->dExtremePotential) ;
       }
 
   return bRet ;
@@ -422,7 +422,7 @@ static void qcad_clocking_layer_calculate_extreme_potentials (QCADClockingLayer 
   GList *llItr = NULL ;
   EXTREME_POTENTIALS dElectrodeExtremePotential = {0, 0} ;
 
-  fprintf (stderr, "QCADClockingLayer::calculate_extreme_potentials:Entering\n") ;
+//  fprintf (stderr, "QCADClockingLayer::calculate_extreme_potentials:Entering\n") ;
 
   clocking_layer->dExtremePotential = 0 ;
 

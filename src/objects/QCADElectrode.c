@@ -123,7 +123,6 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
 static void qcad_electrode_instance_init (GObject *object, gpointer data)
   {
   QCADElectrode *electrode = QCAD_ELECTRODE (object) ;
-  QCADDesignObject *qcad_obj = QCAD_DESIGN_OBJECT (object) ;
   DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Entering\n")) ;
 
   electrode->electrode_options.clock_function        = sin ;
@@ -137,14 +136,6 @@ static void qcad_electrode_instance_init (GObject *object, gpointer data)
   electrode->electrode_options.z_to_ground           = 20.0 ;
 
   precompute (electrode) ;
-
-  qcad_obj->clr.red = (int)((electrode->electrode_options.phase * 65535) / TWO_PI) ;
-  qcad_obj->clr.green = 0xFFFF ;
-  qcad_obj->clr.blue = 0xC0C0 ;
-  HSLToRGB (&(qcad_obj->clr)) ;
-#ifdef GTK_GUI
-  gdk_colormap_alloc_color (gdk_colormap_get_system (), &(qcad_obj->clr), FALSE, FALSE) ;
-#endif /* def GTK_GUI */
 
   DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Leaving\n")) ;
   }
@@ -222,9 +213,19 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
 
 static void precompute (QCADElectrode *electrode)
   {
+  QCADDesignObject *qcad_obj = QCAD_DESIGN_OBJECT (electrode) ;
+
   electrode->precompute_params.permittivity = electrode->electrode_options.relative_permittivity * EPSILON ;
   electrode->precompute_params.two_z_to_ground = electrode->electrode_options.z_to_ground * 2.0 ;
   electrode->precompute_params.capacitance = QCAD_ELECTRODE_GET_CLASS (electrode)->get_area (electrode) * electrode->precompute_params.permittivity / (electrode->electrode_options.z_to_ground * 1e-9) ;
+
+  qcad_obj->clr.red = (int)((electrode->electrode_options.phase * 65535) / TWO_PI) ;
+  qcad_obj->clr.green = 0xFFFF ;
+  qcad_obj->clr.blue = 0xC0C0 ;
+  HSLToRGB (&(qcad_obj->clr)) ;
+#ifdef GTK_GUI
+  gdk_colormap_alloc_color (gdk_colormap_get_system (), &(qcad_obj->clr), FALSE, FALSE) ;
+#endif /* def GTK_GUI */
   }
 
 static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z) 

@@ -49,7 +49,7 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-17, 7e-11, 3.96e-20, 7.93e-20, -7.93e-20, 0.0, 2.0, 8, 1.0, 0.639, 13, 1.0, EULER_METHOD, ZONE_CLOCKING, TRUE, FALSE} ;
+ts_coherence_OP ts_coherence_options = {300, 1e-15, 1e-17, 7e-11, 3.96e-20, 7.93e-20, -7.93e-20, 0.0, 2.0, 8, 1.0, 0.639, 13, 1.0, EULER_METHOD, ZONE_CLOCKING, TRUE, FALSE} ;
 
 typedef struct
   {
@@ -105,6 +105,8 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
   unsigned long int record_interval;
   double PEk = 0;
 	double half_PEk=0;
+	double PEk_overKBT=0;
+	double overKBT = 1.0 / (kB*options->T);
   double *energy;
   double average_power=0;
 	double two_over_root_3_hbar = -2.0/sqrt(3.0)*OVER_HBAR;
@@ -128,8 +130,8 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	complex densityMatrixSS[3][3];
 	complex minusOverKBT;
 	double potential[6]={1,1,1,1,1,1};
-  static double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
-  static double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
+  double charge1[4] = { -QCHARGE,  0, -QCHARGE,  0 };
+  double charge2[4] = {  0, -QCHARGE,  0, -QCHARGE };
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
 	
 	// variables required for generating the structure constants
@@ -441,7 +443,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				
 					energyPlus = potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
 					energyMinus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
-					energyNull = potential[4] * -QCHARGE + potential[5] * -QCHARGE;
+					energyNull = 0;//potential[4] * -QCHARGE + potential[5] * -QCHARGE;
 				}
 				else if(options->clocking_scheme == ZONE_CLOCKING){
 					
@@ -450,22 +452,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 					energyNull = sim_data->clock_data[sorted_cells[i][j]->cell_options.clock].data[0];
 				}
 	
-				// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -half_PEk + energyPlus;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].im = 0;
-				
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].re = half_PEk + energyMinus;	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[1][2].im = 0;
-				
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
-				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
-				
-				//printf("Hamiltonian:\n");
-				//dump_3x3_complexMatrix(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian);
-				
+
 				//generate the hamiltonian in the space of SU(3)
 				
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = 0;
@@ -477,56 +464,18 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (PEk+energyMinus-energyPlus);
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = two_over_root_3_hbar * (energyNull-energyMinus-energyPlus);
 				
-				/*
-				printf("Gamma: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0], 
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6],
-																															((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7]); 
-				*/																											
-				
+				PEk_overKBT = PEk*overKBT;
+										
 				// generate the steady-state density matrix
 				
-				complexConstMatrixMultiplication(minusOverKBT, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, tempMatrix1);
-				//printf("Density Matrix [step1 division H/kBT]:\n");
-				//dump_3x3_complexMatrix(tempMatrix1);
-				if(tempMatrix1[2][0].re >= max_exponent){
-					command_history_message ("Critical simulation error! You will have to choose a smaller value for the tunneling energy.\n", number_samples);
-					set_progress_bar_visible (FALSE) ;
-					return sim_data;
-					}
-				
-				complexMatrixRealExponential(tempMatrix1);
-				//printf("Density Matrix [step2 Real exponential]:\n");
-				//dump_3x3_complexMatrix(tempMatrix1);
-								
-				//printf("Trace of step2: %e+j%e\n",complexTr(tempMatrix1).re, complexTr(tempMatrix1).im);
-				complexConstMatrixDivision(complexTr(tempMatrix1), tempMatrix1, densityMatrixSS);
-				
-				//printf("Density Matrix:\n");
-				//dump_3x3_complexMatrix(densityMatrixSS);
-				
-				// generate the steady-state coherence vector
-				
-				complexMatrixMultiplication(densityMatrixSS, generator[0], tempMatrix1);
-				lambdaSS[0] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[1], tempMatrix1);
-				lambdaSS[1] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[2], tempMatrix1);
-				lambdaSS[2] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[3], tempMatrix1);
-				lambdaSS[3] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[4], tempMatrix1);
-				lambdaSS[4] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[5], tempMatrix1);
-				lambdaSS[5] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[6], tempMatrix1);
-				lambdaSS[6] = (complexTr(tempMatrix1)).re;
-				complexMatrixMultiplication(densityMatrixSS, generator[7], tempMatrix1);
-				lambdaSS[7] = (complexTr(tempMatrix1)).re;
+				lambdaSS[0] = 2 / (cosh(energyNull * overKBT) + 2.0 * cosh(PEk_overKBT * 0.5) - sinh(energyNull * overKBT));
+				lambdaSS[1] = 2 * exp(options->gamma * overKBT) / (cosh(energyNull * overKBT) + 2.0 * cosh(PEk_overKBT * 0.5) - sinh(energyNull * overKBT));
+				lambdaSS[2] = 2 * exp(options->gamma * overKBT) / (cosh(energyNull * overKBT) + 2.0 * cosh(PEk_overKBT * 0.5) - sinh(energyNull * overKBT));
+				lambdaSS[3] = 0;
+				lambdaSS[4] = 0;
+				lambdaSS[5] = 0;
+				lambdaSS[6] = -(exp(energyNull * overKBT) * (exp(PEk_overKBT)-1))/(exp(energyNull * overKBT) + exp(PEk_overKBT * 0.5) + exp((energyNull+PEk)*overKBT));
+				lambdaSS[7] = (-1 + 3.0 / (1+2.0*exp(energyNull * overKBT)*cosh(PEk_overKBT * 0.5))) / sqrt(3.0);
 				
 				//printf("LambdaSS: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", lambdaSS[0], lambdaSS[1], lambdaSS[2], lambdaSS[3], lambdaSS[4], lambdaSS[5], lambdaSS[6], lambdaSS[7] );
 				
@@ -540,20 +489,6 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 				old_lambda[6] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[6];
 				old_lambda[7] = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[7];
 				
-				// generate the omega matrix
-				for(row = 0; row < 8; row++)
-					for(col = 0; col < 8; col++){
-							omega[row][col] = 0;
-							for(Nix=0; Nix < 8; Nix++)
-								omega[row][col] = structureConst[row][Nix][col]*((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[Nix];
-						}
-				
-				// calculate the dot product of omega and lambda				
-				for(Nix=0; Nix < 8; Nix++){
-					omegaDotLambda[Nix] = 0;
-					for(Nix1=0; Nix1 < 8; Nix1++)
-						omegaDotLambda[Nix]+=omega[Nix][Nix1]*((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[Nix1];
-					}
 
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[0] = lambdaSS[0];
 				((ts_coherence_model *)sorted_cells[i][j]->cell_model)->lambda[1] = lambdaSS[1];
@@ -727,6 +662,7 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
   unsigned int i,j,q, row, col, Nix, Nix1;
   double PEk = 0;
 	double half_PEk = 0;
+	double PEk_overKBT = 0;
 	double t = 0;
   unsigned int num_neighbours;
 	double lambda[8];
@@ -736,13 +672,14 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	double omega[8][8];
 	double omegaDotLambda[8];
 	complex densityMatrixSS[3][3];
+	double overKBT = 1.0 / (kB * options->T);
 	complex minusOverKBT;
 	double two_over_root_3_hbar = -2.0/sqrt(3.0)*OVER_HBAR;
 	double two_over_hbar = 2.0 * OVER_HBAR;
 	GList *llItr = NULL;
 	double potential[6]={0,0,0,0,0,0};
-  static double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
-  static double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
+  double charge1[4] = { -QCHARGE,  0, -QCHARGE,  0 };
+  double charge2[4] = {  0, -QCHARGE,  0, -QCHARGE };
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
 	double elevation = 0;
 
@@ -784,13 +721,15 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				
 				energyPlus  =	potential[0] * charge1[0] + potential[1] * charge1[1] + potential[2] * charge1[2] + potential[3] * charge1[3];
 				energyMinus = potential[0] * charge2[0] + potential[1] * charge2[1] + potential[2] * charge2[2] + potential[3] * charge2[3];
-				energyNull  =	potential[4] * -QCHARGE + potential[5] * -QCHARGE;
+				energyNull  =	0;//potential[4] * -TWO_THIRDS_QCHARGE + potential[5] * -TWO_THIRDS_QCHARGE;
 			}
 			else if(options->clocking_scheme == ZONE_CLOCKING){
 				energyPlus = 0;
 				energyMinus = 0;
 				energyNull = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
 			}
+			
+			//printf("Energy Plus = %e Emergy Minus =%e Energy Null = %e\n", energyPlus - half_PEk, energyMinus + half_PEk, energyNull);
 			
       PEk = 0;
       // Calculate the sum of neighboring polarizations //
@@ -803,6 +742,7 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			//printf("This cell PEk = %e\n", PEk);
 				
 			// Fill in the Hamiltonian for each cell **each element is a complex number since it will be multiplied by the complex generators**//
+			/*
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].re= -half_PEk + energyPlus;		((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][0].im = 0;
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].re = 0;												((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][1].im = 0;
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[0][2].im = 0;
@@ -814,33 +754,8 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][0].im = 0;
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].re = -options->gamma;					((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][1].im = 0;
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].re = energyNull;							((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian[2][2].im = 0;
+			*/
 				
-			//printf("Hamiltonian:\n");
-			//dump_3x3_complexMatrix(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian);
-				
-			//generate the hamiltonian in the space of SU(3)
-				
-			/*	
-			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[0],tempMatrix1);
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[1],tempMatrix1);
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[2],tempMatrix1);
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[3],tempMatrix1);
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[3] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[4],tempMatrix1);
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[4] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[5],tempMatrix1);
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[5] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[6],tempMatrix1);
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[6] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-			complexMatrixMultiplication(((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, generator[7],tempMatrix1);
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = OVER_HBAR * (complexTr(tempMatrix1)).re;
-			*/	
-				
-				
-			
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = 0;
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = -two_over_hbar * options->gamma ;
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[2] = -two_over_hbar * options->gamma ;
@@ -851,28 +766,10 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[7] = two_over_root_3_hbar * (energyNull-energyMinus-energyPlus);
 			
 				
-			// generate the steady-state density matrix
-				
-			complexConstMatrixMultiplication(minusOverKBT, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Hamiltonian, tempMatrix1);
-			//printf("Density Matrix [step1 division H/kBT]:\n");
-			//dump_3x3_complexMatrix(tempMatrix1);
-			if(tempMatrix1[2][0].re >= max_exponent){
-				command_history_message ("Critical simulation error! You will have to choose a smaller value for the tunneling energy.\n", number_samples);
-				return;
-				}
-				
-			complexMatrixRealExponential(tempMatrix1);
-			//printf("Density Matrix [step2 Real exponential]:\n");
-			//dump_3x3_complexMatrix(tempMatrix1);
-								
-			//printf("Trace of step2: %e+j%e\n",complexTr(tempMatrix1).re, complexTr(tempMatrix1).im);
-			complexConstMatrixDivision(complexTr(tempMatrix1), tempMatrix1, densityMatrixSS);
-				
-			//printf("Density Matrix:\n");
-			//dump_3x3_complexMatrix(densityMatrixSS);
-				
 			// generate the steady-state coherence vector
-	
+			
+			PEk_overKBT = PEk*overKBT;
+			/*
 			complexMatrixMultiplication(densityMatrixSS, generator[0], tempMatrix1);
 			lambdaSS[0] = (complexTr(tempMatrix1)).re;
 			complexMatrixMultiplication(densityMatrixSS, generator[1], tempMatrix1);
@@ -886,7 +783,17 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			lambdaSS[6] = (complexTr(tempMatrix1)).re;
 			complexMatrixMultiplication(densityMatrixSS, generator[7], tempMatrix1);
 			lambdaSS[7] = (complexTr(tempMatrix1)).re;
-				
+			*/
+			
+			lambdaSS[0] = 2 / (exp(-energyNull * overKBT) + exp(-(energyMinus+0.5*PEk)*overKBT) +exp((-energyPlus + 0.5 * PEk) * overKBT));
+			lambdaSS[1] = 2 * exp(options->gamma * overKBT) / (exp(-energyNull * overKBT) + exp(-(energyMinus+0.5*PEk)*overKBT) +exp((-energyPlus + 0.5 * PEk) * overKBT));
+			lambdaSS[2] = 2 * exp(options->gamma * overKBT) / (exp(-energyNull * overKBT) + exp(-(energyMinus+0.5*PEk)*overKBT) +exp((-energyPlus + 0.5 * PEk) * overKBT));
+			lambdaSS[3] = 0;
+			lambdaSS[4] = 0;
+			lambdaSS[5] = 0;
+			lambdaSS[6] = exp(energyNull * overKBT) * (exp(energyPlus*overKBT) - exp((energyMinus+PEk)*overKBT)) / (exp((energyNull+energyPlus)*overKBT)+exp((energyNull+energyMinus+PEk)*overKBT)+exp((energyMinus + energyPlus + 0.5 * PEk)*overKBT));
+			lambdaSS[7] = (-exp((energyNull+energyPlus)*overKBT) -exp((energyNull+energyMinus+PEk)*overKBT) + 2.0 * exp((energyMinus + energyPlus + 0.5 * PEk)*overKBT)) / (sqrt(3.0) * (exp((energyNull+energyPlus)*overKBT)+exp((energyNull+energyMinus+PEk)*overKBT)+exp((energyMinus + energyPlus + 0.5 * PEk)*overKBT)));
+					
 			//printf("LambdaSS: [ %e, %e, %e, %e, %e, %e, %e, %e,]\n", lambdaSS[0], lambdaSS[1], lambdaSS[2], lambdaSS[3], lambdaSS[4], lambdaSS[5], lambdaSS[6], lambdaSS[7] );
 				
 			// generate the omega matrix
@@ -982,6 +889,7 @@ static void ts_coherence_refresh_all_Ek (int number_of_cell_layers, int *number_
 //-------------------------------------------------------------------//
 // Determines the Kink energy of one cell with respect to another this is defined as the energy of those
 // cells having opposite polarization minus the energy of those two cells having the same polarization -- //
+// this function applies only to the six dot cells!!
 static double ts_coherence_determine_Ek (QCADCell * cell1, QCADCell * cell2, int layer_separation, ts_coherence_OP *options)
   {
   int k;
@@ -989,9 +897,10 @@ static double ts_coherence_determine_Ek (QCADCell * cell1, QCADCell * cell2, int
 
   double distance = 0;
   double Constant = 1 / (4 * PI * EPSILON * options->epsilonR);
-
-  double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
-  double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
+	
+	// this function applies only to the six dot cells!!
+  double charge1[4] = { -QCHARGE,  0, -QCHARGE,  0 };
+  double charge2[4] = {  0, -QCHARGE,  0, -QCHARGE };
 
   double EnergyDiff = 0;
   double EnergySame = 0;

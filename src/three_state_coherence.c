@@ -49,7 +49,7 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {300, 1e-15, 1e-17, 7e-11, 3.96e-20, 7.93e-20, -7.93e-20, 0.0, 2.0, 8, 1.0, 0.639, 13, 1.0, EULER_METHOD, ZONE_CLOCKING, TRUE, FALSE} ;
+ts_coherence_OP ts_coherence_options = {300, 1e-15, 1e-16, 7e-11, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 8, 1.0, 0.639, 13, 1.0, EULER_METHOD, ZONE_CLOCKING, TRUE, FALSE} ;
 
 typedef struct
   {
@@ -86,7 +86,7 @@ typedef struct
 // instance of the optimization options;
 static ts_coherence_optimizations optimization_options;
 
-static double ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * cell2, int neighbour, int layer_separation, ts_coherence_OP *options);
+void ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * cell2, int neighbour, int layer_separation, ts_coherence_OP *options);
 static void ts_coherence_refresh_all_potentials (int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, ts_coherence_OP *options);
 static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8], QCADLayer *clocking_layer);
 static inline double calculate_clock_value (unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const ts_coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
@@ -720,6 +720,7 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	static double chargeNull[6]  = {THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, -TWO_THIRDS_QCHARGE};
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
 	double elevation = 0;
+	static double energyNullMin = 0, energyNullMax = 0;
 
 	//fill in the complex constants
 	minusOverKBT.re = -1.0 / (kB * options->T);
@@ -746,8 +747,8 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			//gather the potentials from all the cells neighbours
 			for (q = 0; q < ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->number_of_neighbours; q++){
 				neighbour_polarization = (qcad_cell_calculate_polarization (((ts_coherence_model *)sorted_cells[i][j]->cell_model)->neighbours[q]));
-				printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
-				printf("neighbour polarization = %e\n", neighbour_polarization);
+				//printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+				//printf("neighbour polarization = %e\n", neighbour_polarization);
 				if(neighbour_polarization > 0){
 					potential[0] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][0];	
 					potential[1] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][1];
@@ -755,7 +756,7 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 					potential[3] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][3];
 					potential[4] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][4];
 					potential[5] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][5];
-					printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
+					//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
 				}else if(neighbour_polarization < 0){
 					potential[0] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][0];	
 					potential[1] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][1];
@@ -763,7 +764,7 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 					potential[3] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][3];
 					potential[4] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][4];
 					potential[5] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][5];
-					printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
+					//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
 				}
 					
 				potential[0] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][0];	
@@ -772,18 +773,19 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				potential[3] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][3];
 				potential[4] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][4];
 				potential[5] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][5];
-				printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
+				//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
 			}
 			
-			printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
-			printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
-					
+			//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
+			//printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+			//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);		
 			//get energy values depending on the user clocking scheme choice
 			if(options->clocking_scheme == ELECTRODE_CLOCKING){
 						
 			//gather the potentials from all the clocking electrodes
 			for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
 				if(llItr->data != NULL){
+					//printf("ElectrodeNULL =%e\n",qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].y, elevation - options->cell_height, t)*(-TWO_THIRDS_QCHARGE));
 					potential[0] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, elevation, t);
 					potential[1] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, elevation, t);
 					potential[2] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, elevation, t);
@@ -792,7 +794,9 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 					potential[5] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].y, elevation - options->cell_height, t);
 				}
 			}
-				
+			
+			//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);		
+			//printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");	
 				energyPlus = potential[0] * chargePlus[0] + potential[1] * chargePlus[1] + potential[2] * chargePlus[2] + potential[3] * chargePlus[3] + potential[4] * chargePlus[4] + potential[5] * chargePlus[5];
 				energyMinus = potential[0] * chargeMinus[0] + potential[1] * chargeMinus[1] + potential[2] * chargeMinus[2] + potential[3] * chargeMinus[3] + potential[4] * chargeMinus[4] + potential[5] * chargeMinus[5];
 				energyNull = potential[0] * chargeNull[0] + potential[1] * chargeNull[1] + potential[2] * chargeNull[2] + potential[3] * chargeNull[3] + potential[4] * chargeNull[4] + potential[5] * chargeNull[5];
@@ -802,11 +806,14 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 					
 				energyPlus = potential[0] * chargePlus[0] + potential[1] * chargePlus[1] + potential[2] * chargePlus[2] + potential[3] * chargePlus[3] + potential[4] * chargePlus[4] + potential[5] * chargePlus[5];
 				energyMinus = potential[0] * chargeMinus[0] + potential[1] * chargeMinus[1] + potential[2] * chargeMinus[2] + potential[3] * chargeMinus[3] + potential[4] * chargeMinus[4] + potential[5] * chargeMinus[5];
-				energyNull = sim_data->clock_data[sorted_cells[i][j]->cell_options.clock].data[0];
+				energyNull = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
 			}
 			
+			if(energyNull<energyNullMin)energyNullMin = energyNull;
+			if(energyNull>energyNullMax)energyNullMax = energyNull;
+			printf("MIN = %e MAX = %e\n", energyNullMin, energyNullMax);	
 				
-			printf("NUll %e PLUS %e MINUS %e\n", energyNull, energyPlus, energyMinus);			
+			//printf("NUll %e PLUS %e MINUS %e\n", energyNull, energyPlus, energyMinus);			
 			//generate the hamiltonian in the space of SU(3)
 				
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = 0;
@@ -886,6 +893,17 @@ static void ts_coherence_refresh_all_potentials (int number_of_cell_layers, int 
   ts_coherence_model *cell_model = NULL ;
   int i,j,k;
 
+  for(i = 0 ; i < number_of_cell_layers ; i++)
+    for(j = 0 ; j < number_of_cells_in_layer[i] ; j++)
+      {
+			// determine the x,y coordinates of the 2 extra dots required by this model
+			// the z-coordinate is set by the user and available in the options structure
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].x = sorted_cells[i][j]->cell_dots[0].x; 
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].y = (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0;
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].x = sorted_cells[i][j]->cell_dots[3].x; 
+			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].y = (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[3].y)/2.0;
+			}
+			
   // calculate the potentials for each cell //
   for(i = 0 ; i < number_of_cell_layers ; i++)
     for(j = 0 ; j < number_of_cells_in_layer[i] ; j++)
@@ -907,14 +925,9 @@ static void ts_coherence_refresh_all_potentials (int number_of_cell_layers, int 
         select_cells_in_radius(sorted_cells, sorted_cells[i][j], ((ts_coherence_OP *)options)->radius_of_effect, i, number_of_cell_layers, number_of_cells_in_layer,
              ((ts_coherence_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer));
 			
+			//printf("cell dot[0] is located at x=%e y=%e, extra dot x=%e y=%e and x=%e y=%e\n", sorted_cells[i][j]->cell_dots[0].x,sorted_cells[i][j]->cell_dots[0].y, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].x,((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].y,((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].x,((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].y);
 			
-			// determine the x,y coordinates of the 2 extra dots required by this model
-			// the z-coordinate is set by the user and available in the options structure
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].x = sorted_cells[i][j]->cell_dots[0].x; 
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].y = (sorted_cells[i][j]->cell_dots[1].y+sorted_cells[i][j]->cell_dots[0].y)/2.0;
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].x = sorted_cells[i][j]->cell_dots[3].x; 
-			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].y = (sorted_cells[i][j]->cell_dots[2].y+sorted_cells[i][j]->cell_dots[0].y)/2.0;
-      
+			
       // for each of the cell neighbours
 			if (icNeighbours > 0)
         {
@@ -950,7 +963,7 @@ static void ts_coherence_refresh_all_potentials (int number_of_cell_layers, int 
 // Determines the Kink energy of one cell with respect to another this is defined as the energy of those
 // cells having opposite polarization minus the energy of those two cells having the same polarization -- //
 // this function applies only to the six dot cells!!
-static double ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * cell2, int neighbour, int layer_separation, ts_coherence_OP *options)
+void ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * cell2, int neighbour, int layer_separation, ts_coherence_OP *options)
   {
   int k;
   int j;
@@ -997,17 +1010,44 @@ static double ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * ce
       // determine the distance between the dots //
       // printf("layer seperation = %d\n", layer_seperation);
 			distance = ts_determine_distance (cell1, cell2, k, j, 0.0, (double)layer_separation * ((ts_coherence_OP *)options)->layer_separation, options->cell_height);
-      g_assert (distance != 0);
-
-      ((ts_coherence_model *)cell1->cell_model)->potentials_plus[neighbour][k]		+= chargePlus[k] / distance;
-      ((ts_coherence_model *)cell1->cell_model)->potentials_minus[neighbour][k]		+= chargeMinus[k] / distance;
-			((ts_coherence_model *)cell1->cell_model)->potentials_null[neighbour][k]		+= chargeNull[k] / distance;
+      g_assert (distance > 0);
+			//printf("distance = %e\n",distance);
+      ((ts_coherence_model *)cell1->cell_model)->potentials_plus[neighbour][k]		+= chargePlus[j] / distance;
+      ((ts_coherence_model *)cell1->cell_model)->potentials_minus[neighbour][k]		+= chargeMinus[j] / distance;
+			((ts_coherence_model *)cell1->cell_model)->potentials_null[neighbour][k]		+= chargeNull[j] / distance;
       }//for other dots
 	
 		((ts_coherence_model *)cell1->cell_model)->potentials_plus[neighbour][k]		*= Constant;
 		((ts_coherence_model *)cell1->cell_model)->potentials_minus[neighbour][k]		*= Constant;
 		((ts_coherence_model *)cell1->cell_model)->potentials_null[neighbour][k]		*= Constant;
-		}		
+		}
+		/*printf("PLUS %e %e %e %e %e %e\n"
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_plus[0][0]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_plus[0][1]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_plus[0][2]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_plus[0][3]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_plus[0][4]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_plus[0][5]
+		);
+		
+				printf("MINUS %e %e %e %e %e %e\n"
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_minus[0][0]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_minus[0][1]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_minus[0][2]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_minus[0][3]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_minus[0][4]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_minus[0][5]
+		);
+		
+				printf("NULL %e %e %e %e %e %e\n"
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_null[0][0]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_null[0][1]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_null[0][2]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_null[0][3]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_null[0][4]
+		, ((ts_coherence_model *)cell1->cell_model)->potentials_null[0][5]
+		);
+		*/				
   }// ts_coherence_determine_Ek
 
 //-------------------------------------------------------------------//

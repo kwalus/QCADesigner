@@ -134,9 +134,9 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	complex densityMatrixSS[3][3];
 	complex minusOverKBT;
 	double potential[6]={1,1,1,1,1,1};
-  static double chargePlus[6]	= {THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
-  static double chargeMinus[6] = {-TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
-	static double chargeNull[6]  = {THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, -TWO_THIRDS_QCHARGE};
+  static double chargePlus[6]	= {TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
+  static double chargeMinus[6] = {-THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
+	static double chargeNull[6]  = {TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE};
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
 	
 	// variables required for generating the structure constants
@@ -715,10 +715,15 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	double two_over_hbar = 2.0 * OVER_HBAR;
 	GList *llItr = NULL;
 	double potential[6]={0,0,0,0,0,0};
-  static double chargePlus[6]	= {THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
-  static double chargeMinus[6] = {-TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
-	static double chargeNull[6]  = {THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, -TWO_THIRDS_QCHARGE};
+  //static double chargePlus[6]	= {THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
+  //static double chargeMinus[6] = {-TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
+	//static double chargeNull[6]  = {THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, -TWO_THIRDS_QCHARGE};
+  static double chargePlus[6]	= {TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
+  static double chargeMinus[6] = {-THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
+	static double chargeNull[6]  = {TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE};
+	
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
+	double cellenergyPlus = 0, cellenergyMinus = 0, cellenergyNull = 0;
 	double elevation = 0;
 	static double energyNullMin = 0, energyNullMax = 0;
 
@@ -780,6 +785,11 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			//printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
 			//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);		
 			//get energy values depending on the user clocking scheme choice
+			cellenergyPlus = potential[0] * chargePlus[0] + potential[1] * chargePlus[1] + potential[2] * chargePlus[2] + potential[3] * chargePlus[3] + potential[4] * chargePlus[4] + potential[5] * chargePlus[5];
+			cellenergyMinus = potential[0] * chargeMinus[0] + potential[1] * chargeMinus[1] + potential[2] * chargeMinus[2] + potential[3] * chargeMinus[3] + potential[4] * chargeMinus[4] + potential[5] * chargeMinus[5];
+			cellenergyNull = potential[0] * chargeNull[0] + potential[1] * chargeNull[1] + potential[2] * chargeNull[2] + potential[3] * chargeNull[3] + potential[4] * chargeNull[4] + potential[5] * chargeNull[5];
+			//printf("PLUS %e \tMINUS %e \tNUll %e \n", energyPlus, energyMinus, energyNull);		
+			
 			if(options->clocking_scheme == ELECTRODE_CLOCKING){
 						
 			//gather the potentials from all the clocking electrodes
@@ -809,12 +819,13 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				energyNull = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
 			}
 			
-			if(energyNull<energyNullMin)energyNullMin = energyNull;
-			if(energyNull>energyNullMax)energyNullMax = energyNull;
-			printf("MIN = %e MAX = %e\n", energyNullMin, energyNullMax);	
+			//if(energyNull<energyNullMin)energyNullMin = energyNull;
+			//if(energyNull>energyNullMax)energyNullMax = energyNull;
+			//printf("MIN = %e MAX = %e\n", energyNullMin, energyNullMax);	
 				
-			//printf("NUll %e PLUS %e MINUS %e\n", energyNull, energyPlus, energyMinus);			
+			printf("Ep %e\t Em %e\t En %e\tpPLUS %e\tpMINUS %e\tpNUll %e\tEp-En %e\tEm-En %e\n", energyPlus, energyMinus, energyNull, (energyPlus-cellenergyPlus)/energyPlus * 100, (energyMinus-cellenergyMinus)/energyMinus * 100, (energyNull-cellenergyNull)/energyNull *100, energyPlus - energyNull, energyMinus-energyNull);			
 			//generate the hamiltonian in the space of SU(3)
+			//printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
 				
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[0] = 0;
 			((ts_coherence_model *)sorted_cells[i][j]->cell_model)->Gamma[1] = -two_over_hbar * options->gamma ;
@@ -973,9 +984,9 @@ void ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * cell2, int 
   double Constant = 1 / (4 * PI * EPSILON * options->epsilonR * 1e-9);
 	
 	// these variables apply only to the six dot cells!!
-  static double chargePlus[6]	= {THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
-  static double chargeMinus[6] = {-TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
-	static double chargeNull[6]  = {THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, -TWO_THIRDS_QCHARGE};
+  static double chargePlus[6]	= {TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
+  static double chargeMinus[6] = {-THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
+	static double chargeNull[6]  = {TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE};
 	
   g_assert (cell1 != NULL);
   g_assert (cell2 != NULL);

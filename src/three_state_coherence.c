@@ -48,6 +48,9 @@
 // Calculates the temperature ratio
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
+// percentage of the total neutralizing charge that is located in the active dots
+#define CHARGE_DIST 0.935
+
 //!Options for the coherence simulation engine
 ts_coherence_OP ts_coherence_options = {300, 1e-15, 1e-16, 7e-11, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 8, 1.0, 0.639, 13, 1.0, EULER_METHOD, ZONE_CLOCKING, TRUE, FALSE} ;
 
@@ -134,9 +137,10 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	complex densityMatrixSS[3][3];
 	complex minusOverKBT;
 	double potential[6]={1,1,1,1,1,1};
-  static double chargePlus[6]	= {TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
-  static double chargeMinus[6] = {-THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
-	static double chargeNull[6]  = {TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE};
+  static double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+  static double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+	static double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
+	double total_charge[3] = {0,0,0};
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
 	
 	// variables required for generating the structure constants
@@ -259,6 +263,14 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 
   // Fill in the cell arrays necessary for conducting the simulation
   simulation_inproc_data_new (design, &number_of_cell_layers, &number_of_cells_in_layer, &sorted_cells) ;
+
+	for(i = 0; i < 6; i++){
+		total_charge[0] += chargePlus[i];
+		total_charge[1] += chargeMinus[i];
+		total_charge[2] += chargeNull[i];
+	}
+	
+	printf("total charges %e %e %e\n", total_charge[0], total_charge[1], total_charge[2]);
 
   // determine which cells are inputs and which are outputs //
   for(i = 0; i < number_of_cell_layers; i++)
@@ -718,9 +730,9 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
   //static double chargePlus[6]	= {THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
   //static double chargeMinus[6] = {-TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
 	//static double chargeNull[6]  = {THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, -TWO_THIRDS_QCHARGE};
-  static double chargePlus[6]	= {TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
-  static double chargeMinus[6] = {-THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
-	static double chargeNull[6]  = {TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE};
+  static double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+  static double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+	static double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
 	
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
 	double cellenergyPlus = 0, cellenergyMinus = 0, cellenergyNull = 0;
@@ -823,7 +835,7 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			//if(energyNull>energyNullMax)energyNullMax = energyNull;
 			//printf("MIN = %e MAX = %e\n", energyNullMin, energyNullMax);	
 				
-			printf("Ep %e\t Em %e\t En %e\tpPLUS %e\tpMINUS %e\tpNUll %e\tEp-En %e\tEm-En %e\n", energyPlus, energyMinus, energyNull, (energyPlus-cellenergyPlus)/energyPlus * 100, (energyMinus-cellenergyMinus)/energyMinus * 100, (energyNull-cellenergyNull)/energyNull *100, energyPlus - energyNull, energyMinus-energyNull);			
+			//printf("Ep %e\t Em %e\t En %e\tpPLUS %e\tpMINUS %e\tpNUll %e\tEp-En %e\tEm-En %e\n", energyPlus, energyMinus, energyNull, (energyPlus-cellenergyPlus)/energyPlus * 100, (energyMinus-cellenergyMinus)/energyMinus * 100, (energyNull-cellenergyNull)/energyNull *100, energyPlus - energyNull, energyMinus-energyNull);			
 			//generate the hamiltonian in the space of SU(3)
 			//printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
 				
@@ -984,9 +996,9 @@ void ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * cell2, int 
   double Constant = 1 / (4 * PI * EPSILON * options->epsilonR * 1e-9);
 	
 	// these variables apply only to the six dot cells!!
-  static double chargePlus[6]	= {TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
-  static double chargeMinus[6] = {-THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -THREE_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE, ONE_FIFTHS_QCHARGE};
-	static double chargeNull[6]  = {TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, TWO_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE, -FOUR_FIFTHS_QCHARGE};
+  static double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+  static double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+	static double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
 	
   g_assert (cell1 != NULL);
   g_assert (cell2 != NULL);

@@ -1,5 +1,17 @@
 # Contributed by Gabriel Schulhof with some help from freenode.net:#huwico
 
+msgid ""
+msgstr ""
+"Project-Id-Version: QCADesigner 2.1.0\n"
+"POT-Creation-Date: 2004-01-01 00:00-0700\n"
+"PO-Revision-Date: 2005-11-26 03:17-0700\n"
+"Last-Translator: Gabriel Schulhof <schulhof@atips.ca>\n"
+"Language-Team: Gabriel Schulhof <schulhof@atips.ca>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Report-Msgid-Bugs-To: Gabriel Schulhof <schulhof@atips.ca>\n"
+
 msgid "1 nm is"
 msgstr "1 nm az"
 

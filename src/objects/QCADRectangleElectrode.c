@@ -166,7 +166,7 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
 
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_angle = 0.0 ;
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_x_divisions = 2 ;
-  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_y_divisions = 40 ;
+  QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_n_y_divisions = 10 ;
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cxWorld =  6.0 ;
   QCAD_RECTANGLE_ELECTRODE_CLASS (klass)->default_cyWorld = 40.0 ;
   }

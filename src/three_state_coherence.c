@@ -49,10 +49,10 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 // percentage of the total neutralizing charge that is located in the active dots
-#define CHARGE_DIST 0.935
+#define CHARGE_DIST 0.9376995367994801
 
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {300, 1e-15, 1e-16, 7e-11, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 8, 1.0, 0.639, 13, 1.0, EULER_METHOD, ZONE_CLOCKING, TRUE, FALSE} ;
+ts_coherence_OP ts_coherence_options = {300, 1e-15, 1e-16, 7e-11, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 8, 1.0, 0.639, 6.66, 1.0, EULER_METHOD, ELECTRODE_CLOCKING, TRUE, TRUE} ;
 
 typedef struct
   {
@@ -62,6 +62,9 @@ typedef struct
 		double **potentials_plus;
 		double **potentials_minus;
 		double **potentials_null;
+		double self_energy_plus;
+		double self_energy_minus;
+		double self_energy_null;
 		double lambda[8];
 		double Gamma[8];
 		complex Hamiltonian[3][3];
@@ -90,6 +93,7 @@ typedef struct
 static ts_coherence_optimizations optimization_options;
 
 void ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * cell2, int neighbour, int layer_separation, ts_coherence_OP *options);
+void ts_calculate_self_energies(QCADCell *cell, ts_coherence_OP *options);
 static void ts_coherence_refresh_all_potentials (int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, ts_coherence_OP *options);
 static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8], QCADLayer *clocking_layer);
 static inline double calculate_clock_value (unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const ts_coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
@@ -129,6 +133,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
   int stable=0;
 	GList *llItr = NULL;
 	QCADLayer *clocking_layer = NULL;
+	double min_polarization=0, max_polarization=0;
 	
 	double lambdaSS[8];
 	double old_lambda[8];
@@ -347,8 +352,13 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
       sim_data->clock_data[i].data[j] = calculate_clock_value(i, j * record_interval, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
     }
 
-  // -- refresh all the kink energies and neighbours-- //
+  // -- refresh all the potential and self energies-- //
   ts_coherence_refresh_all_potentials (number_of_cell_layers, number_of_cells_in_layer, sorted_cells, options);
+  
+	// This must go after ts_coherence_refresh_all_potentials 
+	for(i = 0; i < number_of_cell_layers; i++)
+    for(j = 0; j < number_of_cells_in_layer[i]; j++)
+      ts_calculate_self_energies(sorted_cells[i][j], options);
 
   // -- sort the cells with respect to the neighbour count -- //
   // -- this is done so that majority gates are evalulated last -- //
@@ -475,18 +485,24 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 					//gather the potentials from all the clocking electrodes
 					for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
 						if(llItr->data != NULL){
-							potential[0] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
-							potential[1] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
-							potential[2] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
-							potential[3] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0);
-							potential[4] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0);
-							potential[5] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0);
+							potential[0] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0.0);
+							potential[1] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0.0);
+							potential[2] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0.0);
+							potential[3] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0.0);
+							potential[4] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0.0);
+							potential[5] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0.0);
 						}
 					}
 				
 					energyPlus = potential[0] * chargePlus[0] + potential[1] * chargePlus[1] + potential[2] * chargePlus[2] + potential[3] * chargePlus[3] + potential[4] * chargePlus[4] + potential[5] * chargePlus[5];
 					energyPlus = potential[0] * chargeMinus[0] + potential[1] * chargeMinus[1] + potential[2] * chargeMinus[2] + potential[3] * chargeMinus[3] + potential[4] * chargeMinus[4] + potential[5] * chargeMinus[5];
 					energyNull = potential[0] * chargeNull[0] + potential[1] * chargeNull[1] + potential[2] * chargeNull[2] + potential[3] * chargeNull[3] + potential[4] * chargeNull[4] + potential[5] * chargeNull[5];
+			
+					// add the self energies
+					energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
+					energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
+					energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
+
 				}
 				
 				else if(options->clocking_scheme == ZONE_CLOCKING){
@@ -662,6 +678,12 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 					set_progress_bar_visible (FALSE) ;
           return sim_data;
           }
+					
+				//if(j>100)if(-1 * ((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6] < min_polarization)min_polarization = -1 * ((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6];
+				//if(j>100)if(-1 * ((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6] > max_polarization)max_polarization = -1 * ((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6];
+			
+				//if(j%1000==0)printf("min = %e max =%e\n", min_polarization, max_polarization);
+				
         qcad_cell_set_polarization (sorted_cells[k][l], -1 * ((ts_coherence_model *)sorted_cells[k][l]->cell_model)->lambda[6]);
         }
 
@@ -802,6 +824,17 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			cellenergyNull = potential[0] * chargeNull[0] + potential[1] * chargeNull[1] + potential[2] * chargeNull[2] + potential[3] * chargeNull[3] + potential[4] * chargeNull[4] + potential[5] * chargeNull[5];
 			//printf("PLUS %e \tMINUS %e \tNUll %e \n", energyPlus, energyMinus, energyNull);		
 			
+			//************************************************* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+			//potential[0] = potential[1] = potential[2] = potential[3] = potential[4] = potential[5] = 0;
+			//************************************************* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+			//************************************************* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+			//************************************************* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+			//************************************************* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+			//************************************************* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+			//************************************************* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+			//************************************************* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+			//************************************************* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+			
 			if(options->clocking_scheme == ELECTRODE_CLOCKING){
 						
 			//gather the potentials from all the clocking electrodes
@@ -822,6 +855,14 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				energyPlus = potential[0] * chargePlus[0] + potential[1] * chargePlus[1] + potential[2] * chargePlus[2] + potential[3] * chargePlus[3] + potential[4] * chargePlus[4] + potential[5] * chargePlus[5];
 				energyMinus = potential[0] * chargeMinus[0] + potential[1] * chargeMinus[1] + potential[2] * chargeMinus[2] + potential[3] * chargeMinus[3] + potential[4] * chargeMinus[4] + potential[5] * chargeMinus[5];
 				energyNull = potential[0] * chargeNull[0] + potential[1] * chargeNull[1] + potential[2] * chargeNull[2] + potential[3] * chargeNull[3] + potential[4] * chargeNull[4] + potential[5] * chargeNull[5];
+				
+				//if(sample_number%1000==0)printf("El+ %e\tEl- %e\tEln %e\tDEl %e\tInt+ %e\tInt- %e\tIntn %e\tSel+ %e\tSel- %e\tSeln %e\n", energyPlus, energyMinus, energyNull, energyMinus-energyNull, cellenergyPlus, cellenergyMinus, cellenergyNull, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus,((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null);
+				
+				// add the self energies
+				energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
+				energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
+				energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
+				
 			}
 				
 			else if(options->clocking_scheme == ZONE_CLOCKING){
@@ -829,8 +870,10 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				energyPlus = potential[0] * chargePlus[0] + potential[1] * chargePlus[1] + potential[2] * chargePlus[2] + potential[3] * chargePlus[3] + potential[4] * chargePlus[4] + potential[5] * chargePlus[5];
 				energyMinus = potential[0] * chargeMinus[0] + potential[1] * chargeMinus[1] + potential[2] * chargeMinus[2] + potential[3] * chargeMinus[3] + potential[4] * chargeMinus[4] + potential[5] * chargeMinus[5];
 				energyNull = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
+
 			}
 			
+										
 			//if(energyNull<energyNullMin)energyNullMin = energyNull;
 			//if(energyNull>energyNullMax)energyNullMax = energyNull;
 			//printf("MIN = %e MAX = %e\n", energyNullMin, energyNullMax);	
@@ -864,7 +907,16 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			lambdaSS[5] = 0;
 			lambdaSS[6] = exp(energyNull * overKBT) * (exp(energyPlus * overKBT) - exp(energyMinus * overKBT)) / tempMath5;
 			lambdaSS[7] = (2.0 * tempMath3 - tempMath2 - tempMath4) * overRootThree / tempMath5;
-				
+			
+			if(isnan(lambdaSS[0]))printf("lambdaSS[0] is NaN\n");
+			if(isnan(lambdaSS[1]))printf("lambdaSS[1] is NaN\n");	
+			if(isnan(lambdaSS[2]))printf("lambdaSS[2] is NaN\n");	
+			if(isnan(lambdaSS[3]))printf("lambdaSS[3] is NaN\n");	
+			if(isnan(lambdaSS[4]))printf("lambdaSS[4] is NaN\n");	
+			if(isnan(lambdaSS[5]))printf("lambdaSS[5] is NaN\n");	
+			if(isnan(lambdaSS[6]))printf("lambdaSS[6] is NaN\n");	
+			if(isnan(lambdaSS[7]))printf("lambdaSS[7] is NaN\n");		
+			
 			// generate the omega matrix
 			for(row = 0; row < 8; row++)
 				for(col = 0; col < 8; col++){
@@ -981,6 +1033,43 @@ static void ts_coherence_refresh_all_potentials (int number_of_cell_layers, int 
         }
       }
   }//refresh_all_potentials
+
+
+//-------------------------------------------------------------------//
+// calculates the self energy of the cell for each of the three states
+// i.e. the interaction energy of the electrons and neutralizing charges within the cell
+void ts_calculate_self_energies(QCADCell *cell, ts_coherence_OP *options){
+	
+	int i,j;
+	double distance;
+	double Constant = 1 / (4 * PI * EPSILON * options->epsilonR * 1e-9);
+	// these variables apply only to the six dot cells!!
+  static double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+  static double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+	static double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
+
+	g_assert(cell != NULL);
+	
+	((ts_coherence_model *)cell->cell_model)->self_energy_plus	= 0;
+	((ts_coherence_model *)cell->cell_model)->self_energy_minus = 0;
+	((ts_coherence_model *)cell->cell_model)->self_energy_null	= 0;
+	
+	for(i = 0; i < 5; i++)
+		for(j = i+1; j < 6; j++){
+			distance = ts_determine_distance (cell, cell, i, j, 0.0, 0.0, options->cell_height);
+			((ts_coherence_model *)cell->cell_model)->self_energy_plus	+= (chargePlus[i] * chargePlus[j]) / distance;
+			((ts_coherence_model *)cell->cell_model)->self_energy_minus += (chargeMinus[i] * chargeMinus[j]) / distance;
+			((ts_coherence_model *)cell->cell_model)->self_energy_null	+= (chargeNull[i] * chargeNull[j]) / distance;
+			
+			}
+			
+	((ts_coherence_model *)cell->cell_model)->self_energy_plus	*= Constant;
+	((ts_coherence_model *)cell->cell_model)->self_energy_minus *= Constant;
+	((ts_coherence_model *)cell->cell_model)->self_energy_null	*= Constant;
+	
+	printf("Self Energies +=%e -=%e Null=%e\n", ((ts_coherence_model *)cell->cell_model)->self_energy_plus, ((ts_coherence_model *)cell->cell_model)->self_energy_minus, ((ts_coherence_model *)cell->cell_model)->self_energy_null);
+}
+
 
 //-------------------------------------------------------------------//
 // Determines the Kink energy of one cell with respect to another this is defined as the energy of those
@@ -1108,6 +1197,12 @@ double ts_determine_distance(QCADCell *cell1, QCADCell *cell2, int dot_cell_1, i
   {
   double x, y, z;
 
+	// make sure we are not trying to determine the distance between the same dot in the same cell
+	// The problem is that this distance is generally used in the denominator of some other calculations
+	// and may result in infinities
+	if(cell1 == cell2)
+		g_assert(dot_cell_1 != dot_cell_2);
+	
 	if(dot_cell_1 < 4 && dot_cell_2 < 4){
 		x = cell1->cell_dots[dot_cell_1].x - cell2->cell_dots[dot_cell_2].x;
 		y = cell1->cell_dots[dot_cell_1].y - cell2->cell_dots[dot_cell_2].y;

@@ -1,0 +1,128 @@
+#include <string.h>
+#include "../custom_widgets.h"
+#include "support.h"
+#include "QCADPropertyUINumeric.h"
+
+enum
+  {
+  QCAD_PROPERTY_UI_NUMERIC_UNITS = 1,
+  QCAD_PROPERTY_UI_NUMERIC_LAST
+  } ;
+
+static void qcad_property_ui_numeric_class_init (QCADPropertyUINumericClass *klass) ;
+static void qcad_property_ui_numeric_instance_init (QCADPropertyUINumeric *property_ui_numeric) ;
+
+static void finalize (GObject *object) ;
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
+static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
+static void set_visible (QCADPropertyUI *property_ui, gboolean bVisible) ;
+static void set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitive) ;
+static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY) ;
+
+GType qcad_property_ui_numeric_get_type ()
+  {
+  static GType qcad_property_ui_numeric_type = 0 ;
+
+  if (0 == qcad_property_ui_numeric_type)
+    {
+    static GTypeInfo info =
+      {
+      sizeof (QCADPropertyUINumericClass),
+      NULL,
+      NULL,
+      (GClassInitFunc)qcad_property_ui_numeric_class_init,
+      NULL,
+      NULL,
+      sizeof (QCADPropertyUINumeric),
+      0,
+      (GInstanceInitFunc)qcad_property_ui_numeric_instance_init
+      } ;
+    if (0 != (qcad_property_ui_numeric_type = g_type_register_static (QCAD_TYPE_PROPERTY_UI, QCAD_TYPE_STRING_PROPERTY_UI_NUMERIC, &info, 0)))
+      g_type_class_ref (qcad_property_ui_numeric_type) ;
+    }
+  return qcad_property_ui_numeric_type ;
+  }
+
+static void qcad_property_ui_numeric_class_init (QCADPropertyUINumericClass *klass)
+  {
+  G_OBJECT_CLASS (klass)->finalize     = finalize ;
+  G_OBJECT_CLASS (klass)->get_property = get_property ;
+  G_OBJECT_CLASS (klass)->set_property = set_property ;
+
+  QCAD_PROPERTY_UI_CLASS (klass)->get_widget  = get_widget ;
+  QCAD_PROPERTY_UI_CLASS (klass)->set_visible = set_visible ;
+  QCAD_PROPERTY_UI_CLASS (klass)->set_sensitive = set_sensitive ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_NUMERIC_UNITS,
+    g_param_spec_string ("units", _("Units"), _("Property units"),
+      "", G_PARAM_WRITABLE | G_PARAM_READABLE)) ;
+  }
+
+static void qcad_property_ui_numeric_instance_init (QCADPropertyUINumeric *property_ui_numeric)
+  {
+  QCADPropertyUI *property_ui = QCAD_PROPERTY_UI (property_ui_numeric) ;
+
+  property_ui_numeric->lblUnits.widget = gtk_label_new ("") ;
+  gtk_widget_show (property_ui_numeric->lblUnits.widget) ;
+  property_ui_numeric->lblUnits.idxX = 1 ;
+  property_ui_numeric->lblUnits.idxY = 0 ;
+  property_ui->cxWidgets = 2 ;
+  property_ui->cyWidgets = 1 ;
+  }
+
+static void finalize (GObject *object)
+  {
+  QCADPropertyUINumeric *property_ui_numeric = QCAD_PROPERTY_UI_NUMERIC (object) ;
+
+  g_object_unref (property_ui_numeric->lblUnits.widget) ;
+
+  G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_NUMERIC)))->finalize (object) ;
+  }
+
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+  {
+  QCADPropertyUINumeric *property_ui_numeric = QCAD_PROPERTY_UI_NUMERIC (object) ;
+
+  switch (property_id)
+    {
+    case QCAD_PROPERTY_UI_NUMERIC_UNITS:
+      if (NULL != property_ui_numeric->lblUnits.widget)
+        gtk_label_set_markup (GTK_LABEL (property_ui_numeric->lblUnits.widget), g_value_get_string (value)) ;
+      break ;
+    }
+  }
+static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+  {
+  QCADPropertyUINumeric *property_ui_numeric = QCAD_PROPERTY_UI_NUMERIC (object) ;
+
+  switch (property_id)
+    {
+    case QCAD_PROPERTY_UI_NUMERIC_UNITS:
+      if (NULL != property_ui_numeric->lblUnits.widget)
+        g_value_set_string (value, gtk_label_get_text (GTK_LABEL (property_ui_numeric->lblUnits.widget))) ;
+      break ;
+    }
+  }
+
+static void set_visible (QCADPropertyUI *property_ui, gboolean bVisible)
+  {
+  QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_NUMERIC)))->set_visible (property_ui, bVisible) ;
+  GTK_WIDGET_SET_VISIBLE (QCAD_PROPERTY_UI_NUMERIC (property_ui)->lblUnits.widget, bVisible) ;
+  }
+
+static void set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitive)
+  {
+  QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_NUMERIC)))->set_sensitive (property_ui, bSensitive) ;
+  gtk_widget_set_sensitive (QCAD_PROPERTY_UI_NUMERIC (property_ui)->lblUnits.widget, bSensitive) ;
+  }
+
+static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY)
+  {
+  QCADPropertyUINumeric *property_ui_numeric = QCAD_PROPERTY_UI_NUMERIC (property_ui) ;
+
+  if ((idxY == property_ui_numeric->lblUnits.idxY) && 
+      (property_ui_numeric->lblUnits.idxX == idxX) && 
+      (strlen (gtk_label_get_text (GTK_LABEL (property_ui_numeric->lblUnits.widget))) > 0))
+    return QCAD_PROPERTY_UI_NUMERIC (property_ui)->lblUnits.widget ;
+  return QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_NUMERIC)))->get_widget (property_ui, idxX, idxY) ;
+  }

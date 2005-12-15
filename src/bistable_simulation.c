@@ -559,7 +559,7 @@ static inline double bistable_determine_Ek (QCADCell *cell1, QCADCell *cell2, in
       EnergySame += same_polarization[k][j] / distance;
       }//for other dots
 
- //printf("energy difference = %e energy same = %e\n", EnergyDiff/1.602e-19, EnergySame/1.602e-19);
+	//printf("Kink Energy = %e \n", Constant * (EnergyDiff-EnergySame)/1.602e-19);
 
   return Constant * (EnergyDiff - EnergySame);
 

@@ -49,10 +49,9 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 // percentage of the total neutralizing charge that is located in the active dots
-#define CHARGE_DIST 0.9376995367994801
-
+#define CHARGE_DIST 0.0
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {300, 1e-15, 1e-16, 7e-11, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 8, 1.0, 0.639, 6.66, 1.0, EULER_METHOD, ELECTRODE_CLOCKING, TRUE, TRUE} ;
+ts_coherence_OP ts_coherence_options = {300, 1e-15, 1e-16, 7e-11, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 80, 1.0, 0.639, 6.66, 1.2625, EULER_METHOD, ELECTRODE_CLOCKING, TRUE, TRUE} ;
 
 typedef struct
   {
@@ -442,7 +441,6 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
         if (((QCAD_CELL_INPUT == sorted_cells[i][j]->cell_function)||
              (QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function)))
           {
-          j++;
           continue;
           }
 
@@ -499,9 +497,9 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 					energyNull = potential[0] * chargeNull[0] + potential[1] * chargeNull[1] + potential[2] * chargeNull[2] + potential[3] * chargeNull[3] + potential[4] * chargeNull[4] + potential[5] * chargeNull[5];
 			
 					// add the self energies
-					energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
-					energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
-					energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
+					//energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
+					//energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
+					//energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
 
 				}
 				
@@ -859,9 +857,9 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				//if(sample_number%1000==0)printf("El+ %e\tEl- %e\tEln %e\tDEl %e\tInt+ %e\tInt- %e\tIntn %e\tSel+ %e\tSel- %e\tSeln %e\n", energyPlus, energyMinus, energyNull, energyMinus-energyNull, cellenergyPlus, cellenergyMinus, cellenergyNull, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus,((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null);
 				
 				// add the self energies
-				energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
-				energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
-				energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
+				//energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
+				//energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
+				//energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
 				
 			}
 				

@@ -429,11 +429,11 @@ static void qcad_cell_instance_init (GObject *object, gpointer data)
   DBG_OO (fprintf (stderr, "QCADCell::instance_init:Entering\n")) ;
 
   dcx = 
-  cell->cell_options.cxCell         = 2 ;
+  cell->cell_options.cxCell         = 5 ;
   dcy = 
-  cell->cell_options.cyCell         = 2 ;
+  cell->cell_options.cyCell         = 5 ;
   ddiam =
-  cell->cell_options.dot_diameter   =  0.5 ;
+  cell->cell_options.dot_diameter   =  1.25 ;
   cell->cell_options.mode           = QCAD_CELL_MODE_NORMAL ;
   cell->cell_options.clock          =  0 ;
   

@@ -126,12 +126,12 @@ static void qcad_electrode_instance_init (GObject *object, gpointer data)
   DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Entering\n")) ;
 
   electrode->electrode_options.clock_function        = sin ;
-  electrode->electrode_options.amplitude             =  1 ;
+  electrode->electrode_options.amplitude             =  15 ;
   electrode->electrode_options.frequency             =  57142e6 ;
-  electrode->electrode_options.phase                 =  -90 ;
+  electrode->electrode_options.phase                 =  270 ;
   electrode->electrode_options.dc_offset             =  0 ;
-  electrode->electrode_options.min_clock             = -1 ;
-  electrode->electrode_options.max_clock             =  1 ;
+  electrode->electrode_options.min_clock             = -15 ;
+  electrode->electrode_options.max_clock             =  15 ;
   electrode->electrode_options.relative_permittivity = 1.0 ;
   electrode->electrode_options.z_to_ground           = 10.0 ;
 

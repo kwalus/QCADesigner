@@ -143,8 +143,8 @@ static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointe
   QCAD_CLOCKING_LAYER (layer)->z_to_draw             =  1 ;
   QCAD_CLOCKING_LAYER (layer)->tile_size             = 16.0 ;
   QCAD_CLOCKING_LAYER (layer)->time_coord            =  0.0 ;
-  QCAD_CLOCKING_LAYER (layer)->z_to_ground           = 20.0 ;
-  QCAD_CLOCKING_LAYER (layer)->relative_permittivity = 12.9 ;
+  QCAD_CLOCKING_LAYER (layer)->z_to_ground           = 10.0 ;
+  QCAD_CLOCKING_LAYER (layer)->relative_permittivity = 1.0 ;
   QCAD_CLOCKING_LAYER (layer)->dExtremePotential     =  0 ;
   }
 

@@ -25,6 +25,7 @@ struct _QCADPropertyUISingle
   {
   QCADPropertyUI parent_instance ;
 
+  GParamSpec *pspec ;
   gboolean bShowLbl ;
   QCADPropertyUIWidget lbl ;
   } ;
@@ -33,18 +34,18 @@ struct _QCADPropertyUISingleClass
   {
   QCADPropertyUIClass parent_class ;
 
-  void (*set_pspec) (QCADPropertyUISingle *property_ui_single) ;
+  void (*set_pspec) (QCADPropertyUISingle *property_ui_single, GParamSpec *new_pspec) ;
   } ;
 
 GType qcad_property_ui_single_get_type () ;
 
 #define QCAD_TYPE_STRING_PROPERTY_UI_SINGLE "QCADPropertyUISingle"
 #define QCAD_TYPE_PROPERTY_UI_SINGLE (qcad_property_ui_single_get_type ())
-#define QCAD_PROPERTY_UI_SINGLE(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_PROPERTY_UI_SINGLE, QCADPropertyUISingle))
-#define QCAD_PROPERTY_UI_SINGLE_CLASS(class) (G_TYPE_CHECK_CLASS_CAST ((class), QCAD_TYPE_PROPERTY_UI_SINGLE, QCADPropertyUISingleClass))
-#define QCAD_IS_PROPERTY_UI_SINGLE(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_PROPERTY_UI_SINGLE))
-#define QCAD_IS_PROPERTY_UI_SINGLE_CLASS(class) (G_TYPE_CHECK_CLASS_TYPE ((class), QCAD_TYPE_PROPERTY_UI_SINGLE))
-#define QCAD_PROPERTY_UI_SINGLE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS((object), QCAD_TYPE_PROPERTY_UI_SINGLE, QCADPropertyUISingleClass))
+#define QCAD_PROPERTY_UI_SINGLE(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_PROPERTY_UI_SINGLE, QCADPropertyUISingle))
+#define QCAD_IS_PROPERTY_UI_SINGLE(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_PROPERTY_UI_SINGLE))
+#define QCAD_PROPERTY_UI_SINGLE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_PROPERTY_UI_SINGLE, QCADPropertyUISingleClass))
+#define QCAD_PROPERTY_UI_SINGLE_CLASS(class)      (G_TYPE_CHECK_CLASS_CAST    ((class),  QCAD_TYPE_PROPERTY_UI_SINGLE, QCADPropertyUISingleClass))
+#define QCAD_IS_PROPERTY_UI_SINGLE_CLASS(class)   (G_TYPE_CHECK_CLASS_TYPE    ((class),  QCAD_TYPE_PROPERTY_UI_SINGLE))
 
 // Creates a new property UI for an instance:
 // instance - self-explanatory

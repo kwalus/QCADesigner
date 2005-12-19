@@ -35,15 +35,16 @@
 
 #define QCAD_TYPE_STRING_DO_CONTAINER "QCADDOContainer"
 #define QCAD_TYPE_DO_CONTAINER (qcad_do_container_get_type ())
-#define QCAD_DO_CONTAINER(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_DO_CONTAINER, QCADDOContainer))
-#define QCAD_DO_CONTAINER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_DO_CONTAINER, QCADDOContainerClass))
-#define QCAD_IS_DO_CONTAINER(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_DO_CONTAINER))
-#define QCAD_IS_DO_CONTAINER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_DO_CONTAINER))
+#define QCAD_DO_CONTAINER(object)           (G_TYPE_CHECK_INSTANCE_CAST    ((object), QCAD_TYPE_DO_CONTAINER, QCADDOContainer))
+#define QCAD_IS_DO_CONTAINER(object)        (G_TYPE_CHECK_INSTANCE_TYPE    ((object), QCAD_TYPE_DO_CONTAINER))
 #define QCAD_DO_CONTAINER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_INTERFACE ((object), QCAD_TYPE_DO_CONTAINER, QCADDOContainerClass))
+#define QCAD_DO_CONTAINER_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST       ((klass),  QCAD_TYPE_DO_CONTAINER, QCADDOContainerClass))
+#define QCAD_IS_DO_CONTAINER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE       ((klass),  QCAD_TYPE_DO_CONTAINER))
 
-typedef struct _QCADDOContainer QCADDOContainer ; /* dummy object structure */
+typedef struct _QCADDOContainer      QCADDOContainer ; /* dummy object structure */
+typedef struct _QCADDOContainerClass QCADDOContainerClass ;
 
-typedef struct
+struct _QCADDOContainerClass
   {
   GTypeInterface parent_interface ;
 
@@ -51,7 +52,7 @@ typedef struct
   gboolean          (*add)    (QCADDOContainer *container, QCADDesignObject *obj) ;
   gboolean          (*remove) (QCADDOContainer *container, QCADDesignObject *obj) ;
 
-  } QCADDOContainerClass ;
+  } ;
 
 GType qcad_do_container_get_type () ;
 

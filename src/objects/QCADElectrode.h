@@ -40,7 +40,12 @@ extern "C" {
 
 typedef double (*ClockFunction) (double) ;
 
-typedef struct
+typedef struct _QCADElectrodeOptions    QCADElectrodeOptions ;
+typedef struct _QCADElectrodePrecompute QCADElectrodePrecompute ;
+typedef struct _QCADElectrode           QCADElectrode ;
+typedef struct _QCADElectrodeClass      QCADElectrodeClass ;
+
+struct _QCADElectrodeOptions
   {
   ClockFunction clock_function ;
   double amplitude ;
@@ -51,14 +56,14 @@ typedef struct
   double max_clock ; // Volts
   double relative_permittivity ;
   double z_to_ground ; // nm
-  } QCADElectrodeOptions ;
+  } ;
 
-typedef struct
+struct _QCADElectrodePrecompute
   {
   double permittivity ; // epsilon_nought * epsilon_r
   double two_z_to_ground ; // nm
   double capacitance ; // Farads
-  } QCADElectrodePrecompute ;
+  } ;
 
 typedef struct
   {
@@ -66,14 +71,14 @@ typedef struct
   double max ;
   } EXTREME_POTENTIALS ;
 
-typedef struct
+struct _QCADElectrode
   {
   QCADDesignObject parent_instance ;
   QCADElectrodeOptions electrode_options ;
   QCADElectrodePrecompute precompute_params ;
-  } QCADElectrode ;
+  } ;
 
-typedef struct
+struct _QCADElectrodeClass
   {
   /* public */
   QCADDesignObjectClass parent_class ;
@@ -83,7 +88,7 @@ typedef struct
   double (*get_area) (QCADElectrode *electrode) ;
   EXTREME_POTENTIALS (*extreme_potential) (QCADElectrode *electrode, double z) ;
   void (*precompute) (QCADElectrode *electrode) ;
-  } QCADElectrodeClass ;
+  } ;
 
 GType qcad_electrode_get_type () ;
 
@@ -94,11 +99,11 @@ EXTREME_POTENTIALS qcad_electrode_get_extreme_potential (QCADElectrode *electrod
 
 #define QCAD_TYPE_STRING_ELECTRODE "QCADElectrode"
 #define QCAD_TYPE_ELECTRODE (qcad_electrode_get_type ())
-#define QCAD_ELECTRODE(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_ELECTRODE, QCADElectrode))
-#define QCAD_ELECTRODE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_ELECTRODE, QCADElectrodeClass))
-#define QCAD_IS_ELECTRODE(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_ELECTRODE))
-#define QCAD_IS_ELECTRODE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_ELECTRODE))
-#define QCAD_ELECTRODE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_ELECTRODE, QCADElectrodeClass))
+#define QCAD_ELECTRODE(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_ELECTRODE, QCADElectrode))
+#define QCAD_IS_ELECTRODE(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_ELECTRODE))
+#define QCAD_ELECTRODE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_ELECTRODE, QCADElectrodeClass))
+#define QCAD_ELECTRODE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_ELECTRODE, QCADElectrodeClass))
+#define QCAD_IS_ELECTRODE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_ELECTRODE))
 
 ///////////////////////////////////////////////////////////////////////////////
 

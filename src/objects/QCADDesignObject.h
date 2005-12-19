@@ -52,7 +52,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef enum _QCADSelectionMethod QCADSelectionMethod ;
+
+typedef struct _QCADDesignObject      QCADDesignObject ;
+typedef struct _QCADDesignObjectClass QCADDesignObjectClass ;
+
+struct _QCADDesignObject
   {
   QCADObject parent_instance ;
 
@@ -63,15 +68,15 @@ typedef struct
   gboolean bSelected ;
   GdkColor clr ;
   WorldRectangle bounding_box ;
-  } QCADDesignObject ;
+  } ;
 
-typedef enum
+enum _QCADSelectionMethod
   {
   SELECTION_CONTAINMENT,
   SELECTION_INTERSECTION
-  } QCADSelectionMethod ;
+  } ;
 
-typedef struct QCADDesignObjectClass
+struct _QCADDesignObjectClass
   {
   /* polymorphic behaviour */
   QCADObjectClass parent_class ;
@@ -89,16 +94,7 @@ typedef struct QCADDesignObjectClass
   gboolean (*select_test) (QCADDesignObject *obj, WorldRectangle *rc, QCADSelectionMethod method) ;
 #ifdef GTK_GUI
   void (*draw) (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
-  GCallback (*default_properties_ui) (struct QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData) ;
-#ifdef UNDO_REDO
-  gboolean (*old_properties) (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
-#else
-  gboolean (*old_properties) (QCADDesignObject *obj, GtkWidget *parent) ;
-#endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
-  void *(*default_properties_get) (struct QCADDesignObjectClass *klass) ;
-  void (*default_properties_set) (struct QCADDesignObjectClass *klass, void *props) ;
-  void (*default_properties_destroy) (struct QCADDesignObjectClass *klass, void *props) ;
   void (*transform) (QCADDesignObject *obj, double m11, double m12, double m21, double m22) ;
 
   /* signal handlers */
@@ -107,17 +103,17 @@ typedef struct QCADDesignObjectClass
   GdkColor clrSelected ;
   GdkColor clrDefault ;
   MOUSE_HANDLERS mh ;
-  } QCADDesignObjectClass ;
+  } ;
 
 GType qcad_design_object_get_type () ;
 
 #define QCAD_TYPE_STRING_DESIGN_OBJECT "QCADDesignObject"
 #define QCAD_TYPE_DESIGN_OBJECT (qcad_design_object_get_type ())
-#define QCAD_DESIGN_OBJECT(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_DESIGN_OBJECT, QCADDesignObject))
-#define QCAD_DESIGN_OBJECT_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_DESIGN_OBJECT, QCADDesignObjectClass))
-#define QCAD_IS_DESIGN_OBJECT(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_DESIGN_OBJECT))
-#define QCAD_IS_DESIGN_OBJECT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_DESIGN_OBJECT))
-#define QCAD_DESIGN_OBJECT_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_DESIGN_OBJECT, QCADDesignObjectClass))
+#define QCAD_DESIGN_OBJECT(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_DESIGN_OBJECT, QCADDesignObject))
+#define QCAD_IS_DESIGN_OBJECT(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_DESIGN_OBJECT))
+#define QCAD_DESIGN_OBJECT_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_DESIGN_OBJECT, QCADDesignObjectClass))
+#define QCAD_DESIGN_OBJECT_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_DESIGN_OBJECT, QCADDesignObjectClass))
+#define QCAD_IS_DESIGN_OBJECT_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_DESIGN_OBJECT))
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -134,16 +130,7 @@ gboolean qcad_design_object_select_test (QCADDesignObject *obj, WorldRectangle *
 QCADDesignObject *qcad_design_object_hit_test (QCADDesignObject *obj, int x, int y) ;
 #ifdef GTK_GUI
 void qcad_design_object_draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
-GCallback qcad_design_object_class_get_properties_ui (QCADDesignObjectClass *klass, void *default_propeties, GtkWidget **pTopContainer, gpointer *pData) ;
-#ifdef UNDO_REDO
-gboolean qcad_design_object_get_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
-#else
-gboolean qcad_design_object_get_properties (QCADDesignObject *obj, GtkWidget *parent) ;
-#endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
-void *qcad_design_object_class_get_properties (QCADDesignObjectClass *klass) ;
-void qcad_design_object_class_set_properties (QCADDesignObjectClass *klass, void *props) ;
-void qcad_design_object_class_destroy_properties (QCADDesignObjectClass *klass, void *props) ;
 const char *qcad_design_object_get_PostScript_preamble (QCADDesignObject *obj) ;
 char *qcad_design_object_get_PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
 GList *qcad_design_object_add_types (QCADDesignObject *obj, GList *lst) ;

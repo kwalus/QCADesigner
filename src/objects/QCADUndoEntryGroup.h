@@ -42,42 +42,47 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef enum
+typedef enum _QCADUndoState QCADUndoState ;
+
+typedef struct _QCADUndoEntryGroup      QCADUndoEntryGroup ;
+typedef struct _QCADUndoEntryGroupClass QCADUndoEntryGroupClass ;
+
+enum _QCADUndoState
   {
   QCAD_CAN_UNDO = 1 << 0,
   QCAD_CAN_REDO = 1 << 1
-  } QCADUndoState ;
+  } ;
 
 
-typedef struct QCADUndoEntryGroup
+struct _QCADUndoEntryGroup
   {
   QCADUndoEntry parent_instance ;
 
-  struct QCADUndoEntryGroup *current_group ;
+  QCADUndoEntryGroup *current_group ;
 
   GList *llBeg ;
   GList *llCur ;
   GList *llEnd ;
-  } QCADUndoEntryGroup ;
+  } ;
 
-typedef struct QCADUndoEntryGroupClass
+struct _QCADUndoEntryGroupClass
   {
   QCADUndoEntryClass parent_class ;
 
   /* signals */
   void (*state_changed) (GObject *object, QCADUndoState state, gpointer user_data) ;
 
-  } QCADUndoEntryGroupClass ;
+  } ;
 
 GType qcad_undo_entry_group_get_type () ;
 
 #define QCAD_TYPE_STRING_UNDO_ENTRY_GROUP "QCADUndoEntryGroup"
 #define QCAD_TYPE_UNDO_ENTRY_GROUP (qcad_undo_entry_group_get_type ())
-#define QCAD_UNDO_ENTRY_GROUP(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_UNDO_ENTRY_GROUP, QCADUndoEntryGroup))
-#define QCAD_UNDO_ENTRY_GROUP_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_UNDO_ENTRY_GROUP, QCADUndoEntryGroupClass))
-#define QCAD_IS_UNDO_ENTRY_GROUP(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_UNDO_ENTRY_GROUP))
-#define QCAD_IS_UNDO_ENTRY_GROUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_UNDO_ENTRY_GROUP))
-#define QCAD_UNDO_ENTRY_GROUP_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_UNDO_ENTRY_GROUP, QCADUndoEntryGroupClass))
+#define QCAD_UNDO_ENTRY_GROUP(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_UNDO_ENTRY_GROUP, QCADUndoEntryGroup))
+#define QCAD_IS_UNDO_ENTRY_GROUP(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_UNDO_ENTRY_GROUP))
+#define QCAD_UNDO_ENTRY_GROUP_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_UNDO_ENTRY_GROUP, QCADUndoEntryGroupClass))
+#define QCAD_UNDO_ENTRY_GROUP_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_UNDO_ENTRY_GROUP, QCADUndoEntryGroupClass))
+#define QCAD_IS_UNDO_ENTRY_GROUP_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_UNDO_ENTRY_GROUP))
 
 ///////////////////////////////////////////////////////////////////////////////
 

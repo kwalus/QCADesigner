@@ -42,12 +42,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef struct _QCADStretchyObject      QCADStretchyObject ;
+typedef struct _QCADStretchyObjectClass QCADStretchyObjectClass ;
+
+struct _QCADStretchyObject
   {
   QCADDesignObject parent_instance ;
-  } QCADStretchyObject ;
+  } ;
 
-typedef struct
+struct _QCADStretchyObjectClass
   {
   // public
   QCADDesignObjectClass parent_class ;
@@ -63,18 +66,17 @@ typedef struct
   // Function used to recalculate the state of the object between 2 consecutive drawings
   // when dragging the object upon creation or resize
   void (*stretch_draw_state_change) (QCADStretchyObject *tmpobj, int x, int y, int xRef, int yRef) ;
-
-  } QCADStretchyObjectClass ;
+  } ;
 
 GType qcad_stretchy_object_get_type () ;
 
 #define QCAD_TYPE_STRING_STRETCHY_OBJECT "QCADStretchyObject"
 #define QCAD_TYPE_STRETCHY_OBJECT (qcad_stretchy_object_get_type ())
-#define QCAD_STRETCHY_OBJECT(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_STRETCHY_OBJECT, QCADStretchyObject))
-#define QCAD_STRETCHY_OBJECT_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_STRETCHY_OBJECT, QCADStretchyObjectClass))
-#define QCAD_IS_STRETCHY_OBJECT(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_STRETCHY_OBJECT))
-#define QCAD_IS_STRETCHY_OBJECT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_STRETCHY_OBJECT))
-#define QCAD_STRETCHY_OBJECT_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_STRETCHY_OBJECT, QCADStretchyObjectClass))
+#define QCAD_STRETCHY_OBJECT(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_STRETCHY_OBJECT, QCADStretchyObject))
+#define QCAD_IS_STRETCHY_OBJECT(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_STRETCHY_OBJECT))
+#define QCAD_STRETCHY_OBJECT_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_STRETCHY_OBJECT, QCADStretchyObjectClass))
+#define QCAD_STRETCHY_OBJECT_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_STRETCHY_OBJECT, QCADStretchyObjectClass))
+#define QCAD_IS_STRETCHY_OBJECT_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_STRETCHY_OBJECT))
 
 #ifdef __cplusplus
 }

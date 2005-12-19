@@ -40,7 +40,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef struct _QCADClockingLayer      QCADClockingLayer ;
+typedef struct _QCADClockingLayerClass QCADClockingLayerClass ;
+
+struct _QCADClockingLayer
   {
   QCADLayer parent_instance ;
   gboolean bDrawPotential ;
@@ -51,22 +54,22 @@ typedef struct
   double relative_permittivity ;
 
   double dExtremePotential ;
-  } QCADClockingLayer ;
+  } ;
 
-typedef struct
+struct _QCADClockingLayerClass
   {
   QCADLayerClass parent_class ;
-  } QCADClockingLayerClass ;
+  } ;
 
 GType qcad_clocking_layer_get_type () ;
 
 #define QCAD_TYPE_STRING_CLOCKING_LAYER "QCADClockingLayer"
 #define QCAD_TYPE_CLOCKING_LAYER (qcad_clocking_layer_get_type ())
-#define QCAD_CLOCKING_LAYER(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CLOCKING_LAYER, QCADClockingLayer))
-#define QCAD_CLOCKING_LAYER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_CLOCKING_LAYER, QCADClockingLayerClass))
-#define QCAD_IS_CLOCKING_LAYER(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CLOCKING_LAYER))
-#define QCAD_IS_CLOCKING_LAYER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_CLOCKING_LAYER))
-#define QCAD_CLOCKING_LAYER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_CLOCKING_LAYER, QCADClockingLayerClass))
+#define QCAD_CLOCKING_LAYER(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CLOCKING_LAYER, QCADClockingLayer))
+#define QCAD_IS_CLOCKING_LAYER(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CLOCKING_LAYER))
+#define QCAD_CLOCKING_LAYER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_CLOCKING_LAYER, QCADClockingLayerClass))
+#define QCAD_CLOCKING_LAYER_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_CLOCKING_LAYER, QCADClockingLayerClass))
+#define QCAD_IS_CLOCKING_LAYER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_CLOCKING_LAYER))
 
 #ifdef __cplusplus
 }

@@ -38,14 +38,20 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef enum
+typedef enum _QCADPrintDialogUnits QCADPrintDialogUnits ;
+
+typedef struct _print_OP             print_OP ;
+typedef struct _QCADPrintDialog      QCADPrintDialog ;
+typedef struct _QCADPrintDialogClass QCADPrintDialogClass ;
+
+enum _QCADPrintDialogUnits
   {
   PD_UNITS_CENTIS,
   PD_UNITS_INCHES,
   PD_UNITS_POINTS
-  } QCADPrintDialogUnits ;
+  } ;
 
-typedef struct
+struct _print_OP
   {
   double dPaperCX ;
   double dPaperCY ;
@@ -56,9 +62,9 @@ typedef struct
   gboolean bPrintFile ;
   gboolean bPortrait ;
   char *pszPrintString ;
-  } print_OP ;
+  } ;
 
-typedef struct QCADPrintDialog
+struct _QCADPrintDialog
   {
   GtkDialog dlg ;
 
@@ -111,15 +117,15 @@ typedef struct QCADPrintDialog
   GtkWidget *btnCancel ;
   GtkWidget *btnPrint ;
   GtkWidget *btnPreview ;
-  } QCADPrintDialog ;
+  } ;
 
-typedef struct
+struct _QCADPrintDialogClass
   {
   GtkDialogClass parent_class ;
   void (*changed) (QCADPrintDialog *pd, gpointer data) ;
   void (*units_changed) (QCADPrintDialog *pd, gpointer data) ;
   void (*preview) (QCADPrintDialog *pd, gpointer data) ;
-  } QCADPrintDialogClass ;
+  } ;
 
 GType qcad_print_dialog_get_type () ;
 
@@ -134,11 +140,11 @@ QCADPrintDialogUnits qcad_print_dialog_get_units (QCADPrintDialog *pd) ;
 
 #define QCAD_TYPE_STRING_PRINT_DIALOG "QCADPrintDialog"
 #define QCAD_TYPE_PRINT_DIALOG (qcad_print_dialog_get_type ())
-#define QCAD_PRINT_DIALOG(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_PRINT_DIALOG, QCADPrintDialog))
-#define QCAD_PRINT_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_PRINT_DIALOG, QCADPrintDialogClass))
-#define QCAD_IS_PRINT_DIALOG(object) (G_TYPE_CHECK_INSTANCE_TYPE (object, QCAD_TYPE_PRINT_DIALOG))
-#define QCAD_IS_PRINT_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_PRINT_DIALOG))
-#define QCAD_PRINT_DIALOG_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_PRINT_DIALOG, QCADPrintDialogClass))
+#define QCAD_PRINT_DIALOG(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_PRINT_DIALOG, QCADPrintDialog))
+#define QCAD_IS_PRINT_DIALOG(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_PRINT_DIALOG))
+#define QCAD_PRINT_DIALOG_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_PRINT_DIALOG, QCADPrintDialogClass))
+#define QCAD_PRINT_DIALOG_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_PRINT_DIALOG, QCADPrintDialogClass))
+#define QCAD_IS_PRINT_DIALOG_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_PRINT_DIALOG))
 
 #ifdef __cplusplus
 }

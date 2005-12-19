@@ -37,6 +37,7 @@
 #include <stdarg.h>
 #ifdef GTK_GUI
   #include <gtk/gtk.h>
+  #include "QCADPropertyUI.h"
 #endif
 #include <glib-object.h>
 #include "../exp_array.h"
@@ -45,30 +46,40 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef struct _QCADObject      QCADObject ;
+typedef struct _QCADObjectClass QCADObjectClass ;
+
+struct _QCADObject
   {
   GObject parent_instance ;
-  } QCADObject ;
+  } ;
 
-typedef struct QCADObjectClass
+struct _QCADObjectClass
   {
   GObjectClass parent_class ;
   QCADObject *default_object ;
-  EXP_ARRAY *property_uis ;
+#ifdef GTK_GUI
+  QCADPropertyUI *property_ui ;
+#endif /* def GTK_GUI */
 
+  // signals
+  void (*set_default)   (QCADObject *obj, gpointer data) ;
+  void (*unset_default) (QCADObject *obj, gpointer data) ;
+
+  // proptotypes
   void (*copy) (QCADObject *objSrc, QCADObject *objDst) ;
   QCADObject *(*class_get_default_object) () ;
-  } QCADObjectClass ;
+  } ;
 
 GType qcad_object_get_type () ;
 
 #define QCAD_TYPE_STRING_OBJECT "QCADObject"
 #define QCAD_TYPE_OBJECT (qcad_object_get_type ())
-#define QCAD_OBJECT(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_OBJECT, QCADObject))
-#define QCAD_OBJECT_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_OBJECT, QCADObjectClass))
-#define QCAD_IS_OBJECT(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_OBJECT))
-#define QCAD_IS_OBJECT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_OBJECT))
-#define QCAD_OBJECT_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_OBJECT, QCADObjectClass))
+#define QCAD_OBJECT(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_OBJECT, QCADObject))
+#define QCAD_IS_OBJECT(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_OBJECT))
+#define QCAD_OBJECT_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_OBJECT, QCADObjectClass))
+#define QCAD_OBJECT_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_OBJECT, QCADObjectClass))
+#define QCAD_IS_OBJECT_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_OBJECT))
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -78,6 +89,10 @@ QCADObject *qcad_object_new_from_object (QCADObject *src) ;
 QCADObject *qcad_object_get_default (GType type) ;
 // Overwrites the default object for the given type
 void qcad_object_set_default (GType type, QCADObject *obj) ;
+#ifdef GTK_GUI
+QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, char *property, ...) ;
+gboolean qcad_object_get_properties (QCADObject *obj, GtkWindow *parent_window) ;
+#endif /* def GTK_GUI */
 
 #ifdef __cplusplus
 }

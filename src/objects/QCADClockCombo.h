@@ -58,11 +58,11 @@ GType qcad_clock_combo_get_type () ;
 
 #define QCAD_TYPE_STRING_CLOCK_COMBO "QCADClockCombo"
 #define QCAD_TYPE_CLOCK_COMBO (qcad_clock_combo_get_type ())
-#define QCAD_CLOCK_COMBO(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CLOCK_COMBO, QCADClockCombo))
-#define QCAD_CLOCK_COMBO_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_CLOCK_COMBO, QCADClockComboClass))
-#define QCAD_IS_CLOCK_COMBO(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CLOCK_COMBO))
-#define QCAD_IS_CLOCK_COMBO_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_CLOCK_COMBO))
-#define QCAD_CLOCK_COMBO_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_CLOCK_COMBO, QCADClockComboClass))
+#define QCAD_CLOCK_COMBO(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CLOCK_COMBO, QCADClockCombo))
+#define QCAD_IS_CLOCK_COMBO(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CLOCK_COMBO))
+#define QCAD_CLOCK_COMBO_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_CLOCK_COMBO, QCADClockComboClass))
+#define QCAD_CLOCK_COMBO_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_CLOCK_COMBO, QCADClockComboClass))
+#define QCAD_IS_CLOCK_COMBO_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_CLOCK_COMBO))
 
 GtkWidget *qcad_clock_combo_new () ;
 int qcad_clock_combo_get_clock (QCADClockCombo *qcc) ;

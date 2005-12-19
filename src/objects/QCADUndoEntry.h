@@ -42,27 +42,30 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef struct _QCADUndoEntry      QCADUndoEntry ;
+typedef struct _QCADUndoEntryClass QCADUndoEntryClass ;
+
+struct _QCADUndoEntry
   {
   GObject parent_instance ;
-  } QCADUndoEntry ;
+  } ;
 
-typedef struct QCADUndoEntryClass
+struct _QCADUndoEntryClass
   {
   GObjectClass parent_class ;
   void (*apply) (GObject *object, gboolean bUndo, gpointer user_data) ;
   void (*fire) (QCADUndoEntry *entry, gboolean bUndo) ;
-  } QCADUndoEntryClass ;
+  } ;
 
 GType qcad_undo_entry_get_type () ;
 
 #define QCAD_TYPE_STRING_UNDO_ENTRY "QCADUndoEntry"
 #define QCAD_TYPE_UNDO_ENTRY (qcad_undo_entry_get_type ())
-#define QCAD_UNDO_ENTRY(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_UNDO_ENTRY, QCADUndoEntry))
-#define QCAD_UNDO_ENTRY_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_UNDO_ENTRY, QCADUndoEntryClass))
-#define QCAD_IS_UNDO_ENTRY(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_UNDO_ENTRY))
-#define QCAD_IS_UNDO_ENTRY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_UNDO_ENTRY))
-#define QCAD_UNDO_ENTRY_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_UNDO_ENTRY, QCADUndoEntryClass))
+#define QCAD_UNDO_ENTRY(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_UNDO_ENTRY, QCADUndoEntry))
+#define QCAD_IS_UNDO_ENTRY(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_UNDO_ENTRY))
+#define QCAD_UNDO_ENTRY_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_UNDO_ENTRY, QCADUndoEntryClass))
+#define QCAD_UNDO_ENTRY_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_UNDO_ENTRY, QCADUndoEntryClass))
+#define QCAD_IS_UNDO_ENTRY_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_UNDO_ENTRY))
 
 ///////////////////////////////////////////////////////////////////////////////
 

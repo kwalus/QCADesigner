@@ -36,7 +36,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef struct _QCADCellRendererVT      QCADCellRendererVT ;
+typedef struct _QCADCellRendererVTClass QCADCellRendererVTClass ;
+
+struct _QCADCellRendererVT
   {
   GtkCellRendererText parent ;
 
@@ -45,26 +48,26 @@ typedef struct
 #if (GTK_MINOR_VERSION <= 4)
   gboolean sensitive ;
 #endif
-  } QCADCellRendererVT ;
+  } ;
 
-typedef struct
+struct _QCADCellRendererVTClass
   {
   GtkCellRendererTextClass parent_class ;
   void (*toggled) (QCADCellRendererVT *cr, const gchar *pszPath) ;
   void (*clicked) (QCADCellRendererVT *cr) ;
   void (*editing_started) (QCADCellRendererVT *cr, GtkCellEditable *ce, char *pszPath) ;
-  } QCADCellRendererVTClass ;
+  } ;
 
 GType qcad_cell_renderer_vt_get_type () ;
 GtkCellRenderer *qcad_cell_renderer_vt_new () ;
 
 #define QCAD_TYPE_STRING_CELL_RENDERER_VT "QCADCellRendererVT"
 #define QCAD_TYPE_CELL_RENDERER_VT (qcad_cell_renderer_vt_get_type ())
-#define QCAD_CELL_RENDERER_VT(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CELL_RENDERER_VT, QCADCellRendererVT))
-#define QCAD_CELL_RENDERER_VT_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_CELL_RENDERER_VT, QCADCellRendererVTClass))
-#define QCAD_IS_CELL_RENDERER_VT(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CELL_RENDERER_VT))
-#define QCAD_IS_CELL_RENDERER_VT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_CELL_RENDERER_VT))
-#define QCAD_CELL_RENDERER_VT_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_CELL_RENDERER_VT, QCADCellRendererVTClass))
+#define QCAD_CELL_RENDERER_VT(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CELL_RENDERER_VT, QCADCellRendererVT))
+#define QCAD_IS_CELL_RENDERER_VT(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CELL_RENDERER_VT))
+#define QCAD_CELL_RENDERER_VT_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_CELL_RENDERER_VT, QCADCellRendererVTClass))
+#define QCAD_CELL_RENDERER_VT_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_CELL_RENDERER_VT, QCADCellRendererVTClass))
+#define QCAD_IS_CELL_RENDERER_VT_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_CELL_RENDERER_VT))
 
 #ifdef __cplusplus
 }

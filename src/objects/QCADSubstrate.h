@@ -38,29 +38,32 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef struct _QCADSubstrateClass QCADSubstrateClass ;
+typedef struct _QCADSubstrate      QCADSubstrate ;
+
+struct _QCADSubstrateClass
   {
   /* public */
   QCADStretchyObjectClass parent_class ;
 
   /* private */
-  } QCADSubstrateClass ;
+  } ;
 
-typedef struct
+struct _QCADSubstrate
   {
   QCADStretchyObject parent_instance ;
   double grid_spacing ; // nm
-  } QCADSubstrate ;
+  } ;
 
 GType qcad_substrate_get_type () ;
 
 #define QCAD_TYPE_STRING_SUBSTRATE "QCADSubstrate"
 #define QCAD_TYPE_SUBSTRATE (qcad_substrate_get_type ())
-#define QCAD_SUBSTRATE(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_SUBSTRATE, QCADSubstrate))
-#define QCAD_SUBSTRATE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_SUBSTRATE, QCADSubstrateClass))
-#define QCAD_IS_SUBSTRATE(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_SUBSTRATE))
-#define QCAD_IS_SUBSTRATE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_SUBSTRATE))
-#define QCAD_SUBSTRATE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_SUBSTRATE, QCADSubstrateClass))
+#define QCAD_SUBSTRATE(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_SUBSTRATE, QCADSubstrate))
+#define QCAD_IS_SUBSTRATE(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_SUBSTRATE))
+#define QCAD_SUBSTRATE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_SUBSTRATE, QCADSubstrateClass))
+#define QCAD_SUBSTRATE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_SUBSTRATE, QCADSubstrateClass))
+#define QCAD_IS_SUBSTRATE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_SUBSTRATE))
 
 ///////////////////////////////////////////////////////////////////////////////
 

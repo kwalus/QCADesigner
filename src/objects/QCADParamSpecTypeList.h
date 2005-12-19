@@ -20,7 +20,7 @@ GParamSpec *qcad_param_spec_type_list (const char *name, const char *nick, const
 
 #define QCAD_TYPE_STRING_PARAM_SPEC_TYPE_LIST "QCADParamSpecTypeList"
 #define QCAD_TYPE_PARAM_SPEC_TYPE_LIST (qcad_param_spec_type_list_get_type ())
-#define QCAD_PARAM_SPEC_TYPE_LIST(pspec) (G_TYPE_CHECK_INSTANCE_CAST ((pspec), QCAD_TYPE_PARAM_SPEC_TYPE_LIST, QCADParamSpecTypeList))
+#define QCAD_PARAM_SPEC_TYPE_LIST(pspec)    (G_TYPE_CHECK_INSTANCE_CAST ((pspec), QCAD_TYPE_PARAM_SPEC_TYPE_LIST, QCADParamSpecTypeList))
 #define QCAD_IS_PARAM_SPEC_TYPE_LIST(pspec) (G_TYPE_CHECK_INSTANCE_TYPE ((pspec), QCAD_TYPE_PARAM_SPEC_TYPE_LIST))
 
 G_END_DECLS

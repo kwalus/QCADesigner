@@ -38,7 +38,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef struct _QCADRectangleElectrodePrecompute QCADRectangleElectrodePrecompute ;
+typedef struct _QCADRectangleElectrode           QCADRectangleElectrode ;
+typedef struct _QCADRectangleElectrodeClass      QCADRectangleElectrodeClass ;
+
+struct _QCADRectangleElectrodePrecompute
   {
 //  double pt1x_minus_pt0x ;
 //  double pt1y_minus_pt0y ;
@@ -49,9 +53,9 @@ typedef struct
   double rho_factor ;
   WorldPoint pt[4] ;
   EXP_ARRAY *pts ;
-  } QCADRectangleElectrodePrecompute ;
+  } ;
 
-typedef struct
+struct _QCADRectangleElectrode
   {
   QCADElectrode parent_instance ;
   double angle ;
@@ -60,9 +64,9 @@ typedef struct
   double cxWorld ;
   double cyWorld ;
   QCADRectangleElectrodePrecompute precompute_params ;
-  } QCADRectangleElectrode ;
+  } ;
 
-typedef struct
+struct _QCADRectangleElectrodeClass
   {
   /* public */
   QCADElectrodeClass parent_class ;
@@ -71,17 +75,17 @@ typedef struct
   int default_n_y_divisions ;
   double default_cxWorld ;
   double default_cyWorld ;
-  } QCADRectangleElectrodeClass ;
+  } ;
 
 GType qcad_rectangle_electrode_get_type () ;
 
 #define QCAD_TYPE_STRING_RECTANGLE_ELECTRODE "QCADRectangleElectrode"
 #define QCAD_TYPE_RECTANGLE_ELECTRODE (qcad_rectangle_electrode_get_type ())
-#define QCAD_RECTANGLE_ELECTRODE(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrode))
-#define QCAD_RECTANGLE_ELECTRODE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrodeClass))
-#define QCAD_IS_RECTANGLE_ELECTRODE(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RECTANGLE_ELECTRODE))
-#define QCAD_IS_RECTANGLE_ELECTRODE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_RECTANGLE_ELECTRODE))
-#define QCAD_RECTANGLE_ELECTRODE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrodeClass))
+#define QCAD_RECTANGLE_ELECTRODE(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrode))
+#define QCAD_IS_RECTANGLE_ELECTRODE(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RECTANGLE_ELECTRODE))
+#define QCAD_RECTANGLE_ELECTRODE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrodeClass))
+#define QCAD_RECTANGLE_ELECTRODE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_RECTANGLE_ELECTRODE, QCADRectangleElectrodeClass))
+#define QCAD_IS_RECTANGLE_ELECTRODE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_RECTANGLE_ELECTRODE))
 
 ///////////////////////////////////////////////////////////////////////////////
 

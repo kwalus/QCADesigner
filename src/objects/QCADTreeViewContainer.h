@@ -39,18 +39,21 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef struct _QCADTreeViewContainerClass QCADTreeViewContainerClass ;
+typedef struct _QCADTreeViewContainer      QCADTreeViewContainer ;
+
+struct _QCADTreeViewContainerClass
   {
   GtkScrolledWindowClass parent_klass ;
-  } QCADTreeViewContainerClass ;
+  } ;
 
-typedef struct
+struct _QCADTreeViewContainer
   {
   GtkScrolledWindow parent_instance ;
   int n_frozen_columns ;
   GtkAdjustment *fake_hadj ;
   int old_value ;
-  } QCADTreeViewContainer ;
+  } ;
 
 GType qcad_tree_view_container_get_type () ;
 
@@ -60,11 +63,11 @@ void qcad_tree_view_container_freeze_columns (QCADTreeViewContainer *tvc, int n_
 
 #define QCAD_TYPE_STRING_TREE_VIEW_CONTAINER "QCADTreeViewContainer"
 #define QCAD_TYPE_TREE_VIEW_CONTAINER (qcad_tree_view_container_get_type ())
-#define QCAD_TREE_VIEW_CONTAINER(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_TREE_VIEW_CONTAINER, QCADTreeViewContainer))
-#define QCAD_TREE_VIEW_CONTAINER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_TREE_VIEW_CONTAINER, QCADTreeViewContainerClass))
-#define QCAD_IS_TREE_VIEW_CONTAINER(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_TREE_VIEW_CONTAINER))
-#define QCAD_IS_TREE_VIEW_CONTAINER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_TREE_VIEW_CONTAINER_VT))
-#define QCAD_TREE_VIEW_CONTAINER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_TREE_VIEW_CONTAINER, QCADTreeViewContainerClass))
+#define QCAD_TREE_VIEW_CONTAINER(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_TREE_VIEW_CONTAINER, QCADTreeViewContainer))
+#define QCAD_IS_TREE_VIEW_CONTAINER(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_TREE_VIEW_CONTAINER))
+#define QCAD_TREE_VIEW_CONTAINER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_TREE_VIEW_CONTAINER, QCADTreeViewContainerClass))
+#define QCAD_TREE_VIEW_CONTAINER_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_TREE_VIEW_CONTAINER, QCADTreeViewContainerClass))
+#define QCAD_IS_TREE_VIEW_CONTAINER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_TREE_VIEW_CONTAINER))
 
 #ifdef __cplusplus
 }

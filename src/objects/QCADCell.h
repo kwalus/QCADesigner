@@ -44,32 +44,40 @@ extern "C" {
 #define CLOCK_INC(c) (((c)+1)%4)
 #define CLOCK_DEC(c) (0==(c)?3:(c)-1)
 
-typedef enum
+typedef enum   _QCADCellMode     QCADCellMode ;
+typedef enum   _QCADCellFunction QCADCellFunction ;
+
+typedef struct _QCADCellOptions  QCADCellOptions ;
+typedef struct _QCADCellDot      QCADCellDot ;
+typedef struct _QCADCell         QCADCell ;
+typedef struct _QCADCellClass    QCADCellClass ;
+
+enum _QCADCellMode
   {
   QCAD_CELL_MODE_NORMAL,
   QCAD_CELL_MODE_CROSSOVER,
   QCAD_CELL_MODE_VERTICAL
-  } QCADCellMode ;
+  } ;
 
-typedef enum
+enum _QCADCellFunction
   {
   QCAD_CELL_NORMAL,
   QCAD_CELL_INPUT,
   QCAD_CELL_OUTPUT,
   QCAD_CELL_FIXED,
   QCAD_CELL_LAST_FUNCTION
-  } QCADCellFunction ;
+  } ;
 
-typedef struct
+struct _QCADCellOptions
   {
   double cxCell ;
   double cyCell ;
   double dot_diameter ;
   int clock ;
   int mode ;
-  } QCADCellOptions ;
+  } ;
 
-typedef struct
+struct _QCADCellDot
   {
   // absolute world qdot coords //
   double x;
@@ -86,9 +94,9 @@ typedef struct
 
   // electrostatic potential induced by all other cells on this dot
   double potential;
-  } QCADCellDot;
+  } ;
 
-typedef struct
+struct _QCADCell
   {
   QCADDesignObject parent_instance ;
   int id ;
@@ -100,16 +108,16 @@ typedef struct
   QCADLabel *label ;
   gboolean bLabelRemoved ;
   char *host_name ;
-  } QCADCell ;
+  } ;
 
-typedef struct
+struct _QCADCellClass
   {
   /* public */
   QCADDesignObjectClass parent_class ;
 
   /* signals */
   void (*cell_function_changed) (GObject *object, gpointer user_data) ;
-  } QCADCellClass ;
+  } ;
 
 GType qcad_cell_get_type () ;
 GType qcad_cell_function_get_type () ;
@@ -117,11 +125,11 @@ GType qcad_cell_mode_get_type () ;
 
 #define QCAD_TYPE_STRING_CELL "QCADCell"
 #define QCAD_TYPE_CELL (qcad_cell_get_type ())
-#define QCAD_CELL(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CELL, QCADCell))
-#define QCAD_CELL_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_CELL, QCADCellClass))
-#define QCAD_IS_CELL(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CELL))
-#define QCAD_IS_CELL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_CELL))
-#define QCAD_CELL_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_CELL, QCADCellClass))
+#define QCAD_CELL(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_CELL, QCADCell))
+#define QCAD_IS_CELL(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_CELL))
+#define QCAD_CELL_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_CELL, QCADCellClass))
+#define QCAD_CELL_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_CELL, QCADCellClass))
+#define QCAD_IS_CELL_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_CELL))
 
 #define QCAD_TYPE_STRING_CELL_FUNCTION "QCADCellFunction"
 #define QCAD_TYPE_CELL_FUNCTION (qcad_cell_function_get_type ())

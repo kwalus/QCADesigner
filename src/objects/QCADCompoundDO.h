@@ -37,15 +37,16 @@
 
 #define QCAD_TYPE_STRING_COMPOUND_DO "QCADCompoundDO"
 #define QCAD_TYPE_COMPOUND_DO (qcad_compound_do_get_type ())
-#define QCAD_COMPOUND_DO(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_COMPOUND_DO, QCADCompoundDO))
-#define QCAD_COMPOUND_DO_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_COMPOUND_DO, QCADCompoundDOClass))
-#define QCAD_IS_COMPOUND_DO(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_COMPOUND_DO))
-#define QCAD_IS_COMPOUND_DO_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_COMPOUND_DO))
+#define QCAD_COMPOUND_DO(object)           (G_TYPE_CHECK_INSTANCE_CAST    ((object), QCAD_TYPE_COMPOUND_DO, QCADCompoundDO))
+#define QCAD_IS_COMPOUND_DO(object)        (G_TYPE_CHECK_INSTANCE_TYPE    ((object), QCAD_TYPE_COMPOUND_DO))
 #define QCAD_COMPOUND_DO_GET_CLASS(object) (G_TYPE_INSTANCE_GET_INTERFACE ((object), QCAD_TYPE_COMPOUND_DO, QCADCompoundDOClass))
+#define QCAD_COMPOUND_DO_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST       ((klass),  QCAD_TYPE_COMPOUND_DO, QCADCompoundDOClass))
+#define QCAD_IS_COMPOUND_DO_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE       ((klass),  QCAD_TYPE_COMPOUND_DO))
 
-typedef struct _QCADCompoundDO QCADCompoundDO ; /* dummy object structure */
+typedef struct _QCADCompoundDO      QCADCompoundDO ; /* dummy object structure */
+typedef struct _QCADCompoundDOClass QCADCompoundDOClass ;
 
-typedef struct
+struct _QCADCompoundDOClass
   {
   GTypeInterface parent_interface ;
 
@@ -57,7 +58,7 @@ typedef struct
   QCADDesignObject *(*first) (QCADCompoundDO *compound_do) ;
   QCADDesignObject *(*next)  (QCADCompoundDO *compound_do) ;
   gboolean          (*last)  (QCADCompoundDO *compound_do) ;
-  } QCADCompoundDOClass ;
+  } ;
 
 GType qcad_compound_do_get_type () ;
 

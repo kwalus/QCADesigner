@@ -43,7 +43,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct
+typedef struct _QCADLabel      QCADLabel ;
+typedef struct _QCADLabelClass QCADLabelClass ;
+
+struct _QCADLabel
   {
   QCADStretchyObject parent_instance ;
   char *psz ;
@@ -52,13 +55,13 @@ typedef struct
 #ifdef GTK_GUI
   EXP_PIXMAP *epm ;
 #endif /* def GTK_GUI */
-  } QCADLabel ;
+  } ;
 
-typedef struct
+struct _QCADLabelClass
   {
   /* public */
   QCADStretchyObjectClass parent_class ;
-  } QCADLabelClass ;
+  } ;
 
 GType qcad_label_get_type () ;
 
@@ -70,11 +73,11 @@ void qcad_label_vset_text (QCADLabel *label, char *psz, va_list va) ;
 
 #define QCAD_TYPE_STRING_LABEL "QCADLabel"
 #define QCAD_TYPE_LABEL (qcad_label_get_type ())
-#define QCAD_LABEL(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_LABEL, QCADLabel))
-#define QCAD_LABEL_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_LABEL, QCADLabelClass))
-#define QCAD_IS_LABEL(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_LABEL))
-#define QCAD_IS_LABEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_LABEL))
-#define QCAD_LABEL_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_LABEL, QCADLabelClass))
+#define QCAD_LABEL(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_LABEL, QCADLabel))
+#define QCAD_IS_LABEL(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_LABEL))
+#define QCAD_LABEL_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_LABEL, QCADLabelClass))
+#define QCAD_LABEL_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_LABEL, QCADLabelClass))
+#define QCAD_IS_LABEL_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_LABEL))
 
 #ifdef __cplusplus
 }

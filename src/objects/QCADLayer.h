@@ -45,7 +45,13 @@ extern "C" {
 
 #define ALLOW_UNSERIALIZE_OVERLAP
 
-typedef enum
+typedef enum _LayerType   LayerType ;
+typedef enum _LayerStatus LayerStatus ;
+
+typedef struct _QCADLayer      QCADLayer ;
+typedef struct _QCADLayerClass QCADLayerClass ;
+
+enum _LayerType
   {
   LAYER_TYPE_SUBSTRATE,
   LAYER_TYPE_CELLS,
@@ -53,15 +59,15 @@ typedef enum
   LAYER_TYPE_DRAWING,
   LAYER_TYPE_DISTRIBUTION,
   LAYER_TYPE_LAST_TYPE
-  } LayerType ;
+  } ;
 
-typedef enum
+enum _LayerStatus
   {
   LAYER_STATUS_ACTIVE,  /* Editable (=> visible) */
   LAYER_STATUS_VISIBLE, /* Non-editable */
   LAYER_STATUS_HIDDEN,  /* not shown */
   LAYER_STATUS_LAST_STATUS
-  } LayerStatus ;
+  } ;
 
 #define QCAD_LAYER_DRAW_SELECTION     1 << 0
 #define QCAD_LAYER_DRAW_NON_SELECTION 1 << 1
@@ -70,7 +76,7 @@ typedef enum
 #define QCAD_LAYER_RMV_DRAW_FLAGS(layer,flags) ((QCAD_LAYER ((layer))->draw_flags) &= ~flags)
 #define QCAD_LAYER_SET_DRAW_FLAGS(layer,flags) ((QCAD_LAYER ((layer))->draw_flags) = flags)
 
-typedef struct
+struct _QCADLayer
   {
   QCADDesignObject parent_instance ;
 
@@ -86,11 +92,11 @@ typedef struct
 #ifdef ALLOW_UNSERIALIZE_OVERLAP
   gboolean bAllowOverlap ;
 #endif /* ALLOW_UNSERIALIZE_OVERLAP */
-  GHashTable *default_properties ;
   GList *llContainerIter ;
-  } QCADLayer ;
+  GHashTable *default_properties ;
+  } ;
 
-typedef struct
+struct _QCADLayerClass
   {
   QCADDesignObjectClass parent_class ;
 
@@ -104,17 +110,17 @@ typedef struct
   // Signals
   void (*object_added) (QCADLayer *layer, QCADDesignObject *object, gpointer data) ;
   void (*object_removed) (QCADLayer *layer, QCADDesignObject *object, gpointer data) ;
-  } QCADLayerClass ;
+  } ;
 
 GType qcad_layer_get_type () ;
 
 #define QCAD_TYPE_STRING_LAYER "QCADLayer"
 #define QCAD_TYPE_LAYER (qcad_layer_get_type ())
-#define QCAD_LAYER(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_LAYER, QCADLayer))
-#define QCAD_LAYER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_LAYER, QCADLayerClass))
-#define QCAD_IS_LAYER(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_LAYER))
-#define QCAD_IS_LAYER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_LAYER))
-#define QCAD_LAYER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_LAYER, QCADLayerClass))
+#define QCAD_LAYER(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_LAYER, QCADLayer))
+#define QCAD_IS_LAYER(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_LAYER))
+#define QCAD_LAYER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_LAYER, QCADLayerClass))
+#define QCAD_LAYER_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_LAYER, QCADLayerClass))
+#define QCAD_IS_LAYER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_LAYER))
 
 QCADLayer *qcad_layer_new (LayerType type, LayerStatus status, char *psz) ;
 GHashTable *qcad_layer_object_containment_rules () ;
@@ -132,6 +138,7 @@ void qcad_layer_selection_create_from_selection (QCADLayer *layer) ;
 EXP_ARRAY *qcad_layer_selection_get_object_array (QCADLayer *layer, EXP_ARRAY *ar) ;
 QCADLayer *qcad_layer_from_object (QCADDesignObject *obj) ;
 void qcad_layer_objects_foreach (QCADLayer *layer, gboolean bSelObjects, gboolean bDeepIter, void (*iter_func) (QCADDesignObject *obj, gpointer data), gpointer data) ;
+void qcad_layer_default_properties_apply (QCADLayer *layer) ;
 
 #ifdef __cplusplus
 }

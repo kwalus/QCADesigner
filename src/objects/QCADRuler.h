@@ -44,30 +44,35 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef enum
+typedef enum _QCADRulerOrientation QCADRulerOrientation ;
+
+typedef struct _QCADRuler QCADRuler ;
+typedef struct _QCADRulerClass QCADRulerClass ;
+
+enum _QCADRulerOrientation
   {
   QCAD_RULER_ORIENTATION_EAST,
   QCAD_RULER_ORIENTATION_SOUTH,
   QCAD_RULER_ORIENTATION_WEST,
   QCAD_RULER_ORIENTATION_NORTH
-  } QCADRulerOrientation ;
+  } ;
 
-typedef struct
+struct _QCADRuler
   {
   QCADStretchyObject parent_instance ;
   EXP_ARRAY *labels ;
   int icLabelsVisible ;
   QCADRulerOrientation orientation ;
   WorldRectangle ruler_bounding_box ;
-  } QCADRuler ;
+  } ;
 
-typedef struct
+struct _QCADRulerClass
   {
   // public
   QCADStretchyObjectClass parent_class ;
   // Used by the stretchy mouse handlers
   QCADRulerOrientation old_orientation ;
-  } QCADRulerClass ;
+  } ;
 
 GType qcad_ruler_get_type () ;
 
@@ -75,11 +80,11 @@ QCADRuler *qcad_ruler_new () ;
 
 #define QCAD_TYPE_STRING_RULER "QCADRuler"
 #define QCAD_TYPE_RULER (qcad_ruler_get_type ())
-#define QCAD_RULER(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_RULER, QCADRuler))
-#define QCAD_RULER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), QCAD_TYPE_RULER, QCADRulerClass))
-#define QCAD_IS_RULER(object) (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RULER))
-#define QCAD_IS_RULER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), QCAD_TYPE_RULER))
-#define QCAD_RULER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS ((object), QCAD_TYPE_RULER, QCADRulerClass))
+#define QCAD_RULER(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_RULER, QCADRuler))
+#define QCAD_IS_RULER(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RULER))
+#define QCAD_RULER_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_RULER, QCADRulerClass))
+#define QCAD_RULER_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_RULER, QCADRulerClass))
+#define QCAD_IS_RULER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_RULER))
 
 #ifdef __cplusplus
 }

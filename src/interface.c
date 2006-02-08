@@ -35,9 +35,11 @@
 #include "custom_widgets.h"
 #include "global_consts.h"
 #include "qcadstock.h"
-#include "objects/QCADClockCombo.h"
+#include "objects/QCADObject.h"
 #include "objects/QCADCell.h"
 #include "objects/QCADLayer.h"
+#include "objects/QCADClockingLayer.h"
+#include "objects/QCADPropertyUISingle.h"
 
 main_W main_window = {NULL} ;
 extern char *layer_stock_id[] ;
@@ -47,37 +49,32 @@ extern int n_layer_stock_id ;
 void create_main_window (main_W *main_window){
   // All the objects that appear in the main window, that we do not refer to in the UI code //
   GtkWidget
-    *mnuiSep                         = NULL, *about_menu_item           = NULL, *zoom_extents_menu_item            = NULL,
+    *widget                          = NULL, *mnuiSep                   = NULL, *about_menu_item                   = NULL, 
+    *zoom_extents_menu_item          = NULL, *help_menu_menu            = NULL, *zoom_out_menu_item                = NULL,
     *progress                        = NULL, *tbl                       = NULL, *vbProgress                        = NULL,
-    *add_layer_button                = NULL, *clock_increment_menu_item = NULL,
+    *toolbar_item                    = NULL, *clock_increment_menu_item = NULL, *delete_menu_item                  = NULL,
     *close_menu_item                 = NULL, *command_history           = NULL, *contents_menu_item                = NULL,
-    *copy_cell_button                = NULL, *delete_menu_item          = NULL, *zoom_plus_button                  = NULL,
     *edit_menu                       = NULL, *edit_menu_menu            = NULL, *file_menu                         = NULL,
     *file_menu_menu                  = NULL, *hbox1                     = NULL, *help_menu                         = NULL,
-    *help_menu_menu                  = NULL, *layer_properties_button   = NULL, *zoom_out_menu_item                = NULL,
-    *layer_properties_menu_item      = NULL, *layers_toolbar            = NULL, *zoom_extents_button               = NULL,
-    *main_menubar                    = NULL, *measure_button            = NULL, *mirror_button                     = NULL,
-    *new_menu_item                   = NULL, *pan_button                = NULL, *zoom_minus_button                 = NULL,
+    *layer_properties_menu_item      = NULL, *layers_toolbar            = NULL, *main_menubar                      = NULL,
     *print_menu_item                 = NULL, *quit_menu_item            = NULL, *view_menu_menu                    = NULL,
-    *reorder_layers_button           = NULL, *reset_zoom_menu_item      = NULL, *zoom_layer_menu_item              = NULL,
-    *rotate_selection_menu_item      = NULL, *zoom_layer_button         = NULL, *zoom_in_menu_item                 = NULL,
+    *reset_zoom_menu_item            = NULL, *zoom_layer_menu_item      = NULL, *new_menu_item                     = NULL,
+    *rotate_selection_menu_item      = NULL, *zoom_in_menu_item         = NULL, *mnui                              = NULL, 
     *scale_menu_item                 = NULL, *show_tb_icons_menu_item   = NULL, *simulation_engine_setup_menu_item = NULL,
     *simulation_menu                 = NULL, *simulation_menu_menu      = NULL, *simulation_type_setup_menu_item   = NULL,
     *start_simulation_menu_item      = NULL, *status_bar                = NULL, *stop_simulation_menu_item         = NULL,
     *table1                          = NULL, *tools_menu                = NULL, *tools_menu_menu                   = NULL,
-    *translate_selection_button      = NULL, *view_menu                 = NULL, *hide_layers_menu_item             = NULL,
+    *view_menu                       = NULL, *hide_layers_menu_item     = NULL, *mnu                               = NULL, 
 #ifdef STDIO_FILEIO
     *open_menu_item                  = NULL, *save_menu_item            = NULL, *save_as_menu_item                 = NULL,
     *recent_files_menu_item          = NULL, *import_block_menu_item    = NULL, *create_block_menu_item            = NULL,
-    *load_output_from_file_menu_item = NULL, *preview_menu_item         = NULL, *spn                               = NULL,
-    *lbl                       = NULL,
+    *load_output_from_file_menu_item = NULL, *preview_menu_item         = NULL, *img                               = NULL ;
 #endif /* def STDIO_FILEIO */
-    *mnu                             = NULL, *mnui                      = NULL, *img                               = NULL ;
 
   GtkAccelGroup *accel_group = NULL ;
   GtkTooltips *tooltips;
   char *psz = NULL ;
-  int Nix ;
+  int Nix, Nix1, x_offset = 0 ;
 
   tooltips = gtk_tooltips_new ();
 
@@ -113,20 +110,7 @@ void create_main_window (main_W *main_window){
   gtk_toolbar_set_tooltips (GTK_TOOLBAR (layers_toolbar), TRUE) ;
   gtk_toolbar_set_style (GTK_TOOLBAR (layers_toolbar), GTK_TOOLBAR_ICONS) ;
 
-  add_layer_button =
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (layers_toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Add Layer"),
-    _("Add Layer to Design"),
-    _("Adds a layer to your design."),
-    gtk_image_new_from_stock (GTK_STOCK_ADD, QCAD_ICON_SIZE_TOP_TOOLBAR),
-    (GCallback)popup_menu_button_clicked, NULL) ;
-
   mnu = gtk_menu_new () ;
-  g_object_set_data (G_OBJECT (add_layer_button), "mnu", mnu) ;
-
   for (Nix = 0 ; Nix < n_layer_stock_id ; Nix++)
     if (Nix != LAYER_TYPE_DISTRIBUTION)
       {
@@ -136,27 +120,44 @@ void create_main_window (main_W *main_window){
       g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)type_for_new_layer_chosen, (gpointer)Nix) ;
       }
 
-  main_window->remove_layer_button =
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (layers_toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Remove Layer"),
-    _("Remove Layer from Design"),
-    _("Remove a layer from your design."),
-    gtk_image_new_from_stock (GTK_STOCK_REMOVE, QCAD_ICON_SIZE_TOP_TOOLBAR),
-    (GCallback)remove_layer_button_clicked, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_ADD, 
+        "label",    _("Add Layer"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+//  g_object_set_data (G_OBJECT (toolbar_item), "mnu", mnu) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
+    _("Add Layer to Design"), _("Adds a layer to your design.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)popup_menu_button_clicked, mnu) ;
 
-  layer_properties_button =
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (layers_toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Layer Properties"),
-    _("Layer Properties"),
-    _("Modify the settings for the current layer."),
-    gtk_image_new_from_stock (GTK_STOCK_PROPERTIES, QCAD_ICON_SIZE_TOP_TOOLBAR),
-    (GCallback)layer_properties_button_clicked, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),
+    GTK_TOOL_ITEM (toolbar_item = main_window->remove_layer_button = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_REMOVE, 
+        "label",    _("Remove Layer"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
+    _("Remove Layer from Design"), _("Remove a layer from your design.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)remove_layer_button_clicked, NULL) ;
+
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_PROPERTIES, 
+        "label",    _("Layer Properties"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
+    _("Layer Properties"), _("Modify the settings for the current layer.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)layer_properties_button_clicked, NULL) ;
+
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
+    _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
 
   main_window->layers_combo = gtk_combo_new () ;
   GTK_WIDGET_UNSET_FLAGS (main_window->layers_combo, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
@@ -164,151 +165,71 @@ void create_main_window (main_W *main_window){
   gtk_widget_show (main_window->layers_combo) ;
   gtk_entry_set_editable (GTK_ENTRY (GTK_COMBO (main_window->layers_combo)->entry), FALSE) ;
   gtk_container_set_border_width (GTK_CONTAINER (main_window->layers_combo), 4) ;
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (layers_toolbar),
-    GTK_TOOLBAR_CHILD_WIDGET,
-    main_window->layers_combo,
-    "",
-    _("Layers"),
-    _("Lists the layers in the current design and allows you to switch between them."),
-    NULL,
-    NULL,
-    NULL) ;
+  gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layers_combo) ;
 
-  reorder_layers_button =
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (layers_toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Reorder Layers"),
-    _("Reorder Layers"),
-    _("Change the order of layers in your design."),
-    gtk_image_new_from_stock (QCAD_STOCK_REORDER_LAYERS, QCAD_ICON_SIZE_TOP_TOOLBAR),
-    (GCallback)reorder_layers_button_clicked, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_REORDER_LAYERS, 
+        "label",    _("Reorder"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
+    _("Reorder Layers"), _("Change the order of layers in your design.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)reorder_layers_button_clicked, NULL) ;
 
   // This will separate the layers combo from the clocks combo
-  gtk_toolbar_append_space (GTK_TOOLBAR (layers_toolbar)) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = GTK_WIDGET (gtk_separator_tool_item_new ())), -1) ;
+  gtk_widget_show (toolbar_item) ;
 
-  main_window->clocks_combo_table = gtk_table_new (1, 2, FALSE) ;
-  gtk_widget_show (main_window->clocks_combo_table) ;
-  gtk_container_set_border_width (GTK_CONTAINER (main_window->clocks_combo_table), 2) ;
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (layers_toolbar),
-    GTK_TOOLBAR_CHILD_WIDGET,
-    main_window->clocks_combo_table,
-    "",
-    _(""),
-    _(""),
-    NULL,
-    NULL,
+  main_window->pui_show_potential = qcad_object_create_property_ui_for_default_object (QCAD_TYPE_CLOCKING_LAYER, "show-potential", 
+    "render-as",  GTK_TYPE_TOOL_ITEM,
+    "stock-up",   QCAD_STOCK_NO_SHOW_POTENTIAL,
+    "stock-down", QCAD_STOCK_SHOW_POTENTIAL,
+    "show-label", FALSE, 
+    "visible",    TRUE,
+    "tooltip",    GTK_TOOLBAR (layers_toolbar)->tooltips,
     NULL) ;
+  if (NULL != (widget = qcad_property_ui_get_widget (main_window->pui_show_potential, 0, 0, NULL)))
+    if (GTK_IS_TOOL_ITEM (widget))
+      {
+      gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = widget), -1) ;
+      gtk_widget_show (toolbar_item) ;
+      }
 
-  main_window->cell_layer_default_clock_combo = qcad_clock_combo_new () ;
-  GTK_WIDGET_UNSET_FLAGS (main_window->cell_layer_default_clock_combo, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
-  gtk_widget_show (main_window->cell_layer_default_clock_combo) ;
-  gtk_table_attach (GTK_TABLE (main_window->clocks_combo_table), main_window->cell_layer_default_clock_combo, 1, 2, 0, 1, 0, 0, 0, 0) ;
-  gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, main_window->cell_layer_default_clock_combo, 
-    _("Default Clock"),
-    _("Specify the default clock for future cells.")) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  main_window->layer_toolbar_table = gtk_table_new (1, 2, FALSE) ;
+  gtk_widget_show (main_window->layer_toolbar_table) ;
+  gtk_container_set_border_width (GTK_CONTAINER (main_window->layer_toolbar_table), 2) ;
+  gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layer_toolbar_table) ;
 
-  main_window->tblPotentialSlice = gtk_table_new (1, 6, FALSE) ;
-  gtk_widget_show (main_window->tblPotentialSlice) ;
-  gtk_container_set_border_width (GTK_CONTAINER (main_window->tblPotentialSlice), 2) ;
-  gtk_widget_set_sensitive (main_window->tblPotentialSlice, FALSE) ;
-
-  lbl = gtk_label_new ("Distance:") ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 0, 1, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
-
-  spn = gtk_spin_button_new (main_window->adjPotentialSliceZToShow = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 10, 0)), 1, 1) ;
-  gtk_widget_show (spn) ;
-  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), spn, 1, 2, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
-  gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, spn, 
-    _("Distance from clocking layer"),
-    _("Distance from clocking layer to display cross-section for.")) ;
-
-  lbl = gtk_label_new ("nm") ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 2, 3, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
-
-  lbl = gtk_label_new ("Tile size:") ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 3, 4, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
-
-  spn = gtk_spin_button_new (main_window->adjPotentialTileSize = GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 1024, 1, 10, 0)), 1, 0) ;
-  gtk_widget_show (spn) ;
-  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), spn, 4, 5, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
-  gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, spn, 
-    _("Field Resolution"),
-    _("One potential value is used for a square of such a size.")) ;
-  g_object_set_data (G_OBJECT (main_window->adjPotentialTileSize), "obj_val", (gpointer)1) ;
-
-  lbl = gtk_label_new ("pixels") ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 5, 6, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
-
-  lbl = gtk_label_new ("Time:") ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 6, 7, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
-
-  spn = gtk_spin_button_new_infinite (main_window->adjPotentialTimeCoord = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 10, 0)), 1, 6, ISB_DIR_UP) ;
-  gtk_widget_show (spn) ;
-  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), spn, 7, 8, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
-  gtk_tooltips_set_tip (GTK_TOOLBAR (layers_toolbar)->tooltips, spn, 
-    _("Time coordinate"),
-    _("Time coordinate to draw the potential for.")) ;
-
-  lbl = gtk_label_new ("ns") ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (main_window->tblPotentialSlice), lbl, 8, 9, 0, 1, GTK_FILL, GTK_FILL, 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
-
-  main_window->show_potential_slice_button = 
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (layers_toolbar),
-      GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
-      NULL,
-      _("Show Potential"),
-      _("Show Potential Cross-section"),
-      _("Show potential cross-section for a given distance"),
-      gtk_image_new_from_stock (GTK_STOCK_NO, QCAD_ICON_SIZE_TOP_TOOLBAR),
-      (GCallback)show_potential_slice_button_clicked, main_window->tblPotentialSlice) ;
-
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (layers_toolbar),
-    GTK_TOOLBAR_CHILD_WIDGET,
-    main_window->tblPotentialSlice,
-    "",
-    _(""),
-    _(""),
-    NULL,
-    NULL,
+  main_window->pui_clock = qcad_object_create_property_ui_for_default_object (QCAD_TYPE_CELL, "clock", 
+    "render-as",  GTK_TYPE_OPTION_MENU, 
+    "show-label", FALSE, 
+    "visible",    TRUE,
+    "tooltip",    GTK_TOOLBAR (layers_toolbar)->tooltips,
     NULL) ;
+  for (Nix = 0 ; Nix < qcad_property_ui_get_cx_widgets (main_window->pui_clock) ; Nix++)
+    for (Nix1 = 0 ; Nix1 < qcad_property_ui_get_cy_widgets (main_window->pui_clock) ; Nix1++)
+      if (NULL != (widget = qcad_property_ui_get_widget (main_window->pui_clock, Nix, Nix1, NULL)))
+        gtk_table_attach (GTK_TABLE (main_window->layer_toolbar_table), widget, Nix, Nix + 1, Nix1, Nix1 + 1, GTK_FILL, GTK_FILL, 2, 2) ;
+  x_offset += Nix ;
 
   // This will separate the layer-specific ops from the bus layout
-  gtk_toolbar_append_space (GTK_TOOLBAR (layers_toolbar)) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = GTK_WIDGET (gtk_separator_tool_item_new ())), -1) ;
+  gtk_widget_show (toolbar_item) ;
 
-  main_window->bus_layout_button =
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (layers_toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Bus Layout"),
-    _("Bus Layout"),
-    _("Group individual input and output cells into buses."),
-    gtk_image_new_from_stock (QCAD_STOCK_BUS, QCAD_ICON_SIZE_TOP_TOOLBAR),
-    (GCallback)bus_layout_button_clicked, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),
+    GTK_TOOL_ITEM (toolbar_item = main_window->bus_layout_button = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_BUS, 
+        "label",    _("Bus Layout"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
+    _("Bus Layout"), _("Group individual input and output cells into buses.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)bus_layout_button_clicked, NULL) ;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////// FILE MENU ////////////////////////////////////////////////
@@ -723,67 +644,58 @@ void create_main_window (main_W *main_window){
   gtk_box_pack_start (GTK_BOX (hbox1), main_window->toolbar, FALSE, FALSE, 0);
 
   // create and add the default button to the toolbar //
-  main_window->default_action_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      NULL,
-      _("Select"),
-      _("Make Selections And Manipulate Design"),
-      _("This button allows you to manipulate your design."),
-      gtk_image_new_from_stock (QCAD_STOCK_SELECT, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_SELECT) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (main_window->default_action_button = toolbar_item = 
+      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_SELECT, 
+        "label",    _("Select"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Make Selections And Manipulate Design"), _("This button allows you to manipulate your design.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_SELECT) ;
 
   // create and add the type 1 cell button to the toolbar //
-  main_window->insert_type_1_cell_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      main_window->default_action_button,
-      _("Cell"),
-      _("Add Cell To Design"),
-      _("Click here, then click on the design to add cells to it."),
-      gtk_image_new_from_stock (QCAD_STOCK_CELL, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_QCELL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (main_window->insert_type_1_cell_button = toolbar_item = 
+      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_CELL, 
+        "label",    _("Cell"),
+        "group",   main_window->default_action_button,
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Add Cell To Design"), _("Click here, then click on the design to add cells to it.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_QCELL) ;
 
   // create and add the array button to the toolbar //
-  main_window->insert_cell_array_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      main_window->insert_type_1_cell_button,
-      _("Array"),
-      _("Add Cell Array"),
-      _("Add horizontal or vertical arrays of cells to your design."),
-      gtk_image_new_from_stock (QCAD_STOCK_ARRAY, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_ARRAY) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (main_window->insert_cell_array_button = toolbar_item = 
+      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_ARRAY, 
+        "label",    _("Array"),
+        "group",   main_window->default_action_button,
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Add Cell Array"), _("Add horizontal or vertical arrays of cells to your design.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_ARRAY) ;
 
   // create and add the rotate button to the toolbar //
-  main_window->rotate_cell_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      main_window->insert_type_1_cell_button,
-      _("Rotate"),
-      _("Rotate Cell"),
-      _("Click on a cell to rotate it (repeatedly)."),
-      gtk_image_new_from_stock (QCAD_STOCK_ROTATE_CELL, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_ROTATE) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (main_window->rotate_cell_button = toolbar_item = 
+      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_ROTATE_CELL,
+        "label",    _("Rotate"),
+        "group",   main_window->default_action_button,
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Rotate Cell"), _("Click on a cell to rotate it (repeatedly).")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_ROTATE) ;
 
-  // create and add the array button to the toolbar //
-  main_window->toggle_alt_display_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_BUTTON,
-      NULL,
-      _("Alt Style"),
-      _("Alternate Drawing Style"),
-      _("Toggle between two different display modes."),
-      gtk_image_new_from_stock (QCAD_STOCK_CELL_ALT_CROSSOVER, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)popup_menu_button_clicked, (gpointer)NULL) ;
-
+  // create and add the alternate display button to the toolbar //
     mnu = gtk_menu_new () ;
-    g_object_set_data (G_OBJECT (main_window->toggle_alt_display_button), "mnu", mnu) ;
 
     mnui = gtk_image_menu_item_new_with_label (_("Crossover")) ;
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
@@ -817,82 +729,86 @@ void create_main_window (main_W *main_window){
     gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
     g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_VERTICAL) ;
 
-  main_window->substrate_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      main_window->insert_type_1_cell_button,
-      _("Substrate"),
-      _("Create Substrate"),
-      _("Creates a new rectangular substrate."),
-      gtk_image_new_from_stock (QCAD_STOCK_SUBSTRATE, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_SUBSTRATE) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (main_window->toggle_alt_display_button = toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_CELL_ALT_CROSSOVER, 
+        "label",    _("Alt Style"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Alternate Drawing Style"), _("Toggle between two different display modes.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)popup_menu_button_clicked, mnu) ;
+
+  // Create and add the "Add Substrate" button
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (main_window->substrate_button = toolbar_item = 
+      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_SUBSTRATE,
+        "label",    _("Substrate"),
+        "group",   main_window->default_action_button,
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Create Substrate"), _("Creates a new rectangular substrate.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_SUBSTRATE) ;
 
   // Drawing layer buttons
-  main_window->label_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      main_window->insert_type_1_cell_button,
-      _("Label"),
-      _("Create Label"),
-      _("Creates a new label."),
-      gtk_image_new_from_stock (QCAD_STOCK_LABEL, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_LABEL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (main_window->label_button = toolbar_item = 
+      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_LABEL,
+        "label",    _("Label"),
+        "group",   main_window->default_action_button,
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Create Label"), _("Creates a new label.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_LABEL) ;
 
   // Clocking layer buttons
-  main_window->rectangle_electrode_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      main_window->insert_type_1_cell_button,
-      _("Rectangle"),
-      _("Rectangular Electrode"),
-      _("Creates a new rectangular electrode."),
-      gtk_image_new_from_stock (QCAD_STOCK_RECT_ELECTRODE, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_RECTANGLE_ELECTRODE) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (main_window->rectangle_electrode_button = toolbar_item = 
+      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_RECT_ELECTRODE,
+        "label",    _("Rectangle"),
+        "group",   main_window->default_action_button,
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Rectangular Electrode"), _("Creates a new rectangular electrode.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_RECTANGLE_ELECTRODE) ;
 
   // This will separate layer-specific commands from generic ones like zoom & pan
-  gtk_toolbar_append_space (GTK_TOOLBAR (main_window->toolbar)) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar), GTK_TOOL_ITEM (toolbar_item = GTK_WIDGET (gtk_separator_tool_item_new ())), -1) ;
+  gtk_widget_show (toolbar_item) ;
 
   // create and add the copy button to the toolbar //
-  copy_cell_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_BUTTON,
-      NULL,
-      _("Copy"),
-      _("Copy Selection"),
-      _("Makes a copy of your selection."),
-      gtk_image_new_from_stock (QCAD_STOCK_COPY, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)on_copy_cell_button_clicked, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_COPY,
+        "label",    _("Copy"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Copy Selection"), _("Makes a copy of your selection.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)on_copy_cell_button_clicked, NULL) ;
 
   // create and add the translate button to the toolbar //
-  translate_selection_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_BUTTON,
-      NULL,
-      _("Translate"),
-      _("Translate Selection"),
-      _("Translate your selection horizontally and/or vertically."),
-      gtk_image_new_from_stock (QCAD_STOCK_TRANSLATE, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)on_translate_selection_button_clicked, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_TRANSLATE,
+        "label",    _("Translate"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Translate Selection"), _("Translate your selection horizontally and/or vertically.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)on_translate_selection_button_clicked, NULL) ;
 
   // create and add the mirror button to the toolbar //
-  mirror_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_BUTTON,
-      NULL,
-      _("Mirror"),
-      _("Mirror Selection"),
-      _("Create a mirrored copy of your selection."),
-      gtk_image_new_from_stock (QCAD_STOCK_MIRROR_VERTICAL, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)popup_menu_button_clicked, NULL) ;
-
   mnu = gtk_menu_new () ;
-  g_object_set_data (G_OBJECT (mirror_button), "mnu", mnu) ;
 
   mnui = gtk_image_menu_item_new_with_label (_("Vertically")) ;
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
@@ -914,81 +830,91 @@ void create_main_window (main_W *main_window){
   gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
   g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)mirror_selection_direction_chosen, (gpointer)FALSE) ;
 
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_MIRROR_VERTICAL, 
+        "label",    _("Mirror"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+//  g_object_set_data (G_OBJECT (toolbar_item), "mnu", mnu) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Mirror Selection"), _("Create a mirrored copy of your selection.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)popup_menu_button_clicked, mnu) ;
+
   // create and add the pan button to the toolbar //
-  pan_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      main_window->insert_type_1_cell_button,
-      _("Pan"),
-      _("Pan Design"),
-      _("Bring various parts of the design into view by dragging visible parts of the design out of view."),
-      gtk_image_new_from_stock (QCAD_STOCK_PAN, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_PAN) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_PAN,
+        "label",    _("Pan"),
+        "group",    main_window->default_action_button,
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Pan Design"), _("Bring various parts of the design into view by dragging visible parts of the design out of view.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_PAN) ;
 
   // create and add the measure button to the toolbar //
-  measure_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      main_window->insert_type_1_cell_button,
-      _("Distance"),
-      _("Measure Distance"),
-      _("Measure the distance from a given point"),
-      gtk_image_new_from_stock (QCAD_STOCK_MEASURE, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)action_button_clicked, (gpointer)ACTION_RULER) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_MEASURE,
+        "label",    _("Distance"),
+        "group",    main_window->default_action_button,
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Measure Distance"), _("Measure the distance from a given point")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_RULER) ;
 
   // create and add the zoom + button to the toolbar //
-  zoom_plus_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_BUTTON,
-      NULL,
-      _("Zoom In"),
-      _("Increase The Magnification"),
-      _("Increase the magnification so you may concentrate on specific parts of the design."),
-      //create_pixmap (main_window->main_window, "zoom_in.png"),
-      gtk_image_new_from_stock (GTK_STOCK_ZOOM_IN, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)on_zoom_in_menu_item_activate, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_ZOOM_IN,
+        "label",    _("Zoom In"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Increase The Magnification"), _("Increase the magnification so you may concentrate on specific parts of the design.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)on_zoom_in_menu_item_activate, NULL) ;
 
   // create and add the zoom - button to the toolbar //
-  zoom_minus_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_BUTTON,
-      NULL,
-      _("Zoom Out"),
-      _("Decrease The Magnification"),
-      _("Decrease the magnification to get an overall picture."),
-      //create_pixmap (main_window->main_window, "zoom_out.png"),
-      gtk_image_new_from_stock (GTK_STOCK_ZOOM_OUT, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)on_zoom_out_menu_item_activate, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_ZOOM_OUT,
+        "label",    _("Zoom Out"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Decrease The Magnification"), _("Decrease the magnification to get an overall picture.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)on_zoom_out_menu_item_activate, NULL) ;
 
   // create and add the zoom extents button to the toolbar //
-  zoom_extents_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_BUTTON,
-      NULL,
-      _("Extents"),
-      _("Fit Design To Window"),
-      _("Calculates and sets the magnification such that your design fits inside the window."),
-      //create_pixmap (main_window->main_window, "zoom_extents.png"),
-      gtk_image_new_from_stock (GTK_STOCK_ZOOM_FIT, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)on_zoom_extents_menu_item_activate, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_ZOOM_FIT,
+        "label",    _("Extents"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Fit Design To Window"), _("Calculates and sets the magnification such that your design fits inside the window.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)on_zoom_extents_menu_item_activate, NULL) ;
 
   // create and add the zoom extents button to the toolbar //
-  zoom_layer_button =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (main_window->toolbar),
-      GTK_TOOLBAR_CHILD_BUTTON,
-      NULL,
-      _("Layer"),
-      _("Fit Layer To Window"),
-      _("Calculates and sets the magnification such that the currently topmost layer fits inside the window."),
-      //create_pixmap (main_window->main_window, "zoom_extents.png"),
-      gtk_image_new_from_stock (GTK_STOCK_ZOOM_FIT, QCAD_ICON_SIZE_SIDE_TOOLBAR),
-      (GCallback)on_zoom_layer_menu_item_activate, NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_ZOOM_FIT,
+        "label",    _("Layer"),
+        NULL)), -1) ;
+  gtk_widget_show (toolbar_item) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Fit Layer To Window"), _("Calculates and sets the magnification such that the currently topmost layer fits inside the window.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)on_zoom_layer_menu_item_activate, NULL) ;
 
   // create and add the table widget to the hbox //
   table1 = gtk_table_new (2, 2, FALSE);
@@ -1122,7 +1048,6 @@ void create_main_window (main_W *main_window){
   g_signal_connect (G_OBJECT (about_menu_item),                                "activate", (GCallback)on_about_menu_item_activate,                   NULL);
   g_signal_connect (G_OBJECT (main_window->main_window),                       "show",     (GCallback)main_window_show,                              NULL);
 
-  g_signal_connect (G_OBJECT (main_window->cell_layer_default_clock_combo),    "changed",  (GCallback)on_clocks_combo_changed,    main_window->cell_layer_default_clock_combo);
   g_signal_connect_swapped (G_OBJECT (quit_menu_item),                         "activate", (GCallback)on_quit_menu_item_activate, main_window->main_window);
   // attach the necessary signals to the drawing area widget //
   g_signal_connect (G_OBJECT (main_window->drawing_area),                      "scroll-event",         (GCallback)scroll_event,                      NULL);
@@ -1131,9 +1056,7 @@ void create_main_window (main_W *main_window){
   g_signal_connect (G_OBJECT (main_window->drawing_area),                      "button-press-event",   (GCallback)drawing_area_button_pressed,       NULL);
   g_signal_connect (G_OBJECT (main_window->drawing_area),                      "button-release-event", (GCallback)drawing_area_button_released,      NULL);
   g_signal_connect (G_OBJECT (main_window->drawing_area),                      "configure-event",      (GCallback)configure_event,                   NULL);
-  g_signal_connect (G_OBJECT (main_window->adjPotentialTileSize),              "value-changed",        (GCallback)potential_tile_size_changed,       NULL) ;
-  g_signal_connect (G_OBJECT (main_window->adjPotentialSliceZToShow),          "value-changed",        (GCallback)potential_z_to_show_changed,       NULL) ;
-  g_signal_connect (G_OBJECT (main_window->adjPotentialTimeCoord),             "value-changed",        (GCallback)potential_time_coord_changed,      main_window->adjPotentialTimeCoord) ;
+
   // -- Trap the act of hiding the popup window for the layers combo
   g_signal_connect (G_OBJECT (GTK_COMBO (main_window->layers_combo)->popwin),  "hide", (GCallback)layer_selected, NULL) ;
   // -- Connect the shutdown callback signal to the main window -- //

@@ -1,7 +1,6 @@
 #ifndef _OBJECTS_QCADPropertyUIEnum_H_
 #define _OBJECTS_QCADPropertyUIEnum_H_
 
-#include <gtk/gtk.h>
 #include "QCADPropertyUISingle.h"
 
 #ifdef __cplusplus
@@ -14,13 +13,13 @@ typedef struct _QCADPropertyUIEnumClass QCADPropertyUIEnumClass ;
 struct _QCADPropertyUIEnum
   {
   QCADPropertyUISingle parent_instance ;
-
+#ifdef GTK_GUI
   QCADPropertyUIWidget option_menu ;
   QCADPropertyUIWidget frame ;
 
   GtkWidget *tbl ;
   GtkWidget *rb ;
-
+#endif /* def GTK_GUI */
   GType render_as ;
   guint notify_id ;
   } ;

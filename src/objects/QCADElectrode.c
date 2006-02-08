@@ -43,6 +43,7 @@
 #include "../custom_widgets.h"
 #include "../fileio_helpers.h"
 #include "QCADElectrode.h"
+#include "QCADPropertyUI.h"
 #include "mouse_handlers.h"
 
 static void qcad_electrode_class_init (GObjectClass *klass, gpointer data) ;
@@ -64,6 +65,12 @@ enum
   {
   QCAD_ELECTRODE_PROPERTY_Z_TO_GROUND = 1,
   QCAD_ELECTRODE_PROPERTY_EPSILON_R,
+  QCAD_ELECTRODE_PROPERTY_AMPLITUDE,
+  QCAD_ELECTRODE_PROPERTY_FREQUENCY,
+  QCAD_ELECTRODE_PROPERTY_PHASE,
+  QCAD_ELECTRODE_PROPERTY_DC_OFFSET,
+  QCAD_ELECTRODE_PROPERTY_MIN_CLOCK,
+  QCAD_ELECTRODE_PROPERTY_MAX_CLOCK,
   QCAD_ELECTRODE_PROPERTY_LAST
   } ;
 
@@ -88,13 +95,38 @@ GType qcad_electrode_get_type ()
 
     if ((qcad_electrode_type = g_type_register_static (QCAD_TYPE_DESIGN_OBJECT, QCAD_TYPE_STRING_ELECTRODE, &qcad_electrode_info, 0)))
       g_type_class_ref (qcad_electrode_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADElectrode as %d\n", qcad_ellectron_type)) ;
+    DBG_OO (fprintf (stderr, "Registered QCADElectrode as %d\n", (int)qcad_electrode_type)) ;
     }
   return qcad_electrode_type ;
   }
 
 static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   {
+  static QCADPropertyUIProperty properties[] =
+    {
+    {"z-to-ground", "units", {0, }},
+    {"frequency",   "units", {0, }},
+    {"phase",       "units", {0, }},
+    {"dc-offset",   "units", {0, }},
+    {"min-clock",   "units", {0, }},
+    {"max-clock",   "units", {0, }},
+    } ;
+
+  // electrode.z-to-ground.units = "nm"
+  g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), "nm") ;
+  // electrode.frequency.units = "Hz"
+  g_value_set_string (g_value_init (&(properties[1].ui_property_value), G_TYPE_STRING), "MHz") ;
+  // electrode.phase.units = "°"
+  g_value_set_string (g_value_init (&(properties[2].ui_property_value), G_TYPE_STRING), "°") ;
+  // electrode.dc-offset.units = "V"
+  g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "V") ;
+  // electrode.min-clock.units = "V"
+  g_value_set_string (g_value_init (&(properties[4].ui_property_value), G_TYPE_STRING), "V") ;
+  // electrode.max-clock.units = "V"
+  g_value_set_string (g_value_init (&(properties[5].ui_property_value), G_TYPE_STRING), "V") ;
+
+  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+
   G_OBJECT_CLASS (klass)->finalize = qcad_electrode_instance_finalize ;
   G_OBJECT_CLASS (klass)->set_property = set_property ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
@@ -117,6 +149,31 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_EPSILON_R,
     g_param_spec_double ("relative-permittivity", _("Relative permittivity"), _("Relative permittivity of the environment between the electrode and the ground"),
       1, G_MAXDOUBLE, 1, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_AMPLITUDE,
+    g_param_spec_double ("amplitude", _("Amplitude"), _("Clock amplitude"),
+      -G_MAXDOUBLE, G_MAXDOUBLE, 1, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_FREQUENCY,
+    g_param_spec_double ("frequency", _("Frequency"), _("Clock frequency"),
+      G_MINDOUBLE, G_MAXDOUBLE, 1e6, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_PHASE,
+    g_param_spec_double ("phase", _("Phase"), _("Clock phase"),
+      0, 360, 270, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_DC_OFFSET,
+    g_param_spec_double ("dc-offset", _("DC Offset"), _("Clock DC offset"),
+      -G_MAXDOUBLE, G_MAXDOUBLE, 0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_MIN_CLOCK,
+    g_param_spec_double ("min-clock", _("Clock Low"), _("Minimum clock voltage"),
+      -G_MAXDOUBLE, G_MAXDOUBLE, 0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_MAX_CLOCK,
+    g_param_spec_double ("max-clock", _("Clock High"), _("Maximum clock voltage"),
+      -G_MAXDOUBLE, G_MAXDOUBLE, 0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
   DBG_OO (fprintf (stderr, "QCADElectrode::class_init:Leaving\n")) ;
   }
 
@@ -183,16 +240,52 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
     {
     case QCAD_ELECTRODE_PROPERTY_Z_TO_GROUND:
       electrode->electrode_options.z_to_ground = g_value_get_double (value) ;
-      QCAD_ELECTRODE_GET_CLASS (electrode)->precompute (electrode) ;
-      g_object_notify (object, "z-to-ground") ;
       break ;
 
     case QCAD_ELECTRODE_PROPERTY_EPSILON_R:
       electrode->electrode_options.relative_permittivity = g_value_get_double (value) ;
-      QCAD_ELECTRODE_GET_CLASS (electrode)->precompute (electrode) ;
-      g_object_notify (object, "relative-permittivity") ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_AMPLITUDE:
+      electrode->electrode_options.amplitude = g_value_get_double (value) ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_FREQUENCY:
+      electrode->electrode_options.frequency = g_value_get_double (value) * 1e6 ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_PHASE:
+      electrode->electrode_options.phase = g_value_get_double (value) ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_DC_OFFSET:
+      electrode->electrode_options.dc_offset = g_value_get_double (value) ;
       break ;
     }
+
+  g_object_notify (object, pspec->name) ;
+
+  if (QCAD_ELECTRODE_PROPERTY_MIN_CLOCK == property_id)
+    {
+    electrode->electrode_options.min_clock = g_value_get_double (value) ;
+    if (electrode->electrode_options.max_clock < electrode->electrode_options.min_clock)
+      {
+      electrode->electrode_options.max_clock = electrode->electrode_options.min_clock ;
+      g_object_notify (object, "max-clock") ;
+      }
+    }
+  else
+  if (QCAD_ELECTRODE_PROPERTY_MAX_CLOCK == property_id)
+    {
+    electrode->electrode_options.max_clock = g_value_get_double (value) ;
+    if (electrode->electrode_options.min_clock > electrode->electrode_options.max_clock)
+      {
+      electrode->electrode_options.min_clock = electrode->electrode_options.max_clock ;
+      g_object_notify (object, "min-clock") ;
+      }
+    }
+
+  QCAD_ELECTRODE_GET_CLASS (electrode)->precompute (electrode) ;
   }
 
 static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
@@ -208,23 +301,47 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
     case QCAD_ELECTRODE_PROPERTY_EPSILON_R:
       g_value_set_double (value, electrode->electrode_options.relative_permittivity) ;
       break ;
+
+    case QCAD_ELECTRODE_PROPERTY_AMPLITUDE:
+      g_value_set_double (value, electrode->electrode_options.amplitude) ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_FREQUENCY:
+      g_value_set_double (value, electrode->electrode_options.frequency / 1e6) ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_PHASE:
+      g_value_set_double (value, electrode->electrode_options.phase) ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_DC_OFFSET:
+      g_value_set_double (value, electrode->electrode_options.dc_offset) ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_MIN_CLOCK:
+      g_value_set_double (value, electrode->electrode_options.min_clock) ;
+      break ;
+
+    case QCAD_ELECTRODE_PROPERTY_MAX_CLOCK:
+      g_value_set_double (value, electrode->electrode_options.max_clock) ;
+      break ;
     }
   }
 
 static void precompute (QCADElectrode *electrode)
   {
-  QCADDesignObject *qcad_obj = QCAD_DESIGN_OBJECT (electrode) ;
+  QCADDesignObject *design_object = QCAD_DESIGN_OBJECT (electrode) ;
 
   electrode->precompute_params.permittivity = electrode->electrode_options.relative_permittivity * EPSILON ;
   electrode->precompute_params.two_z_to_ground = electrode->electrode_options.z_to_ground * 2.0 ;
   electrode->precompute_params.capacitance = QCAD_ELECTRODE_GET_CLASS (electrode)->get_area (electrode) * electrode->precompute_params.permittivity / (electrode->electrode_options.z_to_ground * 1e-9) ;
 
-  qcad_obj->clr.red = (int)((electrode->electrode_options.phase * 65535) / TWO_PI) ;
-  qcad_obj->clr.green = 0xFFFF ;
-  qcad_obj->clr.blue = 0xC0C0 ;
-  HSLToRGB (&(qcad_obj->clr)) ;
+  design_object->clr.red = (int)((electrode->electrode_options.phase * 65535) / TWO_PI) ;
+  design_object->clr.green = 0xFFFF ;
+  design_object->clr.blue = 0xC0C0 ;
+  HSLToRGB (&(design_object->clr)) ;
 #ifdef GTK_GUI
-  gdk_colormap_alloc_color (gdk_colormap_get_system (), &(qcad_obj->clr), FALSE, FALSE) ;
+  gdk_colormap_alloc_color (gdk_colormap_get_system (), &(design_object->clr), FALSE, FALSE) ;
 #endif /* def GTK_GUI */
   }
 

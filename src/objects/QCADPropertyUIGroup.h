@@ -2,8 +2,10 @@
 #define _OBJECTS_QCADPropertyUIGroup_H_
 
 #include <stdarg.h>
-#include <gtk/gtk.h>
-#include "QCADPropertyUI.h"
+#ifdef GTK_GUI
+  #include <gtk/gtk.h>
+#endif /* def GTK_GUI */
+#include "QCADPropertyUISingle.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,11 +20,14 @@ struct _QCADPropertyUIGroup
 
   GType type ;
   EXP_ARRAY *property_uis ;
+#ifdef GTK_GUI
   GtkWidget *tbl ;
   QCADPropertyUIWidget frm ;
   QCADPropertyUIWidget dlg ;
   QCADPropertyUIWidget btn ;
+#endif /* def GTK_GUI */
   GType render_as ;
+  char *pszTitle ;
   } ;
 
 struct _QCADPropertyUIGroupClass

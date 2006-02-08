@@ -47,17 +47,12 @@
 
 #define CYFONT 0.5 /* nanometers */
 
-#ifdef GTK_GUI
-typedef struct
-  {
-  GtkWidget *dlg ;
-  GtkWidget *txtLabel ;
-  } PROPERTIES ;
-#endif /* def GTK_GUI */
-
 static void qcad_label_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_label_instance_init (GObject *object, gpointer data) ;
-static void qcad_label_instance_finalize (GObject *object) ;
+
+static void finalize (GObject *object) ;
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
+static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
 
 static void copy (QCADObject *src, QCADObject *dst) ;
 #ifdef STDIO_FILEIO
@@ -66,21 +61,18 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 #endif /* def STDIO_FILEIO */
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
-#ifdef UNDO_REDO
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
-#else
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent) ;
-#endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 static const char *PostScript_preamble () ;
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
-
-#ifdef GTK_GUI
-void create_properties_dialog (PROPERTIES *dialog) ;
-#endif /* def GTK_GUI */
+static QCADObject *class_get_default_object () ;
 
 //extern GdkFont *font ;
 extern GdkColor clrBlue ;
+
+enum
+  {
+  QCAD_LABEL_PROPERTY_TEXT=1
+  } ;
 
 GType qcad_label_get_type ()
   {
@@ -110,14 +102,28 @@ GType qcad_label_get_type ()
 
 static void qcad_label_class_init (GObjectClass *klass, gpointer data)
   {
+  static QCADPropertyUIProperty properties[] =
+    {
+    {NULL, "title", {0, }}
+    } ;
+
+  // cell.title = "QCA Cell"
+  g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), _("QCA Label")) ;
+
+  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+
   DBG_OO (fprintf (stderr, "QCADLabel::class_init:Entering\n")) ;
-  G_OBJECT_CLASS (klass)->finalize = qcad_label_instance_finalize ;
+
+  G_OBJECT_CLASS (klass)->finalize     = finalize ;
+  G_OBJECT_CLASS (klass)->set_property = set_property ;
+  G_OBJECT_CLASS (klass)->get_property = get_property ;
+
+  QCAD_OBJECT_CLASS (klass)->copy                     = copy ;
+  QCAD_OBJECT_CLASS (klass)->class_get_default_object = class_get_default_object ;
 #ifdef GTK_GUI
   if (0 == clrBlue.pixel)
     gdk_colormap_alloc_color (gdk_colormap_get_system (), &clrBlue, FALSE, TRUE) ;
-  QCAD_OBJECT_CLASS (klass)->copy                       = copy ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                = draw ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties      = old_properties ;
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize           = serialize ;
@@ -126,6 +132,10 @@ static void qcad_label_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_preamble = PostScript_preamble ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance = PostScript_instance ;
   DBG_OO (fprintf (stderr, "QCADLabel::class_init:Leaving\n")) ;
+
+  g_object_class_install_property (klass, QCAD_LABEL_PROPERTY_TEXT,
+    g_param_spec_string ("text", _("Text"), _("Label text"), 
+      "", G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
   }
 
 static void qcad_label_instance_init (GObject *object, gpointer data)
@@ -148,7 +158,7 @@ static void qcad_label_instance_init (GObject *object, gpointer data)
   DBG_OO (fprintf (stderr, "QCADLabel::instance_init:Leaving\n")) ;
   }
 
-static void qcad_label_instance_finalize (GObject *object)
+static void finalize (GObject *object)
   {
   DBG_OO (fprintf (stderr, "QCADLabel::instance_finalize:Entering\n")) ;
   g_free (QCAD_LABEL (object)->psz) ;
@@ -159,7 +169,30 @@ static void qcad_label_instance_finalize (GObject *object)
   DBG_OO (fprintf (stderr, "QCADLabel::instance_finalize:Leaving\n")) ;
   }
 
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+  {
+  switch (property_id)
+    {
+    case QCAD_LABEL_PROPERTY_TEXT:
+      qcad_label_set_text (QCAD_LABEL (object), (char *)g_value_get_string (value)) ;
+      break ;
+    }
+  }
+
+static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+  {
+  switch (property_id)
+    {
+    case QCAD_LABEL_PROPERTY_TEXT:
+      g_value_set_string (value, QCAD_LABEL (object)->psz) ;
+      break ;
+    }
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
+
+static QCADObject *class_get_default_object ()
+  {return g_object_new (QCAD_TYPE_LABEL, NULL) ;}
 
 static void copy (QCADObject *src, QCADObject *dst)
   {
@@ -217,39 +250,6 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   if (obj->bSelected)
     gdk_draw_rectangle (dst, gc, FALSE, rc.x, rc.y, rc.width - 1, rc.height - 1) ;
   gdk_gc_unref (gc) ;
-  }
-
-#ifdef UNDO_REDO
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry)
-#else
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent)
-#endif /* UNDO_REDO */
-  {
-  static PROPERTIES dialog = {NULL} ;
-  gboolean bRet = FALSE ;
-
-  if (!QCAD_IS_LABEL (obj)) return FALSE ;
-
-  if (NULL == dialog.dlg)
-    create_properties_dialog (&dialog) ;
-
-  gtk_window_set_transient_for (GTK_WINDOW (dialog.dlg), GTK_WINDOW (parent)) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog.txtLabel), QCAD_LABEL (obj)->psz) ;
-  gtk_widget_grab_focus (dialog.txtLabel) ;
-
-  if ((bRet = (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (dialog.dlg)))))
-    {
-    if (NULL != QCAD_LABEL (obj)->psz)
-      g_free (QCAD_LABEL (obj)->psz) ;
-    QCAD_LABEL (obj)->psz = gtk_editable_get_chars (GTK_EDITABLE (dialog.txtLabel), 0, -1) ;
-    QCAD_LABEL (obj)->bNeedsEPMDraw = TRUE ;
-    }
-#ifdef UNDO_REDO
-  if (NULL != pentry)
-    (*pentry) = NULL ;
-#endif /* def UNDO_REDO */
-  gtk_widget_hide (dialog.dlg) ;
-  return bRet ;
   }
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
@@ -405,6 +405,8 @@ void qcad_label_set_text (QCADLabel *label, char *psz, ...)
   va_start (va, psz) ;
   qcad_label_vset_text (label, psz, va) ;
   va_end (va) ;
+
+  g_object_notify (G_OBJECT (label), "text") ;
   }
 
 void qcad_label_vset_text (QCADLabel *label, char *psz, va_list va)
@@ -434,38 +436,3 @@ void qcad_label_shrinkwrap (QCADLabel *label)
   QCAD_DESIGN_OBJECT (label)->y = QCAD_DESIGN_OBJECT (label)->bounding_box.cyWorld / 2.0 + QCAD_DESIGN_OBJECT (label)->bounding_box.yWorld ;
   #endif /* def GTK_GUI */
   }
-
-#ifdef GTK_GUI
-void create_properties_dialog (PROPERTIES *dialog)
-  {
-  GtkWidget *tbl = NULL, *lbl = NULL ;
-
-  dialog->dlg = gtk_dialog_new () ;
-  gtk_window_set_title (GTK_WINDOW (dialog->dlg), _("Label Properties")) ;
-  gtk_window_set_resizable (GTK_WINDOW (dialog->dlg), FALSE) ;
-
-  tbl = gtk_table_new (1, 2, FALSE) ;
-  gtk_widget_show (tbl) ;
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dlg)->vbox), tbl, TRUE, TRUE, 0) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
-
-  lbl = gtk_label_new (_("Text:")) ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
-
-  dialog->txtLabel = gtk_entry_new () ;
-  gtk_widget_show (dialog->txtLabel) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->txtLabel, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-  gtk_entry_set_activates_default (GTK_ENTRY (dialog->txtLabel), TRUE) ;
-
-  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
-  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
-  gtk_dialog_set_default_response (GTK_DIALOG (dialog->dlg), GTK_RESPONSE_OK) ;
-  }
-#endif /* def GTK_GUI */

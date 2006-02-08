@@ -21,13 +21,24 @@ OBJECT_FILES = \
 	objects/QCADDOContainer.c                  objects/QCADDOContainer.h \
 	objects/QCADLabel.c                        objects/QCADLabel.h \
 	objects/QCADLayer.c                        objects/QCADLayer.h \
-	objects/QCADLayer_priv.c                   objects/QCADLayer_priv.h \
 	objects/QCADClockingLayer.c                objects/QCADClockingLayer.h \
 	objects/QCADRuler.c                        objects/QCADRuler.h \
 	objects/QCADStretchyObject.c               objects/QCADStretchyObject.h \
 	objects/QCADElectrode.c                    objects/QCADElectrode.h \
 	objects/QCADRectangleElectrode.c           objects/QCADRectangleElectrode.h \
-	objects/QCADSubstrate.c                    objects/QCADSubstrate.h
+	objects/QCADSubstrate.c                    objects/QCADSubstrate.h \
+	objects/QCADParamSpecTypeList.c            objects/QCADParamSpecTypeList.h \
+	objects/QCADPropertyUI.c                   objects/QCADPropertyUI.h \
+	objects/QCADPropertyUISingle.c             objects/QCADPropertyUISingle.h \
+	objects/QCADPropertyUIDouble.c             objects/QCADPropertyUIDouble.h \
+	objects/QCADPropertyUINumeric.c            objects/QCADPropertyUINumeric.h \
+	objects/QCADPropertyUIInt.c                objects/QCADPropertyInt.h \
+	objects/QCADPropertyUIGroup.c              objects/QCADPropertyUIGroup.h \
+	objects/QCADPropertyUIEnum.c               objects/QCADPropertyUIEnum.h \
+	objects/QCADPropertyUIText.c               objects/QCADPropertyUIText.h \
+	objects/QCADPropertyUIObjectList.c         objects/QCADPropertyUIObjectList.h \
+	objects/QCADPropertyUIBoolean.c            objects/QCADPropertyUIBoolean.h \
+	objects/QCADParamSpecObjectList.c          objects/QCADParamSpecObjectList.h
 
 #################### QCADesigner ####################
 QCADesigner_CFLAGS = \
@@ -82,12 +93,10 @@ QCADesigner_SOURCES = \
 \
 	$(OBJECT_FILES) \
 \
-	objects/QCADLayer_properties.c          objects/QCADLayer_properties.h \
-	objects/QCADClockCombo.c                objects/QCADClockCombo.h \
 	objects/QCADCellRendererVT.c            objects/QCADCellRendererVT.h \
 	objects/QCADCellRendererLayerList.c     objects/QCADCellRendererLayerList.h \
 	objects/QCADTreeViewContainer.c         objects/QCADTreeViewContainer.h \
-        objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
+	objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
 	print_properties_dialog.c               print_properties_dialog.h \
 	print_graph_properties_dialog.c         print_graph_properties_dialog.h \
 	                                        print_properties_dialog_callbacks.h \
@@ -192,8 +201,6 @@ graph_dialog_CFLAGS = \
 graph_dialog_SOURCES = \
 	$(STDIO_FILEIO_FILES) \
 	$(OBJECT_FILES) \
-	objects/QCADLayer_properties.c             objects/QCADLayer_properties.h \
-	objects/QCADClockCombo.c                   objects/QCADClockCombo.h \
 	objects/QCADPrintDialog.c                  objects/QCADPrintDialog.h \
 	gtk_preamble.c                             gtk_preamble.h \
 	design.c                                   design.h \
@@ -222,6 +229,9 @@ graph_dialog_SOURCES = \
 	simulation_data.c                          simulation_data.h \
 	hsl2rgb.c                                  hsl2rgb.h \
 	main_graph_dialog.c
+#
+#	objects/QCADClockCombo.c                objects/QCADClockCombo.h \
+#
 
 graph_dialog_LDADD = \
 	-lm \
@@ -247,7 +257,6 @@ graph_dialog_LDADD = \
 # \
 #         $(OBJECT_FILES) \
 # \
-# 	objects/QCADLayer_properties.c             objects/QCADLayer_properties.h \
 # 	objects/QCADClockCombo.c                   objects/QCADClockCombo.h \
 # 	exp_pixmap.c                               exp_pixmap.h \
 # \

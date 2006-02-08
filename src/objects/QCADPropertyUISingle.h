@@ -2,7 +2,9 @@
 #define _OBJECTS_QCADPropertyUISingle_H_
 
 #include <stdarg.h>
-#include <gtk/gtk.h>
+#ifdef GTK_GUI
+  #include <gtk/gtk.h>
+#endif /* def GTK_GUI */
 #include "../exp_array.h"
 #include "QCADPropertyUI.h"
 
@@ -12,6 +14,7 @@ extern "C" {
 
 typedef struct _QCADPropertyUISingle      QCADPropertyUISingle ;
 typedef struct _QCADPropertyUISingleClass QCADPropertyUISingleClass ;
+#ifdef GTK_GUI
 typedef struct _QCADPropertyUIWidget      QCADPropertyUIWidget ;
 
 struct _QCADPropertyUIWidget
@@ -20,6 +23,7 @@ struct _QCADPropertyUIWidget
   int idxX ;
   int idxY ;
   } ;
+#endif /* def GTK_GUI */
 
 struct _QCADPropertyUISingle
   {
@@ -27,7 +31,10 @@ struct _QCADPropertyUISingle
 
   GParamSpec *pspec ;
   gboolean bShowLbl ;
+#ifdef GTK_GUI
   QCADPropertyUIWidget lbl ;
+  GtkTooltips *tooltip ;
+#endif /* def GTK_GUI */
   } ;
 
 struct _QCADPropertyUISingleClass
@@ -35,6 +42,9 @@ struct _QCADPropertyUISingleClass
   QCADPropertyUIClass parent_class ;
 
   void (*set_pspec) (QCADPropertyUISingle *property_ui_single, GParamSpec *new_pspec) ;
+#ifdef GTK_GUI
+  void (*set_tooltip) (QCADPropertyUISingle *property_ui_single, GtkTooltips *tooltip) ;
+#endif /* def GTK_GUI */
   } ;
 
 GType qcad_property_ui_single_get_type () ;

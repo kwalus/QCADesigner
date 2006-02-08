@@ -97,17 +97,17 @@ DESIGN *design_new (QCADSubstrate **psubs)
 
   // Initialize the design
 
-  layer = qcad_layer_new (LAYER_TYPE_DRAWING, LAYER_STATUS_VISIBLE, _("Drawing Layer")) ;
+  layer = qcad_layer_new (LAYER_TYPE_DRAWING, QCAD_LAYER_STATUS_VISIBLE, _("Drawing Layer")) ;
   design_layer_add (design, layer) ;
   design->lstCurrentLayer =
   design->lstLastLayer = design->lstLayers ;
 
-  layer = qcad_layer_new (LAYER_TYPE_SUBSTRATE, LAYER_STATUS_VISIBLE, _("Substrate")) ;
+  layer = qcad_layer_new (LAYER_TYPE_SUBSTRATE, QCAD_LAYER_STATUS_VISIBLE, _("Substrate")) ;
   design_layer_add (design, layer) ;
   qcad_do_container_add (QCAD_DO_CONTAINER (layer), QCAD_DESIGN_OBJECT ((*psubs) = QCAD_SUBSTRATE (qcad_substrate_new (0.0, 0.0, 600.0, 300.0, 1.0001)))) ;
   g_object_unref (G_OBJECT (*psubs)) ;
 
-  layer = qcad_layer_new (LAYER_TYPE_CELLS, LAYER_STATUS_ACTIVE, _("Main Cell Layer")) ;
+  layer = qcad_layer_new (LAYER_TYPE_CELLS, QCAD_LAYER_STATUS_ACTIVE, _("Main Cell Layer")) ;
   design_layer_add (design, layer) ;
 
   design->bus_layout = design_bus_layout_new () ;
@@ -281,8 +281,8 @@ void design_draw (DESIGN *design, GdkDrawable *dst, GdkFunction rop, GdkRectangl
   GList *llLayer = NULL ;
 
   for (llLayer = design->lstLayers ; NULL != llLayer ; llLayer = llLayer->next)
-    if (LAYER_STATUS_VISIBLE == QCAD_LAYER (llLayer->data)->status ||
-        LAYER_STATUS_ACTIVE  == QCAD_LAYER (llLayer->data)->status)
+    if (QCAD_LAYER_STATUS_VISIBLE == QCAD_LAYER (llLayer->data)->status ||
+        QCAD_LAYER_STATUS_ACTIVE  == QCAD_LAYER (llLayer->data)->status)
       {
       QCAD_LAYER_SET_DRAW_FLAGS (llLayer->data, flags) ;
       qcad_design_object_draw (QCAD_DESIGN_OBJECT (llLayer->data), dst, rop, rcClip) ;
@@ -734,7 +734,7 @@ QCADDesignObject *design_selection_create_from_selection (DESIGN *design, GdkWin
   QCADDesignObject *obj = NULL, *ret = NULL ;
 
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
-    if (LAYER_STATUS_ACTIVE == (layer = (QCAD_LAYER (lstLayer->data)))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == (layer = (QCAD_LAYER (lstLayer->data)))->status)
       if (NULL != layer->lstSelObjs)
         {
         qcad_layer_selection_create_from_selection (layer) ;
@@ -757,7 +757,7 @@ EXP_ARRAY *design_selection_subtract_window (DESIGN *design, GdkDrawable *dst, G
   EXP_ARRAY *ar = NULL ;
 
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
-    if (LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
       ar = qcad_layer_selection_subtract_window (layer, dst, rop, rcWorld, ar) ;
   return design_selection_object_array_add_weak_pointers (ar) ;
   }
@@ -769,7 +769,7 @@ EXP_ARRAY *design_selection_release (DESIGN *design, GdkDrawable *dst, GdkFuncti
   EXP_ARRAY *ar = NULL ;
 
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
-    if (LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
       ar = qcad_layer_selection_release (layer, dst, rop, ar) ;
 
   return design_selection_object_array_add_weak_pointers (ar) ;
@@ -789,8 +789,8 @@ gboolean design_get_extents (DESIGN *design, WorldRectangle *extents, gboolean b
   extents->cyWorld = 0.0 ;
 
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
-    if (LAYER_STATUS_VISIBLE == (QCAD_LAYER (lstLayer->data))->status ||
-        LAYER_STATUS_ACTIVE  == (QCAD_LAYER (lstLayer->data))->status)
+    if (QCAD_LAYER_STATUS_VISIBLE == (QCAD_LAYER (lstLayer->data))->status ||
+        QCAD_LAYER_STATUS_ACTIVE  == (QCAD_LAYER (lstLayer->data))->status)
       if (qcad_layer_get_extents (QCAD_LAYER (lstLayer->data), &ext, bSelection))
         {
         if (bHaveBaseline)
@@ -815,7 +815,7 @@ EXP_ARRAY *design_selection_get_object_array (DESIGN *design)
   EXP_ARRAY *ar = NULL ;
 
   for (llItr = design->lstLayers ; llItr != NULL ; llItr = llItr->next)
-    if (LAYER_STATUS_ACTIVE == (layer = QCAD_LAYER (llItr->data))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == (layer = QCAD_LAYER (llItr->data))->status)
       ar = qcad_layer_selection_get_object_array (layer, ar) ;
 
   return design_selection_object_array_add_weak_pointers (ar) ;
@@ -831,7 +831,7 @@ EXP_ARRAY *design_selection_create_from_window (DESIGN *design, WorldRectangle *
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
     {
     // This function is not responsible for destroying an existing selection.
-    if (LAYER_STATUS_ACTIVE == (layer = QCAD_LAYER (lstLayer->data))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == (layer = QCAD_LAYER (lstLayer->data))->status)
       if (LAYER_TYPE_DISTRIBUTION != layer->type)
         for (lstObj = layer->lstObjs ; lstObj != NULL ; lstObj = lstObj->next)
           if (NULL != lstObj->data)
@@ -871,7 +871,7 @@ EXP_ARRAY *design_selection_add_window (DESIGN *design, WorldRectangle *rcWorld)
   EXP_ARRAY *ar = NULL ;
 
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
-    if (LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
       if (LAYER_TYPE_DISTRIBUTION != layer->type)
         for (lstObj = layer->lstObjs ; lstObj != NULL ; lstObj = lstObj->next)
           if (NULL != lstObj->data)
@@ -1036,7 +1036,7 @@ QCADDesignObject *design_selection_hit_test (DESIGN *design, int x, int y)
   QCADDesignObject *obj = NULL ;
 
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
-    if (LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
       for (lstSelObj = layer->lstSelObjs ; lstSelObj != NULL ; lstSelObj = lstSelObj->next)
         if (NULL != (obj = qcad_design_object_hit_test (QCAD_DESIGN_OBJECT (lstSelObj->data), x, y)))
           return obj ;
@@ -1049,7 +1049,7 @@ void design_selection_move (DESIGN *design, double dxWorld, double dyWorld)
   QCADLayer *layer = NULL ;
 
   for (lstLayer = design->lstLayers ; lstLayer != NULL ; lstLayer = lstLayer->next)
-    if (LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == ((layer = (QCAD_LAYER (lstLayer->data))))->status)
       for (lstSelObj = layer->lstSelObjs ; lstSelObj != NULL ; lstSelObj = lstSelObj->next)
         qcad_design_object_move (lstSelObj->data, dxWorld, dyWorld) ;
   }
@@ -1322,7 +1322,7 @@ gboolean design_selection_drop (DESIGN *design)
   if (!design_get_extents (design, &ext, TRUE)) return TRUE ;
 
   for (llLayer = design->lstLayers ; llLayer != NULL ; llLayer = llLayer->next)
-    if (LAYER_STATUS_ACTIVE == (layer = (QCAD_LAYER (llLayer->data)))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == (layer = (QCAD_LAYER (llLayer->data)))->status)
       if (!qcad_layer_selection_drop (layer)) return FALSE ;
 /*
       {
@@ -1474,7 +1474,7 @@ void design_selection_objects_foreach (DESIGN *design, DesignObjectCallback cb, 
   GList *llLayerItr = NULL, *llObjItr = NULL ;
 
   for (llLayerItr = design->lstLayers ; llLayerItr != NULL ; llLayerItr = llLayerItr->next)
-    if (LAYER_STATUS_ACTIVE == (QCAD_LAYER (llLayerItr->data))->status)
+    if (QCAD_LAYER_STATUS_ACTIVE == (QCAD_LAYER (llLayerItr->data))->status)
       for (llObjItr = (QCAD_LAYER (llLayerItr->data))->lstSelObjs ; llObjItr != NULL ; llObjItr = llObjItr->next)
         if (NULL != llObjItr->data)
           (*cb) (design, QCAD_DESIGN_OBJECT (llObjItr->data), data) ;
@@ -1640,6 +1640,7 @@ void design_set_current_layer (DESIGN *design, QCADLayer *layer)
     if (llItr->data == layer)
       {
       design->lstCurrentLayer = llItr ;
+      qcad_object_set_default (G_TYPE_FROM_INSTANCE (layer), QCAD_OBJECT (layer)) ;
       break ;
       }
   }

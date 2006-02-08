@@ -116,6 +116,7 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
 #endif /* def WIN32 */
   textdomain (PACKAGE);
 #endif
+  bind_textdomain_codeset (PACKAGE, "UTF-8") ;
   gtk_set_locale ();
 
   // Add pixmap directories
@@ -181,6 +182,8 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   add_stock_icon ("q_cell_pan.svg",           QCAD_STOCK_PAN) ;
   add_stock_icon ("ruler.svg",                QCAD_STOCK_MEASURE) ;
   add_stock_icon ("insert_column_before.svg", QCAD_STOCK_INSERT_COL_BEFORE) ;
+  add_stock_icon ("show_potential.svg",       QCAD_STOCK_SHOW_POTENTIAL) ;
+  add_stock_icon ("no_show_potential.svg",    QCAD_STOCK_NO_SHOW_POTENTIAL) ;
 #else
   add_stock_icon ("substrate.png",            QCAD_STOCK_SUBSTRATE) ;
   add_stock_icon ("rect_electrode.png",       QCAD_STOCK_RECT_ELECTRODE) ;

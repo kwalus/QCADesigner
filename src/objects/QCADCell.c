@@ -42,11 +42,12 @@
 #include "../custom_widgets.h"
 #include "QCADCell.h"
 #include "QCADDOContainer.h"
-#ifdef GTK_GUI
-  #include "QCADClockCombo.h"
-#endif /* def GTK_GUI */
+//#ifdef GTK_GUI
+//  #include "QCADClockCombo.h"
+//#endif /* def GTK_GUI */
 #include "mouse_handlers.h"
 #include "QCADCompoundDO.h"
+#include "QCADPropertyUI.h"
 #include "object_helpers.h"
 #include "objects_debug.h"
 #include "../fileio_helpers.h"
@@ -54,34 +55,6 @@
 #define QCAD_CELL_LABEL_DEFAULT_OFFSET_Y 1
 
 #define DBG_VAL(s)
-
-#ifdef GTK_GUI
-typedef struct
-  {
-  GtkWidget *tbl ;
-  GtkAdjustment *adjCXCell ;
-  GtkAdjustment *adjCYCell ;
-  GtkAdjustment *adjDotDiam ;
-  GtkWidget *cbClock ;
-  } DEFAULT_PROPERTIES ;
-
-typedef struct
-  {
-  GtkWidget *dlg ;
-  GtkAdjustment *adjPolarization ;
-  GtkWidget *spnPolarization ;
-  GtkWidget *txtName ;
-  GtkWidget *rbNormal ;
-  GtkWidget *rbFixed ;
-  GtkWidget *rbIO ;
-  GtkWidget *rbInput ;
-  GtkWidget *rbOutput ;
-  GtkWidget *fmFixed ;
-  GtkWidget *lblName ;
-  GtkWidget *fmIO ;
-  GtkWidget *cbClock ;
-  } PROPERTIES ;
-#endif /* def GTK_GUI */
 
 #ifdef DESIGNER
 extern DropFunction drop_function ;
@@ -91,9 +64,9 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_cell_instance_init (GObject *object, gpointer data) ;
 static void qcad_cell_instance_finalize (GObject *object) ;
 static void qcad_cell_compound_do_interface_init (gpointer iface, gpointer interface_data) ;
-static void qcad_cell_do_container_interface_init (gpointer iface, gpointer interface_data) ;
+//static void qcad_cell_do_container_interface_init (gpointer iface, gpointer interface_data) ;
 static void qcad_cell_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
-static void qcad_cell_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) ;
+static void qcad_cell_get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
 
 #ifdef GTK_GUI
 static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
@@ -103,12 +76,6 @@ static void copy (QCADObject *src, QCADObject *dst) ;
 static QCADObject *class_get_default_object () ;
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
-#ifdef UNDO_REDO
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry) ;
-#else
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *parent) ;
-#endif /* def UNDO_REDO */
-static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData) ;
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
@@ -125,26 +92,18 @@ static void transform (QCADDesignObject *obj, double m11, double m12, double m21
 static QCADDesignObject *qcad_cell_compound_do_first (QCADCompoundDO *cdo) ;
 static QCADDesignObject *qcad_cell_compound_do_next (QCADCompoundDO *cdo) ;
 static gboolean qcad_cell_compound_do_last (QCADCompoundDO *cdo) ;
-static gboolean qcad_cell_do_container_add (QCADDOContainer *container, QCADDesignObject *obj) ;
-static gboolean qcad_cell_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
+//static gboolean qcad_cell_do_container_add (QCADDOContainer *container, QCADDesignObject *obj) ;
+//static gboolean qcad_cell_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
 
 #ifdef DESIGNER
 static void qcad_cell_array_next_coord (int idx[2], double coord[2], double length[2], double dDir) ;
 #endif /* def DESIGNER */
-#ifdef GTK_GUI
-static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog) ;
-static void create_properties_dialog (PROPERTIES *dialog) ;
-static void cell_mode_toggled (GtkWidget *widget, gpointer data) ;
-static void default_properties_apply (gpointer data) ;
-#endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
 static gboolean qcad_cell_dot_unserialize (FILE *fp, QCADCellDot *pdots, int idxDot) ;
 #endif
-static void *default_properties_get (struct QCADDesignObjectClass *klass) ;
-static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) ;
-static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props) ;
 static void qcad_cell_apply_transformation (QCADCell *cell, double xOld, double yOld) ;
 static void qcad_cell_calculate_coords (QCADCell *cell) ;
+static void qcad_cell_set_size (QCADCell *cell, double cx, double cy, double dot_diam) ;
 
 GdkColor clrBlack  = {0, 0x0000, 0x0000, 0x0000} ;
 GdkColor clrOrange = {0, 0xFFFF, 0x8000, 0x0000} ;
@@ -171,10 +130,53 @@ enum
   QCAD_CELL_PROPERTY_CLOCK,
   QCAD_CELL_PROPERTY_MODE,
   QCAD_CELL_PROPERTY_LABEL,
-  QCAD_CELL_PROPERTY_POLARIZATION
+  QCAD_CELL_PROPERTY_POLARIZATION,
+  QCAD_CELL_PROPERTY_CX,
+  QCAD_CELL_PROPERTY_CY,
+  QCAD_CELL_PROPERTY_DOT_DIAM
   } ;
 
 static guint qcad_cell_signals[QCAD_CELL_LAST_SIGNAL] = {0} ;
+
+int label_enabled_if[] =
+  {
+  QCAD_CELL_INPUT,
+  QCAD_CELL_OUTPUT
+  } ;
+
+INT_IN_LIST_PARAMS label_enabled_if_list =
+  {
+  G_N_ELEMENTS (label_enabled_if),
+  label_enabled_if
+  } ;
+
+int polarization_enabled_if[] =
+  {
+  QCAD_CELL_FIXED
+  } ;
+
+INT_IN_LIST_PARAMS polarization_enabled_if_list =
+  {
+  G_N_ELEMENTS (polarization_enabled_if),
+  polarization_enabled_if
+  } ;
+
+// Gotta be static so the strings don't die
+static QCADPropertyUIBehaviour behaviour[] =
+  {
+    // cell.label.sensitive = (cell.function == QCAD_CELL_INPUT || cell.function == QCAD_CELL_OUTPUT)
+    {
+    "function", NULL, "label", "sensitive", 
+    CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P, &label_enabled_if_list, NULL,
+    NULL, NULL, NULL
+    },
+    {
+    // cell.polarization.sensitive = (cell.function == QCAD_CELL_FIXED)
+    "function", NULL, "polarization", "sensitive", 
+    CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P, &polarization_enabled_if_list, NULL,
+    NULL, NULL, NULL
+    }
+  } ;
 
 GType qcad_cell_get_type ()
   {
@@ -201,21 +203,21 @@ GType qcad_cell_get_type ()
       NULL,
       NULL
       } ;
-
+/*
     static GInterfaceInfo qcad_cell_do_container_info =
       {
       (GInterfaceInitFunc)qcad_cell_do_container_interface_init,
       NULL,
       NULL
       } ;
-
+*/
     if ((qcad_cell_type = g_type_register_static (QCAD_TYPE_DESIGN_OBJECT, QCAD_TYPE_STRING_CELL, &qcad_cell_info, 0)))
       {
       g_type_add_interface_static (qcad_cell_type, QCAD_TYPE_COMPOUND_DO, &qcad_cell_compound_do_info) ;
-      g_type_add_interface_static (qcad_cell_type, QCAD_TYPE_DO_CONTAINER, &qcad_cell_do_container_info) ;
+//      g_type_add_interface_static (qcad_cell_type, QCAD_TYPE_DO_CONTAINER, &qcad_cell_do_container_info) ;
       g_type_class_ref (qcad_cell_type) ;
       }
-    DBG_OO (fprintf (stderr, "Registered QCADCell as %d\n", qcad_cell_type)) ;
+    DBG_OO (fprintf (stderr, "Registered QCADCell as %d\n", (int)qcad_cell_type)) ;
     }
   return qcad_cell_type ;
   }
@@ -267,7 +269,7 @@ static void qcad_cell_compound_do_interface_init (gpointer iface, gpointer inter
   klass->next = qcad_cell_compound_do_next ;
   klass->last = qcad_cell_compound_do_last ;
   }
-
+/*
 static void qcad_cell_do_container_interface_init (gpointer iface, gpointer interface_data)
   {
   QCADDOContainerClass *klass = (QCADDOContainerClass *)iface ;
@@ -275,13 +277,35 @@ static void qcad_cell_do_container_interface_init (gpointer iface, gpointer inte
   klass->add = qcad_cell_do_container_add ;
   klass->remove = qcad_cell_do_container_remove ;
   }
-
+*/
 static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   {
 #ifdef GTK_GUI
   GdkColormap *clrmap = gdk_colormap_get_system () ;
+#endif /* def GTK_GUI */
+  // Gotta be static so the strings don't die
+  static QCADPropertyUIProperty properties[] =
+    {
+    {NULL,           "title",     {0, }},
+    {"width",        "units",     {0, }},
+    {"height",       "units",     {0, }},
+    {"dot-diameter", "units",     {0, }},
+#ifdef GTK_GUI
+    {"clock",        "render-as", {0, }},
+#endif /* def GTK_GUI */
+    } ;
 
-  DBG_OO (fprintf (stderr, "QCADCell::class_init:Entering\n")) ;
+  // cell.title = "QCA Cell"
+  g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), _("QCA Cell")) ;
+  // cell.width.units = "nm"
+  g_value_set_string (g_value_init (&(properties[1].ui_property_value), G_TYPE_STRING), "nm") ;
+  // cell.height.units = "nm"
+  g_value_set_string (g_value_init (&(properties[2].ui_property_value), G_TYPE_STRING), "nm") ;
+  // cell.dot-diameter.units = "nm"
+  g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "nm") ;
+#ifdef GTK_GUI
+  // cell.clock.render-as = GTK_TYPE_OPTION_MENU
+  g_value_set_uint   (g_value_init (&(properties[4].ui_property_value), G_TYPE_UINT), (guint)GTK_TYPE_OPTION_MENU) ;
 
   if (0 == clrOrange.pixel)
     gdk_colormap_alloc_color (clrmap, &clrOrange, FALSE, TRUE) ;
@@ -296,8 +320,6 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   gdk_colormap_alloc_color (clrmap, &(clrClock[1]), FALSE, TRUE) ;
   gdk_colormap_alloc_color (clrmap, &(clrClock[2]), FALSE, TRUE) ;
   gdk_colormap_alloc_color (clrmap, &(clrClock[3]), FALSE, TRUE) ;
-#else
-  DBG_OO (fprintf (stderr, "QCADCell::class_init:Entering\n")) ;
 #endif /* def GTK_GUI */
 
   QCAD_OBJECT_CLASS (klass)->copy                     = copy ;
@@ -311,8 +333,6 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance        = PostScript_instance ;
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                       = draw ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties             = old_properties ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_ui      = default_properties_ui ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed          = (GCallback)button_pressed ;
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
@@ -321,10 +341,6 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
 #endif /* def STDIO_FILEIO */
   QCAD_DESIGN_OBJECT_CLASS (klass)->move                       = move ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->transform                  = transform ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_get     = default_properties_get ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_set     = default_properties_set ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_destroy = default_properties_destroy ;
-
   G_OBJECT_CLASS (klass)->finalize                             = qcad_cell_instance_finalize ;
   G_OBJECT_CLASS (klass)->set_property                         = qcad_cell_set_property ;
   G_OBJECT_CLASS (klass)->get_property                         = qcad_cell_get_property ;
@@ -349,10 +365,25 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
     g_param_spec_double ("polarization", _("Polarization"), _("Cell Polarization"),
       -1.0, 1.0, 0.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CELL_PROPERTY_CX,
+    g_param_spec_double ("width", _("Cell Width"), _("Cell Width"),
+      0.1, 1e9, 18.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CELL_PROPERTY_CY,
+    g_param_spec_double ("height", _("Cell Height"), _("Cell Height"),
+      0.1, 1e9, 18.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CELL_PROPERTY_DOT_DIAM,
+    g_param_spec_double ("dot-diameter", _("Dot Diameter"), _("Diameter of the quantum dot"),
+      0.1, 1e9, 5.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
   qcad_cell_signals[QCAD_CELL_CELL_FUNCTION_CHANGED_SIGNAL] =
     g_signal_new ("cell-function-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADCellClass, cell_function_changed), NULL, NULL, g_cclosure_marshal_VOID__VOID,
       G_TYPE_NONE, 0) ;
+
+  qcad_object_class_install_ui_behaviour (QCAD_OBJECT_CLASS (klass), behaviour, G_N_ELEMENTS (behaviour)) ;
+  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
 
   DBG_OO (fprintf (stderr, "QCADCell::class_init:Leaving\n")) ;
   }
@@ -389,6 +420,18 @@ static void qcad_cell_set_property (GObject *object, guint property_id, const GV
       qcad_cell_set_polarization (cell, g_value_get_double (value)) ;
       DBG_VAL (fprintf (stderr, "qcad_cell_set_property:Setting cell polarization to %lf\n", g_value_get_double (value))) ;
       break ;
+
+    case QCAD_CELL_PROPERTY_CX:
+      qcad_cell_set_size (cell, g_value_get_double (value), cell->cell_options.cyCell, cell->cell_options.dot_diameter) ;
+      break ;
+
+    case QCAD_CELL_PROPERTY_CY:
+      qcad_cell_set_size (cell, cell->cell_options.cxCell, g_value_get_double (value), cell->cell_options.dot_diameter) ;
+      break ;
+
+    case QCAD_CELL_PROPERTY_DOT_DIAM:
+      qcad_cell_set_size (cell, cell->cell_options.cxCell, cell->cell_options.cyCell, g_value_get_double (value)) ;
+      break ;
     }
   }
 
@@ -417,6 +460,18 @@ static void qcad_cell_get_property (GObject *object, guint property_id, GValue *
     case QCAD_CELL_PROPERTY_POLARIZATION:
       g_value_set_double (value, qcad_cell_calculate_polarization (cell)) ;
       break ;
+
+    case QCAD_CELL_PROPERTY_CX:
+      g_value_set_double (value, cell->cell_options.cxCell) ;
+      break ;
+
+    case QCAD_CELL_PROPERTY_CY:
+      g_value_set_double (value, cell->cell_options.cyCell) ;
+      break ;
+
+    case QCAD_CELL_PROPERTY_DOT_DIAM:
+      g_value_set_double (value, cell->cell_options.dot_diameter) ;
+      break ;
     }
   }
 
@@ -429,13 +484,13 @@ static void qcad_cell_instance_init (GObject *object, gpointer data)
   DBG_OO (fprintf (stderr, "QCADCell::instance_init:Entering\n")) ;
 
   dcx = 
-  cell->cell_options.cxCell         = 5 ;
+  cell->cell_options.cxCell         = 5.00 ;
   dcy = 
-  cell->cell_options.cyCell         = 5 ;
+  cell->cell_options.cyCell         = 5.00 ;
   ddiam =
-  cell->cell_options.dot_diameter   =  1.25 ;
+  cell->cell_options.dot_diameter   = 1.25 ;
   cell->cell_options.mode           = QCAD_CELL_MODE_NORMAL ;
-  cell->cell_options.clock          =  0 ;
+  cell->cell_options.clock          = 0 ;
   
   memcpy (&(QCAD_DESIGN_OBJECT (object)->clr), &(clrClock[0]), sizeof (GdkColor)) ;
   cell->id = (int)object ;
@@ -448,6 +503,12 @@ static void qcad_cell_instance_init (GObject *object, gpointer data)
   cell->bLabelRemoved = TRUE ;
 
   qcad_cell_calculate_coords (cell) ;
+
+  cell->cell_dots[0].charge =
+  cell->cell_dots[1].charge =
+  cell->cell_dots[2].charge =
+  cell->cell_dots[3].charge = HALF_QCHARGE ;
+
   DBG_OO (fprintf (stderr, "QCADCell::instance_init:Leaving\n")) ;
   }
 
@@ -634,7 +695,7 @@ void qcad_cell_set_host_name (QCADCell *cell, char *pszHostName)
 
 static QCADObject *class_get_default_object ()
   {return g_object_new (QCAD_TYPE_CELL, NULL) ;}
-
+/*
 static gboolean qcad_cell_do_container_add (QCADDOContainer *container, QCADDesignObject *obj)
   {
   QCADCell *cell = QCAD_CELL (container) ;
@@ -661,7 +722,7 @@ static gboolean qcad_cell_do_container_remove (QCADDOContainer *container, QCADD
     }
   return FALSE ;
   }
-
+*/
 static QCADDesignObject *qcad_cell_compound_do_first (QCADCompoundDO *cdo)
   {return (QCAD_CELL (cdo)->bLabelRemoved ? NULL : (QCADDesignObject *)(QCAD_CELL (cdo)->label)) ;}
 static QCADDesignObject *qcad_cell_compound_do_next (QCADCompoundDO *cdo)
@@ -745,15 +806,6 @@ static GList *add_unique_types (QCADDesignObject *obj, GList *lst)
 
   return lst ;
   }
-
-static void *default_properties_get (struct QCADDesignObjectClass *klass)
-  {return qcad_object_new_from_object (qcad_object_get_default (QCAD_TYPE_CELL)) ;}
-
-static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) 
-  {qcad_object_set_default (QCAD_TYPE_CELL, qcad_object_new_from_object (QCAD_OBJECT (props))) ;}
-
-static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props)
-  {g_object_unref (G_OBJECT (props)) ;}
 
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   {
@@ -1222,109 +1274,13 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
     fprintf(fp, "[#TYPE:CELL_DOT]\n");
     }
 
-  if (NULL != cell->label && !(cell->bLabelRemoved))
+  if (!(NULL == cell->label || cell->bLabelRemoved))
     qcad_design_object_serialize (QCAD_DESIGN_OBJECT (cell->label), fp) ;
 
   // output end of object
   fprintf(fp, "[#TYPE:%s]\n", QCAD_TYPE_STRING_CELL);
   }
 #endif /* def STDIO_FILEIO */
-#ifdef GTK_GUI
-static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_properties, GtkWidget **pTopContainer, gpointer *pData)
-  {
-  static DEFAULT_PROPERTIES dialog = {NULL} ;
-  QCADCell *default_cell = NULL ;
-
-  default_cell = QCAD_CELL (NULL == default_properties ? qcad_object_get_default (QCAD_TYPE_CELL) : default_properties) ;
-
-  if (NULL == dialog.tbl)
-    create_default_properties_dialog (&dialog) ;
-
-  dialog.adjCXCell->upper = MAX (dialog.adjCXCell->upper, default_cell->cell_options.cxCell) ;
-  dialog.adjCYCell->upper = MAX (dialog.adjCYCell->upper, default_cell->cell_options.cyCell) ;
-  dialog.adjDotDiam->upper = MAX (dialog.adjDotDiam->upper, default_cell->cell_options.dot_diameter) ;
-
-  gtk_adjustment_set_value (dialog.adjCXCell, default_cell->cell_options.cxCell) ;
-  gtk_adjustment_set_value (dialog.adjCYCell, default_cell->cell_options.cyCell) ;
-  gtk_adjustment_set_value (dialog.adjDotDiam, default_cell->cell_options.dot_diameter) ;
-  qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (dialog.cbClock), default_cell->cell_options.clock) ;
-
-  (*pTopContainer) = dialog.tbl ;
-  (*pData) = &dialog ;
-  return (GCallback)default_properties_apply ;
-  }
-
-#ifdef UNDO_REDO
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry)
-#else
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget)
-#endif /* def UNDO_REDO */
-  {
-  static PROPERTIES dialog = {NULL} ;
-  QCADCell *cell = QCAD_CELL (obj) ;
-  int iClock = -1 ;
-  GtkWidget *tbtn = NULL ;
-  gboolean bRet = FALSE ;
-#ifdef UNDO_REDO
-  EXP_ARRAY *state_before = NULL ;
-#endif /* def UNDO_REDO */
-
-  if (NULL == dialog.dlg)
-    create_properties_dialog (&dialog) ;
-
-  gtk_window_set_transient_for (GTK_WINDOW (dialog.dlg), GTK_WINDOW (widget)) ;
-  g_object_set_data (G_OBJECT (dialog.dlg), "dialog", &dialog) ;
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (dialog.adjPolarization), qcad_cell_calculate_polarization (QCAD_CELL (obj))) ;
-  gtk_entry_set_text (GTK_ENTRY (dialog.txtName), NULL == cell->label ? "" : NULL == cell->label->psz ? "" : cell->label->psz) ;
-
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (tbtn =
-    QCAD_CELL_INPUT == cell->cell_function ||
-    QCAD_CELL_OUTPUT == cell->cell_function ? dialog.rbIO :
-    QCAD_CELL_FIXED == cell->cell_function ? dialog.rbFixed : dialog.rbNormal), TRUE) ;
-
-  gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON (tbtn)) ;
-
-  if (QCAD_CELL_INPUT == cell->cell_function || QCAD_CELL_OUTPUT == cell->cell_function)
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (
-      QCAD_CELL_INPUT == cell->cell_function ? dialog.rbInput : dialog.rbOutput), TRUE) ;
-
-  qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (dialog.cbClock), cell->cell_options.clock) ;
-
-  if ((bRet = (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (dialog.dlg)))))
-    {
-#ifdef UNDO_REDO
-    if (NULL != pentry)
-      state_before = qcad_design_object_get_state_array (obj, "function", "label", "polarization", "clock", NULL) ;
-#endif /* def UNDO_REDO */
-    iClock = qcad_clock_combo_get_clock (QCAD_CLOCK_COMBO (dialog.cbClock)) ;
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog.rbNormal)))
-      g_object_set (G_OBJECT (cell),
-        "function",     QCAD_CELL_NORMAL,
-        "clock",        iClock, NULL) ;
-    else
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog.rbFixed)))
-      g_object_set (G_OBJECT (cell),
-        "function",     QCAD_CELL_FIXED,
-        "polarization", gtk_adjustment_get_value (GTK_ADJUSTMENT (dialog.adjPolarization)),
-        "clock",        iClock, NULL) ;
-    else // rbIO must be the case
-      g_object_set (G_OBJECT (cell),
-        "function",     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog.rbInput))
-                          ? QCAD_CELL_INPUT
-                          : QCAD_CELL_OUTPUT,
-        "label",        gtk_entry_get_text (GTK_ENTRY (dialog.txtName)),
-        "polarization", 0.0,
-        "clock",        iClock, NULL) ;
-#ifdef UNDO_REDO
-    if (NULL != pentry)
-      (*pentry) = qcad_design_object_get_state_undo_entry (obj, state_before,
-        qcad_design_object_get_state_array (obj, "function", "label", "polarization", "clock", NULL)) ;
-#endif /* UNDO_REDO */
-    }
-  gtk_widget_hide (dialog.dlg) ;
-  return bRet ;
-  }
-#endif /* def GTK_GUI */
 
 static gboolean set_selected (QCADDesignObject *obj, gboolean bSelected)
   {
@@ -1418,19 +1374,6 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
 
   return FALSE ;
   }
-
-static void default_properties_apply (gpointer data)
-  {
-  DEFAULT_PROPERTIES *dialog = (DEFAULT_PROPERTIES *)data ;
-  QCADCell *default_cell = QCAD_CELL (qcad_object_get_default (QCAD_TYPE_CELL)) ;
-  QCAD_DESIGN_OBJECT (default_cell)->bounding_box.cxWorld = 
-  default_cell->cell_options.cxCell = gtk_adjustment_get_value (dialog->adjCXCell) ;
-  QCAD_DESIGN_OBJECT (default_cell)->bounding_box.cyWorld = 
-  default_cell->cell_options.cyCell = gtk_adjustment_get_value (dialog->adjCYCell) ;
-  default_cell->cell_options.dot_diameter = gtk_adjustment_get_value (dialog->adjDotDiam) ;
-  qcad_cell_calculate_coords (default_cell) ;
-  g_object_set (G_OBJECT (default_cell), "clock", qcad_clock_combo_get_clock (QCAD_CLOCK_COMBO (dialog->cbClock)), NULL) ;
-  }
 #endif /* def GTK_GUI */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1455,245 +1398,6 @@ static void qcad_cell_array_next_coord (int idx[2], double coord[2], double leng
     }
   }
 #endif /* def DESIGNER */
-
-static void create_default_properties_dialog (DEFAULT_PROPERTIES *dialog)
-  {
-  GtkWidget *lbl = NULL, *spn = NULL, *tbl = NULL ;
-
-  tbl = dialog->tbl = gtk_table_new (3, 2, FALSE) ;
-  gtk_widget_show (dialog->tbl) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
-
-  lbl = gtk_label_new (_("Cell Width:")) ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
-
-  dialog->adjCXCell = GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 100, 1, 10, 10)) ;
-  spn = gtk_spin_button_new_infinite (dialog->adjCXCell, 1, 1, ISB_DIR_UP) ;
-  gtk_widget_show (spn) ;
-  gtk_table_attach (GTK_TABLE (tbl), spn, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
-
-  lbl = gtk_label_new ("nm") ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (tbl), lbl, 2, 3, 0, 1,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
-
-  lbl = gtk_label_new (_("Cell Height:")) ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 1, 2,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
-
-  dialog->adjCYCell = GTK_ADJUSTMENT (gtk_adjustment_new (1, 1, 100, 1, 10, 10)) ;
-  spn = gtk_spin_button_new_infinite (dialog->adjCYCell, 1, 1, ISB_DIR_UP) ;
-  gtk_widget_show (spn) ;
-  gtk_table_attach (GTK_TABLE (tbl), spn, 1, 2, 1, 2,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
-
-  lbl = gtk_label_new ("nm") ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (tbl), lbl, 2, 3, 1, 2,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
-
-  lbl = gtk_label_new (_("Dot Diameter:")) ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 2, 3,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
-
-  dialog->adjDotDiam = GTK_ADJUSTMENT (gtk_adjustment_new (0.0001, 0.0001, 100, 1, 10, 10)) ;
-  spn = gtk_spin_button_new_infinite (dialog->adjDotDiam, 1, 4, ISB_DIR_UP) ;
-  g_object_set (G_OBJECT (spn), "snap-to-ticks", FALSE, "update-policy", GTK_UPDATE_IF_VALID, NULL) ;
-  gtk_widget_show (spn) ;
-  gtk_table_attach (GTK_TABLE (tbl), spn, 1, 2, 2, 3,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
-
-  lbl = gtk_label_new ("nm") ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (tbl), lbl, 2, 3, 2, 3,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
-
-  lbl = gtk_label_new (_("Default Clock:")) ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 3, 4,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
-
-  dialog->cbClock = qcad_clock_combo_new () ;
-  gtk_widget_show (dialog->cbClock) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->cbClock, 1, 2, 3, 4,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(0), 2, 2) ;
-  }
-
-static void create_properties_dialog (PROPERTIES *dialog)
-  {
-  GtkWidget *tbl = NULL, *tblFm = NULL, *tbllbl = NULL, *tblBig = NULL ;
-
-  dialog->dlg = gtk_dialog_new () ;
-  gtk_window_set_title (GTK_WINDOW (dialog->dlg), _("Cell Function")) ;
-  gtk_window_set_resizable (GTK_WINDOW (dialog->dlg), FALSE) ;
-
-  tblBig = gtk_table_new (2, 2, FALSE) ;
-  gtk_widget_show (tblBig) ;
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dlg)->vbox), tblBig, TRUE, TRUE, 0) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tblBig), 2) ;
-
-  tbl = gtk_table_new (4, 2, FALSE) ;
-  gtk_widget_show (tbl) ;
-  gtk_table_attach (GTK_TABLE (tblBig), tbl, 0, 2, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
-
-  dialog->rbNormal = gtk_radio_button_new_with_label (NULL, _("Normal Cell")) ;
-  gtk_widget_show (dialog->rbNormal) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->rbNormal, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-
-  dialog->rbFixed = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (dialog->rbNormal),
-    _("Fixed Polarization")) ;
-  gtk_widget_show (dialog->rbFixed) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->rbFixed, 0, 1, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-
-  dialog->rbIO = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (dialog->rbFixed),
-    _("Input/Output")) ;
-  gtk_widget_show (dialog->rbIO) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->rbIO, 0, 1, 2, 3,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-
-  dialog->fmFixed = gtk_frame_new (_("Polarization")) ;
-  gtk_widget_show (dialog->fmFixed) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->fmFixed, 1, 2, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
-  gtk_container_set_border_width (GTK_CONTAINER (dialog->fmFixed), 2) ;
-
-  tblFm = gtk_table_new (1, 1, FALSE) ;
-  gtk_widget_show (tblFm) ;
-  gtk_container_add (GTK_CONTAINER (dialog->fmFixed), tblFm) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tblFm), 2) ;
-
-  dialog->adjPolarization = GTK_ADJUSTMENT (gtk_adjustment_new (0.00, -1.00, 1.00, 0.0001, 0.1, 0.1)) ;
-  dialog->spnPolarization = gtk_spin_button_new (dialog->adjPolarization, 0.0001, 4) ;
-  gtk_widget_show (dialog->spnPolarization) ;
-  gtk_table_attach (GTK_TABLE (tblFm), dialog->spnPolarization, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-
-  dialog->fmIO = gtk_frame_new (_("I/O")) ;
-  gtk_widget_show (dialog->fmIO) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->fmIO, 1, 2, 2, 3,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-  gtk_container_set_border_width (GTK_CONTAINER (dialog->fmIO), 2) ;
-
-  tblFm = gtk_table_new (2, 2, FALSE) ;
-  gtk_widget_show (tblFm) ;
-  gtk_container_add (GTK_CONTAINER (dialog->fmIO), tblFm) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tblFm), 2) ;
-
-  dialog->rbInput = gtk_radio_button_new_with_label (NULL, _("Input")) ;
-  gtk_widget_show (dialog->rbInput) ;
-  gtk_table_attach (GTK_TABLE (tblFm), dialog->rbInput, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-
-  dialog->rbOutput = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (dialog->rbInput), _("Output")) ;
-  gtk_widget_show (dialog->rbOutput) ;
-  gtk_table_attach (GTK_TABLE (tblFm), dialog->rbOutput, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-
-  tbllbl = gtk_table_new (1, 2, FALSE) ;
-  gtk_widget_show (tbllbl) ;
-  gtk_table_attach (GTK_TABLE (tblFm), tbllbl, 0, 2, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tbllbl), 2) ;
-
-  dialog->lblName = gtk_label_new (_("Cell Label:")) ;
-  gtk_widget_show (dialog->lblName) ;
-  gtk_table_attach (GTK_TABLE (tbllbl), dialog->lblName, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (dialog->lblName), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (dialog->lblName), 1.0, 0.5) ;
-
-  dialog->txtName = gtk_entry_new () ;
-  gtk_widget_show (dialog->txtName) ;
-  gtk_table_attach (GTK_TABLE (tbllbl), dialog->txtName, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-  gtk_entry_set_activates_default (GTK_ENTRY (dialog->txtName), TRUE) ;
-
-  tbllbl = gtk_label_new (_("Clock:")) ;
-  gtk_widget_show (tbllbl) ;
-  gtk_table_attach (GTK_TABLE (tblBig), tbllbl, 0, 1, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (tbllbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (tbllbl), 1.0, 0.5) ;
-
-  dialog->cbClock = qcad_clock_combo_new () ;
-  gtk_widget_show (dialog->cbClock) ;
-  gtk_table_attach (GTK_TABLE (tblBig), dialog->cbClock, 1, 2, 1, 2,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(0), 2, 2) ;
-
-  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
-  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
-  gtk_dialog_set_default_response (GTK_DIALOG (dialog->dlg), GTK_RESPONSE_OK) ;
-
-  g_signal_connect (G_OBJECT (dialog->rbNormal), "toggled", (GCallback)cell_mode_toggled, dialog->dlg) ;
-  g_signal_connect (G_OBJECT (dialog->rbFixed), "toggled", (GCallback)cell_mode_toggled, dialog->dlg) ;
-  g_signal_connect (G_OBJECT (dialog->rbIO), "toggled", (GCallback)cell_mode_toggled, dialog->dlg) ;
-  }
-
-static void cell_mode_toggled (GtkWidget *widget, gpointer data)
-  {
-  PROPERTIES *dialog = (PROPERTIES *)g_object_get_data (G_OBJECT (data), "dialog") ;
-
-  if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) return ;
-
-  gtk_widget_set_sensitive (dialog->fmFixed, dialog->rbFixed == widget) ;
-  gtk_widget_set_sensitive (dialog->spnPolarization, dialog->rbFixed == widget) ;
-  gtk_widget_set_sensitive (dialog->fmIO, dialog->rbIO == widget) ;
-  gtk_widget_set_sensitive (dialog->rbInput, dialog->rbIO == widget) ;
-  gtk_widget_set_sensitive (dialog->rbOutput, dialog->rbIO == widget) ;
-  gtk_widget_set_sensitive (dialog->lblName, dialog->rbIO == widget) ;
-  gtk_widget_set_sensitive (dialog->txtName, dialog->rbIO == widget) ;
-  }
 #endif /* def GTK_GUI */
 
 double qcad_cell_calculate_polarization (QCADCell *cell)
@@ -1711,6 +1415,7 @@ void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function)
   cell->cell_function = function ;
   if (QCAD_CELL_NORMAL == function)
     {
+    memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &(clrClock[cell->cell_options.clock]), sizeof (GdkColor)) ;
     if (NULL != cell->label)
       qcad_cell_set_label (cell, "") ;
     }
@@ -1719,7 +1424,10 @@ void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function)
     {
     memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &clrOrange, sizeof (GdkColor)) ;
     if (NULL != cell->label)
+      {
       memcpy (&(QCAD_DESIGN_OBJECT (cell->label)->clr), &clrOrange, sizeof (GdkColor)) ;
+      qcad_cell_set_polarization (cell, qcad_cell_calculate_polarization (cell)) ;
+      }
     }
   else
   if (QCAD_CELL_INPUT == function || QCAD_CELL_OUTPUT == function)
@@ -1734,6 +1442,8 @@ void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function)
 
   if (old_function != function)
     g_signal_emit (cell, qcad_cell_signals[QCAD_CELL_CELL_FUNCTION_CHANGED_SIGNAL], 0) ;
+
+  g_object_notify (G_OBJECT (cell), "function") ;
   }
 
 void qcad_cell_scale (QCADCell *cell, double dScale, double dxOrigin, double dyOrigin)
@@ -1791,6 +1501,7 @@ void qcad_cell_set_label (QCADCell *cell, char *pszLabel)
       g_signal_emit_by_name (G_OBJECT (cell), "removed", cell->label) ;
       g_object_unref (cell->label) ;
       cell->bLabelRemoved = TRUE ;
+      g_object_notify (G_OBJECT (cell), "label") ;
       return ;
       }
 
@@ -1799,11 +1510,11 @@ void qcad_cell_set_label (QCADCell *cell, char *pszLabel)
     cell->label = QCAD_LABEL (g_object_new (QCAD_TYPE_LABEL, NULL)) ;
     g_object_add_weak_pointer (G_OBJECT (cell->label), (gpointer *)&(cell->label)) ;
     g_signal_emit_by_name (G_OBJECT (cell), "added", cell->label) ;
-    cell->bLabelRemoved = FALSE ;
     }
 
   memcpy (&(QCAD_DESIGN_OBJECT (cell->label)->clr), &(QCAD_DESIGN_OBJECT (cell)->clr), sizeof (GdkColor)) ;
   qcad_label_set_text (cell->label, pszLabel) ;
+  cell->bLabelRemoved = FALSE ;
 
   if (bNewLabel)
     qcad_design_object_move_to (QCAD_DESIGN_OBJECT (cell->label),
@@ -1812,6 +1523,8 @@ void qcad_cell_set_label (QCADCell *cell, char *pszLabel)
 
   if (QCAD_DESIGN_OBJECT (cell)->bSelected)
     qcad_design_object_set_selected (QCAD_DESIGN_OBJECT (cell->label), TRUE) ;
+
+  g_object_notify (G_OBJECT (cell), "label") ;
   }
 
 void qcad_cell_set_polarization (QCADCell *cell, double new_polarization)
@@ -1830,6 +1543,7 @@ void qcad_cell_set_polarization (QCADCell *cell, double new_polarization)
     qcad_cell_set_label (cell, psz) ;
     g_free (psz) ;
     }
+  g_object_notify (G_OBJECT (cell), "polarization") ;
   }
 
 #ifdef STDIO_FILEIO
@@ -1901,11 +1615,6 @@ static void qcad_cell_calculate_coords (QCADCell *cell)
   qcad_design_object->bounding_box.cxWorld = dcx ;
   qcad_design_object->bounding_box.cyWorld = dcy ;
 
-  cell->cell_dots[0].charge =
-  cell->cell_dots[1].charge =
-  cell->cell_dots[2].charge =
-  cell->cell_dots[3].charge = HALF_QCHARGE ;
-
   cell->cell_dots[0].diameter =
   cell->cell_dots[1].diameter =
   cell->cell_dots[2].diameter =
@@ -1919,4 +1628,22 @@ static void qcad_cell_calculate_coords (QCADCell *cell)
   cell->cell_dots[2].y = y + (dcy / 2 - cell->cell_dots[2].diameter) / 2 + cell->cell_dots[2].diameter / 2;
   cell->cell_dots[1].x = x + (dcx / 2 - cell->cell_dots[1].diameter) / 2 + cell->cell_dots[1].diameter / 2;
   cell->cell_dots[1].y = y + (dcy / 2 - cell->cell_dots[1].diameter) / 2 + cell->cell_dots[1].diameter / 2;
+  }
+
+// Make sure the dots don't overlap when setting the cell size, and emit g_object_notify accordingly
+static void qcad_cell_set_size (QCADCell *cell, double cx, double cy, double dot_diam)
+  {
+  double old_cx = cell->cell_options.cxCell, old_cy = cell->cell_options.cyCell, old_dot_diameter = dot_diam ;
+
+  cell->cell_options.cxCell = cx ;
+  cell->cell_options.cyCell = cy ;
+  cell->cell_options.dot_diameter = MIN (dot_diam, MIN (cell->cell_options.cxCell, cell->cell_options.cyCell) / 2.0) ;
+
+  if (old_cx != cell->cell_options.cxCell)
+    g_object_notify (G_OBJECT (cell), "width") ;
+  if (old_cy != cell->cell_options.cyCell)
+    g_object_notify (G_OBJECT (cell), "height") ;
+  if (old_dot_diameter != cell->cell_options.dot_diameter)
+    g_object_notify (G_OBJECT (cell), "dot-diameter") ;
+  qcad_cell_calculate_coords (cell) ;
   }

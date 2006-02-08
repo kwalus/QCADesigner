@@ -69,7 +69,7 @@ GType qcad_clock_combo_get_type ()
 
     if ((qcad_clock_combo_type = g_type_register_static (GTK_TYPE_HBOX, QCAD_TYPE_STRING_CLOCK_COMBO, &qcad_clock_combo_info, 0)))
       g_type_class_ref (qcad_clock_combo_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADClockCombo as %d\n", (int)qcad_stretchy_object_type)) ;
+    DBG_OO (fprintf (stderr, "Registered QCADClockCombo as %d\n", (int)qcad_clock_combo_type)) ;
     }
   return qcad_clock_combo_type ;
   }

@@ -29,6 +29,7 @@
 #define _INTERFACE_H_
 
 #include <gtk/gtk.h>
+#include "objects/QCADPropertyUI.h"
 
 #define MAIN_WND_BASE_TITLE "QCADesigner"
 
@@ -37,7 +38,7 @@ typedef struct
   {
   GtkWidget *bus_layout_button;
   GtkWidget *bus_layout_menu_item;
-  GtkWidget *clocks_combo_table;
+  GtkWidget *layer_toolbar_table;
   GtkWidget *default_action_button;
   GtkWidget *drawing_area;
   GtkWidget *drawing_area_frame;
@@ -66,12 +67,8 @@ typedef struct
   GtkWidget *vbox1;
   GtkWidget *vertical_ruler;
   GtkWidget *vpaned1;
-  GtkWidget *show_potential_slice_button ;
-  GtkWidget *tblPotentialSlice ;
-  GtkAdjustment *adjPotentialSliceZToShow ;
-  GtkAdjustment *adjPotentialTileSize ;
-  GtkAdjustment *adjPotentialTimeCoord ;
-  GtkWidget *cell_layer_default_clock_combo ;
+  QCADPropertyUI *pui_clock ;
+  QCADPropertyUI *pui_show_potential ;
   } main_W ;
 
 void create_main_window (main_W *main_window);

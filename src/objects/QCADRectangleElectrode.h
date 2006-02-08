@@ -70,11 +70,6 @@ struct _QCADRectangleElectrodeClass
   {
   /* public */
   QCADElectrodeClass parent_class ;
-  double default_angle ;
-  int default_n_x_divisions ;
-  int default_n_y_divisions ;
-  double default_cxWorld ;
-  double default_cyWorld ;
   } ;
 
 GType qcad_rectangle_electrode_get_type () ;

@@ -83,7 +83,7 @@
 #endif /* def UNDO_REDO */
 #include "objects/QCADRuler.h"
 #include "objects/mouse_handlers.h"
-#include "objects/QCADClockCombo.h"
+//#include "objects/QCADClockCombo.h"
 #include "objects/QCADRectangleElectrode.h"
 #include "objects/QCADClockingLayer.h"
 
@@ -168,7 +168,6 @@ static gboolean redraw_async_cb (REDRAW_ASYNC_PARAMS *parms) ;
 static void reflect_layer_status (QCADLayer *layer) ;
 static gboolean drop_single_object_cb (QCADDesignObject *obj) ;
 static gboolean drop_single_object_with_undo_cb (QCADDesignObject *obj) ;
-static void layer_apply_default_properties (gpointer key, gpointer value, gpointer user_data) ;
 static void rotate_single_cell_cb (DESIGN *design, QCADDesignObject *obj, gpointer data) ;
 static void destroy_notify_layer_combo_item_layer_data (QCADLayer *layer) ;
 static void set_current_design (DESIGN *new_design, QCADSubstrate *subs) ;
@@ -185,7 +184,8 @@ static void scale_cells_undo_apply (QCADUndoEntry *entry, gboolean bUndo, gpoint
 #endif /* def UNDO_REDO */
 static void qcad_layer_design_object_added (QCADLayer *layer, QCADDesignObject *obj, gpointer data) ;
 static void qcad_layer_design_object_removed (QCADLayer *layer, QCADDesignObject *obj, gpointer data) ;
-static void potential_time_coord_changed_notify (GObject *obj, GParamSpec *param, gpointer data) ;
+static void qcad_clocking_layer_notify_show_potential (GObject *object, GParamSpec *param_spec, gpointer data) ;
+//static void potential_time_coord_changed_notify (GObject *obj, GParamSpec *param, gpointer data) ;
 
 static ACTION actions[ACTION_LAST_ACTION] =
   {
@@ -263,106 +263,6 @@ static ACTION actions[ACTION_LAST_ACTION] =
 
 static int xRef, yRef, xOld, yOld ; // zoom window coordinates
 
-// obj is either the GtkAdjustment or the QCADClockingLayer, but
-// data is always the GtkAdjustment
-void potential_time_coord_changed (GObject *obj, gpointer data)
-  {
-  QCADClockingLayer *clocking_layer = NULL ;
-  double val ;
-  GtkAdjustment *adj = GTK_ADJUSTMENT (data) ;
-
-  if (QCAD_IS_CLOCKING_LAYER (obj))
-    clocking_layer = QCAD_CLOCKING_LAYER (obj) ;
-  else
-  if (NULL != project_options.design->lstClockingLayer)
-    clocking_layer = QCAD_CLOCKING_LAYER (project_options.design->lstClockingLayer->data) ;
-
-  if (NULL == clocking_layer) return ;
-
-  g_object_get (G_OBJECT (clocking_layer), "time-coord", &val, NULL) ;
-  // Avoids infinite loops
-  if (val == gtk_adjustment_get_value (adj)) return ;
-
-  if (QCAD_IS_CLOCKING_LAYER (obj))
-    gtk_adjustment_set_value (adj, val * 1e9) ;
-  else
-    g_object_set (G_OBJECT (clocking_layer), "time-coord", gtk_adjustment_get_value (adj) * 1e-9, NULL) ;
-  redraw_async (NULL) ;
-  }
-
-// St00pid GParamSpec
-static void potential_time_coord_changed_notify (GObject *obj, GParamSpec *param, gpointer data)
-  {potential_time_coord_changed (obj, data) ;}
-
-void potential_z_to_show_changed (GtkAdjustment *adj, gpointer data)
-  {
-  GList *llItr = NULL ;
-
-  for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
-    if (QCAD_IS_CLOCKING_LAYER (llItr->data))
-      break ;
-
-  if (NULL == llItr) return ;
-
-  g_object_set (G_OBJECT (llItr->data), "z-showing", gtk_adjustment_get_value (adj), NULL) ;
-  redraw_async (NULL) ;
-  }
-
-// A spin button showing powers of 2
-void potential_tile_size_changed (GtkAdjustment *adj, gpointer data)
-  {
-  GList *llItr = NULL ;
-  int bits = 0 ;
-  int val = (int)gtk_adjustment_get_value (adj) ;
-  int obj_val = (int)g_object_get_data (G_OBJECT (adj), "obj_val") ;
-
-  for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
-    if (QCAD_IS_CLOCKING_LAYER (llItr->data))
-      break ;
-
-//  fprintf (stderr, "potential_tile_size_changed: val:%d vs. obj_val:%d\n", val, obj_val) ;
-
-  bits = floor (log (val) / log (2)) + 1 ;
-
-  if (val == (1 << (bits - 1))) return ;
-
-  // User wants to increase
-  if (val > obj_val)
-    bits = MAX (bits, floor (log (val) / log (2)) + 1) ;
-  // User wants to decrease
-  else
-    bits = MIN (bits, floor (log (val) / log (2))) ;
-
-//  fprintf (stderr, "potential_tile_size_changed: setting value %d\n", (1 << bits)) ;
-  g_object_set_data (G_OBJECT (adj), "obj_val", (gpointer)(val = 1 << bits)) ;
-  gtk_adjustment_set_value (adj, val) ;
-
-  if (NULL == llItr) return ;
-
-  g_object_set (G_OBJECT (llItr->data), "tile-size", val, NULL) ;
-  redraw_async (NULL) ;
-  }
-
-void show_potential_slice_button_clicked (GtkWidget *widget, gpointer data)
-  {
-  GList *llItr = NULL ;
-
-  gtk_widget_set_sensitive (GTK_WIDGET (data), gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) ;
-
-  for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
-    if (QCAD_IS_CLOCKING_LAYER (llItr->data))
-      break ;
-
-  if (NULL == llItr)
-    {
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), FALSE) ;
-    return ;
-    }
-
-  g_object_set (G_OBJECT (llItr->data), "show-potential", gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)), NULL) ;
-  redraw_async (NULL) ;
-  }
-
 void main_window_show (GtkWidget *widget, gpointer data)
   {
   DESIGN *new_design = NULL ;
@@ -394,8 +294,10 @@ void main_window_show (GtkWidget *widget, gpointer data)
   new_design = design_new (&subs) ;
   set_current_design (new_design, subs) ;
   action_button_clicked (main_window.default_action_button, ACTION_SELECT) ;
+
+//  gtk_paned_set_position (GTK_PANED (main_window.vpaned1), gtk_paned_get_position (GTK_PANED (main_window.vpaned1))) ;
+  gtk_paned_set_position (GTK_PANED (main_window.vpaned1), main_window.vpaned1->allocation.height * 0.9) ;
 	zoom_window (-5, -5, 95, 60) ;
-  gtk_paned_set_position (GTK_PANED (main_window.vpaned1), gtk_paned_get_position (GTK_PANED (main_window.vpaned1))) ;
   }
 
 #ifdef UNDO_REDO
@@ -442,7 +344,8 @@ gboolean drawing_area_button_pressed (GtkWidget *widget, GdkEventButton *event, 
   {
   // Return to default action
   if (3 == event->button)
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
+    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (main_window.default_action_button), TRUE) ;
+//    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
   else
   // Zoom
   if (2 == event->button)
@@ -502,14 +405,14 @@ gboolean drawing_area_button_released (GtkWidget *widget, GdkEventButton *event,
 
 void popup_menu_button_clicked (GtkWidget *widget, gpointer data)
   {
-  static GtkWidget *mnu = NULL ;
   GdkPoint pt ;
 
-  mnu = g_object_get_data (G_OBJECT (widget), "mnu") ;
+  if (NULL == data) return ;
 
   gtk_widget_get_root_origin (widget, &(pt.x), &(pt.y)) ;
+//  pt.y += widget->allocation.width ;
 
-  gtk_menu_popup (GTK_MENU (mnu), NULL, NULL, (GtkMenuPositionFunc)place_popup_menu, &pt, 1, gtk_get_current_event_time ()) ;
+  gtk_menu_popup (GTK_MENU (data), NULL, NULL, (GtkMenuPositionFunc)place_popup_menu, &pt, 1, gtk_get_current_event_time ()) ;
   }
 
 static void place_popup_menu (GtkMenu *menu, int *x, int *y, gboolean *push_in, gpointer data)
@@ -560,12 +463,11 @@ void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data)
 void cell_display_mode_chosen (GtkWidget *widget, gpointer data)
   {
   EXP_ARRAY *objs = NULL ;
-  GValue val = {0} ;
+  GValue val = {0, } ;
 
   selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
   if (NULL != (objs = design_selection_get_object_array (project_options.design)))
     {
-    memset (&val, 0, sizeof (GValue)) ;
     g_value_set_enum (g_value_init (&val, QCAD_TYPE_CELL_MODE), (int)data) ;
 #ifdef UNDO_REDO
     push_undo_selection_state (project_options.design, project_options.srSelection, main_window.drawing_area->window, objs, "mode", &val) ;
@@ -595,13 +497,11 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
     }
   else
 */
-    layer = qcad_layer_new ((int)data, LAYER_STATUS_ACTIVE, _("New Layer")) ;
-#ifdef UNDO_REDO
-  if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer), main_window.main_window, NULL))
-#else
-  if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer), main_window.main_window))
-#endif
-    {
+
+    layer = qcad_layer_new ((int)data, QCAD_LAYER_STATUS_ACTIVE, _("New Layer")) ;
+    qcad_object_get_properties (QCAD_OBJECT (layer), GTK_WINDOW (main_window.main_window)) ;
+  //if (get_properties (undo_entry = NULL))
+//    {
     // If there was only one layer, enable its check buttons
     if (project_options.design->lstLayers == project_options.design->lstLastLayer)
       {
@@ -623,9 +523,9 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
 
     selected_layer_item = (QCAD_LAYER (project_options.design->lstLayers->data))->combo_item ;
     layer_selected (NULL, NULL) ;
-    }
-  else
-    g_object_unref (layer) ;
+//    }
+//  else
+//    g_object_unref (layer) ;
   }
 
 void remove_layer_button_clicked (GtkWidget *widget, gpointer data)
@@ -690,25 +590,23 @@ void layer_properties_button_clicked (GtkWidget *widget, gpointer data)
 
   if (NULL != project_options.design->lstCurrentLayer)
     if (NULL != project_options.design->lstCurrentLayer->data)
-#ifdef UNDO_REDO
-      if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data))),
-        main_window.main_window, NULL))
-#else
-      if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data))),
-        main_window.main_window))
-#endif
+//#ifdef UNDO_REDO
+//      if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data))),
+//        main_window.main_window, NULL))
+//#else
+//      if (qcad_design_object_get_properties (QCAD_DESIGN_OBJECT (layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data))),
+//        main_window.main_window))
+//#endif
 //      if (get_layer_properties_from_user (GTK_WINDOW (main_window.main_window),
 //        layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data)), FALSE,
 //        !(project_options.design->lstLayers == project_options.design->lstLastLayer)))
           {
-          if (NULL != layer->combo_item)
+          qcad_object_get_properties (QCAD_OBJECT (project_options.design->lstCurrentLayer->data), GTK_WINDOW (main_window.main_window)) ;
+  
+          if (NULL != (layer = QCAD_LAYER (project_options.design->lstCurrentLayer->data))->combo_item)
             layers_combo_refresh_item (layer->combo_item) ;
           // Apply default properties for all object classes in this layer
-          if (NULL != layer->default_properties)
-            {
-            fprintf (stderr, "layer_properties_button_clicked: Calling hashtable iter to apply default properties!\n") ;
-            g_hash_table_foreach (layer->default_properties, layer_apply_default_properties, NULL) ;
-            }
+          qcad_layer_default_properties_apply (layer) ;
           reflect_layer_status (layer) ;
           }
   }
@@ -1110,7 +1008,8 @@ void file_operations (GtkWidget *widget, gpointer user_data)
       else
       	{
         design_selection_release (project_options.design, main_window.drawing_area->window, GDK_COPY) ;
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
+        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (main_window.default_action_button), TRUE) ;
+//        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
 
         if (NULL != (obj = merge_selection (project_options.design, sel, layer_mappings)))
           move_selection_to_pointer (obj) ;
@@ -1483,40 +1382,6 @@ void rotate_selection_menu_item_activate (GtkWidget *widget, gpointer user_data)
     }
   }
 
-void on_clocks_combo_changed (GtkWidget *widget, gpointer data)
-  {
-  GList *lstItrLayer = NULL, *lstItrSel = NULL ;
-  int idxClock = qcad_clock_combo_get_clock (QCAD_CLOCK_COMBO (data)) ;
-  gboolean bFoundSelection = FALSE ;
-
-  if (idxClock > -1 && idxClock < 4)
-    {
-    QCADObject *default_cell = NULL ;
-    EXP_ARRAY *arSelObjs = NULL ;
-    arSelObjs = design_selection_get_object_array (project_options.design) ;
-#ifdef UNDO_REDO
-    if (NULL != arSelObjs)
-      push_undo_selection_clock (project_options.design, project_options.srSelection, main_window.drawing_area->window, arSelObjs, idxClock, FALSE) ;
-#endif /* def UNDO_REDO */
-    for (lstItrLayer = project_options.design->lstLayers ; lstItrLayer != NULL ; lstItrLayer = lstItrLayer->next)
-      if (LAYER_TYPE_CELLS == (QCAD_LAYER (lstItrLayer->data))->type)
-        for (lstItrSel = (QCAD_LAYER (lstItrLayer->data))->lstSelObjs ; lstItrSel != NULL ; lstItrSel = lstItrSel->next)
-          if (NULL != lstItrSel->data)
-            {
-            project_options.bDesignAltered =
-            bFoundSelection = TRUE ;
-            qcad_cell_set_clock (QCAD_CELL (lstItrSel->data), idxClock) ;
-            }
-
-    // Set the default clock in the default_cell_properties of the QCADCellClass, if the current layer is a cell layer
-    if (LAYER_TYPE_CELLS == (QCAD_LAYER (project_options.design->lstCurrentLayer->data))->type)
-      if (NULL != (default_cell = qcad_object_get_default (QCAD_TYPE_CELL)))
-        g_object_set (G_OBJECT (default_cell), "clock", idxClock, NULL) ;
-//      QCAD_CELL_CLASS (g_type_class_peek (QCAD_TYPE_CELL))->default_cell_options.clock = idxClock ;
-    }
-  }
-
-
 static void layer_select (GtkWidget *widget, gpointer data)
   {selected_layer_item = widget ;}
 
@@ -1536,8 +1401,6 @@ void layer_selected (GtkWidget *widget, gpointer data)
     NULL == layer->pszDescription ? "" : layer->pszDescription) ;
 
   // Apply default properties for all object classes in this layer
-  if (NULL != layer->default_properties)
-    g_hash_table_foreach (layer->default_properties, layer_apply_default_properties, NULL) ;
   reflect_layer_status (layer) ;
 
   gtk_widget_queue_draw (main_window.toolbar) ;
@@ -1599,7 +1462,7 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
     {
     if (bActive)
       {
-      layer->status = LAYER_STATUS_VISIBLE ;
+      layer->status = QCAD_LAYER_STATUS_VISIBLE ;
       gtk_widget_set_sensitive (chkActivate, TRUE) ;
       gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActivate),
         (gboolean)g_object_get_data (G_OBJECT (widget), "bWasActive")) ;
@@ -1621,7 +1484,8 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
       for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
         if (layer != llItr->data)
           if (NULL != llItr->data)
-            if (LAYER_STATUS_ACTIVE == QCAD_LAYER (llItr->data)->status || LAYER_STATUS_VISIBLE == QCAD_LAYER (llItr->data)->status)
+            if (QCAD_LAYER_STATUS_ACTIVE  == QCAD_LAYER (llItr->data)->status || 
+                QCAD_LAYER_STATUS_VISIBLE == QCAD_LAYER (llItr->data)->status)
               {
               if (NULL == other_visible_layer)
                 other_visible_layer = QCAD_LAYER (llItr->data) ;
@@ -1643,7 +1507,7 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
         return ;
         }
 
-      layer->status = LAYER_STATUS_HIDDEN ;
+      layer->status = QCAD_LAYER_STATUS_HIDDEN ;
       g_object_set_data (G_OBJECT (widget), "bWasActive",
         (gpointer)gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chkActivate))) ;
       gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActivate), FALSE) ;
@@ -1652,11 +1516,12 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
     }
   else
   if (chkActivate == widget)
-    layer->status = bActive ? LAYER_STATUS_ACTIVE :
+    layer->status = bActive ? QCAD_LAYER_STATUS_ACTIVE :
       gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chkVisible)) ?
-      	LAYER_STATUS_VISIBLE : LAYER_STATUS_HIDDEN ;
+      	QCAD_LAYER_STATUS_VISIBLE : QCAD_LAYER_STATUS_HIDDEN ;
 
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
+//  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (main_window.default_action_button), TRUE) ;
 
   reflect_layer_status (layer) ;
 
@@ -1978,9 +1843,6 @@ static gboolean DoSave (GtkWindow *parent, int fFileOp)
   }
 #endif /* def STDIO_FILEIO */
 
-static void layer_apply_default_properties (gpointer key, gpointer value, gpointer user_data)
-  {qcad_object_set_default ((GType)key, qcad_object_new_from_object (QCAD_OBJECT (value))) ;}
-
 // Does whatever else must be done to restore QCADesigner to its initial, pristine state
 static void tabula_rasa (GtkWindow *wndMain)
   {
@@ -2114,6 +1976,19 @@ static GtkWidget *layers_combo_add_layer (GtkCombo *combo, GList *layer)
   // layer to the UI
   g_signal_connect (G_OBJECT (layer->data),"added",     (GCallback)qcad_layer_design_object_added,   NULL) ;
   g_signal_connect (G_OBJECT (layer->data),"removed",   (GCallback)qcad_layer_design_object_removed, NULL) ;
+
+  if (LAYER_TYPE_CELLS == (QCAD_LAYER (layer->data))->type)
+    {
+    GList *llItrCells = NULL ;
+
+    for (llItrCells = (QCAD_LAYER (layer->data))->lstObjs ; llItrCells != NULL ; llItrCells = llItrCells->next)
+      if (QCAD_IS_CELL (llItrCells->data))
+        g_signal_connect (G_OBJECT (llItrCells->data), "cell-function-changed", (GCallback)cell_function_changed, NULL) ;
+    }
+  else
+  if (QCAD_IS_CLOCKING_LAYER (layer->data))
+    g_signal_connect (G_OBJECT (layer->data), "notify::show-potential", (GCallback)qcad_clocking_layer_notify_show_potential, NULL) ;
+
   return item ;
   }
 
@@ -2121,12 +1996,11 @@ static void layers_combo_item_set_check_buttons (GtkWidget *item, QCADLayer *lay
   {
   if (NULL == item || NULL == layer || NULL == chkVisible || NULL == chkActive) return ;
 
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkVisible),
-    (LAYER_STATUS_ACTIVE  == layer->status || LAYER_STATUS_VISIBLE == layer->status)) ;
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkVisible), (QCAD_LAYER_STATUS_ACTIVE  == layer->status || QCAD_LAYER_STATUS_VISIBLE == layer->status)) ;
 
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActive), (LAYER_STATUS_ACTIVE == layer->status)) ;
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActive), (QCAD_LAYER_STATUS_ACTIVE == layer->status)) ;
 
-  g_object_set_data (G_OBJECT (chkVisible), "bWasActive", (gpointer)(LAYER_STATUS_ACTIVE == layer->status)) ;
+  g_object_set_data (G_OBJECT (chkVisible), "bWasActive", (gpointer)(QCAD_LAYER_STATUS_ACTIVE == layer->status)) ;
   }
 
 static void layers_combo_refresh_item (GtkWidget *item)
@@ -2193,23 +2067,24 @@ static void destroy_notify_layer_combo_item_layer_data (QCADLayer *layer)
     }
   }
 
+static void qcad_clocking_layer_notify_show_potential (GObject *object, GParamSpec *param_spec, gpointer data)
+  {redraw_async (NULL) ;}
+
 static void reflect_layer_status (QCADLayer *layer)
   {
-  gboolean bSensitive = (LAYER_STATUS_ACTIVE == layer->status) ;
-  GValue val ;
+  gboolean bSensitive = (QCAD_LAYER_STATUS_ACTIVE == layer->status) ;
 
-  memset (&val, 0, sizeof (GValue)) ;
+  qcad_layer_default_properties_apply (layer) ;
 
   if (LAYER_TYPE_CELLS == layer->type)
     {
-    QCADCell *default_cell = QCAD_CELL (qcad_object_get_default (QCAD_TYPE_CELL)) ;
     DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_CELLS\n")) ;
     gtk_widget_hide (main_window.substrate_button) ;
     gtk_widget_hide (main_window.label_button) ;
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
-    gtk_widget_hide (main_window.tblPotentialSlice) ;
-    gtk_widget_hide (main_window.show_potential_slice_button) ;
+    g_object_set (main_window.pui_show_potential, "visible", FALSE, NULL) ;
 
+    g_object_set (main_window.pui_clock,          "visible", TRUE,  NULL) ;
     gtk_widget_show (main_window.toggle_alt_display_button) ;
     gtk_widget_set_sensitive (main_window.toggle_alt_display_button, bSensitive) ;
     gtk_widget_show (main_window.insert_type_1_cell_button) ;
@@ -2218,50 +2093,22 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_set_sensitive (main_window.insert_cell_array_button, bSensitive) ;
     gtk_widget_show (main_window.rotate_cell_button) ;
     gtk_widget_set_sensitive (main_window.rotate_cell_button, bSensitive) ;
-    gtk_widget_show (main_window.clocks_combo_table) ;
-    gtk_widget_set_sensitive (main_window.clocks_combo_table, bSensitive) ;
-
-    g_object_get_property (G_OBJECT (default_cell), "clock", g_value_init (&val, G_TYPE_UINT)) ;
-    fprintf (stderr, "reflect_layer_status:Setting clock combo to %d\n", g_value_get_uint (&val)) ;
-    qcad_clock_combo_set_clock (QCAD_CLOCK_COMBO (main_window.cell_layer_default_clock_combo), g_value_get_uint (&val)) ;
-    g_value_unset (&val) ;
     }
   else
   if (LAYER_TYPE_CLOCKING == layer->type)
     {
-    g_object_get_property (G_OBJECT (layer), "show-potential", g_value_init (&val, G_TYPE_BOOLEAN)) ;
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.show_potential_slice_button), g_value_get_boolean (&val)) ;
-    g_value_unset (&val) ;
+    qcad_object_set_default (QCAD_TYPE_CLOCKING_LAYER, QCAD_OBJECT (layer)) ;
 
-    g_object_get_property (G_OBJECT (layer), "z-to-ground", g_value_init (&val, G_TYPE_DOUBLE)) ;
-    main_window.adjPotentialSliceZToShow->upper = g_value_get_double (&val) ;
-    gtk_adjustment_changed (main_window.adjPotentialSliceZToShow) ;
-    g_value_unset (&val) ;
-
-    g_object_get_property (G_OBJECT (layer), "z-showing", g_value_init (&val, G_TYPE_DOUBLE)) ;
-    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialSliceZToShow), g_value_get_double (&val)) ;
-    g_value_unset (&val) ;
-
-    g_object_get_property (G_OBJECT (layer), "tile-size", g_value_init (&val, G_TYPE_UINT)) ;
-    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialTileSize), g_value_get_uint (&val)) ;
-    g_value_unset (&val) ;
-
-    g_object_get_property (G_OBJECT (layer), "time-coord", g_value_init (&val, G_TYPE_DOUBLE)) ;
-    gtk_adjustment_set_value (GTK_ADJUSTMENT (main_window.adjPotentialTimeCoord), g_value_get_double (&val) * 1e9) ;
-    g_value_unset (&val) ;
-    DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_CLOCKING\n")) ;
     gtk_widget_hide (main_window.insert_type_1_cell_button) ;
     gtk_widget_hide (main_window.insert_cell_array_button) ;
     gtk_widget_hide (main_window.substrate_button) ;
     gtk_widget_hide (main_window.label_button) ;
     gtk_widget_hide (main_window.toggle_alt_display_button) ;
     gtk_widget_hide (main_window.rotate_cell_button) ;
-    gtk_widget_hide (main_window.clocks_combo_table) ;
+    g_object_set (main_window.pui_clock,          "visible", FALSE, NULL) ;
 
-    gtk_widget_show (main_window.tblPotentialSlice) ;
-    gtk_widget_show (main_window.show_potential_slice_button) ;
+    g_object_set (main_window.pui_show_potential, "visible", TRUE,  NULL) ;
     gtk_widget_show (main_window.rectangle_electrode_button) ;
-    gtk_widget_set_sensitive (main_window.rectangle_electrode_button, bSensitive) ;
     }
   else
   if (LAYER_TYPE_SUBSTRATE == layer->type)
@@ -2272,10 +2119,9 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.label_button) ;
     gtk_widget_hide (main_window.toggle_alt_display_button) ;
     gtk_widget_hide (main_window.rotate_cell_button) ;
-    gtk_widget_hide (main_window.clocks_combo_table) ;
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
-    gtk_widget_hide (main_window.tblPotentialSlice) ;
-    gtk_widget_hide (main_window.show_potential_slice_button) ;
+    g_object_set (main_window.pui_clock,          "visible", FALSE, NULL) ;
+    g_object_set (main_window.pui_show_potential, "visible", FALSE, NULL) ;
 
     gtk_widget_show (main_window.substrate_button) ;
     gtk_widget_set_sensitive (main_window.substrate_button, bSensitive) ;
@@ -2289,10 +2135,9 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.substrate_button) ;
     gtk_widget_hide (main_window.toggle_alt_display_button) ;
     gtk_widget_hide (main_window.rotate_cell_button) ;
-    gtk_widget_hide (main_window.clocks_combo_table) ;
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
-    gtk_widget_hide (main_window.tblPotentialSlice) ;
-    gtk_widget_hide (main_window.show_potential_slice_button) ;
+    g_object_set (main_window.pui_clock,          "visible", FALSE, NULL) ;
+    g_object_set (main_window.pui_show_potential, "visible", FALSE, NULL) ;
 
     gtk_widget_show (main_window.label_button) ;
     gtk_widget_set_sensitive (main_window.label_button, bSensitive) ;
@@ -2306,11 +2151,10 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.substrate_button) ;
     gtk_widget_hide (main_window.toggle_alt_display_button) ;
     gtk_widget_hide (main_window.rotate_cell_button) ;
-    gtk_widget_hide (main_window.clocks_combo_table) ;
     gtk_widget_hide (main_window.label_button) ;
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
-    gtk_widget_hide (main_window.tblPotentialSlice) ;
-    gtk_widget_hide (main_window.show_potential_slice_button) ;
+    g_object_set (main_window.pui_clock,          "visible", FALSE, NULL) ;
+    g_object_set (main_window.pui_show_potential, "visible", FALSE, NULL) ;
     }
   redraw_async (NULL) ;
   }
@@ -2450,26 +2294,10 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
   {
   QCADLayer *layer = NULL ;
   QCADSubstrate *snap_source = NULL ;
-  GList *llItrLayers = NULL, *llItrCells = NULL ;
-/*
-  // Disconnect time coord spin button object-notify signal handler
-  for (llItrLayers = project_options.design->lstLayers ; llItrLayers != NULL ; llItrLayers = llItrLayers->next)
-    if (QCAD_IS_CLOCKING_LAYER (llItrLayers->data))
-      break ;
-  if (NULL != llItrLayers)
-    g_signal_handlers_disconnect_matched (G_OBJECT (llItrLayers->data), G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-      clocking_layer_time_coord_changed, project_options.main_window.adjPotentialTimeCoord) ;
-*/
+
   project_options.design = design_destroy (project_options.design) ;
 
   project_options.design = new_design ;
-
-  // Connect time coord spin button object-notify signal handler
-  for (llItrLayers = project_options.design->lstLayers ; llItrLayers != NULL ; llItrLayers = llItrLayers->next)
-    if (QCAD_IS_CLOCKING_LAYER (llItrLayers->data))
-      break ;
-  if (NULL != llItrLayers)
-    g_signal_connect (G_OBJECT (llItrLayers->data), "notify::time-coord", (GCallback)potential_time_coord_changed_notify, project_options.main_window->adjPotentialTimeCoord) ;
 
   if (NULL != project_options.srSelection)
     selection_renderer_update (project_options.srSelection, new_design) ;
@@ -2484,12 +2312,6 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
   gtk_widget_set_sensitive (main_window.remove_layer_button, (new_design->lstLayers != new_design->lstLastLayer)) ;
 
   VectorTable_fill (pvt, new_design) ;
-
-  for (llItrLayers = project_options.design->lstLayers ; llItrLayers != NULL ; llItrLayers = llItrLayers->next)
-    if (LAYER_TYPE_CELLS == (QCAD_LAYER (llItrLayers->data))->type)
-      for (llItrCells = (QCAD_LAYER (llItrLayers->data))->lstObjs ; llItrCells != NULL ; llItrCells = llItrCells->next)
-        if (QCAD_IS_CELL (llItrCells->data))
-          g_signal_connect (G_OBJECT (llItrCells->data), "cell-function-changed", (GCallback)cell_function_changed, NULL) ;
 
   cell_function_changed (NULL, NULL) ;
 

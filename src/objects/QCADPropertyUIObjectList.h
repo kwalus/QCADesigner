@@ -17,6 +17,9 @@ struct _QCADPropertyUIObjectList
   QCADPropertyUIWidget frame ;
   GtkWidget *tblObjects ;
   GtkWidget *tvObjects ;
+  GtkWidget *sw_tv ;
+
+  GList *llPUIs ;
 #endif /* def GTK_GUI */
   } ;
 

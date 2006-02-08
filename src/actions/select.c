@@ -34,8 +34,8 @@
 #include "../selection_undo.h"
 #include "objects/QCADUndoEntry.h"
 #include "objects/QCADUndoEntryGroup.h"
-#include "objects/QCADRectangleElectrode.h"
 #endif /* def UNDO_REDO */
+#include "objects/QCADRectangleElectrode.h"
 
 extern GdkColor clrBlack ;
 
@@ -65,11 +65,8 @@ gboolean button_pressed_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event,
       {
 #ifdef UNDO_REDO
       QCADUndoEntry *entry = NULL ;
-
-      if (qcad_design_object_get_properties (obj, gtk_widget_get_toplevel (widget), &entry))
-#else
-      if (qcad_design_object_get_properties (obj, gtk_widget_get_toplevel (widget)))
 #endif /* def UNDO_REDO */
+      if (qcad_object_get_properties (QCAD_OBJECT (obj), GTK_WINDOW (project_options->main_window->main_window)))
         {
         project_options->bDesignAltered = TRUE ;
         selection_renderer_draw (project_options->srSelection, project_options->design, widget->window, GDK_XOR) ;

@@ -274,9 +274,8 @@ void push_undo_selection_clock (DESIGN *design, SELECTION_RENDERER *sr, GdkWindo
     }
   else
     {
-    GValue val ;
+    GValue val = {0, } ;
 
-    memset (&val, 0, sizeof (GValue)) ;
     g_value_init (&val, G_TYPE_UINT) ;
     g_value_set_uint (&val, (guint)clock_new) ;
 

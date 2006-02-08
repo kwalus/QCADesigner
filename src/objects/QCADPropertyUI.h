@@ -2,15 +2,41 @@
 #define _OBJECTS_QCADPropertyUI_H_
 
 #include <stdarg.h>
-#include <gtk/gtk.h>
+#ifdef GTK_GUI
+  #include <gtk/gtk.h>
+#endif /* def GTK_GUI */
 #include "../exp_array.h"
+#include "../generic_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct _QCADPropertyUI      QCADPropertyUI ;
-typedef struct _QCADPropertyUIClass QCADPropertyUIClass ;
+typedef struct _QCADPropertyUI          QCADPropertyUI ;
+typedef struct _QCADPropertyUIClass     QCADPropertyUIClass ;
+typedef struct _QCADPropertyUIBehaviour QCADPropertyUIBehaviour ;
+typedef struct _QCADPropertyUIProperty  QCADPropertyUIProperty ;
+
+struct _QCADPropertyUIBehaviour
+  {
+  char *instance_property_name1 ;
+  char *ui_property_name1 ;
+  char *instance_property_name2 ;
+  char *ui_property_name2 ;
+  PropertyConnectFunction fn_forward ;
+  gpointer data_forward ;
+  GDestroyNotify destroy_forward ;
+  PropertyConnectFunction fn_reverse ;
+  gpointer data_reverse ;
+  GDestroyNotify destroy_reverse ;
+  } ;
+
+struct _QCADPropertyUIProperty
+  {
+  char *instance_property_name ;
+  char *ui_property_name ;
+  GValue ui_property_value ;
+  } ;
 
 struct _QCADPropertyUI
   {
@@ -27,8 +53,10 @@ struct _QCADPropertyUIClass
   {
   GObjectClass parent_class ;
 
-  gboolean (*set_instance) (QCADPropertyUI *property_ui, GObject *instance) ;
-  GtkWidget *(*get_widget) (QCADPropertyUI *property_ui, int idxX, int idxY) ;
+  gboolean (*set_instance) (QCADPropertyUI *property_ui, GObject *new_instance, GObject *old_instance) ;
+#ifdef GTK_GUI
+  GtkWidget *(*get_widget) (QCADPropertyUI *property_ui, int idxX, int idxY, int *col_span) ;
+#endif /* def GTK_GUI */
   void (*set_visible) (QCADPropertyUI *property_ui, gboolean bVisible) ;
   void (*set_sensitive) (QCADPropertyUI *property_ui, gboolean bSensitive) ;
   } ;
@@ -46,7 +74,9 @@ GType qcad_property_ui_get_type () ;
 void qcad_property_ui_set_instance (QCADPropertyUI *property_ui, GObject *instance) ;
 int qcad_property_ui_get_cx_widgets (QCADPropertyUI *property_ui) ;
 int qcad_property_ui_get_cy_widgets (QCADPropertyUI *property_ui) ;
-GtkWidget *qcad_property_ui_get_widget (QCADPropertyUI *property_ui, int idxX, int idxY) ;
+#ifdef GTK_GUI
+GtkWidget *qcad_property_ui_get_widget (QCADPropertyUI *property_ui, int idxX, int idxY, int *col_span) ;
+#endif /* def GTK_GUI */
 
 #ifdef __cplusplus
 }

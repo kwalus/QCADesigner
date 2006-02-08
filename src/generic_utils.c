@@ -43,10 +43,43 @@ typedef struct
   {
   char *pszCmdLine ;
   char *pszTmpFName ;
-  } RUN_CMD_LINE_ASYNC_THREAD_PARAMS ;
+  }
+RUN_CMD_LINE_ASYNC_THREAD_PARAMS ;
 
 static gpointer RunCmdLineAsyncThread (gpointer p) ;
 #endif /* def GTK_GUI */
+
+typedef struct
+  {
+  GObject *notify_dst ;
+  char *pszDstProperty ;
+
+  PropertyConnectFunction connect_function ;
+  gpointer connect_data ;
+  }
+ConnectObjectPropertiesStruct ;
+
+typedef struct
+  {
+  GObject *obj ;
+  gulong notify_id ;
+  ConnectObjectPropertiesStruct *connect_struct ;
+  GDestroyNotify destroy_notify ;
+  }
+ConnectObjectPropertiesDestroyEntry ;
+
+typedef struct
+  {
+  ConnectObjectPropertiesDestroyEntry src_entry ;
+  ConnectObjectPropertiesDestroyEntry dst_entry ;
+  }
+ConnectObjectPropertiesDestroyStruct ;
+
+#define CONNECT_OBJECT_PROPERTIES_DATA_KEY "connect_object_properties:0x%08X:%s:0x%08X:%s:<0x%08X>:0x%08X:<0x%08X>:<0x%08X>:0x%08X:<0x%08X>"
+
+static void connect_object_properties_notify (GObject *obj, GParamSpec *param_spec, gpointer data) ;
+static void connect_object_properties_break_connections (gpointer data, GObject *dead_object) ;
+static void connect_object_properties_destroy_struct_free (ConnectObjectPropertiesDestroyStruct *destroy_struct) ;
 
 // Causes a rectangle of width (*pdRectWidth) and height (*pdRectHeight) to fit inside a rectangle of
 // width dWidth and height dHeight.  Th resulting pair ((*px),(*py)) holds the coordinates of the
@@ -224,4 +257,205 @@ double spread_seq (int idx)
   numer = ((idx_copy << 1) % denom) + 1 ;
 
   return ((double)numer) / ((double)denom) ;
+  }
+
+gboolean connect_object_properties (GObject *src, char *pszSrc, GObject *dst, char *pszDst, PropertyConnectFunction fn_forward, gpointer data_forward, GDestroyNotify destroy_forward, PropertyConnectFunction fn_reverse, gpointer data_reverse, GDestroyNotify destroy_reverse)
+  {
+  char *pszDataName = NULL ;
+  char *psz = NULL ;
+  ConnectObjectPropertiesDestroyStruct *destroy_struct = NULL ;
+
+  destroy_struct = g_malloc0 (sizeof (ConnectObjectPropertiesDestroyStruct)) ;
+
+  pszDataName = g_strdup_printf (CONNECT_OBJECT_PROPERTIES_DATA_KEY,
+    (int)src, pszSrc, (int)dst, pszDst, (int)fn_forward, (int)data_forward, (int)destroy_forward, (int)fn_reverse, (int)data_reverse, (int)destroy_reverse) ;
+
+  g_object_set_data (src, pszDataName, destroy_struct) ;
+  g_object_set_data (dst, pszDataName, destroy_struct) ;
+
+  g_free (pszDataName) ;
+
+  // Forward connection
+  if (NULL != fn_forward)
+    {
+    destroy_struct->src_entry.obj            = src ;
+    destroy_struct->src_entry.destroy_notify = destroy_forward ;
+    destroy_struct->src_entry.connect_struct = g_malloc0 (sizeof (ConnectObjectPropertiesStruct)) ;
+    destroy_struct->src_entry.connect_struct->notify_dst       = dst ;
+    destroy_struct->src_entry.connect_struct->pszDstProperty   = g_strdup (pszDst) ;
+    destroy_struct->src_entry.connect_struct->connect_function = fn_forward ;
+    destroy_struct->src_entry.connect_struct->connect_data     = data_forward ;
+    psz = g_strdup_printf ("notify::%s", pszSrc) ;
+    destroy_struct->src_entry.notify_id      = g_signal_connect (src, psz, (GCallback)connect_object_properties_notify, destroy_struct->src_entry.connect_struct) ;
+    g_free (psz) ;
+    }
+
+  // Reverse connection
+  if (NULL != fn_reverse)
+    {
+    destroy_struct->dst_entry.obj            = dst ;
+    destroy_struct->dst_entry.destroy_notify = destroy_reverse ;
+    destroy_struct->dst_entry.connect_struct = g_malloc0 (sizeof (ConnectObjectPropertiesStruct)) ;
+    destroy_struct->dst_entry.connect_struct->notify_dst       = src ;
+    destroy_struct->dst_entry.connect_struct->pszDstProperty   = g_strdup (pszSrc) ;
+    destroy_struct->dst_entry.connect_struct->connect_function = fn_reverse ;
+    destroy_struct->dst_entry.connect_struct->connect_data     = data_reverse ;
+    psz = g_strdup_printf ("notify::%s", pszDst) ;
+    destroy_struct->dst_entry.notify_id      = g_signal_connect (dst, psz, (GCallback)connect_object_properties_notify, destroy_struct->dst_entry.connect_struct) ;
+    g_free (psz) ;
+    }
+
+  if (NULL != destroy_struct->src_entry.obj)
+    {
+//    fprintf (stderr, "connect_properties::weak_ref:<0x%x>(%s) connect_object_properties_break_connections(0x%x)\n",
+//      (int)src, g_type_name (G_TYPE_FROM_INSTANCE (src)), (int)connect_object_properties_break_connections) ;
+    g_object_weak_ref (src, connect_object_properties_break_connections, destroy_struct) ;
+    }
+
+  if (NULL != destroy_struct->dst_entry.obj)
+    {
+//    fprintf (stderr, "connect_properties::weak_ref:<0x%x>(%s) connect_object_properties_break_connections(0x%x)\n",
+//      (int)dst, g_type_name (G_TYPE_FROM_INSTANCE (dst)), (int)connect_object_properties_break_connections) ;
+    g_object_weak_ref (dst, connect_object_properties_break_connections, destroy_struct) ;
+    }
+
+  return TRUE ;
+  }
+
+void disconnect_object_properties (GObject *src, char *pszSrc, GObject *dst, char *pszDst, PropertyConnectFunction fn_forward, gpointer data_forward, GDestroyNotify destroy_forward, PropertyConnectFunction fn_reverse, gpointer data_reverse, GDestroyNotify destroy_reverse)
+  {
+  char *pszDataName = NULL ;
+  ConnectObjectPropertiesDestroyStruct *destroy_struct = NULL ;
+
+  pszDataName = g_strdup_printf (CONNECT_OBJECT_PROPERTIES_DATA_KEY,
+    (int)src, pszSrc, (int)dst, pszDst, (int)fn_forward, (int)data_forward, (int)destroy_forward, (int)fn_reverse, (int)data_reverse, (int)destroy_reverse) ;
+  destroy_struct = g_object_get_data (src, pszDataName) ;
+  g_free (pszDataName) ;
+
+  if (NULL == destroy_struct) 
+    return ;
+
+  // Unhook the connection from the source object
+  if (NULL != destroy_struct->src_entry.obj)
+    {
+//    fprintf (stderr, "disconnect_properties::weak_unref:<0x%x>(%s) connect_object_properties_break_connections(0x%x)\n",
+//      (int)(destroy_struct->src_entry.obj), g_type_name (G_TYPE_FROM_INSTANCE (destroy_struct->src_entry.obj)), (int)connect_object_properties_break_connections) ;
+    g_object_weak_unref (destroy_struct->src_entry.obj, connect_object_properties_break_connections, destroy_struct) ;
+    g_signal_handler_disconnect (destroy_struct->src_entry.obj, destroy_struct->src_entry.notify_id) ;
+    }
+
+  // Unhook the connection from the destination object
+  if (NULL != destroy_struct->dst_entry.obj)
+    {
+//    fprintf (stderr, "disconnect_properties::weak_unref:<0x%x>(%s) connect_object_properties_break_connections(0x%x)\n",
+//      (int)(destroy_struct->dst_entry.obj), g_type_name (G_TYPE_FROM_INSTANCE (destroy_struct->dst_entry.obj)), (int)connect_object_properties_break_connections) ;
+    g_object_weak_unref (destroy_struct->dst_entry.obj, connect_object_properties_break_connections, destroy_struct) ;
+    g_signal_handler_disconnect (destroy_struct->dst_entry.obj, destroy_struct->dst_entry.notify_id) ;
+    }
+
+  connect_object_properties_destroy_struct_free (destroy_struct) ;
+  }
+
+static void connect_object_properties_notify (GObject *obj_src, GParamSpec *param_spec_src, gpointer data)
+  {
+  GParamSpec *param_spec_dst = NULL ;
+  ConnectObjectPropertiesStruct *connect_struct = (ConnectObjectPropertiesStruct *)data ;
+  GValue val_src = {0, }, val_dst_should_be = {0, }, val_dst_is = {0, } ;
+
+//  fprintf (stderr, "connect_object_properties_notify: <0x%08X>%s.%s -> <0x%08X>%s.%s\n",
+//    (int)obj_src, g_type_name (G_TYPE_FROM_INSTANCE (obj_src)), param_spec_src->name,
+//    (int)(connect_struct->notify_dst), g_type_name (G_TYPE_FROM_INSTANCE (connect_struct->notify_dst)), connect_struct->pszDstProperty) ;
+
+  param_spec_dst = g_object_class_find_property (G_OBJECT_GET_CLASS (connect_struct->notify_dst), connect_struct->pszDstProperty) ;
+
+  g_value_init (&val_src,           G_PARAM_SPEC_VALUE_TYPE (param_spec_src)) ;
+  g_value_init (&val_dst_should_be, G_PARAM_SPEC_VALUE_TYPE (param_spec_dst)) ;
+  g_value_init (&val_dst_is,        G_PARAM_SPEC_VALUE_TYPE (param_spec_dst)) ;
+
+  // Grab the source property
+  g_object_get_property (obj_src, g_param_spec_get_name (param_spec_src), &val_src) ;
+  // Grab the val_dst from the rule
+  (*(connect_struct->connect_function)) (&val_src, &val_dst_should_be, connect_struct->connect_data) ;
+  // Grab the val_dst from the dst object
+  g_object_get_property (connect_struct->notify_dst, g_param_spec_get_name (param_spec_dst), &val_dst_is) ;
+  if (0 != g_param_values_cmp (param_spec_dst, &val_dst_should_be, &val_dst_is))
+    g_object_set_property (connect_struct->notify_dst, connect_struct->pszDstProperty, &val_dst_should_be) ;
+  }
+
+static void connect_object_properties_break_connections (gpointer data, GObject *dead_object)
+  {
+  ConnectObjectPropertiesDestroyStruct *destroy_struct = (ConnectObjectPropertiesDestroyStruct *)data ;
+  ConnectObjectPropertiesDestroyEntry *the_other_entry = NULL ;
+
+  the_other_entry = ((dead_object == destroy_struct->src_entry.obj)
+    ? &(destroy_struct->dst_entry)
+    : &(destroy_struct->src_entry)) ;
+
+  // Unhook the connection from the other object
+  if (NULL != the_other_entry->obj)
+    {
+    g_object_weak_unref (the_other_entry->obj, connect_object_properties_break_connections, data) ;
+    g_signal_handler_disconnect (the_other_entry->obj, the_other_entry->notify_id) ;
+    }
+
+  connect_object_properties_destroy_struct_free (destroy_struct) ;
+  }
+
+static void connect_object_properties_destroy_struct_free (ConnectObjectPropertiesDestroyStruct *destroy_struct)
+  {
+  // Get rid of user-supplied data
+  if (NULL != destroy_struct->src_entry.destroy_notify)
+    (*(destroy_struct->src_entry.destroy_notify)) (destroy_struct->src_entry.connect_struct->connect_data) ;
+  if (NULL != destroy_struct->dst_entry.destroy_notify)
+    (*(destroy_struct->dst_entry.destroy_notify)) (destroy_struct->dst_entry.connect_struct->connect_data) ;
+
+  // Get rid of the destroy_structure itself
+
+  if (NULL != destroy_struct->src_entry.obj)
+    {
+    g_free (destroy_struct->src_entry.connect_struct->pszDstProperty) ;
+    g_free (destroy_struct->src_entry.connect_struct) ;
+    }
+  if (NULL != destroy_struct->dst_entry.obj)
+    {
+    g_free (destroy_struct->dst_entry.connect_struct->pszDstProperty) ;
+    g_free (destroy_struct->dst_entry.connect_struct) ;
+    }
+  g_free (destroy_struct) ;
+  }
+
+void CONNECT_OBJECT_PROPERTIES_ASSIGN (GValue *val_src, GValue *val_dst, gpointer data)
+  {
+  GValue val_src_copy = {0, } ;
+
+  g_value_copy (val_src, g_value_init (&val_src_copy, G_VALUE_TYPE (val_src))) ;
+
+  g_value_transform (&val_src_copy, val_dst) ;
+
+  g_value_unset (&val_src_copy) ;
+  }
+
+void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P (GValue *val_src, GValue *val_dst, gpointer data)
+  {
+  int Nix ;
+  INT_IN_LIST_PARAMS *iilp = (INT_IN_LIST_PARAMS *)data ;
+  GValue val_int = {0, } ;
+  int int_val ;
+
+  g_value_transform (val_src, g_value_init (&val_int, G_TYPE_INT)) ;
+  int_val = g_value_get_int (&val_int) ;
+
+  for (Nix = 0 ; Nix < iilp->icInts ; Nix++)
+    if ((iilp->ints)[Nix] == int_val)
+      break ;
+
+  g_value_set_boolean (val_dst, (Nix < iilp->icInts)) ;
+  }
+
+void CONNECT_OBJECT_PROPERTIES_ASSIGN_INVERT_BOOLEAN (GValue *val_src, GValue *val_dst, gpointer data)
+  {
+  gboolean bValSrc ;
+
+  bValSrc = g_value_get_boolean (val_src) ;
+  g_value_set_boolean (val_dst, !bValSrc) ;
   }

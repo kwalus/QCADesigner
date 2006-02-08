@@ -91,25 +91,49 @@
 #define ZONE_CLOCKING 1
 #define ELECTRODE_CLOCKING 2
 
+// To get high-quality constants out of Mathematica, type these:
+//
+// << Miscellaneous`PhysicalConstants`
+// SetPrecision[VacuumPermittivity,30]
+// SetPrecision[SomeOtherConstant,30]
+// SetPrecision[(SomeOtherConstant^2)/5,30]
+// You can build expressions with these constants, and wrap them up in SetPrecision[<>,30] 
+// to get these numbers
+
 //!Some useful physical constants
-#define QCHARGE_SQUAR_OVER_FOUR 6.417423538e-39
-#define QCHARGE 1.602176462e-19
-#define HALF_QCHARGE 0.801088231e-19
-#define THIRD_QCHARGE 5.340588207e-20
-#define TWO_THIRDS_QCHARGE 1.068117641e-19
-#define TWO_FIFTHS_QCHARGE 6.408705848e-20
-#define ONE_FIFTHS_QCHARGE 3.204352924e-20
-#define THREE_FIFTHS_QCHARGE 9.613058772e-20
-#define FOUR_FIFTHS_QCHARGE 1.28174117e-19
-#define OVER_QCHARGE 6.241509745e18
-#define ONE_OVER_FOUR_HALF_QCHARGE 3.12109e18
-#define EPSILON 8.854187817e-12
-#define PI (double)(3.141592653589793115997963468544)
-#define TWO_PI (double)(6.283185307179586231995926937088)
-#define FOUR_PI (double)(12.56637061435917246399185387418)
-#define FOUR_PI_EPSILON 1.112650056e-10
-#define HBAR 1.0545887e-34
-#define OVER_HBAR 9.482523555e33
+//#define QCHARGE_SQUAR_OVER_FOUR 6.417423538e-39
+#define QCHARGE_SQUAR_OVER_FOUR    ((double)(6.41742353846709430467559076549e-39))
+//#define QCHARGE 1.602176462e-19
+#define QCHARGE                    ((double)(1.60217646200000007055474082341e-19))
+//#define HALF_QCHARGE 0.801088231e-19
+#define HALF_QCHARGE               ((double)(8.01088231000000035277370411706e-20))
+//#define OVER_QCHARGE 6.241509745e18
+#define OVER_QCHARGE               ((double)(6.24150974451152486400000000000e18))
+//#define THIRD_QCHARGE 5.340588207e-20
+#define THIRD_QCHARGE              ((double)(5.34058820666666650061373099737e-20))
+//#define TWO_THIRDS_QCHARGE 1.068117641e-19
+#define TWO_THIRDS_QCHARGE         ((double)(1.06811764133333330012274619947e-19))
+//#define TWO_FIFTHS_QCHARGE 6.408705848e-20
+#define TWO_FIFTHS_QCHARGE         ((double)(6.40870584800000052296020634206e-20))
+//#define ONE_FIFTHS_QCHARGE 3.204352924e-20
+#define ONE_FIFTHS_QCHARGE         ((double)(3.20435292400000026148010317103e-20))
+//#define THREE_FIFTHS_QCHARGE 9.613058772e-20
+#define THREE_FIFTHS_QCHARGE       ((double)(9.61305877200000138629341713410e-20))
+//#define FOUR_FIFTHS_QCHARGE 1.28174117e-19
+#define FOUR_FIFTHS_QCHARGE        ((double)(1.28174116960000010459204126841e-19))
+//#define ONE_OVER_FOUR_HALF_QCHARGE 3.12109e18
+#define ONE_OVER_FOUR_HALF_QCHARGE ((double)(3.12075487225576243200000000000e18))
+//#define EPSILON 8.854187817e-12
+#define EPSILON                    ((double)(8.85418781700000047157054854521e-12))
+#define PI                          ((double)(3.141592653589793115997963468544))
+#define TWO_PI                      ((double)(6.283185307179586231995926937088))
+#define FOUR_PI                    ((double)(12.56637061435917246399185387418))
+//#define FOUR_PI_EPSILON 1.112650056e-10
+#define FOUR_PI_EPSILON            ((double)(1.11265005597565794635320037482e-10))
+//#define HBAR 1.0545887e-34
+#define HBAR                       ((double)(1.05457159642078551348871563291e-34))
+//#define OVER_HBAR 9.482523555e33
+#define OVER_HBAR                  ((double)(9.48252355168675613949607578855e33))
 #define PRECISION 1e-5
 
 // Maximum length of a file system path

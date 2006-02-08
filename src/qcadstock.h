@@ -70,5 +70,7 @@
 #define QCAD_STOCK_SUBSTRATE          "qcad-substrate"
 #define QCAD_STOCK_INSERT_COL_BEFORE  "qcad-insert-column-before"
 #define QCAD_STOCK_RECT_ELECTRODE     "qcad-rect-clocking-zone"
+#define QCAD_STOCK_SHOW_POTENTIAL     "qcad-show-potential"
+#define QCAD_STOCK_NO_SHOW_POTENTIAL  "qcad-no-show-potential"
 
 #endif /* _QCADSTOCK_H_ */

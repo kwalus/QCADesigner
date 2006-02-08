@@ -18,7 +18,12 @@ struct _QCADPropertyUIBoolean
   QCADPropertyUISingle parent_instance ;
 #ifdef GTK_GUI
   QCADPropertyUIWidget check_button ;
+  QCADPropertyUIWidget toggle_button ;
+  GType render_as ;
+  char *pszStockUp ;
+  char *pszStockDown ;
 #endif /* def GTK_GUI */
+  guint notify_id ;
   } ;
 
 struct _QCADPropertyUIBooleanClass
@@ -28,7 +33,7 @@ struct _QCADPropertyUIBooleanClass
 
 GType qcad_property_ui_boolean_get_type () ;
 
-#define QCAD_TYPE_STRING_PROPERTY_UI_BOOLEAN "QCADPropertyUIBOOLEAN"
+#define QCAD_TYPE_STRING_PROPERTY_UI_BOOLEAN "QCADPropertyUIBoolean"
 #define QCAD_TYPE_PROPERTY_UI_BOOLEAN (qcad_property_ui_boolean_get_type ())
 #define QCAD_PROPERTY_UI_BOOLEAN(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_PROPERTY_UI_BOOLEAN, QCADPropertyUIBoolean))
 #define QCAD_IS_PROPERTY_UI_BOOLEAN(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_PROPERTY_UI_BOOLEAN))

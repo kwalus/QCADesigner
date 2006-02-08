@@ -171,7 +171,10 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
 
   if (1 == event->button)
     {
-    GObject *obj = g_object_new (current_type, NULL) ;
+    GObject *obj = 
+      g_type_is_a (current_type, QCAD_TYPE_OBJECT) 
+        ? qcad_object_new_from_object (qcad_object_get_default (current_type))
+        : g_object_new (current_type, NULL) ;
     if (!QCAD_IS_STRETCHY_OBJECT (obj))
       {
       g_object_unref (obj) ;

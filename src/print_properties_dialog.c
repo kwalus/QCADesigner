@@ -278,8 +278,8 @@ void fill_printed_objects_list (GtkWidget *ls, print_properties_D *dialog, DESIG
     gtk_box_pack_start (GTK_BOX (dialog->vbPrintedObjs), dialog->ppPrintedObjs[Nix], FALSE, FALSE, 2) ;
 
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->ppPrintedObjs[Nix]),
-      (LAYER_STATUS_ACTIVE  == (QCAD_LAYER (lstItr->data))->status ||
-       LAYER_STATUS_VISIBLE == (QCAD_LAYER (lstItr->data))->status) && bPrintLayer) ;
+      (QCAD_LAYER_STATUS_ACTIVE  == (QCAD_LAYER (lstItr->data))->status ||
+       QCAD_LAYER_STATUS_VISIBLE == (QCAD_LAYER (lstItr->data))->status) && bPrintLayer) ;
 
     g_signal_connect (G_OBJECT (dialog->ppPrintedObjs[Nix]), "toggled", (GCallback)chkPrintedObj_toggled, dialog->dlgPrintProps) ;
     }

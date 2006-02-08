@@ -449,7 +449,7 @@ void btnOpen_clicked (GtkWidget *widget, gpointer user_data)
   SIMULATION_OUTPUT *sim_output = NULL ;
   GRAPH_DIALOG_DATA *gdd = NULL ;
   double dThreshLower = -0.5, dThreshUpper = 0.5 ;
-  int icAverageSamples ;
+  int icAverageSamples = 1 ;
   int base = 10 ;
 
   if (NULL == (pszTempFName = get_file_name_from_user (GTK_WINDOW (dialog->dialog), _("Open Simulation Results"), pszFName, FALSE)))

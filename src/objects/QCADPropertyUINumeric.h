@@ -3,7 +3,9 @@
 
 #include "QCADPropertyUISingle.h"
 #include "../exp_array.h"
-#include <gtk/gtk.h>
+#ifdef GTK_GUI
+  #include <gtk/gtk.h>
+#endif /* def GTK_GUI */
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,7 +17,9 @@ typedef struct _QCADPropertyUINumericClass QCADPropertyUINumericClass ;
 struct _QCADPropertyUINumeric
   {
   QCADPropertyUISingle parent_instance ;
+#ifdef GTK_GUI
   QCADPropertyUIWidget lblUnits ;
+#endif /* def GTK_GUI */
   } ;
 
 struct _QCADPropertyUINumericClass

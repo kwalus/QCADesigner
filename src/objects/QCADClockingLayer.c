@@ -34,7 +34,6 @@
 #include <math.h>
 
 #include "QCADClockingLayer.h"
-#include "QCADLayer_priv.h"
 #include "support.h"
 #include "../fileio_helpers.h"
 #include "QCADElectrode.h"
@@ -52,6 +51,29 @@ enum
   QCAD_CLOCKING_LAYER_PROPERTY_LAST
   } ;
 
+// Gotta be static so the strings don't die
+static QCADPropertyUIBehaviour behaviour[] =
+  {
+    {
+    // clocking_layer.z-showing.sensitive = clocking_layer.show-potential
+    "show-potential", NULL, "z-showing", "sensitive", 
+    CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL,
+    NULL, NULL, NULL
+    },
+    {
+    // clocking_layer.tile-size.sensitive = clocking_layer.show-potential
+    "show-potential", NULL, "tile-size", "sensitive", 
+    CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL,
+    NULL, NULL, NULL
+    },
+    {
+    // clocking_layer.time-coord.sensitive = clocking_layer.show-potential
+    "show-potential", NULL, "time-coord", "sensitive", 
+    CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL,
+    NULL, NULL, NULL
+    }
+  } ;
+
 static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpointer data) ;
 static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointer data) ;
 static void qcad_clocking_layer_instance_finalize (GObject *object) ;
@@ -64,8 +86,10 @@ static gboolean do_container_remove (QCADDOContainer *container, QCADDesignObjec
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #endif /* def GTK_GUI */
+static QCADObject *class_get_default_object () ;
 
 static void qcad_clocking_layer_calculate_extreme_potentials (QCADClockingLayer *clocking_layer) ;
+static void qcad_clocking_layer_set_tile_size (QCADClockingLayer *clocking_layer, guint new_tile_size) ;
 
 GType qcad_clocking_layer_get_type ()
   {
@@ -94,9 +118,35 @@ GType qcad_clocking_layer_get_type ()
 
 static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   {
+  // Gotta be static so the strings don't die
+  static QCADPropertyUIProperty properties[] =
+    {
+    {NULL,          "title", {0, }},
+    {"z-showing",   "units", {0, }},
+    {"tile-size",   "units", {0, }},
+    {"time-coord",  "units", {0, }},
+    {"z-to-ground", "units", {0, }}
+    } ;
+
+  // clocking_layer.title = "QCA Clocking Layer"
+  g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), _("QCA Clocking Layer")) ;
+  // clocking_layer.z-showing.units = "nm"
+  g_value_set_string (g_value_init (&(properties[1].ui_property_value), G_TYPE_STRING), "nm") ;
+  // clocking_layer.tile-size.units = "pixels"
+  g_value_set_string (g_value_init (&(properties[2].ui_property_value), G_TYPE_STRING), _("pixels")) ;
+  // clocking_layer.time-coord.units = "ns"
+  g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "ns") ;
+  // clocking_layer.z-to-ground.units = "nm"
+  g_value_set_string (g_value_init (&(properties[4].ui_property_value), G_TYPE_STRING), "nm") ;
+
+  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+  qcad_object_class_install_ui_behaviour (QCAD_OBJECT_CLASS (klass), behaviour, G_N_ELEMENTS (behaviour)) ;
+
   G_OBJECT_CLASS (klass)->finalize     = qcad_clocking_layer_instance_finalize ;
   G_OBJECT_CLASS (klass)->set_property = set_property ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
+
+  QCAD_OBJECT_CLASS (klass)->class_get_default_object = class_get_default_object ;
 
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw        = draw ;
@@ -136,12 +186,9 @@ static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointe
   {
   QCADLayer *layer = QCAD_LAYER (object) ;
 
-  layer->type = LAYER_TYPE_CLOCKING ;
-  fprintf (stderr, "qcad_clocking_layer_instance_init:Creating default_properties\n") ;
-  layer->default_properties = qcad_layer_create_default_properties (LAYER_TYPE_CLOCKING) ;
   QCAD_CLOCKING_LAYER (layer)->bDrawPotential = FALSE ;
   QCAD_CLOCKING_LAYER (layer)->z_to_draw             =  1 ;
-  QCAD_CLOCKING_LAYER (layer)->tile_size             = 16.0 ;
+  QCAD_CLOCKING_LAYER (layer)->tile_size             = 16 ;
   QCAD_CLOCKING_LAYER (layer)->time_coord            =  0.0 ;
   QCAD_CLOCKING_LAYER (layer)->z_to_ground           = 10.0 ;
   QCAD_CLOCKING_LAYER (layer)->relative_permittivity = 1.0 ;
@@ -180,14 +227,17 @@ static gboolean do_container_remove (QCADDOContainer *container, QCADDesignObjec
 
   if ((bRet = QCAD_LAYER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->do_container_remove (container, obj)))
     if (QCAD_IS_ELECTRODE (obj))
-      {
+//      {
 //      fprintf (stderr, "QCADClockingLayer::do_container_remove:Removing electrode 0x%08X\n", (int)obj) ;
       qcad_clocking_layer_calculate_extreme_potentials (QCAD_CLOCKING_LAYER (container)) ;
 //      fprintf (stderr, "QCADClockingLayer::do_container_remove:Resulting extreme potential is %e\n", clocking_layer->dExtremePotential) ;
-      }
+//      }
 
   return bRet ;
   }
+
+static QCADObject *class_get_default_object ()
+  {return QCAD_OBJECT (g_object_new (QCAD_TYPE_CLOCKING_LAYER, NULL)) ;}
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
   {
@@ -210,8 +260,7 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
       break ;
 
     case QCAD_CLOCKING_LAYER_PROPERTY_TILE_SIZE:
-      clocking_layer->tile_size = g_value_get_uint (value) ;
-      g_object_notify (object, "tile-size") ;
+      qcad_clocking_layer_set_tile_size (clocking_layer, g_value_get_uint (value)) ;
       break ;
 
     case QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD:
@@ -399,6 +448,12 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
                   real_to_world_y (Nix1 * clocking_layer->tile_size + (clocking_layer->tile_size >> 1)), 
                   clocking_layer->z_to_draw, clocking_layer->time_coord) ;
 
+        if (fabs (potential) < clocking_layer->dExtremePotential / 100.0)
+          {
+//          fprintf (stderr, "Potential too small - breaking out\n") ;
+          continue ;
+          }
+
         gdk_pixbuf_fill (pb,
           ((potential > 0) ? 0xFF000000 : 0x0000FF00) | (((int)((fabs (potential) / clocking_layer->dExtremePotential) * 128.0)) & 0xFF)) ;
 //        fprintf (stderr, "opacity = %lf/%lf * 255\n", potential, clocking_layer->dExtremePotential) ;
@@ -435,4 +490,27 @@ static void qcad_clocking_layer_calculate_extreme_potentials (QCADClockingLayer 
         dElectrodeExtremePotential.max = fabs (dElectrodeExtremePotential.max) ;
         clocking_layer->dExtremePotential = MAX (dElectrodeExtremePotential.min, MAX (dElectrodeExtremePotential.max, clocking_layer->dExtremePotential)) ;
         }
+  }
+
+static void qcad_clocking_layer_set_tile_size (QCADClockingLayer *clocking_layer, guint new_tile_size)
+  {
+  guint old_tile_size = clocking_layer->tile_size ;
+  int bits = floor (log (new_tile_size) / log (2)) + 1 ;
+
+  // if new_tile_size is NOT a power of two
+  if (new_tile_size & (new_tile_size - 1))
+    {
+    // User wants to increase
+    if (new_tile_size > old_tile_size)
+      new_tile_size = (1 << ((int)(MAX (bits, floor (log (new_tile_size) / log (2)) + 1)))) ;
+    // User wants to decrease
+    else
+      new_tile_size = (1 << ((int)(MIN (bits, floor (log (new_tile_size) / log (2)))))) ;
+    }
+
+  if (clocking_layer->tile_size != new_tile_size)
+    {
+    clocking_layer->tile_size = new_tile_size ;
+    g_object_notify (G_OBJECT (clocking_layer), "tile-size") ;
+    }
   }

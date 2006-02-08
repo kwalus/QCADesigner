@@ -791,14 +791,11 @@ static void swap_model_paths_contents (GtkTreeModel *tm, GtkTreePath *tpSrc, Gtk
 
 static void swap_model_iters_contents (GtkTreeModel *tm, GtkTreeIter *itrSrc, GtkTreeIter *itrDst)
   {
-  GValue valSrc, valDst ;
+  GValue valSrc = {0, }, valDst = {0, } ;
   int Nix = 0, icCols = -1 ;
   GtkTreeStore *ts = GTK_TREE_STORE (tm) ;
 
   if (NULL == tm || NULL == itrSrc || NULL == itrDst) return ;
-
-  memset (&valSrc, 0, sizeof (GValue)) ;
-  memset (&valDst, 0, sizeof (GValue)) ;
 
   icCols = gtk_tree_model_get_n_columns (tm) ;
 

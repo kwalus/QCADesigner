@@ -1,7 +1,6 @@
 #ifndef _OBJECTS_QCADPropertyUIText_H_
 #define _OBJECTS_QCADPropertyUIText_H_
 
-#include <gtk/gtk.h>
 #include "../exp_array.h"
 #include "QCADPropertyUISingle.h"
 
@@ -15,8 +14,9 @@ typedef struct _QCADPropertyUITextClass QCADPropertyUITextClass ;
 struct _QCADPropertyUIText
   {
   QCADPropertyUISingle parent_instance ;
-
+#ifdef GTK_GUI
   QCADPropertyUIWidget entry ;
+#endif /* def GTK_GUI */
   } ;
 
 struct _QCADPropertyUITextClass

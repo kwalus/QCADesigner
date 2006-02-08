@@ -37,8 +37,8 @@
 #include <stdarg.h>
 #ifdef GTK_GUI
   #include <gtk/gtk.h>
-  #include "QCADPropertyUI.h"
 #endif
+#include "QCADPropertyUI.h"
 #include <glib-object.h>
 #include "../exp_array.h"
 
@@ -58,6 +58,8 @@ struct _QCADObjectClass
   {
   GObjectClass parent_class ;
   QCADObject *default_object ;
+  EXP_ARRAY *property_ui_behaviour ;
+  EXP_ARRAY *property_ui_properties ;
 #ifdef GTK_GUI
   QCADPropertyUI *property_ui ;
 #endif /* def GTK_GUI */
@@ -89,10 +91,12 @@ QCADObject *qcad_object_new_from_object (QCADObject *src) ;
 QCADObject *qcad_object_get_default (GType type) ;
 // Overwrites the default object for the given type
 void qcad_object_set_default (GType type, QCADObject *obj) ;
-#ifdef GTK_GUI
 QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, char *property, ...) ;
+#ifdef GTK_GUI
 gboolean qcad_object_get_properties (QCADObject *obj, GtkWindow *parent_window) ;
 #endif /* def GTK_GUI */
+void qcad_object_class_install_ui_behaviour (QCADObjectClass *klass, QCADPropertyUIBehaviour *behaviour, int icBehaviour) ;
+void qcad_object_class_install_ui_properties (QCADObjectClass *klass, QCADPropertyUIProperty *properties, int icProperties) ;
 
 #ifdef __cplusplus
 }

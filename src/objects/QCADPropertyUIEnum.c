@@ -10,22 +10,25 @@ enum
 static void qcad_property_ui_enum_class_init (QCADPropertyUIEnumClass *klass) ;
 static void qcad_property_ui_enum_instance_init (QCADPropertyUIEnum *property_ui_enum) ;
 
+#ifdef GTK_GUI
 static void finalize     (GObject *object) ;
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
 static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
 
-static gboolean   set_instance  (QCADPropertyUI *property_ui, GObject *instance) ;
 static void       set_visible   (QCADPropertyUI *property_ui, gboolean bVisible) ;
 static void       set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitive) ;
-static GtkWidget *get_widget    (QCADPropertyUI *property_ui, int idxX, int idxY) ;
+static GtkWidget *get_widget    (QCADPropertyUI *property_ui, int idxX, int idxY, int *col_span) ;
+static gboolean   set_instance  (QCADPropertyUI *property_ui, GObject *new_instance, GObject *old_instance) ;
 
-static void set_pspec (QCADPropertyUISingle *property_ui_single, GParamSpec *new_pspec) ;
+static void set_pspec   (QCADPropertyUISingle *property_ui_single, GParamSpec *new_pspec) ;
+static void set_tooltip (QCADPropertyUISingle *property_ui_single, GtkTooltips *tooltip) ;
 
 static void option_menu_item_activate (GtkWidget *widget, gpointer data) ;
 static void radio_button_toggled (GtkWidget *widget, gpointer data) ;
 static void qcad_property_ui_enum_instance_notify (GObject *obj, GParamSpec *pspec, gpointer data) ;
 
 void set_enum_property_cond (QCADPropertyUI *property_ui, gint value) ;
+#endif /* def GTK_GUI */
 
 GType qcad_property_ui_enum_get_type ()
   {
@@ -54,6 +57,7 @@ GType qcad_property_ui_enum_get_type ()
 
 static void qcad_property_ui_enum_class_init (QCADPropertyUIEnumClass *klass)
   {
+#ifdef GTK_GUI
   G_OBJECT_CLASS (klass)->finalize     = finalize ;
   G_OBJECT_CLASS (klass)->set_property = set_property ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
@@ -63,11 +67,13 @@ static void qcad_property_ui_enum_class_init (QCADPropertyUIEnumClass *klass)
   QCAD_PROPERTY_UI_CLASS (klass)->set_sensitive  = set_sensitive ;
   QCAD_PROPERTY_UI_CLASS (klass)->get_widget     = get_widget ;
 
-  QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_pspec = set_pspec ;
+  QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_pspec   = set_pspec ;
+  QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_tooltip = set_tooltip ;
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_ENUM_PROPERTY_RENDER_AS,
     qcad_param_spec_type_list ("render-as", _("Render As"), _("Render as widget"), 
       GTK_TYPE_OPTION_MENU, G_PARAM_READABLE | G_PARAM_WRITABLE, GTK_TYPE_OPTION_MENU, GTK_TYPE_RADIO_BUTTON, 0)) ;
+#endif /* def GTK_GUI */
   }
 
 static void qcad_property_ui_enum_instance_init (QCADPropertyUIEnum *property_ui_enum)
@@ -75,6 +81,7 @@ static void qcad_property_ui_enum_instance_init (QCADPropertyUIEnum *property_ui
   QCAD_PROPERTY_UI (property_ui_enum)->cxWidgets = 2 ;
   QCAD_PROPERTY_UI (property_ui_enum)->cyWidgets = 1 ;
 
+#ifdef GTK_GUI
   property_ui_enum->option_menu.widget = gtk_option_menu_new () ;
   g_object_ref (G_OBJECT (property_ui_enum->option_menu.widget)) ;
   gtk_widget_show (property_ui_enum->option_menu.widget) ;
@@ -95,17 +102,21 @@ static void qcad_property_ui_enum_instance_init (QCADPropertyUIEnum *property_ui
 
   property_ui_enum->render_as = GTK_TYPE_OPTION_MENU ;
   property_ui_enum->rb = NULL ;
+#endif /* def GTK_GUI */
   property_ui_enum->notify_id = 0 ;
   }
 
+#ifdef GTK_GUI
 static void finalize (GObject *object)
   {
   QCADPropertyUIEnum *property_ui_enum = QCAD_PROPERTY_UI_ENUM (object) ;
 
-  set_instance (QCAD_PROPERTY_UI (object), NULL) ;
+  set_instance (QCAD_PROPERTY_UI (object), NULL, QCAD_PROPERTY_UI (object)->instance) ;
 
   g_object_unref (G_OBJECT (property_ui_enum->option_menu.widget)) ;
   g_object_unref (G_OBJECT (property_ui_enum->frame.widget)) ;
+
+  G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_ENUM)))->finalize (object) ;
   }
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -135,6 +146,19 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
     case QCAD_PROPERTY_UI_ENUM_PROPERTY_RENDER_AS:
       g_value_set_uint (value, (guint)(QCAD_PROPERTY_UI_ENUM (object)->render_as)) ;
       break ;
+    }
+  }
+
+static void set_tooltip (QCADPropertyUISingle *property_ui_single, GtkTooltips *tooltip)
+  {
+  QCADPropertyUIEnum *property_ui_enum = QCAD_PROPERTY_UI_ENUM (property_ui_single) ;
+
+  QCAD_PROPERTY_UI_SINGLE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_ENUM)))->set_tooltip (property_ui_single, tooltip) ;
+
+  if (NULL != property_ui_single->pspec)
+    {
+    gtk_tooltips_set_tip (tooltip, property_ui_enum->frame.widget,       g_param_spec_get_nick (property_ui_single->pspec), g_param_spec_get_blurb (property_ui_single->pspec)) ;
+    gtk_tooltips_set_tip (tooltip, property_ui_enum->option_menu.widget, g_param_spec_get_nick (property_ui_single->pspec), g_param_spec_get_blurb (property_ui_single->pspec)) ;
     }
   }
 
@@ -205,10 +229,11 @@ static void set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitive)
   gtk_widget_set_sensitive (property_ui_enum->frame.widget, bSensitive) ;
   }
 
-static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY)
+static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY, int *col_span)
   {
   QCADPropertyUIEnum *property_ui_enum = QCAD_PROPERTY_UI_ENUM (property_ui) ;
 
+  (*col_span) = 1 ;
   if (GTK_TYPE_OPTION_MENU == property_ui_enum->render_as)
     {
     if (idxX == property_ui_enum->option_menu.idxX && idxY == property_ui_enum->option_menu.idxY)
@@ -217,20 +242,20 @@ static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY)
   else
   if (GTK_TYPE_RADIO_BUTTON)
     {
+    (*col_span) = -1 ;
     if (idxX == property_ui_enum->frame.idxX && idxY == property_ui_enum->frame.idxY)
       return property_ui_enum->frame.widget ;
     }
 
-  return QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_ENUM)))->get_widget (property_ui, idxX, idxY) ;
+  return QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_ENUM)))->get_widget (property_ui, idxX, idxY, col_span) ;
   }
 
-static gboolean set_instance (QCADPropertyUI *property_ui, GObject *instance)
+static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance, GObject *old_instance)
   {
   QCADPropertyUISingle *property_ui_single = QCAD_PROPERTY_UI_SINGLE (property_ui) ;
   QCADPropertyUIEnum *property_ui_enum = QCAD_PROPERTY_UI_ENUM (property_ui) ;
-  GObject *old_instance = property_ui->instance ;
 
-  if (QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_ENUM)))->set_instance (property_ui, instance))
+  if (QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_ENUM)))->set_instance (property_ui, new_instance, old_instance))
     {
     char *psz = NULL ;
 
@@ -239,14 +264,14 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *instance)
 
     if (NULL == property_ui_single->pspec) return FALSE ;
 
-    if (NULL != instance)
+    if (NULL != new_instance)
       {
       property_ui_enum->notify_id = 
-        g_signal_connect (G_OBJECT (instance), 
+        g_signal_connect (G_OBJECT (new_instance), 
           psz = g_strdup_printf ("notify::%s", property_ui_single->pspec->name),
           (GCallback)qcad_property_ui_enum_instance_notify, property_ui) ;
       g_free (psz) ;
-      g_object_notify (G_OBJECT (instance), property_ui_single->pspec->name) ;
+      g_object_notify (G_OBJECT (new_instance), property_ui_single->pspec->name) ;
       }
     return TRUE ;
     }
@@ -258,7 +283,10 @@ static void option_menu_item_activate (GtkWidget *widget, gpointer data)
   {set_enum_property_cond (QCAD_PROPERTY_UI (data), (gint)g_object_get_data (G_OBJECT (widget), "enum-value")) ;}
 
 static void radio_button_toggled (GtkWidget *widget, gpointer data)
-  {set_enum_property_cond (QCAD_PROPERTY_UI (data), (gint)g_object_get_data (G_OBJECT (widget), "enum-value")) ;}
+  {
+  if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) return ;
+  set_enum_property_cond (QCAD_PROPERTY_UI (data), (gint)g_object_get_data (G_OBJECT (widget), "enum-value")) ;
+  }
 
 static void qcad_property_ui_enum_instance_notify (GObject *obj, GParamSpec *pspec, gpointer data)
   {
@@ -300,3 +328,4 @@ void set_enum_property_cond (QCADPropertyUI *property_ui, gint value)
 
   g_object_set (G_OBJECT (property_ui->instance), property_ui_single->pspec->name, value, NULL) ;
   }
+#endif /* def GTK_GUI */

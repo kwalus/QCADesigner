@@ -45,6 +45,7 @@
 #include "../fileio_helpers.h"
 #include "objects_debug.h"
 #include "../exp_array.h"
+#include "../support.h"
 
 typedef struct
   {
@@ -77,12 +78,6 @@ static QCADDesignObject *hit_test (QCADDesignObject *obj, int xReal, int yReal) 
 static gboolean select_test (QCADDesignObject *obj, WorldRectangle *rc, QCADSelectionMethod method) ;
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
-static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData) ;
-#ifdef UNDO_REDO
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry) ;
-#else
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget) ;
-#endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
@@ -95,9 +90,6 @@ static void copy (QCADObject *objSrc, QCADObject *objDst) ;
 static const char *PostScript_preamble () ;
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
 static GList *add_unique_types (QCADDesignObject *obj, GList *lst) ;
-static void *default_properties_get (struct QCADDesignObjectClass *klass) ;
-static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) ;
-static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props) ;
 static void transform (QCADDesignObject *obj, double m11, double m12, double m21, double m22) ;
 
 #ifdef UNDO_REDO
@@ -158,9 +150,6 @@ static void qcad_design_object_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->transform = transform ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->hit_test = hit_test ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->select_test = select_test ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_get = default_properties_get ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_set = default_properties_set ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_destroy = default_properties_destroy ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_preamble = PostScript_preamble ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance = PostScript_instance ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->add_unique_types = add_unique_types ;
@@ -175,11 +164,9 @@ static void qcad_design_object_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->clrDefault.green = 0xffff ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->clrDefault.blue  = 0xffff ;
 
-  G_OBJECT_CLASS (klass)->finalize = qcad_design_object_instance_finalize ;
+  G_OBJECT_CLASS (klass)->finalize     = qcad_design_object_instance_finalize ;
 
 #ifdef GTK_GUI
-  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties        = old_properties ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_ui = default_properties_ui ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                  = draw ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed     = (GCallback)button_pressed ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.motion_notify      = (GCallback)motion_notify ;
@@ -245,16 +232,6 @@ void qcad_design_object_draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFuncti
   QCAD_DESIGN_OBJECT_GET_CLASS (obj)->draw (obj, dst, rop, rcPass) ;
   }
 
-GCallback qcad_design_object_class_get_properties_ui (QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData)
-  {return QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_ui (klass, default_options, pTopContainer, pData) ;}
-
-#ifdef UNDO_REDO
-gboolean qcad_design_object_get_properties (QCADDesignObject *obj, GtkWidget *parent, QCADUndoEntry **pentry)
-  {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->old_properties (obj, parent, pentry) ;}
-#else
-gboolean qcad_design_object_get_properties (QCADDesignObject *obj, GtkWidget *parent)
-  {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->old_properties (obj, parent) ;}
-#endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
 void qcad_design_object_serialize (QCADDesignObject *obj, FILE *fp)
@@ -275,15 +252,6 @@ void qcad_design_object_move_to (QCADDesignObject *obj, double xWorld, double yW
 
 void qcad_design_object_get_bounds_box (QCADDesignObject *obj, WorldRectangle *rcWorld)
   {QCAD_DESIGN_OBJECT_GET_CLASS (obj)->get_bounds_box (obj, rcWorld) ;}
-
-void *qcad_design_object_class_get_properties (QCADDesignObjectClass *klass)
-  {return QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_get (klass) ;}
-
-void qcad_design_object_class_set_properties (QCADDesignObjectClass *klass, void *props)
-  {QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_set (klass, props) ;}
-
-void qcad_design_object_class_destroy_properties (QCADDesignObjectClass *klass, void *props)
-  {QCAD_DESIGN_OBJECT_CLASS (klass)->default_properties_destroy (klass, props) ;}
 
 gboolean qcad_design_object_select_test (QCADDesignObject *obj, WorldRectangle *rc, QCADSelectionMethod method)
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->select_test (obj, rc, method) ;}
@@ -440,35 +408,9 @@ QCADUndoEntry *qcad_design_object_get_state_undo_entry (QCADDesignObject *obj, E
 #endif /* def UNDO_REDO */
 ///////////////////////////////////////////////////////////////////////////////
 
-static void *default_properties_get (struct QCADDesignObjectClass *klass)
-  {return NULL ;}
-
-static void default_properties_set (struct QCADDesignObjectClass *klass, void *props) {}
-
-static void default_properties_destroy (struct QCADDesignObjectClass *klass, void *props) {}
-
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) {}
 
-static GCallback default_properties_ui (QCADDesignObjectClass *klass, void *default_options, GtkWidget **pTopContainer, gpointer *pData)
-  {
-  (*pTopContainer) = NULL ;
-  (*pData) = NULL ;
-  return NULL ;
-  }
-
-#ifdef UNDO_REDO
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry)
-  {
-  if (NULL != pentry)
-    (*pentry) = NULL ;
-
-  return FALSE ;
-  }
-#else
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget)
-  {return FALSE ;}
-#endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 
 static void copy (QCADObject *objSrc, QCADObject *objDst)

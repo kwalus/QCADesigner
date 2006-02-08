@@ -34,7 +34,6 @@
 
 #ifdef GTK_GUI
   #include <gtk/gtk.h>
-#include "QCADLayer_properties.h"
 #endif /* def GTK_GUI */
 
 #include "../support.h"
@@ -48,8 +47,8 @@
 #include "QCADDOContainer.h"
 #include "objects_debug.h"
 #include "QCADRectangleElectrode.h"
-#include "QCADLayer_priv.h"
 #include "QCADClockingLayer.h"
+#include "QCADParamSpecObjectList.h"
 
 #define DBG_REFS(s)
 
@@ -72,9 +71,17 @@ typedef struct
     } QCAD_LAYER_DRAW_PARAMS ;
 #endif /* def GTK_GUI */
 
+enum
+  {
+  QCAD_LAYER_PROPERTY_DEFAULT_OBJECT_LIST=1,
+  QCAD_LAYER_PROPERTY_DESCRIPTION
+  } ;
+
 static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data) ;
 static void qcad_layer_instance_init (QCADDesignObject *object, gpointer data) ;
 static void qcad_layer_instance_finalize (GObject *object) ;
+static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
 #ifdef STDIO_FILEIO
 static gboolean unserialize (QCADDesignObject *obj, FILE *pfile) ;
 static void serialize (QCADDesignObject *obj, FILE *pfile) ;
@@ -114,6 +121,9 @@ static void qcad_layer_compound_do_added (QCADCompoundDO *cdo, QCADDesignObject 
 static void qcad_layer_compound_do_removed (QCADCompoundDO *cdo, QCADDesignObject *obj, gpointer data) ;
 static void qcad_design_object_selected (QCADDesignObject *obj, gpointer data) ;
 static void qcad_design_object_destroyed (gpointer data, GObject *obj) ;
+
+static void qcad_layer_set_type (QCADLayer *layer, LayerType type) ;
+static GHashTable *qcad_layer_default_properties_new (LayerType type, GList **default_objects) ;
 
 GType qcad_layer_get_type ()
   {
@@ -160,7 +170,19 @@ GType qcad_layer_get_type ()
 
 static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   {
-  G_OBJECT_CLASS (klass)->finalize = qcad_layer_instance_finalize ;
+  static QCADPropertyUIProperty properties[] =
+    {
+    {NULL, "title", {0, }}
+    } ;
+
+  // cell.title = "QCA Cell"
+  g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), _("QCA Layer")) ;
+
+  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+
+  G_OBJECT_CLASS (klass)->finalize     = qcad_layer_instance_finalize ;
+  G_OBJECT_CLASS (klass)->get_property = get_property ;
+  G_OBJECT_CLASS (klass)->set_property = set_property ;
   QCAD_OBJECT_CLASS (klass)->copy = copy ;
 #ifdef STDIO_FILEIO
   QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize    = unserialize ;
@@ -169,13 +191,20 @@ static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->hit_test       = hit_test ;
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw           = draw ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties = qcad_layer_properties ;
 #endif /* def GTK_GUI */
   QCAD_LAYER_CLASS (klass)->compound_do_first   = compound_do_first ;
   QCAD_LAYER_CLASS (klass)->compound_do_next    = compound_do_next ;
   QCAD_LAYER_CLASS (klass)->compound_do_last    = compound_do_last ;
   QCAD_LAYER_CLASS (klass)->do_container_add    = do_container_add ;
   QCAD_LAYER_CLASS (klass)->do_container_remove = do_container_remove ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_LAYER_PROPERTY_DESCRIPTION,
+    g_param_spec_string ("description", _("Description"), _("Layer Description"), "", 
+      G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_LAYER_PROPERTY_DEFAULT_OBJECT_LIST,
+    qcad_param_spec_object_list ("default-objects", _("Default Objects"), _("List of default objects"),
+      G_PARAM_READABLE)) ;
   }
 
 static void qcad_compound_do_interface_init (gpointer interface, gpointer interface_data)
@@ -199,16 +228,17 @@ static void qcad_layer_instance_init (QCADDesignObject *object, gpointer data)
   {
   QCADLayer *layer = QCAD_LAYER (object) ;
 
-  layer->type = LAYER_TYPE_CELLS ;
-  layer->status = LAYER_STATUS_ACTIVE ;
+  layer->status = QCAD_LAYER_STATUS_ACTIVE ;
   layer->pszDescription = g_strdup (_("Untitled Layer")) ;
   layer->lstObjs =
   layer->lstSelObjs = NULL ;
-  fprintf (stderr, "qcad_clocking_layer_instance_init:Creating default_properties\n") ;
-  layer->default_properties = qcad_layer_create_default_properties (LAYER_TYPE_CELLS) ;
+  layer->default_properties = NULL ;
+  layer->default_objects = NULL ;
   #ifdef ALLOW_UNSERIALIZE_OVERLAP
   layer->bAllowOverlap = FALSE ;
   #endif /* def ALLOW_UNSERIALIZE_OVERLAP */
+
+  qcad_layer_set_type (layer, LAYER_TYPE_CELLS) ;
   }
 
 static void qcad_layer_instance_finalize (GObject *object)
@@ -235,9 +265,43 @@ static void qcad_layer_instance_finalize (GObject *object)
   g_list_free (layer->lstObjs) ;
   g_list_free (layer->lstSelObjs) ;
 
+  if (NULL != layer->default_properties)
+    g_hash_table_destroy (layer->default_properties) ;
+
   DBG_OO (fprintf (stderr, "QCADLayer::instance_finalize: Calling parent\n")) ;
   if (NULL != (parent_finalize = G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_LAYER)))->finalize))
     (*parent_finalize) (object) ;
+  }
+
+static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+  {
+  QCADLayer *layer = QCAD_LAYER (object) ;
+
+  switch (property_id)
+    {
+    case QCAD_LAYER_PROPERTY_DEFAULT_OBJECT_LIST:
+      g_value_set_pointer (value, layer->default_objects) ;
+      break ;
+
+    case QCAD_LAYER_PROPERTY_DESCRIPTION:
+      g_value_set_string (value, layer->pszDescription) ;
+      break ;
+    }
+  }
+
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+  {
+  QCADLayer *layer = QCAD_LAYER (object) ;
+
+  switch (property_id)
+    {
+    case QCAD_LAYER_PROPERTY_DESCRIPTION:
+      if (NULL != layer->pszDescription)
+        g_free (layer->pszDescription) ;
+      layer->pszDescription = g_strdup (g_value_get_string (value)) ;
+      g_object_notify (object, "description") ;
+      break ;
+    }
   }
 
 static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *obj)
@@ -490,11 +554,7 @@ QCADLayer *qcad_layer_new (LayerType type, LayerStatus status, char *pszDescript
       g_free (layer->pszDescription) ;
     layer->pszDescription = g_strdup (pszDescription) ;
     if (type != layer->type)
-      {
-      layer->type = type ;
-      qcad_layer_free_default_properties (layer->default_properties) ;
-      layer->default_properties = qcad_layer_create_default_properties (type) ;
-      }
+      qcad_layer_set_type (layer, type) ;
     }
 
   return layer ;
@@ -531,12 +591,14 @@ gboolean qcad_layer_selection_drop (QCADLayer *layer)
     }
   else
   if (LAYER_TYPE_SUBSTRATE == layer->type)
+    {
     for (llItr = llOverlap ; llItr != NULL && bNoOverlap ; llItr = llItr->next)
       for (llItrSel = layer->lstSelObjs ; llItrSel != NULL && bNoOverlap ; llItrSel = llItrSel->next)
         if (!(NULL == llItrSel->data || NULL == llItr->data))
           if (qcad_design_object_overlaps (QCAD_DESIGN_OBJECT (llItr->data), QCAD_DESIGN_OBJECT (llItrSel->data)) && 
             (QCAD_IS_SUBSTRATE (llItr->data) && QCAD_IS_SUBSTRATE (llItrSel->data)))
             bNoOverlap = FALSE ;
+    }
   else
   if (LAYER_TYPE_CLOCKING == layer->type)
     for (llItr = llOverlap ; llItr != NULL && bNoOverlap ; llItr = llItr->next)
@@ -618,12 +680,12 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
 
   if (NULL == layer || NULL == dst) return ;
 
-  if (!(LAYER_STATUS_VISIBLE == layer->status || LAYER_STATUS_ACTIVE  == layer->status)) return ;
+  if (!(QCAD_LAYER_STATUS_VISIBLE == layer->status || QCAD_LAYER_STATUS_ACTIVE  == layer->status)) return ;
 
 //  if (LAYER_TYPE_DISTRIBUTION == layer->type)
 //    fprintf (stderr, "qcad_layer_draw: Distro layer: Calling qcad_layer_object_foreach\n") ;
 
-  qcad_layer_objects_foreach (layer, ((QCAD_LAYER_DRAW_SELECTION & layer->draw_flags) && LAYER_STATUS_ACTIVE == layer->status), TRUE, qcad_layer_draw_foreach, &cb_parms) ;
+  qcad_layer_objects_foreach (layer, ((QCAD_LAYER_DRAW_SELECTION & layer->draw_flags) && QCAD_LAYER_STATUS_ACTIVE == layer->status), TRUE, qcad_layer_draw_foreach, &cb_parms) ;
   }
 
 static void qcad_layer_draw_foreach (QCADDesignObject *obj, gpointer data)
@@ -724,7 +786,7 @@ void qcad_layer_selection_serialize (QCADLayer *layer, FILE *pfile)
 
   if (NULL == layer || NULL == pfile) return ;
 
-  if (LAYER_STATUS_ACTIVE == layer->status && NULL != layer->lstSelObjs)
+  if (QCAD_LAYER_STATUS_ACTIVE == layer->status && NULL != layer->lstSelObjs)
     {
     fprintf (pfile, "[TYPE:" QCAD_TYPE_STRING_LAYER "]\n") ;
     fprintf (pfile, "type=%d\n", layer->type) ;
@@ -812,6 +874,80 @@ QCADLayer *qcad_layer_from_object (QCADDesignObject *obj)
   return NULL ;
   }
 
+
+// This is a hash table such that the keys are layer types and the data for each layer type is a
+// linked list of GTypes for that particular layer type - it basically defines the
+// layer_type->object_type one-to-many constraints
+GHashTable *qcad_layer_object_containment_rules ()
+  {
+  static GHashTable *ht = NULL ;
+  GList *llObjs = NULL ;
+
+  if (NULL != ht) return ht ;
+
+  ht = g_hash_table_new (NULL, NULL) ;
+
+  // Substrate Layer
+  llObjs = NULL ;
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_SUBSTRATE) ;
+  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_SUBSTRATE, llObjs) ;
+
+  // Cells Layer
+  llObjs = NULL ;
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_CELL) ;
+  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CELLS, llObjs) ;
+
+  // Clocking Layer
+  llObjs = NULL ;
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_RECTANGLE_ELECTRODE) ;
+  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CLOCKING, llObjs) ;
+
+  //Drawing Layer
+  llObjs = NULL ;
+  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_LABEL) ;
+  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_DRAWING, llObjs) ;
+
+  return ht ;
+  }
+
+static GHashTable *qcad_layer_default_properties_new (LayerType type, GList **default_objects)
+  {
+  QCADObject *obj = NULL ;
+  GList *llItr = NULL ;
+  GHashTable *ht = NULL ;
+
+  ht = g_hash_table_new_full (NULL, NULL, NULL, g_object_unref) ;
+
+  if (NULL != default_objects)
+    {
+    for (llItr = (*default_objects) ; llItr != NULL ; llItr = llItr->next)
+      if (NULL != llItr->data)
+        g_object_unref (llItr->data) ;
+    if (NULL != (*default_objects))
+      g_list_free ((*default_objects)) ;
+    (*default_objects) = NULL ;
+    }
+
+  for (llItr = g_hash_table_lookup (qcad_layer_object_containment_rules (), (gpointer)type) ; llItr != NULL ; llItr = llItr->next)
+    {
+    g_hash_table_replace (ht, llItr->data, obj = qcad_object_new_from_object (qcad_object_get_default ((GType)(llItr->data)))) ;
+    if (NULL != default_objects)
+      (*default_objects) = g_list_prepend ((*default_objects), obj) ;
+    }
+
+  return ht ;
+  }
+
+void qcad_layer_default_properties_apply (QCADLayer *layer)
+  {
+  QCADObject *obj = NULL ;
+  GList *llItr = NULL ;
+
+  for (llItr = g_hash_table_lookup (qcad_layer_object_containment_rules (), (gpointer)(layer->type)) ; llItr != NULL ; llItr = llItr->next)
+    if (NULL != (obj = g_hash_table_lookup (layer->default_properties, llItr->data)))
+      qcad_object_set_default ((GType)(llItr->data), obj) ;
+  }
+
 static void qcad_design_object_destroyed (gpointer data, GObject *obj)
   {
   OBJECT_TRACK_STRUCT *ots = (OBJECT_TRACK_STRUCT *)data ;
@@ -858,6 +994,7 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *pfile)
   char *pszLine = NULL, *pszValue = NULL ;
   QCADLayer *layer = NULL ;
   int iShowProgress = -1 ;
+  LayerType layer_type ;
 
   layer = QCAD_LAYER (obj) ;
 
@@ -882,10 +1019,8 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *pfile)
 
     if (!strcmp (pszLine, "type"))
       {
-      layer->type = atoi (pszValue) ;
-      if (NULL != layer->default_properties)
-        qcad_layer_free_default_properties (layer->default_properties) ;
-      layer->default_properties = qcad_layer_create_default_properties (layer->type) ;
+      if (layer->type != (layer_type = atoi (pszValue)))
+        qcad_layer_set_type (layer, layer_type) ;
       }
     else
     if (!strcmp (pszLine, "status"))
@@ -918,7 +1053,7 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *pfile)
 #endif /* def ALLOW_UNSERIALIZE_OVERLAP */
 
   return (layer->type >= 0 && layer->type < LAYER_TYPE_LAST_TYPE &&
-          layer->status >= 0 && layer->status < LAYER_STATUS_LAST_STATUS) ;
+          layer->status >= 0 && layer->status < QCAD_LAYER_STATUS_LAST_STATUS) ;
   }
 
 static void serialize (QCADDesignObject *obj, FILE *pfile)
@@ -977,7 +1112,7 @@ static QCADDesignObject *hit_test (QCADDesignObject *obj, int x, int y)
 
   if (NULL == obj) return NULL ;
 
-  if (QCAD_LAYER (obj)->status != LAYER_STATUS_ACTIVE) return NULL ;
+  if (QCAD_LAYER (obj)->status != QCAD_LAYER_STATUS_ACTIVE) return NULL ;
 
   for (llItr = QCAD_LAYER (obj)->lstObjs ; llItr != NULL ; llItr = llItr->next)
     if (NULL != llItr->data)
@@ -987,37 +1122,17 @@ static QCADDesignObject *hit_test (QCADDesignObject *obj, int x, int y)
   return NULL ;
   }
 
-// This is a hash table such that the keys are layer types and the data for each layer type is a
-// linked list of GTypes for that particular layer type - it basically defines the
-// layer_type->object_type one-to-many constraints
-GHashTable *qcad_layer_object_containment_rules ()
+static void qcad_layer_set_type (QCADLayer *layer, LayerType type)
   {
-  static GHashTable *ht = NULL ;
-  GList *llObjs = NULL ;
+  layer->type = type ;
 
-  if (NULL != ht) return ht ;
+  if (NULL != layer->default_properties)
+    g_hash_table_destroy (layer->default_properties) ;
+  if (NULL != layer->default_objects)
+    {
+    g_list_free (layer->default_objects) ;
+    layer->default_objects = NULL ;
+    }
 
-  ht = g_hash_table_new (NULL, NULL) ;
-
-  // Substrate Layer
-  llObjs = NULL ;
-  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_SUBSTRATE) ;
-  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_SUBSTRATE, llObjs) ;
-
-  // Cells Layer
-  llObjs = NULL ;
-  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_CELL) ;
-  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CELLS, llObjs) ;
-
-  // Clocking Layer
-  llObjs = NULL ;
-  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_RECTANGLE_ELECTRODE) ;
-  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_CLOCKING, llObjs) ;
-
-  //Drawing Layer
-  llObjs = NULL ;
-  llObjs = g_list_prepend (llObjs, (gpointer)QCAD_TYPE_LABEL) ;
-  g_hash_table_insert (ht, (gpointer)LAYER_TYPE_DRAWING, llObjs) ;
-
-  return ht ;
+  layer->default_properties = qcad_layer_default_properties_new (type, &(layer->default_objects)) ;
   }

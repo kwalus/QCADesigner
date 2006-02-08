@@ -63,10 +63,10 @@ enum _LayerType
 
 enum _LayerStatus
   {
-  LAYER_STATUS_ACTIVE,  /* Editable (=> visible) */
-  LAYER_STATUS_VISIBLE, /* Non-editable */
-  LAYER_STATUS_HIDDEN,  /* not shown */
-  LAYER_STATUS_LAST_STATUS
+  QCAD_LAYER_STATUS_ACTIVE,  /* Editable (=> visible) */
+  QCAD_LAYER_STATUS_VISIBLE, /* Non-editable */
+  QCAD_LAYER_STATUS_HIDDEN,  /* not shown */
+  QCAD_LAYER_STATUS_LAST_STATUS
   } ;
 
 #define QCAD_LAYER_DRAW_SELECTION     1 << 0
@@ -94,6 +94,7 @@ struct _QCADLayer
 #endif /* ALLOW_UNSERIALIZE_OVERLAP */
   GList *llContainerIter ;
   GHashTable *default_properties ;
+  GList *default_objects ;
   } ;
 
 struct _QCADLayerClass

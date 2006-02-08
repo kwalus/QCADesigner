@@ -42,14 +42,6 @@
 #include "objects_debug.h"
 #include "QCADCell.h"
 
-#ifdef GTK_GUI
-typedef struct
-  {
-  GtkWidget *dlg ;
-  GtkAdjustment *adjGridSpacing ;
-  } PROPERTIES ;
-#endif /* GTK_GUI */
-
 static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer data) ;
 static void qcad_substrate_instance_init (QCADStretchyObject *object, gpointer data) ;
 static void qcad_substrate_instance_finalize (GObject *object) ;
@@ -59,11 +51,6 @@ static void qcad_substrate_get_property (GObject *object, guint property_id, GVa
 static void copy (QCADObject *src, QCADObject *dst) ;
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
-#ifdef UNDO_REDO
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry) ;
-#else
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget) ;
-#endif /* def UNDO_REDO */
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
@@ -71,10 +58,7 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 #endif /* def STDIO_FILEIO */
 static const char *PostScript_preamble () ;
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
-
-#ifdef GTK_GUI
-static void create_properties_dialog (PROPERTIES *dialog) ;
-#endif /* def GTK_GUI */
+static QCADObject *class_get_default_object () ;
 
 enum
   {
@@ -109,16 +93,28 @@ GType qcad_substrate_get_type ()
 
 static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer data)
   {
+  // Gotta be static so the strings don't die
+  static QCADPropertyUIProperty properties[] =
+    {
+    {NULL,      "title", {0, }},
+    {"spacing", "units", {0, }}
+    } ;
+
+  // substrate.title = "QCA Substrate"
+  g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), "Substrate") ;
+  // substrate.spacing.units = "nm"
+  g_value_set_string (g_value_init (&(properties[1].ui_property_value), G_TYPE_STRING), "nm") ;
+
   DBG_OO (fprintf (stderr, "QCADSubstrate::class_init:Entering\n")) ;
   G_OBJECT_CLASS (klass)->finalize     = qcad_substrate_instance_finalize ;
   G_OBJECT_CLASS (klass)->get_property = qcad_substrate_get_property ;
   G_OBJECT_CLASS (klass)->set_property = qcad_substrate_set_property ;
-  QCAD_OBJECT_CLASS (klass)->copy = copy ;
+  QCAD_OBJECT_CLASS (klass)->copy                     = copy ;
+  QCAD_OBJECT_CLASS (klass)->class_get_default_object = class_get_default_object ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_preamble = PostScript_preamble ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance = PostScript_instance ;
 #ifdef GTK_GUI
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                = draw ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->old_properties      = old_properties ;
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize           = serialize ;
@@ -127,7 +123,9 @@ static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer 
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_SUBSTRATE_PROPERTY_SPACING,
     g_param_spec_double ("spacing", _("Grid Spacing"), _("Grid Spacing [nm]"),
-      1.0, G_MAXDOUBLE, 20.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+      1.0, G_MAXDOUBLE, 10.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
   DBG_OO (fprintf (stderr, "QCADSubstrate::class_init:Leaving\n")) ;
   }
 
@@ -144,6 +142,9 @@ static void qcad_substrate_instance_finalize (GObject *object)
   G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_SUBSTRATE)))->finalize (object) ;
   DBG_OO (fprintf (stderr, "QCADSubstrate::instance_finalize:Leaving\n")) ;
   }
+
+static QCADObject *class_get_default_object ()
+  {return g_object_new (QCAD_TYPE_SUBSTRATE, NULL) ;}
 
 static void qcad_substrate_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
   {
@@ -308,44 +309,6 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
 
   g_object_unref (gc) ;
   }
-
-#ifdef UNDO_REDO
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget, QCADUndoEntry **pentry)
-#else
-static gboolean old_properties (QCADDesignObject *obj, GtkWidget *widget)
-#endif /* def UNDO_REDO */
-  {
-  gboolean bRet = FALSE ;
-  static PROPERTIES dialog = {NULL} ;
-#ifdef UNDO_REDO
-  EXP_ARRAY *state_before = NULL ;
-#endif /* def UNDO_REDO */
-
-  if (NULL == dialog.dlg)
-    create_properties_dialog (&dialog) ;
-
-  gtk_window_set_transient_for (GTK_WINDOW (dialog.dlg), GTK_WINDOW (widget)) ;
-
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (dialog.adjGridSpacing), QCAD_SUBSTRATE (obj)->grid_spacing) ;
-
-  if ((bRet = (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (dialog.dlg)))))
-    {
-#ifdef UNDO_REDO
-    if (NULL != pentry)
-      state_before = qcad_design_object_get_state_array (obj, "spacing", NULL) ;
-#endif /* def UNDO_REDO */
-    QCAD_SUBSTRATE (obj)->grid_spacing = gtk_adjustment_get_value (GTK_ADJUSTMENT (dialog.adjGridSpacing)) ;
-#ifdef UNDO_REDO
-    if (NULL != pentry)
-      (*pentry) = qcad_design_object_get_state_undo_entry (obj, state_before,
-        qcad_design_object_get_state_array (obj, "spacing", NULL)) ;
-#endif /* def UNDO_REDO */
-    }
-
-  gtk_widget_hide (dialog.dlg) ;
-
-  return bRet ;
-  }
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
 static void serialize (QCADDesignObject *obj, FILE *fp)
@@ -409,38 +372,3 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
   return bParentInit ;
   }
 #endif /* STDIO_FILEIO */
-#ifdef GTK_GUI
-static void create_properties_dialog (PROPERTIES *dialog)
-  {
-  GtkWidget *tbl = NULL, *spn = NULL, *lbl = NULL ;
-
-  dialog->dlg = gtk_dialog_new () ;
-  gtk_window_set_title (GTK_WINDOW (dialog->dlg), _("Grid Spacing")) ;
-  gtk_window_set_resizable (GTK_WINDOW (dialog->dlg), FALSE) ;
-
-  tbl = gtk_table_new (1, 2, FALSE) ;
-  gtk_widget_show (tbl) ;
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dlg)->vbox), tbl, TRUE, TRUE, 0) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
-
-  lbl = gtk_label_new (_("Grid Spacing:")) ;
-  gtk_widget_show (lbl) ;
-  gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
-
-  dialog->adjGridSpacing = GTK_ADJUSTMENT (gtk_adjustment_new (1, 0.0001, 10, 0.1, 10, 10)) ;
-  spn = gtk_spin_button_new_infinite (dialog->adjGridSpacing, 0.1, 4, ISB_DIR_UP) ;
-  gtk_widget_show (spn) ;
-  gtk_table_attach (GTK_TABLE (tbl), spn, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-  gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
-
-  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
-  gtk_dialog_add_button (GTK_DIALOG (dialog->dlg), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
-  gtk_dialog_set_default_response (GTK_DIALOG (dialog->dlg), GTK_RESPONSE_OK) ;
-  }
-#endif /* def GTK_GUI */

@@ -36,6 +36,10 @@
 
 #define MAX_SLOPE_DIFF 0.1
 
+typedef struct _INT_IN_LIST_PARAMS INT_IN_LIST_PARAMS ;
+
+typedef void (*PropertyConnectFunction) (GValue *val_src, GValue *val_dst, gpointer data) ;
+
 // General-purpose function to scale one rectangle until it is inscribed in another rectangle
 void fit_rect_inside_rect (double dWidth, double dHeight, double *px, double *py, double *pdRectWidth, double *pdRectHeight) ;
 char *strdup_convert_to_base (long long value, int base) ;
@@ -46,5 +50,22 @@ void RunCmdLineAsync (char *pszCmdLine, char *pszTmpFName) ;
 char *get_enum_string_from_value (GType enum_type, int value) ;
 int get_enum_value_from_string (GType enum_type, char *psz) ;
 double spread_seq (int idx) ;
+
+gboolean connect_object_properties (GObject *src, char *pszSrc, GObject *dst, char *pszDst, PropertyConnectFunction fn_forward, gpointer data_forward, GDestroyNotify destroy_forward, PropertyConnectFunction fn_reverse, gpointer data_reverse, GDestroyNotify destroy_reverse) ;
+void disconnect_object_properties (GObject *src, char *pszSrc, GObject *dst, char *pszDst, PropertyConnectFunction fn_forward, gpointer data_forward, GDestroyNotify destroy_forward, PropertyConnectFunction fn_reverse, gpointer data_reverse, GDestroyNotify destroy_reverse) ;
+
+// val_dst <- val_src
+void CONNECT_OBJECT_PROPERTIES_ASSIGN (GValue *val_src, GValue *val_dst, gpointer data) ;
+
+struct _INT_IN_LIST_PARAMS
+  {
+  int icInts ;
+  int *ints ;
+  } ;
+
+// val_dst <- (int_in_list_p (val_src, (INT_IN_LIST_PARAMS)data) ? TRUE : FALSE)
+void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P (GValue *val_src, GValue *val_dst, gpointer data) ;
+// val_dst <- !val_src
+void CONNECT_OBJECT_PROPERTIES_ASSIGN_INVERT_BOOLEAN (GValue *val_src, GValue *val_dst, gpointer data) ;
 
 #endif /* _GENERIC_UTILS_H_ */

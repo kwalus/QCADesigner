@@ -12,12 +12,13 @@ static void finalize     (GObject *object) ;
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
 static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
 
-static gboolean   set_instance  (QCADPropertyUI *property_ui, GObject *instance) ;
+static gboolean   set_instance  (QCADPropertyUI *property_ui, GObject *new_instance, GObject *old_instance) ;
 static void       set_visible   (QCADPropertyUI *property_ui, gboolean bVisible) ;
-static GtkWidget *get_widget    (QCADPropertyUI *property_ui, int idxX, int idxY) ;
+static GtkWidget *get_widget    (QCADPropertyUI *property_ui, int idxX, int idxY, int *col_span) ;
 static void       set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitive) ;
 
-static void set_pspec (QCADPropertyUISingle *property_ui, GParamSpec *new_pspec) ;
+static void set_pspec    (QCADPropertyUISingle *property_ui, GParamSpec *new_pspec) ;
+static void set_tooltip  (QCADPropertyUISingle *property_ui_single, GtkTooltips *tooltip) ;
 #endif /* def GTK_GUI */
 
 enum
@@ -63,6 +64,7 @@ static void qcad_property_ui_double_class_init (QCADPropertyUIDoubleClass *klass
   QCAD_PROPERTY_UI_CLASS (klass)->get_widget    = get_widget ;
 
   QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_pspec = set_pspec ;
+  QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_tooltip = set_tooltip ;
 #endif /* def GTK_GUI */
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_DOUBLE_PROPERTY_DIGITS,
@@ -102,7 +104,7 @@ static void qcad_property_ui_double_instance_init (QCADPropertyUIDouble *propert
 #ifdef GTK_GUI
 static void finalize (GObject *object)
   {
-  set_instance (QCAD_PROPERTY_UI (object), NULL) ;
+  set_instance (QCAD_PROPERTY_UI (object), NULL, QCAD_PROPERTY_UI (object)->instance) ;
 
   g_object_unref (QCAD_PROPERTY_UI_DOUBLE (object)->spn.widget) ;
 
@@ -137,14 +139,16 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
     }
   }
 
-static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY)
+static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY, int *col_span)
   {
   QCADPropertyUIDouble *property_ui_double = QCAD_PROPERTY_UI_DOUBLE (property_ui) ;
+
+  (*col_span) = 1 ;
 
   if (idxX == property_ui_double->spn.idxX && idxY == property_ui_double->spn.idxY)
     return property_ui_double->spn.widget ;
 
-  return QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_DOUBLE)))->get_widget (property_ui, idxX, idxY) ;
+  return QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_DOUBLE)))->get_widget (property_ui, idxX, idxY, col_span) ;
   }
 
 static void set_pspec (QCADPropertyUISingle *property_ui, GParamSpec *new_pspec)
@@ -168,24 +172,25 @@ static void set_pspec (QCADPropertyUISingle *property_ui, GParamSpec *new_pspec)
   QCAD_PROPERTY_UI_SINGLE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_DOUBLE)))->set_pspec (property_ui, new_pspec) ;
   }
 
-static gboolean set_instance (QCADPropertyUI *property_ui, GObject *instance)
+static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance, GObject *old_instance)
   {
-  GObject *old_instance = property_ui->instance ;
   QCADPropertyUIDouble *property_ui_double = QCAD_PROPERTY_UI_DOUBLE (property_ui) ;
   QCADPropertyUISingle *property_ui_single = QCAD_PROPERTY_UI_SINGLE (property_ui) ;
 
-  if (QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_DOUBLE)))->set_instance (property_ui, instance))
+  if (QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_DOUBLE)))->set_instance (property_ui, new_instance, old_instance))
     if (NULL != property_ui_single->pspec)
       {
       if (NULL != old_instance)
-        disconnect_object_properties (old_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_double->adj), "value", NULL, NULL, NULL, NULL, NULL, NULL) ;
-
-      if (NULL != instance)
-        {
-        connect_object_properties (instance, property_ui_single->pspec->name, G_OBJECT (property_ui_double->adj), "value", 
+        disconnect_object_properties (old_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_double->adj), "value", 
           CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL, 
           CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
-        g_object_notify (instance, property_ui_single->pspec->name) ;
+
+      if (NULL != new_instance)
+        {
+        connect_object_properties (new_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_double->adj), "value", 
+          CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL, 
+          CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
+        g_object_notify (new_instance, property_ui_single->pspec->name) ;
         }
       return TRUE ;
       }
@@ -202,5 +207,13 @@ static void set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitive)
   {
   QCAD_PROPERTY_UI_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_DOUBLE)))->set_sensitive (property_ui, bSensitive) ;
   gtk_widget_set_sensitive (QCAD_PROPERTY_UI_DOUBLE (property_ui)->spn.widget, bSensitive) ;
+  }
+
+static void set_tooltip (QCADPropertyUISingle *property_ui_single, GtkTooltips *tooltip)
+  {
+  QCAD_PROPERTY_UI_SINGLE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_DOUBLE)))->set_tooltip (property_ui_single, tooltip) ;
+
+  if (NULL != property_ui_single->pspec)
+    gtk_tooltips_set_tip (tooltip, QCAD_PROPERTY_UI_DOUBLE (property_ui_single)->spn.widget, g_param_spec_get_nick (property_ui_single->pspec), g_param_spec_get_blurb (property_ui_single->pspec)) ;
   }
 #endif /* def GTK_GUI */

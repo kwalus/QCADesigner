@@ -337,7 +337,11 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *dlg, gpointer data
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
 
+#ifdef HAVE_LIBRSVG
+  widget = create_pixmap (GTK_WIDGET (dlg), "portrait.svg") ;
+#else
   widget = create_pixmap (GTK_WIDGET (dlg), "portrait.png") ;
+#endif /* def HAVE_LIBRSVG */
   gtk_widget_show (widget) ;
   gtk_table_attach (GTK_TABLE (tblFm), widget, 1, 2, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
@@ -350,7 +354,11 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *dlg, gpointer data
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
 
+#ifdef HAVE_LIBRSVG
+  widget = create_pixmap (GTK_WIDGET (dlg), "landscape.svg") ;
+#else
   widget = create_pixmap (GTK_WIDGET (dlg), "landscape.png") ;
+#endif /* def HAVE_LIBRSVG */
   gtk_widget_show (widget) ;
   gtk_table_attach (GTK_TABLE (tblFm), widget, 1, 2, 1, 2,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),

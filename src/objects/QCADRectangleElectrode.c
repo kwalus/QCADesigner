@@ -161,8 +161,8 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
     g_param_spec_double ("height", _("Electrode Height"), _("Electrode Height"),
       0.1, 1e9, 40.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
-  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RECTANGLE_ELECTRODE_PROPERTY_X_DOTS,
-    g_param_spec_uint ("x-dots", _("")
+//  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RECTANGLE_ELECTRODE_PROPERTY_X_DOTS,
+//    g_param_spec_uint ("x-dots", _("")
   }
 
 static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer data)

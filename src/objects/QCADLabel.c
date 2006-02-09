@@ -71,7 +71,11 @@ extern GdkColor clrBlue ;
 
 enum
   {
-  QCAD_LABEL_PROPERTY_TEXT=1
+  QCAD_LABEL_PROPERTY_FIRST=1,
+
+  QCAD_LABEL_PROPERTY_TEXT,
+
+  QCAD_LABEL_PROPERTY_LAST
   } ;
 
 GType qcad_label_get_type ()

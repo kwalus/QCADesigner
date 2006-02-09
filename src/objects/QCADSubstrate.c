@@ -62,7 +62,11 @@ static QCADObject *class_get_default_object () ;
 
 enum
   {
-  QCAD_SUBSTRATE_PROPERTY_SPACING = 1
+  QCAD_SUBSTRATE_PROPERTY_FIRST=1,
+
+  QCAD_SUBSTRATE_PROPERTY_SPACING,
+
+  QCAD_SUBSTRATE_PROPERTY_LAST
   } ;
 
 GType qcad_substrate_get_type ()
@@ -153,8 +157,14 @@ static void qcad_substrate_set_property (GObject *object, guint property_id, con
   switch (property_id)
     {
     case QCAD_SUBSTRATE_PROPERTY_SPACING:
-      subs->grid_spacing = g_value_get_double (value) ;
+      {
+      double new_spacing = g_value_get_double (value) ;
+
+      if (new_spacing == subs->grid_spacing) break ;
+      subs->grid_spacing = new_spacing ;
+      g_object_notify (object, "spacing") ;
       break ;
+      }
     }
   }
 

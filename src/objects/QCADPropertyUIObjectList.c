@@ -163,10 +163,11 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance
           pui = qcad_property_ui_group_new (G_OBJECT (llItr->data), "render-as", GTK_TYPE_FRAME, "visible", FALSE, NULL) ;
           property_ui_object_list->llPUIs = g_list_prepend (property_ui_object_list->llPUIs, pui) ;
 
+          // Initially, set the title to the type name
           pszTitle = (char *)g_type_name (G_TYPE_FROM_INSTANCE (llItr->data)) ;
 
-          // Try to find a nice name for the list entry by checking whether the type sets the title for its
-          // QCADPropertyUIGroup
+          // However, we should try to find a nice name for the list entry by checking whether the type sets 
+          // the title for its QCADPropertyUIGroup
           if (QCAD_IS_OBJECT (llItr->data))
             if (NULL != (property_ui_properties = QCAD_OBJECT_GET_CLASS (llItr->data)->property_ui_properties))
               for (Nix = 0 ; Nix < property_ui_properties->icUsed ; Nix++)

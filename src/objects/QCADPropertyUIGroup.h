@@ -23,6 +23,7 @@ struct _QCADPropertyUIGroup
 #ifdef GTK_GUI
   GtkWidget *tbl ;
   QCADPropertyUIWidget frm ;
+  QCADPropertyUIWidget xpd ;
   QCADPropertyUIWidget dlg ;
   QCADPropertyUIWidget btn ;
 #endif /* def GTK_GUI */

@@ -108,7 +108,7 @@ static void qcad_property_ui_group_class_init (QCADPropertyUIGroupClass *klass)
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_GROUP_PROPERTY_RENDER_AS,
     qcad_param_spec_type_list ("render-as", _("Render As"), _("Render as widget"),
-      GTK_TYPE_DIALOG, G_PARAM_READABLE | G_PARAM_WRITABLE, 0, GTK_TYPE_DIALOG, GTK_TYPE_BUTTON, GTK_TYPE_FRAME, 0)) ;
+      GTK_TYPE_DIALOG, G_PARAM_READABLE | G_PARAM_WRITABLE, 0, GTK_TYPE_DIALOG, GTK_TYPE_BUTTON, GTK_TYPE_FRAME, GTK_TYPE_EXPANDER, 0)) ;
 #endif /* def GTK_GUI */
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_GROUP_PROPERTY_TITLE,
@@ -131,7 +131,15 @@ static void qcad_property_ui_group_instance_init (QCADPropertyUIGroup *property_
   property_ui_group->frm.idxX   = 0 ;
   property_ui_group->frm.idxY   = 0 ;
 
+  property_ui_group->xpd.widget = gtk_expander_new (NULL) ;
+  g_object_ref (G_OBJECT (property_ui_group->xpd.widget)) ;
+  gtk_widget_show (property_ui_group->xpd.widget) ;
+  gtk_container_set_border_width (GTK_CONTAINER (property_ui_group->xpd.widget), 2) ;
+  property_ui_group->frm.idxX   = 0 ;
+  property_ui_group->frm.idxY   = 0 ;
+
   property_ui_group->dlg.widget = gtk_dialog_new () ;
+  gtk_window_set_resizable (GTK_WINDOW (property_ui_group->dlg.widget), FALSE) ;
   g_object_ref (G_OBJECT (property_ui_group->dlg.widget)) ;
   property_ui_group->frm.idxX   = 0 ;
   property_ui_group->frm.idxY   = 0 ;
@@ -168,6 +176,7 @@ static void finalize (GObject *object)
 #ifdef GTK_GUI
   g_object_unref (G_OBJECT (property_ui_group->tbl)) ;
   g_object_unref (G_OBJECT (property_ui_group->frm.widget)) ;
+  g_object_unref (G_OBJECT (property_ui_group->xpd.widget)) ;
   g_object_unref (G_OBJECT (property_ui_group->dlg.widget)) ;
   g_object_unref (G_OBJECT (property_ui_group->btn.widget)) ;
 #endif /* def GTK_GUI */
@@ -190,9 +199,10 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
       if (NULL != property_ui_group->pszTitle)
         g_free (property_ui_group->pszTitle) ;
       property_ui_group->pszTitle = g_strdup (g_value_get_string (value)) ;
-      gtk_frame_set_label  (GTK_FRAME  (property_ui_group->frm.widget), property_ui_group->pszTitle) ;
-      gtk_window_set_title (GTK_WINDOW (property_ui_group->dlg.widget), property_ui_group->pszTitle) ;
-      gtk_button_set_label (GTK_BUTTON (property_ui_group->btn.widget), property_ui_group->pszTitle) ;
+      gtk_frame_set_label    (GTK_FRAME    (property_ui_group->frm.widget), property_ui_group->pszTitle) ;
+      gtk_expander_set_label (GTK_EXPANDER (property_ui_group->xpd.widget), property_ui_group->pszTitle) ;
+      gtk_window_set_title   (GTK_WINDOW   (property_ui_group->dlg.widget), property_ui_group->pszTitle) ;
+      gtk_button_set_label   (GTK_BUTTON   (property_ui_group->btn.widget), property_ui_group->pszTitle) ;
       g_object_notify (object, "title") ;
       break ;
     }
@@ -244,6 +254,15 @@ static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY, i
       }
     }
   else
+  if (GTK_TYPE_EXPANDER == property_ui_group->render_as)
+    {
+    if (idxX == property_ui_group->xpd.idxX && idxY == property_ui_group->xpd.idxY)
+      {
+      (*col_span) = -1 ;
+      return property_ui_group->xpd.widget ;
+      }
+    }
+  else
   if (GTK_TYPE_BUTTON == property_ui_group->render_as)
     {
     if (idxX == property_ui_group->btn.idxX && idxY == property_ui_group->btn.idxY)
@@ -269,6 +288,9 @@ static void set_visible (QCADPropertyUI *property_ui, gboolean bVisible)
   if (GTK_TYPE_BUTTON == property_ui_group->render_as)
     GTK_WIDGET_SET_VISIBLE (property_ui_group->btn.widget, bVisible) ;
   else
+  if (GTK_TYPE_EXPANDER == property_ui_group->render_as)
+    GTK_WIDGET_SET_VISIBLE (property_ui_group->xpd.widget, bVisible) ;
+  else
   if (GTK_TYPE_DIALOG == property_ui_group->render_as)
     GTK_WIDGET_SET_VISIBLE (property_ui_group->dlg.widget, bVisible) ;
   else
@@ -287,6 +309,9 @@ static void set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitive)
   else
   if (GTK_TYPE_BUTTON == property_ui_group->render_as)
     gtk_widget_set_sensitive (property_ui_group->btn.widget, bSensitive) ;
+  else
+  if (GTK_TYPE_EXPANDER == property_ui_group->render_as)
+    gtk_widget_set_sensitive (property_ui_group->xpd.widget, bSensitive) ;
   else
   if (GTK_TYPE_DIALOG == property_ui_group->render_as)
     gtk_widget_set_sensitive (property_ui_group->dlg.widget, bSensitive) ;
@@ -374,6 +399,9 @@ static void qcad_property_ui_group_set_render_as (QCADPropertyUIGroup *property_
     else
     if (GTK_TYPE_FRAME == new_type)
       gtk_container_add (GTK_CONTAINER (property_ui_group->frm.widget), property_ui_group->tbl) ;
+    else
+    if (GTK_TYPE_EXPANDER == new_type)
+      gtk_container_add (GTK_CONTAINER (property_ui_group->xpd.widget), property_ui_group->tbl) ;
     g_object_unref (property_ui_group->tbl) ;
     }
 

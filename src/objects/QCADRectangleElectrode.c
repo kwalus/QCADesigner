@@ -54,12 +54,26 @@ static struct { ClockFunction clock_function ; char *pszDescription ; } clock_fu
   {
   {sin, "sin"}
   } ;
-
 int n_clock_functions = G_N_ELEMENTS (clock_functions) ;
+
+enum
+  {
+  QCAD_RECTANGLE_ELECTRODE_FIRST=1,
+
+  QCAD_RECTANGLE_ELECTRODE_PROPERTY_CX,
+  QCAD_RECTANGLE_ELECTRODE_PROPERTY_CY,
+  QCAD_RECTANGLE_ELECTRODE_PROPERTY_X_DOTS,
+  QCAD_RECTANGLE_ELECTRODE_PROPERTY_Y_DOTS,
+
+  QCAD_RECTANGLE_ELECTRODE_LAST
+  } ;
 
 static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer data) ;
-static void qcad_rectangle_electrode_instance_finalize (GObject *object) ;
+
+static void finalize     (GObject *object) ;
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
+static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
 
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
@@ -106,16 +120,24 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   // Gotta be static so the strings don't die
   static QCADPropertyUIProperty properties[] =
     {
-    {NULL, "title", {0, }}
+    {NULL,     "title", {0, }},
+    {"width",  "units", {0, }},
+    {"height", "units", {0, }},
     } ;
 
   // RectangleElectrode.title = "QCA Rectangular Electrode"
   g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), _("QCA Rectangular Electrode")) ;
+  // RectangleElectrode.width.units = "nm"
+  g_value_set_string (g_value_init (&(properties[1].ui_property_value), G_TYPE_STRING), "nm") ;
+  // RectangleElectrode.height.units = "nm"
+  g_value_set_string (g_value_init (&(properties[2].ui_property_value), G_TYPE_STRING), "nm") ;
 
   qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
 
   DBG_OO (fprintf (stderr, "QCADRectangleElectrode::class_init:Leaving\n")) ;
-  G_OBJECT_CLASS (klass)->finalize = qcad_rectangle_electrode_instance_finalize ;
+  G_OBJECT_CLASS (klass)->finalize     = finalize ;
+  G_OBJECT_CLASS (klass)->set_property = set_property ;
+  G_OBJECT_CLASS (klass)->get_property = get_property ;
   QCAD_OBJECT_CLASS (klass)->copy                     = copy ;
   QCAD_OBJECT_CLASS (klass)->class_get_default_object = class_get_default_object ;
 #ifdef GTK_GUI
@@ -130,6 +152,17 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   QCAD_ELECTRODE_CLASS (klass)->get_area          = get_area ;
   QCAD_ELECTRODE_CLASS (klass)->precompute        = precompute ;
   QCAD_ELECTRODE_CLASS (klass)->extreme_potential = extreme_potential ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RECTANGLE_ELECTRODE_PROPERTY_CX,
+    g_param_spec_double ("width", _("Electrode Width"), _("Electrode Width"),
+      0.1, 1e9,  6.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RECTANGLE_ELECTRODE_PROPERTY_CY,
+    g_param_spec_double ("height", _("Electrode Height"), _("Electrode Height"),
+      0.1, 1e9, 40.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RECTANGLE_ELECTRODE_PROPERTY_X_DOTS,
+    g_param_spec_uint ("x-dots", _("")
   }
 
 static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer data)
@@ -147,7 +180,7 @@ static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer da
   DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Leaving\n")) ;
   }
 
-static void qcad_rectangle_electrode_instance_finalize (GObject *object)
+static void finalize (GObject *object)
   {
   DBG_OO (fprintf (stderr, "QCADElectrode::instance_finalize:Entering\n")) ;
   G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->finalize (object) ;
@@ -191,6 +224,52 @@ static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z)
     p_over_two_pi_f - one_over_four_f) ;
 
   return ret ;
+  }
+
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+  {
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (object) ;
+
+  switch (property_id)
+    {
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_CX:
+      {
+      double new_cx = g_value_get_double (value) ;
+
+      if (new_cx == rc_electrode->cxWorld) break ;
+      rc_electrode->cxWorld = new_cx ;
+      precompute (QCAD_ELECTRODE (object)) ;
+      g_object_notify (object, "width") ;
+      break ;
+      }
+
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_CY:
+      {
+      double new_cy = g_value_get_double (value) ;
+
+      if (new_cy == rc_electrode->cyWorld) break ;
+      rc_electrode->cyWorld = new_cy ;
+      precompute (QCAD_ELECTRODE (object)) ;
+      g_object_notify (object, "height") ;
+      break ;
+      }
+    }
+  }
+
+static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+  {
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (object) ;
+
+  switch (property_id)
+    {
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_CX:
+      g_value_set_double (value, rc_electrode->cxWorld) ;
+      break ;
+
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_CY:
+      g_value_set_double (value, rc_electrode->cyWorld) ;
+      break ;
+    }
   }
 
 static void serialize (QCADDesignObject *obj, FILE *fp)
@@ -374,6 +453,7 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
   }
 #endif /* def GTK_GUI */
 
+/*
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t)
   {
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
@@ -401,6 +481,37 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
       }
 
   return potential ;
+  }
+*/
+
+static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t)
+  {
+  QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
+  int Nix, Nix1 ;
+  double z_sq, rho, cz_mirror_sq, cx, cy, cx_sq_plus_cy_sq, potential = 0 ;
+
+  if (z < 0 || NULL == electrode) return 0 ;
+
+  z_sq = z * z ;
+  rho = rc_electrode->precompute_params.rho_factor * qcad_electrode_get_voltage (electrode, t) ;
+  cz_mirror_sq = electrode->precompute_params.two_z_to_ground - z ;
+  cz_mirror_sq *= cz_mirror_sq ;
+  
+  for (Nix = 0 ; Nix < rc_electrode->n_x_divisions ; Nix++)
+    for (Nix1 = 0 ; Nix1 < rc_electrode->n_y_divisions ; Nix1++)
+      {
+      cx = x - exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).xWorld ;
+      cy = y - exp_array_index_2d (rc_electrode->precompute_params.pts, WorldPoint, Nix1, Nix).yWorld ;
+      cx_sq_plus_cy_sq = cx * cx + cy * cy ;
+
+      // The multiplication by 1e9 has moved into the calculation of the rho_factor in precompute
+      // and is now part of rho, which is multiplied into the potential at the end
+      potential +=
+        ((1.0 / sqrt (cx_sq_plus_cy_sq +     z_sq    )) - 
+         (1.0 / sqrt (cx_sq_plus_cy_sq + cz_mirror_sq))) ;
+      }
+
+  return ((rho * potential) / (FOUR_PI * electrode->precompute_params.permittivity)) ;
   }
 
 static double get_area (QCADElectrode *electrode)
@@ -506,7 +617,8 @@ static void precompute (QCADElectrode *electrode)
   for (Nix = 0 ; Nix < rc_electrode->n_y_divisions ; Nix++)
     exp_array_insert_vals (rc_electrode->precompute_params.pts, NULL, rc_electrode->n_x_divisions, 2, -1, 0) ;
 
-  rc_electrode->precompute_params.rho_factor = QCAD_ELECTRODE (rc_electrode)->precompute_params.capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;
+  // This is a faaar better place to multiply by 1e9 than get_potential
+  rc_electrode->precompute_params.rho_factor = 1e9 * QCAD_ELECTRODE (rc_electrode)->precompute_params.capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;
   pt1x_minus_pt0x = rc_electrode->precompute_params.pt[1].xWorld - rc_electrode->precompute_params.pt[0].xWorld ;
   pt1y_minus_pt0y = rc_electrode->precompute_params.pt[1].yWorld - rc_electrode->precompute_params.pt[0].yWorld ;
   pt3x_minus_pt2x = rc_electrode->precompute_params.pt[3].xWorld - rc_electrode->precompute_params.pt[2].xWorld ;

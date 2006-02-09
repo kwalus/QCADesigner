@@ -126,14 +126,18 @@ enum
 
 enum
   {
-  QCAD_CELL_PROPERTY_FUNCTION = 1,
+  QCAD_CELL_PROPERTY_FIRST=1,
+
+  QCAD_CELL_PROPERTY_FUNCTION,
   QCAD_CELL_PROPERTY_CLOCK,
   QCAD_CELL_PROPERTY_MODE,
   QCAD_CELL_PROPERTY_LABEL,
   QCAD_CELL_PROPERTY_POLARIZATION,
   QCAD_CELL_PROPERTY_CX,
   QCAD_CELL_PROPERTY_CY,
-  QCAD_CELL_PROPERTY_DOT_DIAM
+  QCAD_CELL_PROPERTY_DOT_DIAM,
+
+  QCAD_CELL_PROPERTY_LAST
   } ;
 
 static guint qcad_cell_signals[QCAD_CELL_LAST_SIGNAL] = {0} ;
@@ -1412,6 +1416,8 @@ void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function)
   {
   QCADCellFunction old_function = cell->cell_function ;
 
+  if (old_function == function) return ;
+
   cell->cell_function = function ;
   if (QCAD_CELL_NORMAL == function)
     {
@@ -1484,9 +1490,13 @@ void qcad_cell_scale (QCADCell *cell, double dScale, double dxOrigin, double dyO
 
 void qcad_cell_set_clock (QCADCell *cell, int iClock)
   {
+  if (cell->cell_options.clock == iClock) return ;
+
   cell->cell_options.clock = iClock ;
   if (QCAD_CELL_NORMAL == cell->cell_function)
     memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &(clrClock[iClock]), sizeof (GdkColor)) ;
+
+  g_object_notify (G_OBJECT (cell), "clock") ;
   }
 
 void qcad_cell_set_label (QCADCell *cell, char *pszLabel)

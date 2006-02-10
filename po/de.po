@@ -1327,7 +1327,7 @@ msgid "Starting Simulation\n"
 msgstr "Simulation beginnt\n"
 
 msgid "Total initialization time: %g s\n"
-msgstr "Gesamtinitialisationslaufzeit: %g s\n"
+msgstr "Gesamtinitialisationsdauer: %g s\n"
 
 #~ msgid ""
 #~ "<big><span foreground=\"red\"><b>Note:</b></span> Right-click the vector "

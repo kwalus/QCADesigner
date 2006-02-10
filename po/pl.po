@@ -1,0 +1,1253 @@
+msgid "(null)"
+msgstr ""
+
+msgid "1 nm is"
+msgstr ""
+
+msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
+msgstr ""
+
+msgid "About QCADesigner"
+msgstr "Informacje o QCADesigner"
+
+msgid "About..."
+msgstr "Informacje o..."
+
+msgid "Active"
+msgstr ""
+
+msgid "Add Cell Array"
+msgstr ""
+
+msgid "Add Cell To Design"
+msgstr ""
+
+msgid "Add Layer to Design"
+msgstr ""
+
+msgid "Add Layer"
+msgstr ""
+
+msgid "Add Vector"
+msgstr ""
+
+msgid "Add horizontal or vertical arrays of cells to your design."
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Adds a layer to your design."
+msgstr ""
+
+msgid "Algorithm"
+msgstr ""
+
+msgid "Alt Style"
+msgstr ""
+
+msgid "Alternate Drawing Style"
+msgstr ""
+
+msgid "Amount to modify value by"
+msgstr ""
+
+msgid "Amplitude"
+msgstr ""
+
+msgid "An autosave file more recent than the file you are opening seems to be present.  Load it instead ?"
+msgstr ""
+
+msgid "Animate"
+msgstr ""
+
+msgid "Apend a vector to the end of the table."
+msgstr ""
+
+msgid "Array"
+msgstr ""
+
+msgid "Attempt all possible inputs."
+msgstr ""
+
+msgid "Binary"
+msgstr ""
+
+msgid "Bistable Options"
+msgstr ""
+
+msgid "Bistable simulation:"
+msgstr ""
+
+msgid "Bottom Margin:"
+msgstr ""
+
+msgid "Bring various parts of the design into view by dragging visible parts of the design out of view."
+msgstr ""
+
+msgid "Browse..."
+msgstr ""
+
+msgid "Bus Layout"
+msgstr ""
+
+msgid "Bus Name:"
+msgstr ""
+
+msgid "Calculates and sets the magnification such that the currently topmost layer fits inside the window."
+msgstr ""
+
+msgid "Calculates and sets the magnification such that your design fits inside the window."
+msgstr ""
+
+msgid "Cannot %s the layer at this time.\n\nPlease ensure that your selection can be dropped before attempting to %s a layer."
+msgstr ""
+
+msgid "Cannot print without having a %s to print to!"
+msgstr ""
+
+msgid "Cannot simulate with an empty vector table !"
+msgstr ""
+
+msgid "Cannot zoom to the design extents, because the design is empty"
+msgstr ""
+
+msgid "Cannot zoom to the layer extents, because the design is empty"
+msgstr ""
+
+msgid "Cell Clock"
+msgstr ""
+
+msgid "Cell Drawing Mode"
+msgstr ""
+
+msgid "Cell Elevation:"
+msgstr ""
+
+msgid "Cell Function:Normal/Input/Output/Fixed"
+msgstr ""
+
+msgid "Cell Height"
+msgstr ""
+
+msgid "Cell Height:"
+msgstr ""
+
+msgid "Cell Label"
+msgstr ""
+
+msgid "Cell Polarization"
+msgstr ""
+
+msgid "Cell Width"
+msgstr ""
+
+msgid "Cell"
+msgstr ""
+
+msgid "Cells And Buses"
+msgstr ""
+
+msgid "Center On Pages"
+msgstr ""
+
+msgid "Center"
+msgstr ""
+
+msgid "Centimeters"
+msgstr "Centymetry"
+
+msgid "Change the order of layers in your design."
+msgstr ""
+
+msgid "Click here, then click on the design to add cells to it."
+msgstr ""
+
+msgid "Click on a cell to rotate it (repeatedly)."
+msgstr ""
+
+msgid "Click on any selected destination layer to change it:"
+msgstr ""
+
+msgid "Clock 0"
+msgstr ""
+
+msgid "Clock 1"
+msgstr ""
+
+msgid "Clock 2"
+msgstr ""
+
+msgid "Clock 3"
+msgstr ""
+
+msgid "Clock Amplitude Factor:"
+msgstr ""
+
+msgid "Clock DC offset"
+msgstr ""
+
+msgid "Clock High"
+msgstr ""
+
+msgid "Clock High:"
+msgstr ""
+
+msgid "Clock Low"
+msgstr ""
+
+msgid "Clock Low:"
+msgstr ""
+
+msgid "Clock Shift:"
+msgstr ""
+
+msgid "Clock amplitude"
+msgstr ""
+
+msgid "Clock frequency"
+msgstr ""
+
+msgid "Clock phase"
+msgstr ""
+
+msgid "Clock"
+msgstr ""
+
+msgid "Close Window"
+msgstr ""
+
+msgid "Close simulation results window."
+msgstr ""
+
+msgid "Close the project file"
+msgstr ""
+
+msgid "Close vector table editor."
+msgstr ""
+
+msgid "Close"
+msgstr "Zamknij"
+
+msgid "Coherence Vector Options"
+msgstr ""
+
+msgid "Command Line"
+msgstr ""
+
+msgid "Command"
+msgstr ""
+
+msgid "Command:"
+msgstr ""
+
+msgid "Common Paper Sizes"
+msgstr ""
+
+msgid "Contents"
+msgstr "Zawartość"
+
+msgid "Contributers:"
+msgstr ""
+
+msgid "Convergence Tolerance:"
+msgstr ""
+
+msgid "Converts graphs to PostScript and prints them to a file or a printer."
+msgstr ""
+
+msgid "Converts graphs to PostScript and runs the previewer application."
+msgstr ""
+
+msgid "Copy Selection"
+msgstr ""
+
+msgid "Copy"
+msgstr "Skopiuj"
+
+msgid "Could not locate file \"%s\"."
+msgstr ""
+
+msgid "Couldn't find pixmap file: %s"
+msgstr ""
+
+msgid "Create Bus"
+msgstr ""
+
+msgid "Create Label"
+msgstr ""
+
+msgid "Create New..."
+msgstr ""
+
+msgid "Create Substrate"
+msgstr ""
+
+msgid "Create a mirrored copy of your selection."
+msgstr ""
+
+msgid "Create a new project file"
+msgstr ""
+
+msgid "Create a sequence of inputs."
+msgstr ""
+
+msgid "Creates a new label."
+msgstr ""
+
+msgid "Creates a new rectangular electrode."
+msgstr ""
+
+msgid "Creates a new rectangular substrate."
+msgstr ""
+
+msgid "Crossover"
+msgstr ""
+
+msgid "Custom"
+msgstr "Dowolny"
+
+msgid "DC Offset"
+msgstr ""
+
+msgid "Decimal"
+msgstr ""
+
+msgid "Decrease The Magnification"
+msgstr ""
+
+msgid "Decrease the magnification to get an overall picture."
+msgstr ""
+
+msgid "Default Objects"
+msgstr ""
+
+msgid "Delete Bus"
+msgstr ""
+
+msgid "Delete Vector"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Design"
+msgstr ""
+
+msgid "Destination Layer"
+msgstr ""
+
+msgid "Diameter of the quantum dot"
+msgstr ""
+
+msgid "Digital Interpretation Options"
+msgstr ""
+
+msgid "Digital Interpretation"
+msgstr ""
+
+msgid "Digits"
+msgstr ""
+
+msgid "Display honeycomb values in binary."
+msgstr ""
+
+msgid "Display honeycomb values in decimal."
+msgstr ""
+
+msgid "Display honeycomb values in hexadecimal."
+msgstr ""
+
+msgid "Display property label"
+msgstr ""
+
+msgid "Display the cell sensitive"
+msgstr ""
+
+msgid "Distance To Ground:"
+msgstr ""
+
+msgid "Distance from clocking layer to ground electrode"
+msgstr ""
+
+msgid "Distance from clocking layer to show the cross-section for"
+msgstr ""
+
+msgid "Distance from electrode to ground electrode"
+msgstr ""
+
+msgid "Distance from layer"
+msgstr ""
+
+msgid "Distance to ground"
+msgstr ""
+
+msgid "Distance"
+msgstr ""
+
+msgid "Distribution Layer"
+msgstr ""
+
+msgid "Do Not Center"
+msgstr ""
+
+msgid "Document Options"
+msgstr ""
+
+msgid "Don't save"
+msgstr "Nie zapisz"
+
+msgid "Dot Diameter"
+msgstr ""
+
+msgid "Down, then over"
+msgstr ""
+
+msgid "Download free version of QCADesigner from:"
+msgstr ""
+
+msgid "Drag and drop layers to their new location:"
+msgstr ""
+
+msgid "Drawing Layer"
+msgstr ""
+
+msgid "Electrode Angle"
+msgstr ""
+
+msgid "Electrode Height"
+msgstr ""
+
+msgid "Electrode Width"
+msgstr ""
+
+msgid "Enable Property UI"
+msgstr ""
+
+msgid "Enter Scale Factor"
+msgstr ""
+
+msgid "Exhaustive Verification"
+msgstr ""
+
+msgid "Exhaustive"
+msgstr ""
+
+msgid "Export Block"
+msgstr ""
+
+msgid "Extents"
+msgstr ""
+
+msgid "Failed to create file \"%s\" !"
+msgstr ""
+
+msgid "Failed to open autosave file!"
+msgstr ""
+
+msgid "Failed to open file \"%s\"!"
+msgstr ""
+
+msgid "Failed to open simulation data file %s !\n"
+msgstr ""
+
+msgid "Failed to open vector table file \"%s\"!"
+msgstr ""
+
+msgid "Failed to save vector table file \"%s\"!"
+msgstr ""
+
+msgid "File Name:"
+msgstr ""
+
+msgid "File \"%s\" contains fewer inputs than the current vector table. Padding with zeroes."
+msgstr ""
+
+msgid "File \"%s\" contains more inputs than the current design. Truncating."
+msgstr ""
+
+msgid "File \"%s\" does not appear to be a vector table file !"
+msgstr ""
+
+msgid "File opened in %.2lf seconds\n"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "Fit Design To Window"
+msgstr ""
+
+msgid "Fit Layer To Window"
+msgstr ""
+
+msgid "Fit"
+msgstr ""
+
+msgid "Fixed"
+msgstr ""
+
+msgid "Frequency"
+msgstr ""
+
+msgid "Function"
+msgstr ""
+
+msgid "Grid Spacing [nm]"
+msgstr ""
+
+msgid "Grid Spacing"
+msgstr ""
+
+msgid "Group individual input and output cells into buses."
+msgstr ""
+
+msgid "Hex"
+msgstr ""
+
+msgid "Horizontal:"
+msgstr ""
+
+msgid "Horizontally"
+msgstr ""
+
+msgid "I_ncrement Cell Clocks"
+msgstr ""
+
+msgid "Icon to display when checked"
+msgstr ""
+
+msgid "Icon to display when unchecked"
+msgstr ""
+
+msgid "Import Block"
+msgstr ""
+
+msgid "Import"
+msgstr ""
+
+msgid "Inches"
+msgstr "Cale"
+
+msgid "Increase The Magnification"
+msgstr ""
+
+msgid "Increase the magnification so you may concentrate on specific parts of the design."
+msgstr ""
+
+msgid "Increment"
+msgstr ""
+
+msgid "Inputs"
+msgstr ""
+
+msgid "Insert Before"
+msgstr ""
+
+msgid "Insert Vector Before"
+msgstr ""
+
+msgid "Insert the selected vector."
+msgstr ""
+
+msgid "Insert vector before the selected one."
+msgstr ""
+
+msgid "Interpretation..."
+msgstr ""
+
+msgid "Label text"
+msgstr ""
+
+msgid "Label"
+msgstr ""
+
+msgid "Landscape"
+msgstr "Poziomo"
+
+msgid "Layer Description"
+msgstr ""
+
+msgid "Layer Description:"
+msgstr ""
+
+msgid "Layer Order"
+msgstr ""
+
+msgid "Layer Properties"
+msgstr ""
+
+msgid "Layer Properties..."
+msgstr ""
+
+msgid "Layer Separation:"
+msgstr ""
+
+msgid "Layer Status:"
+msgstr ""
+
+msgid "Layer Type:"
+msgstr ""
+
+msgid "Layer"
+msgstr ""
+
+msgid "Layers"
+msgstr ""
+
+msgid "Left Margin:"
+msgstr ""
+
+msgid "List of default objects"
+msgstr ""
+
+msgid "Lists the layers in the current design and allows you to switch between them."
+msgstr ""
+
+msgid "Lower Threshold [0]:"
+msgstr ""
+
+msgid "Main Cell Layer"
+msgstr ""
+
+msgid "Make Cell(s) Less Significant"
+msgstr ""
+
+msgid "Make Cell(s) More Significant"
+msgstr ""
+
+msgid "Make Selections And Manipulate Design"
+msgstr ""
+
+msgid "Makes a copy of your selection."
+msgstr ""
+
+msgid "Map Layers"
+msgstr ""
+
+msgid "Margins"
+msgstr ""
+
+msgid "Maximum Iterations Per Sample:"
+msgstr ""
+
+msgid "Maximum clock voltage"
+msgstr ""
+
+msgid "Measure Distance"
+msgstr ""
+
+msgid "Measure the distance from a given point"
+msgstr ""
+
+msgid "Minimum clock voltage"
+msgstr ""
+
+msgid "Mirror Selection"
+msgstr ""
+
+msgid "Mirror"
+msgstr ""
+
+msgid "Mode"
+msgstr ""
+
+msgid "Modify the settings for the current layer."
+msgstr ""
+
+msgid "Move Bus Down"
+msgstr ""
+
+msgid "Move Bus Up"
+msgstr ""
+
+msgid "New Layer"
+msgstr ""
+
+msgid "Normal"
+msgstr ""
+
+msgid "Note: If you change the paper size, please also have a look at the margins. They may have changed as a result."
+msgstr ""
+
+msgid "Note: The PostScript data will be piped to your specified command. Any valid command line is accepted."
+msgstr ""
+
+msgid "Number Of Samples:"
+msgstr ""
+
+msgid "Number of Pages"
+msgstr ""
+
+msgid "Number of decimal digits to display"
+msgstr ""
+
+msgid "Number of x divisions"
+msgstr ""
+
+msgid "Number of y divisions"
+msgstr ""
+
+msgid "Object Properties"
+msgstr ""
+
+msgid "Once deleted, a layer cannot be undeleted. Do you really want to delete layer \"%s\"?"
+msgstr ""
+
+msgid "Open Design"
+msgstr ""
+
+msgid "Open Simulation Results..."
+msgstr ""
+
+msgid "_Open Simulation Results..."
+msgstr ""
+
+msgid "Open Vector Table"
+msgstr ""
+
+msgid "Open a project file"
+msgstr ""
+
+msgid "Open and display another set of simulation results."
+msgstr ""
+
+msgid "Open and display another vector table."
+msgstr ""
+
+msgid "Open"
+msgstr "Otwórz"
+
+msgid "Opening File:"
+msgstr ""
+
+msgid "Options"
+msgstr ""
+
+msgid "Orientation"
+msgstr "Ułożenie"
+
+msgid "Over, then down"
+msgstr ""
+
+msgid "Pan Design"
+msgstr ""
+
+msgid "Pan"
+msgstr ""
+
+msgid "Paper Height:"
+msgstr "Wysokość papieru:"
+
+msgid "Paper Size"
+msgstr "Rozmiar papieru"
+
+msgid "Paper Width:"
+msgstr "Szerokość papieru:"
+
+msgid "Phase"
+msgstr ""
+
+msgid "Please Select PostScript Viewer"
+msgstr ""
+
+msgid "Please Select Web Browser"
+msgstr ""
+
+msgid "Points"
+msgstr "Punkty"
+
+msgid "Polarization"
+msgstr ""
+
+msgid "Portrait"
+msgstr "Pionowo"
+
+msgid "Preferred Units:"
+msgstr ""
+
+msgid "Preview the print layout"
+msgstr ""
+
+msgid "Print Colours"
+msgstr ""
+
+msgid "Print Graphs"
+msgstr ""
+
+msgid "Print Order"
+msgstr ""
+
+msgid "Print Preview"
+msgstr "Podgląd wydruku"
+
+msgid "Print To"
+msgstr ""
+
+msgid "Print"
+msgstr "Wydrukuj"
+
+msgid "Printed Objects"
+msgstr ""
+
+msgid "Printer Setup"
+msgstr ""
+
+msgid "Printer"
+msgstr "Drukarka"
+
+msgid "Property units"
+msgstr ""
+
+msgid "Protected by Copright 2005 K. Walus"
+msgstr ""
+
+msgid "QCA Cell"
+msgstr ""
+
+msgid "QCA Clocking Layer"
+msgstr ""
+
+msgid "QCA Label"
+msgstr ""
+
+msgid "QCA Layer"
+msgstr ""
+
+msgid "QCA Rectangular Electrode"
+msgstr ""
+
+msgid "Quit QCADesigner"
+msgstr ""
+
+msgid "Radius of Effect [nm]:"
+msgstr ""
+
+msgid "Radius of Effect:"
+msgstr ""
+
+msgid "Randomize Simulation Order"
+msgstr ""
+
+msgid "Rectangle"
+msgstr ""
+
+msgid "Rectangular Electrode"
+msgstr ""
+
+msgid "Relative Permittivity:"
+msgstr ""
+
+msgid "Relative permittivity of the environment between the clocking layer and the ground"
+msgstr ""
+
+msgid "Relative permittivity of the environment between the electrode and the ground"
+msgstr ""
+
+msgid "Relative permittivity"
+msgstr ""
+
+msgid "Relaxation Time:"
+msgstr ""
+
+msgid "Remove Layer from Design"
+msgstr ""
+
+msgid "Remove Layer"
+msgstr ""
+
+msgid "Remove a layer from your design."
+msgstr ""
+
+msgid "Render As"
+msgstr ""
+
+msgid "Render as widget"
+msgstr ""
+
+msgid "Reorder Layers"
+msgstr ""
+
+msgid "Reorder"
+msgstr ""
+
+msgid "Reset Zoom"
+msgstr ""
+
+msgid "Reset the stretch on the traces"
+msgstr ""
+
+msgid "Resolution (n x n pixels) used to draw the potential"
+msgstr ""
+
+msgid "Right Margin:"
+msgstr ""
+
+msgid "Rotate Cell"
+msgstr ""
+
+msgid "Rotate"
+msgstr ""
+
+msgid "Row Type"
+msgstr ""
+
+msgid "Row type:Cell/Bus"
+msgstr ""
+
+msgid "S_top Simulation"
+msgstr ""
+
+msgid "Sample"
+msgstr ""
+
+msgid "Save As"
+msgstr "Zapisz jako"
+
+msgid "Save Output To _File..."
+msgstr ""
+
+msgid "Save Simulation Results"
+msgstr ""
+
+msgid "Save Vector Table"
+msgstr ""
+
+msgid "Save current project"
+msgstr ""
+
+msgid "Save project file as ..."
+msgstr ""
+
+msgid "Save the displayed simulation results."
+msgstr ""
+
+msgid "Save the displayed vector table."
+msgstr ""
+
+msgid "Save"
+msgstr "Zapisz"
+
+msgid "Scale Factor:"
+msgstr ""
+
+msgid "Scale"
+msgstr ""
+
+msgid "Select Command"
+msgstr ""
+
+msgid "Select File"
+msgstr ""
+
+msgid "Select"
+msgstr ""
+
+msgid "Sensitive"
+msgstr ""
+
+msgid "Set Simulation Type"
+msgstr ""
+
+msgid "Set parameters for interpreting logical bits from polarizations."
+msgstr ""
+
+msgid "Show Label"
+msgstr ""
+
+msgid "Show Potential"
+msgstr ""
+
+msgid "Show Toolbar Icons"
+msgstr ""
+
+msgid "Show Values As Binary"
+msgstr ""
+
+msgid "Show Values As Decimal"
+msgstr ""
+
+msgid "Show Values As Hexadecimal"
+msgstr ""
+
+msgid "Show potential created by the electrodes on this layer"
+msgstr ""
+
+msgid "Show/Hide Property UI"
+msgstr ""
+
+msgid "Simulation Results"
+msgstr ""
+
+msgid "Simulation Results..."
+msgstr ""
+
+msgid "Simulation T_ype Setup..."
+msgstr ""
+
+msgid "Simulation _Engine Setup..."
+msgstr ""
+
+msgid "Simulation found %d inputs %d outputs %d total cells\n"
+msgstr ""
+
+msgid "Snap To Grid"
+msgstr ""
+
+msgid "Source Layer"
+msgstr ""
+
+msgid "Starting initialization\n"
+msgstr ""
+
+msgid "Stock (Checked)"
+msgstr ""
+
+msgid "Stock (Unchecked)"
+msgstr ""
+
+msgid "Substrate"
+msgstr ""
+
+msgid "Temperature:"
+msgstr ""
+
+msgid "Template for new layer"
+msgstr ""
+
+msgid "Template"
+msgstr ""
+
+msgid "Text"
+msgstr "Tekst"
+
+msgid "The design"
+msgstr ""
+
+msgid "The file \"%s\" is not a regular file.  Maybe it's a directory, or a device file.  Please choose a regular file."
+msgstr ""
+
+msgid "The layer"
+msgstr ""
+
+msgid "The selection must be able to drop before it can be copied.\n"
+msgstr ""
+
+msgid "The toggle state of the button"
+msgstr ""
+
+msgid "This button allows you to manipulate your design."
+msgstr ""
+
+msgid "Three State Coherence Options"
+msgstr ""
+
+msgid "Tile Size"
+msgstr ""
+
+msgid "Time Coordinate"
+msgstr ""
+
+msgid "Time Step:"
+msgstr ""
+
+msgid "Time coordinate to draw the potential for"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Toggle between two different display modes."
+msgstr ""
+
+msgid "Toggle state"
+msgstr ""
+
+msgid "Tooltip"
+msgstr ""
+
+msgid "Top Margin:"
+msgstr ""
+
+msgid "Total Simulation Time:"
+msgstr ""
+
+msgid "Trace"
+msgstr ""
+
+msgid "Translate Selection"
+msgstr ""
+
+msgid "Translate your selection horizontally and/or vertically."
+msgstr ""
+
+msgid "Translate"
+msgstr ""
+
+msgid "Tunneling Energy:"
+msgstr ""
+
+msgid "UI Title"
+msgstr ""
+
+msgid "Un-stretch Traces"
+msgstr ""
+
+msgid "Units"
+msgstr ""
+
+msgid "Untitled Bus"
+msgstr ""
+
+msgid "Untitled Layer"
+msgstr ""
+
+msgid "Untitled"
+msgstr ""
+
+msgid "Upper Threshold [1]:"
+msgstr ""
+
+msgid "Vector Table Setup"
+msgstr ""
+
+msgid "Vector Table Simulation"
+msgstr ""
+
+msgid "Vector Table"
+msgstr ""
+
+msgid "Vertical"
+msgstr ""
+
+msgid "Vertical:"
+msgstr ""
+
+msgid "Vertically"
+msgstr ""
+
+msgid "Visible"
+msgstr ""
+
+msgid "You appear to have an autosave file.  Would you like to recover it ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Closing your design will discard those changes.  Save first ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Opening another design will discard those changes. Save first ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"
+msgstr ""
+
+msgid "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?"
+msgstr ""
+
+msgid "Zoom Extents"
+msgstr ""
+
+msgid "Zoom In"
+msgstr ""
+
+msgid "Zoom Layer Extents"
+msgstr ""
+
+msgid "Zoom Out"
+msgstr ""
+
+msgid "_Bus Layout..."
+msgstr ""
+
+msgid "_Create Block..."
+msgstr ""
+
+msgid "_Edit"
+msgstr "_Edycja"
+
+msgid "_Electrode Clocking"
+msgstr ""
+
+msgid "_File"
+msgstr "_Plik"
+
+msgid "_Help"
+msgstr "Pomo_c"
+
+msgid "_Hide All But The Selected Layer"
+msgstr ""
+
+msgid "_Import Block..."
+msgstr ""
+
+msgid "_No Smoothing"
+msgstr ""
+
+msgid "_Recent Files"
+msgstr ""
+
+msgid "_Rotate Selection"
+msgstr ""
+
+msgid "_Running Average over"
+msgstr ""
+
+msgid "_Scale All Cells In Design..."
+msgstr ""
+
+msgid "_Simulation"
+msgstr ""
+
+msgid "_Start Simulation"
+msgstr ""
+
+msgid "_Tools"
+msgstr "_Narzędzia"
+
+msgid "_View"
+msgstr "_Widok"
+
+msgid "_Zone Clocking"
+msgstr ""
+
+msgid "deactivate"
+msgstr ""
+
+msgid "a file"
+msgstr ""
+
+msgid "hide"
+msgstr ""
+
+msgid "page(s) tall"
+msgstr ""
+
+msgid "page(s) wide"
+msgstr ""
+
+msgid "pixels"
+msgstr ""
+
+msgid "samples"
+msgstr ""
+
+msgid "x Divisions"
+msgstr ""
+
+msgid "y Divisions"
+msgstr ""
+
+msgid "Clocking"
+msgstr ""
+
+msgid "Cells"
+msgstr ""
+
+msgid "Drawing"
+msgstr ""
+
+msgid "Starting Simulation\n"
+msgstr ""
+
+msgid "Total initialization time: %g s\n"
+msgstr ""

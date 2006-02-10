@@ -102,7 +102,7 @@ fi
 changequote([,])dnl
 
 dnl Add the languages which your application supports here.
-ALL_LINGUAS="de hu ro fr"
+ALL_LINGUAS="de hu ro fr pl"
 AM_GLIB_GNU_GETTEXT
 
 if test "$svgpix" = "yes"; then

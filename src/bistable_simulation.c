@@ -232,7 +232,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
   if((end_time = time (NULL)) < 0)
      fprintf(stderr, "Could not get end time\n");
 
-  command_history_message("Total initialization time: %g s\n", (double)(end_time - start_time));
+  command_history_message(_("Total initialization time: %g s\n"), (double)(end_time - start_time));
 
   command_history_message(_("Starting Simulation\n"));
 

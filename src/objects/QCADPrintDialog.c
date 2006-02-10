@@ -266,9 +266,7 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *dlg, gpointer data
     (GtkAttachOptions) (GTK_FILL),
     (GtkAttachOptions) (0), 2, 2);
 
-  widget = dlg->lblPipeSelectBlurb = gtk_label_new (_(
-    "Note: The PostScript data will be piped to your specified command. "
-    "Any valid command line is accepted.")) ;
+  widget = dlg->lblPipeSelectBlurb = gtk_label_new (_("Note: The PostScript data will be piped to your specified command. Any valid command line is accepted.")) ;
   gtk_widget_show (widget) ;
   gtk_table_attach (GTK_TABLE (tblFm), widget, 0, 3, 1, 2,
     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -426,9 +424,7 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *dlg, gpointer data
   gtk_label_set_justify (GTK_LABEL (widget), GTK_JUSTIFY_LEFT) ;
   gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5) ;
 
-  widget = gtk_label_new (_(
-    "Note: If you change the paper size, please also have a look at the margins. "
-    "They may have changed as a result.")) ;
+  widget = gtk_label_new (_("Note: If you change the paper size, please also have a look at the margins. They may have changed as a result.")) ;
   gtk_widget_show (widget) ;
   gtk_table_attach (GTK_TABLE (tblPg), widget, 0, 2, 2, 3,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
@@ -978,7 +974,7 @@ static void btnPrint_clicked (GtkWidget *widget, gpointer data)
     {
     gtk_dialog_run (GTK_DIALOG (msg =
       gtk_message_dialog_new (GTK_WINDOW (pd), GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-        _("Cannot print without having a %s to print to!"), bPrintFile ? _("file") : _("pipe")))) ;
+        _("Cannot print without having %s to print to!"), bPrintFile ? _("a file") : _("a pipe")))) ;
     gtk_widget_hide (msg) ;
     gtk_widget_destroy (msg) ;
     g_free (pszText) ;

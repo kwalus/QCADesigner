@@ -36,7 +36,7 @@
 static EXP_ARRAY *transformation_stack = NULL ;
 
 static int subs_top_x = 0, subs_top_y = 0 ;
-static double scale = 1 ; // pixels / nm
+static double scale = 5 ; // pixels / nm
 static int cxClientArea = 0, cyClientArea = 0 ;
 
 static QCADSubstrate *snap_source = NULL ;

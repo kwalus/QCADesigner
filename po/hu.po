@@ -1,8 +1,8 @@
 # Contributed by Gabriel Schulhof with some help from freenode.net:#huwico
-
 msgid ""
 msgstr ""
 "Project-Id-Version: QCADesigner 2.1.0\n"
+"Report-Msgid-Bugs-To: Gabriel Schulhof <schulhof@atips.ca>\n"
 "POT-Creation-Date: 2004-01-01 00:00-0700\n"
 "PO-Revision-Date: 2005-11-26 03:17-0700\n"
 "Last-Translator: Gabriel Schulhof <schulhof@atips.ca>\n"
@@ -10,16 +10,21 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Report-Msgid-Bugs-To: Gabriel Schulhof <schulhof@atips.ca>\n"
+
+msgid "(null)"
+msgstr ""
 
 msgid "1 nm is"
 msgstr "1 nm az"
 
-msgid "About..."
-msgstr "Névjegy..."
+msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
+msgstr "<span foreground=\"red\">Figyelem:</span> A busznak muszály neve legyen."
 
 msgid "About QCADesigner"
 msgstr "QCADesigner névjegye"
+
+msgid "About..."
+msgstr "Névjegy..."
 
 msgid "Active"
 msgstr "Aktív"
@@ -30,134 +35,149 @@ msgstr "Cella sor hozzáadás"
 msgid "Add Cell To Design"
 msgstr "Tervhez cella hozzáadás"
 
-# msgid "Add horizontal or vertical arrays of cells to your design."
-# msgstr ""
+msgid "Add Layer to Design"
+msgstr "Tervhez réteg hozzáadás"
 
 msgid "Add Layer"
 msgstr "Réteg Hozzáadás"
 
-msgid "Add Layer to Design"
-msgstr "Tervhez réteg hozzáadás"
+msgid "Add Vector"
+msgstr "Vektor Hozzáadás"
+
+msgid "Add horizontal or vertical arrays of cells to your design."
+msgstr "A tervhez vízszintes és függőleges cella sorok hozzáadása."
+
+msgid "Add"
+msgstr "Hozzáadás"
 
 msgid "Adds a layer to your design."
 msgstr "A tervhez egy réteget hozzáad."
 
-# msgid "Add Vector"
-# msgstr ""
-
-# msgid "Alternate Drawing Style"
-# msgstr ""
+msgid "Algorithm"
+msgstr "Algoritmus"
 
 msgid "Alt Style"
 msgstr "Alt. kinézés"
 
-# msgid "An autosave file more recent than the file you are opening seems to be present.  Load it instead ?"
-# msgstr ""
+msgid "Alternate Drawing Style"
+msgstr ""
 
-# msgid "Animate"
-# msgstr ""
+msgid "Amount to modify value by"
+msgstr ""
+
+msgid "Amplitude"
+msgstr "Amplitúdó"
+
+msgid ""
+"An autosave file more recent than the file you are opening seems to be "
+"present.  Load it instead ?"
+msgstr ""
+
+msgid "Animate"
+msgstr ""
+
+msgid "Apend a vector to the end of the table."
+msgstr "A tabella végéhez vektor hozzáadás."
 
 msgid "Array"
 msgstr "Sor"
 
-# msgid "<b>Destination Layer</b>"
-# msgstr ""
-
-# msgid "<big><span foreground=\"red\"><b>Note:</b></span> Right-click the vector table for adding/removing vectors.</big>"
-# msgstr ""
-
-# msgid "<b>Import</b>"
-# msgstr ""
+msgid "Attempt all possible inputs."
+msgstr ""
 
 msgid "Binary"
 msgstr "Bináris"
 
-# msgid "Bistable Options"
-# msgstr ""
+msgid "Bistable Options"
+msgstr ""
 
-# msgid "Bistable simulation:"
-# msgstr ""
+msgid "Bistable simulation:"
+msgstr ""
 
 msgid "Bottom Margin:"
 msgstr "Alsó Margó:"
 
-# msgid "Bring various parts of the design into view by dragging visible parts of the design out of view."
-# msgstr ""
+msgid ""
+"Bring various parts of the design into view by dragging visible parts of the "
+"design out of view."
+msgstr ""
 
 msgid "Browse..."
 msgstr "Tallózás..."
 
-# msgid "<b>Source Layer</b>"
-# msgstr ""
+msgid "Bus Layout"
+msgstr "Busz szerkezet"
 
-# msgid "_Bus Layout..."
-# msgstr ""
+msgid "Bus Name:"
+msgstr "Busz név:"
 
-# msgid "Bus Layout"
-# msgstr ""
+msgid ""
+"Calculates and sets the magnification such that the currently topmost layer "
+"fits inside the window."
+msgstr ""
 
-# msgid "Bus Name:"
-# msgstr ""
+msgid ""
+"Calculates and sets the magnification such that your design fits inside the "
+"window."
+msgstr ""
 
-# msgid "Calculates and sets the magnification such that the currently topmost layer fits inside the window."
-# msgstr ""
+msgid ""
+"Cannot %s the layer at this time.\n"
+"\n"
+"Please ensure that your selection can be dropped before attempting to %s a "
+"layer."
+msgstr ""
 
-# msgid "Calculates and sets the magnification such that your design fits inside the window."
-# msgstr ""
+msgid "Cannot print without having a %s to print to!"
+msgstr "Nem lehet egy cél-%s nélkül nyomtatni!"
 
-# msgid "Cannot print without having a %s to print to!"
-# msgstr ""
+msgid "Cannot simulate with an empty vector table !"
+msgstr "Nem lehet egy üres vektortabellával szimulálni!"
 
-# msgid "Cannot simulate with an empty vector table !"
-# msgstr ""
+msgid "Cannot zoom to the design extents, because the design is empty"
+msgstr ""
 
-# msgid "Cannot %s the layer at this time.\n\nPlease ensure that your selection can be dropped before attempting to %s a layer."
-# msgstr ""
+msgid "Cannot zoom to the layer extents, because the design is empty"
+msgstr ""
 
-# msgid "Cannot zoom to the design extents, because the design is empty"
-# msgstr ""
+msgid "Cell Clock"
+msgstr "Cella órajel"
 
-# msgid "Cannot zoom to the layer extents, because the design is empty"
-# msgstr ""
+msgid "Cell Drawing Mode"
+msgstr ""
 
-msgid "Cell"
-msgstr "Cella"
+msgid "Cell Elevation:"
+msgstr "Cella emelés:"
 
-# msgid "Cell Clock"
-# msgstr ""
+msgid "Cell Function:Normal/Input/Output/Fixed"
+msgstr "Cella funkció:Normális/Input/Output/Fix"
 
-# msgid "Cell Drawing Mode"
-# msgstr ""
+msgid "Cell Height"
+msgstr "Cella magasság"
 
-msgid "Cell Function"
-msgstr "Cellafunkció"
-
-# msgid "Cell Function:Normal/Input/Output/Fixed"
-# msgstr ""
-
-msgid "Cell Label:"
-msgstr "Cellafelirat:"
+msgid "Cell Height:"
+msgstr "Cella magasság:"
 
 msgid "Cell Label"
 msgstr "Cellafelirat"
 
-# msgid "Cell Polarization"
-# msgstr ""
+msgid "Cell Polarization"
+msgstr ""
 
-# msgid "Cell Width:"
-# msgstr ""
+msgid "Cell Width"
+msgstr "Cella szélesség"
 
-msgid "Cells"
-msgstr "Cellák"
+msgid "Cell"
+msgstr "Cella"
 
-# msgid "Cells And Buses"
-# msgstr ""
+msgid "Cells And Buses"
+msgstr "Cellák es buszok"
 
-# msgid "Center"
-# msgstr ""
+msgid "Center On Pages"
+msgstr "Lapokon középre mozdítás"
 
-# msgid "Center On Pages"
-# msgstr ""
+msgid "Center"
+msgstr "Középre mozdítás"
 
 msgid "Centimeters"
 msgstr "Centiméterek"
@@ -165,14 +185,14 @@ msgstr "Centiméterek"
 msgid "Change the order of layers in your design."
 msgstr "A tervbeli rétegek sorrendjét változtatni."
 
-# msgid "Click here, then click on the design to add cells to it."
-# msgstr ""
+msgid "Click here, then click on the design to add cells to it."
+msgstr ""
 
-# msgid "Click on a cell to rotate it (repeatedly)."
-# msgstr ""
+msgid "Click on a cell to rotate it (repeatedly)."
+msgstr ""
 
-msgid "Clock:"
-msgstr "Órajel:"
+msgid "Click on any selected destination layer to change it:"
+msgstr ""
 
 msgid "Clock 0"
 msgstr "0 Órajel"
@@ -186,47 +206,65 @@ msgstr "2 Órajel"
 msgid "Clock 3"
 msgstr "3 Órajel"
 
-# msgid "Clock Amplitude Factor:"
-# msgstr ""
+msgid "Clock Amplitude Factor:"
+msgstr ""
+
+msgid "Clock DC offset"
+msgstr ""
+
+msgid "Clock High"
+msgstr "Magas órajelfeszültség"
 
 msgid "Clock High:"
-msgstr "Órajelfeszültség (magas):"
+msgstr "Magas órajelfeszültség:"
 
-msgid "Clocking"
-msgstr "Órajel"
+msgid "Clock Low"
+msgstr "Alacsony órajelfeszültség"
 
 msgid "Clock Low:"
-msgstr "Órajelfeszültség (alacsony):"
+msgstr "Alacsony órajelfeszültség:"
 
-# msgid "Clock Shift:"
-# msgstr ""
+msgid "Clock Shift:"
+msgstr ""
 
-# msgid "Close"
-# msgstr ""
+msgid "Clock amplitude"
+msgstr "Órajel amplitúdó"
 
-# msgid "Close simulation results window."
-# msgstr ""
+msgid "Clock frequency"
+msgstr "Órajel frekvencia"
 
-msgid "Close the project file"
-msgstr "Projekt fájl bezárása"
+msgid "Clock phase"
+msgstr "Órajel fázis"
+
+msgid "Clock"
+msgstr "Órajel"
 
 msgid "Close Window"
 msgstr "Ablak bezárása"
 
-# msgid "cm"
-# msgstr ""
+msgid "Close simulation results window."
+msgstr "Szimuláció eredmény ablak bezárása."
 
-# msgid "Coherence Vector Options"
-# msgstr ""
+msgid "Close the project file"
+msgstr "Projekt fájl bezárása"
 
-msgid "Command:"
-msgstr "Parancs:"
+msgid "Close vector table editor."
+msgstr ""
+
+msgid "Close"
+msgstr "Bezárás"
+
+msgid "Coherence Vector Options"
+msgstr ""
+
+msgid "Command Line"
+msgstr ""
 
 msgid "Command"
 msgstr "Parancs"
 
-# msgid "Command Line"
-# msgstr ""
+msgid "Command:"
+msgstr "Parancs:"
 
 msgid "Common Paper Sizes"
 msgstr "Gyakori Papírnagyságok"
@@ -234,167 +272,235 @@ msgstr "Gyakori Papírnagyságok"
 msgid "Contents"
 msgstr "Tartalom"
 
-# msgid "Contributers:"
-# msgstr ""
+msgid "Contributers:"
+msgstr "Közreműködők:"
 
-# msgid "Convergence Tolerance:"
-# msgstr ""
+msgid "Convergence Tolerance:"
+msgstr ""
 
-# msgid "Converts graphs to PostScript and prints them to a file or a printer."
-# msgstr ""
+msgid "Converts graphs to PostScript and prints them to a file or a printer."
+msgstr "Grafikonok PostScript-ba átalakitása és fájlhoz vagy nyomtatóhoz nyomtatása."
 
-# msgid "Converts graphs to PostScript and runs the previewer application."
-# msgstr ""
-
-msgid "Copy"
-msgstr "Másolás"
+msgid "Converts graphs to PostScript and runs the previewer application."
+msgstr "Grafikonok PostScript-ba átalakitása és nézőkével bemutatása."
 
 msgid "Copy Selection"
 msgstr "Választást másolni"
 
-# msgid "Could not locate file \"%s\"."
-# msgstr ""
+msgid "Copy"
+msgstr "Másolás"
+
+msgid "Could not locate file \"%s\"."
+msgstr "A \"%s\" nevü fájl nem található."
 
 msgid "Couldn't find pixmap file: %s"
-msgstr "Nem találom a %s nevü pixmap fájlt"
+msgstr "A %s nevü pixmap fájl nem található"
+
+msgid "Create Bus"
+msgstr "Busz előállítás"
+
+msgid "Create Label"
+msgstr "Felirat előállítás"
+
+msgid "Create New..."
+msgstr "Új előállítás..."
+
+msgid "Create Substrate"
+msgstr "Szubsztrátum előállítás"
 
 msgid "Create a mirrored copy of your selection."
 msgstr "A választásbol tükrözött másolatot építeni."
 
-# msgid "Create a new project file"
-# msgstr ""
+msgid "Create a new project file"
+msgstr "Új projekt fájl előállítás"
 
-# msgid "_Create Block..."
-# msgstr ""
+msgid "Create a sequence of inputs."
+msgstr ""
 
-# msgid "Create Bus"
-# msgstr ""
+msgid "Creates a new label."
+msgstr "Új felirat előállítás."
 
-# msgid "Create Label"
-# msgstr ""
+msgid "Creates a new rectangular electrode."
+msgstr "Új derékszögü elektróda előállítás."
 
-# msgid "Create New..."
-# msgstr ""
+msgid "Creates a new rectangular substrate."
+msgstr "Új derékszögü szubsztrátum előállítás."
 
-# msgid "Creates a new label."
-# msgstr ""
+msgid "Crossover"
+msgstr "Keresztváltó"
 
-# msgid "Creates a new rectangular substrate."
-# msgstr ""
+msgid "Custom"
+msgstr "Kiszabott"
 
-# msgid "Create Substrate"
-# msgstr ""
+msgid "DC Offset"
+msgstr ""
 
-# msgid "Crossover"
-# msgstr ""
-
-# msgid "Custom"
-# msgstr ""
-
-# msgid "deactivate"
-# msgstr ""
-
-# msgid "Decimal"
-# msgstr ""
+msgid "Decimal"
+msgstr "Tizedes"
 
 msgid "Decrease The Magnification"
 msgstr "Nagyítást csökkenteni"
 
-# msgid "Decrease the magnification to get an overall picture."
-# msgstr ""
+msgid "Decrease the magnification to get an overall picture."
+msgstr ""
 
-msgid "Default Clock:"
-msgstr "Alapórajel:"
+msgid "Default Objects"
+msgstr "Alaptárgyak"
 
-msgid "Default Clock"
-msgstr "Alapórajel"
+msgid "Delete Bus"
+msgstr "Busz törlés"
 
-# msgid "Delete Bus"
-# msgstr ""
+msgid "Delete Vector"
+msgstr "Vektor törlés"
 
-# msgid "Display honeycomb values in binary."
-# msgstr ""
+msgid "Description"
+msgstr "Leírás"
 
-# msgid "Display honeycomb values in decimal."
-# msgstr ""
+msgid "Design"
+msgstr ""
 
-# msgid "Display honeycomb values in hexadecimal."
-# msgstr ""
+msgid "Destination Layer"
+msgstr ""
 
-# msgid "Distance"
-# msgstr ""
+msgid "Diameter of the quantum dot"
+msgstr ""
 
-# msgid "Document Options"
-# msgstr ""
+msgid "Digital Interpretation Options"
+msgstr ""
 
-# msgid "Dot Diameter:"
-# msgstr ""
+msgid "Digital Interpretation"
+msgstr ""
 
-# msgid "Do Not Center"
-# msgstr ""
+msgid "Digits"
+msgstr "Számok"
+
+msgid "Display honeycomb values in binary."
+msgstr "Méh-sejt értékeket binárisan kimutatni."
+
+msgid "Display honeycomb values in decimal."
+msgstr "Méh-sejt értékeket tizedesen kimutatni."
+
+msgid "Display honeycomb values in hexadecimal."
+msgstr "Méh-sejt értékeket <hexadecimally> kimutatni."
+
+msgid "Display property label"
+msgstr ""
+
+msgid "Display the cell sensitive"
+msgstr ""
+
+msgid "Distance To Ground:"
+msgstr "Távolság földeléshez:"
+
+msgid "Distance from clocking layer to ground electrode"
+msgstr "Távolság órajel rétegtöl földelés elektródához:"
+
+msgid "Distance from clocking layer to show the cross-section for"
+msgstr "Távolság órajel rétegtöl keresztmetszet kimutatásához"
+
+msgid "Distance from electrode to ground electrode"
+msgstr "Távolság elektródátol földelés elektródához:"
+
+msgid "Distance from layer"
+msgstr "Távolság rétegtöl"
+
+msgid "Distance to ground"
+msgstr "Távolság földeléshez"
+
+msgid "Distance"
+msgstr "Távolság"
+
+msgid "Distribution Layer"
+msgstr ""
+
+msgid "Do Not Center"
+msgstr "Középre nem mozdítás"
+
+msgid "Document Options"
+msgstr ""
 
 msgid "Don't save"
 msgstr "Nem menteni"
 
+msgid "Dot Diameter"
+msgstr ""
+
 msgid "Down, then over"
 msgstr "Lefele, azután oldalra"
 
-# msgid "Download free version of QCADesigner from:"
-# msgstr ""
+msgid "Download free version of QCADesigner from:"
+msgstr "QCADesigner szabad (nem csak ingyenes) letöltése innen:"
 
-# msgid "Drag and drop layers to their new location:"
-# msgstr ""
-
-msgid "Drawing"
-msgstr "Rajzolás"
+msgid "Drag and drop layers to their new location:"
+msgstr "Rétegek új helyezésükre húzása és letevése:"
 
 msgid "Drawing Layer"
 msgstr "Rajzolási Réteg"
 
-msgid "_Edit"
-msgstr "S_zerkesztés"
+msgid "Electrode Angle"
+msgstr "Elektróda szög"
 
-# msgid "Enter Scale Factor"
-# msgstr ""
+msgid "Electrode Height"
+msgstr "Elektróda magasság"
 
-# msgid "Exhaustive Verification"
-# msgstr ""
+msgid "Electrode Width"
+msgstr "Elektróda szélesség"
 
-# msgid "Export Block"
-# msgstr ""
+msgid "Enable Property UI"
+msgstr ""
 
-# msgid "Extents"
-# msgstr ""
+msgid "Enter Scale Factor"
+msgstr "Méretarány beadás"
+
+msgid "Exhaustive Verification"
+msgstr ""
+
+msgid "Exhaustive"
+msgstr ""
+
+msgid "Export Block"
+msgstr ""
+
+msgid "Extents"
+msgstr ""
 
 msgid "Failed to create file \"%s\" !"
 msgstr "\"%s\"-nevü fájlt nem sikerült létesíteni !"
 
-# msgid "Failed to open autosave file!"
-# msgstr ""
+msgid "Failed to open autosave file!"
+msgstr ""
 
 msgid "Failed to open file \"%s\"!"
 msgstr "Nem sikerült ki nyitni a \"%s\" címü fájlt!"
 
-# msgid "Failed to open simulation data file %s !\n"
-# msgstr ""
+msgid "Failed to open simulation data file %s !\n"
+msgstr "Nem sikerült ki nyitni a \"%s\" címü szimuláció eredmény fájlt!\n"
 
-msgid "_File"
-msgstr "_Fájl"
+msgid "Failed to open vector table file \"%s\"!"
+msgstr "Nem sikerült ki nyitni a \"%s\" címü vektortabella fájlt!"
 
-msgid "File"
-msgstr "Fájl"
-
-# msgid "File:"
-# msgstr ""
+msgid "Failed to save vector table file \"%s\"!"
+msgstr "Nem sikerült menteni a \"%s\" címü vektortabella fájlt!"
 
 msgid "File Name:"
 msgstr "Fájl neve:"
 
-# msgid "File opened in %.2lf seconds\n"
-# msgstr ""
+msgid ""
+"File \"%s\" contains fewer inputs than the current vector table. Padding "
+"with zeroes."
+msgstr ""
 
-msgid "Fit"
-msgstr "Kitölteni"
+msgid "File \"%s\" contains more inputs than the current design. Truncating."
+msgstr ""
+
+msgid "File \"%s\" does not appear to be a vector table file !"
+msgstr "A \"%s\" címü fájl nem tűnik vektortabella fájlnak lenni!"
+
+msgid "File opened in %.2lf seconds\n"
+msgstr "A fájl %.2lf másodperc alatt nyílt ki\n"
+
+msgid "File"
+msgstr "Fájl"
 
 msgid "Fit Design To Window"
 msgstr "Ablakot tervel kitölteni"
@@ -402,53 +508,50 @@ msgstr "Ablakot tervel kitölteni"
 msgid "Fit Layer To Window"
 msgstr "Ablakot réteggel kitölteni"
 
+msgid "Fit"
+msgstr "Kitölteni"
+
 msgid "Fixed"
 msgstr "Fix"
 
-# msgid "Fixed Polarization"
-# msgstr ""
+msgid "Frequency"
+msgstr "Frekvencia"
 
-msgid "Grid Spacing:"
-msgstr "Rácstávolság:"
+msgid "Function"
+msgstr "Funkció"
+
+msgid "Grid Spacing [nm]"
+msgstr "Rácstávolság [nm]"
 
 msgid "Grid Spacing"
 msgstr "Rácstávolság"
 
-# msgid "Grid Spacing [nm]"
-# msgstr ""
+msgid "Group individual input and output cells into buses."
+msgstr "Egyéni input és output cellák buszokba csoportosítása."
 
-# msgid "Group individual input and output cells into buses."
-# msgstr ""
-
-msgid "_Help"
-msgstr "_Súgó"
-
-# msgid "Hex"
-# msgstr ""
-
-msgid "Hidden"
-msgstr "Láthatatlan"
-
-# msgid "hide"
-# msgstr ""
-
-# msgid "_Hide All But The Selected Layer"
-# msgstr ""
+msgid "Hex"
+msgstr ""
 
 msgid "Horizontal:"
 msgstr "Vízszintes:"
 
-# msgid "Horizontally"
-# msgstr ""
+msgid "Horizontally"
+msgstr "Vízszintesen"
 
-# msgid "_Import Block..."
-# msgstr ""
+msgid "I_ncrement Cell Clocks"
+msgstr "Cellák órajel _növekedése"
 
-# msgid "Import Block"
-# msgstr ""
+msgid "Icon to display when checked"
+msgstr ""
 
-# msgid "Inactive"
-# msgstr ""
+msgid "Icon to display when unchecked"
+msgstr ""
+
+msgid "Import Block"
+msgstr ""
+
+msgid "Import"
+msgstr ""
 
 msgid "Inches"
 msgstr "Hüvelyk"
@@ -456,56 +559,58 @@ msgstr "Hüvelyk"
 msgid "Increase The Magnification"
 msgstr "Nagyítást növelni"
 
-msgid "Increase the magnification so you may concentrate on specific parts of the design."
+msgid ""
+"Increase the magnification so you may concentrate on specific parts of the "
+"design."
 msgstr "Nagyítást növelni hogy a terv bizonyos részeire lehessen koncentrálni."
 
-# msgid "I_ncrement Cell Clocks"
-# msgstr ""
+msgid "Increment"
+msgstr "Növekedés"
 
-# msgid "Input"
-# msgstr ""
+msgid "Inputs"
+msgstr "Input-ok"
 
-# msgid "Input/Output"
-# msgstr ""
+msgid "Insert Before"
+msgstr ""
 
-# msgid "Insert Before"
-# msgstr ""
+msgid "Insert Vector Before"
+msgstr ""
 
-# msgid "Insert Vector After"
-# msgstr ""
+msgid "Insert the selected vector."
+msgstr "Kiválasztott vektor beillesztés."
 
-# msgid "I/O"
-# msgstr ""
+msgid "Insert vector before the selected one."
+msgstr ""
+
+msgid "Interpretation..."
+msgstr ""
+
+msgid "Label text"
+msgstr "Felirat szöveg"
 
 msgid "Label"
 msgstr "Felirat"
 
-msgid "Label Properties"
-msgstr "Felirat Beállítások"
-
 msgid "Landscape"
 msgstr "Fekvő"
 
-# msgid "Layer"
-# msgstr ""
+msgid "Layer Description"
+msgstr "Réteg leírás"
 
 msgid "Layer Description:"
 msgstr "Réteg leírás:"
 
-# msgid "Layer Order"
-# msgstr ""
+msgid "Layer Order"
+msgstr "Réteg sorrend"
 
-# msgid "Layer Properties..."
-# msgstr ""
+msgid "Layer Properties"
+msgstr "Réteg beállítások"
 
-# msgid "Layer Properties"
-# msgstr ""
+msgid "Layer Properties..."
+msgstr "Réteg beállítások..."
 
-# msgid "Layers"
-# msgstr ""
-
-# msgid "Layer Separation:"
-# msgstr ""
+msgid "Layer Separation:"
+msgstr "Réteg elválasztás:"
 
 msgid "Layer Status:"
 msgstr "Réteg státus:"
@@ -513,101 +618,144 @@ msgstr "Réteg státus:"
 msgid "Layer Type:"
 msgstr "Réteg tipus:"
 
+msgid "Layer"
+msgstr "Réteg"
+
+msgid "Layers"
+msgstr "Rétegek"
+
 msgid "Left Margin:"
 msgstr "Bal Margó:"
 
-msgid "Lists the layers in the current design and allows you to switch between them."
-msgstr "Felsorolja a rétegeket"
+msgid "List of default objects"
+msgstr "Alaptárgyak listája"
 
-# msgid "_Load Output From File..."
-# msgstr ""
+msgid ""
+"Lists the layers in the current design and allows you to switch between them."
+msgstr "Az aktuális tervben rétegeket felsorolása és közöttük váltása."
 
-# msgid "Logic Thresholds"
-# msgstr ""
-
-# msgid "Lower Threshold [0]:"
-# msgstr ""
+msgid "Lower Threshold [0]:"
+msgstr "Alacsonyabbik küszöb [0]:"
 
 msgid "Main Cell Layer"
 msgstr "Fő Cella Réteg"
 
-# msgid "Make Cell(s) Less Significant"
-# msgstr ""
+msgid "Make Cell(s) Less Significant"
+msgstr ""
 
-# msgid "Make Cell(s) More Significant"
-# msgstr ""
+msgid "Make Cell(s) More Significant"
+msgstr ""
+
+msgid "Make Selections And Manipulate Design"
+msgstr ""
 
 msgid "Makes a copy of your selection."
-msgstr "Másolja a választást."
+msgstr "Választás másolása."
 
-# msgid "Map Layers"
-# msgstr ""
+msgid "Map Layers"
+msgstr ""
 
 msgid "Margins"
 msgstr "Margók"
 
-# msgid "Maximum Iterations Per Sample:"
-# msgstr ""
+msgid "Maximum Iterations Per Sample:"
+msgstr ""
+
+msgid "Maximum clock voltage"
+msgstr "Maximum órajel feszültség"
 
 msgid "Measure Distance"
 msgstr "Távolságmérő"
 
-# msgid "Measure the distance from a given point"
-# msgstr ""
+msgid "Measure the distance from a given point"
+msgstr "Egy bizonyos ponttol távolság mérés"
+
+msgid "Minimum clock voltage"
+msgstr "Minimum órajel feszültség"
+
+msgid "Mirror Selection"
+msgstr "Választás tükrözés"
 
 msgid "Mirror"
 msgstr "Tükrözés"
 
-msgid "Mirror Selection"
-msgstr "Választástükrözés"
+msgid "Mode"
+msgstr ""
 
-# msgid "Modify the settings for the current layer."
-# msgstr ""
+msgid "Modify the settings for the current layer."
+msgstr "Aktuális réteg beállítások módosítása."
 
-# msgid "Move Bus Down"
-# msgstr ""
+msgid "Move Bus Down"
+msgstr "Buszt lefelé tolni"
 
-# msgid "Move Bus Up"
-# msgstr ""
+msgid "Move Bus Up"
+msgstr "Buszt felfelé tolni"
 
-# msgid "New Layer"
-# msgstr ""
+msgid "New Layer"
+msgstr "Új réteg"
 
-# msgid "Normal"
-# msgstr ""
+msgid "Normal"
+msgstr "Egyszerü"
 
-msgid "Normal Cell"
-msgstr "Egyszerü cella"
+msgid ""
+"Note: If you change the paper size, please also have a look at the margins. "
+"They may have changed as a result."
+msgstr ""
+
+msgid ""
+"Note: The PostScript data will be piped to your specified command. Any valid "
+"command line is accepted."
+msgstr ""
+
+msgid "Number Of Samples:"
+msgstr ""
 
 msgid "Number of Pages"
 msgstr "Lapok száma"
 
-# msgid "Number Of Samples:"
-# msgstr ""
+msgid "Number of decimal digits to display"
+msgstr ""
 
-# msgid "Object Properties"
-# msgstr ""
+msgid "Number of x divisions"
+msgstr ""
 
-# msgid "Once deleted, a layer cannot be undeleted. Do you really want to delete layer \"%s\"?"
-# msgstr ""
+msgid "Number of y divisions"
+msgstr ""
 
-# msgid "Open"
-# msgstr ""
+msgid "Object Properties"
+msgstr "Tárgy beállítások"
 
-# msgid "Open and display another set of simulation results."
-# msgstr ""
-
-msgid "Open a project file"
-msgstr "Projekt fájl megnyitása"
+msgid ""
+"Once deleted, a layer cannot be undeleted. Do you really want to delete "
+"layer \"%s\"?"
+msgstr "Egy törölt réteget nem lehet visszaszerezni. A \"%s\" nevü réteget biztos törölni?"
 
 msgid "Open Design"
-msgstr "Terv Megnyitása"
+msgstr "Terv Megnyitás"
 
-# msgid "Opening File:"
-# msgstr ""
+msgid "Open Simulation Results..."
+msgstr "Szimuláció eredmények megnyitása..."
 
-# msgid "Open Simulation Results"
-# msgstr ""
+msgid "_Open Simulation Results..."
+msgstr "Szimuláció eredmények _megnyitása..."
+
+msgid "Open Vector Table"
+msgstr "Vektortabella megnyitás"
+
+msgid "Open a project file"
+msgstr "Projekt fájl megnyitás"
+
+msgid "Open and display another set of simulation results."
+msgstr ""
+
+msgid "Open and display another vector table."
+msgstr ""
+
+msgid "Open"
+msgstr "Nyitás"
+
+msgid "Opening File:"
+msgstr "Fájl megnyitás:"
 
 msgid "Options"
 msgstr "Beállítások"
@@ -615,23 +763,14 @@ msgstr "Beállítások"
 msgid "Orientation"
 msgstr "Tájolás"
 
-# msgid "Output"
-# msgstr ""
-
 msgid "Over, then down"
 msgstr "Oldalra, azután lefele"
 
-msgid "page(s) tall"
-msgstr "lap magas"
+msgid "Pan Design"
+msgstr ""
 
-msgid "page(s) wide"
-msgstr "lap széles"
-
-# msgid "Pan"
-# msgstr ""
-
-# msgid "Pan Design"
-# msgstr ""
+msgid "Pan"
+msgstr ""
 
 msgid "Paper Height:"
 msgstr "Papír magassága:"
@@ -642,8 +781,8 @@ msgstr "Papír nagysága"
 msgid "Paper Width:"
 msgstr "Papír Szélessége:"
 
-# msgid "pipe"
-# msgstr ""
+msgid "Phase"
+msgstr "Fázis"
 
 msgid "Please Select PostScript Viewer"
 msgstr "PostScript nézőke választás"
@@ -651,11 +790,11 @@ msgstr "PostScript nézőke választás"
 msgid "Please Select Web Browser"
 msgstr "Webböngésző választás"
 
-# msgid "Points"
-# msgstr ""
+msgid "Points"
+msgstr ""
 
-# msgid "Polarization"
-# msgstr ""
+msgid "Polarization"
+msgstr ""
 
 msgid "Portrait"
 msgstr "Álló"
@@ -663,23 +802,11 @@ msgstr "Álló"
 msgid "Preferred Units:"
 msgstr "Kedvenc egységek:"
 
-# msgid "Preview the print layout"
-# msgstr ""
-
-msgid "Print"
-msgstr "Nyomtatás"
+msgid "Preview the print layout"
+msgstr ""
 
 msgid "Print Colours"
 msgstr "Színes Nyomtatás"
-
-# msgid "Printed Objects"
-# msgstr ""
-
-msgid "Printer"
-msgstr "Nyomtató"
-
-msgid "Printer Setup"
-msgstr "Nyomtató beállítás"
 
 msgid "Print Graphs"
 msgstr "Grafikon Nyomtatás"
@@ -690,101 +817,161 @@ msgstr "Nyomtatási sorrend"
 msgid "Print Preview"
 msgstr "Nyomtatási kép"
 
-# msgid "Print To"
-# msgstr ""
+msgid "Print To"
+msgstr ""
 
-# msgid "Protected by Copright 2005 K. Walus"
-# msgstr ""
+msgid "Print"
+msgstr "Nyomtatás"
+
+msgid "Printed Objects"
+msgstr ""
+
+msgid "Printer Setup"
+msgstr "Nyomtató beállítás"
+
+msgid "Printer"
+msgstr "Nyomtató"
+
+msgid "Property units"
+msgstr ""
+
+msgid "Protected by Copright 2005 K. Walus"
+msgstr ""
+
+msgid "QCA Cell"
+msgstr "QCA Cella"
+
+msgid "QCA Clocking Layer"
+msgstr "QCAD órajel réteg"
+
+msgid "QCA Label"
+msgstr "QCA felirat"
+
+msgid "QCA Layer"
+msgstr "QCA réteg"
+
+msgid "QCA Rectangular Electrode"
+msgstr "QCA derékszögü elektróda"
 
 msgid "Quit QCADesigner"
-msgstr "QCADesigner kilépése"
-
-msgid "Radius of Effect:"
-msgstr "Hatássugár:"
+msgstr "QCADesigner kilépés"
 
 msgid "Radius of Effect [nm]:"
 msgstr "Hatássugár [nm]:"
 
-# msgid "Randomize Simulation Order"
-# msgstr ""
+msgid "Radius of Effect:"
+msgstr "Hatássugár:"
 
-msgid "_Recent Files"
-msgstr "_Legutobbi fájlok"
+msgid "Randomize Simulation Order"
+msgstr ""
 
-# msgid "Relative Permittivity:"
-# msgstr ""
+msgid "Rectangle"
+msgstr "Téglalap"
 
-# msgid "Relaxation Time:"
-# msgstr ""
+msgid "Rectangular Electrode"
+msgstr "Derékszögü elektróda"
+
+msgid "Relative Permittivity:"
+msgstr "Relatív permittivitás:"
+
+msgid ""
+"Relative permittivity of the environment between the clocking layer and the "
+"ground"
+msgstr "Az órajel réteg és a földelés közüli környezet relatív permittivitása"
+
+msgid ""
+"Relative permittivity of the environment between the electrode and the ground"
+msgstr "Az elektróda és a földelés közüli környezet relatív permittivitása"
+
+msgid "Relative permittivity"
+msgstr "Relatív permittivitás"
+
+msgid "Relaxation Time:"
+msgstr ""
+
+msgid "Remove Layer from Design"
+msgstr "Tervböl réteg törlés"
+
+msgid "Remove Layer"
+msgstr "Réteg Törlés"
 
 msgid "Remove a layer from your design."
 msgstr "A tervböl egy réteg eltávolítása."
 
-msgid "Remove Layer"
-msgstr "Réteg Türülés"
+msgid "Render As"
+msgstr ""
 
-msgid "Remove Layer from Design"
-msgstr "Tervböl réteg türülés"
-
-# msgid "Remove Vector"
-# msgstr ""
+msgid "Render as widget"
+msgstr ""
 
 msgid "Reorder Layers"
-msgstr "Rétegek Átrendezése"
+msgstr "Rétegek átrendezése"
 
-# msgid "Reset Zoom"
-# msgstr ""
+msgid "Reorder"
+msgstr "Átrendezés"
+
+msgid "Reset Zoom"
+msgstr ""
+
+msgid "Reset the stretch on the traces"
+msgstr ""
+
+msgid "Resolution (n x n pixels) used to draw the potential"
+msgstr ""
 
 msgid "Right Margin:"
 msgstr "Jobb Margó:"
 
-msgid "Rotate"
-msgstr "Forgatás"
-
 msgid "Rotate Cell"
 msgstr "Cella forgatás"
 
-# msgid "_Rotate Selection"
-# msgstr ""
+msgid "Rotate"
+msgstr "Forgatás"
 
-# msgid "Sample"
-# msgstr ""
+msgid "Row Type"
+msgstr ""
 
-# msgid "Save"
-# msgstr ""
+msgid "Row type:Cell/Bus"
+msgstr ""
+
+msgid "S_top Simulation"
+msgstr "Szimuláció meg_állítás"
+
+msgid "Sample"
+msgstr ""
 
 msgid "Save As"
 msgstr "Mentés Másként"
 
+msgid "Save Output To _File..."
+msgstr "Eredmények _fájlba mentése..."
+
+msgid "Save Simulation Results"
+msgstr "Szimuláció eredmének mentése"
+
+msgid "Save Vector Table"
+msgstr "Vektortabella mentés"
+
 msgid "Save current project"
 msgstr "Jelenlegi projekt-et menteni"
-
-# msgid "Save Output To _File..."
-# msgstr ""
 
 msgid "Save project file as ..."
 msgstr "Projekt fájl mentés másként..."
 
-# msgid "Save Simulation Results"
-# msgstr ""
+msgid "Save the displayed simulation results."
+msgstr ""
 
-# msgid "Save the displayed simulation results."
-# msgstr ""
+msgid "Save the displayed vector table."
+msgstr ""
 
-msgid "Scale"
-msgstr "Átméretez"
-
-# msgid "_Scale All Cells In Design..."
-# msgstr ""
+msgid "Save"
+msgstr "Mentés"
 
 msgid "Scale Factor:"
 msgstr "Méretarány:"
 
-msgid "Select"
-msgstr "Választás"
-
-msgid "Select And Manipulate Design"
-msgstr "Tervnek Választása es Manipulálása"
+msgid "Scale"
+msgstr "Átméretez"
 
 msgid "Select Command"
 msgstr "Parancs választás"
@@ -792,101 +979,142 @@ msgstr "Parancs választás"
 msgid "Select File"
 msgstr "Fájlválasztás"
 
-# msgid "Set Simulation Type"
-# msgstr ""
+msgid "Select"
+msgstr "Választás"
 
-# msgid "Set Thresholds"
-# msgstr ""
+msgid "Sensitive"
+msgstr ""
 
-# msgid "Set thresholds for interpreting logical bits from polarizations."
-# msgstr ""
+msgid "Set Simulation Type"
+msgstr ""
 
-# msgid "Show Toolbar Icons"
-# msgstr ""
+msgid "Set parameters for interpreting logical bits from polarizations."
+msgstr ""
 
-# msgid "Show Values As Binary"
-# msgstr ""
+msgid "Show Label"
+msgstr ""
 
-# msgid "Show Values As Decimal"
-# msgstr ""
+msgid "Show Potential"
+msgstr ""
 
-# msgid "Show Values As Hexadecimal"
-# msgstr ""
+msgid "Show Toolbar Icons"
+msgstr ""
 
-msgid "_Simulation"
-msgstr "Szi_muláció"
+msgid "Show Values As Binary"
+msgstr "Értékeket binárisan kimutatni"
 
-msgid "Simulation _Engine Setup..."
-msgstr "Szimuláció algoritmus beállítása..."
+msgid "Show Values As Decimal"
+msgstr "Értékeket tizedesen kimutatni"
 
-# msgid "Simulation found %d inputs %d outputs %d total cells\n"
-# msgstr ""
+msgid "Show Values As Hexadecimal"
+msgstr ""
 
-# msgid "Simulation Results..."
-# msgstr ""
+msgid "Show potential created by the electrodes on this layer"
+msgstr ""
+
+msgid "Show/Hide Property UI"
+msgstr ""
 
 msgid "Simulation Results"
 msgstr "Szimuláció eredmények"
 
+msgid "Simulation Results..."
+msgstr "Szimuláció eredmények..."
+
 msgid "Simulation T_ype Setup..."
 msgstr "Szimuláció tipus beállítása"
+
+msgid "Simulation _Engine Setup..."
+msgstr "Szimuláció algoritmus beállítása..."
+
+msgid "Simulation found %d inputs %d outputs %d total cells\n"
+msgstr "Szimuláció %d input-ot, %d output-ot, és összesen %d cellát talált\n"
 
 msgid "Snap To Grid"
 msgstr "Rácshoz kötni"
 
-# msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
-# msgstr ""
+msgid "Source Layer"
+msgstr ""
 
-msgid "Specify the default clock for future cells."
-msgstr "Új celláknak az alapórajelet kiválasztani."
+msgid "Starting initialization\n"
+msgstr ""
 
-# msgid "_Start Simulation"
-# msgstr ""
+msgid "Stock (Checked)"
+msgstr ""
 
-# msgid "Starting initialization\n"
-# msgstr ""
+msgid "Stock (Unchecked)"
+msgstr ""
 
-# msgid "S_top Simulation"
-# msgstr ""
-
-# msgid "Substrate"
-# msgstr ""
+msgid "Substrate"
+msgstr "Szubsztrátum"
 
 msgid "Temperature:"
 msgstr "Hőmérséglet:"
 
-msgid "Text:"
-msgstr "Szöveg:"
+msgid "Template for new layer"
+msgstr ""
 
-# msgid "The file \"%s\" is not a regular file.  Maybe it's a directory, or a device file.  Please choose a regular file."
-# msgstr ""
+msgid "Template"
+msgstr ""
 
-# msgid "The selection must be able to drop before it can be copied.\n"
-# msgstr ""
+msgid "Text"
+msgstr "Szöveg"
+
+msgid "The design"
+msgstr "A terv"
+
+msgid ""
+"The file \"%s\" is not a regular file.  Maybe it's a directory, or a device "
+"file.  Please choose a regular file."
+msgstr ""
+
+msgid "The layer"
+msgstr "A réteg"
+
+msgid "The selection must be able to drop before it can be copied.\n"
+msgstr ""
+
+msgid "The toggle state of the button"
+msgstr ""
 
 msgid "This button allows you to manipulate your design."
 msgstr "Ezáltal a gomb által a tervet manipulálni"
 
-# msgid "Thresholds..."
-# msgstr ""
+msgid "Three State Coherence Options"
+msgstr ""
 
-# msgid "Time Step:"
-# msgstr ""
+msgid "Tile Size"
+msgstr ""
 
-# msgid "Toggle between two different display modes."
-# msgstr ""
+msgid "Time Coordinate"
+msgstr ""
 
-msgid "_Tools"
-msgstr "_Eszközök"
+msgid "Time Step:"
+msgstr ""
+
+msgid "Time coordinate to draw the potential for"
+msgstr ""
+
+msgid "Title"
+msgstr "Cím"
+
+msgid "Toggle between two different display modes."
+msgstr ""
+
+msgid "Toggle state"
+msgstr ""
+
+msgid "Tooltip"
+msgstr ""
 
 msgid "Top Margin:"
 msgstr "Felső Margó:"
 
-# msgid "Trace"
-# msgstr ""
+msgid "Total Simulation Time:"
+msgstr "Szimuláció teljes időtartama:"
 
-msgid "Translate"
-msgstr "Áthelyezés"
+msgid "Trace"
+msgstr ""
 
 msgid "Translate Selection"
 msgstr "Választás Áthelyezés"
@@ -894,69 +1122,225 @@ msgstr "Választás Áthelyezés"
 msgid "Translate your selection horizontally and/or vertically."
 msgstr "Választás vízszintes vagy függőleges áthelyezése."
 
+msgid "Translate"
+msgstr "Áthelyezés"
+
+msgid "Tunneling Energy:"
+msgstr ""
+
+msgid "UI Title"
+msgstr ""
+
+msgid "Un-stretch Traces"
+msgstr ""
+
+msgid "Units"
+msgstr "Egység"
+
+msgid "Untitled Bus"
+msgstr "Névtelen busz"
+
+msgid "Untitled Layer"
+msgstr "Névtelen réteg"
+
 msgid "Untitled"
 msgstr "Névtelen"
 
-# msgid "Untitled Bus"
-# msgstr ""
+msgid "Upper Threshold [1]:"
+msgstr "Magasabbik küszöb [1]:"
 
-# msgid "Untitled Layer"
-# msgstr ""
+msgid "Vector Table Setup"
+msgstr "Vektortabella beállítás"
 
-# msgid "Upper Threshold [1]:"
-# msgstr ""
+msgid "Vector Table Simulation"
+msgstr "Vektortabellás szimuláció"
 
-# msgid "Usage: %s <simulation results file>\n"
-# msgstr ""
+msgid "Vector Table"
+msgstr "Vektortabella"
 
-# msgid "Vector Table"
-# msgstr ""
-
-# msgid "Vector Table Operations"
-# msgstr ""
-
-# msgid "Vector Table Setup"
-# msgstr ""
+msgid "Vertical"
+msgstr "Függőleges"
 
 msgid "Vertical:"
 msgstr "Függőleges:"
 
-# msgid "Vertical"
-# msgstr ""
-
-# msgid "Vertically"
-# msgstr ""
-
-msgid "_View"
-msgstr "_Nézet"
+msgid "Vertically"
+msgstr "Függőlegesen"
 
 msgid "Visible"
 msgstr "Látható"
 
-# msgid "You appear to have an autosave file.  Would you like to recover it ?"
-# msgstr ""
+msgid "You appear to have an autosave file.  Would you like to recover it ?"
+msgstr ""
 
-msgid "You have made changes to your design.  Closing your design will discard those changes.  Save first ?"
-msgstr "A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve a terv bezárásával. Menteni először ?"
+msgid ""
+"You have made changes to your design.  Closing your design will discard "
+"those changes.  Save first ?"
+msgstr ""
+"A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve a terv "
+"bezárásával. Menteni először ?"
 
-msgid "You have made changes to your design.  Opening another design will discard those changes. Save first ?"
-msgstr "A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve egy másik terv megnyitásával. Menteni először ?"
+msgid ""
+"You have made changes to your design.  Opening another design will discard "
+"those changes. Save first ?"
+msgstr ""
+"A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve egy "
+"másik terv megnyitásával. Menteni először ?"
 
-msgid "You have made changes to your design.  Quitting QCADesigner will discard those changes.  Save first ?"
-msgstr "A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve a QCADesigner kilépésével. Menteni először ?"
+msgid ""
+"You have made changes to your design.  Quitting QCADesigner will discard "
+"those changes.  Save first ?"
+msgstr ""
+"A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve a "
+"QCADesigner kilépésével. Menteni először ?"
 
-msgid "You have made changes to your design.  Starting a new design will discard those changes.  Save first ?"
-msgstr "A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve egy uj terv elkezdésével. Menteni először ?"
+msgid ""
+"You have made changes to your design.  Starting a new design will discard "
+"those changes.  Save first ?"
+msgstr ""
+"A terv meg lett változtatva.  Ezek a változtatások el lesznek veszve egy uj "
+"terv elkezdésével. Menteni először ?"
 
-# msgid "Zoom Extents"
-# msgstr ""
+msgid "Zoom Extents"
+msgstr ""
 
 msgid "Zoom In"
 msgstr "Nagyítás"
 
-# msgid "Zoom Layer Extents"
-# msgstr ""
+msgid "Zoom Layer Extents"
+msgstr ""
 
 msgid "Zoom Out"
 msgstr "Kicsinyítés"
 
+msgid "_Bus Layout..."
+msgstr "_Busz szerkezet..."
+
+msgid "_Create Block..."
+msgstr ""
+
+msgid "_Edit"
+msgstr "S_zerkesztés"
+
+msgid "_Electrode Clocking"
+msgstr ""
+
+msgid "_File"
+msgstr "_Fájl"
+
+msgid "_Help"
+msgstr "_Súgó"
+
+msgid "_Hide All But The Selected Layer"
+msgstr ""
+
+msgid "_Import Block..."
+msgstr ""
+
+msgid "_No Smoothing"
+msgstr ""
+
+msgid "_Recent Files"
+msgstr "_Legutobbi fájlok"
+
+msgid "_Rotate Selection"
+msgstr "Választás _forgatás"
+
+msgid "_Running Average over"
+msgstr ""
+
+msgid "_Scale All Cells In Design..."
+msgstr ""
+
+msgid "_Simulation"
+msgstr "Szi_muláció"
+
+msgid "_Start Simulation"
+msgstr "Szimuláció _indítás"
+
+msgid "_Tools"
+msgstr "_Eszközök"
+
+msgid "_View"
+msgstr "_Nézet"
+
+msgid "_Zone Clocking"
+msgstr ""
+
+msgid "deactivate"
+msgstr ""
+
+msgid "a file"
+msgstr "egy fájl"
+
+msgid "hide"
+msgstr ""
+
+msgid "page(s) tall"
+msgstr "lap magas"
+
+msgid "page(s) wide"
+msgstr "lap széles"
+
+msgid "pixels"
+msgstr "pixel"
+
+msgid "samples"
+msgstr ""
+
+msgid "x Divisions"
+msgstr ""
+
+msgid "y Divisions"
+msgstr ""
+
+msgid "Clocking"
+msgstr "Órajel"
+
+msgid "Cells"
+msgstr "Cellák"
+
+msgid "Drawing"
+msgstr "Rajzolás"
+
+msgid "Starting Simulation\n"
+msgstr "Szimuláció indul\n"
+
+msgid "Total initialization time: %g s\n"
+msgstr ""
+
+#~ msgid "Cell Function"
+#~ msgstr "Cellafunkció"
+
+#~ msgid "Cell Label:"
+#~ msgstr "Cellafelirat:"
+
+#~ msgid "Clock:"
+#~ msgstr "Órajel:"
+
+#~ msgid "Default Clock:"
+#~ msgstr "Alapórajel:"
+
+#~ msgid "Default Clock"
+#~ msgstr "Alapórajel"
+
+#~ msgid "Grid Spacing:"
+#~ msgstr "Rácstávolság:"
+
+#~ msgid "Hidden"
+#~ msgstr "Láthatatlan"
+
+#~ msgid "Label Properties"
+#~ msgstr "Felirat Beállítások"
+
+#~ msgid "Normal Cell"
+#~ msgstr "Egyszerü cella"
+
+#~ msgid "Select And Manipulate Design"
+#~ msgstr "Tervnek Választása es Manipulálása"
+
+#~ msgid "Specify the default clock for future cells."
+#~ msgstr "Új celláknak az alapórajelet kiválasztani."
+
+#~ msgid "Text:"
+#~ msgstr "Szöveg:"

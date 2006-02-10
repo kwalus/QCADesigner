@@ -33,10 +33,8 @@
 
 #ifdef GTK_GUI
   #include "callback_helpers.h"
-  #include "support.h"
-#else
-  #define _(s) s
 #endif /* def GTK_GUI */
+#include "support.h"
 #include "objects/QCADCell.h"
 #include "simulation.h"
 #include "bistable_simulation.h"
@@ -236,7 +234,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
 
   command_history_message("Total initialization time: %g s\n", (double)(end_time - start_time));
 
-  command_history_message("Starting Simulation\n");
+  command_history_message(_("Starting Simulation\n"));
 
   set_progress_bar_fraction (0.0) ;
 

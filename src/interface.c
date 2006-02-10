@@ -564,7 +564,7 @@ void create_main_window (main_W *main_window){
   gtk_widget_set_sensitive (mnuiSep, FALSE);
 
   // create and add save output to file menu item to the simulation menu //
-  load_output_from_file_menu_item = gtk_image_menu_item_new_with_mnemonic (_("_Load Output From File..."));
+  load_output_from_file_menu_item = gtk_image_menu_item_new_with_mnemonic (_("_Open Simulation Results..."));
   gtk_widget_show (load_output_from_file_menu_item);
   gtk_container_add (GTK_CONTAINER (simulation_menu_menu), load_output_from_file_menu_item);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (load_output_from_file_menu_item),

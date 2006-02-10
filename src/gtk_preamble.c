@@ -45,11 +45,11 @@ static void my_logger (const gchar *log_domain, GLogLevelFlags log_level, const 
 
 static GtkStockItem stock_layers[] =
   {
-  {QCAD_STOCK_SUBSTRATE_LAYER,    "Substrate",    0, 0, PACKAGE},
-  {QCAD_STOCK_CELL_LAYER,         "Cells",        0, 0, PACKAGE},
-  {QCAD_STOCK_CLOCKING_LAYER,     "Clocking",     0, 0, PACKAGE},
-  {QCAD_STOCK_DRAWING_LAYER,      "Drawing",      0, 0, PACKAGE},
-  {QCAD_STOCK_DISTRIBUTION_LAYER, "Distribution", 0, 0, PACKAGE},
+  {QCAD_STOCK_SUBSTRATE_LAYER,    N_("Substrate"),    0, 0, PACKAGE},
+  {QCAD_STOCK_CELL_LAYER,         N_("Cells"),        0, 0, PACKAGE},
+  {QCAD_STOCK_CLOCKING_LAYER,     N_("Clocking"),     0, 0, PACKAGE},
+  {QCAD_STOCK_DRAWING_LAYER,      N_("Drawing"),      0, 0, PACKAGE},
+  {QCAD_STOCK_DISTRIBUTION_LAYER, N_("Distribution"), 0, 0, PACKAGE},
   } ;
 static int n_stock_layers = G_N_ELEMENTS (stock_layers) ;
 

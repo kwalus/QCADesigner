@@ -363,11 +363,17 @@ static void bus_name_changed (GtkWidget *widget, gpointer data)
   if ((bHaveText = ('\0' != pszText[0])))
     gtk_widget_hide (dialog->lblWarning) ;
   else
+    {
+    gtk_entry_set_text (GTK_ENTRY (widget), _("Untitled Bus")) ;
+    gtk_editable_select_region (GTK_EDITABLE (widget), 0, -1) ;
+    }
+/*
     gtk_widget_show (dialog->lblWarning) ;
 
   gtk_widget_set_sensitive (dialog->sw, bHaveText) ;
   gtk_widget_set_sensitive (dialog->bbox, bHaveText) ;
   gtk_widget_set_sensitive (dialog->btnOK, bHaveText) ;
+*/
   }
 
 // Create a new bus from the current selection

@@ -67,6 +67,8 @@ static void qcad_ruler_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_ruler_instance_init (GObject *object, gpointer data) ;
 static void qcad_ruler_instance_finalize (GObject *object) ;
 
+static QCADObject *class_get_default_object () ;
+
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #endif /* def GTK_GUI */
@@ -114,20 +116,22 @@ GType qcad_ruler_get_type ()
 static void qcad_ruler_class_init (GObjectClass *klass, gpointer data)
   {
   DBG_OO (fprintf (stderr, "QCADRuler::class_init:Entering\n")) ;
+  G_OBJECT_CLASS (klass)->finalize = qcad_ruler_instance_finalize ;
+  QCAD_OBJECT_CLASS (klass)->class_get_default_object = class_get_default_object ;
+#ifdef STDIO_FILEIO
+  QCAD_DESIGN_OBJECT_CLASS (klass)->serialize = serialize ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize = unserialize ;
+#endif /* def STDIO_FILEIO */
+  QCAD_STRETCHY_OBJECT_CLASS (klass)->stretch_draw_state_change = stretch_draw_state_change ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->move = move ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_preamble = PostScript_preamble ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance = PostScript_instance ;
+
 #ifdef GTK_GUI
   if (0 == clrCyan.pixel)
     gdk_colormap_alloc_color (gdk_colormap_get_system (), &clrCyan, FALSE, TRUE) ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw = draw ;
 #endif /* def GTK_GUI */
-#ifdef STDIO_FILEIO
-  QCAD_DESIGN_OBJECT_CLASS (klass)->serialize = serialize ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize = unserialize ;
-#endif /* def STDIO_FILEIO */
-  G_OBJECT_CLASS (klass)->finalize = qcad_ruler_instance_finalize ;
-  QCAD_STRETCHY_OBJECT_CLASS (klass)->stretch_draw_state_change = stretch_draw_state_change ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->move = move ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_preamble = PostScript_preamble ;
-  QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance = PostScript_instance ;
   DBG_OO (fprintf (stderr, "QCADRuler::class_init:Leaving\n")) ;
   }
 
@@ -157,6 +161,9 @@ static void qcad_ruler_instance_finalize (GObject *object)
   }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static QCADObject *class_get_default_object ()
+  {return QCAD_OBJECT (g_object_new (QCAD_TYPE_RULER, NULL)) ;}
 
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)

@@ -297,7 +297,7 @@ void main_window_show (GtkWidget *widget, gpointer data)
 
 //  gtk_paned_set_position (GTK_PANED (main_window.vpaned1), gtk_paned_get_position (GTK_PANED (main_window.vpaned1))) ;
   gtk_paned_set_position (GTK_PANED (main_window.vpaned1), main_window.vpaned1->allocation.height * 0.9) ;
-	zoom_window (-5, -5, 95, 60) ;
+//  zoom_window (-5, -5, 95, 60) ;
   }
 
 #ifdef UNDO_REDO

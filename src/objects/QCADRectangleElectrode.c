@@ -64,6 +64,7 @@ enum
   QCAD_RECTANGLE_ELECTRODE_PROPERTY_CY,
   QCAD_RECTANGLE_ELECTRODE_PROPERTY_X_DOTS,
   QCAD_RECTANGLE_ELECTRODE_PROPERTY_Y_DOTS,
+  QCAD_RECTANGLE_ELECTRODE_PROPERTY_ANGLE,
 
   QCAD_RECTANGLE_ELECTRODE_LAST
   } ;
@@ -120,9 +121,10 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   // Gotta be static so the strings don't die
   static QCADPropertyUIProperty properties[] =
     {
-    {NULL,     "title", {0, }},
-    {"width",  "units", {0, }},
-    {"height", "units", {0, }},
+    {NULL,     "title",     {0, }},
+    {"width",  "units",     {0, }},
+    {"height", "units",     {0, }},
+    {"angle",  "units",     {0, }},
     } ;
 
   // RectangleElectrode.title = "QCA Rectangular Electrode"
@@ -131,6 +133,8 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   g_value_set_string (g_value_init (&(properties[1].ui_property_value), G_TYPE_STRING), "nm") ;
   // RectangleElectrode.height.units = "nm"
   g_value_set_string (g_value_init (&(properties[2].ui_property_value), G_TYPE_STRING), "nm") ;
+  // RectangleElectrode.angle.units = "°"
+  g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "°") ;
 
   qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
 
@@ -161,8 +165,17 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
     g_param_spec_double ("height", _("Electrode Height"), _("Electrode Height"),
       0.1, 1e9, 40.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
-//  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RECTANGLE_ELECTRODE_PROPERTY_X_DOTS,
-//    g_param_spec_uint ("x-dots", _("")
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RECTANGLE_ELECTRODE_PROPERTY_X_DOTS,
+    g_param_spec_uint ("x-dots", _("x Divisions"), _("Number of x divisions"),
+      1, G_MAXUINT, 2, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RECTANGLE_ELECTRODE_PROPERTY_Y_DOTS,
+    g_param_spec_uint ("y-dots", _("y Divisions"), _("Number of y divisions"),
+      1, G_MAXUINT, 10, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RECTANGLE_ELECTRODE_PROPERTY_ANGLE,
+    g_param_spec_double ("angle", _("Electrode Angle"), _("Electrode Angle"),
+      0.0, 360, 0.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
   }
 
 static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer data)
@@ -253,6 +266,39 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
       g_object_notify (object, "height") ;
       break ;
       }
+
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_X_DOTS:
+      {
+      guint new_x_dots = g_value_get_uint (value) ;
+
+      if (new_x_dots == rc_electrode->n_x_divisions) break ;
+      rc_electrode->n_x_divisions = new_x_dots ;
+      precompute (QCAD_ELECTRODE (object)) ;
+      g_object_notify (object, "x-dots") ;
+      break ;
+      }
+
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_Y_DOTS:
+      {
+      guint new_y_dots = g_value_get_uint (value) ;
+
+      if (new_y_dots == rc_electrode->n_y_divisions) break ;
+      rc_electrode->n_y_divisions = new_y_dots ;
+      precompute (QCAD_ELECTRODE (object)) ;
+      g_object_notify (object, "y-dots") ;
+      break ;
+      }
+
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_ANGLE:
+      {
+      double new_angle = g_value_get_double (value) ;
+
+      if (new_angle == rc_electrode->angle) break ;
+      rc_electrode->angle = new_angle ;
+      precompute (QCAD_ELECTRODE (object)) ;
+      g_object_notify (object, "angle") ;
+      break ;
+      }
     }
   }
 
@@ -268,6 +314,18 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
 
     case QCAD_RECTANGLE_ELECTRODE_PROPERTY_CY:
       g_value_set_double (value, rc_electrode->cyWorld) ;
+      break ;
+
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_X_DOTS:
+      g_value_set_uint (value, rc_electrode->n_x_divisions) ;
+      break ;
+
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_Y_DOTS:
+      g_value_set_uint (value, rc_electrode->n_y_divisions) ;
+      break ;
+
+    case QCAD_RECTANGLE_ELECTRODE_PROPERTY_ANGLE:
+      g_value_set_double (value, rc_electrode->angle) ;
       break ;
     }
   }

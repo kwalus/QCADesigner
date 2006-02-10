@@ -388,7 +388,7 @@ static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *
     }
   else
   if (QCAD_IS_LABEL (obj) &&
-      (!(LAYER_TYPE_DRAWING == layer->type && obj->bounding_box.cxWorld > 10 && obj->bounding_box.cyWorld > 10)))
+      (!(LAYER_TYPE_DRAWING == layer->type/* && obj->bounding_box.cxWorld > 10 && obj->bounding_box.cyWorld > 10*/)))
     return FALSE ;
 //  else
 //  if (QCAD_IS_DENSITY_MAP (obj) && layer->type != LAYER_TYPE_DISTRIBUTION)

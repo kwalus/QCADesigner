@@ -94,7 +94,7 @@ void create_graph_dialog (graph_D *dialog)
     GTK_TOOLBAR_CHILD_BUTTON,
     NULL,
     _("Open"),
-    _("Open Simulation Results"),
+    _("Open Simulation Results..."),
     _("Open and display another set of simulation results."),
     gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_LARGE_TOOLBAR),
     (GCallback)btnOpen_clicked,

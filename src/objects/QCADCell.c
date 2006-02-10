@@ -232,14 +232,20 @@ GType qcad_cell_function_get_type ()
 
   if (!qcad_cell_function_type)
     {
-    static const GEnumValue values[] =
+    static GEnumValue values[] =
       {
-      {QCAD_CELL_NORMAL, "QCAD_CELL_NORMAL", "Normal"},
-      {QCAD_CELL_INPUT,  "QCAD_CELL_INPUT",  "Input"},
-      {QCAD_CELL_OUTPUT, "QCAD_CELL_OUTPUT", "Output"},
-      {QCAD_CELL_FIXED,  "QCAD_CELL_FIXED",  "Fixed Polarization"},
+      {QCAD_CELL_NORMAL, "QCAD_CELL_NORMAL", NULL},
+      {QCAD_CELL_INPUT,  "QCAD_CELL_INPUT",  NULL},
+      {QCAD_CELL_OUTPUT, "QCAD_CELL_OUTPUT", NULL},
+      {QCAD_CELL_FIXED,  "QCAD_CELL_FIXED",  NULL},
       {0, NULL, NULL}
       } ;
+
+    values[0].value_nick = _("Normal") ;
+    values[1].value_nick = _("Input") ;
+    values[2].value_nick = _("Output") ;
+    values[3].value_nick = _("Fixed Polarization") ;
+
     qcad_cell_function_type = g_enum_register_static (QCAD_TYPE_STRING_CELL_FUNCTION, values) ;
     }
 
@@ -252,13 +258,18 @@ GType qcad_cell_mode_get_type ()
 
   if (!qcad_cell_mode_type)
     {
-    static const GEnumValue values[] =
+    static GEnumValue values[] =
       {
-      {QCAD_CELL_MODE_NORMAL,    "QCAD_CELL_MODE_NORMAL",    "Normal"},
-      {QCAD_CELL_MODE_CROSSOVER, "QCAD_CELL_MODE_CROSSOVER", "Crossover"},
-      {QCAD_CELL_MODE_VERTICAL,  "QCAD_CELL_MODE_VERTICAL",  "Vertical"},
+      {QCAD_CELL_MODE_NORMAL,    "QCAD_CELL_MODE_NORMAL",    NULL},
+      {QCAD_CELL_MODE_CROSSOVER, "QCAD_CELL_MODE_CROSSOVER", NULL},
+      {QCAD_CELL_MODE_VERTICAL,  "QCAD_CELL_MODE_VERTICAL",  NULL},
       {0, NULL, NULL}
       } ;
+
+    values[0].value_nick = _("Normal") ;
+    values[1].value_nick = _("Crossover") ;
+    values[2].value_nick = _("Vertical") ;
+
     qcad_cell_mode_type = g_enum_register_static (QCAD_TYPE_STRING_CELL_MODE, values) ;
     }
 

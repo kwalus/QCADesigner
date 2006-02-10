@@ -45,7 +45,7 @@
 #define XTOP_LABEL_OFFSET 2
 #define YTOP_LABEL_OFFSET 2
 
-#define CYFONT 0.5 /* nanometers */
+#define CYFONT 2 /* nanometers */
 
 static void qcad_label_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_label_instance_init (GObject *object, gpointer data) ;

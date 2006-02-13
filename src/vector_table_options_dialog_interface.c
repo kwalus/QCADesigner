@@ -269,7 +269,7 @@ GtkTreeViewColumn *add_vector_to_dialog (vector_table_options_D *dialog, VectorT
   g_object_set_data (G_OBJECT (cr), "col", col) ;
 
   g_signal_connect (G_OBJECT (col), "clicked", (GCallback)vector_column_clicked, dialog) ;
-  g_signal_connect (G_OBJECT (cr), "clicked", (GCallback)vector_column_clicked, dialog) ;
+  g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)vector_column_clicked, dialog) ;
   g_signal_connect (G_OBJECT (cr), "edited",  (GCallback)vector_value_edited, dialog->tv) ;
   g_signal_connect (G_OBJECT (cr), "editing-started", (GCallback)vector_value_editing_started, dialog) ;
 

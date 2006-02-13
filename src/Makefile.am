@@ -96,6 +96,8 @@ QCADesigner_SOURCES = \
 	objects/QCADCellRendererVT.c            objects/QCADCellRendererVT.h \
 	objects/QCADCellRendererLayerList.c     objects/QCADCellRendererLayerList.h \
 	objects/QCADTreeViewContainer.c         objects/QCADTreeViewContainer.h \
+	objects/QCADToggleToolButton.c          objects/QCADToggleToolButton.h \
+	objects/QCADRadioToolButton.c           objects/QCADRadioToolButton.h \
 	objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
 	print_properties_dialog.c               print_properties_dialog.h \
 	print_graph_properties_dialog.c         print_graph_properties_dialog.h \
@@ -202,6 +204,8 @@ graph_dialog_SOURCES = \
 	$(STDIO_FILEIO_FILES) \
 	$(OBJECT_FILES) \
 	objects/QCADPrintDialog.c                  objects/QCADPrintDialog.h \
+	objects/QCADToggleToolButton.c             objects/QCADToggleToolButton.h \
+	objects/QCADRadioToolButton.c              objects/QCADRadioToolButton.h \
 	gtk_preamble.c                             gtk_preamble.h \
 	design.c                                   design.h \
 	objects/object_helpers.c                   objects/object_helpers.h \

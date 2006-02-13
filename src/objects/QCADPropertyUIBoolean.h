@@ -23,7 +23,7 @@ struct _QCADPropertyUIBoolean
   char *pszStockUp ;
   char *pszStockDown ;
 #endif /* def GTK_GUI */
-  guint notify_id ;
+//  guint notify_id ;
   } ;
 
 struct _QCADPropertyUIBooleanClass

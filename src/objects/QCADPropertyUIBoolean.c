@@ -3,8 +3,9 @@
 #include "../custom_widgets.h"
 #include "QCADParamSpecTypeList.h"
 #include "QCADPropertyUIBoolean.h"
-
 #ifdef GTK_GUI
+  #include "QCADToggleToolButton.h"
+
 enum
   {
   QCAD_PROPERTY_UI_BOOLEAN_PROPERTY_RENDER_AS=1,
@@ -32,7 +33,6 @@ static void       set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitiv
 
 static gboolean set_stock_id (QCADPropertyUIBoolean *property_ui_boolean, char **ppszStockID, const char *pszVal) ;
 static void toggle_button_toggled (GtkWidget *widget, gpointer data) ;
-static void instance_notify (GObject *instance, GParamSpec *pspec, gpointer data) ;
 static void qcad_property_ui_boolean_set_button_appearance (QCADPropertyUIBoolean *property_ui_boolean, gboolean bActive) ;
 #endif /* def GTK_GUI */
 
@@ -110,14 +110,14 @@ static void qcad_property_ui_boolean_instance_init (QCADPropertyUIBoolean *prope
   property_ui_boolean->check_button.idxX = 0 ;
   property_ui_boolean->check_button.idxY = 0 ;
 
-  property_ui_boolean->toggle_button.widget = GTK_WIDGET (gtk_toggle_tool_button_new ()) ;
+  property_ui_boolean->toggle_button.widget = GTK_WIDGET (g_object_new (QCAD_TYPE_TOGGLE_TOOL_BUTTON, NULL)) ;
   g_object_ref (property_ui_boolean->toggle_button.widget) ;
   gtk_widget_show (property_ui_boolean->toggle_button.widget) ;
   property_ui_boolean->toggle_button.idxX = 0 ;
   property_ui_boolean->toggle_button.idxY = 0 ;
   g_signal_connect (G_OBJECT (property_ui_boolean->toggle_button.widget), "toggled", (GCallback)toggle_button_toggled, property_ui_boolean) ;
 
-  property_ui_boolean->notify_id = -1 ;
+//  property_ui_boolean->notify_id = -1 ;
 #endif /* def GTK_GUI */
   }
 
@@ -218,29 +218,24 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance
       disconnect_object_properties (old_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_boolean->check_button.widget), "active",
         CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL, 
         CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
-// THIS SUXXXX ! The GtkToggleToolButton::active property merely sets GtkToggleToolButton->priv->active, and
-// does not redraw the GtkToggleToolButton. Thus, it does not reflect the new value of its "active" property.
-// This is fixed in current GTK+ CVS, so it'll be available as of GTK+-2.10.x .
-// This is why I cannot connect instance::pspec->name to GtkToggleToolButton::active.
-// Grrrrrrr !
-      if (-1 != property_ui_boolean->notify_id)
-        g_signal_handler_disconnect (old_instance, property_ui_boolean->notify_id) ;
+      disconnect_object_properties (old_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_boolean->toggle_button.widget), "active",
+        CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL, 
+        CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
       }
 
     if (NULL != new_instance)
       {
-      gboolean bActive ;
-      char *psz = NULL ;
+//      gboolean bActive ;
 
       connect_object_properties (new_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_boolean->check_button.widget), "active",
         CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL, 
         CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
-      property_ui_boolean->notify_id = 
-        g_signal_connect (G_OBJECT (new_instance), psz = g_strdup_printf ("notify::%s", property_ui_single->pspec->name), (GCallback)instance_notify, property_ui_boolean) ;
-      g_free (psz) ;
+      connect_object_properties (new_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_boolean->toggle_button.widget), "active",
+        CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL, 
+        CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
 
-      g_object_get (new_instance, property_ui_single->pspec->name, &bActive, NULL) ;
-      qcad_property_ui_boolean_set_button_appearance (property_ui_boolean, bActive) ;
+//      g_object_get (new_instance, property_ui_single->pspec->name, &bActive, NULL) ;
+//      qcad_property_ui_boolean_set_button_appearance (property_ui_boolean, bActive) ;
 
       g_object_notify (new_instance, property_ui_single->pspec->name) ;
       }
@@ -297,6 +292,9 @@ static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY, i
 
 static gboolean set_stock_id (QCADPropertyUIBoolean *property_ui_boolean, char **ppszStockID, const char *pszVal)
   {
+  GObject *instance = NULL ;
+  GParamSpec *pspec = NULL ;
+
   if (NULL == (*ppszStockID))
     {
     if (NULL == pszVal) return FALSE ;
@@ -313,38 +311,22 @@ static gboolean set_stock_id (QCADPropertyUIBoolean *property_ui_boolean, char *
         (*ppszStockID) = g_strdup (pszVal) ;
     }
 
+  if (!(NULL == (instance = QCAD_PROPERTY_UI (property_ui_boolean)->instance) || 
+        NULL == (pspec = QCAD_PROPERTY_UI_SINGLE (property_ui_boolean)->pspec)))
+    {
+    gboolean bActive ;
+
+    g_object_get (G_OBJECT (instance), pspec->name, &bActive, NULL) ;
+    qcad_property_ui_boolean_set_button_appearance (property_ui_boolean, bActive) ;
+    }
+
   return TRUE ;
   }
 
-// Bloody hell ! I have to re-implement connect_object_properties for this particular object and this
-// particular property, because the set_property handler inside GTK+ doesn't work properly ... Grrrrr !
 static void toggle_button_toggled (GtkWidget *widget, gpointer data)
   {
-  QCADPropertyUI *property_ui = QCAD_PROPERTY_UI (data) ;
-  QCADPropertyUISingle *property_ui_single = QCAD_PROPERTY_UI_SINGLE (data) ;
-  gboolean instance_val, button_val = gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (widget)) ;
-
-  if (NULL == property_ui->instance) return ;
-  if (NULL == property_ui_single->pspec) return ;
-
-  g_object_get (property_ui->instance, property_ui_single->pspec->name, &instance_val, NULL) ;
-
-  if (instance_val != button_val)
-    g_object_set (property_ui->instance, property_ui_single->pspec->name, button_val, NULL) ;
-
-  qcad_property_ui_boolean_set_button_appearance (QCAD_PROPERTY_UI_BOOLEAN (data), button_val) ;
-  }
-// Bloody hell ! I have to re-implement connect_object_properties for this particular object and this 
-// particular property, because the set_property handler inside GTK+ doesn't work properly ... Grrrrr !
-static void instance_notify (GObject *instance, GParamSpec *pspec, gpointer data)
-  {
-  QCADPropertyUIBoolean *property_ui_boolean = QCAD_PROPERTY_UI_BOOLEAN (data) ;
-  gboolean instance_val, button_val = gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (property_ui_boolean->toggle_button.widget)) ;
-
-  g_object_get (instance, pspec->name, &instance_val, NULL) ;
-
-  if (instance_val != button_val)
-    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (property_ui_boolean->toggle_button.widget), instance_val) ;
+  qcad_property_ui_boolean_set_button_appearance (QCAD_PROPERTY_UI_BOOLEAN (data), 
+    gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (widget))) ;
   }
 
 static void qcad_property_ui_boolean_set_button_appearance (QCADPropertyUIBoolean *property_ui_boolean, gboolean bActive)

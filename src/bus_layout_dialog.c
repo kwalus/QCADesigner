@@ -79,7 +79,6 @@ typedef struct
 enum
   {
   GSBS_START,
-  GSBS_D1NB,
   GSBS_D1B_ACCEPT,
   GSBS_REJECT
   } ;
@@ -856,20 +855,20 @@ static void get_selected_refs_foreach_func (GtkTreeModel *tm, GtkTreePath *tp, G
 
 // Grab the bus this selection belongs to (if any). This is done via the following DFA:
 // If the selection is not a member of a single bus, return NULL
-//
-//                              d==2
-//          +---------->--------------------->----------------+   +---<---+
-//          |                                                 v   v       | d==2 &&
-//    +-----+----+ d==1  +---------+ row_type==BUS +---------------+      | parent==tpBus
-//    |GSBS_START+------>|GSBS_D1NB+-------------->|GSBS_D1B_ACCEPT+--->--+
-//    +----------+       +-----+---+               +--------+------+
-//                             |                           |
-//                             |row_type!=BUS              | d==2&&parent!=tpBus
-//                             |       +------------+      |
-//                             +------>|GSBS_REJECT|<------+
-//                                     +--+---------+
-//                                        |     ^
-//                                        +-----+ no matter what
+//                                                             
+//                                                             
+//                                       +---<---+
+//                                       v       | d==2 &&
+//  +----------+   d==2   +---------------+      | parent==tpBus
+//  |GSBS_START+--------->|GSBS_D1B_ACCEPT+--->--+
+//  +----+-----+          +--------+------+
+//       |                        |
+//   d==1|                        | (d==2&&parent!=tpBus) ||
+//       |    +------------+      | (d==1)
+//       +--->|GSBS_REJECT|<------+
+//            +--+---------+
+//               |     ^
+//               +-----+ no matter what
 //
 static GtkTreePath *get_selection_bus (GtkTreeSelection *sel, gboolean *pbSomethingSelected)
   {

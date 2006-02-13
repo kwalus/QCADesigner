@@ -40,6 +40,8 @@
 #include "objects/QCADLayer.h"
 #include "objects/QCADClockingLayer.h"
 #include "objects/QCADPropertyUISingle.h"
+#include "objects/QCADToggleToolButton.h"
+#include "objects/QCADRadioToolButton.h"
 
 main_W main_window = {NULL} ;
 extern char *layer_stock_id[] ;
@@ -646,7 +648,7 @@ void create_main_window (main_W *main_window){
   // create and add the default button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (main_window->default_action_button = toolbar_item = 
-      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
         "stock-id", QCAD_STOCK_SELECT, 
         "label",    _("Select"),
         NULL)), -1) ;
@@ -658,7 +660,7 @@ void create_main_window (main_W *main_window){
   // create and add the type 1 cell button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (main_window->insert_type_1_cell_button = toolbar_item = 
-      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
         "stock-id", QCAD_STOCK_CELL, 
         "label",    _("Cell"),
         "group",   main_window->default_action_button,
@@ -671,7 +673,7 @@ void create_main_window (main_W *main_window){
   // create and add the array button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (main_window->insert_cell_array_button = toolbar_item = 
-      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
         "stock-id", QCAD_STOCK_ARRAY, 
         "label",    _("Array"),
         "group",   main_window->default_action_button,
@@ -684,7 +686,7 @@ void create_main_window (main_W *main_window){
   // create and add the rotate button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (main_window->rotate_cell_button = toolbar_item = 
-      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
         "stock-id", QCAD_STOCK_ROTATE_CELL,
         "label",    _("Rotate"),
         "group",   main_window->default_action_button,
@@ -743,7 +745,7 @@ void create_main_window (main_W *main_window){
   // Create and add the "Add Substrate" button
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (main_window->substrate_button = toolbar_item = 
-      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
         "stock-id", QCAD_STOCK_SUBSTRATE,
         "label",    _("Substrate"),
         "group",   main_window->default_action_button,
@@ -756,7 +758,7 @@ void create_main_window (main_W *main_window){
   // Drawing layer buttons
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (main_window->label_button = toolbar_item = 
-      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
         "stock-id", QCAD_STOCK_LABEL,
         "label",    _("Label"),
         "group",   main_window->default_action_button,
@@ -769,7 +771,7 @@ void create_main_window (main_W *main_window){
   // Clocking layer buttons
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (main_window->rectangle_electrode_button = toolbar_item = 
-      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
         "stock-id", QCAD_STOCK_RECT_ELECTRODE,
         "label",    _("Rectangle"),
         "group",   main_window->default_action_button,
@@ -845,7 +847,7 @@ void create_main_window (main_W *main_window){
   // create and add the pan button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (toolbar_item = 
-      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
         "stock-id", QCAD_STOCK_PAN,
         "label",    _("Pan"),
         "group",    main_window->default_action_button,
@@ -858,7 +860,7 @@ void create_main_window (main_W *main_window){
   // create and add the measure button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (toolbar_item = 
-      g_object_new (GTK_TYPE_RADIO_TOOL_BUTTON,
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
         "stock-id", QCAD_STOCK_MEASURE,
         "label",    _("Distance"),
         "group",    main_window->default_action_button,

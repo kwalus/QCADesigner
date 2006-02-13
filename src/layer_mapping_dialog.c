@@ -252,21 +252,15 @@ static void create_layer_mapping_dialog (layer_mapping_D *dialog)
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new ()) ;
   gtk_tree_view_column_set_title (GTK_TREE_VIEW_COLUMN (col), _("Source Layer")) ;
   gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_pixbuf_new (), FALSE) ;
-#if (GTK_MINOR_VERSION >= 4)
   gtk_tree_view_column_add_attribute (col, cr, "sensitive", LAYER_MAPPING_MODEL_COLUMN_IMPORT) ;
-#endif
   gtk_tree_view_column_add_attribute (col, cr, "stock-id", LAYER_MODEL_COLUMN_ICON) ;
   gtk_tree_view_column_pack_start (col, cr = qcad_cell_renderer_layer_list_new (), FALSE) ;
-#if (GTK_MINOR_VERSION >= 4)
   gtk_tree_view_column_add_attribute (col, cr, "sensitive", LAYER_MAPPING_MODEL_COLUMN_IMPORT) ;
-#endif
   gtk_tree_view_column_add_attribute (col, cr, "layer", LAYER_MODEL_COLUMN_LAYER) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new ()) ;
   gtk_tree_view_column_set_title (GTK_TREE_VIEW_COLUMN (col), _("Destination Layer")) ;
   gtk_tree_view_column_pack_start (col, cr = dialog->crDst = qcad_cell_renderer_layer_list_new (), FALSE) ;
-#if (GTK_MINOR_VERSION >= 4)
   gtk_tree_view_column_add_attribute (col, cr, "sensitive", LAYER_MAPPING_MODEL_COLUMN_IMPORT) ;
-#endif
   gtk_tree_view_column_add_attribute (col, cr, "layer", LAYER_MAPPING_MODEL_COLUMN_DEST) ;
   gtk_tree_view_column_add_attribute (col, cr, "template", LAYER_MODEL_COLUMN_LAYER) ;
   g_object_set (G_OBJECT (cr), "editable", TRUE, NULL) ;

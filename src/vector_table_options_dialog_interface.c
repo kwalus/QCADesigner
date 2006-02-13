@@ -211,7 +211,7 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_cell_renderer_toggle_set_active (GTK_CELL_RENDERER_TOGGLE (cr), TRUE) ;
   gtk_widget_show (dialog->tv) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->tv) ;
-  qcad_tree_view_container_freeze_columns (QCAD_TREE_VIEW_CONTAINER (dialog->sw), 2) ;
+//  qcad_tree_view_container_freeze_columns (QCAD_TREE_VIEW_CONTAINER (dialog->sw), 2) ;
 
   g_signal_connect (G_OBJECT (dialog->tv),     "style-set",    (GCallback)tree_view_style_set,                          NULL) ;
   g_signal_connect (G_OBJECT (cr),             "toggled",      (GCallback)vt_model_active_toggled,                      dialog->tv) ;

@@ -66,7 +66,8 @@ void create_main_window (main_W *main_window){
     *simulation_menu                 = NULL, *simulation_menu_menu      = NULL, *simulation_type_setup_menu_item   = NULL,
     *start_simulation_menu_item      = NULL, *status_bar                = NULL, *stop_simulation_menu_item         = NULL,
     *table1                          = NULL, *tools_menu                = NULL, *tools_menu_menu                   = NULL,
-    *view_menu                       = NULL, *hide_layers_menu_item     = NULL, *mnu                               = NULL, 
+    *view_menu                       = NULL, *hide_layers_menu_item     = NULL, *mnu                               = NULL,
+    *show_scrollbars_menu_item       = NULL,
 #ifdef STDIO_FILEIO
     *open_menu_item                  = NULL, *save_menu_item            = NULL, *save_as_menu_item                 = NULL,
     *recent_files_menu_item          = NULL, *import_block_menu_item    = NULL, *create_block_menu_item            = NULL,
@@ -437,6 +438,13 @@ void create_main_window (main_W *main_window){
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (show_tb_icons_menu_item), TRUE);
   gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(show_tb_icons_menu_item), TRUE);
 
+  // create and add the show toolbar icons menu item to the view menu //
+  show_scrollbars_menu_item = gtk_check_menu_item_new_with_label (_("Show Scrollbars"));
+  gtk_widget_show (show_scrollbars_menu_item);
+  gtk_container_add (GTK_CONTAINER (view_menu_menu), show_scrollbars_menu_item);
+  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (show_scrollbars_menu_item), TRUE);
+  gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(show_scrollbars_menu_item), TRUE);
+
   // create and add a seperator to the view menu //
   mnuiSep = gtk_menu_item_new ();
   gtk_widget_show (mnuiSep);
@@ -644,6 +652,10 @@ void create_main_window (main_W *main_window){
   gtk_toolbar_set_tooltips (GTK_TOOLBAR (main_window->toolbar), TRUE) ;
   gtk_toolbar_set_style (GTK_TOOLBAR (main_window->toolbar), GTK_TOOLBAR_BOTH_HORIZ) ;
   gtk_box_pack_start (GTK_BOX (hbox1), main_window->toolbar, FALSE, FALSE, 0);
+//  static int toolbar_styles[2] = {GTK_TOOLBAR_BOTH_HORIZ, GTK_TOOLBAR_TEXT} ;
+//  connect_object_properties (G_OBJECT (show_tb_icons_menu_item), "active", G_OBJECT (main_window->toolbar), "toolbar-style",
+//    CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA, toolbar_styles, NULL,
+//    NULL, NULL, NULL) ;
 
   // create and add the default button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
@@ -924,6 +936,9 @@ void create_main_window (main_W *main_window){
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 2, 2) ;
   g_signal_connect (G_OBJECT (widget), "change-value", (GCallback)scrollbar_change_value, (gpointer)0) ;
+  connect_object_properties (G_OBJECT (show_scrollbars_menu_item), "active", G_OBJECT (widget), "visible",
+    CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL,
+    CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
 
   widget = GTK_WIDGET (g_object_new (GTK_TYPE_VSCROLLBAR, 
     "visible",    TRUE, 
@@ -933,6 +948,9 @@ void create_main_window (main_W *main_window){
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
   g_signal_connect (G_OBJECT (widget), "change-value", (GCallback)scrollbar_change_value, (gpointer)1) ;
+  connect_object_properties (G_OBJECT (show_scrollbars_menu_item), "active", G_OBJECT (widget), "visible",
+    CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL,
+    CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
 
   // create and add the drawing area to the table //
   // this is the widget where all the action happens //

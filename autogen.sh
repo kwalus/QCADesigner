@@ -5,7 +5,7 @@ set -x
 #Ask for the appropriate automake/autoconf versions
 # WANT_AUTOMAKE=1.6
 # WANT_AUTOCONF_2_5=1
-ACLOCAL_INCLUDE="${HOME}/sw/share/aclocal"
+# ACLOCAL_INCLUDE="${HOME}/sw/share/aclocal"
 
 export WANT_AUTOMAKE
 export WANT_AUTOCONF_2_5

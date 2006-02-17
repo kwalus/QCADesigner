@@ -31,13 +31,26 @@
 //////////////////////////////////////////////////////////
 
 #include <gtk/gtk.h>
-#include "./generic_utils.h"
+#include "../generic_utils.h"
+#include "../support.h"
 #include "QCADTreeViewContainer.h"
 
+enum
+  {
+  QCAD_TREE_VIEW_CONTAINER_PROPERTY_FIRST=1,
+
+  QCAD_TREE_VIEW_CONTAINER_PROPERTY_N_FROZEN_COLUMNS,
+
+  QCAD_TREE_VIEW_CONTAINER_PROPERTY_LAST
+  } ;
+
 static void qcad_tree_view_container_instance_init (QCADTreeViewContainer *tvc) ;
-static void qcad_tree_view_container_instance_finalize (GObject *obj) ;
 static void qcad_tree_view_container_class_init (QCADTreeViewContainerClass *klass) ;
-static void qcad_tree_view_container_add (GtkContainer *container, GtkWidget *child) ;
+
+static void finalize (GObject *obj) ;
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) ;
+static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
+static void add (GtkContainer *container, GtkWidget *child) ;
 
 static void hscroll_adj_value_changed (GtkAdjustment *adj, gpointer data) ;
 static void fake_hadj_value_changed (GtkAdjustment *adj, gpointer data) ;
@@ -77,25 +90,66 @@ GType qcad_tree_view_container_get_type ()
 
 static void qcad_tree_view_container_class_init (QCADTreeViewContainerClass *klass)
   {
-  GTK_CONTAINER_CLASS (klass)->add = qcad_tree_view_container_add ;
-  G_OBJECT_CLASS (g_type_class_peek (QCAD_TYPE_TREE_VIEW_CONTAINER))->finalize = qcad_tree_view_container_instance_finalize ;
+  G_OBJECT_CLASS (klass)->finalize     = finalize ;
+  G_OBJECT_CLASS (klass)->set_property = set_property ;
+  G_OBJECT_CLASS (klass)->get_property = get_property ;
+
+  GTK_CONTAINER_CLASS (klass)->add = add ;
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_TREE_VIEW_CONTAINER_PROPERTY_N_FROZEN_COLUMNS,
+    g_param_spec_uint ("n-frozen-columns", _("Frozen Columns"), _("Number of columns (from the left) to keep in view"),
+      0, G_MAXUINT, 0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
   }
 
 static void qcad_tree_view_container_instance_init (QCADTreeViewContainer *tvc)
   {
   tvc->n_frozen_columns = 0 ;
   tvc->old_value = -1 ;
+  tvc->notify_id = -1 ;
   tvc->fake_hadj = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 1, 1)) ;
+  g_object_ref (G_OBJECT (tvc->fake_hadj)) ;
   g_signal_connect (G_OBJECT (tvc->fake_hadj), "value-changed", (GCallback)fake_hadj_value_changed, NULL) ;
   }
 
-static void qcad_tree_view_container_instance_finalize (GObject *obj)
-  {g_object_unref (QCAD_TREE_VIEW_CONTAINER (obj)->fake_hadj) ;}
+static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+  {
+  switch (property_id)
+    {
+    case QCAD_TREE_VIEW_CONTAINER_PROPERTY_N_FROZEN_COLUMNS:
+      qcad_tree_view_container_freeze_columns (QCAD_TREE_VIEW_CONTAINER (object), g_value_get_uint (value)) ;
+      g_object_notify (object, "n-frozen-columns") ;
+      break ;
+    }
+  }
 
-static void qcad_tree_view_container_add (GtkContainer *container, GtkWidget *child)
+static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+  {
+  switch (property_id)
+    {
+    case QCAD_TREE_VIEW_CONTAINER_PROPERTY_N_FROZEN_COLUMNS:
+      g_value_set_uint (value, QCAD_TREE_VIEW_CONTAINER (object)->n_frozen_columns) ;
+      break ;
+    }
+  }
+
+static void finalize (GObject *obj)
+  {
+  g_object_unref (QCAD_TREE_VIEW_CONTAINER (obj)->fake_hadj) ;
+  G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_TREE_VIEW_CONTAINER)))->finalize (obj) ;
+  }
+
+static void add (GtkContainer *container, GtkWidget *child)
   {
   GtkWidget *old_child = NULL ;
+  GtkTreeView *tv = NULL ;
+  GtkScrolledWindow *sw = NULL ;
+  QCADTreeViewContainer *tvc = NULL ;
+
   if (!GTK_IS_TREE_VIEW (child)) return ;
+
+  tv  = GTK_TREE_VIEW (child) ;
+  sw  = GTK_SCROLLED_WINDOW (container) ;
+  tvc = QCAD_TREE_VIEW_CONTAINER (container) ;
 
   if (NULL != (old_child = GTK_BIN (container)->child))
     {
@@ -106,19 +160,25 @@ static void qcad_tree_view_container_add (GtkContainer *container, GtkWidget *ch
 
   GTK_BIN (container)->child = child ;
   gtk_widget_set_parent (child, GTK_WIDGET (container)) ;
-  gtk_tree_view_set_vadjustment (GTK_TREE_VIEW (child), gtk_range_get_adjustment (GTK_RANGE (GTK_SCROLLED_WINDOW (container)->vscrollbar))) ;
-  gtk_tree_view_set_hadjustment (GTK_TREE_VIEW (child), gtk_range_get_adjustment (GTK_RANGE (GTK_SCROLLED_WINDOW (container)->hscrollbar))) ;
+  gtk_tree_view_set_vadjustment (tv, gtk_range_get_adjustment (GTK_RANGE (sw->vscrollbar))) ;
+  gtk_tree_view_set_hadjustment (tv, gtk_range_get_adjustment (GTK_RANGE (sw->hscrollbar))) ;
 
-  g_signal_connect (G_OBJECT (child), "size-allocate", (GCallback)tree_view_size_allocate, container) ;
-  g_signal_connect (G_OBJECT (child), "move-cursor", (GCallback)tree_view_move_cursor, container) ;
+  g_signal_connect (G_OBJECT (child), "size-allocate",  (GCallback)tree_view_size_allocate,  container) ;
+  g_signal_connect (G_OBJECT (child), "move-cursor",    (GCallback)tree_view_move_cursor,    container) ;
   g_signal_connect (G_OBJECT (child), "cursor-changed", (GCallback)tree_view_cursor_changed, container) ;
+
+  if (tvc->n_frozen_columns > 0)
+    qcad_tree_view_container_freeze_columns (QCAD_TREE_VIEW_CONTAINER (container), QCAD_TREE_VIEW_CONTAINER (container)->n_frozen_columns) ;
+
+  if (-1 == tvc->notify_id)
+    tvc->notify_id = 
+      g_signal_connect (G_OBJECT (gtk_range_get_adjustment (GTK_RANGE (sw->hscrollbar))),
+        "value-changed", (GCallback)hscroll_adj_value_changed, container) ;
   }
 
 GtkWidget *qcad_tree_view_container_new ()
   {
   GtkWidget *ret = g_object_new (QCAD_TYPE_TREE_VIEW_CONTAINER, "hadjustment", NULL, "vadjustment", NULL, NULL) ;
-  g_signal_connect (G_OBJECT (gtk_range_get_adjustment (GTK_RANGE (GTK_SCROLLED_WINDOW (ret)->hscrollbar))),
-    "value-changed", (GCallback)hscroll_adj_value_changed, ret) ;
   return ret ;
   }
 
@@ -129,43 +189,62 @@ void qcad_tree_view_container_freeze_columns (QCADTreeViewContainer *tvc, int n_
   GtkAdjustment *adjHScroll = NULL ;
 
   if (!QCAD_IS_TREE_VIEW_CONTAINER (tvc)) return ;
-  if (NULL == (tv = GTK_TREE_VIEW (GTK_BIN (tvc)->child))) return ;
+
+  tv = GTK_TREE_VIEW (GTK_BIN (tvc)->child) ;
 
   n_columns = 
-  QCAD_TREE_VIEW_CONTAINER (tvc)->n_frozen_columns = 
+  QCAD_TREE_VIEW_CONTAINER (tvc)->n_frozen_columns = (NULL == tv) ? n_columns :
     CLAMP (n_columns, 0, n_tv_cols = tree_view_count_columns (tv)) ;
 
-  // Set the tree view hadjustment if we're going back to normal scrolling
+  if (NULL == tv) return ;
+
+  // Set the tree view hadjustment if we're going back to normal scrolling, and show all tree view columns
   adjHScroll = gtk_range_get_adjustment (GTK_RANGE (GTK_SCROLLED_WINDOW (tvc)->hscrollbar)) ;
-  if (0 == n_columns && (gtk_tree_view_get_hadjustment (tv) != adjHScroll))
+
+  if (0 == n_columns)
+    {
+    GList *llCols = NULL, *llItrCols = NULL ;
+
+    if (NULL != (llCols = gtk_tree_view_get_columns (tv)))
+      {
+      for (llItrCols = llCols ; llItrCols != NULL ; llItrCols = llItrCols->next)
+        gtk_tree_view_column_set_visible (GTK_TREE_VIEW_COLUMN (llItrCols->data), TRUE) ;
+      g_list_free (llCols) ;
+      }
+
     gtk_tree_view_set_hadjustment (tv, adjHScroll) ;
+    }
   else
   // Remove the hadjustment if we're freezing columns
-  if (n_columns > 0 && gtk_tree_view_get_hadjustment (tv) == adjHScroll)
+    {
     gtk_tree_view_set_hadjustment (tv, tvc->fake_hadj) ;
 
-  if (n_columns > 0 && NULL != (adjHScroll = gtk_range_get_adjustment (GTK_RANGE (GTK_SCROLLED_WINDOW (tvc)->hscrollbar))))
-    {
-    adjHScroll->value = 0 ;
-    adjHScroll->lower = 0 ;
-    adjHScroll->upper = 1 ;
-    adjHScroll->step_increment = 1 ;
-    adjHScroll->page_increment = 10 ;
-    adjHScroll->page_size = 1 ;
-    set_hscroll_upper (tvc) ;
-    gtk_adjustment_value_changed (adjHScroll) ;
+    if (NULL != adjHScroll)
+      {
+      adjHScroll->value = 0 ;
+      adjHScroll->lower = 0 ;
+      adjHScroll->upper = 1 ;
+      adjHScroll->step_increment = 1 ;
+      adjHScroll->page_increment = 10 ;
+      adjHScroll->page_size = 1 ;
+      set_hscroll_upper (tvc) ;
+      }
     }
+  GTK_WIDGET_CLASS (g_type_class_peek (GTK_TYPE_TREE_VIEW))->size_allocate (GTK_WIDGET (tv), &(GTK_WIDGET (tv)->allocation)) ;
   }
 
 static void fake_hadj_value_changed (GtkAdjustment *adj, gpointer data)
   {if (adj->value != adj->lower) gtk_adjustment_set_value (adj, adj->lower) ;}
 
 static void tree_view_size_allocate (GtkTreeView *tv, GtkAllocation *alloc, gpointer data)
-  {set_hscroll_upper (QCAD_TREE_VIEW_CONTAINER (data)) ;}
+  {
+  if (QCAD_TREE_VIEW_CONTAINER (data)->n_frozen_columns > 0)
+    set_hscroll_upper (QCAD_TREE_VIEW_CONTAINER (data)) ;
+  }
 
 static void tree_view_cursor_changed (GtkTreeView *tv, gpointer data)
   {
-  if (QCAD_TREE_VIEW_CONTAINER (data) > 0)
+  if (QCAD_TREE_VIEW_CONTAINER (data)->n_frozen_columns > 0)
     tree_view_handle_cursor_movement (tv, QCAD_TREE_VIEW_CONTAINER (data), 0, FALSE) ;
   }
 
@@ -184,6 +263,8 @@ static void hscroll_adj_value_changed (GtkAdjustment *adj, gpointer data)
   int Nix ;
   GList *llCols = NULL, *llItr = NULL ;
   QCADTreeViewContainer *tvc = QCAD_TREE_VIEW_CONTAINER (data) ;
+
+  if (0 == tvc->n_frozen_columns) return ;
 
   if ((int)(adj->value) == tvc->old_value) return ;
 

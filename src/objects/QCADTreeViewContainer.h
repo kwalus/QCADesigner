@@ -53,6 +53,7 @@ struct _QCADTreeViewContainer
   int n_frozen_columns ;
   GtkAdjustment *fake_hadj ;
   int old_value ;
+  int notify_id ;
   } ;
 
 GType qcad_tree_view_container_get_type () ;

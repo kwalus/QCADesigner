@@ -72,10 +72,6 @@ typedef struct
 typedef struct
   {
   GtkEventBoxClass parent_class;
-  void (*editing_done) (GtkCellEditable *ce) ;
-  void (*remove_widget) (GtkCellEditable *ce) ;
-
-  void (*start_editing) (GtkCellEditable *ce, GdkEvent *ev) ;
   } QCADLayerListEditableClass ;
 
 GType qcad_layer_list_editable_get_type () ;

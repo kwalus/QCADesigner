@@ -453,9 +453,13 @@ void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P (GValue *val_src, GValue *va
   }
 
 void CONNECT_OBJECT_PROPERTIES_ASSIGN_INVERT_BOOLEAN (GValue *val_src, GValue *val_dst, gpointer data)
-  {
-  gboolean bValSrc ;
+  {g_value_set_boolean (val_dst, !g_value_get_boolean (val_src)) ;}
 
-  bValSrc = g_value_get_boolean (val_src) ;
-  g_value_set_boolean (val_dst, !bValSrc) ;
+void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA (GValue *val_src, GValue *val_dst, gpointer data)
+  {
+  if (G_TYPE_INT == G_VALUE_TYPE (val_dst))
+    g_value_set_int (val_dst, ((int *)data)[g_value_get_boolean (val_src) ? 0 : 1]) ;
+  else
+  if (G_TYPE_UINT == G_VALUE_TYPE (val_dst))
+    g_value_set_uint (val_dst, ((guint *)data)[g_value_get_boolean (val_src) ? 0 : 1]) ;
   }

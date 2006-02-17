@@ -194,13 +194,16 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
     (GCallback)vector_table_options_dialog_btnDelete_clicked,
     dialog->dialog) ;
 
-  dialog->sw = qcad_tree_view_container_new () ;
-  gtk_widget_show (dialog->sw) ;
+  dialog->sw = g_object_new (QCAD_TYPE_TREE_VIEW_CONTAINER,
+    "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
+    "vscrollbar-policy", GTK_POLICY_AUTOMATIC,
+    "shadow-type",       GTK_SHADOW_IN,
+    "visible",           TRUE,
+    "n-frozen-columns",  2,
+    NULL) ;
   gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->sw, 1, 2, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (dialog->sw), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC) ;
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (dialog->sw), GTK_SHADOW_IN) ;
 
   dialog->tv = create_bus_layout_tree_view (TRUE, _("Inputs"), GTK_SELECTION_SINGLE) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new ()) ;
@@ -211,7 +214,6 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_cell_renderer_toggle_set_active (GTK_CELL_RENDERER_TOGGLE (cr), TRUE) ;
   gtk_widget_show (dialog->tv) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->tv) ;
-//  qcad_tree_view_container_freeze_columns (QCAD_TREE_VIEW_CONTAINER (dialog->sw), 2) ;
 
   g_signal_connect (G_OBJECT (dialog->tv),     "style-set",    (GCallback)tree_view_style_set,                          NULL) ;
   g_signal_connect (G_OBJECT (cr),             "toggled",      (GCallback)vt_model_active_toggled,                      dialog->tv) ;

@@ -344,8 +344,7 @@ gboolean drawing_area_button_pressed (GtkWidget *widget, GdkEventButton *event, 
   {
   // Return to default action
   if (3 == event->button)
-    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (main_window.default_action_button), TRUE) ;
-//    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
+    g_object_set (G_OBJECT (main_window.default_action_button), "active", TRUE, NULL) ;
   else
   // Zoom
   if (2 == event->button)
@@ -1008,8 +1007,7 @@ void file_operations (GtkWidget *widget, gpointer user_data)
       else
       	{
         design_selection_release (project_options.design, main_window.drawing_area->window, GDK_COPY) ;
-        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (main_window.default_action_button), TRUE) ;
-//        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
+        g_object_set (G_OBJECT (main_window.default_action_button), "active", TRUE, NULL) ;
 
         if (NULL != (obj = merge_selection (project_options.design, sel, layer_mappings)))
           move_selection_to_pointer (obj) ;
@@ -1520,8 +1518,7 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
       gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chkVisible)) ?
       	QCAD_LAYER_STATUS_VISIBLE : QCAD_LAYER_STATUS_HIDDEN ;
 
-//  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (main_window.default_action_button), TRUE) ;
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (main_window.default_action_button), TRUE) ;
+  g_object_set (G_OBJECT (main_window.default_action_button), "active", TRUE, NULL) ;
 
   reflect_layer_status (layer) ;
 
@@ -2273,9 +2270,8 @@ static QCADDesignObject *merge_selection (DESIGN *design, DESIGN *block, EXP_ARR
 
       design_selection_move (design, dxMid - dxMidSel, dyMid - dyMidSel) ;
       }
-    arSelObjs = design_selection_get_object_array (project_options.design) ;
 #ifdef UNDO_REDO
-    if (NULL != arSelObjs)
+    if (NULL != (arSelObjs = design_selection_get_object_array (project_options.design)))
       push_undo_selection_existence (project_options.design, project_options.srSelection, main_window.drawing_area->window, arSelObjs, TRUE) ;
 #endif /* def UNDO_REDO */
     }

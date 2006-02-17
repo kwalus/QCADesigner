@@ -67,5 +67,7 @@ struct _INT_IN_LIST_PARAMS
 void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P (GValue *val_src, GValue *val_dst, gpointer data) ;
 // val_dst <- !val_src
 void CONNECT_OBJECT_PROPERTIES_ASSIGN_INVERT_BOOLEAN (GValue *val_src, GValue *val_dst, gpointer data) ;
+// val_dst <- (TRUE == val_src) ? ((int *)data)[0] : ((int *)data)[1]
+void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA (GValue *val_src, GValue *val_dst, gpointer data) ;
 
 #endif /* _GENERIC_UTILS_H_ */

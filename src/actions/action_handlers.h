@@ -32,7 +32,6 @@
 #ifndef _ACTIONS_ACTION_HANDLERS_H_
 #define _ACTIONS_ACTION_HANDLERS_H_
 
-#include "pan.h"
 #include "array.h"
 #include "select.h"
 #include "rotate.h"

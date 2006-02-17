@@ -85,8 +85,6 @@ pixmap_DATA = \
 	q_cell_mirror_other.png \
 	q_cell_mirror_other.svg \
 	q_cell_move.png \
-	q_cell_pan.png \
-	q_cell_pan.svg \
 	q_cell_rotate.png \
 	q_cell_rotate.svg \
 	q_cell_translate.svg \

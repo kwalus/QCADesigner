@@ -59,7 +59,6 @@ QCADesigner_SOURCES = \
 	actions.h \
 	actions/action_handlers.h \
 	actions/array.c                         actions/array.h \
-	actions/pan.c                           actions/pan.h \
 	actions/rotate.c                        actions/rotate.h \
 	actions/select.c                        actions/select.h \
 	bistable_properties_dialog.c            bistable_properties_dialog.h \

@@ -844,19 +844,6 @@ void create_main_window (main_W *main_window){
     _("Mirror Selection"), _("Create a mirrored copy of your selection.")) ;
   g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)popup_menu_button_clicked, mnu) ;
 
-  // create and add the pan button to the toolbar //
-  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
-    GTK_TOOL_ITEM (toolbar_item = 
-      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
-        "stock-id", QCAD_STOCK_PAN,
-        "label",    _("Pan"),
-        "group",    main_window->default_action_button,
-        NULL)), -1) ;
-  gtk_widget_show (toolbar_item) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
-    _("Pan Design"), _("Bring various parts of the design into view by dragging visible parts of the design out of view.")) ;
-  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_PAN) ;
-
   // create and add the measure button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (toolbar_item = 
@@ -928,6 +915,24 @@ void create_main_window (main_W *main_window){
   gtk_widget_show (main_window->drawing_area_frame);
   gtk_table_attach (GTK_TABLE (table1), main_window->drawing_area_frame, 1, 2, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
   gtk_frame_set_shadow_type (GTK_FRAME (main_window->drawing_area_frame), GTK_SHADOW_IN);
+
+  widget = GTK_WIDGET (g_object_new (GTK_TYPE_HSCROLLBAR, 
+    "visible",    TRUE, 
+    "adjustment", main_window->adjHScroll = GTK_ADJUSTMENT (gtk_adjustment_new (0.0, 0.0, 0.0, PAN_STEP, 10 * PAN_STEP, 0.0)),
+    NULL)) ;
+  gtk_table_attach (GTK_TABLE (table1), widget, 1, 2, 2, 3,
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+  g_signal_connect (G_OBJECT (widget), "change-value", (GCallback)scrollbar_change_value, (gpointer)0) ;
+
+  widget = GTK_WIDGET (g_object_new (GTK_TYPE_VSCROLLBAR, 
+    "visible",    TRUE, 
+    "adjustment", main_window->adjVScroll = GTK_ADJUSTMENT (gtk_adjustment_new (0.0, 0.0, 0.0, PAN_STEP, 10 * PAN_STEP, 0.0)),
+    NULL)) ;
+  gtk_table_attach (GTK_TABLE (table1), widget, 2, 3, 1, 2,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+  g_signal_connect (G_OBJECT (widget), "change-value", (GCallback)scrollbar_change_value, (gpointer)1) ;
 
   // create and add the drawing area to the table //
   // this is the widget where all the action happens //

@@ -152,4 +152,6 @@
 #endif
 #define PS_FONT "FuturaBT-Medium"
 
+#define PAN_STEP 10
+
 #endif /* _GLOBAL_CONSTS_H_ */

@@ -82,9 +82,10 @@ void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data) ;
 gboolean drawing_area_motion_notify (GtkWidget *widget, GdkEventMotion *event, gpointer user_data);
 gboolean drawing_area_button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 gboolean drawing_area_button_released (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
-gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data);
-gboolean scroll_event(GtkWidget *widget, GdkEventScroll *event, gpointer user_data) ;
-gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
-gboolean on_quit_menu_item_activate(GtkWidget *main_window, gpointer user_data);
+gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer user_data);
+gboolean scroll_event (GtkWidget *widget, GdkEventScroll *event, gpointer user_data) ;
+gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
+gboolean on_quit_menu_item_activate (GtkWidget *main_window, gpointer user_data);
+gboolean scrollbar_change_value (GtkRange *range, GtkScrollType scroll_type, gdouble value, gpointer data) ;
 
 #endif /* _CALLBACKS_H_*/

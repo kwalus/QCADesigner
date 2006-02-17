@@ -179,7 +179,6 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   add_stock_icon ("q_cell_translate.svg",     QCAD_STOCK_TRANSLATE) ;
   add_stock_icon ("q_cell_mirror.svg",        QCAD_STOCK_MIRROR_VERTICAL) ;
   add_stock_icon ("q_cell_mirror_other.svg",  QCAD_STOCK_MIRROR_HORIZONTAL) ;
-  add_stock_icon ("q_cell_pan.svg",           QCAD_STOCK_PAN) ;
   add_stock_icon ("ruler.svg",                QCAD_STOCK_MEASURE) ;
   add_stock_icon ("insert_column_before.svg", QCAD_STOCK_INSERT_COL_BEFORE) ;
   add_stock_icon ("show_potential.svg",       QCAD_STOCK_SHOW_POTENTIAL) ;
@@ -210,7 +209,6 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   add_stock_icon ("q_cell_move.png",          QCAD_STOCK_TRANSLATE) ;
   add_stock_icon ("q_cell_mirror.png",        QCAD_STOCK_MIRROR_VERTICAL) ;
   add_stock_icon ("q_cell_mirror_other.png",  QCAD_STOCK_MIRROR_HORIZONTAL) ;
-  add_stock_icon ("q_cell_pan.png",           QCAD_STOCK_PAN) ;
   add_stock_icon ("ruler.png",                QCAD_STOCK_MEASURE) ;
   add_stock_icon ("insert_column_before.png", QCAD_STOCK_INSERT_COL_BEFORE) ;
 #endif

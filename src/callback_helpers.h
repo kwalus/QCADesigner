@@ -63,7 +63,7 @@ typedef struct
   SELECTION_RENDERER *srSelection ;
   } project_OP ;
 
-void setup_rulers (int x, int y) ;
+void pan_design (int cx, int cy) ;
 void redraw_async (GdkRegion *rgn) ;
 void reflect_zoom () ;
 void redraw_sync (GdkRegion *rgn, gboolean bDestroyRegion) ;

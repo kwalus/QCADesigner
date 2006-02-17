@@ -69,6 +69,8 @@ typedef struct
   GtkWidget *vpaned1;
   QCADPropertyUI *pui_clock ;
   QCADPropertyUI *pui_show_potential ;
+  GtkAdjustment *adjHScroll ;
+  GtkAdjustment *adjVScroll ;
   } main_W ;
 
 void create_main_window (main_W *main_window);

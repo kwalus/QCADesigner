@@ -92,8 +92,6 @@
 #define DBG_LAYER(s)
 #define DBG_MERGE(s)
 
-#define PAN_STEP 10
-
 typedef struct
   {
   DESIGN *design ;
@@ -185,7 +183,8 @@ static void scale_cells_undo_apply (QCADUndoEntry *entry, gboolean bUndo, gpoint
 static void qcad_layer_design_object_added (QCADLayer *layer, QCADDesignObject *obj, gpointer data) ;
 static void qcad_layer_design_object_removed (QCADLayer *layer, QCADDesignObject *obj, gpointer data) ;
 static void qcad_clocking_layer_notify_show_potential (GObject *object, GParamSpec *param_spec, gpointer data) ;
-//static void potential_time_coord_changed_notify (GObject *obj, GParamSpec *param, gpointer data) ;
+static void setup_rulers (int x, int y) ;
+static void setup_scrollbars () ;
 
 static ACTION actions[ACTION_LAST_ACTION] =
   {
@@ -233,15 +232,6 @@ static ACTION actions[ACTION_LAST_ACTION] =
     {NULL, NULL, NULL},
   NULL, drop_single_object_with_undo_cb},
 
-  // ACTION_PAN
-  {0,
-    {
-    (GCallback)button_pressed_ACTION_PAN,
-    (GCallback)motion_notify_ACTION_PAN,
-    NULL
-    },
-  NULL, NULL},
-
   // ACTION_CHOOSE_SNAP_SOURCE
   {0, {NULL, NULL, NULL}, NULL, NULL},
 
@@ -261,7 +251,12 @@ static ACTION actions[ACTION_LAST_ACTION] =
 
   } ;
 
-static int xRef, yRef, xOld, yOld ; // zoom window coordinates
+// zoom/pan variables
+static int xRef, yRef, xOld, yOld ;
+#define DEFAULT_MOUSE_ACTION_NONE 0
+#define DEFAULT_MOUSE_ACTION_PAN  1
+#define DEFAULT_MOUSE_ACTION_ZOOM 2
+static int default_mouse_action = DEFAULT_MOUSE_ACTION_NONE ;
 
 void main_window_show (GtkWidget *widget, gpointer data)
   {
@@ -316,6 +311,7 @@ gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer 
   set_client_dimension (event->width, event->height) ;
   real_coords_from_rulers (&x, &y) ;
   setup_rulers (x, y) ;
+  setup_scrollbars () ;
   // This function needs to return a value.
   // this is the source of one of the compiler warnings.
   return FALSE;
@@ -344,11 +340,28 @@ gboolean drawing_area_button_pressed (GtkWidget *widget, GdkEventButton *event, 
   {
   // Return to default action
   if (3 == event->button)
+    {
+    // Cancel zoom
+    if (DEFAULT_MOUSE_ACTION_ZOOM == default_mouse_action)
+      {
+      GdkGC *gc = gdk_gc_new (widget->window) ;
+
+      gdk_gc_set_function (gc, GDK_XOR) ;
+      gdk_gc_set_foreground (gc, &(project_options.clrWhite)) ;
+      if (ABS (xRef - xOld) > 0 && ABS (yRef - yOld) > 0)
+        gdk_draw_rectangle (widget->window, gc, FALSE, MIN (xRef, xOld), MIN (yRef, yOld), ABS (xRef - xOld), ABS (yRef - yOld)) ;
+      default_mouse_action = DEFAULT_MOUSE_ACTION_NONE ;
+      g_object_unref (gc) ;
+      }
     g_object_set (G_OBJECT (main_window.default_action_button), "active", TRUE, NULL) ;
+    }
   else
-  // Zoom
+  // Zoom<Empty>/Pan<Ctrl>
   if (2 == event->button)
     {
+    default_mouse_action = (event->state & GDK_CONTROL_MASK) 
+      ? DEFAULT_MOUSE_ACTION_PAN 
+      : DEFAULT_MOUSE_ACTION_ZOOM ;
     xOld = xRef = event->x ;
     yOld = yRef = event->y ;
     }
@@ -364,18 +377,29 @@ gboolean drawing_area_motion_notify (GtkWidget *widget, GdkEventMotion *event, g
 
   if (event->state & GDK_BUTTON2_MASK)
     {
-    GdkGC *gc = gdk_gc_new (widget->window) ;
+    if (DEFAULT_MOUSE_ACTION_PAN == default_mouse_action)
+      {
+      pan_design (event->x - xOld, event->y - yOld) ;
+      xRef = xOld = event->x ;
+      yRef = yOld = event->y ;
+      }
+    else
+    // XOR zoom window
+    if (DEFAULT_MOUSE_ACTION_ZOOM == default_mouse_action)
+      {
+      GdkGC *gc = gdk_gc_new (widget->window) ;
 
-    gdk_gc_set_function (gc, GDK_XOR) ;
-    gdk_gc_set_foreground (gc, &(project_options.clrWhite)) ;
-    if (ABS (xRef - xOld) > 0 && ABS (yRef - yOld) > 0)
-      gdk_draw_rectangle (widget->window, gc, FALSE, MIN (xRef, xOld), MIN (yRef, yOld), ABS (xRef - xOld), ABS (yRef - yOld)) ;
-    xOld = event->x ;
-    yOld = event->y ;
-    if (ABS (xRef - xOld) > 0 && ABS (yRef - yOld) > 0)
-      gdk_draw_rectangle (widget->window, gc, FALSE, MIN (xRef, xOld), MIN (yRef, yOld), ABS (xRef - xOld), ABS (yRef - yOld)) ;
+      gdk_gc_set_function (gc, GDK_XOR) ;
+      gdk_gc_set_foreground (gc, &(project_options.clrWhite)) ;
+      if (ABS (xRef - xOld) > 0 && ABS (yRef - yOld) > 0)
+        gdk_draw_rectangle (widget->window, gc, FALSE, MIN (xRef, xOld), MIN (yRef, yOld), ABS (xRef - xOld), ABS (yRef - yOld)) ;
+      xOld = event->x ;
+      yOld = event->y ;
+      if (ABS (xRef - xOld) > 0 && ABS (yRef - yOld) > 0)
+        gdk_draw_rectangle (widget->window, gc, FALSE, MIN (xRef, xOld), MIN (yRef, yOld), ABS (xRef - xOld), ABS (yRef - yOld)) ;
 
-    g_object_unref (gc) ;
+      g_object_unref (gc) ;
+      }
     }
 
   gdk_window_get_pointer (widget->window, &x, &y, &mask) ;
@@ -385,19 +409,25 @@ gboolean drawing_area_motion_notify (GtkWidget *widget, GdkEventMotion *event, g
 
 gboolean drawing_area_button_released (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
   {
-  if (event->state & GDK_BUTTON2_MASK && !((event->state & GDK_BUTTON3_MASK) || (event->state & GDK_BUTTON1_MASK)))
+  if (event->state & GDK_BUTTON2_MASK && 
+   !((event->state & GDK_BUTTON1_MASK) || 
+     (event->state & GDK_BUTTON3_MASK)))
     {
-    GdkGC *gc = gdk_gc_new (widget->window) ;
+    if (DEFAULT_MOUSE_ACTION_ZOOM == default_mouse_action)
+      {
+      GdkGC *gc = gdk_gc_new (widget->window) ;
 
-    gdk_gc_set_function (gc, GDK_XOR) ;
-    gdk_gc_set_foreground (gc, &(project_options.clrWhite)) ;
-    if (ABS (xRef - xOld) > 0 && ABS (yRef - yOld) > 0)
-      gdk_draw_rectangle (widget->window, gc, FALSE, MIN (xRef, xOld), MIN (yRef, yOld), ABS (xRef - xOld), ABS (yRef - yOld)) ;
+      gdk_gc_set_function (gc, GDK_XOR) ;
+      gdk_gc_set_foreground (gc, &(project_options.clrWhite)) ;
+      if (ABS (xRef - xOld) > 0 && ABS (yRef - yOld) > 0)
+        gdk_draw_rectangle (widget->window, gc, FALSE, MIN (xRef, xOld), MIN (yRef, yOld), ABS (xRef - xOld), ABS (yRef - yOld)) ;
 
-    g_object_unref (gc) ;
+      g_object_unref (gc) ;
 
-    zoom_window (MIN (xRef, xOld), MIN (yRef, yOld), MAX (xRef, xOld), MAX (yRef, yOld)) ;
-    reflect_zoom () ;
+      zoom_window (MIN (xRef, xOld), MIN (yRef, yOld), MAX (xRef, xOld), MAX (yRef, yOld)) ;
+      reflect_zoom () ;
+      }
+    default_mouse_action = DEFAULT_MOUSE_ACTION_NONE ;
     }
   return FALSE ;
   }
@@ -640,26 +670,38 @@ void reorder_layers_button_clicked (GtkWidget *widget, gpointer user_data)
   layer_selected (NULL, NULL) ;
   }
 
-gboolean scroll_event(GtkWidget *widget, GdkEventScroll *event, gpointer user_data)
+gboolean scrollbar_change_value (GtkRange *range, GtkScrollType scroll_type, gdouble value, gpointer data)
+  {
+  int dist[2] = {0, 0} ;
+  GtkAdjustment *adj = ((gboolean)data) ? main_window.adjVScroll : main_window.adjHScroll ;
+
+  if (!(scroll_type == GTK_SCROLL_STEP_FORWARD || scroll_type == GTK_SCROLL_STEP_BACKWARD))
+    {
+    value = MIN (value, adj->upper - adj->page_size) ;
+    value = MAX (value, adj->lower) ;
+    }
+
+  dist[((gboolean)data) ? 1 : 0] = -value ;
+  pan_design (dist[0], dist[1]) ;
+
+  return TRUE ;
+  }
+
+gboolean scroll_event (GtkWidget *widget, GdkEventScroll *event, gpointer user_data)
   {
   int iDir =
     GDK_SCROLL_UP == event->direction ? 1 :       // Mouse wheel clicked away from the user
     GDK_SCROLL_DOWN == event->direction ? -1 : 0, // Mouse wheel clicked towards the user
     idx = event->state & GDK_CONTROL_MASK ? 0 : 1,
-    x = -1, y = -1,
+//    x = -1, y = -1,
     dist[2] = {0, 0} ;
 
   DBG_CB_HERE (fprintf (stderr, "Entering scroll_event\n")) ;
 
   dist[idx] = 10 * PAN_STEP * iDir ;
 
-  pan (dist[0], dist[1]) ;
-  project_options.bScrolling = TRUE ;
-  gdk_window_scroll (main_window.drawing_area->window, dist[0], dist[1]) ;
-  real_coords_from_rulers (&x, &y) ;
-  x += dist[0] ;
-  y += dist[1] ;
-  setup_rulers (x, y) ;
+  pan_design (dist[0], dist[1]) ;
+
   return FALSE ;
   }
 
@@ -1106,11 +1148,11 @@ void on_zoom_in_menu_item_activate(GtkMenuItem *menuitem, gpointer user_data)
   }
 
 void on_zoom_out_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
+  {
   DBG_CB_HERE (fprintf (stderr, "Entering on_zoom_out_menu_item_activate\n")) ;
-    zoom_out();
-    reflect_zoom () ;
-}
+  zoom_out () ;
+  reflect_zoom () ;
+  }
 
 void on_zoom_extents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
@@ -1529,17 +1571,11 @@ void action_button_clicked (GtkWidget *widget, gpointer data)
   {
   static int action = ACTION_LAST_ACTION ;
   int idx = (int)data ;
-  GdkCursor *cursor = NULL ;
 
   if (NULL != widget)
     if (GTK_IS_TOGGLE_BUTTON (widget))
       if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
         return ;
-
-  // Transitions
-  if (ACTION_PAN == action && ACTION_PAN != idx)
-    if (NULL != (cursor = pop_cursor (main_window.drawing_area)))
-      gdk_cursor_unref (cursor) ;
 
   // Preamble for each action
   if (ACTION_ROTATE == idx)
@@ -1549,9 +1585,6 @@ void action_button_clicked (GtkWidget *widget, gpointer data)
     selection_renderer_update (project_options.srSelection, project_options.design) ;
     selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
     }
-  else
-  if (ACTION_PAN == idx)
-    push_cursor (main_window.drawing_area, gdk_cursor_new (GDK_FLEUR)) ;
 
   set_mouse_handlers (actions[idx].type, &(actions[idx].mh), actions[idx].data, main_window.drawing_area, actions[idx].drop_function) ;
 
@@ -2028,6 +2061,7 @@ static void qcad_layer_design_object_added (QCADLayer *layer, QCADDesignObject *
       VectorTable_update_inputs (project_options.pvt, QCAD_CELL (obj)) ;
     cell_function_changed (NULL, NULL) ;
     }
+  setup_scrollbars () ;
   }
 
 static void qcad_layer_design_object_removed (QCADLayer *layer, QCADDesignObject *obj, gpointer data)
@@ -2035,6 +2069,7 @@ static void qcad_layer_design_object_removed (QCADLayer *layer, QCADDesignObject
   if (QCAD_IS_CELL (obj))
     if (QCAD_CELL_INPUT == QCAD_CELL (obj)->cell_function)
       VectorTable_del_input (project_options.pvt, QCAD_CELL (obj)) ;
+  setup_scrollbars () ;
   }
 
 static void cell_function_changed (QCADCell *cell, gpointer data)
@@ -2346,6 +2381,91 @@ void reflect_zoom ()
   real_coords_from_rulers (&x, &y) ;
   setup_rulers (x, y) ;
   redraw_async (NULL) ;
+  setup_scrollbars () ;
+  }
+
+void pan_design (int cx, int cy)
+  {
+  int x, y ;
+
+  if (0 == cx && 0 == cy) return ;
+
+  pan (cx, cy) ;
+  project_options.bScrolling = TRUE ; // Set to FALSE when redraw completes
+  gdk_window_scroll (main_window.drawing_area->window, cx, cy) ;
+  real_coords_from_rulers (&x, &y) ;
+  setup_rulers (x + cx, y + cy) ;
+  setup_scrollbars () ;
+  }
+
+static void setup_scrollbars ()
+  {
+  GdkRectangle design_extents_real ;
+  int cxWindow, cyWindow ;
+  WorldRectangle design_extents ;
+  gboolean bHChanged, bVChanged ;
+  double 
+    dHLower, dHUpper, dHValue, dHPageSize,
+    dVLower, dVUpper, dVValue, dVPageSize, dXRC, dYRC, dCXRC, dCYRC, dScale ;
+  
+
+  if (NULL == main_window.drawing_area->window || NULL == project_options.design) return ;
+
+  gdk_window_get_size (main_window.drawing_area->window, &cxWindow, &cyWindow) ;
+
+  if (0 == cxWindow || 0 == cyWindow) return ;
+
+  design_get_extents (project_options.design, &design_extents, FALSE) ;
+  world_to_real_rect (&design_extents, &design_extents_real) ;
+
+  if (0 == design_extents_real.width || 0 == design_extents_real.height) return ;
+
+  dCXRC = design_extents_real.width ;
+  dCYRC = design_extents_real.height ;
+  fit_rect_inside_rect (cxWindow, cyWindow, &dXRC, &dYRC, &dCXRC, &dCYRC) ;
+  // If the design fits entirely inside the viewport, pretend the extents of the design is really a window 
+  // having the same aspect ratio as the viewport, such that the design is centered in this window, so when
+  // we drag the scrollbars, the page will fill the scrollbar exactly when the design is centered.
+  if ((dScale = ((double)(design_extents_real.width)) / dCXRC) <= 1)
+    {
+    int xMid = design_extents_real.x + (design_extents_real.width  >> 1),
+        yMid = design_extents_real.y + (design_extents_real.height >> 1) ;
+    design_extents_real.width  = MAX (cxWindow, cxWindow * dScale) ;
+    design_extents_real.height = MAX (cyWindow, cyWindow * dScale) ;
+    design_extents_real.x      = xMid - (design_extents_real.width  >> 1) ;
+    design_extents_real.y      = yMid - (design_extents_real.height >> 1) ;
+    }
+
+  dHLower = MIN (0, design_extents_real.x) ;
+  dHValue = 0 ;
+  dHUpper = MAX (cxWindow, design_extents_real.x + design_extents_real.width) ;
+  dHPageSize = cxWindow ;
+
+  dVLower = MIN (0, design_extents_real.y) ;
+  dVValue = 0 ;
+  dVUpper = MAX (cyWindow, design_extents_real.y + design_extents_real.height) ;
+  dVPageSize = cyWindow ;
+
+  bHChanged = 
+    (!(main_window.adjHScroll->lower     == dHLower && 
+       main_window.adjHScroll->upper     == dHUpper && 
+       main_window.adjHScroll->page_size == dHPageSize)) ;
+
+  bVChanged = 
+    (!(main_window.adjVScroll->lower     == dVLower && 
+       main_window.adjVScroll->upper     == dVUpper && 
+       main_window.adjVScroll->page_size == dVPageSize)) ;
+
+  main_window.adjHScroll->lower     = dHLower ;
+  main_window.adjHScroll->upper     = dHUpper ;
+  main_window.adjHScroll->page_size = dHPageSize ;
+
+  main_window.adjVScroll->lower     = dVLower ;
+  main_window.adjVScroll->upper     = dVUpper ;
+  main_window.adjVScroll->page_size = dVPageSize ;
+
+  if (bHChanged) gtk_adjustment_changed (main_window.adjHScroll) ;
+  if (bVChanged) gtk_adjustment_changed (main_window.adjVScroll) ;
   }
 
 static void real_coords_from_rulers (int *px, int *py)

@@ -38,6 +38,7 @@ static EXP_ARRAY *transformation_stack = NULL ;
 static int subs_top_x = 0, subs_top_y = 0 ;
 static double scale = 5 ; // pixels / nm
 static int cxClientArea = 0, cyClientArea = 0 ;
+static double aspect_ratio ; // cxClient / cyClient
 
 static QCADSubstrate *snap_source = NULL ;
 
@@ -66,6 +67,9 @@ void set_transformation (TRANSFORMATION *xform)
   scale        = xform->scale ;
   cxClientArea = xform->cxClientArea ;
   cyClientArea = xform->cyClientArea ;
+
+  if (0 != cyClientArea)
+    aspect_ratio = ((double)cxClientArea) / ((double)cyClientArea) ;
   }
 
 void pop_transformation ()
@@ -82,6 +86,9 @@ void pop_transformation ()
     exp_array_index_1d (transformation_stack, TRANSFORMATION, transformation_stack->icUsed - 1).scale ;
 
   exp_array_remove_vals (transformation_stack, 1, transformation_stack->icUsed - 1, 1) ;
+
+  if (0 != cyClientArea)
+    aspect_ratio = ((double)cxClientArea) / ((double)cyClientArea) ;
   }
 
 GdkRectangle *world_to_real_rect (WorldRectangle *rcWorld, GdkRectangle *rcReal)
@@ -130,11 +137,19 @@ void world_to_grid_pt (double *pxWorld, double *pyWorld)
 
 //!Zooms out a little
 void zoom_out ()
-  {zoom_window(-30, -30, cxClientArea + 30, cyClientArea + 30);}
+  {
+  // In this case, the aspect_ratio is meaningless
+  if (0 == cyClientArea) return ;
+  zoom_window(-30, -30 * aspect_ratio, cxClientArea + 30, cyClientArea + 30 * aspect_ratio);
+  }
 
 //!Zooms in a little
 void zoom_in ()
-  {zoom_window(30, 30, cxClientArea - 30, cyClientArea - 30);}
+  {
+  // In this case, the aspect_ratio is meaningless
+  if (0 == cyClientArea) return ;
+  zoom_window(30, 30 * aspect_ratio, cxClientArea - 30, cyClientArea - 30 * aspect_ratio);
+  }
 
 void reset_zoom ()
   {scale = 1.0 ;}
@@ -180,6 +195,8 @@ void set_client_dimension (int cxNew, int cyNew)
   {
   cxClientArea = cxNew ;
   cyClientArea = cyNew ;
+  if (0 != cyNew)
+    aspect_ratio = ((double)cxNew) / ((double)cyNew) ;
   }
 
 static void snap_source_is_gone (gpointer data, GObject *obj)

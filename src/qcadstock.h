@@ -64,7 +64,6 @@
 #define QCAD_STOCK_TRANSLATE          "qcad-translate"
 #define QCAD_STOCK_MIRROR_VERTICAL    "qcad-mirror-vertical"
 #define QCAD_STOCK_MIRROR_HORIZONTAL  "qcad-mirror-horizonatal"
-#define QCAD_STOCK_PAN                "qcad-pan"
 #define QCAD_STOCK_MEASURE            "qcad-measure"
 #define QCAD_STOCK_LABEL              "qcad-label"
 #define QCAD_STOCK_SUBSTRATE          "qcad-substrate"

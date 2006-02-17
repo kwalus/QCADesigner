@@ -652,10 +652,10 @@ void create_main_window (main_W *main_window){
   gtk_toolbar_set_tooltips (GTK_TOOLBAR (main_window->toolbar), TRUE) ;
   gtk_toolbar_set_style (GTK_TOOLBAR (main_window->toolbar), GTK_TOOLBAR_BOTH_HORIZ) ;
   gtk_box_pack_start (GTK_BOX (hbox1), main_window->toolbar, FALSE, FALSE, 0);
-//  static int toolbar_styles[2] = {GTK_TOOLBAR_BOTH_HORIZ, GTK_TOOLBAR_TEXT} ;
-//  connect_object_properties (G_OBJECT (show_tb_icons_menu_item), "active", G_OBJECT (main_window->toolbar), "toolbar-style",
-//    CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA, toolbar_styles, NULL,
-//    NULL, NULL, NULL) ;
+  static int toolbar_styles[2] = {GTK_TOOLBAR_BOTH_HORIZ, GTK_TOOLBAR_TEXT} ;
+  connect_object_properties (G_OBJECT (show_tb_icons_menu_item), "active", G_OBJECT (main_window->toolbar), "toolbar-style",
+    CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA, toolbar_styles, NULL,
+    NULL, NULL, NULL) ;
 
   // create and add the default button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
@@ -1053,7 +1053,6 @@ void create_main_window (main_W *main_window){
   g_signal_connect (G_OBJECT (print_menu_item),                                "activate", (GCallback)on_print_menu_item_activate,                   NULL);
   g_signal_connect (G_OBJECT (delete_menu_item),                               "activate", (GCallback)on_delete_menu_item_activate,                  NULL);
   g_signal_connect (G_OBJECT (layer_properties_menu_item),                     "activate", (GCallback)layer_properties_button_clicked,               NULL);
-  g_signal_connect (G_OBJECT (show_tb_icons_menu_item),                        "activate", (GCallback)on_show_tb_icons_menu_item_activate,           NULL);
   g_signal_connect (G_OBJECT (main_window->snap_to_grid_menu_item),            "activate", (GCallback)on_snap_to_grid_menu_item_activate,            NULL);
   g_signal_connect (G_OBJECT (scale_menu_item),                                "activate", (GCallback)on_scale_menu_item_activate,                   NULL);
   g_signal_connect (G_OBJECT (rotate_selection_menu_item),                     "activate", (GCallback)rotate_selection_menu_item_activate,           NULL);

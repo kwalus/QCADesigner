@@ -34,7 +34,6 @@ void remove_layer_button_clicked (GtkWidget *widget, gpointer data) ;
 void layer_properties_button_clicked (GtkWidget *widget, gpointer data) ;
 void main_window_show (GtkWidget *widget, gpointer data) ;
 void on_cell_properties_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
-void on_show_tb_icons_menu_item_activate (GtkMenuItem * menuitem, gpointer user_data) ;
 void on_snap_to_grid_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
 void on_show_grid_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);
 void on_clock_select_menu_item_activate (GtkMenuItem *menuitem, gpointer user_data);

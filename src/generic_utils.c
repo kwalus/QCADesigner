@@ -457,9 +457,15 @@ void CONNECT_OBJECT_PROPERTIES_ASSIGN_INVERT_BOOLEAN (GValue *val_src, GValue *v
 
 void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA (GValue *val_src, GValue *val_dst, gpointer data)
   {
-  if (G_TYPE_INT == G_VALUE_TYPE (val_dst))
+  if (g_type_is_a (G_VALUE_TYPE (val_dst), G_TYPE_INT))
     g_value_set_int (val_dst, ((int *)data)[g_value_get_boolean (val_src) ? 0 : 1]) ;
   else
-  if (G_TYPE_UINT == G_VALUE_TYPE (val_dst))
+  if (g_type_is_a (G_VALUE_TYPE (val_dst), G_TYPE_UINT))
     g_value_set_uint (val_dst, ((guint *)data)[g_value_get_boolean (val_src) ? 0 : 1]) ;
+  else
+  if (g_type_is_a (G_VALUE_TYPE (val_dst), G_TYPE_ENUM))
+    g_value_set_enum (val_dst, ((int *)data)[g_value_get_boolean (val_src) ? 0 : 1]) ;
+  else
+  if (g_type_is_a (G_VALUE_TYPE (val_dst), G_TYPE_FLAGS))
+    g_value_set_flags (val_dst, ((guint *)data)[g_value_get_boolean (val_src) ? 0 : 1]) ;
   }

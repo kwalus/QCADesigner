@@ -761,14 +761,6 @@ static void scale_cells_undo_apply (QCADUndoEntry *entry, gboolean bUndo, gpoint
   }
 #endif /* UNDO_REDO */
 
-void on_show_tb_icons_menu_item_activate (GtkMenuItem * menuitem, gpointer user_data)
-  {
-  DBG_CB_HERE (fprintf (stderr, "Entering on_show_tb_icons_menu_item_activate\n")) ;
-  gtk_toolbar_set_style (GTK_TOOLBAR (main_window.toolbar),
-    gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem)) ?
-    GTK_TOOLBAR_BOTH_HORIZ : GTK_TOOLBAR_TEXT) ;
-  }
-
 // toggle the snap to grid option //
 void on_snap_to_grid_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   {
@@ -777,15 +769,8 @@ void on_snap_to_grid_menu_item_activate(GtkMenuItem * menuitem, gpointer user_da
     g_object_get_data (G_OBJECT (menuitem), "snap_source") : NULL) ;
   }
 
-// toggle the show grid option //
-void on_show_grid_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
+void on_clock_increment_menu_item_activate (GtkMenuItem * menuitem, gpointer user_data)
   {
-  DBG_CB_HERE (fprintf (stderr, "Entering on_show_grid_menu_item_activate\n")) ;
-  project_options.SHOW_GRID = ((GtkCheckMenuItem *) menuitem)->active;
-  }
-
-void on_clock_increment_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
-{
   gboolean bFoundSelection = FALSE ;
   GList *lstItrLayer = NULL, *lstItrSel = NULL ;
   EXP_ARRAY *arSelObjs = NULL ;
@@ -822,8 +807,7 @@ void on_clock_increment_menu_item_activate(GtkMenuItem * menuitem, gpointer user
     // redraw_async takes care of destroying rgn
     redraw_async (rgn) ;
     }
-
-}//on_clock_increment_menu_item_activate
+  }//on_clock_increment_menu_item_activate
 
 void file_operations (GtkWidget *widget, gpointer user_data)
   {
@@ -2407,7 +2391,6 @@ static void setup_scrollbars ()
   double 
     dHLower, dHUpper, dHValue, dHPageSize,
     dVLower, dVUpper, dVValue, dVPageSize, dXRC, dYRC, dCXRC, dCYRC, dScale ;
-  
 
   if (NULL == main_window.drawing_area->window || NULL == project_options.design) return ;
 

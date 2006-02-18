@@ -45,12 +45,17 @@ struct _QCADCellRendererVT
 
   int row_type ;
   long long value ;
+#if (GTK_MINOR_VERSION <= 4)
+  gboolean sensitive ;
+#endif
   } ;
 
 struct _QCADCellRendererVTClass
   {
   GtkCellRendererTextClass parent_class ;
+  void (*toggled) (QCADCellRendererVT *cr, const gchar *pszPath) ;
   void (*clicked) (QCADCellRendererVT *cr) ;
+  void (*editing_started) (QCADCellRendererVT *cr, GtkCellEditable *ce, char *pszPath) ;
   } ;
 
 GType qcad_cell_renderer_vt_get_type () ;

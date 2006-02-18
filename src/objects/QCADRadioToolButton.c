@@ -49,10 +49,16 @@ static void class_init (QCADRadioToolButtonClass *klass, gpointer data)
   G_OBJECT_CLASS (klass)->set_property = set_property ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
 
+#if (GTK_MINOR_VERSION <= 4)
+  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RADIO_TOOL_BUTTON_PROPERTY_ACTIVE,
+    g_param_spec_boolean ("active", _("Active"), _("Active"),
+      FALSE, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+#else
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RADIO_TOOL_BUTTON_PROPERTY_ACTIVE,
     g_param_spec_boolean ("real-active", _("Active"), _("Active"),
       FALSE, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
   g_object_class_override_property (G_OBJECT_CLASS (klass), QCAD_RADIO_TOOL_BUTTON_PROPERTY_ACTIVE, "active") ;
+#endif
   }
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)

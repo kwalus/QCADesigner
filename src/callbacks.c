@@ -670,12 +670,20 @@ void reorder_layers_button_clicked (GtkWidget *widget, gpointer user_data)
   layer_selected (NULL, NULL) ;
   }
 
-gboolean scrollbar_change_value (GtkRange *range, GtkScrollType scroll_type, gdouble value, gpointer data)
+void scrollbar_adjust_bounds (GtkRange *range, gdouble value, gpointer data)
   {
   int dist[2] = {0, 0} ;
   GtkAdjustment *adj = ((gboolean)data) ? main_window.adjVScroll : main_window.adjHScroll ;
 
-  if (!(scroll_type == GTK_SCROLL_STEP_FORWARD || scroll_type == GTK_SCROLL_STEP_BACKWARD))
+  // This "if" statement can only be used when handling signal "change-value". This signal is unavailable in 
+  // GTK+-2.4.14, so we try to simulate it by comparing the value the user wants to scroll by to 
+  // adj->step_increment
+  //  if (!(scroll_type == GTK_SCROLL_STEP_FORWARD || scroll_type == GTK_SCROLL_STEP_BACKWARD))
+
+  // If the scrolling is of any type other than the user clicking the endpoint buttons,
+  // do not increase the range. IOW, you can't scroll off to infinity by dragging the 
+  // scrollbar page.
+  if (fabs (value) != adj->step_increment)
     {
     value = MIN (value, adj->upper - adj->page_size) ;
     value = MAX (value, adj->lower) ;
@@ -683,8 +691,6 @@ gboolean scrollbar_change_value (GtkRange *range, GtkScrollType scroll_type, gdo
 
   dist[((gboolean)data) ? 1 : 0] = -value ;
   pan_design (dist[0], dist[1]) ;
-
-  return TRUE ;
   }
 
 gboolean scroll_event (GtkWidget *widget, GdkEventScroll *event, gpointer user_data)

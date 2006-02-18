@@ -935,7 +935,7 @@ void create_main_window (main_W *main_window){
   gtk_table_attach (GTK_TABLE (table1), widget, 1, 2, 2, 3,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  g_signal_connect (G_OBJECT (widget), "change-value", (GCallback)scrollbar_change_value, (gpointer)0) ;
+  g_signal_connect (G_OBJECT (widget), "adjust-bounds", (GCallback)scrollbar_adjust_bounds, (gpointer)0) ;
   connect_object_properties (G_OBJECT (show_scrollbars_menu_item), "active", G_OBJECT (widget), "visible",
     CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL,
     CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
@@ -947,7 +947,7 @@ void create_main_window (main_W *main_window){
   gtk_table_attach (GTK_TABLE (table1), widget, 2, 3, 1, 2,
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
-  g_signal_connect (G_OBJECT (widget), "change-value", (GCallback)scrollbar_change_value, (gpointer)1) ;
+  g_signal_connect (G_OBJECT (widget), "adjust-bounds", (GCallback)scrollbar_adjust_bounds, (gpointer)1) ;
   connect_object_properties (G_OBJECT (show_scrollbars_menu_item), "active", G_OBJECT (widget), "visible",
     CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL,
     CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;

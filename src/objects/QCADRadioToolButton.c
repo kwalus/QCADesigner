@@ -49,7 +49,7 @@ static void class_init (QCADRadioToolButtonClass *klass, gpointer data)
   G_OBJECT_CLASS (klass)->set_property = set_property ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
 
-#if (GTK_MINOR_VERSION <= 4)
+#if (GTK_MINOR_VERSION <= 6)
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_RADIO_TOOL_BUTTON_PROPERTY_ACTIVE,
     g_param_spec_boolean ("active", _("Active"), _("Active"),
       FALSE, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;

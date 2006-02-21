@@ -32,6 +32,8 @@
 
 #include <gtk/gtk.h>
 #include "support.h"
+#include "generic_utils.h"
+#include "objects/QCADRadioButton.h"
 
 typedef struct
   {
@@ -48,7 +50,7 @@ static honeycomb_thresholds_D honeycomb_thresholds_dialog = {NULL} ;
 static void create_honeycomb_thresholds_dialog (honeycomb_thresholds_D *dialog) ;
 
 static void spn_value_changed (GtkWidget *widget, gpointer data) ;
-static void rbAverage_toggled (GtkToggleButton *widget, gpointer data) ;
+//static void rbAverage_toggled (GtkToggleButton *widget, gpointer data) ;
 
 gboolean get_honeycomb_thresholds_from_user (GtkWindow *parent, double *pdThreshLower, double *pdThreshUpper, int *icAverageSamples)
   {
@@ -110,8 +112,8 @@ static void spn_value_changed (GtkWidget *widget, gpointer data)
     }
   }
 
-static void rbAverage_toggled (GtkToggleButton *widget, gpointer data)
-  {gtk_widget_set_sensitive (((honeycomb_thresholds_D *)data)->average_samples_spin, gtk_toggle_button_get_active (widget)) ;}
+//static void rbAverage_toggled (GtkToggleButton *widget, gpointer data)
+//  {gtk_widget_set_sensitive (((honeycomb_thresholds_D *)data)->average_samples_spin, gtk_toggle_button_get_active (widget)) ;}
 
 static void create_honeycomb_thresholds_dialog (honeycomb_thresholds_D *dialog)
   {
@@ -138,14 +140,25 @@ static void create_honeycomb_thresholds_dialog (honeycomb_thresholds_D *dialog)
   gtk_widget_show (tblSmooth) ;
   gtk_container_add (GTK_CONTAINER (frm), tblSmooth) ;
 
-  dialog->rbSimple = gtk_radio_button_new_with_mnemonic (NULL, _("_No Smoothing")) ;
-  gtk_widget_show (dialog->rbSimple) ;
+  dialog->rbSimple = g_object_new (QCAD_TYPE_RADIO_BUTTON,
+    "label",         _("_No Smoothing"),
+    "use-underline", TRUE,
+    "visible",       TRUE,
+    NULL) ;
+//  dialog->rbSimple = gtk_radio_button_new_with_mnemonic (NULL, _("_No Smoothing")) ;
+//  gtk_widget_show (dialog->rbSimple) ;
   gtk_table_attach (GTK_TABLE (tblSmooth), dialog->rbSimple, 0, 3, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
 
-  dialog->rbAverage = gtk_radio_button_new_with_mnemonic_from_widget (GTK_RADIO_BUTTON (dialog->rbSimple), _("_Running Average over")) ;
-  gtk_widget_show (dialog->rbAverage) ;
+  dialog->rbAverage = g_object_new (QCAD_TYPE_RADIO_BUTTON,
+    "label",         _("_Running Average over"),
+    "use-underline", TRUE,
+    "visible",       TRUE,
+    "group",         dialog->rbSimple,
+    NULL) ;
+//  dialog->rbAverage = gtk_radio_button_new_with_mnemonic_from_widget (GTK_RADIO_BUTTON (dialog->rbSimple), _("_Running Average over")) ;
+//  gtk_widget_show (dialog->rbAverage) ;
   gtk_table_attach (GTK_TABLE (tblSmooth), dialog->rbAverage, 0, 1, 1, 2,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
@@ -155,7 +168,10 @@ static void create_honeycomb_thresholds_dialog (honeycomb_thresholds_D *dialog)
   gtk_table_attach (GTK_TABLE (tblSmooth), dialog->average_samples_spin, 1, 2, 1, 2,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
-  gtk_widget_set_sensitive (dialog->average_samples_spin, FALSE) ;
+  connect_object_properties (G_OBJECT (dialog->rbAverage), "active", G_OBJECT (dialog->average_samples_spin), "sensitive",
+    CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL,
+    NULL, NULL, NULL) ;
+  g_object_notify (G_OBJECT (dialog->rbAverage), "active") ;
 
   lbl = gtk_label_new (_("samples")) ;
   gtk_widget_show (lbl) ;
@@ -201,5 +217,5 @@ static void create_honeycomb_thresholds_dialog (honeycomb_thresholds_D *dialog)
 
   g_signal_connect (G_OBJECT (dialog->lower_threshold_spin), "value-changed", (GCallback)spn_value_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->upper_threshold_spin), "value-changed", (GCallback)spn_value_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->rbAverage),            "toggled",       (GCallback)rbAverage_toggled, dialog) ;
+//  g_signal_connect (G_OBJECT (dialog->rbAverage),            "toggled",       (GCallback)rbAverage_toggled, dialog) ;
   }

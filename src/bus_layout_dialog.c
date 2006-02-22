@@ -208,7 +208,7 @@ static void DialogToBusLayout (bus_layout_D *dialog, BUS_LAYOUT *bus_layout)
       gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type, -1) ;
       if (ROW_TYPE_BUS & row_type)
         {
-        exp_array_insert_vals (bus_layout->buses, NULL, 1, 1, -1) ;
+        exp_array_1d_insert_vals (bus_layout->buses, NULL, 1, -1) ;
         bus = &(exp_array_index_1d (bus_layout->buses, BUS, bus_layout->buses->icUsed - 1)) ;
         gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_NAME, &(bus->pszName), -1) ;
 	if (ROW_TYPE_INPUT & row_type)
@@ -230,7 +230,7 @@ static void DialogToBusLayout (bus_layout_D *dialog, BUS_LAYOUT *bus_layout)
             {
             gtk_tree_model_get_iter (tm, &itr, tpCells) ;
             gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_INDEX, &idxCell, -1) ;
-            exp_array_insert_vals (bus->cell_indices, &idxCell, 1, 1, -1) ;
+            exp_array_1d_insert_vals (bus->cell_indices, &idxCell, 1, -1) ;
             // Flag this cell in the master cell list as a member of some bus
             exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, idxCell).bIsInBus = TRUE ;
             }
@@ -695,8 +695,8 @@ static void swap_buses (GtkTreeModel *tm, GtkTreeSelection *sel, bus_layout_D *d
 
   ar_bSelSrc = exp_array_new (sizeof (gboolean), 1) ;
   ar_bSelDst = exp_array_new (sizeof (gboolean), 1) ;
-  exp_array_insert_vals (ar_bSelSrc, NULL, max->icChildren, 1, 0) ;
-  exp_array_insert_vals (ar_bSelDst, NULL, max->icChildren, 1, 0) ;
+  exp_array_1d_insert_vals (ar_bSelSrc, NULL, max->icChildren, 0) ;
+  exp_array_1d_insert_vals (ar_bSelDst, NULL, max->icChildren, 0) ;
 
   for (Nix = 0 ; Nix < max->icChildren ; Nix++)
     {

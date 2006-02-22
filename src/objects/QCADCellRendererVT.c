@@ -138,7 +138,7 @@ static void qcad_cell_renderer_vt_class_init (QCADCellRendererVTClass *klass)
 #endif
 
   qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL] =
-    g_signal_new ("clicked", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
+    g_signal_new ("toggled", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADCellRendererVTClass, clicked), NULL, NULL, g_cclosure_marshal_VOID__VOID,
         G_TYPE_NONE, 0) ;
   }

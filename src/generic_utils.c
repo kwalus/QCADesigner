@@ -130,12 +130,12 @@ char *strdup_convert_to_base (long long value, int base)
 
     while (value)
       {
-      exp_array_insert_vals (str, NULL, 1, 1, -1) ;
+      exp_array_1d_insert_vals (str, NULL, 1, -1) ;
       exp_array_index_1d (str, char, str->icUsed - 1) = (value & 0x1) ? '1' : '0' ;
       value = value >> 1 ;
       }
 
-    exp_array_insert_vals (str, NULL, 1, 1, -1) ;
+    exp_array_1d_insert_vals (str, NULL, 1, -1) ;
     exp_array_index_1d (str, char, str->icUsed - 1) = 0 ;
     psz = g_strreverse (g_strndup (str->data, str->icUsed)) ;
     exp_array_free (str) ;

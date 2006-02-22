@@ -412,7 +412,7 @@ void push_cursor (GtkWidget *widget, GdkCursor *cursor)
       g_object_set_data (G_OBJECT (widget), "cursor_stack", cursor_stack) ;
       }
 
-    exp_array_insert_vals (cursor_stack, &cursor, 1, 1, -1) ;
+    exp_array_1d_insert_vals (cursor_stack, &cursor, 1, -1) ;
 
     gdk_window_set_cursor (widget->window, cursor) ;
     }
@@ -433,7 +433,7 @@ static void push_cursor_priv (GtkWidget *widget, GdkCursor *cursor)
       g_object_set_data (G_OBJECT (widget), "cursor_stack", cursor_stack) ;
       }
 
-    exp_array_insert_vals (cursor_stack, &cursor, 1, 1, -1) ;
+    exp_array_1d_insert_vals (cursor_stack, &cursor, 1, -1) ;
 
     gdk_cursor_ref (cursor) ;
 

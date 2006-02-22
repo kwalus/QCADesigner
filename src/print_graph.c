@@ -353,8 +353,8 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
    (dyTitle - yIdxTitle * (dcyEffective / pPO->iCYPages) + pPO->po.dTMargin),
    _("Simulation Results")) ;
 
-  exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-  exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
+  exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
+  exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
   }
 
 static void PlaceSingleTrace (print_graph_OP *pPO, PAGES *pPages, struct TRACEDATA *ptd, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyTrace, int icSamples, double dMinTrace, double dMaxTrace)
@@ -502,8 +502,8 @@ static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEff
     font_size,
     pszStringPlacement) ;
 
-  exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-  exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
+  exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
+  exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
   }
 
 static void PlaceSingleBusTrace (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_DATA *hc_data, BUS *bus, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyTrace, int icSamples, int base)
@@ -655,8 +655,8 @@ static void PlaceSingleBox (print_graph_OP *pPO, PAGES *pPages, double dxMin, do
 
       psz = g_strdup_printf ("%lf %lf %lf %lf tracebox %%from PlaceSingleBox\n", dxMinPg, dyMinPg, dxMaxPg, dyMaxPg) ;
 
-      exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-      exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
+      exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
+      exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
       }
   }
 
@@ -704,8 +704,8 @@ static void PlaceSingleHoneycomb (print_graph_OP *pPO, PAGES *pPages, double dxM
       "grestore\n",
       pszClr, pszClrType, dxMinPg, dxLPg, dxRPg, dxMaxPg, dyMinPg, dyMaxPg, pszLabel) ;
 
-    exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-    exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
+    exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
+    exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
     }
   exp_array_free (page_indices) ;
   }
@@ -765,7 +765,7 @@ static EXP_ARRAY *get_polyline_page_indices (print_graph_OP *pPO, DPOINT *pts, i
           }
         if (bNeedInsert)
           {
-          exp_array_insert_vals (page_indices, NULL, 1, 1, Nix3) ;
+          exp_array_1d_insert_vals (page_indices, NULL, 1, Nix3) ;
           existing_idx = &(exp_array_index_1d (page_indices, PAGE_IDX_2D, Nix3)) ;
           existing_idx->idxX = Nix1 ;
           existing_idx->idxY = Nix2 ;
@@ -825,8 +825,8 @@ static void PlaceSingleLine (print_graph_OP *pPO, PAGES *pPages, double dxMin, d
         NULL == pszDash ? "" : pszDash, NULL == pszDash ? "" : "\n",
         dxMinPg, dyMinPg, dxMaxPg, dyMaxPg) ;
 
-      exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-      exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
+      exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
+      exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
       }
   }
 
@@ -920,8 +920,8 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
 
         idxPg = pPO->bPrintOrderOver ? Nix * pPO->iCXPages + xIdx : xIdx * pPO->iCYPages + Nix ;
 
-        exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-        exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
+        exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
+        exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
 
         xIdx = xIdxNew ;
 
@@ -984,7 +984,7 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
 
     idxPg = pPO->bPrintOrderOver ? Nix * pPO->iCXPages + xIdx : xIdx * pPO->iCYPages + Nix ;
 
-    exp_array_insert_vals (pPages->strings, &psz, 1, 1, -1) ;
-    exp_array_insert_vals (pPages->pages, &psz, 1, 1, idxPg, -1) ;
+    exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
+    exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
     }
   }

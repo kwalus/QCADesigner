@@ -57,7 +57,7 @@ void push_transformation ()
   if (NULL == transformation_stack)
     transformation_stack = exp_array_new (sizeof (TRANSFORMATION), 1) ;
 
-  exp_array_insert_vals (transformation_stack, &xform, 1, 1, -1) ;
+  exp_array_1d_insert_vals (transformation_stack, &xform, 1, -1) ;
   }
 
 void set_transformation (TRANSFORMATION *xform)

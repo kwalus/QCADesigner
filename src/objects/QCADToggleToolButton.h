@@ -23,7 +23,11 @@ struct _QCADToggleToolButtonClass
 GType qcad_toggle_tool_button_get_type () ;
 
 #define QCAD_TYPE_STRING_TOGGLE_TOOL_BUTTON "QCADToggleToolButton"
-#define QCAD_TYPE_TOGGLE_TOOL_BUTTON (qcad_toggle_tool_button_get_type ())
+#if (GTK_MINOR_VERSION < 9)
+  #define QCAD_TYPE_TOGGLE_TOOL_BUTTON (qcad_toggle_tool_button_get_type ())
+#else
+  #define QCAD_TYPE_TOGGLE_TOOL_BUTTON GTK_TYPE_TOGGLE_TOOL_BUTTON
+#endif
 #define QCAD_TOGGLE_TOOL_BUTTON(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_TOGGLE_TOOL_BUTTON, QCADToggleToolButton))
 #define QCAD_IS_TOGGLE_TOOL_BUTTON(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_TOGGLE_TOOL_BUTTON))
 #define QCAD_TOGGLE_TOOL_BUTTON_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_TOGGLE_TOOL_BUTTON, QCADToggleToolButtonClass))

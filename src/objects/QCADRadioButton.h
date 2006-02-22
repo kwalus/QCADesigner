@@ -23,7 +23,11 @@ struct _QCADRadioButtonClass
 GType qcad_radio_button_get_type () ;
 
 #define QCAD_TYPE_STRING_RADIO_BUTTON "QCADRadioButton"
-#define QCAD_TYPE_RADIO_BUTTON (qcad_radio_button_get_type ())
+#if (GTK_MINOR_VERSION < 9)
+  #define QCAD_TYPE_RADIO_BUTTON (qcad_radio_button_get_type ())
+#else
+  #define QCAD_TYPE_RADIO_BUTTON GTK_TYPE_RADIO_BUTTON
+#endif
 #define QCAD_RADIO_BUTTON(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_RADIO_BUTTON, QCADRadioButton))
 #define QCAD_IS_RADIO_BUTTON(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_RADIO_BUTTON)
 #define QCAD_RADIO_BUTTON_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_RADIO_BUTTON, QCADRadioButtonClass))

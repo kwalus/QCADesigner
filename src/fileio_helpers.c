@@ -133,7 +133,7 @@ char *ReadLine (FILE *pfile, char cComment, gboolean bPeek)
       fgets (pszBuffer, 81, pfile) ;
 
       if ((cb = strlen (pszBuffer)) > 0)
-        exp_array_insert_vals (pbi->buffer, pszBuffer, cb, 1, -1) ;
+        exp_array_1d_insert_vals (pbi->buffer, pszBuffer, cb, -1) ;
       else
         break ;
 
@@ -147,7 +147,7 @@ char *ReadLine (FILE *pfile, char cComment, gboolean bPeek)
     if (pbi->buffer->icUsed > 0)
       {
       if (exp_array_index_1d (pbi->buffer, char, pbi->buffer->icUsed - 1) != 0)
-        exp_array_insert_vals (pbi->buffer, &cZero, 1, 1, -1) ;
+        exp_array_1d_insert_vals (pbi->buffer, &cZero, 1, -1) ;
       if (pbi->buffer->icUsed > 1)
         {
         for (Nix = pbi->buffer->icUsed - 2 ; Nix > -1 ; Nix--)

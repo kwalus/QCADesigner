@@ -924,7 +924,7 @@ static void print_graph_data_init (PRINT_GRAPH_DATA *print_graph_data, GRAPH_DIA
       if (ROW_TYPE_BUS & row_type)
         {
         hc = g_object_get_data (G_OBJECT (trace), "graph_data") ;
-        exp_array_insert_vals (print_graph_data->bus_traces, &hc, 1, 1, -1) ;
+        exp_array_1d_insert_vals (print_graph_data->bus_traces, &hc, 1, -1) ;
         }
 
       if (!gtk_tree_model_iter_next (gdd->model, &itr)) break ;

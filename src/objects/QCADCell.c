@@ -676,7 +676,7 @@ EXP_ARRAY *qcad_cell_create_array (gboolean bHorizontal, double dRangeBeg, doubl
       ret = exp_array_new (sizeof (QCADCell *), 1) ;
     cell = QCAD_DESIGN_OBJECT (qcad_object_new_from_object (qcad_object_get_default (QCAD_TYPE_CELL))) ;
     qcad_design_object_move_to (cell, coord[0], coord[1]) ;
-    exp_array_insert_vals (ret, &cell, 1, 1, -1) ;
+    exp_array_1d_insert_vals (ret, &cell, 1, -1) ;
     qcad_cell_array_next_coord (idx, coord, length, dDir) ;
     }
   return ret ;

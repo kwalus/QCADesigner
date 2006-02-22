@@ -112,7 +112,7 @@ EXP_ARRAY *get_layer_mapping_from_user (GtkWidget *parent, DESIGN *design, DESIG
           LAYER_MAPPING_MODEL_COLUMN_DEST, &(lm.design_layer), 
           LAYER_MAPPING_MODEL_COLUMN_IMPORT, &bImport, -1) ;
         if (bImport)
-          exp_array_insert_vals (layer_mappings, &lm, 1, 1, -1) ;
+          exp_array_1d_insert_vals (layer_mappings, &lm, 1, -1) ;
         } while (gtk_tree_model_iter_next (tm, &itr)) ;
       }
     }

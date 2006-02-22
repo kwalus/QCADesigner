@@ -289,7 +289,7 @@ void qcad_object_class_install_ui_behaviour (QCADObjectClass *klass, QCADPropert
   {
   if (NULL == klass->property_ui_behaviour)
     klass->property_ui_behaviour = exp_array_new (sizeof (QCADPropertyUIBehaviour), 1) ;
-  exp_array_insert_vals (klass->property_ui_behaviour, behaviour, icBehaviour, 1, -1) ;
+  exp_array_1d_insert_vals (klass->property_ui_behaviour, behaviour, icBehaviour, -1) ;
   }
 
 void qcad_object_class_install_ui_properties (QCADObjectClass *klass, QCADPropertyUIProperty *properties, int icProperties)
@@ -320,7 +320,7 @@ void qcad_object_class_install_ui_properties (QCADObjectClass *klass, QCADProper
       break ;
       }
     if (Nix1 == klass->property_ui_properties->icUsed)
-      exp_array_insert_vals (klass->property_ui_properties, &(properties[Nix]), 1, 1, -1) ;
+      exp_array_1d_insert_vals (klass->property_ui_properties, &(properties[Nix]), 1, -1) ;
     }
   }
 

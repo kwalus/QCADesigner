@@ -442,7 +442,7 @@ static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTre
     {
     gtk_tree_model_get (graph_dialog_data->model, &itrChildren, BUS_LAYOUT_MODEL_COLUMN_INDEX, &idx, -1) ;
     trace = &((graph_dialog_data->sim_data->trace)[idx + offset]) ;
-    exp_array_insert_vals (hc->arTraces, &trace, 1, 1, -1) ;
+    exp_array_1d_insert_vals (hc->arTraces, &trace, 1, -1) ;
     if (!gtk_tree_model_iter_next (graph_dialog_data->model, &itrChildren)) break ;
     }
 

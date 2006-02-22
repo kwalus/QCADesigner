@@ -120,10 +120,10 @@ void VectorTable_add_input (VectorTable *pvt, QCADCell *new_input)
 
   if (NULL == pvt || NULL == new_input) return ;
 
-  exp_array_insert_vals (pvt->inputs, &vti, 1, 1, -1) ;
+  exp_array_1d_insert_vals (pvt->inputs, &vti, 1, -1) ;
   // I should somehow move this loop into exp_array
   // That is, write a function that blankets a range of indices with one value
-  exp_array_insert_vals (pvt->vectors, NULL, pvt->vectors->icUsed, 1, 0, -1) ;
+  exp_array_insert_vals (pvt->vectors, NULL, pvt->vectors->icUsed, 1, 0, FALSE, -1, TRUE) ;
 
   DBG_VT (fprintf (stderr, "Exiting VectorTable_add_input.  pvt now looks like this:\n")) ;
   DBG_VT (VectorTable_dump (pvt, stderr, 0)) ;
@@ -131,19 +131,21 @@ void VectorTable_add_input (VectorTable *pvt, QCADCell *new_input)
 
 void VectorTable_del_input (VectorTable *pvt, QCADCell *old_input)
   {
-  int idx = -1, Nix ;
-  DBG_VT (fprintf (stderr, "Entering VectorTable_del_input\n")) ;
+  int idx = -1, Nix, old_number_of_inputs = pvt->inputs->icUsed ;
+
+  fprintf (stderr, "Entering VectorTable_del_input.  pvt now looks like this:\n") ;
+  VectorTable_dump (pvt, stderr, 0) ;
 
   for (Nix = 0 ; Nix < pvt->inputs->icUsed ; Nix++)
     if (exp_array_index_1d (pvt->inputs, VT_INPUT, idx = Nix).input == old_input)
       exp_array_remove_vals (pvt->inputs, 1, Nix, 1) ;
 
-  if (Nix == pvt->inputs->icUsed) return ;
+  if (Nix == old_number_of_inputs) return ;
 
   exp_array_remove_vals (pvt->vectors, 2, 0, pvt->vectors->icUsed, Nix, 1) ;
 
-  DBG_VT (fprintf (stderr, "Exiting VectorTable_del_input.  pvt now looks like this:\n")) ;
-  DBG_VT (VectorTable_dump (pvt, stderr, 0)) ;
+  fprintf (stderr, "Exiting VectorTable_del_input.  pvt now looks like this:\n") ;
+  VectorTable_dump (pvt, stderr, 0) ;
   }
 
 // Add a vector at idxWanted - cause idxWanted to become the new vector - meaning that the vector currently
@@ -152,7 +154,7 @@ int VectorTable_add_vector (VectorTable *pvt, int idxWanted)
   {
   int Nix ;
 
-  exp_array_insert_vals (pvt->vectors, NULL, pvt->inputs->icUsed, 2, idxWanted, 0) ;
+  exp_array_insert_vals (pvt->vectors, NULL, pvt->inputs->icUsed, 2, idxWanted, TRUE, 0, TRUE) ;
   for (Nix = 0 ; Nix < pvt->inputs->icUsed ; Nix++)
     exp_array_index_2d (pvt->vectors, gboolean, idxWanted, Nix) = FALSE ;
 
@@ -254,7 +256,7 @@ VTL_RESULT VectorTable_load (VectorTable *pvt)
     ReadVector (pfile, vector) ;
     if (0 == vector->icUsed) break ;
 
-    exp_array_insert_vals (pvt->vectors, NULL, pvt->inputs->icUsed, 2, -1, 0) ;
+    exp_array_insert_vals (pvt->vectors, NULL, pvt->inputs->icUsed, 2, -1, TRUE, 0, TRUE) ;
 
     for (Nix = 0 ; Nix < MAX (pvt->inputs->icUsed, vector->icUsed) ; Nix++)
       if (Nix >= pvt->inputs->icUsed)
@@ -396,7 +398,7 @@ static void ReadVector (FILE *pfile, EXP_ARRAY *vector)
       {
       if ('0' == psz[Nix] || '1' == psz[Nix])
         {
-        exp_array_insert_vals (vector, NULL, 1, 1, -1) ;
+        exp_array_1d_insert_vals (vector, NULL, 1, -1) ;
         exp_array_index_1d (vector, gboolean, -1) = ('1' == psz[Nix]) ;
         }
       }

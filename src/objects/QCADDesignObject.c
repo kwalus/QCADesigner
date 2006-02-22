@@ -354,7 +354,7 @@ EXP_ARRAY *qcad_design_object_get_state_array (QCADDesignObject *obj, ...)
         {
         if (NULL == ar)
           ar = exp_array_new (sizeof (OBJECT_PROPERTY_AND_VALUE), 1) ;
-        exp_array_insert_vals (ar, NULL, 1, 1, -1) ;
+        exp_array_1d_insert_vals (ar, NULL, 1, -1) ;
         opv = &exp_array_index_1d (ar, OBJECT_PROPERTY_AND_VALUE, ar->icUsed - 1) ;
         opv->pszName = g_strdup (pszPropertyName) ;
         val = &(opv->val) ;

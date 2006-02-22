@@ -59,7 +59,7 @@ int exp_array_1d_insert_val_sorted (EXP_ARRAY *exp_array, void *data, EXPArrayCo
 int exp_array_1d_find (EXP_ARRAY *exp_array, void *element, EXPArrayCompareFunc fn, gboolean bClosest) ;
 // Assorted comparison functions
 int compare_ints (void *p1, void *p2) ;
-
+#define exp_array_1d_insert_vals(a,d,c,i) (exp_array_insert_vals ((a),(d),(c),1,(i),TRUE))
 //#define exp_array_index_1d(a,t,i) (((t*) (a)->data) [(i)])
 //#define exp_array_index_2d(a,t,r,c) (((t*) (exp_array_index_1d((a),EXP_ARRAY *,(r)))->data) [(c)])
 #define exp_array_index_1d(a,t,i) (((t*) (a)->data) [((-1 == (i)) ? (((a)->icUsed) - 1) : (i))])

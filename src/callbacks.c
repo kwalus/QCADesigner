@@ -1684,7 +1684,7 @@ static gboolean drop_single_object_with_undo_cb (QCADDesignObject *obj)
 #ifdef UNDO_REDO
     EXP_ARRAY *ar = exp_array_new (sizeof (QCADDesignObject *), 1) ;
 
-    exp_array_insert_vals (ar, &obj, 1, 1, 0) ;
+    exp_array_1d_insert_vals (ar, &obj, 1, 0) ;
 
     ar = design_selection_object_array_add_weak_pointers (ar) ;
 

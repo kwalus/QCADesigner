@@ -80,6 +80,11 @@ EXP_ARRAY *exp_array_free (EXP_ARRAY *exp_array)
 // exp_array[1][2][3]...[n]
 // Thus, for a 2-dimensional array, iDimension = 1 will add one member of data to each row at a
 // specified column, whereas iDimension = 2 will add one member of data to each column at a specified row
+// The ... arguments are tuples (index, bInsert). There are as many tuples as there are dimensions. Each
+// index specifies where in the array the insertion is to start, and bInsert specifies whether to force
+// creation of new arrays (as opposed to inserting into existing arrays, where available). Thus, in the last
+// tuple, the value of bInsert is really irrelevant, because it is assumed to be TRUE - after all, the name of
+// the function /is/ "insert_vals" ...
 void exp_array_insert_vals (EXP_ARRAY *exp_array, void *data, int icElements, int iDimension, ...)
   {
   va_list va ;
@@ -174,15 +179,21 @@ static int exp_array_1d_find_priv (EXP_ARRAY *exp_array, void *element, EXPArray
 static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElements, int iDimension, va_list va)
   {
   int idx = -1 ;
+  gboolean bInsert = FALSE ;
 
   idx = va_arg (va, int) ;
   if (-1 == idx) idx = exp_array->icUsed ;
   idx = CLAMP (idx, 0, exp_array->icUsed) ;
 
+  bInsert = va_arg (va, gboolean) ;
+
   if (iDimension > 1)
     {
-    exp_array_insert_vals_flat (exp_array, NULL, 1, idx) ;
-    exp_array_index_1d (exp_array, EXP_ARRAY *, idx) = exp_array_new (exp_array->cbSize, iDimension - 1) ;
+    if (idx == exp_array->icUsed || bInsert)
+      {
+      exp_array_insert_vals_flat (exp_array, NULL, 1, idx) ;
+      exp_array_index_1d (exp_array, EXP_ARRAY *, idx) = exp_array_new (exp_array->cbSize, exp_array->icDimensions - 1) ;
+      }
     exp_array_vinsert_vals (exp_array_index_1d (exp_array, EXP_ARRAY *, idx), data, icElements, iDimension - 1, va) ;
     }
   else
@@ -194,14 +205,23 @@ static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElem
       va_list vaNew ;
       int old_used = -1 ;
 
-      if (idx + icElements > (old_used = exp_array->icUsed))
+      if (bInsert)
         {
-        exp_array_insert_vals_flat (exp_array, NULL, idx + icElements - exp_array->icUsed, exp_array->icUsed) ;
-        for (Nix = old_used ; Nix < exp_array->icUsed ; Nix++)
+        exp_array_insert_vals_flat (exp_array, NULL, icElements, idx) ;
+        for (Nix = idx ; Nix < idx + icElements ; Nix++)
           if (NULL == exp_array_index_1d (exp_array, EXP_ARRAY *, Nix))
             exp_array_index_1d (exp_array, EXP_ARRAY *, Nix) = exp_array_new (exp_array->cbSize, exp_array->icDimensions - 1) ;
         }
-
+      else
+        {
+        if (idx + icElements > (old_used = exp_array->icUsed))
+          {
+          exp_array_insert_vals_flat (exp_array, NULL, idx + icElements - exp_array->icUsed, exp_array->icUsed) ;
+          for (Nix = old_used ; Nix < exp_array->icUsed ; Nix++)
+            if (NULL == exp_array_index_1d (exp_array, EXP_ARRAY *, Nix))
+              exp_array_index_1d (exp_array, EXP_ARRAY *, Nix) = exp_array_new (exp_array->cbSize, exp_array->icDimensions - 1) ;
+          }
+        }
       for (Nix = 0 ; Nix < icElements ; Nix++)
         {
         va_copy (vaNew, va) ;
@@ -209,7 +229,6 @@ static void exp_array_vinsert_vals (EXP_ARRAY *exp_array, void *data, int icElem
           NULL == data ? NULL : data + Nix * exp_array->cbSize, 1, exp_array->icDimensions - 1, vaNew) ;
         va_end (vaNew) ;
         }
-      exp_array->icUsed = MAX (exp_array->icUsed, Nix + idx) ;
       }
     else
       exp_array_insert_vals_flat (exp_array, data, icElements, idx) ;

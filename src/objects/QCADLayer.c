@@ -666,7 +666,7 @@ static EXP_ARRAY *qcad_layer_selection_release_object (QCADDesignObject *obj, Gd
   if (NULL == ar)
     ar = exp_array_new (sizeof (QCADDesignObject *), 1) ;
   qcad_design_object_set_selected (obj, FALSE) ;
-  exp_array_insert_vals (ar, &obj, 1, 1, -1) ;
+  exp_array_1d_insert_vals (ar, &obj, 1, -1) ;
   qcad_design_object_draw (obj, dst, rop, NULL) ;
 
   return ar ;
@@ -718,7 +718,7 @@ EXP_ARRAY *qcad_layer_selection_get_object_array (QCADLayer *layer, EXP_ARRAY *a
     {
     if (NULL == ar)
       ar = exp_array_new (sizeof (QCADDesignObject *), 1) ;
-    exp_array_insert_vals (ar, &(llItr->data), 1, 1, -1) ;
+    exp_array_1d_insert_vals (ar, &(llItr->data), 1, -1) ;
     }
   return ar ;
   }

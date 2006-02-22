@@ -170,7 +170,7 @@ DESIGN *design_copy (DESIGN *design)
     bus.pszName = g_strdup (src_bus->pszName) ;
     bus.bus_function = src_bus->bus_function ;
     bus.cell_indices = exp_array_copy (src_bus->cell_indices) ;
-    exp_array_insert_vals (new_design->bus_layout->buses, &bus, 1, 1, -1) ;
+    exp_array_1d_insert_vals (new_design->bus_layout->buses, &bus, 1, -1) ;
 
     // Flag all the cells in the appropriate I/O list as "used-in-a-bus"
     cell_list = (QCAD_CELL_INPUT == bus.bus_function ? new_design->bus_layout->inputs : new_design->bus_layout->outputs) ;
@@ -302,9 +302,9 @@ GtkListStore *design_layer_list_store_new (DESIGN *design, int icExtraColumns, .
 
   ar = exp_array_new (sizeof (GType), 1) ;
 
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_POINTER ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_STRING  ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;
+  type = G_TYPE_STRING  ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;
+  type = G_TYPE_POINTER ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;
 
   if (icExtraColumns > 0)
     {
@@ -312,7 +312,7 @@ GtkListStore *design_layer_list_store_new (DESIGN *design, int icExtraColumns, .
 
     va_start (va, icExtraColumns) ;
     for (Nix = 0 ; Nix < icExtraColumns ; Nix++)
-      {type = va_arg (va, GType) ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;}
+      {type = va_arg (va, GType) ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;}
     va_end (va) ;
     }
 
@@ -351,17 +351,17 @@ GtkTreeStore *design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_
 
   ar = exp_array_new (sizeof (GType), 1) ;
 
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_POINTER ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
+  type = G_TYPE_STRING  ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;
+  type = G_TYPE_STRING  ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;
+  type = G_TYPE_INT     ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;
+  type = G_TYPE_INT     ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;
+  type = G_TYPE_POINTER ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;
 
   if (icExtraColumns > 0)
     {
     va_start (va, icExtraColumns) ;
     for (Nix = 0 ; Nix < icExtraColumns ; Nix++)
-      {type = va_arg (va, GType) ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;}
+      {type = va_arg (va, GType) ; exp_array_1d_insert_vals (ar, &type, 1, -1) ;}
     va_end (va) ;
     }
 
@@ -858,7 +858,7 @@ static EXP_ARRAY *design_select_single_object (QCADDesignObject *obj, EXP_ARRAY 
   if (NULL == ar)
     ar = exp_array_new (sizeof (QCADDesignObject *), 1) ;
   qcad_design_object_set_selected (QCAD_DESIGN_OBJECT (obj), TRUE) ;
-  exp_array_insert_vals (ar, &obj, 1, 1, -1) ;
+  exp_array_1d_insert_vals (ar, &obj, 1, -1) ;
 
   return ar ;
   }
@@ -911,7 +911,7 @@ EXP_ARRAY *design_selection_create_object_array (DESIGN *design)
             {
             if (NULL == ar)
               ar = exp_array_new (sizeof (QCADDesignObject *), 1) ;
-            exp_array_insert_vals (ar, &obj, 1, 1, -1) ;
+            exp_array_1d_insert_vals (ar, &obj, 1, -1) ;
             }
 
   return design_selection_object_array_add_weak_pointers (ar) ;
@@ -1207,7 +1207,7 @@ static gboolean design_bus_layout_bus_unserialize (EXP_ARRAY *buses, FILE *pfile
   if (!SkipPast (pfile, '\0', "[TYPE:BUS]", NULL))
     return FALSE ;
 
-  exp_array_insert_vals (buses, NULL, 1, 1, -1) ;
+  exp_array_1d_insert_vals (buses, NULL, 1, -1) ;
   bus = &(exp_array_index_1d (buses, BUS, buses->icUsed - 1)) ;
 
   bus->cell_indices = exp_array_new (sizeof (int), 1) ;
@@ -1283,7 +1283,7 @@ static gboolean design_bus_layout_bus_data_unserialize (EXP_ARRAY *cell_indices,
         {
         if (-1 == (cell_idx = atoi (pszValue)))
           fprintf (stderr, "Warning: adding index -1 to bus cell list\n") ;
-        exp_array_insert_vals (cell_indices, &cell_idx, 1, 1, -1) ;
+        exp_array_1d_insert_vals (cell_indices, &cell_idx, 1, -1) ;
         }
       }
 
@@ -1798,7 +1798,7 @@ static void design_rebuild_io_lists (DESIGN *design)
               pNew = &icNewOutputs ;
 	            }
             bus_layout_cell.cell = llItrCells->data ;
-	          exp_array_insert_vals (io_list, &bus_layout_cell, 1, 1, (*pidx)++) ;
+	          exp_array_1d_insert_vals (io_list, &bus_layout_cell, 1, (*pidx)++) ;
             (*pNew)++ ;
 	          }
           }

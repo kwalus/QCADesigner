@@ -16,9 +16,6 @@ static void get_property (GObject *object, guint property_id,       GValue *valu
 
 GType qcad_radio_tool_button_get_type ()
   {
-#if (GTK_MINOR_VERSION >= 10)
-  return GTK_TYPE_RADIO_TOOL_BUTTON ;
-#else
   static GType the_type = 0 ;
 
   if (0 == the_type)
@@ -36,12 +33,13 @@ GType qcad_radio_tool_button_get_type ()
       (GInstanceInitFunc)NULL
       } ;
 
+    g_print ("QCADRadioToolButton::get_type\n") ;
+
     if ((the_type = g_type_register_static (GTK_TYPE_RADIO_TOOL_BUTTON, QCAD_TYPE_STRING_RADIO_TOOL_BUTTON, &the_type_info, 0)))
       g_type_class_ref (the_type) ;
     }
 
   return the_type ;
-#endif /* (GTK_MINOR_VERSION >= 10) */
   }
 
 static void class_init (QCADRadioToolButtonClass *klass, gpointer data)

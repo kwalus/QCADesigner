@@ -95,7 +95,7 @@ HONEYCOMB_DATA *honeycomb_data_new_with_array (GdkColor *clr, simulation_data *s
   for (Nix2 = 0 ; Nix2 < bus->cell_indices->icUsed ; Nix2++)
     {
     the_trace = &(sim_data->trace[exp_array_index_1d (bus->cell_indices, int, Nix2) + offset]) ;
-    exp_array_insert_vals (hc->arTraces, &the_trace, 1, -1) ;
+    exp_array_1d_insert_vals (hc->arTraces, &the_trace, 1, -1) ;
     }
   calculate_honeycomb_array (hc, sim_data->number_samples, thresh_lower, thresh_upper, icAverageSamples, base) ;
 
@@ -144,7 +144,7 @@ void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThres
 
   bits = exp_array_new (sizeof (int), 1) ;
 
-  exp_array_insert_vals (bits, NULL, hc->arTraces->icUsed, 1, 0) ;
+  exp_array_1d_insert_vals (bits, NULL, hc->arTraces->icUsed, 0) ;
   for (Nix = hc->arTraces->icUsed - 1 ; Nix > -1  ; Nix--)
     exp_array_index_1d (bits, int, Nix) = -1 ;
 
@@ -174,7 +174,7 @@ void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThres
       hcNew.idxBeg = idxStart ;
       hcNew.idxEnd = Nix ;
       hcNew.value = calculate_honeycomb_value (old_bits) ;
-      exp_array_insert_vals (hc->arHCs, &hcNew, 1, 1, -1) ;
+      exp_array_1d_insert_vals (hc->arHCs, &hcNew, 1, -1) ;
       idxStart = (HCT_HONEYCOMB_TO_GARBAGE == hct) ? -1 : Nix ;
       }
     memcpy (old_bits->data, bits->data, bits->icUsed * bits->cbSize) ;
@@ -369,7 +369,7 @@ void calculate_waveform_coords (WAVEFORM_DATA *wf, int icSamples)
     wf->graph_data.cyGiven -
     ((wf->trace->data[0] - dMinTrace) * dyInc + MIN_MAX_OFFSET * wf->graph_data.cyGiven) ;
 
-  exp_array_insert_vals (wf->arPoints, &pt3, 1, 1, -1) ;
+  exp_array_1d_insert_vals (wf->arPoints, &pt3, 1, -1) ;
 
   for (Nix = 1 ; Nix < icSamples ; Nix++)
     {
@@ -384,13 +384,13 @@ void calculate_waveform_coords (WAVEFORM_DATA *wf, int icSamples)
       ((double)(pt2.x)), ((double)(pt2.y)),
       ((double)(pt3.x)), ((double)(pt3.y)), MAX_SLOPE_DIFF))
       {
-      exp_array_insert_vals (wf->arPoints, &pt2, 1, 1, -1) ;
+      exp_array_1d_insert_vals (wf->arPoints, &pt2, 1, -1) ;
       pt1.x = pt2.x ;
       pt1.y = pt2.y ;
       }
     }
 
-  exp_array_insert_vals (wf->arPoints, &pt3, 1, 1, -1) ;
+  exp_array_1d_insert_vals (wf->arPoints, &pt3, 1, -1) ;
 
   wf->graph_data.bNeedCalc = FALSE ;
   }

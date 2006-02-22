@@ -1020,7 +1020,7 @@ static void build_io_tables (simulation_data *sim_data, BUS_LAYOUT *bus_layout)
       "function", (sim_data->trace)[Nix].trace_function,
       "label",    (sim_data->trace)[Nix].data_labels, NULL) ;
     cell_list = (QCAD_CELL_INPUT == blcell.cell->cell_function) ? bus_layout->inputs : bus_layout->outputs ;
-    exp_array_insert_vals (cell_list, &blcell, 1, 1, -1) ;
+    exp_array_1d_insert_vals (cell_list, &blcell, 1, -1) ;
     }
 
   for (Nix = 0 ; Nix < bus_layout->buses->icUsed ; Nix++)

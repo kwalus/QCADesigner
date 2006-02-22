@@ -172,7 +172,7 @@ int main (int argc, char **argv)
   for (Nix = 0 ; Nix < design->bus_layout->buses->icUsed ; Nix++)
     if (QCAD_CELL_OUTPUT == exp_array_index_1d (design->bus_layout->buses, BUS, Nix).bus_function)
       icOutputBuses++ ;
-  exp_array_insert_vals (icSuccesses, NULL, icOutputBuses, 1, 0) ;
+  exp_array_1d_insert_vals (icSuccesses, NULL, icOutputBuses, 0) ;
   for (Nix = 0 ; Nix < icSuccesses->icUsed ; Nix++)
     exp_array_index_1d (icSuccesses, int, Nix) = 0 ;
 
@@ -269,7 +269,7 @@ static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_L
     if (bus_function == (bus = &exp_array_index_1d (bus_layout->buses, BUS, Nix1))->bus_function)
       {
       hc = honeycomb_data_new_with_array (&clr, sim_data, bus, (QCAD_CELL_INPUT == bus->bus_function ? 0 : bus_layout->inputs->icUsed), dThreshLower, dThreshUpper, icAverageSamples, 2) ;
-      exp_array_insert_vals (output_hcs, &hc, 1, -1) ;
+      exp_array_1d_insert_vals (output_hcs, &hc, 1, -1) ;
       }
   return output_hcs ;
   }

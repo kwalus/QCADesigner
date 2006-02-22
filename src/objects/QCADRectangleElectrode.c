@@ -673,7 +673,7 @@ static void precompute (QCADElectrode *electrode)
   rc_electrode->precompute_params.pts = exp_array_new (sizeof (WorldPoint), 2) ;
 
   for (Nix = 0 ; Nix < rc_electrode->n_y_divisions ; Nix++)
-    exp_array_insert_vals (rc_electrode->precompute_params.pts, NULL, rc_electrode->n_x_divisions, 2, -1, 0) ;
+    exp_array_insert_vals (rc_electrode->precompute_params.pts, NULL, rc_electrode->n_x_divisions, 2, -1, TRUE, 0, TRUE) ;
 
   // This is a faaar better place to multiply by 1e9 than get_potential
   rc_electrode->precompute_params.rho_factor = 1e9 * QCAD_ELECTRODE (rc_electrode)->precompute_params.capacitance / (rc_electrode->n_x_divisions * rc_electrode->n_y_divisions) ;

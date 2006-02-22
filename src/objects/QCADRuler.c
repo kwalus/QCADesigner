@@ -436,7 +436,7 @@ static QCADLabel *get_label_from_array (EXP_ARRAY *ar, int idx, double dCurrentG
     {
     grad.lbl = qcad_label_new ("%.2lf", dCurrentGrad) ;
     grad.dVal = dCurrentGrad ;
-    exp_array_insert_vals (ar, &grad, 1, 1, -1) ;
+    exp_array_1d_insert_vals (ar, &grad, 1, -1) ;
     ar_grad = &grad ;
     }
   else

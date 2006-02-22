@@ -370,7 +370,7 @@ static void qcad_property_ui_group_create_from_instance (QCADPropertyUIGroup *pr
     if (NULL != (puig_entry.property_ui = qcad_property_ui_single_new (instance, param_specs[Nix]->name, NULL)))
       {
       puig_entry.pszPropName = g_strdup (param_specs[Nix]->name) ;
-      exp_array_insert_vals (property_ui_group->property_uis, &puig_entry, 1, 1, -1) ;
+      exp_array_1d_insert_vals (property_ui_group->property_uis, &puig_entry, 1, -1) ;
 //      g_object_add_weak_pointer (G_OBJECT (puig_entry.property_ui), 
 //        (gpointer *)&(exp_array_index_1d (property_ui_group->property_uis, QCADPropertyUIGroupEntry, property_ui_group->property_uis->icUsed - 1).property_ui)) ;
       }

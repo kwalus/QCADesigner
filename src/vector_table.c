@@ -138,7 +138,10 @@ void VectorTable_del_input (VectorTable *pvt, QCADCell *old_input)
 
   for (Nix = 0 ; Nix < pvt->inputs->icUsed ; Nix++)
     if (exp_array_index_1d (pvt->inputs, VT_INPUT, idx = Nix).input == old_input)
+      {
       exp_array_remove_vals (pvt->inputs, 1, Nix, 1) ;
+      break ;
+      }
 
   if (Nix == old_number_of_inputs) return ;
 

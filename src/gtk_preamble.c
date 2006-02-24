@@ -35,8 +35,12 @@
 #include "qcadstock.h"
 #include "global_consts.h"
 #include "custom_widgets.h"
-
 #ifdef WIN32
+  #include <windows.h>
+
+static char *get_locale () ;
+static char *lcid_to_posix_locale (int lcid) ;
+
 #ifdef QCAD_NO_CONSOLE
 static char **CmdLineToArgv (char *pszCmdLine, int *pargc) ;
 static void my_logger (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer user_data) ;
@@ -280,6 +284,69 @@ char **CmdLineToArgv (char *pszTmp, int *pargc)
   return argv ;
   }
 #endif /* QCAD_NO_CONSOLE */
+
+static char *get_locale ()
+  {
+  HKEY hk ;
+  char *pszLocale = NULL, szVal[32] = "" ;
+  DWORD cbVal = 31 ;
+  DWORD dwType = REG_SZ ;
+
+  if (ERROR_SUCCESS == RegOpenKeyEx (HKEY_CURRENT_USER, "Software\\" PACKAGE, 0, KEY_QUERY_VALUE, &hk))
+    if (ERROR_SUCCESS == RegQueryValueEx (hk, "Installer Language", NULL, &dwType, szVal, &cbVal))
+      {
+      pszLocale = lcid_to_posix_locale (atoi (szVal)) ;
+      RegCloseKey (hk) ;
+      }
+
+  if (NULL == pszLocale)
+    pszLocale = lcid_to_posix_locale (GetUserDefaultLCID ()) ;
+
+  return pszLocale ;
+  }
+
+static char *lcid_to_posix_locale (int lcid)
+  {
+  switch (lcid)
+    {
+//    case 1026: return "bg"; /* bulgarian */
+//    case 1027: return "ca"; /* catalan */
+//    case 1050: return "hr"; /* croation */
+//    case 1029: return "cs"; /* czech */
+//    case 1030: return "da"; /* danish */
+//    case 1043: return "nl"; /* dutch - netherlands */
+    case 1033: return "en_US"; /* english - us */
+//    case 1035: return "fi"; /* finnish */
+    case 1036: return "fr_FR"; /* french - france */
+    case 1031: return "de_DE"; /* german - germany */
+//    case 1032: return "el"; /* greek */
+//    case 1037: return "he"; /* hebrew */
+    case 1038: return "hu_HU"; /* hungarian */
+//    case 1040: return "it"; /* italian - italy */
+//    case 1041: return "ja"; /* japanese */
+//    case 1042: return "ko"; /* korean */
+//    case 1063: return "lt"; /* lithuanian */
+//    case 1071: return "mk"; /* macedonian */
+    case 1045: return "pl_PL"; /* polish */
+//    case 2070: return "pt"; /* portuguese - portugal */
+//    case 1046: return "pt_BR"; /* portuguese - brazil */
+    case 1048: return "ro_RO"; /* romanian - romania */
+//    case 1049: return "ru"; /* russian - russia */
+//    case 2074: return "sr@Latn"; /* serbian - latin */
+//    case 3098: return "sr"; /* serbian - cyrillic */
+//    case 2052: return "zh_CN"; /* chinese - china (simple) */
+//    case 1051: return "sk"; /* slovak */
+//    case 1060: return "sl"; /* slovenian */
+//    case 1034: return "es"; /* spanish */
+//    case 1052: return "sq"; /* albanian */
+//    case 1053: return "sv"; /* swedish */
+//    case 1054: return "th"; /* thai */
+//    case 1028: return "zh_TW"; /* chinese - taiwan (traditional) */
+//    case 1055: return "tr"; /* turkish */
+//    case 1058: return "uk"; /* ukrainian */
+    } ;
+  return "C" ;
+  }
 #endif /* ifdef WIN32 */
 
 #endif /* def GTK_GUI */

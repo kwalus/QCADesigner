@@ -32,10 +32,10 @@
 #include "../custom_widgets.h"
 #ifdef UNDO_REDO
 #include "../selection_undo.h"
-#include "objects/QCADUndoEntry.h"
-#include "objects/QCADUndoEntryGroup.h"
+#include "../objects/QCADUndoEntry.h"
+#include "../objects/QCADUndoEntryGroup.h"
 #endif /* def UNDO_REDO */
-#include "objects/QCADRectangleElectrode.h"
+#include "../objects/QCADRectangleElectrode.h"
 
 extern GdkColor clrBlack ;
 

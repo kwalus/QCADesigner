@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "global_consts.h"
 #include "support.h"
 #include "file_selection_window.h"
 #include "fileio_helpers.h"

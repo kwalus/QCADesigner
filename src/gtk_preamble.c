@@ -109,7 +109,9 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   // Set the locale
 #ifdef ENABLE_NLS
 #ifdef WIN32
-  bindtextdomain (PACKAGE, psz = g_strdup_printf ("%s%s..%sshare%slocale", szMyPath, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S)) ;
+  putenv (psz = g_strdup_printf ("LANG=%s", get_locale ())) ;
+  g_free (psz) ;
+  bindtextdomain (PACKAGE, psz = g_strdup_printf ("%s%slocale", szMyPath, G_DIR_SEPARATOR_S)) ;
   g_free (psz) ;
 #else
   bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);

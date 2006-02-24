@@ -34,7 +34,7 @@
 #include <math.h>
 
 #include "QCADClockingLayer.h"
-#include "support.h"
+#include "../support.h"
 #include "../fileio_helpers.h"
 #include "QCADElectrode.h"
 #include "../global_consts.h"

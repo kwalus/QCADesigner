@@ -34,8 +34,8 @@
 #include <math.h>
 #include <glib-object.h>
 #include "../gdk_structs.h"
-#include "support.h"
-#include "custom_widgets.h"
+#include "../support.h"
+#include "../custom_widgets.h"
 #include "QCADSubstrate.h"
 #include "object_helpers.h"
 #include "../fileio_helpers.h"

@@ -1,5 +1,5 @@
 #include <stdarg.h>
-#include "custom_widgets.h"
+#include "../custom_widgets.h"
 #include "../support.h"
 #include "../generic_utils.h"
 #include "QCADPropertyUIText.h"

@@ -25,7 +25,7 @@
 //////////////////////////////////////////////////////////
 
 #include <gtk/gtk.h>
-#include <support.h>
+#include "support.h"
 #include "about.h"
 
 typedef struct

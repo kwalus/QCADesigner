@@ -1,0 +1,36 @@
+QCAD_TOP = .
+QCAD_SRC = $(QCAD_TOP)/src
+QCAD_PIX = $(QCAD_TOP)/pixmaps
+QCAD_INSTALL_DIR_NAME = win32-install-dir
+QCAD_INSTALL_DIR = $(QCAD_TOP)/$(QCAD_INSTALL_DIR_NAME)
+QCAD_PO = $(QCAD_TOP)/po
+MAKENSIS = makensis.exe
+GTK_PREFIX = ../../win32-dev/gtk_2_0
+
+PACKAGE = QCADesigner
+VERSION = 2.1.0
+
+all:
+	$(MAKE) -C $(QCAD_SRC) \
+		VERSION=$(VERSION) \
+		PACKAGE=$(PACKAGE) \
+		GTK_PREFIX=$(GTK_PREFIX) \
+	-f Makefile.mingw
+	$(MAKE) -C $(QCAD_PO) \
+		GTK_PREFIX=$(GTK_PREFIX) \
+	-f Makefile.mingw
+
+install: all
+	mkdir -p $(QCAD_INSTALL_DIR)
+	$(MAKE) -C $(QCAD_SRC) \
+		QCAD_INSTALL_DIR_NAME=$(QCAD_INSTALL_DIR_NAME) \
+	-f Makefile.mingw install
+	$(MAKE) -C $(QCAD_PO) \
+		PACKAGE=$(PACKAGE) \
+		QCAD_INSTALL_DIR_NAME=$(QCAD_INSTALL_DIR_NAME) \
+	-f Makefile.mingw install
+
+clean:
+	$(MAKE) -C $(QCAD_SRC) -f Makefile.mingw clean
+	$(MAKE) -C $(QCAD_PO)  -f Makefile.mingw clean
+	rm -rf *.exe $(QCAD_INSTALL_DIR)

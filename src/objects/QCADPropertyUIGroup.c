@@ -1,6 +1,6 @@
 #include <stdarg.h>
 #include <string.h>
-#include "custom_widgets.h"
+#include "../custom_widgets.h"
 #include "../support.h"
 #include "QCADObject.h"
 #include "QCADParamSpecTypeList.h"

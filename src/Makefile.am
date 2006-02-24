@@ -88,7 +88,7 @@ QCADesigner_SOURCES = \
 	print_preview.c                         print_preview.h \
 	bistable_simulation.c                   bistable_simulation.h \
 	coherence_vector.c                      coherence_vector.h \
-	three_state_coherence.c									three_state_coherence.h \
+	three_state_coherence.c			three_state_coherence.h \
 	matrixlib_3x3.c													matrixlib_3x3.h \
 	simulation.c                            simulation.h \
 	simulation_data.c                       simulation_data.h \

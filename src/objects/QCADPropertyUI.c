@@ -1,6 +1,6 @@
 #include <stdarg.h>
-#include "custom_widgets.h"
-#include "support.h"
+#include "../custom_widgets.h"
+#include "../support.h"
 #include "QCADPropertyUI.h"
 
 enum

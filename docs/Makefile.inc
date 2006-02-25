@@ -106,12 +106,6 @@ MANUAL_FILES = \
 	manual.src/images/close-vector-table-button.png   \
 	manual.src/bus_layout.html
 
-ifeq ($(origin INSTALL), undefined)
-  INSTALL_MANUAL = cp
-else
-  INSTALL_MANUAL = $(INSTALL) -m 644
-endif
-
 all:manual
 
 manual:$(MANUAL_FILES)
@@ -140,13 +134,18 @@ manual:$(MANUAL_FILES)
 
 install-data-local:manual
 	$(mkinstalldirs) "$(QCAD_DOCUMENTATION_INSTALL_DIR)/manual"
+	if test -x "$(INSTALL)"; then \
+	  INSTALL_MANUAL="$(INSTAL) -m 644"; \
+	else \
+	  INSTALL_MANUAL=cp; \
+	fi; \
 	for Nix in `find manual`; do \
 		if [ -d $$Nix ]; then \
 			echo $(mkinstalldirs) "$(QCAD_DOCUMENTATION_INSTALL_DIR)/$$Nix" ;\
 			$(mkinstalldirs) "$(QCAD_DOCUMENTATION_INSTALL_DIR)/$$Nix" ;\
 		elif [ -f $$Nix ]; then \
-			echo $(INSTALL_MANUAL) $$Nix "$(QCAD_DOCUMENTATION_INSTALL_DIR)/$$Nix"; \
-			$(INSTALL_MANUAL) $$Nix "$(QCAD_DOCUMENTATION_INSTALL_DIR)/$$Nix"; \
+			echo $${INSTALL_MANUAL} $$Nix "$(QCAD_DOCUMENTATION_INSTALL_DIR)/$$Nix"; \
+			$${INSTALL_MANUAL} $$Nix "$(QCAD_DOCUMENTATION_INSTALL_DIR)/$$Nix"; \
 		fi ; \
 	done
 

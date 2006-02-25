@@ -114,6 +114,7 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
 #ifdef ENABLE_NLS
 #ifdef WIN32
   putenv (psz = g_strdup_printf ("LANG=%s", get_locale ())) ;
+  g_print ("%s\n", psz) ;
   g_free (psz) ;
   bindtextdomain (PACKAGE, psz = g_strdup_printf ("%s%slocale", szMyPath, G_DIR_SEPARATOR_S)) ;
   g_free (psz) ;
@@ -127,9 +128,9 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
 
   // Add pixmap directories
 #ifdef WIN32
-  add_pixmap_directory (psz = g_strdup_printf ("%s%s..%sshare%s%s%spixmaps", szMyPath, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S, PACKAGE, G_DIR_SEPARATOR_S)) ;
+  add_pixmap_directory (psz = g_strdup_printf ("%s%spixmaps", szMyPath, G_DIR_SEPARATOR_S)) ;
   g_free (psz) ;
-  add_pixmap_directory (psz = g_strdup_printf ("%s\\..\\pixmaps", szMyPath)) ;
+  add_pixmap_directory (psz = g_strdup_printf ("%s%s..%spixmaps", szMyPath, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S)) ;
   g_free (psz) ;
 #else /* ifndef WIN32 */
   // -- Pixmaps used by the buttons in the main window -- //
@@ -287,18 +288,24 @@ char **CmdLineToArgv (char *pszTmp, int *pargc)
 
 static char *get_locale ()
   {
-  HKEY hk ;
+//  HKEY hk ;
   char *pszLocale = NULL, szVal[32] = "" ;
-  DWORD cbVal = 31 ;
-  DWORD dwType = REG_SZ ;
+//  DWORD cbVal = 31 ;
+//  DWORD dwType = REG_SZ ;
 
-  if (ERROR_SUCCESS == RegOpenKeyEx (HKEY_CURRENT_USER, "Software\\" PACKAGE, 0, KEY_QUERY_VALUE, &hk))
-    if (ERROR_SUCCESS == RegQueryValueEx (hk, "Installer Language", NULL, &dwType, szVal, &cbVal))
-      {
-      pszLocale = lcid_to_posix_locale (atoi (szVal)) ;
-      RegCloseKey (hk) ;
-      }
+  // This above all - the LANG environment variable
+  if (NULL != (pszLocale = getenv ("LANG")))
+    return pszLocale ;
 
+//  // Failing that, see what the user chose for the installer
+//  if (ERROR_SUCCESS == RegOpenKeyEx (HKEY_CURRENT_USER, "Software\\" PACKAGE, 0, KEY_QUERY_VALUE, &hk))
+//    if (ERROR_SUCCESS == RegQueryValueEx (hk, "Installer Language", NULL, &dwType, szVal, &cbVal))
+//      {
+//      pszLocale = lcid_to_posix_locale (atoi (szVal)) ;
+//      RegCloseKey (hk) ;
+//      }
+
+  // Failing that, see what Windoze has to say ...
   if (NULL == pszLocale)
     pszLocale = lcid_to_posix_locale (GetUserDefaultLCID ()) ;
 

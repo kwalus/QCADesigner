@@ -1,11 +1,14 @@
 QCAD_TOP = .
 QCAD_SRC = $(QCAD_TOP)/src
 QCAD_PIX = $(QCAD_TOP)/pixmaps
+QCAD_PO = $(QCAD_TOP)/po
+QCAD_DOC = $(QCAD_TOP)/docs
 QCAD_INSTALL_DIR_NAME = win32-install-dir
 QCAD_INSTALL_DIR = $(QCAD_TOP)/$(QCAD_INSTALL_DIR_NAME)
-QCAD_PO = $(QCAD_TOP)/po
 MAKENSIS = makensis.exe
 GTK_PREFIX = ../../win32-dev/gtk_2_0
+GTK_RUNTIME_PKG = gtk-runtime-2.6.10-rev-a.exe
+ISCC = ISCC.exe
 
 PACKAGE = QCADesigner
 VERSION = 2.1.0
@@ -19,6 +22,8 @@ all:
 	$(MAKE) -C $(QCAD_PO) \
 		GTK_PREFIX=$(GTK_PREFIX) \
 	-f Makefile.mingw
+	$(MAKE) -C $(QCAD_DOC) \
+	-f Makefile.mingw
 
 install: all
 	mkdir -p $(QCAD_INSTALL_DIR)
@@ -29,8 +34,40 @@ install: all
 		PACKAGE=$(PACKAGE) \
 		QCAD_INSTALL_DIR_NAME=$(QCAD_INSTALL_DIR_NAME) \
 	-f Makefile.mingw install
+	$(MAKE) -C $(QCAD_DOC) \
+		QCAD_INSTALL_DIR_NAME=$(QCAD_INSTALL_DIR_NAME) \
+	-f Makefile.mingw install
+	$(MAKE) -C $(QCAD_PIX) \
+		QCAD_INSTALL_DIR_NAME=$(QCAD_INSTALL_DIR_NAME) \
+	-f Makefile.mingw install
+	cp COPYING $(QCAD_INSTALL_DIR)/docs
+	mkdir -p $(QCAD_INSTALL_DIR)/qca_cell_library
+	cp sample.qca $(QCAD_INSTALL_DIR)/qca_cell_library
 
 clean:
 	$(MAKE) -C $(QCAD_SRC) -f Makefile.mingw clean
 	$(MAKE) -C $(QCAD_PO)  -f Makefile.mingw clean
-	rm -rf *.exe $(QCAD_INSTALL_DIR)
+	$(MAKE) -C $(QCAD_DOC) -f Makefile.mingw clean
+	rm -rf $(QCAD_INSTALL_DIR) Output
+
+installer: install
+	rm -f QCADesigner-win32.iss
+	cat QCADesigner-win32.iss.in | \
+	sed \
+		-e 's!@PACKAGE@!$(PACKAGE)!g' \
+		-e 's!@VERSION@!$(VERSION)!g' \
+		-e 's!@prefix@!$(QCAD_INSTALL_DIR)!g' > QCADesigner-win32.iss
+	$(ISCC) QCADesigner-win32.iss
+
+installer_gtk: install
+	rm -f QCADesigner-win32-gtk.iss 
+	cat QCADesigner-win32-gtk.iss.in | \
+	sed \
+		-e 's!@PACKAGE@!$(PACKAGE)!g' \
+		-e 's!@VERSION@!$(VERSION)!g' \
+		-e 's!@prefix@!$(QCAD_INSTALL_DIR)!g' \
+		-e 's!@packagesrcdir@!$(QCAD_TOP)!g' \
+		-e 's!@GTK_RUNTIME_PKG@!$(GTK_RUNTIME_PKG)!g' > QCADesigner-win32-gtk.iss
+	$(ISCC) QCADesigner-win32-gtk.iss
+
+installers: installer installer_gtk

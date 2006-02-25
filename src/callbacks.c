@@ -1366,9 +1366,8 @@ void on_contents_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   if (NULL == pszBrowser) return ;
 
   #ifdef WIN32
-  pszCmdLine = g_strdup_printf ("%s file://%s%s..%sshare%sdoc%s%s-%s%smanual%sindex.html",
-    pszBrowser, getenv ("MY_PATH"), G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S, 
-      G_DIR_SEPARATOR_S, PACKAGE, VERSION, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S) ;
+  pszCmdLine = g_strdup_printf ("%s file://%s%sdocs%smanual%sindex.html",
+    pszBrowser, getenv ("MY_PATH"), G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S) ;
   #else
   pszCmdLine = g_strdup_printf ("%s %s%cdoc%cQCADesigner-%s%cmanual%cindex.html", pszBrowser,
     PACKAGE_DATA_DIR, G_DIR_SEPARATOR, G_DIR_SEPARATOR, VERSION, G_DIR_SEPARATOR, G_DIR_SEPARATOR) ;

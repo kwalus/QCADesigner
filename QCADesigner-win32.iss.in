@@ -10,7 +10,7 @@ AppSupportURL=qcadesigner.ca
 AppUpdatesURL=qcadesigner.ca
 DefaultDirName={pf}\@PACKAGE@
 DefaultGroupName=@PACKAGE@
-LicenseFile=@prefix@\share\doc\@PACKAGE@-@VERSION@\COPYING
+LicenseFile=@prefix@\docs\COPYING
 ChangesAssociations=yes
 OutputBaseFilename=@PACKAGE@-@VERSION@-setup
 
@@ -36,14 +36,14 @@ Root: HKCR; SubKey: "QCADesigner.File"; ValueType: string; ValueName: ""; ValueD
 Root: HKCR; SubKey: "QCADesigner.File"; ValueType: dword; ValueName: "BrowserFlags"; ValueData: 8; Flags: uninsdeletevalue
 Root: HKCR; SubKey: "QCADesigner.File"; ValueType: dword; ValueName: "EditFlags"; ValueData: 0; Flags: uninsdeletevalue
 Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; Flags: uninsdeletekey
-Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
-Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
+Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
+Root: HKCR; SubKey: "QCADesigner.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
 Root: HKCR; SubKey: "QCADesigner.File\shell"; Flags: uninsdeletekey
 Root: HKCR; SubKey: "QCADesigner.File\shell"; ValueType: string; ValueName: ""; ValueData: "Open"
 Root: HKCR; SubKey: "QCADesigner.File\shell\Open"; Flags: uninsdeletekey
 Root: HKCR; SubKey: "QCADesigner.File\shell\Open"; ValueType: string; ValueName: ""; ValueData: "&Open"
 Root: HKCR; SubKey: "QCADesigner.File\shell\Open\command"; Flags: uninsdeletekey
-Root: HKCR; SubKey: "QCADesigner.File\shell\Open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bin\QCADesigner.exe"" ""%1"""
+Root: HKCR; SubKey: "QCADesigner.File\shell\Open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QCADesigner.exe"" ""%1"""
 ; QCA Simulation Results
 Root: HKCR; SubKey: ".rst"; Flags: uninsdeletekey
 Root: HKCR; SubKey: ".rst"; ValueType: string; ValueName: ""; ValueData: "QCADesigner.SimResults.File"
@@ -54,27 +54,27 @@ Root: HKCR; SubKey: "QCADesigner.SimResults.File"; ValueType: string; ValueName:
 Root: HKCR; SubKey: "QCADesigner.SimResults.File"; ValueType: dword; ValueName: "BrowserFlags"; ValueData: 8; Flags: uninsdeletevalue
 Root: HKCR; SubKey: "QCADesigner.SimResults.File"; ValueType: dword; ValueName: "EditFlags"; ValueData: 0; Flags: uninsdeletevalue
 Root: HKCR; SubKey: "QCADesigner.SimResults.File\DefaultIcon"; Flags: uninsdeletekey
-Root: HKCR; SubKey: "QCADesigner.SimResults.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\share\@PACKAGE@\pixmaps\graph_dialog.winxp.ico"; MinVersion: 0, 1
-Root: HKCR; SubKey: "QCADesigner.SimResults.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\share\@PACKAGE@\pixmaps\graph_dialog.win32.ico"; MinVersion: 1, 0
+Root: HKCR; SubKey: "QCADesigner.SimResults.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\pixmaps\graph_dialog.winxp.ico"; MinVersion: 0, 1
+Root: HKCR; SubKey: "QCADesigner.SimResults.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\pixmaps\graph_dialog.win32.ico"; MinVersion: 1, 0
 Root: HKCR; SubKey: "QCADesigner.SimResults.File\shell"; Flags: uninsdeletekey
 Root: HKCR; SubKey: "QCADesigner.SimResults.File\shell"; ValueType: string; ValueName: ""; ValueData: "Open"
 Root: HKCR; SubKey: "QCADesigner.SimResults.File\shell\Open"; Flags: uninsdeletekey
 Root: HKCR; SubKey: "QCADesigner.SimResults.File\shell\Open"; ValueType: string; ValueName: ""; ValueData: "&Open"
 Root: HKCR; SubKey: "QCADesigner.SimResults.File\shell\Open\command"; Flags: uninsdeletekey
-Root: HKCR; SubKey: "QCADesigner.SimResults.File\shell\Open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bin\graph_dialog.exe"" ""%1"""
+Root: HKCR; SubKey: "QCADesigner.SimResults.File\shell\Open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\graph_dialog.exe"" ""%1"""
 
 [Files]
 Source: "@prefix@\*"; DestDir: "{app}"; Flags: recursesubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
-Name: "{group}\Simulation Results Viewer"; Filename: "{app}\bin\graph_dialog.exe"; IconFilename: "{app}\share\@PACKAGE@\pixmaps\graph_dialog.winxp.ico"; MinVersion: 0, 1
-Name: "{userdesktop}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
+Name: "{group}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; IconFilename: "{app}\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
+Name: "{group}\Simulation Results Viewer"; Filename: "{app}\graph_dialog.exe"; IconFilename: "{app}\pixmaps\graph_dialog.winxp.ico"; MinVersion: 0, 1
+Name: "{userdesktop}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
 
-Name: "{group}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
-Name: "{group}\Simulation Results Viewer"; Filename: "{app}\bin\graph_dialog.exe"; IconFilename: "{app}\share\@PACKAGE@\pixmaps\graph_dialog.win32.ico"; MinVersion: 1, 0
-Name: "{userdesktop}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\share\@PACKAGE@\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
+Name: "{group}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; IconFilename: "{app}\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
+Name: "{group}\Simulation Results Viewer"; Filename: "{app}\graph_dialog.exe"; IconFilename: "{app}\pixmaps\graph_dialog.win32.ico"; MinVersion: 1, 0
+Name: "{userdesktop}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
 
 [Code]
 
@@ -100,6 +100,6 @@ function InitializeSetup(): Boolean;
 begin
   Result := GetGtkInstalled ();
   if not Result then begin
-    MsgBox ('Please install the GTK+ Runtime Environment version 2.2 or higher before installing @PACKAGE@. You can obtain GTK+ from http://gaim.sourceforge.net/win32/index.php#wingtk . Look for files of the form gtk-runtime-<Version>.exe.', mbError, MB_OK);
+    MsgBox ('Please install the GTK+ Runtime Environment version 2.4 or higher before installing @PACKAGE@. You can obtain GTK+ from http://gaim.sourceforge.net/win32/index.php#wingtk . Look for files of the form gtk-runtime-<Version>.exe.', mbError, MB_OK);
   end;
 end;

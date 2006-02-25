@@ -1,0 +1,11 @@
+QCAD_TOP = ..
+QCAD_PIXMAPS_INSTALLATION_DIR = $(QCAD_TOP)/$(QCAD_INSTALL_DIR_NAME)/pixmaps
+
+include Makefile.am
+
+install:
+	mkdir -p $(QCAD_PIXMAPS_INSTALLATION_DIR)
+	for pixmap in $(pixmap_DATA); do \
+	  echo cp $$pixmap $(QCAD_PIXMAPS_INSTALLATION_DIR); \
+	  cp $$pixmap $(QCAD_PIXMAPS_INSTALLATION_DIR); \
+	done

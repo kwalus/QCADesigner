@@ -1,0 +1,6 @@
+QCAD_TOP = ..
+QCAD_DOCUMENTATION_INSTALL_DIR = $(QCAD_TOP)/$(QCAD_INSTALL_DIR_NAME)/docs
+mkinstalldirs = mkdir -p
+include Makefile.inc
+
+install: install-data-local

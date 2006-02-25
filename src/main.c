@@ -84,9 +84,6 @@ int main (int argc, char *argv[])
 
 #ifdef QCAD_NO_CONSOLE
   gtk_preamble (&argc, &argv, "QCADesigner", pszCmdLine) ;
-  gtk_widget_show (wndAbout = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE, 
-    "%d: <%s> <%s> <%s>\n", argc, argv[0], argv[1], argv[2])) ;
-  g_object_unref (wndAbout) ;
 #else
   gtk_preamble (&argc, &argv, "QCADesigner") ;
 #endif /* def QCAD_NO_CONSOLE */

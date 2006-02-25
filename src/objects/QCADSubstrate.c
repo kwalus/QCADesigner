@@ -136,7 +136,7 @@ static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer 
 static void qcad_substrate_instance_init (QCADStretchyObject *object, gpointer data)
   {
   DBG_OO (fprintf (stderr, "QCADSubstrate::instance_init:Entering\n")) ;
-  QCAD_SUBSTRATE (object)->grid_spacing = 8.0001 ; // nm
+  QCAD_SUBSTRATE (object)->grid_spacing = 20.0000 ; // nm
   DBG_OO (fprintf (stderr, "QCADSubstrate::instance_init:Leaving\n")) ;
   }
 

@@ -51,7 +51,7 @@
 // percentage of the total neutralizing charge that is located in the active dots
 #define CHARGE_DIST 0.0
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {300, 1e-15, 1e-16, 7e-11, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 80, 1.0, 0.639, 6.66, 1.2625, EULER_METHOD, ELECTRODE_CLOCKING, TRUE, TRUE} ;
+ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 80, 1.0, 0.639, 6.66, 1.2625, EULER_METHOD, ELECTRODE_CLOCKING, TRUE, TRUE} ;
 
 typedef struct
   {

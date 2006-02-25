@@ -247,8 +247,9 @@ char **CmdLineToArgv (char *pszTmp, int *pargc)
       if (!bString)
         {
         (*pszAt) = 0 ;
+        if ((*(pszAt + 1)) == 0) break ;
         argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-        argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
+        argv[(*pargc) - 1] = g_strdup (pszStart) ;
         pszAt++ ;
         while (' ' == (*pszAt))
           pszAt++ ;
@@ -263,8 +264,9 @@ char **CmdLineToArgv (char *pszTmp, int *pargc)
       else
         {
         (*pszAt) = 0 ;
+        if ((*(pszAt + 1)) == 0) break ;
         argv = g_realloc (argv, ++(*pargc) * sizeof (char *)) ;
-        argv[(*pargc) - 1] = g_strdup_printf ("%s", pszStart) ;
+        argv[(*pargc) - 1] = g_strdup (pszStart) ;
         pszAt++ ;
         while (' ' == (*pszAt))
           pszAt++ ;

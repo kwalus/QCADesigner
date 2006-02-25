@@ -1431,8 +1431,6 @@ void layer_selected (GtkWidget *widget, gpointer data)
 
   // Apply default properties for all object classes in this layer
   reflect_layer_status (layer) ;
-
-  gtk_widget_queue_draw (main_window.toolbar) ;
   }
 
 static void layer_status_change (GtkWidget *widget, gpointer data)
@@ -2177,6 +2175,15 @@ static void reflect_layer_status (QCADLayer *layer)
     g_object_set (main_window.pui_clock,          "visible", FALSE, NULL) ;
     g_object_set (main_window.pui_show_potential, "visible", FALSE, NULL) ;
     }
+
+  gtk_widget_queue_draw (main_window.toolbar) ;
+  gtk_widget_queue_resize (main_window.toolbar) ;
+  while (gtk_events_pending ())
+    gtk_main_iteration () ;
+  gtk_widget_queue_draw (main_window.toolbar) ;
+  gtk_widget_queue_resize (main_window.toolbar) ;
+  while (gtk_events_pending ())
+    gtk_main_iteration () ;
   redraw_async (NULL) ;
   }
 

@@ -21,7 +21,7 @@ GType qcad_radio_button_get_type ()
       (GInstanceInitFunc)instance_init
       } ;
 
-    g_print ("QCADRadioButton::get_type\n") ;
+//    g_print ("QCADRadioButton::get_type\n") ;
 
     if ((the_type = g_type_register_static (GTK_TYPE_RADIO_BUTTON, QCAD_TYPE_STRING_RADIO_BUTTON, &the_type_info, 0)))
       g_type_class_ref (the_type) ;

@@ -114,7 +114,6 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
 #ifdef ENABLE_NLS
 #ifdef WIN32
   putenv (psz = g_strdup_printf ("LANG=%s", get_locale ())) ;
-  g_print ("%s\n", psz) ;
   g_free (psz) ;
   bindtextdomain (PACKAGE, psz = g_strdup_printf ("%s%slocale", szMyPath, G_DIR_SEPARATOR_S)) ;
   g_free (psz) ;

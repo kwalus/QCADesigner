@@ -40,9 +40,11 @@ static double scale = 5 ; // pixels / nm
 static int cxClientArea = 0, cyClientArea = 0 ;
 static double aspect_ratio ; // cxClient / cyClient
 
+#ifdef DESIGNER
 static QCADSubstrate *snap_source = NULL ;
 
 static void snap_source_is_gone (gpointer data, GObject *obj) ;
+#endif /* def DESIGNER */
 
 void push_transformation ()
   {
@@ -199,11 +201,13 @@ void set_client_dimension (int cxNew, int cyNew)
     aspect_ratio = ((double)cxNew) / ((double)cyNew) ;
   }
 
+#ifdef DESIGNER
 static void snap_source_is_gone (gpointer data, GObject *obj)
   {
   if (snap_source == (QCADSubstrate *)obj)
     snap_source = NULL ;
   }
+#endif /*def DESIGNER */
 
 gboolean is_real_point_visible (int xReal, int yReal)
   {return (xReal >= 0 && xReal < cxClientArea && yReal >= 0 && yReal < cxClientArea) ;}

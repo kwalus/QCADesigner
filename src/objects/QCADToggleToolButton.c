@@ -33,7 +33,7 @@ GType qcad_toggle_tool_button_get_type ()
       (GInstanceInitFunc)NULL
       } ;
 
-    g_print ("QCADToggleToolButton::get_type\n") ;
+//    g_print ("QCADToggleToolButton::get_type\n") ;
 
     if ((the_type = g_type_register_static (GTK_TYPE_TOGGLE_TOOL_BUTTON, QCAD_TYPE_STRING_TOGGLE_TOOL_BUTTON, &the_type_info, 0)))
       g_type_class_ref (the_type) ;

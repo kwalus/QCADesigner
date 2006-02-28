@@ -1,7 +1,8 @@
 UNDO_REDO_FILES = \
-	objects/QCADUndoEntry.c      objects/QCADUndoEntry.h \
-	objects/QCADUndoEntryGroup.c objects/QCADUndoEntryGroup.h \
-	selection_undo.c             selection_undo.h
+	objects/QCADUndoEntry.c                 objects/QCADUndoEntry.h \
+	objects/QCADUndoEntryGroup.c            objects/QCADUndoEntryGroup.h \
+	objects/QCADUndoEntryObjectState.c      objects/QCADUndoEntryObjectState.h \
+	selection_undo.c                        selection_undo.h
 
 STDIO_FILEIO_FILES = \
 	fileio.c fileio.h

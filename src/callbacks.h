@@ -28,6 +28,7 @@
 #define _CALLBACKS_H_
 
 #include <gtk/gtk.h>
+#include "objects/QCADCell.h"
 
 void popup_menu_button_clicked (GtkWidget *widget, gpointer data) ;
 void remove_layer_button_clicked (GtkWidget *widget, gpointer data) ;
@@ -78,6 +79,7 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data) ;
 void cell_display_mode_chosen (GtkWidget *widget, gpointer data) ;
 void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data) ;
 void scrollbar_adjust_bounds (GtkRange *range, gdouble value, gpointer data) ;
+void qcad_cell_default_clock_changed (QCADCell *default_cell, GParamSpec *pspec, gpointer data) ;
 
 gboolean drawing_area_motion_notify (GtkWidget *widget, GdkEventMotion *event, gpointer user_data);
 gboolean drawing_area_button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer user_data);

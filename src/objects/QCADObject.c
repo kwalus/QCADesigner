@@ -39,10 +39,24 @@
 
 typedef struct
   {
-  QCADPropertyUI *pui ;
   GType type ;
   guint replace_default_handler_id ;
+  } DefaultGoneStruct ;
+
+typedef struct
+  {
+  DefaultGoneStruct default_is_gone ;
+  QCADPropertyUI *pui ;
   } QCADPropertyUIDefaultGoneStruct ;
+
+typedef struct
+  {
+  DefaultGoneStruct default_is_gone ;
+  gulong notify_id ;
+  char *pszSignal ;
+  GCallback pfn ;
+  gpointer data ;
+  } SignalDefaultGoneStruct ;
 
 static void qcad_object_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_object_instance_init (GObject *object, gpointer data) ;
@@ -53,6 +67,7 @@ static void qcad_object_instance_finalize (GObject *object) ;
 static void copy (QCADObject *objSrc, QCADObject *objDst) ;
 
 static void qcad_object_reset_ui_for_default_object (GObject *obj, gpointer data) ;
+static void qcad_object_reset_signal_for_default_object (GObject *obj, gpointer data) ;
 
 enum
   {
@@ -90,9 +105,8 @@ GType qcad_object_get_type ()
   }
 
 #ifdef GTK_GUI
-gboolean qcad_object_get_properties (QCADObject *obj, GtkWindow *parent_window)
+void qcad_object_get_properties (QCADObject *obj, GtkWindow *parent_window)
   {
-  gboolean bRet = FALSE ;
   GtkWidget *widget = NULL ;
   QCADPropertyUI *pui = qcad_property_ui_group_new (G_OBJECT (obj), 
     "render-as", GTK_TYPE_DIALOG,
@@ -103,12 +117,8 @@ gboolean qcad_object_get_properties (QCADObject *obj, GtkWindow *parent_window)
       {
       gtk_window_set_transient_for (GTK_WINDOW (widget), parent_window) ;
       gtk_dialog_run (GTK_DIALOG (widget)) ;
-      // Don't just return true. Only return TRUE if the object was modified ("dirty")
       gtk_widget_hide (widget) ;
-      bRet = TRUE ;
       }
-  g_object_unref (pui) ;
-  return bRet ;
   }
 #endif /* def GTK_GUI */
 
@@ -259,7 +269,7 @@ QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, c
   {
   QCADPropertyUI *pui = NULL ;
   QCADObject *obj = NULL ;
-  QCADPropertyUIDefaultGoneStruct *default_is_gone = NULL ;
+  QCADPropertyUIDefaultGoneStruct *pui_default_is_gone = NULL ;
   va_list va ;
   char *pszFirstProp = NULL ;
 
@@ -272,17 +282,38 @@ QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, c
     g_object_set_valist (G_OBJECT (pui), pszFirstProp, va) ;
   va_end (va) ;
 
-  default_is_gone = g_malloc0 (sizeof (QCADPropertyUIDefaultGoneStruct)) ;
-  default_is_gone->pui  = pui ;
-  default_is_gone->type = type ;
+  pui_default_is_gone = g_malloc0 (sizeof (QCADPropertyUIDefaultGoneStruct)) ;
+  pui_default_is_gone->pui  = pui ;
+  pui_default_is_gone->default_is_gone.type = type ;
 
   // When the default object is replaced, attach this UI to the new default object
-  default_is_gone->replace_default_handler_id =
-    g_signal_connect (G_OBJECT (obj), "unset-default", (GCallback)qcad_object_reset_ui_for_default_object, default_is_gone) ;
+  pui_default_is_gone->default_is_gone.replace_default_handler_id =
+    g_signal_connect (G_OBJECT (obj), "unset-default", (GCallback)qcad_object_reset_ui_for_default_object, pui_default_is_gone) ;
   // When the UI is destroyed, destroy the above weak_ref and the structure associated with it
-  g_object_weak_ref (G_OBJECT (pui), (GWeakNotify)g_free, default_is_gone) ;
+  g_object_weak_ref (G_OBJECT (pui), (GWeakNotify)g_free, pui_default_is_gone) ;
 
   return pui ;
+  }
+
+void qcad_object_connect_signal_to_default_object (GType type, char *pszSignal, GCallback callback, gpointer data)
+  {
+  QCADObject *obj = NULL ;
+  gulong notify_id = 0 ;
+  SignalDefaultGoneStruct *sig_default_is_gone = NULL ;
+
+  if (0 == type || NULL == pszSignal || NULL == callback) return ;
+  if (NULL == (obj = qcad_object_get_default (type))) return ;
+  if (0 == (notify_id = g_signal_connect (G_OBJECT (obj), pszSignal, callback, data))) return ;
+
+  sig_default_is_gone = g_malloc0 (sizeof (SignalDefaultGoneStruct)) ;
+  sig_default_is_gone->pszSignal = g_strdup (pszSignal) ;
+  sig_default_is_gone->pfn = callback ;
+  sig_default_is_gone->data = data ;
+  sig_default_is_gone->notify_id =
+    g_signal_connect (G_OBJECT (obj), pszSignal, callback, data) ;
+  sig_default_is_gone->default_is_gone.type = type ;
+  sig_default_is_gone->default_is_gone.replace_default_handler_id =
+    g_signal_connect (G_OBJECT (obj), "unset-default", (GCallback)qcad_object_reset_signal_for_default_object, sig_default_is_gone) ;
   }
 
 void qcad_object_class_install_ui_behaviour (QCADObjectClass *klass, QCADPropertyUIBehaviour *behaviour, int icBehaviour)
@@ -336,11 +367,26 @@ static void copy (QCADObject *objSrc, QCADObject *objDst)
 
 static void qcad_object_reset_ui_for_default_object (GObject *obj, gpointer data)
   {
-  QCADPropertyUIDefaultGoneStruct *default_is_gone = (QCADPropertyUIDefaultGoneStruct *)data ;
-  QCADObject *new_default = qcad_object_get_default (default_is_gone->type) ;
+  QCADPropertyUIDefaultGoneStruct *pui_default_is_gone = (QCADPropertyUIDefaultGoneStruct *)data ;
+  QCADObject *new_default = qcad_object_get_default (pui_default_is_gone->default_is_gone.type) ;
 
-  g_signal_handler_disconnect (obj, default_is_gone->replace_default_handler_id) ;
-  default_is_gone->replace_default_handler_id =
+  g_signal_handler_disconnect (obj, pui_default_is_gone->default_is_gone.replace_default_handler_id) ;
+  pui_default_is_gone->default_is_gone.replace_default_handler_id =
     g_signal_connect (G_OBJECT (new_default), "unset-default", (GCallback)qcad_object_reset_ui_for_default_object, data) ;
-  qcad_property_ui_set_instance (default_is_gone->pui, G_OBJECT (new_default)) ;
+
+  qcad_property_ui_set_instance (pui_default_is_gone->pui, G_OBJECT (new_default)) ;
+  }
+
+static void qcad_object_reset_signal_for_default_object (GObject *obj, gpointer data)
+  {
+  SignalDefaultGoneStruct *sig_default_is_gone = (SignalDefaultGoneStruct *)data ;
+  QCADObject *new_default = qcad_object_get_default (sig_default_is_gone->default_is_gone.type) ;
+
+  g_signal_handler_disconnect (obj, sig_default_is_gone->default_is_gone.replace_default_handler_id) ;
+  sig_default_is_gone->default_is_gone.replace_default_handler_id =
+    g_signal_connect (G_OBJECT (new_default), "unset-default", (GCallback)qcad_object_reset_signal_for_default_object, data) ;
+
+  g_signal_handler_disconnect (obj, sig_default_is_gone->notify_id) ;
+  sig_default_is_gone->notify_id =
+    g_signal_connect (G_OBJECT (new_default), sig_default_is_gone->pszSignal, sig_default_is_gone->pfn, sig_default_is_gone->data) ;
   }

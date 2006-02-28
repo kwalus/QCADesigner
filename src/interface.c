@@ -1085,6 +1085,7 @@ void create_main_window (main_W *main_window){
   g_signal_connect (G_OBJECT (GTK_COMBO (main_window->layers_combo)->popwin),  "hide", (GCallback)layer_selected, NULL) ;
   // -- Connect the shutdown callback signal to the main window -- //
   g_signal_connect_swapped (G_OBJECT (main_window->main_window),               "delete-event", (GCallback)on_quit_menu_item_activate, main_window->main_window);
+  qcad_object_connect_signal_to_default_object (QCAD_TYPE_CELL, "notify::clock", (GCallback)qcad_cell_default_clock_changed, NULL) ;
 ////////////////////////////////////////////////////////////////////////////////////////
 // Connect the callback signals to each of the buttons and menu items in the menus  ////
 ////////////////////////////////////////////////////////////////////////////////////////

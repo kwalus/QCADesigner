@@ -88,9 +88,17 @@ static void qcad_undo_entry_group_class_init (GObjectClass *klass, gpointer data
   {
   DBG_OO (fprintf (stderr, "%s::class_init:Entering.\n", QCAD_TYPE_STRING_UNDO_ENTRY_GROUP)) ;
   qcad_undo_entry_group_signals[QCAD_UNDO_ENTRY_GROUP_STATE_CHANGED_SIGNAL] =
-    g_signal_new ("state-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
-      G_STRUCT_OFFSET (QCADUndoEntryGroupClass, state_changed), NULL, NULL, g_cclosure_marshal_VOID__ENUM,
-      G_TYPE_NONE, 1, G_TYPE_INT) ;
+    g_signal_new (
+     "state-changed", 
+      G_TYPE_FROM_CLASS (klass), 
+      G_SIGNAL_RUN_FIRST,
+      G_STRUCT_OFFSET (QCADUndoEntryGroupClass, state_changed), 
+      NULL, 
+      NULL, 
+      g_cclosure_marshal_VOID__UINT,
+      G_TYPE_NONE, 
+      1, 
+      G_TYPE_UINT) ;
 
   QCAD_UNDO_ENTRY_CLASS (klass)->fire = fire ;
 
@@ -265,6 +273,7 @@ static void fire (QCADUndoEntry *undo_entry, gboolean bUndo)
 static void qcad_undo_entry_group_prepare_push (QCADUndoEntryGroup *entry_group)
   {
   GList *llItr = NULL ;
+  // If the list is empty, we're ready to go
   if (entry_group->llCur == entry_group->llBeg || NULL == entry_group->llCur) return ;
   // detach list from llBeg up to and not including llCur
   entry_group->llCur->prev->next = NULL ;

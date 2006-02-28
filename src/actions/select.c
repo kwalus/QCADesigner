@@ -33,6 +33,7 @@
 #ifdef UNDO_REDO
 #include "../selection_undo.h"
 #include "../objects/QCADUndoEntry.h"
+#include "../objects/QCADUndoEntryObjectState.h"
 #include "../objects/QCADUndoEntryGroup.h"
 #endif /* def UNDO_REDO */
 #include "../objects/QCADRectangleElectrode.h"
@@ -64,9 +65,13 @@ gboolean button_pressed_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event,
     if (NULL != (obj = design_hit_test (project_options->design, event->x, event->y)))
       {
 #ifdef UNDO_REDO
-      QCADUndoEntry *entry = NULL ;
+      QCADUndoEntry *entry = g_object_new (QCAD_TYPE_UNDO_ENTRY_OBJECT_STATE, "instance", obj, NULL) ;
 #endif /* def UNDO_REDO */
-      if (qcad_object_get_properties (QCAD_OBJECT (obj), GTK_WINDOW (project_options->main_window->main_window)))
+      qcad_object_get_properties (QCAD_OBJECT (obj), GTK_WINDOW (project_options->main_window->main_window)) ;
+#ifdef UNDO_REDO
+      g_object_set (G_OBJECT (entry), "frozen", TRUE, NULL) ;
+      if (qcad_undo_entry_object_state_get_changed (QCAD_UNDO_ENTRY_OBJECT_STATE (entry)))
+#endif /* def UNDO_REDO */
         {
         project_options->bDesignAltered = TRUE ;
         selection_renderer_draw (project_options->srSelection, project_options->design, widget->window, GDK_XOR) ;
@@ -76,9 +81,14 @@ gboolean button_pressed_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event,
 #ifdef UNDO_REDO
       if (NULL != entry)
         {
-        qcad_undo_entry_group_push (qcad_undo_entry_group_get_default (), entry) ;
-        if (obj->bSelected)
-          track_undo_object_update (project_options->design, project_options->srSelection, widget->window, entry) ;
+        if (qcad_undo_entry_object_state_get_changed (QCAD_UNDO_ENTRY_OBJECT_STATE (entry)))
+          {
+          qcad_undo_entry_group_push (qcad_undo_entry_group_get_default (), entry) ;
+          if (obj->bSelected)
+            track_undo_object_update (project_options->design, project_options->srSelection, widget->window, entry) ;
+          }
+        else
+          g_object_unref (entry) ;
         }
 #endif /* def UNDO_REDO */
       objSelRef = NULL ;

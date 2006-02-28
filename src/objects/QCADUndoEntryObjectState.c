@@ -39,13 +39,13 @@ GType qcad_undo_entry_object_state_get_type ()
     {
     static GTypeInfo the_type_info = 
       {
-      sizeof (QCADUndoEntryClass),
+      sizeof (QCADUndoEntryObjectStateClass),
       (GBaseInitFunc)NULL,
       (GBaseFinalizeFunc)NULL,
       (GClassInitFunc)qcad_undo_entry_object_state_class_init,
       (GClassFinalizeFunc)NULL,
       NULL,
-      sizeof (QCADUndoEntry),
+      sizeof (QCADUndoEntryObjectState),
       0,
       (GInstanceInitFunc)qcad_undo_entry_object_state_instance_init
       } ;
@@ -69,7 +69,7 @@ static void qcad_undo_entry_object_state_class_init (GObjectClass *klass, gpoint
     g_param_spec_pointer ("instance", _("Instance"), _("Instance to track state changes for"), 
       G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
-  g_object_class_install_property (klass, QCAD_UNDO_ENTRY_OBJECT_STATE_PROPERTY_INSTANCE,
+  g_object_class_install_property (klass, QCAD_UNDO_ENTRY_OBJECT_STATE_PROPERTY_FROZEN,
     g_param_spec_boolean ("frozen", _("Frozen"), _("Indicates whether the entry records state changes"), 
       TRUE, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
   }
@@ -118,7 +118,7 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
       break ;
 
     case QCAD_UNDO_ENTRY_OBJECT_STATE_PROPERTY_FROZEN:
-      qcad_undo_entry_object_state_set_frozen (undo_entry, g_value_get_boolean (value)) ;
+      g_value_set_boolean (value, undo_entry->bFrozen) ;
       break ;
     }
   }
@@ -150,7 +150,7 @@ static void instance_notify (GObject *instance, GParamSpec *pspec, gpointer data
   g_object_get_property (instance, parameter_delta->pszName, &(parameter_delta->val_after)) ;
 
   parameter_delta->bChanged = 
-    (0 == g_param_values_cmp (pspec, &(parameter_delta->val_after), &(parameter_delta->val_before))) ;
+    (0 != g_param_values_cmp (pspec, &(parameter_delta->val_after), &(parameter_delta->val_before))) ;
   }
 
 static void qcad_undo_entry_object_state_set_instance (QCADUndoEntryObjectState *undo_entry, GObject *instance)
@@ -192,7 +192,7 @@ static void qcad_undo_entry_object_state_set_instance (QCADUndoEntryObjectState 
 
       if (NULL == undo_entry->parameters_delta)
         undo_entry->parameters_delta = exp_array_new (sizeof (GParameterDelta), 1) ;
-      exp_array_1d_insert_vals (undo_entry->parameters_delta, NULL, icProperties, -1) ;
+      exp_array_insert_vals (undo_entry->parameters_delta, NULL, icProperties, 1, -1, TRUE) ;
 
       for (Nix = 0 ; Nix < icProperties ; Nix++)
         {

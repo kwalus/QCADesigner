@@ -53,15 +53,6 @@ typedef struct
   GValue val ;
   } OBJECT_PROPERTY_AND_VALUE ;
 
-#ifdef UNDO_REDO
-typedef struct
-  {
-  QCADDesignObject *obj ;
-  EXP_ARRAY *state_before ;
-  EXP_ARRAY *state_after ;
-  } QCAD_DESIGN_OBJECT_UNDO_STATE ;
-#endif /* def UNDO_REDO */
-
 #define DBG_QCADDO_FIN(s)
 
 static void qcad_design_object_class_init (GObjectClass *klass, gpointer data) ;
@@ -91,11 +82,6 @@ static const char *PostScript_preamble () ;
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
 static GList *add_unique_types (QCADDesignObject *obj, GList *lst) ;
 static void transform (QCADDesignObject *obj, double m11, double m12, double m21, double m22) ;
-
-#ifdef UNDO_REDO
-static void qcad_design_object_undo_state_apply (QCADUndoEntry *entry, gboolean bUndo, gpointer data) ;
-static void qcad_design_object_undo_state_free (QCAD_DESIGN_OBJECT_UNDO_STATE *state) ;
-#endif /* def UNDO_REDO */
 
 #ifdef GTK_GUI
 static GdkColormap *clrmap = NULL ;
@@ -383,29 +369,6 @@ void qcad_design_object_state_array_free (EXP_ARRAY *ar)
   exp_array_free (ar) ;
   }
 
-#ifdef UNDO_REDO
-QCADUndoEntry *qcad_design_object_get_state_undo_entry (QCADDesignObject *obj, EXP_ARRAY *state_before, EXP_ARRAY *state_after)
-  {
-  QCAD_DESIGN_OBJECT_UNDO_STATE *undo = NULL ;
-
-  if (!(NULL == obj || NULL == state_before || NULL == state_after))
-    {
-    undo = g_malloc0 (sizeof (QCAD_DESIGN_OBJECT_UNDO_STATE)) ;
-    undo->obj = obj ;
-    undo->state_before = state_before ;
-    undo->state_after = state_after ;
-
-    return qcad_undo_entry_new_with_callbacks ((GCallback)qcad_design_object_undo_state_apply, undo, (GDestroyNotify)qcad_design_object_undo_state_free) ;
-    }
-
-  if (NULL != state_before)
-    qcad_design_object_state_array_free (state_before) ;
-  if (NULL != state_after)
-    qcad_design_object_state_array_free (state_after) ;
-
-  return NULL ;
-  }
-#endif /* def UNDO_REDO */
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef GTK_GUI
@@ -711,35 +674,3 @@ static gboolean button_released (GtkWidget *widget, GdkEventButton *event, gpoin
 #endif /* def GTK_GUI */
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#ifdef UNDO_REDO
-static void qcad_design_object_undo_state_free (QCAD_DESIGN_OBJECT_UNDO_STATE *state)
-  {
-  if (NULL == state) return ;
-
-  if (NULL != state->state_before)
-    qcad_design_object_state_array_free (state->state_before) ;
-  if (NULL != state->state_after)
-    qcad_design_object_state_array_free (state->state_after) ;
-  g_free (state) ;
-  }
-
-static void qcad_design_object_undo_state_apply (QCADUndoEntry *entry, gboolean bUndo, gpointer data)
-  {
-  int Nix ;
-  QCAD_DESIGN_OBJECT_UNDO_STATE *state = (QCAD_DESIGN_OBJECT_UNDO_STATE *)data ;
-  EXP_ARRAY *state_ar = NULL ;
-  OBJECT_PROPERTY_AND_VALUE *opv = NULL ;
-
-  if (NULL == state) return ;
-
-  state_ar = bUndo ? state->state_before : state->state_after ;
-
-  if (!(NULL == state_ar || NULL == state->obj))
-    for (Nix = 0 ; Nix < state_ar->icUsed ; Nix++)
-      {
-      opv = &exp_array_index_1d (state_ar, OBJECT_PROPERTY_AND_VALUE, Nix) ;
-      g_object_set_property (G_OBJECT (state->obj), opv->pszName, &(opv->val)) ;
-      }
-  }
-#endif /* def UNDO_REDO */

@@ -38,7 +38,7 @@ static void exp_array_vremove_vals (EXP_ARRAY *exp_array, int icDimPairs, va_lis
 static void exp_array_dump_priv (EXP_ARRAY *exp_array, FILE *pfile, int icIndent, gboolean bReverseVideo) ;
 static void exp_array_empty (EXP_ARRAY *exp_array) ;
 static void exp_array_insert_vals_flat (EXP_ARRAY *exp_array, void *data, int icElements, int idx) ;
-static int exp_array_1d_find_priv (EXP_ARRAY *exp_array, void *element, EXPArrayCompareFunc fn) ;
+static int exp_array_1d_find_priv (EXP_ARRAY *exp_array, void *element, GCompareFunc fn) ;
 
 EXP_ARRAY *exp_array_new (int cbElementSize, int icDimensions)
   {
@@ -102,7 +102,7 @@ void exp_array_insert_vals (EXP_ARRAY *exp_array, void *data, int icElements, in
   va_end (va) ;
   }
 
-int exp_array_1d_insert_val_sorted (EXP_ARRAY *exp_array, void *data, EXPArrayCompareFunc fn, gboolean bAllowDupes)
+int exp_array_1d_insert_val_sorted (EXP_ARRAY *exp_array, void *data, GCompareFunc fn, gboolean bAllowDupes)
   {
   int idx = 0 ;
   if (NULL == exp_array || NULL == data || NULL == fn) return -1 ;
@@ -124,7 +124,7 @@ int exp_array_1d_insert_val_sorted (EXP_ARRAY *exp_array, void *data, EXPArrayCo
   return idx ;
   }
 
-int exp_array_1d_find (EXP_ARRAY *exp_array, void *element, EXPArrayCompareFunc fn, gboolean bClosest)
+int exp_array_1d_find (EXP_ARRAY *exp_array, void *element, GCompareFunc fn, gboolean bClosest)
   {
   int idx = -1 ;
 
@@ -145,7 +145,7 @@ int compare_ints (void *p1, void *p2)
           ((*((int *)p1)) > (*((int *)p2))) ?  1 : 0) ;
   }
 
-static int exp_array_1d_find_priv (EXP_ARRAY *exp_array, void *element, EXPArrayCompareFunc fn)
+static int exp_array_1d_find_priv (EXP_ARRAY *exp_array, void *element, GCompareFunc fn)
   {
   int upper, lower, Nix1 ;
   void *ar_element = NULL ;

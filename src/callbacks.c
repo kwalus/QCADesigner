@@ -185,6 +185,7 @@ static void qcad_layer_design_object_removed (QCADLayer *layer, QCADDesignObject
 static void qcad_clocking_layer_notify_show_potential (GObject *object, GParamSpec *param_spec, gpointer data) ;
 static void setup_rulers (int x, int y) ;
 static void setup_scrollbars () ;
+static void selection_set_state (GType type, char *pszState, GValue *value) ;
 
 static ACTION actions[ACTION_LAST_ACTION] =
   {
@@ -491,21 +492,20 @@ void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data)
 
 void cell_display_mode_chosen (GtkWidget *widget, gpointer data)
   {
-  EXP_ARRAY *objs = NULL ;
   GValue val = {0, } ;
 
-  selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
-  if (NULL != (objs = design_selection_get_object_array (project_options.design)))
-    {
-    g_value_set_enum (g_value_init (&val, QCAD_TYPE_CELL_MODE), (int)data) ;
-#ifdef UNDO_REDO
-    push_undo_selection_state (project_options.design, project_options.srSelection, main_window.drawing_area->window, objs, "mode", &val) ;
-#endif /* def UNDO_REDO */
-    g_value_unset (&val) ;
-    }
-  design_selection_set_cell_display_mode (project_options.design, (int)data) ;
-  selection_renderer_update (project_options.srSelection, project_options.design) ;
-  selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
+  g_value_set_enum (g_value_init (&val, QCAD_TYPE_CELL_MODE), (int)data) ;
+  selection_set_state (QCAD_TYPE_CELL, "mode", &val) ;
+  g_value_unset (&val) ;
+  }
+
+void qcad_cell_default_clock_changed (QCADCell *default_cell, GParamSpec *pspec, gpointer data)
+  {
+  GValue val = {0, } ;
+
+  g_object_get_property (G_OBJECT (default_cell), "clock", g_value_init (&val, G_TYPE_UINT)) ;
+  selection_set_state (QCAD_TYPE_CELL, "clock", &val) ;
+  g_value_unset (&val) ;
   }
 
 void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
@@ -784,7 +784,7 @@ void on_clock_increment_menu_item_activate (GtkMenuItem * menuitem, gpointer use
   arSelObjs = design_selection_get_object_array (project_options.design) ;
 #ifdef UNDO_REDO
   if (NULL != arSelObjs)
-    push_undo_selection_clock (project_options.design, project_options.srSelection, main_window.drawing_area->window, arSelObjs, 1, TRUE) ;
+    push_undo_selection_clock (project_options.design, project_options.srSelection, main_window.drawing_area->window, arSelObjs, 1) ;
 #endif /* def UNDO_REDO */
 
   for (lstItrLayer = project_options.design->lstLayers ; lstItrLayer != NULL ; lstItrLayer = lstItrLayer->next)
@@ -2471,4 +2471,24 @@ static void real_coords_from_rulers (int *px, int *py)
   (*px) = world_to_real_x (position) ;
   gtk_ruler_get_range (GTK_RULER (main_window.vertical_ruler), &lower, &upper, &position, &max_size) ;
   (*py) = world_to_real_y (position) ;
+  }
+
+static void selection_set_state (GType type, char *pszState, GValue *value)
+  {
+  int Nix ;
+  EXP_ARRAY *objs = NULL ;
+  GObject *obj_apply = NULL ;
+
+  if (NULL != (objs = design_selection_get_object_array (project_options.design)))
+    {
+    selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
+  #ifdef UNDO_REDO
+    push_undo_selection_state (project_options.design, project_options.srSelection, main_window.drawing_area->window, objs, pszState, value) ;
+  #endif /* def UNDO_REDO */
+    for (Nix = 0 ; Nix < objs->icUsed ; Nix++)
+      if (G_TYPE_FROM_INSTANCE (obj_apply = exp_array_index_1d (objs, GObject *, Nix)) == type)
+        g_object_set_property (obj_apply, pszState, value) ;
+    selection_renderer_update (project_options.srSelection, project_options.design) ;
+    selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
+    }
   }

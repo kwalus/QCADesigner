@@ -252,37 +252,23 @@ void push_undo_selection_state (DESIGN *design, SELECTION_RENDERER *sr, GdkWindo
     qcad_undo_entry_new_with_callbacks ((GCallback)undo_sel_apply, puss, (GDestroyNotify)undo_selection_state_free)) ;
   }
 
-void push_undo_selection_clock (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, EXP_ARRAY *objs, int clock_new, gboolean bRelative)
+void push_undo_selection_clock (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, EXP_ARRAY *objs, int clock_new)
   {
   UndoSelectionClock *pusc = NULL ;
 
   if (NULL == design || NULL == sr || NULL == dst || NULL == objs) return ;
 
-  if (bRelative)
-    {
-    if (NULL == (pusc = g_malloc0 (sizeof (UndoSelectionClock)))) return ;
+  if (NULL == (pusc = g_malloc0 (sizeof (UndoSelectionClock)))) return ;
 
-    pusc->ar_undo.undo.type     = SELECTION_UNDO_CLOCK ;
-    pusc->ar_undo.undo.sr       = sr ;
-    pusc->ar_undo.undo.design   = design ;
-    pusc->ar_undo.undo.dst      = dst ;
-    pusc->ar_undo.objs          = objs ;
-    pusc->relative_clock_change = clock_new ;
+  pusc->ar_undo.undo.type     = SELECTION_UNDO_CLOCK ;
+  pusc->ar_undo.undo.sr       = sr ;
+  pusc->ar_undo.undo.design   = design ;
+  pusc->ar_undo.undo.dst      = dst ;
+  pusc->ar_undo.objs          = objs ;
+  pusc->relative_clock_change = clock_new ;
 
-    qcad_undo_entry_group_push (qcad_undo_entry_group_get_default (),
-      qcad_undo_entry_new_with_callbacks ((GCallback)undo_sel_apply, pusc, (GDestroyNotify)undo_selection_object_array_free)) ;
-    }
-  else
-    {
-    GValue val = {0, } ;
-
-    g_value_init (&val, G_TYPE_UINT) ;
-    g_value_set_uint (&val, (guint)clock_new) ;
-
-    push_undo_selection_state (design, sr, dst, objs, "clock", &val) ;
-
-    g_value_unset (&val) ;
-    }
+  qcad_undo_entry_group_push (qcad_undo_entry_group_get_default (),
+    qcad_undo_entry_new_with_callbacks ((GCallback)undo_sel_apply, pusc, (GDestroyNotify)undo_selection_object_array_free)) ;
   }
 
 void track_undo_object_update (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, QCADUndoEntry *entry)

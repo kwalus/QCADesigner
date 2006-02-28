@@ -136,12 +136,6 @@ char *qcad_design_object_get_PostScript_instance (QCADDesignObject *obj, gboolea
 GList *qcad_design_object_add_types (QCADDesignObject *obj, GList *lst) ;
 void qcad_design_object_transform (QCADDesignObject *obj, double m11, double m12, double m21, double m22) ;
 
-EXP_ARRAY *qcad_design_object_get_state_array (QCADDesignObject *obj, ...) ;
-void qcad_design_object_state_array_free (EXP_ARRAY *state_array) ;
-#ifdef UNDO_REDO
-QCADUndoEntry *qcad_design_object_get_state_undo_entry (QCADDesignObject *obj, EXP_ARRAY *state_before, EXP_ARRAY *state_after) ;
-#endif /* def UNDO_REDO */
-
 #ifdef __cplusplus
 }
 #endif

@@ -34,7 +34,7 @@
 #include <math.h>
 
 #include "QCADClockingLayer.h"
-#include "../support.h"
+#include "../intl.h"
 #include "../fileio_helpers.h"
 #include "QCADElectrode.h"
 #include "../global_consts.h"
@@ -51,6 +51,7 @@ enum
   QCAD_CLOCKING_LAYER_PROPERTY_LAST
   } ;
 
+#ifdef PROPERTY_UIS
 // Gotta be static so the strings don't die
 static QCADPropertyUIBehaviour behaviour[] =
   {
@@ -73,6 +74,7 @@ static QCADPropertyUIBehaviour behaviour[] =
     NULL, NULL, NULL
     }
   } ;
+#endif /* def PROPERTY_UIS */
 
 static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpointer data) ;
 static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointer data) ;
@@ -118,6 +120,7 @@ GType qcad_clocking_layer_get_type ()
 
 static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   {
+#ifdef PROPERTY_UIS
   // Gotta be static so the strings don't die
   static QCADPropertyUIProperty properties[] =
     {
@@ -141,6 +144,7 @@ static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpoint
 
   qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
   qcad_object_class_install_ui_behaviour (QCAD_OBJECT_CLASS (klass), behaviour, G_N_ELEMENTS (behaviour)) ;
+#endif /* def PROPERTY_UIS */
 
   G_OBJECT_CLASS (klass)->finalize     = qcad_clocking_layer_instance_finalize ;
   G_OBJECT_CLASS (klass)->set_property = set_property ;

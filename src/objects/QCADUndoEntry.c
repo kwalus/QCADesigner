@@ -34,10 +34,8 @@
 #include <string.h>
 #include <glib-object.h>
 #include "QCADUndoEntry.h"
-#include "objects_debug.h"
 
 static void qcad_undo_entry_class_init (GObjectClass *klass, gpointer data) ;
-static void qcad_undo_entry_instance_init (GObject *object, gpointer data) ;
 static void qcad_undo_entry_instance_finalize (GObject *object) ;
 
 static void fire (QCADUndoEntry *undo_entry, gboolean bUndo) ;
@@ -66,19 +64,17 @@ GType qcad_undo_entry_get_type ()
       NULL,
       sizeof (QCADUndoEntry),
       0,
-      (GInstanceInitFunc)qcad_undo_entry_instance_init
+      (GInstanceInitFunc)NULL
       } ;
 
     if ((qcad_undo_entry_type = g_type_register_static (G_TYPE_OBJECT, QCAD_TYPE_STRING_UNDO_ENTRY, &qcad_undo_entry_info, 0)))
       g_type_class_ref (qcad_undo_entry_type) ;
-    DBG_OO (fprintf (stderr, "Registered %s as %d\n", QCAD_TYPE_STRING_UNDO_ENTRY, (int)qcad_undo_entry_type)) ;
     }
   return qcad_undo_entry_type ;
   }
 
 static void qcad_undo_entry_class_init (GObjectClass *klass, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "%s::class_init:Entering.\n", QCAD_TYPE_STRING_UNDO_ENTRY)) ;
   qcad_undo_entry_signals[QCAD_UNDO_ENTRY_APPLY_SIGNAL] =
     g_signal_new ("apply", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADUndoEntryClass, apply), NULL, NULL, g_cclosure_marshal_VOID__BOOLEAN,
@@ -87,13 +83,6 @@ static void qcad_undo_entry_class_init (GObjectClass *klass, gpointer data)
   QCAD_UNDO_ENTRY_CLASS (klass)->fire = fire ;
 
   G_OBJECT_CLASS (klass)->finalize = qcad_undo_entry_instance_finalize ;
-  DBG_OO (fprintf (stderr, "%s::class_init:Leaving.\n", QCAD_TYPE_STRING_UNDO_ENTRY)) ;
-  }
-
-static void qcad_undo_entry_instance_init (GObject *object, gpointer data)
-  {
-  DBG_OO (fprintf (stderr, "%s::instance_init:Entering.\n", QCAD_TYPE_STRING_UNDO_ENTRY)) ;
-  DBG_OO (fprintf (stderr, "%s::instance_init:Leaving.\n", QCAD_TYPE_STRING_UNDO_ENTRY)) ;
   }
 
 static void qcad_undo_entry_instance_finalize (GObject *object)
@@ -103,7 +92,6 @@ static void qcad_undo_entry_instance_finalize (GObject *object)
 
   if (NULL != parent_finalize)
     (*parent_finalize) (object) ;
-  DBG_OO (fprintf (stderr, QCAD_TYPE_STRING_UNDO_ENTRY "::instance_finalize:Leaving\n")) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -33,14 +33,13 @@
 #include "../gdk_structs.h"
 #include "QCADLabel.h"
 #include "object_helpers.h"
-#include "../support.h"
+#include "../intl.h"
 #include "../fileio_helpers.h"
 #include "../custom_widgets.h"
 #include "../global_consts.h"
 #ifdef GTK_GUI
   #include "../exp_pixmap.h"
 #endif /* def GTK_GUI */
-#include "objects_debug.h"
 
 #define XTOP_LABEL_OFFSET 2
 #define YTOP_LABEL_OFFSET 2
@@ -59,9 +58,11 @@ static void copy (QCADObject *src, QCADObject *dst) ;
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 #endif /* def STDIO_FILEIO */
+#ifdef DESIGNER
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #endif /* def GTK_GUI */
+#endif /* def DESIGNER */
 static const char *PostScript_preamble () ;
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
 static QCADObject *class_get_default_object () ;
@@ -99,13 +100,13 @@ GType qcad_label_get_type ()
 
     if ((qcad_label_type = g_type_register_static (QCAD_TYPE_STRETCHY_OBJECT, QCAD_TYPE_STRING_LABEL, &qcad_label_info, 0)))
       g_type_class_ref (qcad_label_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADLabel as %d\n", (int)qcad_label_type)) ;
     }
   return qcad_label_type ;
   }
 
 static void qcad_label_class_init (GObjectClass *klass, gpointer data)
   {
+#ifdef PROPERTY_UIS
   static QCADPropertyUIProperty properties[] =
     {
     {NULL, "title", {0, }}
@@ -115,8 +116,7 @@ static void qcad_label_class_init (GObjectClass *klass, gpointer data)
   g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), _("QCA Label")) ;
 
   qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
-
-  DBG_OO (fprintf (stderr, "QCADLabel::class_init:Entering\n")) ;
+#endif /* def PROPERTY_UIS */
 
   G_OBJECT_CLASS (klass)->finalize     = finalize ;
   G_OBJECT_CLASS (klass)->set_property = set_property ;
@@ -127,7 +127,9 @@ static void qcad_label_class_init (GObjectClass *klass, gpointer data)
 #ifdef GTK_GUI
   if (0 == clrBlue.pixel)
     gdk_colormap_alloc_color (gdk_colormap_get_system (), &clrBlue, FALSE, TRUE) ;
+#ifdef DESIGNER
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                = draw ;
+#endif /* def DESIGNER */
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize           = serialize ;
@@ -135,7 +137,6 @@ static void qcad_label_class_init (GObjectClass *klass, gpointer data)
 #endif /* def STDIO_FILEIO */
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_preamble = PostScript_preamble ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance = PostScript_instance ;
-  DBG_OO (fprintf (stderr, "QCADLabel::class_init:Leaving\n")) ;
 
   g_object_class_install_property (klass, QCAD_LABEL_PROPERTY_TEXT,
     g_param_spec_string ("text", _("Text"), _("Label text"), 
@@ -144,12 +145,13 @@ static void qcad_label_class_init (GObjectClass *klass, gpointer data)
 
 static void qcad_label_instance_init (GObject *object, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "QCADLabel::instance_init:Entering\n")) ;
   QCAD_LABEL (object)->psz = g_strdup (_("Label")) ;
-  QCAD_LABEL (object)->bNeedsEPMDraw = TRUE ;
   QCAD_LABEL (object)->bShrinkWrap = TRUE ;
+#ifdef DESIGNER
+  QCAD_LABEL (object)->bNeedsEPMDraw = TRUE ;
 #ifdef GTK_GUI
   QCAD_LABEL (object)->epm = NULL ;
+#endif /* def DESIGNER */
 #endif /* def GTK_GUI */
   QCAD_DESIGN_OBJECT (object)->x =
   QCAD_DESIGN_OBJECT (object)->y =
@@ -159,18 +161,17 @@ static void qcad_label_instance_init (GObject *object, gpointer data)
   QCAD_DESIGN_OBJECT (object)->bounding_box.cyWorld = 0.0 ;
   memcpy (&(QCAD_DESIGN_OBJECT (object)->clr), &clrBlue, sizeof (GdkColor)) ;
   qcad_label_shrinkwrap (QCAD_LABEL (object)) ;
-  DBG_OO (fprintf (stderr, "QCADLabel::instance_init:Leaving\n")) ;
   }
 
 static void finalize (GObject *object)
   {
-  DBG_OO (fprintf (stderr, "QCADLabel::instance_finalize:Entering\n")) ;
   g_free (QCAD_LABEL (object)->psz) ;
+#ifdef DESIGNER
 #ifdef GTK_GUI
   exp_pixmap_free (QCAD_LABEL (object)->epm) ;
 #endif /* def GTK_GUI */
+#endif /* def DESIGNER */
   G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_LABEL)))->finalize (object) ;
-  DBG_OO (fprintf (stderr, "QCADLabel::instance_finalize:Leaving\n")) ;
   }
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -202,9 +203,12 @@ static void copy (QCADObject *src, QCADObject *dst)
   {
   QCAD_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_LABEL)))->copy (src, dst) ;
   QCAD_LABEL (dst)->psz = g_strdup (QCAD_LABEL (src)->psz) ;
+#ifdef DESIGNER
   QCAD_LABEL (dst)->bNeedsEPMDraw = TRUE ;
+#endif /* def DESUGNER */
   }
 
+#ifdef DESIGNER
 #ifdef GTK_GUI
 static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
@@ -256,6 +260,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   gdk_gc_unref (gc) ;
   }
 #endif /* def GTK_GUI */
+#endif /* def DESIGNER */
 #ifdef STDIO_FILEIO
 static void serialize (QCADDesignObject *obj, FILE *fp)
   {
@@ -304,7 +309,9 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
       if (!strcmp (pszLine, "psz"))
         {
         QCAD_LABEL (obj)->psz = g_strdup (pszValue) ;
+#ifdef DESIGNER
         QCAD_LABEL (obj)->bNeedsEPMDraw = TRUE ;
+#endif /* def DESIGNER */
         }
       }
     g_free (pszLine) ;
@@ -418,7 +425,9 @@ void qcad_label_vset_text (QCADLabel *label, char *psz, va_list va)
   if (NULL != label->psz)
     g_free (label->psz) ;
   label->psz = g_strdup_vprintf (psz, va) ;
+#ifdef DESIGNER
   label->bNeedsEPMDraw = TRUE ;
+#endif /* def DESIGNER */
   if (label->bShrinkWrap)
     qcad_label_shrinkwrap (label) ;
   }

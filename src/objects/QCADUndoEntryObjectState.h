@@ -37,7 +37,6 @@ GType qcad_undo_entry_object_state_get_type () ;
 #define QCAD_UNDO_ENTRY_OBJECT_STATE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_UNDO_ENTRY_OBJECT_STATE, QCADUndoEntryObjectStateClass))
 #define QCAD_IS_UNDO_ENTRY_OBJECT_STATE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_UNDO_ENTRY_OBJECT_STATE))
 
-QCADUndoEntry *qcad_undo_entry_object_state_new (GObject *instance) ;
 gboolean qcad_undo_entry_object_state_get_changed (QCADUndoEntryObjectState *undo_entry_os) ;
 
 #ifdef __cplusplus

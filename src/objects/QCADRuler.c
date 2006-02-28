@@ -37,11 +37,10 @@
 #include "QCADRuler.h"
 #include "QCADLabel.h"
 #include "object_helpers.h"
-#include "../support.h"
+#include "../intl.h"
 #include "../fileio_helpers.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
-#include "objects_debug.h"
 
 #define MIN_GRADATION_DISTANCE_PIXELS 10
 
@@ -108,14 +107,12 @@ GType qcad_ruler_get_type ()
 
     if ((qcad_ruler_type = g_type_register_static (QCAD_TYPE_STRETCHY_OBJECT, QCAD_TYPE_STRING_RULER, &qcad_ruler_info, 0)))
       g_type_class_ref (qcad_ruler_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADRuler as %d\n", (int)qcad_ruler_type)) ;
     }
   return qcad_ruler_type ;
   }
 
 static void qcad_ruler_class_init (GObjectClass *klass, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "QCADRuler::class_init:Entering\n")) ;
   G_OBJECT_CLASS (klass)->finalize = qcad_ruler_instance_finalize ;
   QCAD_OBJECT_CLASS (klass)->class_get_default_object = class_get_default_object ;
 #ifdef STDIO_FILEIO
@@ -132,19 +129,16 @@ static void qcad_ruler_class_init (GObjectClass *klass, gpointer data)
     gdk_colormap_alloc_color (gdk_colormap_get_system (), &clrCyan, FALSE, TRUE) ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw = draw ;
 #endif /* def GTK_GUI */
-  DBG_OO (fprintf (stderr, "QCADRuler::class_init:Leaving\n")) ;
   }
 
 static void qcad_ruler_instance_init (GObject *object, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "QCADRuler::instance_init:Entering\n")) ;
   QCAD_RULER (object)->labels = exp_array_new (sizeof (GRADUATION), 1) ;
   memcpy (&(QCAD_DESIGN_OBJECT (object)->clr), &clrCyan, sizeof (GdkColor)) ;
   QCAD_RULER (object)->ruler_bounding_box.xWorld =
   QCAD_RULER (object)->ruler_bounding_box.yWorld =
   QCAD_RULER (object)->ruler_bounding_box.cxWorld =
   QCAD_RULER (object)->ruler_bounding_box.cyWorld = 0.0 ;
-  DBG_OO (fprintf (stderr, "QCADRuler::instance_init:Leaving\n")) ;
   }
 
 static void qcad_ruler_instance_finalize (GObject *object)
@@ -152,12 +146,10 @@ static void qcad_ruler_instance_finalize (GObject *object)
   int Nix ;
   QCADRuler *ruler = QCAD_RULER (object) ;
 
-  DBG_OO (fprintf (stderr, "QCADRuler::instance_finalize:Entering\n")) ;
   for (Nix = 0 ; Nix < ruler->labels->icUsed ; Nix++)
     g_object_unref (G_OBJECT (exp_array_index_1d (ruler->labels, GRADUATION, Nix).lbl)) ;
   exp_array_free (ruler->labels) ;
   G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RULER)))->finalize (object) ;
-  DBG_OO (fprintf (stderr, "QCADRuler::instance_finalize:Leaving\n")) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

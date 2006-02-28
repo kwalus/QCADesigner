@@ -36,9 +36,8 @@
   #include <gtk/gtk.h>
 #endif
 
-#include "objects_debug.h"
 #include "../generic_utils.h"
-#include "../support.h"
+#include "../intl.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
 #include "../fileio_helpers.h"
@@ -95,13 +94,13 @@ GType qcad_electrode_get_type ()
 
     if ((qcad_electrode_type = g_type_register_static (QCAD_TYPE_DESIGN_OBJECT, QCAD_TYPE_STRING_ELECTRODE, &qcad_electrode_info, 0)))
       g_type_class_ref (qcad_electrode_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADElectrode as %d\n", (int)qcad_electrode_type)) ;
     }
   return qcad_electrode_type ;
   }
 
 static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   {
+#ifdef PROPERTY_UIS
   static QCADPropertyUIProperty properties[] =
     {
     {"z-to-ground", "units", {0, }},
@@ -126,6 +125,7 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   g_value_set_string (g_value_init (&(properties[5].ui_property_value), G_TYPE_STRING), "V") ;
 
   qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+#endif /* def PROPERTY_UIS */
 
   G_OBJECT_CLASS (klass)->finalize = qcad_electrode_instance_finalize ;
   G_OBJECT_CLASS (klass)->set_property = set_property ;
@@ -173,14 +173,11 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_ELECTRODE_PROPERTY_MAX_CLOCK,
     g_param_spec_double ("max-clock", _("Clock High"), _("Maximum clock voltage"),
       -G_MAXDOUBLE, G_MAXDOUBLE, 0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
-
-  DBG_OO (fprintf (stderr, "QCADElectrode::class_init:Leaving\n")) ;
   }
 
 static void qcad_electrode_instance_init (GObject *object, gpointer data)
   {
   QCADElectrode *electrode = QCAD_ELECTRODE (object) ;
-  DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Entering\n")) ;
 
   electrode->electrode_options.clock_function        = sin ;
   electrode->electrode_options.amplitude             =  5 ;
@@ -193,16 +190,10 @@ static void qcad_electrode_instance_init (GObject *object, gpointer data)
   electrode->electrode_options.z_to_ground           = 10.0 ;
 
   precompute (electrode) ;
-
-  DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Leaving\n")) ;
   }
 
 static void qcad_electrode_instance_finalize (GObject *object)
-  {
-  DBG_OO (fprintf (stderr, "QCADElectrode::instance_finalize:Entering\n")) ;
-  G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_ELECTRODE)))->finalize (object) ;
-  DBG_OO (fprintf (stderr, "QCADElectrode::instance_finalize:Leaving\n")) ;
-  }
+  {G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_ELECTRODE)))->finalize (object) ;}
 
 ///////////////////////////////////////////////////////////////////////////////
 

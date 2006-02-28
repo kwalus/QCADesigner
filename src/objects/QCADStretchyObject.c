@@ -40,7 +40,6 @@
 #include "../custom_widgets.h"
 #include "../global_consts.h"
 #include "../fileio_helpers.h"
-#include "objects_debug.h"
 
 static void qcad_stretchy_object_class_init (GObjectClass *klass, gpointer data) ;
 
@@ -85,14 +84,12 @@ GType qcad_stretchy_object_get_type ()
 
     if ((qcad_stretchy_object_type = g_type_register_static (QCAD_TYPE_DESIGN_OBJECT, QCAD_TYPE_STRING_STRETCHY_OBJECT, &qcad_stretchy_object_info, 0)))
       g_type_class_ref (qcad_stretchy_object_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADStretchyObject as %d\n", (int)qcad_stretchy_object_type)) ;
     }
   return qcad_stretchy_object_type ;
   }
 
 static void qcad_stretchy_object_class_init (GObjectClass *klass, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "QCADStretchyObject::class_init:Entering\n")) ;
   QCAD_STRETCHY_OBJECT_CLASS (klass)->stretch_draw_state_change = stretch_draw_state_change ;
 #ifdef STDIO_FILEIO
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize = serialize ;
@@ -110,7 +107,6 @@ static void qcad_stretchy_object_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.motion_notify = NULL ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_released = NULL ;
 #endif /* def GTK_GUI */
-  DBG_OO (fprintf (stderr, "QCADStretchyObject::class_init:Leaving\n")) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

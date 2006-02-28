@@ -43,9 +43,8 @@
 #endif /* def UNDO_REDO */
 #include "object_helpers.h"
 #include "../fileio_helpers.h"
-#include "objects_debug.h"
 #include "../exp_array.h"
-#include "../support.h"
+#include "../intl.h"
 
 typedef struct
   {
@@ -116,15 +115,12 @@ GType qcad_design_object_get_type ()
 
     if ((qcad_design_object_type = g_type_register_static (QCAD_TYPE_OBJECT, QCAD_TYPE_STRING_DESIGN_OBJECT, &qcad_design_object_info, 0)))
       g_type_class_ref (qcad_design_object_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADDesignObject as %d\n", (int)qcad_design_object_type)) ;
     }
   return qcad_design_object_type ;
   }
 
 static void qcad_design_object_class_init (GObjectClass *klass, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "QCADDesignObject::class_init:Entering.\n")) ;
-
   QCAD_OBJECT_CLASS (klass)->copy = copy ;
 #ifdef STDIO_FILEIO
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize = serialize ;
@@ -168,13 +164,10 @@ static void qcad_design_object_class_init (GObjectClass *klass, gpointer data)
     g_signal_new ("selected", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADDesignObjectClass, selected), NULL, NULL, g_cclosure_marshal_VOID__VOID,
         G_TYPE_NONE, 0) ;
-
-  DBG_OO (fprintf (stderr, "QCADDesignObject::class_init:Leaving.\n")) ;
   }
 
 static void qcad_design_object_instance_init (GObject *object, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "QCADDesignObject::instance_init:Entering.\n")) ;
   QCAD_DESIGN_OBJECT (object)->bSelected = FALSE ;
   QCAD_DESIGN_OBJECT (object)->x =
   QCAD_DESIGN_OBJECT (object)->y = -999.0 ;
@@ -183,7 +176,6 @@ static void qcad_design_object_instance_init (GObject *object, gpointer data)
   QCAD_DESIGN_OBJECT (object)->clr.red   = QCAD_DESIGN_OBJECT_GET_CLASS (object)->clrDefault.red ;
   QCAD_DESIGN_OBJECT (object)->clr.green = QCAD_DESIGN_OBJECT_GET_CLASS (object)->clrDefault.green ;
   QCAD_DESIGN_OBJECT (object)->clr.blue  = QCAD_DESIGN_OBJECT_GET_CLASS (object)->clrDefault.blue ;
-  DBG_OO (fprintf (stderr, "QCADDesignObject::instance_init:Leaving.\n")) ;
   }
 
 static void qcad_design_object_instance_finalize (GObject *object)
@@ -379,7 +371,6 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
 static void copy (QCADObject *objSrc, QCADObject *objDst)
   {
   QCADDesignObject *src = QCAD_DESIGN_OBJECT (objSrc), *dst = QCAD_DESIGN_OBJECT (objDst) ;
-  DBG_OO_CP (fprintf (stderr, "QCADDesignObject::copy:Entering\n")) ;
   dst->x         = src->x ;
   dst->y         = src->y ;
   memcpy (&(dst->bounding_box), &(src->bounding_box), sizeof (WorldRectangle)) ;
@@ -388,7 +379,6 @@ static void copy (QCADObject *objSrc, QCADObject *objDst)
   dst->clr.green = src->clr.green ;
   dst->clr.blue  = src->clr.blue ;
   dst->clr.pixel = src->clr.pixel ;
-  DBG_OO_CP (fprintf (stderr, "QCADDesignObject::copy:Leaving\n")) ;
   }
 
 static void transform (QCADDesignObject *obj, double m11, double m12, double m21, double m22)

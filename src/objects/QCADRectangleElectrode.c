@@ -36,10 +36,8 @@
   #include <gtk/gtk.h>
 #endif
 
-#include "objects_debug.h"
-
 #include "../generic_utils.h"
-#include "../support.h"
+#include "../intl.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
 #include "../fileio_helpers.h"
@@ -111,13 +109,13 @@ GType qcad_rectangle_electrode_get_type ()
 
     if ((qcad_rectangle_electrode_type = g_type_register_static (QCAD_TYPE_ELECTRODE, QCAD_TYPE_STRING_RECTANGLE_ELECTRODE, &qcad_rectangle_electrode_info, 0)))
       g_type_class_ref (qcad_rectangle_electrode_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADRectangleElectrode as %d\n", (int)qcad_rectangle_electrode_type)) ;
     }
   return qcad_rectangle_electrode_type ;
   }
 
 static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer data)
   {
+#ifdef PROPERTY_UIS
   // Gotta be static so the strings don't die
   static QCADPropertyUIProperty properties[] =
     {
@@ -137,8 +135,8 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "°") ;
 
   qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+#endif /* def PROPERTY_UIS */
 
-  DBG_OO (fprintf (stderr, "QCADRectangleElectrode::class_init:Leaving\n")) ;
   G_OBJECT_CLASS (klass)->finalize     = finalize ;
   G_OBJECT_CLASS (klass)->set_property = set_property ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
@@ -181,7 +179,6 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
 static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer data)
   {
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (object) ;
-  DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Entering\n")) ;
 
   rc_electrode->n_x_divisions =  2 ;
   rc_electrode->n_y_divisions = 10 ;
@@ -189,16 +186,10 @@ static void qcad_rectangle_electrode_instance_init (GObject *object, gpointer da
   rc_electrode->cyWorld       = 40.0 ;
   rc_electrode->angle         =  0.0 ;
   precompute (QCAD_ELECTRODE (object)) ;
-
-  DBG_OO (fprintf (stderr, "QCADElectrode::instance_init:Leaving\n")) ;
   }
 
 static void finalize (GObject *object)
-  {
-  DBG_OO (fprintf (stderr, "QCADElectrode::instance_finalize:Entering\n")) ;
-  G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->finalize (object) ;
-  DBG_OO (fprintf (stderr, "QCADElectrode::instance_finalize:Leaving\n")) ;
-  }
+  {G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_RECTANGLE_ELECTRODE)))->finalize (object) ;}
 
 ///////////////////////////////////////////////////////////////////////////////
 

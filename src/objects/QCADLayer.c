@@ -36,7 +36,7 @@
   #include <gtk/gtk.h>
 #endif /* def GTK_GUI */
 
-#include "../support.h"
+#include "../intl.h"
 #include "../fileio_helpers.h"
 #include "../custom_widgets.h"
 #include "QCADSubstrate.h"
@@ -45,7 +45,6 @@
 #include "QCADLabel.h"
 #include "QCADCompoundDO.h"
 #include "QCADDOContainer.h"
-#include "objects_debug.h"
 #include "QCADRectangleElectrode.h"
 #include "QCADClockingLayer.h"
 #include "QCADParamSpecObjectList.h"
@@ -170,6 +169,7 @@ GType qcad_layer_get_type ()
 
 static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   {
+#ifdef PROPERTY_UIS
   static QCADPropertyUIProperty properties[] =
     {
     {NULL, "title", {0, }}
@@ -179,6 +179,7 @@ static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), _("QCA Layer")) ;
 
   qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+#endif /* def PROPERTY_UIS */
 
   G_OBJECT_CLASS (klass)->finalize     = qcad_layer_instance_finalize ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
@@ -247,8 +248,6 @@ static void qcad_layer_instance_finalize (GObject *object)
   QCADLayer *layer = QCAD_LAYER (object) ;
   void (*parent_finalize) (GObject *object) ;
 
-  DBG_OO (fprintf (stderr, "QCADLayer::instance_finalize:Layer %s:destroying lstObjs\n", layer->pszDescription)) ;
-
   for (llItr = layer->lstObjs ; llItr != NULL ; )
     {
     llNext = llItr->next ;
@@ -268,7 +267,6 @@ static void qcad_layer_instance_finalize (GObject *object)
   if (NULL != layer->default_properties)
     g_hash_table_destroy (layer->default_properties) ;
 
-  DBG_OO (fprintf (stderr, "QCADLayer::instance_finalize: Calling parent\n")) ;
   if (NULL != (parent_finalize = G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_LAYER)))->finalize))
     (*parent_finalize) (object) ;
   }

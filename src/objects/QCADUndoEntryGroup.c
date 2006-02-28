@@ -34,7 +34,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib-object.h>
-#include "objects_debug.h"
 #include "QCADUndoEntryGroup.h"
 
 #define DBG_FINALIZE(s)
@@ -79,14 +78,12 @@ GType qcad_undo_entry_group_get_type ()
 
     if ((qcad_undo_entry_group_type = g_type_register_static (QCAD_TYPE_UNDO_ENTRY, QCAD_TYPE_STRING_UNDO_ENTRY_GROUP, &qcad_undo_entry_group_info, 0)))
       g_type_class_ref (qcad_undo_entry_group_type) ;
-    DBG_OO (fprintf (stderr, "Registered %s as %d\n", QCAD_TYPE_STRING_UNDO_ENTRY_GROUP, (int)qcad_undo_entry_group_type)) ;
     }
   return qcad_undo_entry_group_type ;
   }
 
 static void qcad_undo_entry_group_class_init (GObjectClass *klass, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "%s::class_init:Entering.\n", QCAD_TYPE_STRING_UNDO_ENTRY_GROUP)) ;
   qcad_undo_entry_group_signals[QCAD_UNDO_ENTRY_GROUP_STATE_CHANGED_SIGNAL] =
     g_signal_new (
      "state-changed", 
@@ -103,18 +100,15 @@ static void qcad_undo_entry_group_class_init (GObjectClass *klass, gpointer data
   QCAD_UNDO_ENTRY_CLASS (klass)->fire = fire ;
 
   G_OBJECT_CLASS (klass)->finalize = qcad_undo_entry_group_instance_finalize ;
-  DBG_OO (fprintf (stderr, "%s::class_init:Leaving.\n", QCAD_TYPE_STRING_UNDO_ENTRY_GROUP)) ;
   }
 
 static void qcad_undo_entry_group_instance_init (GObject *object, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "%s::instance_init:Entering.\n", QCAD_TYPE_STRING_UNDO_ENTRY_GROUP)) ;
   QCAD_UNDO_ENTRY_GROUP (object)->current_group = NULL ;
 
   QCAD_UNDO_ENTRY_GROUP (object)->llBeg =
   QCAD_UNDO_ENTRY_GROUP (object)->llCur =
   QCAD_UNDO_ENTRY_GROUP (object)->llEnd = g_list_prepend (NULL, NULL) ;
-  DBG_OO (fprintf (stderr, "%s::instance_init:Leaving.\n", QCAD_TYPE_STRING_UNDO_ENTRY_GROUP)) ;
   }
 
 static void qcad_undo_entry_group_instance_finalize (GObject *object)
@@ -137,7 +131,6 @@ static void qcad_undo_entry_group_instance_finalize (GObject *object)
 
   if (NULL != parent_finalize)
     (*parent_finalize) (object) ;
-  DBG_OO (fprintf (stderr, "%s::instance_finalize:Leaving\n", QCAD_TYPE_STRING_UNDO_ENTRY_GROUP)) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -211,8 +204,6 @@ QCADUndoState qcad_undo_entry_group_undo (QCADUndoEntryGroup *entry_group)
   {
   if (NULL == entry_group->llCur) return 0 ;
 
-  DBG_OO_UNDO (fprintf (stderr, "qcad_undo_entry_group_undo: Entering\n")) ;
-
   qcad_undo_entry_fire (QCAD_UNDO_ENTRY (entry_group->llCur->data), TRUE) ;
 
   return qcad_undo_entry_group_set_cur (entry_group, entry_group->llCur->next) ;
@@ -285,8 +276,6 @@ static void qcad_undo_entry_group_prepare_push (QCADUndoEntryGroup *entry_group)
   g_list_free (entry_group->llBeg) ;
   // llCur becomes the beginning of the list
   entry_group->llBeg = entry_group->llCur ;
-
-  DBG_OO_UNDO (fprintf (stderr, "qcad_undo_entry_group_prepare_push: After whacking unredoable elements, the group looks like this:\n")) ;
   }
 
 static QCADUndoState qcad_undo_entry_group_get_state_from_pointer (QCADUndoEntryGroup *entry_group, GList *llPtr)
@@ -309,15 +298,10 @@ static QCADUndoState qcad_undo_entry_group_set_cur (QCADUndoEntryGroup *entry_gr
   if (NULL == entry_group || NULL == new_cur)
     return 0 ;
 
-  DBG_OO_UNDO (fprintf (stderr, "qcad_undo_entry_group_set_cur: Attempting to move llCur from 0x%08X to 0x%08X\n", (int)(entry_group->llCur), (int)new_cur)) ;
-
   state = qcad_undo_entry_group_get_state_from_pointer (entry_group, new_cur) ;
-
-  DBG_OO_UNDO (fprintf (stderr, "qcad_undo_entry_group_set_cur: The state at new_cur is %d\n", state)) ;
 
   if ((bEmitSignal = (((state & 0x1) ^ ((state >> 1) & 0x1)) != 0)))
     {
-    DBG_OO_UNDO (fprintf (stderr, "qcad_undo_entry_group_set_cur: Extreme case: state = %d, so emitting signal\n", state)) ;
     // If I'm going into an extreme state, signal
     g_signal_emit (entry_group, qcad_undo_entry_group_signals[QCAD_UNDO_ENTRY_GROUP_STATE_CHANGED_SIGNAL], 0, state) ;
     }
@@ -328,20 +312,14 @@ static QCADUndoState qcad_undo_entry_group_set_cur (QCADUndoEntryGroup *entry_gr
       return 0 ;
 
     old_state = qcad_undo_entry_group_get_state_from_pointer (entry_group, entry_group->llCur) ;
-    DBG_OO_UNDO (fprintf (stderr, "qcad_undo_entry_group_set_cur: Non-extreme case: old_state = %d and state = %d\n", old_state, state)) ;
     // If I'm going from an extreme state into a non-extreme state, signal
     if ((((state & 0x1) ^ ((state >> 1) & 0x1)) == 0) &&
       (((old_state & 0x1) ^ ((old_state >> 1) & 0x1)) != 0))
-      {
-      DBG_OO_UNDO (fprintf (stderr, "qcad_undo_entry_group_set_cur: Non-extreme case: going extreme, so emitting signal\n")) ;
       g_signal_emit (entry_group, qcad_undo_entry_group_signals[QCAD_UNDO_ENTRY_GROUP_STATE_CHANGED_SIGNAL], 0, state) ;
-      }
     }
 
   if (NULL != new_cur)
     entry_group->llCur = new_cur ;
-
-  DBG_OO_UNDO (fprintf (stderr, "qcad_undo_entry_group_set_cur: Returning state = %d\n", state)) ;
 
   return state ;
   }

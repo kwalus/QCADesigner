@@ -33,7 +33,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include "QCADObject.h"
-#include "objects_debug.h"
 #include "QCADPropertyUISingle.h"
 #include "QCADPropertyUIGroup.h"
 
@@ -59,14 +58,17 @@ typedef struct
   } SignalDefaultGoneStruct ;
 
 static void qcad_object_class_init (GObjectClass *klass, gpointer data) ;
-static void qcad_object_instance_init (GObject *object, gpointer data) ;
+#ifdef PROPERTY_UIS
 static void qcad_object_base_init (QCADObjectClass *klass) ;
 static void qcad_object_base_finalize (QCADObjectClass *klass) ;
+#endif /* def PROPERTY_UIS */
 static void qcad_object_instance_finalize (GObject *object) ;
 
 static void copy (QCADObject *objSrc, QCADObject *objDst) ;
 
+#ifdef PROPERTY_UIS
 static void qcad_object_reset_ui_for_default_object (GObject *obj, gpointer data) ;
+#endif /* def PROPERTY_UIS */
 static void qcad_object_reset_signal_for_default_object (GObject *obj, gpointer data) ;
 
 enum
@@ -87,23 +89,28 @@ GType qcad_object_get_type ()
     static const GTypeInfo qcad_object_info =
       {
       sizeof (QCADObjectClass),
+#ifdef PROPERTY_UIS
       (GBaseInitFunc)qcad_object_base_init,
       (GBaseFinalizeFunc)qcad_object_base_finalize,
+#else
+      (GBaseInitFunc)NULL,
+      (GBaseFinalizeFunc)NULL,
+#endif /* def PROPRETY_UIS */
       (GClassInitFunc)qcad_object_class_init,
       (GClassFinalizeFunc)NULL,
       NULL,
       sizeof (QCADObject),
       0,
-      (GInstanceInitFunc)qcad_object_instance_init
+      (GInstanceInitFunc)NULL
       } ;
 
     if ((qcad_object_type = g_type_register_static (G_TYPE_OBJECT, QCAD_TYPE_STRING_OBJECT, &qcad_object_info, 0)))
       g_type_class_ref (qcad_object_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADObject as %d\n", (int)qcad_object_type)) ;
     }
   return qcad_object_type ;
   }
 
+#ifdef PROPERTY_UIS
 #ifdef GTK_GUI
 void qcad_object_get_properties (QCADObject *obj, GtkWindow *parent_window)
   {
@@ -148,11 +155,10 @@ static void qcad_object_base_finalize (QCADObjectClass *klass)
   klass->property_ui_behaviour = NULL ;
   klass->property_ui_properties = NULL ;
   }
+#endif /* def PROPERTY_UIS */
 
 static void qcad_object_class_init (GObjectClass *klass, gpointer data)
   {
-  DBG_OO (fprintf (stderr, "QCADObject::class_init:Entering.\n")) ;
-
   G_OBJECT_CLASS (klass)->finalize = qcad_object_instance_finalize ;
   QCAD_OBJECT_CLASS (klass)->copy                     = copy ;
   QCAD_OBJECT_CLASS (klass)->class_get_default_object = NULL ;
@@ -166,13 +172,6 @@ static void qcad_object_class_init (GObjectClass *klass, gpointer data)
     g_signal_new ("unset-default", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADObjectClass, unset_default), NULL, NULL, g_cclosure_marshal_VOID__VOID, 
       G_TYPE_NONE, 0) ;
-  DBG_OO (fprintf (stderr, "QCADDesignObject::class_init:Leaving.\n")) ;
-  }
-
-static void qcad_object_instance_init (GObject *object, gpointer data)
-  {
-  DBG_OO (fprintf (stderr, "QCADDesignObject::instance_init:Entering.\n")) ;
-  DBG_OO (fprintf (stderr, "QCADDesignObject::instance_init:Leaving.\n")) ;
   }
 
 static void qcad_object_instance_finalize (GObject *object)
@@ -188,10 +187,6 @@ QCADObject *qcad_object_new_from_object (QCADObject *src)
   {
   GType type = 0 ;
   QCADObject *dst = NULL ;
-  DBG_OO_CP (fprintf (stderr, "Copying the following object:\n")) ;
-  DBG_OO_CP (qcad_design_object_serialize (src, stderr)) ;
-  DBG_OO_CP (fprintf (stderr, "qcad_object_new_from_object:Found type %s\n",
-    NULL == g_type_name (type) ? "NULL" : g_type_name (type))) ;
 
   if (NULL == src) return NULL ;
 
@@ -202,10 +197,6 @@ QCADObject *qcad_object_new_from_object (QCADObject *src)
     dst = g_object_new (type, NULL) ;
     QCAD_OBJECT_GET_CLASS (src)->copy (src, dst) ;
     }
-
-  DBG_OO_CP (qcad_object_serialize (dst, stderr)) ;
-
-  DBG_OO_CP (fprintf (stderr, "qcad_object_new_from_object:Copied object.\n")) ;
 
   return dst ;
   }
@@ -265,6 +256,7 @@ void qcad_object_set_default (GType type, QCADObject *obj)
     g_object_unref (G_OBJECT (old_default)) ;
   }
 
+#ifdef PROPERTY_UIS
 QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, char *property, ...)
   {
   QCADPropertyUI *pui = NULL ;
@@ -294,6 +286,7 @@ QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, c
 
   return pui ;
   }
+#endif /* def PROPERTY_UIS */
 
 void qcad_object_connect_signal_to_default_object (GType type, char *pszSignal, GCallback callback, gpointer data)
   {
@@ -316,6 +309,7 @@ void qcad_object_connect_signal_to_default_object (GType type, char *pszSignal, 
     g_signal_connect (G_OBJECT (obj), "unset-default", (GCallback)qcad_object_reset_signal_for_default_object, sig_default_is_gone) ;
   }
 
+#ifdef PROPERTY_UIS
 void qcad_object_class_install_ui_behaviour (QCADObjectClass *klass, QCADPropertyUIBehaviour *behaviour, int icBehaviour)
   {
   if (NULL == klass->property_ui_behaviour)
@@ -354,17 +348,15 @@ void qcad_object_class_install_ui_properties (QCADObjectClass *klass, QCADProper
       exp_array_1d_insert_vals (klass->property_ui_properties, &(properties[Nix]), 1, -1) ;
     }
   }
+#endif /* def PROPERTY_UIS */
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void copy (QCADObject *objSrc, QCADObject *objDst)
-  {
-  DBG_OO_CP (fprintf (stderr, "QCADObject::copy:Entering\n")) ;
-  DBG_OO_CP (fprintf (stderr, "QCADObject::copy:Leaving\n")) ;
-  }
+static void copy (QCADObject *objSrc, QCADObject *objDst) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef PROPERTY_UIS
 static void qcad_object_reset_ui_for_default_object (GObject *obj, gpointer data)
   {
   QCADPropertyUIDefaultGoneStruct *pui_default_is_gone = (QCADPropertyUIDefaultGoneStruct *)data ;
@@ -376,6 +368,7 @@ static void qcad_object_reset_ui_for_default_object (GObject *obj, gpointer data
 
   qcad_property_ui_set_instance (pui_default_is_gone->pui, G_OBJECT (new_default)) ;
   }
+#endif /* def PROPERTY_UIS */
 
 static void qcad_object_reset_signal_for_default_object (GObject *obj, gpointer data)
   {

@@ -34,12 +34,11 @@
 #include <math.h>
 #include <glib-object.h>
 #include "../gdk_structs.h"
-#include "../support.h"
+#include "../intl.h"
 #include "../custom_widgets.h"
 #include "QCADSubstrate.h"
 #include "object_helpers.h"
 #include "../fileio_helpers.h"
-#include "objects_debug.h"
 #include "QCADCell.h"
 
 static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer data) ;
@@ -90,13 +89,13 @@ GType qcad_substrate_get_type ()
 
     if ((qcad_substrate_type = g_type_register_static (QCAD_TYPE_STRETCHY_OBJECT, QCAD_TYPE_STRING_SUBSTRATE, &qcad_substrate_info, 0)))
       g_type_class_ref (qcad_substrate_type) ;
-    DBG_OO (fprintf (stderr, "Registered QCADSubstrate as %d\n", (int)qcad_substrate_type)) ;
     }
   return qcad_substrate_type ;
   }
 
 static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer data)
   {
+#ifdef PROPERTY_UIS
   // Gotta be static so the strings don't die
   static QCADPropertyUIProperty properties[] =
     {
@@ -109,7 +108,9 @@ static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer 
   // substrate.spacing.units = "nm"
   g_value_set_string (g_value_init (&(properties[1].ui_property_value), G_TYPE_STRING), "nm") ;
 
-  DBG_OO (fprintf (stderr, "QCADSubstrate::class_init:Entering\n")) ;
+  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+#endif /* def PROPERTY_UIS */
+
   G_OBJECT_CLASS (klass)->finalize     = qcad_substrate_instance_finalize ;
   G_OBJECT_CLASS (klass)->get_property = qcad_substrate_get_property ;
   G_OBJECT_CLASS (klass)->set_property = qcad_substrate_set_property ;
@@ -128,24 +129,13 @@ static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_SUBSTRATE_PROPERTY_SPACING,
     g_param_spec_double ("spacing", _("Grid Spacing"), _("Grid Spacing [nm]"),
       1.0, G_MAXDOUBLE, 10.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
-
-  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
-  DBG_OO (fprintf (stderr, "QCADSubstrate::class_init:Leaving\n")) ;
   }
 
 static void qcad_substrate_instance_init (QCADStretchyObject *object, gpointer data)
-  {
-  DBG_OO (fprintf (stderr, "QCADSubstrate::instance_init:Entering\n")) ;
-  QCAD_SUBSTRATE (object)->grid_spacing = 20.0000 ; // nm
-  DBG_OO (fprintf (stderr, "QCADSubstrate::instance_init:Leaving\n")) ;
-  }
+  {QCAD_SUBSTRATE (object)->grid_spacing = 20.0000 /* nm */ ;}
 
 static void qcad_substrate_instance_finalize (GObject *object)
-  {
-  DBG_OO (fprintf (stderr, "QCADSubstrate::instance_finalize:Entering\n")) ;
-  G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_SUBSTRATE)))->finalize (object) ;
-  DBG_OO (fprintf (stderr, "QCADSubstrate::instance_finalize:Leaving\n")) ;
-  }
+  {G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_SUBSTRATE)))->finalize (object) ;}
 
 static QCADObject *class_get_default_object ()
   {return g_object_new (QCAD_TYPE_SUBSTRATE, NULL) ;}
@@ -212,10 +202,8 @@ void qcad_substrate_snap_point (QCADSubstrate *subs, double *px, double *py)
 
 static void copy (QCADObject *src, QCADObject *dst)
   {
-  DBG_OO_CP (fprintf (stderr, "QCADSubstrate::copy:Entering\n")) ;
   QCAD_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_SUBSTRATE)))->copy (src, dst) ;
   QCAD_SUBSTRATE (dst)->grid_spacing = QCAD_SUBSTRATE (src)->grid_spacing ;
-  DBG_OO_CP (fprintf (stderr, "QCADSubstrate::copy:Leaving\n")) ;
   }
 
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)

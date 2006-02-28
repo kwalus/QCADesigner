@@ -34,9 +34,11 @@
 #include <stdarg.h>
 #include <glib-object.h>
 #include "../gdk_structs.h"
+#ifdef DESIGNER
 #ifdef GTK_GUI
   #include "../exp_pixmap.h"
 #endif /* def GTK_GUI */
+#endif /* def DESIGNER */
 #include "QCADStretchyObject.h"
 
 #ifdef __cplusplus
@@ -51,10 +53,12 @@ struct _QCADLabel
   QCADStretchyObject parent_instance ;
   char *psz ;
   gboolean bShrinkWrap ;
+#ifdef DESIGNER
   gboolean bNeedsEPMDraw ;
 #ifdef GTK_GUI
   EXP_PIXMAP *epm ;
 #endif /* def GTK_GUI */
+#endif /* def DESIGNER */
   } ;
 
 struct _QCADLabelClass

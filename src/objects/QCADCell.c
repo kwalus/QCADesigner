@@ -37,7 +37,7 @@
 #endif
 
 #include "../generic_utils.h"
-#include "../support.h"
+#include "../intl.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
 #include "QCADCell.h"
@@ -49,7 +49,6 @@
 #include "QCADCompoundDO.h"
 #include "QCADPropertyUI.h"
 #include "object_helpers.h"
-#include "objects_debug.h"
 #include "../fileio_helpers.h"
 
 #define QCAD_CELL_LABEL_DEFAULT_OFFSET_Y 1
@@ -142,6 +141,7 @@ enum
 
 static guint qcad_cell_signals[QCAD_CELL_LAST_SIGNAL] = {0} ;
 
+#ifdef PROPERTY_UIS
 int label_enabled_if[] =
   {
   QCAD_CELL_INPUT,
@@ -181,6 +181,7 @@ static QCADPropertyUIBehaviour behaviour[] =
     NULL, NULL, NULL
     }
   } ;
+#endif /* def PROPERTY_UIS */
 
 GType qcad_cell_get_type ()
   {
@@ -221,7 +222,6 @@ GType qcad_cell_get_type ()
 //      g_type_add_interface_static (qcad_cell_type, QCAD_TYPE_DO_CONTAINER, &qcad_cell_do_container_info) ;
       g_type_class_ref (qcad_cell_type) ;
       }
-    DBG_OO (fprintf (stderr, "Registered QCADCell as %d\n", (int)qcad_cell_type)) ;
     }
   return qcad_cell_type ;
   }
@@ -298,6 +298,7 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
 #ifdef GTK_GUI
   GdkColormap *clrmap = gdk_colormap_get_system () ;
 #endif /* def GTK_GUI */
+#ifdef PROPERTY_UIS
   // Gotta be static so the strings don't die
   static QCADPropertyUIProperty properties[] =
     {
@@ -321,7 +322,13 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
 #ifdef GTK_GUI
   // cell.clock.render-as = GTK_TYPE_OPTION_MENU
   g_value_set_uint   (g_value_init (&(properties[4].ui_property_value), G_TYPE_UINT), (guint)GTK_TYPE_OPTION_MENU) ;
+#endif /* def GTK_GUI */
 
+  qcad_object_class_install_ui_behaviour (QCAD_OBJECT_CLASS (klass), behaviour, G_N_ELEMENTS (behaviour)) ;
+  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+#endif /* def PROPERTY_UIS */
+
+#ifdef GTK_GUI
   if (0 == clrOrange.pixel)
     gdk_colormap_alloc_color (clrmap, &clrOrange, FALSE, TRUE) ;
   if (0 == clrYellow.pixel)
@@ -396,11 +403,6 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
     g_signal_new ("cell-function-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADCellClass, cell_function_changed), NULL, NULL, g_cclosure_marshal_VOID__VOID,
       G_TYPE_NONE, 0) ;
-
-  qcad_object_class_install_ui_behaviour (QCAD_OBJECT_CLASS (klass), behaviour, G_N_ELEMENTS (behaviour)) ;
-  qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
-
-  DBG_OO (fprintf (stderr, "QCADCell::class_init:Leaving\n")) ;
   }
 
 static void qcad_cell_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -496,8 +498,6 @@ static void qcad_cell_instance_init (GObject *object, gpointer data)
 //  QCADCellClass *klass = QCAD_CELL_GET_CLASS (object) ;
   QCADCell *cell = QCAD_CELL (object) ;
 
-  DBG_OO (fprintf (stderr, "QCADCell::instance_init:Entering\n")) ;
-
   dcx = 
   cell->cell_options.cxCell         = 18.00 ;
   dcy = 
@@ -523,13 +523,10 @@ static void qcad_cell_instance_init (GObject *object, gpointer data)
   cell->cell_dots[1].charge =
   cell->cell_dots[2].charge =
   cell->cell_dots[3].charge = HALF_QCHARGE ;
-
-  DBG_OO (fprintf (stderr, "QCADCell::instance_init:Leaving\n")) ;
   }
 
 static void qcad_cell_instance_finalize (GObject *object)
   {
-  DBG_OO (fprintf (stderr, "QCADCell::instance_finalize:Entering\n")) ;
   if (NULL != QCAD_CELL (object)->cell_dots)
     free (QCAD_CELL (object)->cell_dots) ;
   if (NULL != QCAD_CELL (object)->label)
@@ -538,7 +535,6 @@ static void qcad_cell_instance_finalize (GObject *object)
     free (QCAD_CELL (object)->cell_model) ;
 
   G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL)))->finalize (object) ;
-  DBG_OO (fprintf (stderr, "QCADCell::instance_finalize:Leaving\n")) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

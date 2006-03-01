@@ -59,6 +59,13 @@ Makefile.in: Makefile.snippet
 	echo -e '\techo '"'"'LDFLAGS = $(LDFLAGS)'"'"'             >> Makefile' >> Makefile.in
 	echo -e '\techo '"'"'LIB_PATHS = $(LIB_PATHS)'"'"'         >> Makefile' >> Makefile.in
 	echo -e '\techo '"'"'WINDRES = $(WINDRES)'"'"'             >> Makefile' >> Makefile.in
+	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
+	echo -e '\techo -n "all:"                                  >> Makefile' >> Makefile.in
+	for target in $(TARGETS); do \
+		echo -e '\techo -n " '"$${target}.exe"'"           >> Makefile' >> Makefile.in; \
+	done
+	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
+	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
 	for target in $(TARGETS); do \
 		cat Makefile.snippet | sed "s/@TARGET@/$${target}/g"    >> Makefile.in; \
 	done

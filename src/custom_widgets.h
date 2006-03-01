@@ -54,9 +54,6 @@ typedef enum
 
 GtkWidget *gtk_spin_button_new_infinite (GtkAdjustment *adj, gdouble climb_rate, guint digits, ISBDirection direction) ;
 void gtk_adjustment_set_value_infinite (GtkAdjustment *adj, gdouble value) ;
-GtkWidget *clock_select_combo_new () ;
-int clock_select_combo_get_clock (GtkWidget *widget) ;
-void clock_select_combo_set_clock (GtkWidget *widget, int clock) ;
 void swap_container_contents (GtkWidget *src, GtkWidget *dst) ;
 void set_widget_background_colour (GtkWidget *widget, int r, int g, int b) ;
 void scrolled_window_set_size (GtkScrolledWindow *sw, GtkWidget *rqWidget, double dcxMaxScreenPercent, double dcyMaxScreenPercent) ;

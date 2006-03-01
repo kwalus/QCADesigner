@@ -36,9 +36,10 @@
 #include <stdlib.h>
 #ifdef GTK_GUI
   #include <gtk/gtk.h>
+  #include "support.h"
 #endif /* def GTK_GUI */
 
-#include "support.h"
+#include "intl.h"
 #include "exp_array.h"
 #include "global_consts.h"
 #include "custom_widgets.h"

@@ -33,30 +33,8 @@
 //  #undef ENABLE_NLS
 //#endif
 
-#ifdef GTK_GUI
-  #include <gtk/gtk.h>
-#endif /* def GTK_GUI */
-
-// Standard gettext macros.
-#ifdef ENABLE_NLS
-#  include <libintl.h>
-#  undef _
-#  define _(String) dgettext (PACKAGE, String)
-#  ifdef gettext_noop
-#    define N_(String) gettext_noop (String)
-#  else
-#    define N_(String) (String)
-#  endif
-#else
-#  define textdomain(String) (String)
-#  define gettext(String) (String)
-#  define dgettext(Domain,Message) (Message)
-#  define dcgettext(Domain,Message,Type) (Message)
-#  define bindtextdomain(Domain,Directory) (Domain)
-#  define bind_textdomain_codeset(Domain,Codeset) (Codeset)
-#  define _(String) (String)
-#  define N_(String) (String)
-#endif
+#include <gtk/gtk.h>
+#include "intl.h"
 
 // Public Functions.
 
@@ -64,7 +42,6 @@
 // Call it with the toplevel widget in the component (i.e. a window/dialog),
 // or alternatively any widget in the component, and the name of the widget
 // you want returned.
-#ifdef GTK_GUI
 GtkWidget *lookup_widget (GtkWidget *widget, const gchar *widget_name);
 
 // This function returns the fully qualified path for a filename iff it
@@ -88,5 +65,4 @@ GdkPixbuf *create_pixbuf (const gchar *filename);
 
 // This is used to set ATK action descriptions.
 void glade_set_atk_action_description (AtkAction *action, const gchar *action_name, const gchar *description);
-#endif /* def GTK_GUI */
 #endif /* _SUPPORT_H_ */

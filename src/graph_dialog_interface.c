@@ -151,7 +151,6 @@ void create_graph_dialog (graph_D *dialog)
     (GCallback)btnZoom100_clicked,
     dialog) ;
 
-  // This will separate the layers combo from the clocks combo
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
 
   gtk_toolbar_append_element (
@@ -165,7 +164,6 @@ void create_graph_dialog (graph_D *dialog)
     (GCallback)btnThresh_clicked,
     dialog) ;
 
-  // This will separate the layers combo from the clocks combo
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
 
   g_object_set_data (G_OBJECT (

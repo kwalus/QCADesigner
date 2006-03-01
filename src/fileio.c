@@ -34,7 +34,7 @@
 
 #include "fileio.h"
 #include "design.h"
-#include "support.h"
+#include "intl.h"
 #include "fileio_helpers.h"
 #include "global_consts.h"
 #include "custom_widgets.h"

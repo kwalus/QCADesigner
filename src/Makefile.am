@@ -9,6 +9,7 @@ include Makefile.inc
 
 #################### QCADesigner ####################
 QCADesigner_CFLAGS = \
+	-DPROPERTY_UIS \
 	-DSTDIO_FILEIO \
 	-DUNDO_REDO \
 	-DGTK_GUI \
@@ -19,84 +20,65 @@ QCADesigner_CFLAGS = \
 	@GTHREAD_CFLAGS@
 
 QCADesigner_SOURCES = \
-	$(UNDO_REDO_FILES) \
-	$(STDIO_FILEIO_FILES) \
 	gtk_preamble.c                          gtk_preamble.h \
-	about.c                                 about.h \
-	actions.h \
-	actions/action_handlers.h \
+	support.c                               support.h \
+\
+  $(CORE_FILES) \
+  $(OBJECT_FILES) \
+  $(SIMULATION_FILES) \
+  $(STDIO_FILEIO_FILES) \
+\
+  $(GRAPH_DIALOG_FILES) \
+  $(PROPERTY_UI_FILES) \
+  $(UNDO_REDO_FILES) \
+  $(GTK_WORKAROUND_FILES) \
+  $(SIMULATION_UI_FILES) \
+  $(VECTOR_TABLE_DIALOG_FILES) \
+\
+	interface.c                             interface.h \
+	callbacks.c                             callbacks.h \
+	                                        actions.h \
+                                         	actions/action_handlers.h \
 	actions/array.c                         actions/array.h \
 	actions/rotate.c                        actions/rotate.h \
 	actions/select.c                        actions/select.h \
-	bistable_properties_dialog.c            bistable_properties_dialog.h \
-	bus_layout_dialog.c                     bus_layout_dialog.h \
 	                                        callback_helpers.h \
-	callbacks.c                             callbacks.h \
-	coherence_vector_properties_dialog.c    coherence_vector_properties_dialog.h \
-	ts_coherence_vector_properties_dialog.c	ts_coherence_vector_properties_dialog.h \
-	custom_widgets.c                        custom_widgets.h \
-	design.c                                design.h \
-	exp_array.c                             exp_array.h \
 	exp_pixmap.c                            exp_pixmap.h \
-	file_selection_window.c                 file_selection_window.h \
-	fileio_helpers.c                        fileio_helpers.h \
-	generic_utils.c                         generic_utils.h \
 	                                        global_consts.h \
-	waveform_interpretation_dialog.c        waveform_interpretation_dialog.h \
-	graph_dialog.c                          graph_dialog.h \
-	graph_dialog_interface.c                graph_dialog_interface.h \
+\
+	simulation_data.c                       simulation_data.h \
 	graph_dialog_widget_data.c              graph_dialog_widget_data.h \
-	graph_dialog_data.c                     graph_dialog_data.h \
-	graph_dialog_callbacks.c                graph_dialog_callbacks.h \
-	hsl2rgb.c                               hsl2rgb.h \
-	interface.c                             interface.h \
-	layer_mapping_dialog.c                  layer_mapping_dialog.h \
-	layer_order_dialog.c                    layer_order_dialog.h \
+\
 	objects/mouse_handlers.c                objects/mouse_handlers.h \
 	                                    	  objects/mouse_handler_struct.h \
-	objects/object_helpers.c                objects/object_helpers.h \
 	                                    	  objects/objects_debug.h \
-\
-	$(OBJECT_FILES) \
-\
 	objects/QCADCellRendererVT.c            objects/QCADCellRendererVT.h \
 	objects/QCADCellRendererLayerList.c     objects/QCADCellRendererLayerList.h \
 	objects/QCADTreeViewContainer.c         objects/QCADTreeViewContainer.h \
-	objects/QCADToggleToolButton.c          objects/QCADToggleToolButton.h \
-	objects/QCADRadioToolButton.c           objects/QCADRadioToolButton.h \
-	objects/QCADRadioButton.c               objects/QCADRadioButton.h \
 	objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
 	print_properties_dialog.c               print_properties_dialog.h \
+	print_properties_dialog_interface.c     print_properties_dialog_interface.h \
 	print_graph_properties_dialog.c         print_graph_properties_dialog.h \
 	                                        print_properties_dialog_callbacks.h \
-	print_properties_dialog_interface.c     print_properties_dialog_interface.h \
 	print.c                                 print.h \
 	print_util.c                            print_util.h \
 	print_graph.c \
 	                                        qcadstock.h \
-	scale_dialog.c                          scale_dialog.h \
 	selection_renderer.c                    selection_renderer.h \
-	sim_engine_setup_dialog.c               sim_engine_setup_dialog.h \
-	support.c                               support.h \
-	translate_selection_dialog.c            translate_selection_dialog.h \
 	vector_table.c                          vector_table.h \
-	vector_table_options_dialog.c           vector_table_options_dialog.h \
-	vector_table_options_dialog_interface.c vector_table_options_dialog_interface.h \
-	vector_table_options_dialog_callbacks.c vector_table_options_dialog_callbacks.h \
-	vector_table_options_dialog_data.c      vector_table_options_dialog_data.h \
 	recent_files.c                          recent_files.h \
 	print_preview.c                         print_preview.h \
-	bistable_simulation.c                   bistable_simulation.h \
-	coherence_vector.c                      coherence_vector.h \
-	three_state_coherence.c			three_state_coherence.h \
-	matrixlib_3x3.c													matrixlib_3x3.h \
-	simulation.c                            simulation.h \
-	simulation_data.c                       simulation_data.h \
+\
+	about.c                                 about.h \
+	file_selection_window.c                 file_selection_window.h \
+	bus_layout_dialog.c                     bus_layout_dialog.h \
+	layer_mapping_dialog.c                  layer_mapping_dialog.h \
+	layer_order_dialog.c                    layer_order_dialog.h \
+	scale_dialog.c                          scale_dialog.h \
+	sim_engine_setup_dialog.c               sim_engine_setup_dialog.h \
+	translate_selection_dialog.c            translate_selection_dialog.h \
+\
 	main.c
-
-#
-#	sim_type_setup_dialog.c                 sim_type_setup_dialog.h \
-#
 
 QCADesigner_LDADD = \
 	-lm \
@@ -113,45 +95,15 @@ batch_sim_CFLAGS = \
 	@GOBJECT_CFLAGS@
 
 batch_sim_SOURCES = \
+  $(CORE_FILES) \
+  $(OBJECT_FILES) \
+  $(SIMULATION_FILES) \
 	$(STDIO_FILEIO_FILES) \
-	fileio_helpers.c                      fileio_helpers.h \
-	custom_widgets.c                      custom_widgets.h \
 \
-	simulation.c                          simulation.h \
 	simulation_data.c                     simulation_data.h \
-	bistable_simulation.c                 bistable_simulation.h \
-	coherence_vector.c                    coherence_vector.h \
-	three_state_coherence.c		      three_state_coherence.h \
-	matrixlib_3x3.c			      matrixlib_3x3.h \
-\
-	design.c                              design.h \
-\
-	$(OBJECT_FILES) \
-\
-	exp_array.c                           exp_array.h \
-	objects/object_helpers.c              objects/object_helpers.h \
-	hsl2rgb.c                             hsl2rgb.h \
-	generic_utils.c                       generic_utils.h \
-\
 	graph_dialog_widget_data.c            graph_dialog_widget_data.h \
 \
 	main_batch_sim.c
-
-#
-#	graph_dialog.c                        graph_dialog.h \
-#	exp_pixmap.c                          exp_pixmap.h \
-#	file_selection_window.c               file_selection_window.h \
-#	print.c                               print.h \
-#	print_util.c                          print_util.h \
-#	print_graph.c \
-#	objects/QCADPrintDialog.c             objects/QCADPrintDialog.h \
-#	print_graph_properties_dialog.c       print_graph_properties_dialog.h \
-#	support.c                             support.h \
-#	waveform_interpretation_dialog.c      waveform_interpretation_dialog.h \
-#	bus_layout_dialog.c                   bus_layout_dialog.h \
-#	print_preview.c                       print_preview.h \
-#	objects/QCADClockCombo.c              objects/QCADClockCombo.h \
-#
 
 batch_sim_LDADD = \
 	-lm \
@@ -168,42 +120,27 @@ graph_dialog_CFLAGS = \
 	@GTHREAD_CFLAGS@
 
 graph_dialog_SOURCES = \
-	$(STDIO_FILEIO_FILES) \
-	$(OBJECT_FILES) \
-	objects/QCADPrintDialog.c                  objects/QCADPrintDialog.h \
-	objects/QCADToggleToolButton.c             objects/QCADToggleToolButton.h \
-	objects/QCADRadioToolButton.c              objects/QCADRadioToolButton.h \
-	objects/QCADRadioButton.c                  objects/QCADRadioButton.h \
 	gtk_preamble.c                             gtk_preamble.h \
-	design.c                                   design.h \
-	objects/object_helpers.c                   objects/object_helpers.h \
+	support.c                                  support.h \
 \
-	graph_dialog.c                             graph_dialog.h \
-	graph_dialog_interface.c                   graph_dialog_interface.h \
+  $(CORE_FILES) \
+  $(OBJECT_FILES) \
+  $(GRAPH_DIALOG_FILES) \
+  $(STDIO_FILEIO_FILES) \
+\
+	simulation_data.c                          simulation_data.h \
 	graph_dialog_widget_data.c                 graph_dialog_widget_data.h \
-	graph_dialog_data.c                        graph_dialog_data.h \
-	graph_dialog_callbacks.c                   graph_dialog_callbacks.h \
 \
-	generic_utils.c                            generic_utils.h \
-	custom_widgets.c                           custom_widgets.h \
-	exp_array.c                                exp_array.h \
-	fileio_helpers.c                           fileio_helpers.h \
-	exp_pixmap.c                               exp_pixmap.h \
-	file_selection_window.c                    file_selection_window.h \
-	print.c                                    print.h \
-	print_util.c                               print_util.h \
 	print_graph.c \
 	print_graph_properties_dialog.c            print_graph_properties_dialog.h \
-	support.c                                  support.h \
-	waveform_interpretation_dialog.c           waveform_interpretation_dialog.h \
-	bus_layout_dialog.c                        bus_layout_dialog.h \
+	print_util.c                               print_util.h \
 	print_preview.c                            print_preview.h \
-	simulation_data.c                          simulation_data.h \
-	hsl2rgb.c                                  hsl2rgb.h \
+	objects/QCADPrintDialog.c                  objects/QCADPrintDialog.h \
+\
+	file_selection_window.c                    file_selection_window.h \
+	bus_layout_dialog.c                        bus_layout_dialog.h \
+\
 	main_graph_dialog.c
-#
-#	objects/QCADClockCombo.c                objects/QCADClockCombo.h \
-#
 
 graph_dialog_LDADD = \
 	-lm \

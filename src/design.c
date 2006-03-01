@@ -37,7 +37,7 @@
 #include "objects/QCADClockingLayer.h"
 #include "fileio_helpers.h"
 #include "custom_widgets.h"
-#include "support.h"
+#include "intl.h"
 #include "design.h"
 #ifdef GTK_GUI
   #include "qcadstock.h"

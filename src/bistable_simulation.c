@@ -34,7 +34,7 @@
 #ifdef GTK_GUI
   #include "callback_helpers.h"
 #endif /* def GTK_GUI */
-#include "support.h"
+#include "intl.h"
 #include "objects/QCADCell.h"
 #include "simulation.h"
 #include "bistable_simulation.h"

@@ -3,11 +3,20 @@
 		if echo $$file | grep -q '\.c$$'; then \
 			BASENAME=`echo $$file | sed -e 's!\(.*\)\..*$$!\1!' -e 's!.*/\(.*$$\)!\1!'`; \
 			O_FILE="@TARGET@-$${BASENAME}.o"; \
-			C_FILE=`find . | grep -m 1 "/$$BASENAME\.c$$" | sed 's!^./!!'`; \
-			H_FILE=`find . | grep -m 1 "/$$BASENAME\.h$$" | sed 's!^./!!'`; \
+			C_FILE_RAW=`find . | grep -m 1 "/$$BASENAME\.c$$"`; \
+			C_FILE=`echo $$C_FILE_RAW | sed 's!^./!!'`; \
+			C_FILE_PATH=`echo $$C_FILE_RAW | sed 's!^\(.*/\).*$$!\1!'`; \
 			O_FILES="$${O_FILES} $${O_FILE}"; \
-			echo -e "$${O_FILE}: $${C_FILE} $${H_FILE}"; \
-			echo "$${O_FILE}: $${C_FILE} $${H_FILE}" >> Makefile; \
+			echo -e "$${O_FILE}: $${C_FILE} ..."; \
+			echo -n "$${O_FILE}: $${C_FILE}" >> Makefile; \
+			for H_FILE in `cat $$C_FILE_RAW | grep -E '^[ '"$$(echo -e '\t')"']*#[ '"$$(echo -e '\t')"']*include' | grep -v '<[^>]*>' | sed 's/^.*"\([^"]*\)".*$$/\1/'`; do \
+				if test -f "$${C_FILE_PATH}$${H_FILE}"; then \
+					H_FILE=`echo "$${C_FILE_PATH}$${H_FILE}" | sed 's!^./!!'`; \
+					echo ' \' >> Makefile; \
+					echo -en '\t'"$${H_FILE}" >> Makefile; \
+				fi; \
+			done; \
+			echo '' >> Makefile; \
 			echo -e '\t$$(CC) $$(CFLAGS) $$(DEFINES) $$(@TARGET@_DEFINES) $$(INCLUDE_PATHS) \' >> Makefile; \
 			echo -e '\t\t-c '"$${C_FILE}"' \' >> Makefile; \
 			echo -e '\t\t-o '"$${O_FILE}" >> Makefile; \
@@ -28,4 +37,5 @@
 	echo -e '\t$$(CC) $$(LDFLAGS) $$(@TARGET@_OBJECTS) $$(LIB_PATHS) $$(@TARGET@_LIBS) -o @TARGET@.exe' >> Makefile; \
 	echo '' >> Makefile; \
 	echo "@TARGET@-icon.o: @TARGET@-icon.rc" >> Makefile; \
-	echo -e '\t$$(WINDRES) -i @TARGET@-icon.rc -o @TARGET@-icon.o' >> Makefile
+	echo -e '\t$$(WINDRES) -i @TARGET@-icon.rc -o @TARGET@-icon.o' >> Makefile; \
+	echo '' >> Makefile

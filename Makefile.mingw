@@ -19,11 +19,11 @@ all:
 		PACKAGE=$(PACKAGE) \
 		GTK_PREFIX=$(GTK_PREFIX) \
 	-f Makefile.mingw
-	$(MAKE) -C $(QCAD_PO) \
-		GTK_PREFIX=$(GTK_PREFIX) \
-	-f Makefile.mingw
-	$(MAKE) -C $(QCAD_DOC) \
-	-f Makefile.mingw
+#	$(MAKE) -C $(QCAD_PO) \
+#		GTK_PREFIX=$(GTK_PREFIX) \
+#	-f Makefile.mingw
+#	$(MAKE) -C $(QCAD_DOC) \
+#	-f Makefile.mingw
 
 install: all
 	mkdir -p $(QCAD_INSTALL_DIR)
@@ -46,9 +46,9 @@ install: all
 
 clean:
 	$(MAKE) -C $(QCAD_SRC) -f Makefile.mingw clean
-	$(MAKE) -C $(QCAD_PO)  -f Makefile.mingw clean
-	$(MAKE) -C $(QCAD_DOC) -f Makefile.mingw clean
-	rm -rf $(QCAD_INSTALL_DIR) Output
+#	$(MAKE) -C $(QCAD_PO)  -f Makefile.mingw clean
+#	$(MAKE) -C $(QCAD_DOC) -f Makefile.mingw clean
+#	rm -rf $(QCAD_INSTALL_DIR) Output *.iss
 
 installer: install
 	rm -f QCADesigner-win32.iss

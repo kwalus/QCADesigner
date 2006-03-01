@@ -87,6 +87,12 @@ QCADesigner_LDADD = \
 	@GTHREAD_LIBS@ 
 
 #################### batch_sim ######################
+
+# This variable is only used in Windoze
+batch_sim_LIBS =	-lglib-2.0 \
+			-lgobject-2.0 \
+			-lintl
+
 batch_sim_DEFINES = -DSTDIO_FILEIO
 
 batch_sim_CFLAGS = \
@@ -97,9 +103,9 @@ batch_sim_CFLAGS = \
 	@GOBJECT_CFLAGS@
 
 batch_sim_SOURCES = \
-  $(CORE_FILES) \
-  $(OBJECT_FILES) \
-  $(SIMULATION_FILES) \
+	$(CORE_FILES) \
+	$(OBJECT_FILES) \
+	$(SIMULATION_FILES) \
 	$(STDIO_FILEIO_FILES) \
 \
 	simulation_data.c                       simulation_data.h \

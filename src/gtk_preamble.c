@@ -290,7 +290,8 @@ char **CmdLineToArgv (char *pszTmp, int *pargc)
 static char *get_locale ()
   {
 //  HKEY hk ;
-  char *pszLocale = NULL, szVal[32] = "" ;
+  char *pszLocale = NULL ;
+//  char szVal[32] = "" ;
 //  DWORD cbVal = 31 ;
 //  DWORD dwType = REG_SZ ;
 

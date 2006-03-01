@@ -10,6 +10,17 @@ include Makefile.inc
 #################### QCADesigner ####################
 QCADesigner_DEFINES = -DPROPERTY_UIS -DSTDIO_FILEIO -DUNDO_REDO -DGTK_GUI -DDESIGNER
 
+# This variable is only used in Windoze
+QCADesigner_LIBS =	-lgtk-win32-2.0 \
+			-latk-1.0 \
+			-lpango-1.0 \
+			-lglib-2.0 \
+			-lgthread-2.0 \
+			-lgdk-win32-2.0 \
+			-lgobject-2.0 \
+			-lintl \
+			-lgdk_pixbuf-2.0
+
 QCADesigner_CFLAGS = \
   $(QCADesigner_DEFINES) \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
@@ -120,6 +131,17 @@ batch_sim_LDADD = \
 
 #################### graph_dialog ###################
 graph_dialog_DEFINES = -DSTDIO_FILEIO -DGTK_GUI
+
+# This variable is only used in Windoze
+graph_dialog_LIBS =	-lgtk-win32-2.0 \
+			-latk-1.0 \
+			-lpango-1.0 \
+			-lglib-2.0 \
+			-lgthread-2.0 \
+			-lgdk-win32-2.0 \
+			-lgobject-2.0 \
+			-lintl \
+			-lgdk_pixbuf-2.0
 
 graph_dialog_CFLAGS = \
   $(graph_dialog_DEFINES) \

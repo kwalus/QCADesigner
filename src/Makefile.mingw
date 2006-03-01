@@ -24,13 +24,18 @@ INCLUDE_PATHS =		-I$(GTK_TOP)/include \
 
 include Makefile.am
 
-all: batch_sim.exe
-
-batch_sim_LIBS =	-lglib-2.0 \
-			-lgobject-2.0 \
-			-lintl
+all: batch_sim.exe QCADesigner.exe graph_dialog.exe
 
 batch_sim.exe: Makefile
+	$(MAKE) batch_sim.exe
+
+QCADesigner.exe: Makefile
+	$(MAKE) QCADesigner.exe
+
+graph_dialog.exe: Makefile
+	$(MAKE) graph_dialog.exe
+
+Makefile: Makefile.in
 	$(MAKE) \
 		'CC=$(CC)' \
 		'CFLAGS=$(CFLAGS)' \
@@ -38,57 +43,25 @@ batch_sim.exe: Makefile
 		'DEFINES=$(DEFINES)' \
 		'LDFLAGS=$(LDFLAGS)' \
 		'LIB_PATHS=$(LIB_PATHS)' \
-		'WINDRES=$(WINDRES)' batch_sim.exe
+		'WINDRES=$(WINDRES)' \
+	-f Makefile.in
 
-Makefile:
-	echo "Collecting files for batch_sim.exe..."; \
-	for file in $(batch_sim_SOURCES); do \
-		if echo $$file | grep -q '\.c$$'; then \
-			BASENAME=`echo $$file | sed -e 's!\(.*\)\..*$$!\1!' -e 's!.*/\(.*$$\)!\1!'`; \
-			O_FILE="batch_sim-$${BASENAME}.o"; \
-			C_FILE=`find . | grep -m 1 "/$$BASENAME\.c$$" | sed 's!^./!!'`; \
-			H_FILE=`find . | grep -m 1 "/$$BASENAME\.h$$" | sed 's!^./!!'`; \
-			if ! test "$$O_FILE" = ""; then \
-				echo "$$O_FILE: $$C_FILE $$H_FILE"; \
-				O_FILES="$${O_FILES} $${O_FILE}"; \
-				RULES="$${RULES} $${O_FILE}"; \
-				if ! test "$$C_FILE" = ""; then \
-					RULES="$${RULES}:$${C_FILE}"; \
-					if ! test "$$H_FILE" = ""; then \
-						RULES="$${RULES}:$${H_FILE}"; \
-					fi; \
-				fi; \
-			fi; \
-		fi; \
-	done; \
-	echo 'Generating Makefile...'; \
-	echo -n '' > Makefile; \
-	echo -n 'batch_sim_OBJECTS =' >> Makefile; \
-	for O_FILE in $$O_FILES; do \
-	  echo ' \' >> Makefile; \
-	  echo -ne "\t$${O_FILE}" >> Makefile; \
-	done; \
-	echo ' \' >> Makefile; \
-	echo -e '\tbatch_sim-icon.o' >> Makefile; \
-	echo '' >> Makefile; \
-	echo -e 'Executable ...'; \
-	echo 'batch_sim.exe: $$(batch_sim_OBJECTS)' >> Makefile; \
-	echo -e '\t$$(CC) $$(LDFLAGS) $$(batch_sim_OBJECTS) $$(LIB_PATHS) $(batch_sim_LIBS) -o batch_sim.exe' >> Makefile; \
-	echo '' >> Makefile; \
-	echo -e 'Object files ...'; \
-	for SOURCE_FILE in $$RULES; do \
-		O_FILE=`echo $$SOURCE_FILE | awk -F ':' '{print $$1;}'`; \
-		C_FILE=`echo $$SOURCE_FILE | awk -F ':' '{print $$2;}'`; \
-		H_FILE=`echo $$SOURCE_FILE | awk -F ':' '{print $$3;}'`; \
-		echo -e "$${O_FILE} ..."; \
-		echo "$${O_FILE}: $${C_FILE} $${H_FILE}" >> Makefile; \
-		echo -e '\t$$(CC) $$(CFLAGS) $$(DEFINES) $(batch_sim_DEFINES) $$(INCLUDE_PATHS) \' >> Makefile; \
-		echo -e '\t\t-c '"$${C_FILE}"' \' >> Makefile; \
-		echo -e '\t\t-o '"$${O_FILE}" >> Makefile; \
-		echo '' >> Makefile; \
-	done; \
-	echo "batch_sim-icon.o: batch_sim-icon.rc" >> Makefile; \
-	echo -e '\t$$(WINDRES) -i batch_sim-icon.rc -o batch_sim-icon.o' >> Makefile;
+Makefile.in: Makefile.snippet
+	echo 'include Makefile.am'                                       > Makefile.in
+	echo ''                                                         >> Makefile.in
+	echo 'all:'                                                     >> Makefile.in
+	echo -e '\techo "include Makefile.am"                       > Makefile' >> Makefile.in
+	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
+	echo -e '\techo '"'"'CC = $(CC)'"'"'                       >> Makefile' >> Makefile.in
+	echo -e '\techo '"'"'CFLAGS = $(CFLAGS)'"'"'               >> Makefile' >> Makefile.in
+	echo -e '\techo '"'"'INCLUDE_PATHS = $(INCLUDE_PATHS)'"'"' >> Makefile' >> Makefile.in
+	echo -e '\techo '"'"'DEFINES = $(DEFINES)'"'"'             >> Makefile' >> Makefile.in
+	echo -e '\techo '"'"'LDFLAGS = $(LDFLAGS)'"'"'             >> Makefile' >> Makefile.in
+	echo -e '\techo '"'"'LIB_PATHS = $(LIB_PATHS)'"'"'         >> Makefile' >> Makefile.in
+	echo -e '\techo '"'"'WINDRES = $(WINDRES)'"'"'             >> Makefile' >> Makefile.in
+	for target in $(TARGETS); do \
+		cat Makefile.snippet | sed "s/@TARGET@/$${target}/g"    >> Makefile.in; \
+	done
 
 install: all
 	for target in $(TARGETS); do \

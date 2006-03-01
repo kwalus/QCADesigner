@@ -8,12 +8,10 @@ bin_PROGRAMS = QCADesigner batch_sim graph_dialog
 include Makefile.inc
 
 #################### QCADesigner ####################
+QCADesigner_DEFINES = -DPROPERTY_UIS -DSTDIO_FILEIO -DUNDO_REDO -DGTK_GUI -DDESIGNER
+
 QCADesigner_CFLAGS = \
-	-DPROPERTY_UIS \
-	-DSTDIO_FILEIO \
-	-DUNDO_REDO \
-	-DGTK_GUI \
-	-DDESIGNER \
+  $(QCADesigner_DEFINES) \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	@GTK_CFLAGS@ \
@@ -55,19 +53,21 @@ QCADesigner_SOURCES = \
 	objects/QCADCellRendererVT.c            objects/QCADCellRendererVT.h \
 	objects/QCADCellRendererLayerList.c     objects/QCADCellRendererLayerList.h \
 	objects/QCADTreeViewContainer.c         objects/QCADTreeViewContainer.h \
+\
 	objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
 	print_properties_dialog.c               print_properties_dialog.h \
 	print_properties_dialog_interface.c     print_properties_dialog_interface.h \
 	print_graph_properties_dialog.c         print_graph_properties_dialog.h \
 	                                        print_properties_dialog_callbacks.h \
 	print.c                                 print.h \
-	print_util.c                            print_util.h \
 	print_graph.c \
+	print_util.c                            print_util.h \
+	print_preview.c                         print_preview.h \
+\
 	                                        qcadstock.h \
 	selection_renderer.c                    selection_renderer.h \
 	vector_table.c                          vector_table.h \
 	recent_files.c                          recent_files.h \
-	print_preview.c                         print_preview.h \
 \
 	about.c                                 about.h \
 	file_selection_window.c                 file_selection_window.h \
@@ -87,8 +87,10 @@ QCADesigner_LDADD = \
 	@GTHREAD_LIBS@ 
 
 #################### batch_sim ######################
+batch_sim_DEFINES = -DSTDIO_FILEIO
+
 batch_sim_CFLAGS = \
-	-DSTDIO_FILEIO \
+	$(batch_sim_DEFINES) \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	@GLIB_CFLAGS@ \
@@ -100,8 +102,8 @@ batch_sim_SOURCES = \
   $(SIMULATION_FILES) \
 	$(STDIO_FILEIO_FILES) \
 \
-	simulation_data.c                     simulation_data.h \
-	graph_dialog_widget_data.c            graph_dialog_widget_data.h \
+	simulation_data.c                       simulation_data.h \
+	graph_dialog_widget_data.c              graph_dialog_widget_data.h \
 \
 	main_batch_sim.c
 
@@ -111,34 +113,36 @@ batch_sim_LDADD = \
 	@GOBJECT_LIBS@
 
 #################### graph_dialog ###################
+graph_dialog_DEFINES = -DSTDIO_FILEIO -DGTK_GUI
+
 graph_dialog_CFLAGS = \
-	-DSTDIO_FILEIO \
-	-DGTK_GUI \
+  $(graph_dialog_DEFINES) \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	@GTK_CFLAGS@ \
 	@GTHREAD_CFLAGS@
 
 graph_dialog_SOURCES = \
-	gtk_preamble.c                             gtk_preamble.h \
-	support.c                                  support.h \
+	gtk_preamble.c                          gtk_preamble.h \
+	support.c                               support.h \
 \
   $(CORE_FILES) \
   $(OBJECT_FILES) \
   $(GRAPH_DIALOG_FILES) \
   $(STDIO_FILEIO_FILES) \
 \
-	simulation_data.c                          simulation_data.h \
-	graph_dialog_widget_data.c                 graph_dialog_widget_data.h \
+	simulation_data.c                       simulation_data.h \
+	graph_dialog_widget_data.c              graph_dialog_widget_data.h \
 \
+	objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
+	print_graph_properties_dialog.c         print_graph_properties_dialog.h \
+	                                        print_properties_dialog_callbacks.h \
 	print_graph.c \
-	print_graph_properties_dialog.c            print_graph_properties_dialog.h \
-	print_util.c                               print_util.h \
-	print_preview.c                            print_preview.h \
-	objects/QCADPrintDialog.c                  objects/QCADPrintDialog.h \
+	print_util.c                            print_util.h \
+	print_preview.c                         print_preview.h \
 \
-	file_selection_window.c                    file_selection_window.h \
-	bus_layout_dialog.c                        bus_layout_dialog.h \
+	file_selection_window.c                 file_selection_window.h \
+	bus_layout_dialog.c                     bus_layout_dialog.h \
 \
 	main_graph_dialog.c
 

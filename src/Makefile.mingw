@@ -35,7 +35,7 @@ QCADesigner.exe: Makefile
 graph_dialog.exe: Makefile
 	$(MAKE) graph_dialog.exe
 
-Makefile: Makefile.in
+Makefile: Makefile.in Makefile.am
 	$(MAKE) \
 		'CC=$(CC)' \
 		'CFLAGS=$(CFLAGS)' \

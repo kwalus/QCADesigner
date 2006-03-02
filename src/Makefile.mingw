@@ -8,8 +8,6 @@ WINDRES = windres
 CFLAGS += -O2 -Wall -mno-cygwin -mms-bitfields
 LDFLAGS = -mwindows
 
-TARGETS = batch_sim graph_dialog QCADesigner
-
 DEFINES = -DVERSION=\"$(VERSION)\" -DPACKAGE=\"$(PACKAGE)\" -DENABLE_NLS
 
 LIB_PATHS =		-L$(GTK_TOP)/lib
@@ -24,16 +22,18 @@ INCLUDE_PATHS =		-I$(GTK_TOP)/include \
 
 include Makefile.am
 
-all: batch_sim.exe QCADesigner.exe graph_dialog.exe
+EXE_TARGETS = $(bin_PROGRAMS:%=%.exe)
 
-batch_sim.exe: Makefile
-	$(MAKE) batch_sim.exe
+all: $(EXE_TARGETS)
 
-QCADesigner.exe: Makefile
-	$(MAKE) QCADesigner.exe
+%.exe: Makefile
+	make $@
 
-graph_dialog.exe: Makefile
-	$(MAKE) graph_dialog.exe
+# QCADesigner.exe: Makefile
+# 	$(MAKE) QCADesigner.exe
+# 
+# graph_dialog.exe: Makefile
+# 	$(MAKE) graph_dialog.exe
 
 Makefile: Makefile.in Makefile.am
 	$(MAKE) \
@@ -52,6 +52,7 @@ Makefile.in: Makefile.snippet
 	echo 'all:'                                                     >> Makefile.in
 	echo -e '\techo "include Makefile.am"                       > Makefile' >> Makefile.in
 	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
+	echo -e '\techo '"'"'QCAD_TOP = $(QCAD_TOP)'"'"'           >> Makefile' >> Makefile.in
 	echo -e '\techo '"'"'CC = $(CC)'"'"'                       >> Makefile' >> Makefile.in
 	echo -e '\techo '"'"'CFLAGS = $(CFLAGS)'"'"'               >> Makefile' >> Makefile.in
 	echo -e '\techo '"'"'INCLUDE_PATHS = $(INCLUDE_PATHS)'"'"' >> Makefile' >> Makefile.in
@@ -60,18 +61,20 @@ Makefile.in: Makefile.snippet
 	echo -e '\techo '"'"'LIB_PATHS = $(LIB_PATHS)'"'"'         >> Makefile' >> Makefile.in
 	echo -e '\techo '"'"'WINDRES = $(WINDRES)'"'"'             >> Makefile' >> Makefile.in
 	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
-	echo -e '\techo -n "all:"                                  >> Makefile' >> Makefile.in
-	for target in $(TARGETS); do \
+	echo -e '\techo -n "all: regen"                            >> Makefile' >> Makefile.in
+	for target in $(bin_PROGRAMS); do \
 		echo -e '\techo -n " '"$${target}.exe"'"           >> Makefile' >> Makefile.in; \
 	done
 	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
+	echo -e '\techo "regen: Makefile.am"                       >> Makefile' >> Makefile.in
+	echo -e '\techo -e "\\tmake -C \\$$$$(QCAD_TOP) src"       >> Makefile' >> Makefile.in
 	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
-	for target in $(TARGETS); do \
+	for target in $(bin_PROGRAMS); do \
 		cat Makefile.snippet | sed "s/@TARGET@/$${target}/g"    >> Makefile.in; \
 	done
 
 install: all
-	for target in $(TARGETS); do \
+	for target in $(bin_PROGRAMS); do \
 		echo cp $${target}.exe $(QCAD_INSTALL_DIR); \
 		cp $${target}.exe $(QCAD_INSTALL_DIR); \
 	done

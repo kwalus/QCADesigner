@@ -13,17 +13,26 @@ ISCC = ISCC.exe
 PACKAGE = QCADesigner
 VERSION = 2.1.0
 
-all:
+.PHONY: src po doc
+
+all: src po doc
+
+src:
 	$(MAKE) -C $(QCAD_SRC) \
 		VERSION=$(VERSION) \
 		PACKAGE=$(PACKAGE) \
 		GTK_PREFIX=$(GTK_PREFIX) \
 	-f Makefile.mingw
+
+po:
 	$(MAKE) -C $(QCAD_PO) \
 		GTK_PREFIX=$(GTK_PREFIX) \
 	-f Makefile.mingw
+
+doc:
 	$(MAKE) -C $(QCAD_DOC) \
 	-f Makefile.mingw
+
 
 install: all
 	mkdir -p $(QCAD_INSTALL_DIR)

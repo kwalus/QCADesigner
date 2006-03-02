@@ -13,7 +13,7 @@ ISCC = ISCC.exe
 PACKAGE = QCADesigner
 VERSION = 2.1.0
 
-.PHONY: src po doc
+.PHONY: all src po doc install installers installer installer_gtk clean
 
 all: src po doc
 

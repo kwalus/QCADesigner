@@ -35,6 +35,7 @@
 #include "global_consts.h"
 #include "qcadstock.h"
 #include "bus_layout_dialog.h"
+#include "objects/QCADRadioToolButton.h"
 #include "graph_dialog_data.h"
 #include "graph_dialog_interface.h"
 #include "graph_dialog_widget_data.h"
@@ -47,7 +48,7 @@ static GtkWidget *create_trace_drawing_area (GRAPH_DATA *graph_data, GDestroyNot
 void create_graph_dialog (graph_D *dialog)
   {
   GtkWidget *table = NULL, *toolbar = NULL, *btn = NULL, *tbl_sw = NULL, *tbl_status = NULL,
-    *tbl_vp = NULL, *vscroll = NULL, *sw_tview = NULL, *btnBaseRadioSource = NULL, *statusbar = NULL ;
+    *tbl_vp = NULL, *vscroll = NULL, *sw_tview = NULL, *statusbar = NULL ;
   GtkTreeViewColumn *col = NULL ;
   GtkCellRenderer *cr = NULL ;
 	GtkAccelGroup *accel_group = NULL ;
@@ -74,136 +75,147 @@ void create_graph_dialog (graph_D *dialog)
   gtk_toolbar_set_tooltips (GTK_TOOLBAR (toolbar), TRUE) ;
   gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH) ;
 
-  btn = gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Close"),
-    _("Close Window"),
-    _("Close simulation results window."),
-    gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)btnClose_clicked,
-    NULL) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_CLOSE, 
+//        "label",    _("Close"),
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Close Window"), _("Close simulation results window.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnClose_clicked, NULL) ;
   g_object_set_data (G_OBJECT (btn), "dlgGraphs", dialog->dialog) ;
-	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_w, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
+//	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_w, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
 
-  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
 #ifdef STDIO_FILEIO
-  btn = gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Open"),
-    _("Open Simulation Results..."),
-    _("Open and display another set of simulation results."),
-    gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)btnOpen_clicked,
-    dialog) ;
-	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_o, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_OPEN, 
+//        "label",    _("Open"),
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Open Simulation Results..."), _("Open and display another set of simulation results.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnOpen_clicked, dialog) ;
+//	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_o, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
 
-  btn = gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Save"),
-    _("Save Simulation Results"),
-    _("Save the displayed simulation results."),
-    gtk_image_new_from_stock (GTK_STOCK_SAVE, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)btnSave_clicked,
-    dialog->dialog) ;
-	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_SAVE, 
+//        "label",    _("Open"),
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Save Simulation Results"), _("Save the displayed simulation results.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnSave_clicked, dialog->dialog) ;
+//	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
 
-  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
 
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Print Preview"),
-    _("Preview the print layout"),
-    _("Converts graphs to PostScript and runs the previewer application."),
-    gtk_image_new_from_stock (GTK_STOCK_PRINT_PREVIEW, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)btnPreview_clicked,
-    dialog) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_SAVE, 
+//        "label",    _("Open"),
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Save Simulation Results"), _("Save the displayed simulation results.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnSave_clicked, dialog->dialog) ;
+//	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
+
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_PRINT_PREVIEW, 
+//        "label",    _("Open"),
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Preview the print layout"), _("Converts graphs to PostScript and runs the previewer application.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnPreview_clicked, dialog) ;
 
 #endif /* def STDIO_FILEIO */
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Print"),
-    _("Print Graphs"),
-    _("Converts graphs to PostScript and prints them to a file or a printer."),
-    gtk_image_new_from_stock (GTK_STOCK_PRINT, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)btnPrint_clicked,
-    dialog) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_PRINT, 
+//        "label",    _("Open"),
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Print Graphs"), _("Converts graphs to PostScript and prints them to a file or a printer.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnPrint_clicked, dialog) ;
 
-  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
 
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Reset Zoom"),
-    _("Un-stretch Traces"),
-    _("Reset the stretch on the traces"),
-    gtk_image_new_from_stock (GTK_STOCK_ZOOM_100, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)btnZoom100_clicked,
-    dialog) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_ZOOM_100, 
+        "label",    _("Reset Zoom"),
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Un-stretch Traces"), _("Reset the stretch on the traces")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnZoom100_clicked, dialog) ;
 
-  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
 
-  gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Interpretation..."),
-    _("Digital Interpretation Options"),
-    _("Set parameters for interpreting logical bits from polarizations."),
-    gtk_image_new_from_stock (GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)btnThresh_clicked,
-    dialog) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON,
+        "stock-id", GTK_STOCK_PREFERENCES, 
+        "label",    _("Interpretation..."),
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Digital Interpretation Options"), _("Set parameters for interpreting logical bits from polarizations.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnThresh_clicked, dialog) ;
 
-  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
 
-  g_object_set_data (G_OBJECT (
-    btnBaseRadioSource =gtk_toolbar_append_element (
-      GTK_TOOLBAR (toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      NULL,
-      _("Decimal"),
-      _("Show Values As Decimal"),
-      _("Display honeycomb values in decimal."),
-      gtk_image_new_from_stock (QCAD_STOCK_GRAPH_DEC, GTK_ICON_SIZE_LARGE_TOOLBAR),
-      (GCallback)btnShowBase_clicked,
-      dialog)),
-    "base", (gpointer)10) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_GRAPH_DEC, 
+        "label",    _("Decimal"),
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Show Values As Decimal"), _("Display honeycomb values in decimal.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnShowBase_clicked, dialog) ;
+  g_object_set_data (G_OBJECT (btn), "base", (gpointer)10) ;
 
-  g_object_set_data (G_OBJECT (
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      btnBaseRadioSource,
-      _("Binary"),
-      _("Show Values As Binary"),
-      _("Display honeycomb values in binary."),
-      gtk_image_new_from_stock (QCAD_STOCK_GRAPH_BIN, GTK_ICON_SIZE_LARGE_TOOLBAR),
-      (GCallback)btnShowBase_clicked,
-      dialog)),
-    "base", (gpointer)2) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_GRAPH_BIN, 
+        "label",    _("Binary"),
+        "group",    btn,
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Show Values As Binary"), _("Display honeycomb values in binary.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnShowBase_clicked, dialog) ;
+  g_object_set_data (G_OBJECT (btn), "base", (gpointer)2) ;
 
-  g_object_set_data (G_OBJECT (
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      btnBaseRadioSource,
-      _("Hex"),
-      _("Show Values As Hexadecimal"),
-      _("Display honeycomb values in hexadecimal."),
-      gtk_image_new_from_stock (QCAD_STOCK_GRAPH_HEX, GTK_ICON_SIZE_LARGE_TOOLBAR),
-      (GCallback)btnShowBase_clicked,
-      dialog)),
-    "base", (gpointer)16) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    GTK_TOOL_ITEM (btn = 
+      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
+        "stock-id", QCAD_STOCK_GRAPH_HEX, 
+        "label",    _("Hex"),
+        "group",    btn,
+        "visible",  TRUE,
+        NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
+    _("Show Values As Hexadecimal"), _("Display honeycomb values in hexadecimal.")) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnShowBase_clicked, dialog) ;
+  g_object_set_data (G_OBJECT (btn), "base", (gpointer)16) ;
 
   dialog->hpaned = gtk_hpaned_new () ;
   gtk_widget_show (dialog->hpaned) ;

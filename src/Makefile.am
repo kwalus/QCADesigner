@@ -173,6 +173,7 @@ graph_dialog_SOURCES = \
 	bus_layout_dialog.c                     bus_layout_dialog.h \
 \
 	objects/QCADRadioButton.c               objects/QCADRadioButton.h \
+	objects/QCADRadioToolButton.c           objects/QCADRadioToolButton.h \
 	main_graph_dialog.c
 
 graph_dialog_LDADD = \

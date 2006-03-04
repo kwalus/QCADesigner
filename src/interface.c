@@ -157,8 +157,7 @@ void create_main_window (main_W *main_window){
     _("Layer Properties"), _("Modify the settings for the current layer.")) ;
   g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)layer_properties_button_clicked, NULL) ;
 
-  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, NULL)), -1) ;
-  gtk_widget_show (toolbar_item) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
     _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
 
@@ -182,8 +181,7 @@ void create_main_window (main_W *main_window){
   g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)reorder_layers_button_clicked, NULL) ;
 
   // This will separate the layers combo from the clocks combo
-  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = GTK_WIDGET (gtk_separator_tool_item_new ())), -1) ;
-  gtk_widget_show (toolbar_item) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
 
   main_window->pui_show_potential = qcad_object_create_property_ui_for_default_object (QCAD_TYPE_CLOCKING_LAYER, "show-potential", 
     "render-as",  GTK_TYPE_TOOL_ITEM,
@@ -220,7 +218,7 @@ void create_main_window (main_W *main_window){
   x_offset += Nix ;
 
   // This will separate the layer-specific ops from the bus layout
-  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = GTK_WIDGET (gtk_separator_tool_item_new ())), -1) ;
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = GTK_WIDGET (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL))), -1) ;
   gtk_widget_show (toolbar_item) ;
 
   gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),

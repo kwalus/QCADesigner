@@ -45,6 +45,7 @@
 #include "../fileio_helpers.h"
 #include "../exp_array.h"
 #include "../intl.h"
+#include "QCADRectangleElectrode.h"
 
 typedef struct
   {
@@ -417,6 +418,9 @@ static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   char pszDouble[7][G_ASCII_DTOSTR_BUF_SIZE] = {""} ;
   GdkColor clr ;
 
+  if (QCAD_IS_RECTANGLE_ELECTRODE (obj))
+    printf ("(%lf,%lf)[%lfx%lf]\n", obj->bounding_box.xWorld, obj->bounding_box.yWorld, obj->bounding_box.cxWorld, obj->bounding_box.cyWorld) ;
+
   if (bColour)
     return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s QCADDesignObject",
       g_ascii_dtostr (pszDouble[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
@@ -460,8 +464,8 @@ static const char *PostScript_preamble ()
     "  newpath\n"
     "  x y moveto\n"
     "  x cx add y lineto\n"
-    "  x cx add y cy add lineto\n"
-    "  x y cy add lineto\n"
+    "  x cx add y cy sub lineto\n"
+    "  x y cy sub lineto\n"
     "  r g b setrgbcolor\n"
     "  closepath stroke\n"
     "\n"

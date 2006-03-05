@@ -48,10 +48,8 @@ struct _QCADClockingLayer
   QCADLayer parent_instance ;
   gboolean bDrawPotential ;
   double z_to_draw ; // nm
-  double z_to_ground ; // nm
   int tile_size ; // pixels
   double time_coord ; // s
-  double relative_permittivity ;
 
   double dExtremePotential ;
   } ;

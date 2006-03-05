@@ -46,8 +46,6 @@ enum
   QCAD_CLOCKING_LAYER_PROPERTY_Z_SHOWING,
   QCAD_CLOCKING_LAYER_PROPERTY_TILE_SIZE,
   QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD,
-  QCAD_CLOCKING_LAYER_PROPERTY_Z_TO_GROUND,
-  QCAD_CLOCKING_LAYER_PROPERTY_EPSILON_R,
   QCAD_CLOCKING_LAYER_PROPERTY_LAST
   } ;
 
@@ -128,7 +126,6 @@ static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpoint
     {"z-showing",   "units", {0, }},
     {"tile-size",   "units", {0, }},
     {"time-coord",  "units", {0, }},
-    {"z-to-ground", "units", {0, }}
     } ;
 
   // clocking_layer.title = "QCA Clocking Layer"
@@ -139,8 +136,6 @@ static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpoint
   g_value_set_string (g_value_init (&(properties[2].ui_property_value), G_TYPE_STRING), _("pixels")) ;
   // clocking_layer.time-coord.units = "ns"
   g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "ns") ;
-  // clocking_layer.z-to-ground.units = "nm"
-  g_value_set_string (g_value_init (&(properties[4].ui_property_value), G_TYPE_STRING), "nm") ;
 
   qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
   qcad_object_class_install_ui_behaviour (QCAD_OBJECT_CLASS (klass), behaviour, G_N_ELEMENTS (behaviour)) ;
@@ -176,14 +171,6 @@ static void qcad_clocking_layer_class_init (QCADDesignObjectClass *klass, gpoint
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD,
     g_param_spec_double ("time-coord", _("Time Coordinate"), _("Time coordinate to draw the potential for"),
       0, G_MAXDOUBLE, 0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
-
-  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_Z_TO_GROUND,
-    g_param_spec_double ("z-to-ground", _("Distance to ground"), _("Distance from clocking layer to ground electrode"),
-      1, G_MAXDOUBLE, 1, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
-
-  g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CLOCKING_LAYER_PROPERTY_EPSILON_R,
-    g_param_spec_double ("relative-permittivity", _("Relative permittivity"), _("Relative permittivity of the environment between the clocking layer and the ground"),
-      1, G_MAXDOUBLE, 1, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
   }
 
 static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointer data)
@@ -194,8 +181,6 @@ static void qcad_clocking_layer_instance_init (QCADDesignObject *object, gpointe
   QCAD_CLOCKING_LAYER (layer)->z_to_draw             =  1 ;
   QCAD_CLOCKING_LAYER (layer)->tile_size             = 16 ;
   QCAD_CLOCKING_LAYER (layer)->time_coord            =  0.0 ;
-  QCAD_CLOCKING_LAYER (layer)->z_to_ground           = 10.0 ;
-  QCAD_CLOCKING_LAYER (layer)->relative_permittivity = 1.0 ;
   QCAD_CLOCKING_LAYER (layer)->dExtremePotential     =  0 ;
   }
 
@@ -245,10 +230,7 @@ static QCADObject *class_get_default_object ()
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
   {
-  GList *llItr = NULL ;
   QCADClockingLayer *clocking_layer = QCAD_CLOCKING_LAYER (object) ;
-  QCADLayer *layer = QCAD_LAYER (object) ;
-  QCADObject *default_object = NULL ;
 
   switch (property_id)
     {
@@ -270,41 +252,6 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
     case QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD:
       clocking_layer->time_coord = g_value_get_double (value) ;
       g_object_notify (object, "time-coord") ;
-      break ;
-
-    case QCAD_CLOCKING_LAYER_PROPERTY_Z_TO_GROUND:
-      clocking_layer->z_to_ground = g_value_get_double (value) ;
-      if (clocking_layer->z_to_ground < clocking_layer->z_to_draw)
-        {
-        clocking_layer->z_to_draw = clocking_layer->z_to_ground ;
-        g_object_notify (object, "z-showing") ;
-        }
-      // Update the z_to_ground for all objects in this layer
-      for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
-        if (NULL != llItr->data)
-          if (QCAD_IS_ELECTRODE (llItr->data))
-            g_object_set (G_OBJECT (llItr->data), "z-to-ground", clocking_layer->z_to_ground, NULL) ;
-      // Set the z_to_ground for all the default objects, copies of which can end up in this layer
-      for (llItr = g_hash_table_lookup (qcad_layer_object_containment_rules (), (gpointer)LAYER_TYPE_CLOCKING) ; llItr != NULL ; llItr = llItr->next)
-        if (0 != ((GType)(llItr->data)))
-          if (NULL != (default_object = qcad_object_get_default ((GType)(llItr->data))))
-            g_object_set (G_OBJECT (default_object), "z-to-ground", clocking_layer->z_to_ground, NULL) ;
-      g_object_notify (object, "z-to-ground") ;
-      break ;
-
-    case QCAD_CLOCKING_LAYER_PROPERTY_EPSILON_R:
-      clocking_layer->relative_permittivity = g_value_get_double (value) ;
-      // Update the relative_permittivity for all objects in this layer
-      for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
-        if (NULL != llItr->data)
-          if (QCAD_IS_ELECTRODE (llItr->data))
-            g_object_set (G_OBJECT (llItr->data), "relative-permittivity", clocking_layer->relative_permittivity, NULL) ;
-      // Set the relative_permittivity for all the default objects, copies of which can end up in this layer
-      for (llItr = g_hash_table_lookup (qcad_layer_object_containment_rules (), (gpointer)LAYER_TYPE_CLOCKING) ; llItr != NULL ; llItr = llItr->next)
-        if (0 != ((GType)(llItr->data)))
-          if (NULL != (default_object = qcad_object_get_default ((GType)(llItr->data))))
-            g_object_set (G_OBJECT (default_object), "relative-permittivity", clocking_layer->relative_permittivity, NULL) ;
-      g_object_notify (object, "relative-permittivity") ;
       break ;
     }
   }
@@ -330,14 +277,6 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
     case QCAD_CLOCKING_LAYER_PROPERTY_TIME_COORD:
        g_value_set_double (value, layer->time_coord) ;
       break ;
-
-    case QCAD_CLOCKING_LAYER_PROPERTY_Z_TO_GROUND:
-       g_value_set_double (value, layer->z_to_ground) ;
-      break ;
-
-    case QCAD_CLOCKING_LAYER_PROPERTY_EPSILON_R:
-       g_value_set_double (value, layer->relative_permittivity) ;
-      break ;
     }
   }
 
@@ -356,8 +295,6 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
   fprintf (fp, "z_to_draw=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, clocking_layer->z_to_draw)) ;
   fprintf (fp, "tile_size=%d\n", clocking_layer->tile_size) ;
   fprintf (fp, "time_coord=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, clocking_layer->time_coord)) ;
-  fprintf (fp, "relative_permittivity=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, clocking_layer->relative_permittivity)) ;
-  fprintf (fp, "z_to_ground=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, clocking_layer->z_to_ground)) ;
   fprintf (fp, "[#TYPE:" QCAD_TYPE_STRING_CLOCKING_LAYER "]\n") ;
   }
 
@@ -404,12 +341,6 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
       else
       if (!strcmp (pszLine, "time_coord"))
         clocking_layer->time_coord = g_ascii_strtod (pszValue, NULL) ;
-      else
-      if (!strcmp (pszLine, "z_to_ground"))
-        clocking_layer->z_to_ground = g_ascii_strtod (pszValue, NULL) ;
-      else
-      if (!strcmp (pszLine, "relative_permittivity"))
-        clocking_layer->relative_permittivity = g_ascii_strtod (pszValue, NULL) ;
       }
     g_free (pszLine) ;
     g_free (ReadLine (fp, '\0', FALSE)) ;

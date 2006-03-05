@@ -457,23 +457,24 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 						potential[1] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][1];
 						potential[2] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][2];
 						potential[3] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][3];
-						//potential[4] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][4];
-						//potential[5] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][5];
+						potential[4] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][4];
+						potential[5] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][5];
+					
 					}else if(neighbour_polarization < 0){
 						potential[0] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][0];	
 						potential[1] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][1];
 						potential[2] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][2];
 						potential[3] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][3];
-						//potential[4] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][4];
-						//potential[5] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][5];
+						potential[4] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][4];
+						potential[5] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][5];
 					}
 						
-					//potential[0] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][0];	
-					//potential[1] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][1];
-					//potential[2] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][2];
-					//potential[3] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][3];
-					//potential[4] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][4];
-					//potential[5] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][5];
+					potential[0] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][0];	
+					potential[1] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][1];
+					potential[2] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][2];
+					potential[3] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][3];
+					potential[4] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][4];
+					potential[5] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][5];
 				
 				}
 					
@@ -497,9 +498,9 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 					energyNull = potential[0] * chargeNull[0] + potential[1] * chargeNull[1] + potential[2] * chargeNull[2] + potential[3] * chargeNull[3] + potential[4] * chargeNull[4] + potential[5] * chargeNull[5];
 			
 					// add the self energies
-					//energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
-					//energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
-					//energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
+					energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
+					energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
+					energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
 
 				}
 				
@@ -791,25 +792,25 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 					potential[1] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][1];
 					potential[2] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][2];
 					potential[3] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][3];
-					//potential[4] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][4];
-					//potential[5] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][5];
+					potential[4] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][4];
+					potential[5] += neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_plus[q][5];
 					//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
 				}else if(neighbour_polarization < 0){
 					potential[0] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][0];	
 					potential[1] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][1];
 					potential[2] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][2];
 					potential[3] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][3];
-					//potential[4] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][4];
-					//potential[5] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][5];
+					potential[4] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][4];
+					potential[5] += -neighbour_polarization * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_minus[q][5];
 					//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
 				}
 					
-				//potential[0] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][0];	
-				//potential[1] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][1];
-				//potential[2] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][2];
-				//potential[3] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][3];
-				//potential[4] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][4];
-				//potential[5] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][5];
+				potential[0] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][0];	
+				potential[1] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][1];
+				potential[2] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][2];
+				potential[3] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][3];
+				potential[4] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][4];
+				potential[5] += (1 - fabs(neighbour_polarization)) * ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->potentials_null[q][5];
 				//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);
 			}
 			
@@ -857,9 +858,9 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 				//if(sample_number%1000==0)printf("El+ %e\tEl- %e\tEln %e\tDEl %e\tInt+ %e\tInt- %e\tIntn %e\tSel+ %e\tSel- %e\tSeln %e\n", energyPlus, energyMinus, energyNull, energyMinus-energyNull, cellenergyPlus, cellenergyMinus, cellenergyNull, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus,((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null);
 				
 				// add the self energies
-				//energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
-				//energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
-				//energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
+				energyPlus  += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_plus;		
+				energyMinus += ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_minus;	
+				energyNull	+= ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->self_energy_null;
 				
 			}
 				

@@ -82,6 +82,8 @@ static void copy (QCADObject *src, QCADObject *dst) ;
 static void move (QCADDesignObject *obj, double dxDelta, double dyDelta) ;
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 static double get_area (QCADElectrode *electrode) ;
+static double get_long_side (QCADElectrode *electrode) ;
+static double get_short_side (QCADElectrode *electrode) ;
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z) ;
@@ -152,6 +154,8 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
 
   QCAD_ELECTRODE_CLASS (klass)->get_potential     = get_potential ;
   QCAD_ELECTRODE_CLASS (klass)->get_area          = get_area ;
+	QCAD_ELECTRODE_CLASS (klass)->get_long_side     = get_long_side ;
+	QCAD_ELECTRODE_CLASS (klass)->get_short_side    = get_short_side ;
   QCAD_ELECTRODE_CLASS (klass)->precompute        = precompute ;
   QCAD_ELECTRODE_CLASS (klass)->extreme_potential = extreme_potential ;
 
@@ -569,6 +573,27 @@ static double get_area (QCADElectrode *electrode)
 
   return rc_electrode->cxWorld * rc_electrode->cyWorld * 1e-18 ;
   }
+	
+static double get_long_side (QCADElectrode *electrode)
+	{
+	QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
+	double long_side = rc_electrode->cyWorld;
+	
+	if (rc_electrode->cxWorld > rc_electrode->cyWorld)
+		long_side = rc_electrode->cxWorld;
+	return long_side * 1e-9;
+	}
+
+static double get_short_side (QCADElectrode *electrode)
+	{
+	QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
+	double short_side = rc_electrode->cyWorld;
+	
+	if (rc_electrode->cxWorld < rc_electrode->cyWorld)
+		short_side = rc_electrode->cxWorld;
+	return short_side * 1e-9;
+	}	
+	
 ///////////////////////////////////////////////////////////////////////////////
 
 static void precompute (QCADElectrode *electrode)

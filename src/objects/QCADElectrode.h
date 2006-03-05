@@ -56,6 +56,7 @@ struct _QCADElectrodeOptions
   double max_clock ; // Volts
   double relative_permittivity ;
   double z_to_ground ; // nm
+	double thickness ; // nm
   } ;
 
 struct _QCADElectrodePrecompute
@@ -86,6 +87,8 @@ struct _QCADElectrodeClass
   double (*get_potential) (QCADElectrode *electrode, double x, double y, double z, double t) ;
   double (*get_voltage) (QCADElectrode *electrode, double t) ;
   double (*get_area) (QCADElectrode *electrode) ;
+	double (*get_long_side) (QCADElectrode *electrode) ;
+	double (*get_short_side) (QCADElectrode *electrode) ;
   EXTREME_POTENTIALS (*extreme_potential) (QCADElectrode *electrode, double z) ;
   void (*precompute) (QCADElectrode *electrode) ;
   } ;
@@ -95,6 +98,8 @@ GType qcad_electrode_get_type () ;
 double qcad_electrode_get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
 double qcad_electrode_get_voltage (QCADElectrode *electrode, double t) ;
 double qcad_electrode_get_area (QCADElectrode *electrode) ;
+double qcad_electrode_get_long_side (QCADElectrode *electrode) ;
+double qcad_electrode_get_short_side (QCADElectrode *electrode) ;
 EXTREME_POTENTIALS qcad_electrode_get_extreme_potential (QCADElectrode *electrode, double z) ;
 
 #define QCAD_TYPE_STRING_ELECTRODE "QCADElectrode"

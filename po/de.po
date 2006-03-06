@@ -1032,7 +1032,7 @@ msgid "Show/Hide Property UI"
 msgstr ""
 
 msgid "Simulation Results"
-msgstr "Simulatioinsresultate"
+msgstr "Simulationsresultate"
 
 msgid "Simulation Results..."
 msgstr "Simulatioinsresultate"
@@ -1053,7 +1053,7 @@ msgid "Source Layer"
 msgstr "Ursprungebene"
 
 msgid "Starting initialization\n"
-msgstr ""
+msgstr "Initialisierung beginnt\n"
 
 msgid "Stock (Checked)"
 msgstr ""
@@ -1128,8 +1128,8 @@ msgstr ""
 msgid "Top Margin:"
 msgstr "Oberer Rand:"
 
-msgid "Total Simulation Time:"
-msgstr "Gesamtsimulationzeit:"
+msgid "Total simulation time: %g s\n"
+msgstr "Gesamtsimulationdauer: %g s\n"
 
 msgid "Trace"
 msgstr "Graph"
@@ -1327,7 +1327,7 @@ msgid "Starting Simulation\n"
 msgstr "Simulation beginnt\n"
 
 msgid "Total initialization time: %g s\n"
-msgstr "Gesamtinitialisationsdauer: %g s\n"
+msgstr "Gesamtinitialisierungdauer: %g s\n"
 
 #~ msgid ""
 #~ "<big><span foreground=\"red\"><b>Note:</b></span> Right-click the vector "

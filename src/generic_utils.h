@@ -46,6 +46,7 @@ char *strdup_convert_to_base (long long value, int base) ;
 gboolean LineSegmentCanBeSkipped (double dx0, double dy0, double dx1, double dy1, double dx2, double dy2, double dMaxSlopeDiff) ;
 #ifdef GTK_GUI
 void RunCmdLineAsync (char *pszCmdLine, char *pszTmpFName) ;
+void wait_for_async_cmdlines () ;
 #endif /* def GTK_GUI */
 char *get_enum_string_from_value (GType enum_type, int value) ;
 int get_enum_value_from_string (GType enum_type, char *psz) ;

@@ -41,6 +41,7 @@
 #include "fileio.h"
 #include "gtk_preamble.h"
 #include "fileio_helpers.h"
+#include "generic_utils.h"
 
 #ifdef QCAD_NO_CONSOLE
 int APIENTRY WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *pszCmdLine, int iCmdShow)
@@ -81,6 +82,10 @@ int main (int argc, char **argv)
   g_free (psz) ;
 
   show_graph_dialog (NULL, sim_output, TRUE, TRUE) ;
+
+#ifdef GTK_GUI
+  wait_for_async_cmdlines () ;
+#endif /* def GTK_GUI */
 
   return 0 ;
   }

@@ -41,6 +41,7 @@
 #ifdef GTK_GUI
   #include "callback_helpers.h"
 #endif /* def GTK_GUI */
+#include "intl.h"
 
 // Calculates the magnitude of the 3D energy vector
 #define magnitude_energy_vector(P,G) (hypot(2*(G), (P)) * over_hbar)
@@ -720,7 +721,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
   if ((end_time = time (NULL)) < 0)
     fprintf (stderr, "Could not get end time\n");
 	
-  command_history_message ("Total simulation time: %g s\n", (long double)(end_time - start_time));
+  command_history_message (_("Total simulation time: %g s\n"), (long double)(end_time - start_time));
   set_progress_bar_visible (FALSE) ;
   return sim_data;
   }//run_ts_coherence

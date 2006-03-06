@@ -41,17 +41,179 @@
 #include "graph_dialog_widget_data.h"
 #include "graph_dialog_callbacks.h"
 
+static char *graph_dialog_ui_xml =
+  "<ui>"
+    "<menubar>"
+      "<menu name=\"FileMenu\" action=\"FileMenuAction\">"
+#ifdef STDIO_FILEIO
+        "<menuitem name=\"FileOpen\" action=\"FileOpenAction\"/>"
+        "<separator/>"
+        "<menuitem name=\"FileSave\" action=\"FileSaveAction\"/>"
+        "<separator/>"
+        "<menuitem name=\"FilePrintPreview\" action=\"FilePrintPreviewAction\"/>"
+#else
+        "<separator/>"
+#endif /* def STDIO_FILEIO */
+        "<menuitem name=\"FilePrint\" action=\"FilePrintAction\"/>"
+        "<separator/>"
+        "<menuitem name=\"FileClose\" action=\"FileCloseAction\"/>"
+      "</menu>"
+      "<menu name=\"ViewMenu\" action=\"ViewMenuAction\">"
+        "<menuitem name=\"ResetZoom\" action=\"ResetZoomAction\"/>"
+        "<separator/>"
+        "<menuitem name=\"ViewAsDecimal\" action=\"ViewAsDecimalAction\"/>"
+        "<menuitem name=\"ViewAsBinary\" action=\"ViewAsBinaryAction\"/>"
+        "<menuitem name=\"ViewAsHex\" action=\"ViewAsHexAction\"/>"
+      "</menu>"
+      "<menu name=\"ToolsMenu\" action=\"ToolsMenuAction\">"
+        "<menuitem name=\"WaveformInterpretation\" action=\"WaveformInterpretationAction\"/>"
+      "</menu>"
+    "</menubar>"
+    "<toolbar name=\"MainToolbar\" action=\"MainToolbarAction\">"
+      "<placeholder name=\"ToolItems\">"
+        "<separator/>"
+        "<toolitem name=\"FileClose\" action=\"FileCloseAction\"/>"
+#ifdef STDIO_FILEIO
+        "<separator/>"
+        "<toolitem name=\"FileOpen\" action=\"FileOpenAction\"/>"
+        "<toolitem name=\"FileSave\" action=\"FileSaveAction\"/>"
+        "<separator/>"
+        "<toolitem name=\"FilePrintPreview\" action=\"FilePrintPreviewAction\"/>"
+#else
+        "<separator/>"
+#endif /* def STDIO_FILEIO */
+        "<toolitem name=\"FilePrint\" action=\"FilePrintAction\"/>"
+        "<separator/>"
+        "<toolitem name=\"ResetZoom\" action=\"ResetZoomAction\"/>"
+        "<separator/>"
+        "<toolitem name=\"WaveformInterpretation\" action=\"WaveformInterpretationAction\"/>"
+        "<separator/>"
+        "<toolitem name=\"ViewAsDecimal\" action=\"ViewAsDecimalAction\"/>"
+        "<toolitem name=\"ViewAsBinary\" action=\"ViewAsBinaryAction\"/>"
+        "<toolitem name=\"ViewAsHex\" action=\"ViewAsHexAction\"/>"
+        "<separator/>"
+      "</placeholder>"
+    "</toolbar>"
+  "</ui>" ;
+
+static GtkActionEntry action_entries[] =
+  {
+    {
+    "FileMenuAction",         
+    NULL,                    
+    "_File"
+    },
+    {
+    "FileOpenAction",         
+    GTK_STOCK_OPEN,          
+    NULL,             
+    NULL, 
+    NULL,                    
+    (GCallback)btnOpen_clicked
+    },
+    {
+    "FileSaveAction",         
+    GTK_STOCK_SAVE,          
+    NULL,             
+    NULL, 
+    NULL,                    
+    (GCallback)btnSave_clicked
+    },
+    {
+    "FilePrintPreviewAction", 
+    GTK_STOCK_PRINT_PREVIEW, 
+    NULL,             
+    NULL, 
+    NULL,                    
+    (GCallback)btnPreview_clicked
+    },
+    {
+    "FilePrintAction",        
+    GTK_STOCK_PRINT,         
+    NULL,             
+    NULL, 
+    NULL,                    
+    (GCallback)btnPrint_clicked
+    },
+    {
+    "FileCloseAction",        
+    GTK_STOCK_CLOSE,         
+    NULL,             
+    NULL, 
+    NULL,                    
+    (GCallback)btnClose_clicked
+    },
+    {"ViewMenuAction",         
+    NULL,                    
+    "_View"
+    },
+    {
+    "ResetZoomAction",       
+    GTK_STOCK_ZOOM_100,       
+    N_("Reset Zoom"), 
+    NULL, 
+    N_("Un-stretch Traces"), 
+    (GCallback)btnZoom100_clicked
+    },
+    {
+    "ToolsMenuAction", 
+    NULL, "_Tools"
+    },
+    {
+    "WaveformInterpretationAction", 
+    GTK_STOCK_PREFERENCES, 
+    N_("Interpretation..."), 
+    NULL, 
+    N_("Digital Interpretation Options"), 
+    (GCallback)btnThresh_clicked
+    }
+  } ;
+static int n_action_entries = G_N_ELEMENTS (action_entries) ;
+
+static GtkRadioActionEntry view_as_action_entries[] =
+  {
+    {
+    "ViewAsDecimalAction",
+    QCAD_STOCK_GRAPH_DEC,
+    N_("Decimal"),
+    NULL,
+    N_("Show Values As Decimal"),
+    10
+    },
+    {
+    "ViewAsBinaryAction",
+    QCAD_STOCK_GRAPH_BIN,
+    N_("Binary"),
+    NULL,
+    N_("Show Values As Binary"),
+    2
+    },
+    {
+    "ViewAsHexAction",
+    QCAD_STOCK_GRAPH_HEX,
+    N_("Hex"),
+    NULL,
+    N_("Show Values As Hexadecimal"),
+    16
+    },
+  } ;
+static int n_view_as_action_entries = G_N_ELEMENTS (view_as_action_entries) ;
+
 static gboolean create_waveform_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTreeIter *itr) ;
 static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTreeIter *itr, int base) ;
 static GtkWidget *create_trace_drawing_area (GRAPH_DATA *graph_data, GDestroyNotify graph_data_free, GCallback graph_widget_expose, gpointer data) ;
 
 void create_graph_dialog (graph_D *dialog)
   {
-  GtkWidget *table = NULL, *toolbar = NULL, *btn = NULL, *tbl_sw = NULL, *tbl_status = NULL,
+  GtkWidget *table = NULL, *tbl_sw = NULL, *tbl_status = NULL,
     *tbl_vp = NULL, *vscroll = NULL, *sw_tview = NULL, *statusbar = NULL ;
   GtkTreeViewColumn *col = NULL ;
   GtkCellRenderer *cr = NULL ;
 	GtkAccelGroup *accel_group = NULL ;
+
+  GError *error = NULL ;
+  GtkUIManager *ui_mgr = NULL ;
+  GtkActionGroup *actions = NULL ;
 
 	accel_group = gtk_accel_group_new () ;
 
@@ -62,10 +224,42 @@ void create_graph_dialog (graph_D *dialog)
   gtk_window_set_modal (GTK_WINDOW (dialog->dialog), FALSE);
   gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), TRUE);
 
-  table = gtk_table_new (3, 1, FALSE) ;
+  table = gtk_table_new (5, 1, FALSE) ;
   gtk_widget_show (table) ;
   gtk_container_add (GTK_CONTAINER (dialog->dialog), table) ;
 
+  ui_mgr = gtk_ui_manager_new () ;
+  actions = gtk_action_group_new ("QCADGraphDialogActions") ;
+  gtk_action_group_set_translation_domain (actions, PACKAGE) ;
+  gtk_action_group_add_actions (actions, action_entries, n_action_entries, dialog) ;
+  gtk_action_group_add_radio_actions (actions, view_as_action_entries, n_view_as_action_entries, 10, (GCallback)btnShowBase_clicked, dialog) ;
+  gtk_ui_manager_insert_action_group (ui_mgr, actions, -1) ;
+  gtk_ui_manager_add_ui_from_string (ui_mgr, graph_dialog_ui_xml, -1, &error) ;
+  gtk_window_add_accel_group (GTK_WINDOW (dialog->dialog), gtk_ui_manager_get_accel_group (ui_mgr)) ;
+  if (error != NULL)
+    {
+    g_message ("Failed to create UI: %s\n", error->message) ;
+    g_error_free (error) ;
+    }
+  else
+    {
+    GtkWidget *widget = NULL ;
+
+    widget = gtk_ui_manager_get_widget (ui_mgr, "/ui/menubar") ;
+    gtk_widget_show (widget) ;
+    gtk_table_attach (GTK_TABLE (table), widget, 0, 1, 0, 1, 
+      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+      (GtkAttachOptions)(GTK_FILL), 2, 0) ;
+
+    widget = gtk_ui_manager_get_widget (ui_mgr, "/ui/MainToolbar") ;
+    gtk_widget_show (widget) ;
+    gtk_table_attach (GTK_TABLE (table), widget, 0, 1, 1, 2, 
+      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+      (GtkAttachOptions)(GTK_FILL), 2, 0) ;
+
+    g_object_set_data (G_OBJECT (gtk_ui_manager_get_action (ui_mgr, "/ui/menubar/FileMenu/FileClose")), "dlgGraphs", dialog->dialog) ;
+    }
+/*
   toolbar = gtk_toolbar_new () ;
   gtk_widget_show (toolbar) ;
   gtk_table_attach (GTK_TABLE (table), toolbar, 0, 1, 0, 1,
@@ -89,7 +283,9 @@ void create_graph_dialog (graph_D *dialog)
 //	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_w, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
 
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
+*/
 #ifdef STDIO_FILEIO
+/*
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
     GTK_TOOL_ITEM (btn = 
       g_object_new (GTK_TYPE_TOOL_BUTTON,
@@ -111,22 +307,10 @@ void create_graph_dialog (graph_D *dialog)
         NULL)), -1) ;
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
     _("Save Simulation Results"), _("Save the displayed simulation results.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnSave_clicked, dialog->dialog) ;
+  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnSave_clicked, dialog) ;
 //	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
 
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (GTK_TYPE_TOOL_BUTTON,
-        "stock-id", GTK_STOCK_SAVE, 
-//        "label",    _("Open"),
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Save Simulation Results"), _("Save the displayed simulation results.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnSave_clicked, dialog->dialog) ;
-//	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
 
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
     GTK_TOOL_ITEM (btn = 
@@ -138,8 +322,9 @@ void create_graph_dialog (graph_D *dialog)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
     _("Preview the print layout"), _("Converts graphs to PostScript and runs the previewer application.")) ;
   g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnPreview_clicked, dialog) ;
-
+*/
 #endif /* def STDIO_FILEIO */
+/*
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
     GTK_TOOL_ITEM (btn = 
       g_object_new (GTK_TYPE_TOOL_BUTTON,
@@ -216,10 +401,10 @@ void create_graph_dialog (graph_D *dialog)
     _("Show Values As Hexadecimal"), _("Display honeycomb values in hexadecimal.")) ;
   g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnShowBase_clicked, dialog) ;
   g_object_set_data (G_OBJECT (btn), "base", (gpointer)16) ;
-
+*/
   dialog->hpaned = gtk_hpaned_new () ;
   gtk_widget_show (dialog->hpaned) ;
-  gtk_table_attach (GTK_TABLE (table), dialog->hpaned, 0, 1, 1, 2,
+  gtk_table_attach (GTK_TABLE (table), dialog->hpaned, 0, 1, 2, 3,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
 
@@ -268,12 +453,14 @@ void create_graph_dialog (graph_D *dialog)
   gtk_table_attach (GTK_TABLE (tbl_sw), dialog->hscroll, 0, 1, 1, 2,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+  g_object_set_data (G_OBJECT (dialog->hscroll), "tbl", tbl_sw) ;
 
   vscroll = gtk_vscrollbar_new (NULL) ;
   gtk_widget_show (vscroll) ;
   gtk_table_attach (GTK_TABLE (tbl_sw), vscroll, 1, 2, 0, 1,
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0) ;
+  g_object_set_data (G_OBJECT (vscroll), "tbl", tbl_sw) ;
   gtk_viewport_set_vadjustment (GTK_VIEWPORT (dialog->vp), gtk_range_get_adjustment (GTK_RANGE (vscroll))) ;
 
   tbl_status = gtk_table_new (1, 2, FALSE) ;

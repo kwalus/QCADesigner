@@ -1069,7 +1069,7 @@ msgstr ""
 msgid "Top Margin:"
 msgstr ""
 
-msgid "Total Simulation Time:"
+msgid "Total simulation time: %g s\n"
 msgstr ""
 
 msgid "Trace"

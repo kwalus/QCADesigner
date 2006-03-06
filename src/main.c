@@ -45,6 +45,7 @@
 #include "global_consts.h"
 #include "gtk_preamble.h"
 #include "fileio.h"
+#include "generic_utils.h"
 
 #define DBG_MAIN(s)
 
@@ -120,6 +121,9 @@ int main (int argc, char *argv[])
   // -- LET'S GO -- //
   gtk_main ();
 
+#ifdef GTK_GUI
+  wait_for_async_cmdlines () ;
+#endif /* def GTK_GUI */
   // -- Exit -- //
   return 0;
   }//main

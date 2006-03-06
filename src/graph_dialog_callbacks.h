@@ -44,7 +44,7 @@ void btnThresh_clicked (GtkWidget *widget, gpointer user_data) ;
 void hscroll_adj_value_changed (GtkAdjustment *adj, gpointer data) ;
 void set_bus_expanded (GtkTreeView *tview, GtkTreeIter *itrBus, GtkTreePath *tpath, gpointer data) ;
 void model_visible_toggled (GtkCellRenderer *cr, char *pszTreePath, gpointer data) ;
-void btnShowBase_clicked (GtkWidget *widget, gpointer data) ;
+void btnShowBase_clicked (GtkRadioAction *action, GtkRadioAction *current, gpointer data) ;
 void btnZoom100_clicked (GtkWidget *widget, gpointer data) ;
 gboolean graph_widget_size_allocate (GtkWidget *widget, GtkAllocation *alloc, gpointer data) ;
 gboolean waveform_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data) ;

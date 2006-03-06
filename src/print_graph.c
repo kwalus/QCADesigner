@@ -95,7 +95,8 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
   PAGES pg = {NULL, NULL} ;
   char *pszClr = pPrintOpts->bPrintClr ? PS_GREEN : "0.00",
        *pszClrHCFill = pPrintOpts->bPrintClr ? PS_HCFILL : "0.90",
-       *pszClrType = pPrintOpts->bPrintClr ? "setrgbcolor" : "setgray" ;
+       *pszClrType = pPrintOpts->bPrintClr ? "setrgbcolor" : "setgray",
+       doubles[G_ASCII_DTOSTR_BUF_SIZE][4] = {"", "", "", ""} ;
 
 
   if (NULL == (pfile = OpenPrintStream ((print_OP *)pPrintOpts)))
@@ -118,13 +119,16 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
     "%%%%Pages: (atend)\n"
     "%%%%Orientation: %s\n"
     "%%%%BoundingBox: 0 0 %d %d\n"
-    "%%%%HiResBoundingBox: %f %f %f %f\n"
+    "%%%%HiResBoundingBox: %s %s %s %s\n"
     "%%........................................................\n"
     "%%%%Creator: QCADesigner\n"
     "%%%%EndComments\n",
     pPrintOpts->po.bPortrait ? "Portrait" : "Landscape",
     (int)(pPrintOpts->po.dPaperCX), (int)(pPrintOpts->po.dPaperCY),
-    0.0, 0.0, pPrintOpts->po.dPaperCX, pPrintOpts->po.dPaperCY) ;
+    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, 0.0), 
+    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, 0.0), 
+    g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, pPrintOpts->po.dPaperCX), 
+    g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, pPrintOpts->po.dPaperCY)) ;
 
   // Print prolog at this point, if any
   fprintf (pfile,
@@ -220,6 +224,7 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
 
 static void PrintSingleGraphPage (print_graph_OP *pPO, FILE *pfile, EXP_ARRAY *page, int idx)
   {
+  char doubles[8][G_ASCII_DTOSTR_BUF_SIZE] = {"", "", "", "", "", "", "", ""} ;
   int Nix ;
 
   fprintf (pfile, "%%%%Page: %d %d\n", idx + 1, idx + 1) ;
@@ -228,15 +233,19 @@ static void PrintSingleGraphPage (print_graph_OP *pPO, FILE *pfile, EXP_ARRAY *p
     "%% margins\n"
     "gsave\n"
     "newpath\n" // The margins
-    "%f %f moveto\n"
-    "%f %f lineto\n"
-    "%f %f lineto\n"
-    "%f %f lineto\n"
+    "%s %s moveto\n"
+    "%s %s lineto\n"
+    "%s %s lineto\n"
+    "%s %s lineto\n"
     "closepath eoclip\n\n", // Need eoclip here
-    pPO->po.dLMargin, pPO->po.dBMargin,
-    pPO->po.dLMargin, pPO->po.dPaperCY - pPO->po.dTMargin,
-    pPO->po.dPaperCX - pPO->po.dRMargin, pPO->po.dPaperCY - pPO->po.dTMargin,
-    pPO->po.dPaperCX - pPO->po.dRMargin, pPO->po.dBMargin) ;
+    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dLMargin), 
+    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dBMargin),
+    g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dLMargin), 
+    g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - pPO->po.dTMargin),
+    g_ascii_dtostr (doubles[4], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCX - pPO->po.dRMargin), 
+    g_ascii_dtostr (doubles[5], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - pPO->po.dTMargin),
+    g_ascii_dtostr (doubles[6], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCX - pPO->po.dRMargin),
+    g_ascii_dtostr (doubles[7], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dBMargin)) ;
 
   DBG_PG (fprintf (stderr, "There are %d objects on page %d\n", pPage->icObjects, idx)) ;
 
@@ -263,6 +272,7 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
     dcyTrace = 0,
     dxTitle, dyTitle, dTraceMinVal = -1.0, dTraceMaxVal = 0.0 ;
   char *psz = NULL ;
+  char doubles[2][G_ASCII_DTOSTR_BUF_SIZE] = {"", ""} ;
 
   if (NULL == pPages || NULL == pPO || NULL == print_graph_data) return ;
 
@@ -344,13 +354,12 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
     "gsave\n"
     "newpath\n"
     "(" PS_FONT ") findfont labelfontsize scalefont setfont\n"
-    "%lf %lf moveto\n"
+    "%s %s moveto\n"
     "(%s) labelfontsize txtct\n"
     "stroke\n"
     "grestore\n",
-    dxTitle - xIdxTitle * (dcxEffective / pPO->iCXPages) + pPO->po.dLMargin,
-    pPO->po.dPaperCY -
-   (dyTitle - yIdxTitle * (dcyEffective / pPO->iCYPages) + pPO->po.dTMargin),
+    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dxTitle - xIdxTitle * (dcxEffective / pPO->iCXPages) + pPO->po.dLMargin),
+    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dyTitle - yIdxTitle * (dcyEffective / pPO->iCYPages) + pPO->po.dTMargin)),
    _("Simulation Results")) ;
 
   exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
@@ -478,6 +487,7 @@ static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEff
   {
   char *psz = NULL ;
   int idxXPgMin = -1, idxYPgMin = -1, idxPg = -1 ;
+  char doubles[2][G_ASCII_DTOSTR_BUF_SIZE] = {"", ""} ;
 
   idxXPgMin = GetPageIndex (dx, pPO->iCXPages, dcxEffective) ;
   idxYPgMin = GetPageIndex (dy, pPO->iCYPages, dcyEffective) ;
@@ -487,16 +497,15 @@ static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEff
     "gsave\n"
     "%s %s\n"
     "newpath\n"
-    "%lf %lf moveto\n"
+    "%s %s moveto\n"
     "(" PS_FONT ") findfont %d scalefont setfont\n"
     "(%s) %d %s\n"
     "stroke\n"
     "grestore\n",
     pszClr,
     pszClrType,
-    dx - (idxXPgMin * dcxEffective) / pPO->iCXPages + pPO->po.dLMargin,
-    pPO->po.dPaperCY -
-   (dy - (idxYPgMin * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin), 
+    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dx - (idxXPgMin * dcxEffective) / pPO->iCXPages + pPO->po.dLMargin),
+    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy - (idxYPgMin * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin)), 
     font_size,
     pszString,
     font_size,
@@ -635,6 +644,7 @@ static void PlaceSingleBox (print_graph_OP *pPO, PAGES *pPages, double dxMin, do
   double 
     dxMinPg = -1.0, dyMinPg = -1.0, 
     dxMaxPg = -1.0, dyMaxPg = -1.0 ;
+  char doubles[4][G_ASCII_DTOSTR_BUF_SIZE] = {"", "", "", ""} ;
 
   idxXPgMin = GetPageIndex (dxMin, pPO->iCXPages, dcxEffective) ;
   idxYPgMin = GetPageIndex (dyMin, pPO->iCYPages, dcyEffective) ;
@@ -653,7 +663,11 @@ static void PlaceSingleBox (print_graph_OP *pPO, PAGES *pPages, double dxMin, do
       dyMaxPg = pPO->po.dPaperCY -
                (dyMax - (Nix  * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin)  ;
 
-      psz = g_strdup_printf ("%lf %lf %lf %lf tracebox %%from PlaceSingleBox\n", dxMinPg, dyMinPg, dxMaxPg, dyMaxPg) ;
+      psz = g_strdup_printf ("%s %s %s %s tracebox %%from PlaceSingleBox\n", 
+        g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dxMinPg), 
+        g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, dyMinPg), 
+        g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, dxMaxPg), 
+        g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, dyMaxPg)) ;
 
       exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
       exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
@@ -675,6 +689,7 @@ static void PlaceSingleHoneycomb (print_graph_OP *pPO, PAGES *pPages, double dxM
     {dxR, dyMax},
     {dxL, dyMax}} ;
   char *psz = NULL ;
+  char doubles[6][G_ASCII_DTOSTR_BUF_SIZE] = {"", "", "", "", "", ""} ;
 
   if (NULL == pPO || NULL == pPages) return ;
 
@@ -700,9 +715,15 @@ static void PlaceSingleHoneycomb (print_graph_OP *pPO, PAGES *pPages, double dxM
     psz = g_strdup_printf (
       "gsave\n"
       "%s %s\n"
-      "%lf %lf %lf %lf %lf %lf (%s) honeycomb\n"
+      "%s %s %s %s %s %s (%s) honeycomb\n"
       "grestore\n",
-      pszClr, pszClrType, dxMinPg, dxLPg, dxRPg, dxMaxPg, dyMinPg, dyMaxPg, pszLabel) ;
+      pszClr, pszClrType, 
+      g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dxMinPg), 
+      g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, dxLPg), 
+      g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, dxRPg), 
+      g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, dxMaxPg), 
+      g_ascii_dtostr (doubles[4], G_ASCII_DTOSTR_BUF_SIZE, dyMinPg), 
+      g_ascii_dtostr (doubles[5], G_ASCII_DTOSTR_BUF_SIZE, dyMaxPg), pszLabel) ;
 
     exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
     exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
@@ -791,6 +812,7 @@ static void PlaceSingleLine (print_graph_OP *pPO, PAGES *pPages, double dxMin, d
   int idxPg ;
   double dxMinPg, dyMinPg, dxMaxPg, dyMaxPg ;
   char *psz = NULL ;
+  char doubles[4][G_ASCII_DTOSTR_BUF_SIZE] = {"", "", "", ""} ;
 
   idxXPgMin = GetPageIndex (dxMin, pPO->iCXPages, dcxEffective) ;
   idxYPgMin = GetPageIndex (dyMin, pPO->iCYPages, dcyEffective) ;
@@ -814,16 +836,18 @@ static void PlaceSingleLine (print_graph_OP *pPO, PAGES *pPages, double dxMin, d
         "gsave\n"
         "newpath\n"
         "%s %s\n"
-        "%s%s"
-        "%lf %lf moveto\n"
-        "%lf %lf lineto\n"
-        "closepath\n"
+        "%s %s"
+        "%s %s moveto\n"
+        "%s %s lineto\n"
         "stroke\n"
         "grestore\n",
         pszClr,
         pszClrType,
         NULL == pszDash ? "" : pszDash, NULL == pszDash ? "" : "\n",
-        dxMinPg, dyMinPg, dxMaxPg, dyMaxPg) ;
+        g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dxMinPg), 
+        g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, dyMinPg), 
+        g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, dxMaxPg), 
+        g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, dyMaxPg)) ;
 
       exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
       exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
@@ -862,6 +886,7 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
   double
     dYScale, dxInc, dx0, dy0, dx1, dy1, dx2, dy2 ; /* The 2 line segments (dx,dy)0 -> (dx,dy)1 -> (dx,dy)2 */
   gchar *psz = NULL, *pszNew = NULL, *pszClr = NULL ;
+  char doubles[4][G_ASCII_DTOSTR_BUF_SIZE] = {"", "", "", ""} ;
 
   pszClr =
     QCAD_CELL_FIXED  == ptd->trace_function ? PS_RED    :
@@ -888,12 +913,12 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
       "gsave\n"
       "%s %s\n"
       "newpath\n"
-      "%lf %lf moveto point\n",
+      "%s %s moveto point\n",
       pPO->bPrintClr ? pszClr : "0.00",
       pPO->bPrintClr ? "setrgbcolor" : "setgray",
-      dx0 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin,
-      pPO->po.dPaperCY -
-     (dy0 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin)) ;
+      g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dx0 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
+      g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy0 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin))) ;
+
     for (Nix1 = 1 ; Nix1 < icSamples ; Nix1++)
       {
       dx2 = dx2 + dxInc ;
@@ -904,17 +929,16 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
         {
         pszNew = g_strdup_printf (
           "%s"
-          "%lf %lf lineto point\n"
-          "%lf %lf lineto point\n"
+          "%s %s lineto point\n"
+          "%s %s lineto point\n"
           "stroke\n"
           "grestore\n",
           psz,
-          dx1 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin,
-          pPO->po.dPaperCY -
-         (dy1 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin),
-          dx2 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin,
-          pPO->po.dPaperCY -
-         (dy2 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin)) ;
+          g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dx1 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
+          g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy1 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin)),
+          g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, dx2 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
+          g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy2 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin))) ;
+
         g_free (psz) ;
         pszNew = psz ;
 
@@ -929,16 +953,15 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
           "gsave\n"
           "%s %s\n"
           "newpath\n"
-          "%lf %lf moveto point\n"
-          "%lf %lf lineto point\n",
+          "%s %s moveto point\n"
+          "%s %s lineto point\n",
           pPO->bPrintClr ? pszClr : "0.00",
           pPO->bPrintClr ? "setrgbcolor" : "setgray",
-          dx1 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin,
-          pPO->po.dPaperCY -
-         (dy1 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin),
-          dx2 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin,
-          pPO->po.dPaperCY -
-         (dy2 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin)) ;
+          g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dx1 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
+          g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy1 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin)),
+          g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, dx2 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
+          g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy2 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin))) ;
+
         dx0 = dx1 = dx2 ;
         dy0 = dy1 = dy2 ;
         }
@@ -949,13 +972,13 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
         dy1 = dy2 ;
         continue ;
         }
+
       pszNew = g_strdup_printf (
         "%s"
-        "%lf %lf lineto point\n",
+        "%s %s lineto point\n",
         psz,
-      dx1 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin,
-      pPO->po.dPaperCY -
-     (dy1 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin)) ;
+        g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dx1 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
+        g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy1 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin))) ;
 
       g_free (psz) ;
       psz = pszNew ;
@@ -965,19 +988,18 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
       dx1 = dx2 ;
       dy1 = dy2 ;
       }
+
     pszNew = g_strdup_printf (
       "%s"
-      "%lf %lf lineto point\n"
-      "%lf %lf lineto point\n"
+      "%s %s lineto point\n"
+      "%s %s lineto point\n"
       "stroke\n"
       "grestore\n",
       psz,
-      dx1 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin,
-      pPO->po.dPaperCY -
-     (dy1 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin),
-      dx2 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin,
-      pPO->po.dPaperCY -
-     (dy2 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin)) ;
+      g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dx1 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
+      g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy1 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin)),
+      g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, dx2 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
+      g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy2 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin))) ;
 
     g_free (psz) ;
     psz = pszNew ;

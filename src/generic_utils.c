@@ -43,8 +43,11 @@ typedef struct
   {
   char *pszCmdLine ;
   char *pszTmpFName ;
+  gboolean bMyMutex ;
   }
 RUN_CMD_LINE_ASYNC_THREAD_PARAMS ;
+
+static GStaticMutex async_cmdline_mutex = G_STATIC_MUTEX_INIT ;
 
 static gpointer RunCmdLineAsyncThread (gpointer p) ;
 #endif /* def GTK_GUI */
@@ -167,11 +170,18 @@ void RunCmdLineAsync (char *pszCmdLine, char *pszTmpFName)
 
   prclap->pszCmdLine = g_strdup (pszCmdLine) ;
   prclap->pszTmpFName = (NULL == pszTmpFName ? NULL : g_strdup (pszTmpFName)) ;
+  prclap->bMyMutex = FALSE ;
 
   if (!g_thread_supported ()) g_thread_init (NULL) ;
 
+  if (NULL != pszTmpFName)
+    prclap->bMyMutex = g_static_mutex_trylock (&async_cmdline_mutex) ;
+
   g_thread_create ((GThreadFunc)RunCmdLineAsyncThread, (gpointer)prclap, FALSE, NULL) ;
   }
+
+void wait_for_async_cmdlines ()
+  {g_static_mutex_lock (&async_cmdline_mutex) ;}
 
 static gpointer RunCmdLineAsyncThread (gpointer p)
   {
@@ -203,6 +213,8 @@ static gpointer RunCmdLineAsyncThread (gpointer p)
     unlink (prclap->pszTmpFName) ;
 #endif /* def WIN32 */
     g_free (prclap->pszTmpFName) ;
+    if (prclap->bMyMutex)
+      g_static_mutex_unlock (&async_cmdline_mutex) ;
     }
   g_free (prclap) ;
 

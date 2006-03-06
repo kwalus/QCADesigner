@@ -93,13 +93,12 @@ gboolean graph_widget_one_time_expose (GtkWidget *widget, GdkEventExpose *event,
   return FALSE ;
   }
 
-void btnShowBase_clicked (GtkWidget *widget, gpointer data)
+void btnShowBase_clicked (GtkRadioAction *action, GtkRadioAction *current, gpointer data)
   {
   graph_D *dialog = (graph_D *)data ;
-  int base = (int)g_object_get_data (G_OBJECT (widget), "base") ;
+  int base = gtk_radio_action_get_current_value (action) ;
   GRAPH_DIALOG_DATA *gdd = NULL ;
 
-  if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) return ;
   if (0 == base) return ;
   if (NULL == dialog) return ;
   if (NULL == (gdd = g_object_get_data (G_OBJECT (dialog->dialog), "graph_dialog_data"))) return ;
@@ -488,14 +487,15 @@ void btnOpen_clicked (GtkWidget *widget, gpointer user_data)
 
 void btnSave_clicked (GtkWidget *widget, gpointer user_data)
   {
-  GRAPH_DIALOG_DATA *gdd = g_object_get_data (G_OBJECT (user_data), "graph_dialog_data") ;
+  graph_D *dialog = (graph_D *)user_data ;
+  GRAPH_DIALOG_DATA *gdd = g_object_get_data (G_OBJECT (dialog->dialog), "graph_dialog_data") ;
   static char *pszFName = NULL ;
   char *pszTempFName = NULL ;
   SIMULATION_OUTPUT sim_output = {NULL, NULL} ;
 
   if (NULL == gdd) return ;
 
-  if (NULL == (pszTempFName = get_file_name_from_user (GTK_WINDOW (user_data), _("Save Simulation Results"), pszFName, TRUE)))
+  if (NULL == (pszTempFName = get_file_name_from_user (GTK_WINDOW (dialog->dialog), _("Save Simulation Results"), pszFName, TRUE)))
     return ;
 
   if (NULL != pszFName) g_free (pszFName) ;

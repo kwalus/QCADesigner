@@ -1123,8 +1123,8 @@ msgstr ""
 msgid "Top Margin:"
 msgstr "Marginea de sus:"
 
-msgid "Total Simulation Time:"
-msgstr "Durata simulaţiei:"
+msgid "Total simulation time: %g s\n"
+msgstr "Durata simulaţiei: %g s\n"
 
 msgid "Trace"
 msgstr ""

@@ -1110,8 +1110,8 @@ msgstr ""
 msgid "Top Margin:"
 msgstr "Felső Margó:"
 
-msgid "Total Simulation Time:"
-msgstr "Szimuláció teljes időtartama:"
+msgid "Total simulation time: %g s\n"
+msgstr "Szimuláció teljes időtartama: %g s\n"
 
 msgid "Trace"
 msgstr ""

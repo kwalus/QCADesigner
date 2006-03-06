@@ -57,11 +57,12 @@ typedef struct
   char *pszSimOptsFName ;
   char *pszReferenceSimOutputFName ;
   char *pszFName ;
+  int circuit_delay ;
   } CMDLINE_ARGS ;
 
 static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
-static int determine_success (HONEYCOMB_DATA *hcIn, HONEYCOMB_DATA *hcOut) ;
+static int determine_success (HONEYCOMB_DATA *hcIn, HONEYCOMB_DATA *hcOut, int delay) ;
 static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args) ;
 
 int main (int argc, char **argv)
@@ -89,7 +90,8 @@ int main (int argc, char **argv)
     .pszFailureFNamePrefix      = NULL,
     .pszSimOptsFName            = NULL,
     .pszReferenceSimOutputFName = NULL,
-    .pszFName                   = NULL
+    .pszFName                   = NULL,
+    .circuit_delay              = 0
     } ;
 
   parse_cmdline (argc, argv, &cmdline_args) ;
@@ -105,12 +107,13 @@ int main (int argc, char **argv)
     "upper polarization threshold    : %lf\n"
     "samples for running average     : %d\n"
     "exit on failure ?               : %s\n"
-    "  failure output file name prefix : %s\n",
+    "  failure output file name prefix : %s\n"
+    "initial honeycombs to ignore    : %d\n",
     COHERENCE_VECTOR == cmdline_args.sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
     cmdline_args.pszSimOptsFName,         cmdline_args.pszFName,         cmdline_args.pszReferenceSimOutputFName, 
     cmdline_args.number_of_sims,          cmdline_args.dTolerance,       cmdline_args.dThreshLower, 
     cmdline_args.dThreshUpper,            cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
-    cmdline_args.pszFailureFNamePrefix) ;
+    cmdline_args.pszFailureFNamePrefix,   cmdline_args.circuit_delay) ;
 
 #ifdef GTK_GUI
   gtk_init (&argc, &argv) ;
@@ -192,7 +195,7 @@ int main (int argc, char **argv)
           single_success =
             determine_success (
               exp_array_index_1d (input_hcs, HONEYCOMB_DATA *, Nix1),
-              exp_array_index_1d (output_hcs, HONEYCOMB_DATA *, Nix1)) ;
+              exp_array_index_1d (output_hcs, HONEYCOMB_DATA *, Nix1), cmdline_args.circuit_delay) ;
 
           if (0 == single_success && cmdline_args.bExitOnFailure)
             {
@@ -315,6 +318,12 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
         cmdline_args->icAverageSamples = atoi (argv[Nix]) ;
       }
     else
+    if (!(strcmp (argv[Nix], "-d") && strcmp (argv[Nix], "--delay")))
+      {
+      if (++Nix < argc)
+        cmdline_args->circuit_delay = atoi (argv[Nix]) ;
+      }
+    else
     if (!(strcmp (argv[Nix], "-e") && strcmp (argv[Nix], "--engine")))
       {
       if (++Nix < argc)
@@ -400,6 +409,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
 "\n"
 "Options are:\n"
 "  -a  --average   samples       Optional: Number of samples to use for running average. Default is 1.\n"
+"  -d  --delay     honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
 "  -e  --engine    engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
 "  -f  --file      file          Required: The circuit file.\n"
 "  -l  --lower     polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
@@ -416,7 +426,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
     }
   }
 
-static int determine_success (HONEYCOMB_DATA *hcdIn, HONEYCOMB_DATA *hcdOut)
+static int determine_success (HONEYCOMB_DATA *hcdIn, HONEYCOMB_DATA *hcdOut, int delay)
   {
   int Nix ;
   int idxIn = 0 ;
@@ -429,7 +439,7 @@ static int determine_success (HONEYCOMB_DATA *hcdIn, HONEYCOMB_DATA *hcdOut)
   // If both honeycomb arrays have the same number of honeycombs, compare the values
   if (hcdIn->arHCs->icUsed == hcdOut->arHCs->icUsed)
     {
-    for (Nix = 0 ; Nix < hcdIn->arHCs->icUsed ; Nix++)
+    for (Nix = delay ; Nix < hcdIn->arHCs->icUsed ; Nix++)
       {
       fprintf (stderr, "Honeycomb value %d: %llu vs %llu\n", Nix,
         exp_array_index_1d (hcdIn->arHCs, HONEYCOMB, Nix).value, exp_array_index_1d (hcdOut->arHCs, HONEYCOMB, Nix).value) ;

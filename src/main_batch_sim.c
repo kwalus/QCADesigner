@@ -182,7 +182,7 @@ int main (int argc, char **argv)
 
   for (Nix = 0 ; Nix < cmdline_args.number_of_sims && !bDie ; Nix++)
     {
-    flush_fprintf (stderr, "Running simulation %d\n", Nix) ;
+    flush_fprintf (stderr, "Running simulation %d of %d\n", Nix, cmdline_args.number_of_sims) ;
     if (NULL != (working_design = design_copy (design)))
       {
       if (cmdline_args.dTolerance != 0.0)

@@ -64,6 +64,7 @@ typedef struct
 
 typedef struct
   {
+  BUS *bus ;
   GRAPH_DATA graph_data ;
   EXP_ARRAY *arTraces ; // struct TRACEDATA *
   EXP_ARRAY *arHCs ; // HONEYCOMB

@@ -221,7 +221,7 @@ int main (int argc, char **argv)
           if (Nix1 < input_hcs->icUsed)
             {
             hc = exp_array_index_1d (input_hcs, HONEYCOMB_DATA *, Nix1) ;
-            fprintf (stderr, "First trace in this reference output bus is \"%s\"\n", exp_array_index_1d (hc->arTraces, struct TRACEDATA *, 0)->data_labels) ;
+            fprintf (stderr, "Reference output bus is: \"%s\"\n", hc->bus->pszName) ;
             for (Nix2 = 0 ; Nix2 < hc->arHCs->icUsed ; Nix2++)
               fprintf (stderr, "%d ", (int)(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix2).value)) ;
             fprintf (stderr, "\n") ;
@@ -229,7 +229,7 @@ int main (int argc, char **argv)
           if (Nix1 < output_hcs->icUsed)
             {
             hc = exp_array_index_1d (output_hcs, HONEYCOMB_DATA *, Nix1) ;
-            fprintf (stderr, "First trace in this output bus is \"%s\"\n", exp_array_index_1d (hc->arTraces, struct TRACEDATA *, 0)->data_labels) ;
+            fprintf (stderr, "Output bus is \"%s\"\n", hc->bus->pszName) ;
             for (Nix2 = 0 ; Nix2 < hc->arHCs->icUsed ; Nix2++)
               fprintf (stderr, "%d ", (int)(exp_array_index_1d (hc->arHCs, HONEYCOMB, Nix2).value)) ;
             fprintf (stderr, "\n") ;

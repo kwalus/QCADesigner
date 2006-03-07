@@ -80,6 +80,7 @@ HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr)
   hc->graph_data.cyGiven   = -1 ;
 //  hc->graph_data.xOffset   =  0 ;
   hc->graph_data.bVisible  = TRUE ;
+  hc->bus                  = NULL ;
   hc->arTraces             = exp_array_new (sizeof (struct TRACEDATA *), 1) ;
   memcpy (&(hc->graph_data.clr), clr, sizeof (GdkColor)) ;
 
@@ -91,6 +92,8 @@ HONEYCOMB_DATA *honeycomb_data_new_with_array (GdkColor *clr, simulation_data *s
   struct TRACEDATA *the_trace = NULL ;
   int Nix2 ;
   HONEYCOMB_DATA *hc = honeycomb_data_new (clr) ;
+
+  hc->bus = bus ;
 
   for (Nix2 = 0 ; Nix2 < bus->cell_indices->icUsed ; Nix2++)
     {

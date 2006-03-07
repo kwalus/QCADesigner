@@ -5,8 +5,8 @@ QCAD_INSTALL_DIR = $(QCAD_TOP)/$(QCAD_INSTALL_DIR_NAME)
 
 CC = gcc.exe
 WINDRES = windres
-# CFLAGS += -O2 -Wall -mno-cygwin -mms-bitfields
-CFLAGS += -O0 -g -Wall -mno-cygwin -mms-bitfields
+CFLAGS += -O2 -Wall -mno-cygwin -mms-bitfields
+# CFLAGS += -O0 -g -Wall -mno-cygwin -mms-bitfields
 LDFLAGS = -mwindows
 
 DEFINES = -DVERSION=\"$(VERSION)\" -DPACKAGE=\"$(PACKAGE)\" -DENABLE_NLS

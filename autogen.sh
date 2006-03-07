@@ -6,8 +6,8 @@ set -x
 # WANT_AUTOMAKE=1.6
 # WANT_AUTOCONF_2_5=1
 
-export WANT_AUTOMAKE
-export WANT_AUTOCONF_2_5
+# export WANT_AUTOMAKE
+# export WANT_AUTOCONF_2_5
 
 set +x
 

@@ -400,7 +400,7 @@ msgid "Display the cell sensitive"
 msgstr ""
 
 msgid "Distance To Ground:"
-msgstr "Distanz zur Masse:"
+msgstr "Abstand zur Masse:"
 
 msgid "Distance from clocking layer to ground electrode"
 msgstr ""
@@ -679,10 +679,10 @@ msgid "Maximum clock voltage"
 msgstr ""
 
 msgid "Measure Distance"
-msgstr "Distanz messen"
+msgstr "Abstand messen"
 
 msgid "Measure the distance from a given point"
-msgstr "Distanz von einem bestimmten Punkt messen"
+msgstr "Abstand von einem bestimmten Punkt messen"
 
 msgid "Minimum clock voltage"
 msgstr ""

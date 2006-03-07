@@ -120,13 +120,13 @@ static void create_layer_order_dialog (layer_order_D *dialog)
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dialog)->vbox), tbl, TRUE, TRUE, 0) ;
   gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
 
-  lbl = gtk_label_new (_("Drag and drop layers to their new location:")) ;
+  lbl = g_object_new (GTK_TYPE_LABEL, 
+    "label", _("Drag and drop layers to their new location:"), "visible", TRUE, "xalign", 0.0, "yalign", 0.5,
+    "justify", GTK_JUSTIFY_LEFT, NULL) ;
   gtk_widget_show (lbl) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 0, 1,
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
 
   dialog->sw = gtk_scrolled_window_new (NULL, NULL) ;
   gtk_widget_show (dialog->sw) ;

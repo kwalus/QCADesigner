@@ -587,15 +587,18 @@ gboolean viewport_scroll (GtkWidget *widget, GdkEventScroll *event, gpointer dat
     dNewVal = adj->value +
       (adj->step_increment * ((GDK_SCROLL_UP == scroll_direction) ? (-1.0) : (1.0))) ;
     gtk_adjustment_set_value (adj, CLAMP (dNewVal, adj->lower, adj->upper - adj->page_size)) ;
+    return TRUE ;
     }
-  else
+
   if (GDK_SCROLL_LEFT == scroll_direction || GDK_SCROLL_RIGHT == scroll_direction)
     {
     adj = gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (dialog->sw)) ;
     dNewVal = adj->value +
       (adj->step_increment * ((GDK_SCROLL_LEFT == scroll_direction) ? (-1.0) : (1.0))) ;
     gtk_adjustment_set_value (adj, CLAMP (dNewVal, adj->lower, adj->upper - adj->page_size)) ;
+    return TRUE ;
     }
+
   return FALSE ;
   }
 

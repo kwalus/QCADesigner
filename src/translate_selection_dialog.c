@@ -78,13 +78,11 @@ static void create_translate_dialog (translate_selection_D *dialog)
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog->dlg)->vbox), tbl) ;
   gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
 
-  lbl = gtk_label_new (_("Horizontal:")) ;
-  gtk_widget_show (lbl) ;
+  lbl = g_object_new (GTK_TYPE_LABEL, 
+    "label", _("Horizontal:"), "visible", TRUE, "xalign", 1.0, "yalign", 0.5, "justify", GTK_JUSTIFY_RIGHT, NULL) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 0, 1,
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
   dialog->adjX = GTK_ADJUSTMENT (gtk_adjustment_new (0.0, -10000.0, 10000.0, 1.0, 5.0, 5.0)) ;
   spn = gtk_spin_button_new_infinite (dialog->adjX, 1.0, 1, ISB_DIR_UP | ISB_DIR_DN) ;
@@ -94,19 +92,17 @@ static void create_translate_dialog (translate_selection_D *dialog)
     (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
   gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
-  lbl = gtk_label_new ("nm") ;
-  gtk_widget_show (lbl) ;
+  lbl = g_object_new (GTK_TYPE_LABEL,
+    "label", "nm", "visible", TRUE, "xalign", 0.0, "yalign", 0.5, "justify", GTK_JUSTIFY_LEFT) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 2, 3, 0, 1,
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
 
-  lbl = gtk_label_new (_("Vertical:")) ;
-  gtk_widget_show (lbl) ;
+  lbl = g_object_new (GTK_TYPE_LABEL, 
+    "label", _("Vertical:"), "visible", TRUE, "xalign", 1.0, "yalign", 0.5, "justify", GTK_JUSTIFY_RIGHT, NULL) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 0, 1, 1, 2,
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
-  gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 0.5) ;
 
   dialog->adjY = GTK_ADJUSTMENT (gtk_adjustment_new (0.0, -10000.0, 10000.0, 1.0, 5.0, 5.0)) ;
   spn = gtk_spin_button_new_infinite (dialog->adjY, 1.0, 1, ISB_DIR_UP | ISB_DIR_DN) ;
@@ -116,8 +112,8 @@ static void create_translate_dialog (translate_selection_D *dialog)
     (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;
   gtk_entry_set_activates_default (GTK_ENTRY (spn), TRUE) ;
 
-  lbl = gtk_label_new ("nm") ;
-  gtk_widget_show (lbl) ;
+  lbl = g_object_new (GTK_TYPE_LABEL,
+    "label", "nm", "visible", TRUE, "xalign", 0.0, "yalign", 0.5, "justify", GTK_JUSTIFY_LEFT) ;
   gtk_table_attach (GTK_TABLE (tbl), lbl, 2, 3, 1, 2,
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND), 2, 2) ;

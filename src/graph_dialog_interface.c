@@ -206,8 +206,8 @@ static GtkWidget *create_trace_drawing_area (GRAPH_DATA *graph_data, GDestroyNot
 
 void create_graph_dialog (graph_D *dialog)
   {
-  GtkWidget *table = NULL, *tbl_sw = NULL, *tbl_status = NULL,
-    *tbl_vp = NULL, *vscroll = NULL, *sw_tview = NULL, *statusbar = NULL ;
+  GtkWidget *table = NULL, *tbl_status = NULL,
+    *tbl_vp = NULL, *sw_tview = NULL, *statusbar = NULL ;
   GtkTreeViewColumn *col = NULL ;
   GtkCellRenderer *cr = NULL ;
 	GtkAccelGroup *accel_group = NULL ;
@@ -267,11 +267,13 @@ void create_graph_dialog (graph_D *dialog)
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
 
-  sw_tview = gtk_scrolled_window_new (NULL, NULL) ;
-  gtk_widget_show (sw_tview) ;
+  sw_tview = g_object_new (GTK_TYPE_SCROLLED_WINDOW, 
+    "visible",           TRUE,
+    "shadow-type",       GTK_SHADOW_IN,
+    "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
+    "vscrollbar-policy", GTK_POLICY_AUTOMATIC,
+    NULL) ;
   gtk_paned_add1 (GTK_PANED (dialog->hpaned), sw_tview) ;
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw_tview), GTK_SHADOW_IN) ;
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw_tview), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC) ;
 
   dialog->tview = create_bus_layout_tree_view (TRUE, _("Trace"), GTK_SELECTION_SINGLE) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tview), col = gtk_tree_view_column_new ()) ;
@@ -286,29 +288,18 @@ void create_graph_dialog (graph_D *dialog)
   dialog->sw = g_object_new (QCAD_TYPE_SCROLLED_WINDOW, 
     "hscrollbar-policy",  GTK_POLICY_AUTOMATIC,
     "vscrollbar-policy",  GTK_POLICY_AUTOMATIC,
-    "shadow-type",        GTK_SHADOW_IN,
+    "shadow-type",        GTK_SHADOW_NONE,
     "visible",            TRUE, 
     "custom-hadjustment", TRUE, 
     NULL) ;
   gtk_paned_add2 (GTK_PANED (dialog->hpaned), dialog->sw) ;
-/*
-  tbl_sw = gtk_table_new (2, 2, FALSE) ;
-  gtk_widget_show (tbl_sw) ;
-  gtk_paned_add2 (GTK_PANED (dialog->hpaned), tbl_sw) ;
-  gtk_table_set_row_spacings (GTK_TABLE (tbl_sw), 2) ;
-  gtk_table_set_col_spacings (GTK_TABLE (tbl_sw), 2) ;
 
-  dialog->vp = gtk_viewport_new (NULL, NULL) ;
-  gtk_widget_show (dialog->vp) ;
-  gtk_table_attach (GTK_TABLE (tbl_sw), dialog->vp, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0) ;
-  gtk_viewport_set_shadow_type (GTK_VIEWPORT (dialog->vp), GTK_SHADOW_IN) ;
-  gtk_widget_set_size_request (dialog->vp, 0, 0) ;
-*/
   tbl_vp = gtk_table_new (1, 1, FALSE) ;
   gtk_widget_show (tbl_vp) ;
-  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (dialog->sw), tbl_vp) ;
+  dialog->vp = g_object_new (GTK_TYPE_VIEWPORT, "visible", TRUE, NULL) ;
+  gtk_container_add (GTK_CONTAINER (dialog->vp), tbl_vp) ;
+  gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->vp) ;
+//  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (dialog->sw), tbl_vp) ;
 
   dialog->table_of_traces = gtk_table_new (1, 2, FALSE) ;
   gtk_widget_show (dialog->table_of_traces) ;
@@ -316,22 +307,6 @@ void create_graph_dialog (graph_D *dialog)
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(0), 0, 0) ;
 
-/*
-  dialog->hscroll = gtk_hscrollbar_new (NULL) ;
-  gtk_widget_show (dialog->hscroll) ;
-  gtk_table_attach (GTK_TABLE (tbl_sw), dialog->hscroll, 0, 1, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
-  g_object_set_data (G_OBJECT (dialog->hscroll), "tbl", tbl_sw) ;
-
-  vscroll = gtk_vscrollbar_new (NULL) ;
-  gtk_widget_show (vscroll) ;
-  gtk_table_attach (GTK_TABLE (tbl_sw), vscroll, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0) ;
-  g_object_set_data (G_OBJECT (vscroll), "tbl", tbl_sw) ;
-  gtk_viewport_set_vadjustment (GTK_VIEWPORT (dialog->vp), gtk_range_get_adjustment (GTK_RANGE (vscroll))) ;
-*/
   tbl_status = gtk_table_new (1, 2, FALSE) ;
   gtk_widget_show (tbl_status) ;
   gtk_table_attach (GTK_TABLE (table), tbl_status, 0, 1, 2, 3,
@@ -357,7 +332,7 @@ void create_graph_dialog (graph_D *dialog)
   g_signal_connect (G_OBJECT (dialog->tview), "row-expanded", (GCallback)set_bus_expanded, (gpointer)TRUE) ;
   g_signal_connect (G_OBJECT (dialog->tview), "row-collapsed", (GCallback)set_bus_expanded, (gpointer)FALSE) ;
   g_signal_connect (G_OBJECT (gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (dialog->sw))), "value-changed", (GCallback)hscroll_adj_value_changed, dialog->dialog) ;
-//  g_signal_connect (G_OBJECT (dialog->vp), "scroll-event", (GCallback)viewport_scroll, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->vp), "scroll-event", (GCallback)viewport_scroll, dialog) ;
   g_signal_connect (G_OBJECT (dialog->dialog), "delete-event", (GCallback)btnClose_clicked, NULL) ;
   }
 

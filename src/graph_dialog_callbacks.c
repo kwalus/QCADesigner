@@ -306,12 +306,11 @@ gboolean graph_widget_size_allocate (GtkWidget *widget, GtkAllocation *alloc, gp
   GtkTreeIter itr ;
   GtkWidget *widget_to_size = NULL ;
   GtkWidget *ruler = NULL ;
-  GtkWidget *hscroll = g_object_get_data (G_OBJECT (widget), "hscroll") ;
+  GtkAdjustment *hadj = g_object_get_data (G_OBJECT (widget), "hadj") ;
   int *pcx = NULL, *pcy = NULL, *pic = NULL ;
   GRAPH_DIALOG_DATA *dialog_data = (GRAPH_DIALOG_DATA *)data ;
   int model_column = -1 ;
   GRAPH_DATA *graph_data = NULL ;
-  GtkAdjustment *adj = NULL ;
 
   if (NULL == dialog_data) return FALSE ;
 
@@ -376,18 +375,17 @@ gboolean graph_widget_size_allocate (GtkWidget *widget, GtkAllocation *alloc, gp
         }
       if (!gtk_tree_model_iter_next_dfs (dialog_data->model, &itr)) break ;
       }
-    if (NULL != hscroll)
-      if (NULL != (adj = gtk_range_get_adjustment (GTK_RANGE (hscroll))))
-        {
-        adj->lower = 0 ;
-        adj->upper = dialog_data->cxMaxGiven * dialog_data->dScale ;
-        adj->page_increment =
-        adj->page_size = dialog_data->cxDrawingArea ;
-        adj->step_increment = adj->page_size / 10.0 ;
-        adj->value = CLAMP (adj->value, adj->lower, adj->upper - adj->page_size) ;
-        gtk_adjustment_changed (adj) ;
-        gtk_adjustment_value_changed (adj) ;
-        }
+    if (NULL != hadj)
+      {
+      hadj->lower = 0 ;
+      hadj->upper = dialog_data->cxMaxGiven * dialog_data->dScale ;
+      hadj->page_increment =
+      hadj->page_size = dialog_data->cxDrawingArea ;
+      hadj->step_increment = hadj->page_size / 10.0 ;
+      hadj->value = CLAMP (hadj->value, hadj->lower, hadj->upper - hadj->page_size) ;
+      gtk_adjustment_changed (hadj) ;
+      gtk_adjustment_value_changed (hadj) ;
+      }
     dialog_data->icDrawingArea =
     dialog_data->cxDrawingArea =
     dialog_data->cyDrawingArea = 0 ;
@@ -593,7 +591,7 @@ gboolean viewport_scroll (GtkWidget *widget, GdkEventScroll *event, gpointer dat
   else
   if (GDK_SCROLL_LEFT == scroll_direction || GDK_SCROLL_RIGHT == scroll_direction)
     {
-    adj = gtk_range_get_adjustment (GTK_RANGE (dialog->hscroll)) ;
+    adj = gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (dialog->sw)) ;
     dNewVal = adj->value +
       (adj->step_increment * ((GDK_SCROLL_LEFT == scroll_direction) ? (-1.0) : (1.0))) ;
     gtk_adjustment_set_value (adj, CLAMP (dNewVal, adj->lower, adj->upper - adj->page_size)) ;
@@ -725,10 +723,9 @@ gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *event, 
   int cx = 0, cy = 0 ;
   double lower, upper, position, max_size ;
   GtkWidget *ruler = g_object_get_data (G_OBJECT (widget), "ruler") ;
-  GtkWidget *hscroll = g_object_get_data (G_OBJECT (widget), "hscroll") ;
+  GtkAdjustment *hadj = g_object_get_data (G_OBJECT (widget), "hadj") ;
   GRAPH_DIALOG_DATA *graph_dialog_data = (GRAPH_DIALOG_DATA *)data ;
   int end_sample = -1 ;
-  GtkAdjustment *adj = NULL ;
 
   if (1 != event->button) return FALSE ;
 
@@ -766,12 +763,11 @@ gboolean graph_widget_button_release (GtkWidget *widget, GdkEventButton *event, 
     (((double)beg_sample / ((double)(graph_dialog_data->sim_data->number_samples))) *
       ((double)(graph_dialog_data->cxMaxGiven * graph_dialog_data->dScale))) ;
 
-  if (NULL != hscroll)
-    if (NULL != (adj = gtk_range_get_adjustment (GTK_RANGE (hscroll))))
-      {
-      adj->value = graph_dialog_data->xOffset ;
-      gtk_adjustment_value_changed (adj) ;
-      }
+  if (NULL != hadj)
+    {
+    hadj->value = graph_dialog_data->xOffset ;
+    gtk_adjustment_value_changed (hadj) ;
+    }
 
   reflect_scale_change (graph_dialog_data) ;
 

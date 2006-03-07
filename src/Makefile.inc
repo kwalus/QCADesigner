@@ -70,7 +70,8 @@ GRAPH_DIALOG_FILES = \
 	graph_dialog_interface.c                graph_dialog_interface.h \
 	graph_dialog_callbacks.c                graph_dialog_callbacks.h \
 	graph_dialog_data.c                     graph_dialog_data.h \
-	waveform_interpretation_dialog.c        waveform_interpretation_dialog.h
+	waveform_interpretation_dialog.c        waveform_interpretation_dialog.h \
+	objects/QCADScrolledWindow.c            objectsQCADScrolledWindow.h
 
 VECTOR_TABLE_DIALOG_FILES = \
 	vector_table_options_dialog.c           vector_table_options_dialog.h \

@@ -101,7 +101,7 @@ void apply_graph_dialog_data (graph_D *dialog, GRAPH_DIALOG_DATA *dialog_data)
     attach_graph_widgets (dialog, dialog->table_of_traces, trace_drawing_widget, trace_ruler_widget, trace_ui_widget, idxTbl++) ;
     g_object_set_data (G_OBJECT (trace_drawing_widget), "label",   dialog->lbl_status) ;
     g_object_set_data (G_OBJECT (trace_drawing_widget), "table",   dialog->table_of_traces) ;
-    g_object_set_data (G_OBJECT (trace_drawing_widget), "hscroll", dialog->hscroll) ;
+    g_object_set_data (G_OBJECT (trace_drawing_widget), "hadj",    gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (dialog->sw))) ;
     g_object_set_data (G_OBJECT (trace_ruler_widget),   "label",   dialog->lbl_status) ;
     if (!gtk_tree_model_iter_next_dfs (dialog_data->model, &itr)) break ;
     }

@@ -40,6 +40,7 @@
 #include "graph_dialog_interface.h"
 #include "graph_dialog_widget_data.h"
 #include "graph_dialog_callbacks.h"
+#include "objects/QCADScrolledWindow.h"
 
 static char *graph_dialog_ui_xml =
   "<ui>"
@@ -259,149 +260,7 @@ void create_graph_dialog (graph_D *dialog)
 
     g_object_set_data (G_OBJECT (gtk_ui_manager_get_action (ui_mgr, "/ui/menubar/FileMenu/FileClose")), "dlgGraphs", dialog->dialog) ;
     }
-/*
-  toolbar = gtk_toolbar_new () ;
-  gtk_widget_show (toolbar) ;
-  gtk_table_attach (GTK_TABLE (table), toolbar, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
-  gtk_toolbar_set_orientation (GTK_TOOLBAR (toolbar), GTK_ORIENTATION_HORIZONTAL) ;
-  gtk_toolbar_set_tooltips (GTK_TOOLBAR (toolbar), TRUE) ;
-  gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH) ;
 
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (GTK_TYPE_TOOL_BUTTON,
-        "stock-id", GTK_STOCK_CLOSE, 
-//        "label",    _("Close"),
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Close Window"), _("Close simulation results window.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnClose_clicked, NULL) ;
-  g_object_set_data (G_OBJECT (btn), "dlgGraphs", dialog->dialog) ;
-//	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_w, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
-*/
-#ifdef STDIO_FILEIO
-/*
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (GTK_TYPE_TOOL_BUTTON,
-        "stock-id", GTK_STOCK_OPEN, 
-//        "label",    _("Open"),
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Open Simulation Results..."), _("Open and display another set of simulation results.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnOpen_clicked, dialog) ;
-//	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_o, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (GTK_TYPE_TOOL_BUTTON,
-        "stock-id", GTK_STOCK_SAVE, 
-//        "label",    _("Open"),
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Save Simulation Results"), _("Save the displayed simulation results.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnSave_clicked, dialog) ;
-//	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (GTK_TYPE_TOOL_BUTTON,
-        "stock-id", GTK_STOCK_PRINT_PREVIEW, 
-//        "label",    _("Open"),
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Preview the print layout"), _("Converts graphs to PostScript and runs the previewer application.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnPreview_clicked, dialog) ;
-*/
-#endif /* def STDIO_FILEIO */
-/*
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (GTK_TYPE_TOOL_BUTTON,
-        "stock-id", GTK_STOCK_PRINT, 
-//        "label",    _("Open"),
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Print Graphs"), _("Converts graphs to PostScript and prints them to a file or a printer.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnPrint_clicked, dialog) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (GTK_TYPE_TOOL_BUTTON,
-        "stock-id", GTK_STOCK_ZOOM_100, 
-        "label",    _("Reset Zoom"),
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Un-stretch Traces"), _("Reset the stretch on the traces")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnZoom100_clicked, dialog) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (GTK_TYPE_TOOL_BUTTON,
-        "stock-id", GTK_STOCK_PREFERENCES, 
-        "label",    _("Interpretation..."),
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Digital Interpretation Options"), _("Set parameters for interpreting logical bits from polarizations.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnThresh_clicked, dialog) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (g_object_new (GTK_TYPE_SEPARATOR_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
-        "stock-id", QCAD_STOCK_GRAPH_DEC, 
-        "label",    _("Decimal"),
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Show Values As Decimal"), _("Display honeycomb values in decimal.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnShowBase_clicked, dialog) ;
-  g_object_set_data (G_OBJECT (btn), "base", (gpointer)10) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
-        "stock-id", QCAD_STOCK_GRAPH_BIN, 
-        "label",    _("Binary"),
-        "group",    btn,
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Show Values As Binary"), _("Display honeycomb values in binary.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnShowBase_clicked, dialog) ;
-  g_object_set_data (G_OBJECT (btn), "base", (gpointer)2) ;
-
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
-    GTK_TOOL_ITEM (btn = 
-      g_object_new (QCAD_TYPE_RADIO_TOOL_BUTTON,
-        "stock-id", QCAD_STOCK_GRAPH_HEX, 
-        "label",    _("Hex"),
-        "group",    btn,
-        "visible",  TRUE,
-        NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (btn), GTK_TOOLBAR (toolbar)->tooltips, 
-    _("Show Values As Hexadecimal"), _("Display honeycomb values in hexadecimal.")) ;
-  g_signal_connect (G_OBJECT (btn), "clicked", (GCallback)btnShowBase_clicked, dialog) ;
-  g_object_set_data (G_OBJECT (btn), "base", (gpointer)16) ;
-*/
   dialog->hpaned = gtk_hpaned_new () ;
   gtk_widget_show (dialog->hpaned) ;
   gtk_table_attach (GTK_TABLE (table), dialog->hpaned, 0, 1, 2, 3,
@@ -424,6 +283,15 @@ void create_graph_dialog (graph_D *dialog)
   gtk_widget_show (dialog->tview) ;
   gtk_container_add (GTK_CONTAINER (sw_tview), dialog->tview) ;
 
+  dialog->sw = g_object_new (QCAD_TYPE_SCROLLED_WINDOW, 
+    "hscrollbar-policy",  GTK_POLICY_AUTOMATIC,
+    "vscrollbar-policy",  GTK_POLICY_AUTOMATIC,
+    "shadow-type",        GTK_SHADOW_IN,
+    "visible",            TRUE, 
+    "custom-hadjustment", TRUE, 
+    NULL) ;
+  gtk_paned_add2 (GTK_PANED (dialog->hpaned), dialog->sw) ;
+/*
   tbl_sw = gtk_table_new (2, 2, FALSE) ;
   gtk_widget_show (tbl_sw) ;
   gtk_paned_add2 (GTK_PANED (dialog->hpaned), tbl_sw) ;
@@ -437,10 +305,10 @@ void create_graph_dialog (graph_D *dialog)
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0) ;
   gtk_viewport_set_shadow_type (GTK_VIEWPORT (dialog->vp), GTK_SHADOW_IN) ;
   gtk_widget_set_size_request (dialog->vp, 0, 0) ;
-
+*/
   tbl_vp = gtk_table_new (1, 1, FALSE) ;
   gtk_widget_show (tbl_vp) ;
-  gtk_container_add (GTK_CONTAINER (dialog->vp), tbl_vp) ;
+  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (dialog->sw), tbl_vp) ;
 
   dialog->table_of_traces = gtk_table_new (1, 2, FALSE) ;
   gtk_widget_show (dialog->table_of_traces) ;
@@ -448,6 +316,7 @@ void create_graph_dialog (graph_D *dialog)
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(0), 0, 0) ;
 
+/*
   dialog->hscroll = gtk_hscrollbar_new (NULL) ;
   gtk_widget_show (dialog->hscroll) ;
   gtk_table_attach (GTK_TABLE (tbl_sw), dialog->hscroll, 0, 1, 1, 2,
@@ -462,7 +331,7 @@ void create_graph_dialog (graph_D *dialog)
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0) ;
   g_object_set_data (G_OBJECT (vscroll), "tbl", tbl_sw) ;
   gtk_viewport_set_vadjustment (GTK_VIEWPORT (dialog->vp), gtk_range_get_adjustment (GTK_RANGE (vscroll))) ;
-
+*/
   tbl_status = gtk_table_new (1, 2, FALSE) ;
   gtk_widget_show (tbl_status) ;
   gtk_table_attach (GTK_TABLE (table), tbl_status, 0, 1, 2, 3,
@@ -487,8 +356,8 @@ void create_graph_dialog (graph_D *dialog)
   g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)model_visible_toggled, dialog) ;
   g_signal_connect (G_OBJECT (dialog->tview), "row-expanded", (GCallback)set_bus_expanded, (gpointer)TRUE) ;
   g_signal_connect (G_OBJECT (dialog->tview), "row-collapsed", (GCallback)set_bus_expanded, (gpointer)FALSE) ;
-  g_signal_connect (G_OBJECT (gtk_range_get_adjustment (GTK_RANGE (dialog->hscroll))), "value-changed", (GCallback)hscroll_adj_value_changed, dialog->dialog) ;
-  g_signal_connect (G_OBJECT (dialog->vp), "scroll-event", (GCallback)viewport_scroll, dialog) ;
+  g_signal_connect (G_OBJECT (gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (dialog->sw))), "value-changed", (GCallback)hscroll_adj_value_changed, dialog->dialog) ;
+//  g_signal_connect (G_OBJECT (dialog->vp), "scroll-event", (GCallback)viewport_scroll, dialog) ;
   g_signal_connect (G_OBJECT (dialog->dialog), "delete-event", (GCallback)btnClose_clicked, NULL) ;
   }
 

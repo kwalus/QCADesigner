@@ -37,6 +37,7 @@
 #define _FILEIO_HELPERS_H_
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <glib.h>
 
 FILE *file_open_and_buffer (char *pszFName) ;
@@ -52,5 +53,6 @@ int file_age_compare (char *pszFName1, char *pszFName2) ;
 char *absolute_path (char *pszFName) ;
 char *next_space_separated_value (char **ppsz) ;
 double get_file_percent (FILE *pfile) ;
+int flush_fprintf (FILE *pfile, char *pszFmt, ...) ;
 
 #endif /* _FILEIO_HELPERS_H_ */

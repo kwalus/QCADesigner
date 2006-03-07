@@ -393,3 +393,21 @@ double get_file_percent (FILE *pfile)
 
   return (((double)pos) / ((double)size)) ;
   }
+
+int flush_fprintf (FILE *pfile, char *pszFmt, ...)
+  {
+  int ret ;
+  va_list va ;
+
+  if (NULL == pfile || NULL == pszFmt) return -1 ;
+
+  va_start (va, pszFmt) ;
+
+  ret = vfprintf (pfile, pszFmt, va) ;
+
+  fflush (pfile) ;
+
+  va_end (va) ;
+
+  return ret ;
+  }

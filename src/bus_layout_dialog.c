@@ -48,8 +48,6 @@ typedef struct
   GtkWidget *dialog ;
   GtkWidget *sw ;
   GtkWidget *tview ;
-  GtkWidget *bbox ;
-  GtkWidget *btnOK ;
   GtkWidget *btnCreateBus ;
   GtkWidget *btnDeleteBus ;
   GtkWidget *btnMoveCellsUp ;
@@ -58,7 +56,6 @@ typedef struct
   GtkWidget *btnMoveBusDown ;
   GtkWidget *lblBusName ;
   GtkWidget *txtBusName ;
-  GtkWidget *lblWarning ;
   } bus_layout_D ;
 
 typedef struct
@@ -104,7 +101,6 @@ static void create_bus_button_clicked (GtkWidget *widget, gpointer data) ;
 static void delete_bus_button_clicked (GtkWidget *widget, gpointer data) ;
 static GList *get_selected_refs (GtkTreeSelection *sel) ;
 static void get_selected_refs_foreach_func (GtkTreeModel *tm, GtkTreePath *tp, GtkTreeIter *itr, gpointer data) ;
-static void bus_name_changed (GtkWidget *widget, gpointer data) ;
 static GList *get_bus_refs (GtkTreeModel *tm, GtkTreePath *tpBus) ;
 static void raise_bus_cell_position (GtkWidget *widget, gpointer data) ;
 static void lower_bus_cell_position (GtkWidget *widget, gpointer data) ;
@@ -118,6 +114,10 @@ static GtkTreePath *get_next_bus (GtkTreeModel *tm, GtkTreePath *tpSelBus) ;
 static GtkTreePath *get_prev_bus (GtkTreeModel *tm, GtkTreePath *tpSelBus) ;
 static void swap_buses (GtkTreeModel *tm, GtkTreeSelection *sel, bus_layout_D *dialog, GtkTreePath *tpSrc, GtkTreePath *tpDst) ;
 static void bus_layout_tree_model_dump_priv (GtkTreeModel *model, FILE *pfile, GtkTreeIter *itr, int icIndent) ;
+static void bus_name_changed (GtkWidget *widget, gpointer data) ;
+static void entry_insert_text (GtkWidget *entry, char *new_text, gint new_text_length, gint *position, gpointer data) ;
+static void entry_delete_text (GtkWidget *entry, gint start_pos, gint end_pos, gpointer data) ;
+static void bus_name_entry_set_quiet (GtkWidget *entry, gboolean bQuiet, gboolean bChangedSignalAsWell) ;
 
 void get_bus_layout_from_user (GtkWindow *parent, BUS_LAYOUT *bus_layout)
   {
@@ -132,13 +132,6 @@ void get_bus_layout_from_user (GtkWindow *parent, BUS_LAYOUT *bus_layout)
 
   if (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (bus_layout_dialog.dialog)))
     DialogToBusLayout (&bus_layout_dialog, bus_layout) ;
-  else
-    {
-    gtk_widget_hide (bus_layout_dialog.lblWarning) ;
-    gtk_widget_set_sensitive (bus_layout_dialog.bbox, TRUE) ;
-    gtk_widget_set_sensitive (bus_layout_dialog.btnOK, TRUE) ;
-    gtk_widget_set_sensitive (bus_layout_dialog.sw, TRUE) ;
-    }
 
   if (NULL != (tp = g_object_get_data (G_OBJECT (bus_layout_dialog.tview), "tpBus")))
     gtk_tree_path_free (tp) ;
@@ -349,30 +342,11 @@ static void bus_name_changed (GtkWidget *widget, gpointer data)
   GtkTreeIter itr ;
   GtkTreePath *tp = g_object_get_data (G_OBJECT (dialog->tview), "tpBus") ;
   GtkTreeModel *tm = NULL ;
-  const char *pszText = NULL ;
-  gboolean bHaveText = FALSE ;
 
   if (NULL == tp) return ;
 
   gtk_tree_model_get_iter (tm = GTK_TREE_MODEL (gtk_tree_view_get_model (GTK_TREE_VIEW (((bus_layout_D *)data)->tview))), &itr, tp) ;
-
-  gtk_tree_store_set (GTK_TREE_STORE (tm), &itr,
-    BUS_LAYOUT_MODEL_COLUMN_NAME, pszText = gtk_entry_get_text (GTK_ENTRY (widget)), -1) ;
-
-  if ((bHaveText = ('\0' != pszText[0])))
-    gtk_widget_hide (dialog->lblWarning) ;
-  else
-    {
-    gtk_entry_set_text (GTK_ENTRY (widget), _("Untitled Bus")) ;
-    gtk_editable_select_region (GTK_EDITABLE (widget), 0, -1) ;
-    }
-/*
-    gtk_widget_show (dialog->lblWarning) ;
-
-  gtk_widget_set_sensitive (dialog->sw, bHaveText) ;
-  gtk_widget_set_sensitive (dialog->bbox, bHaveText) ;
-  gtk_widget_set_sensitive (dialog->btnOK, bHaveText) ;
-*/
+  gtk_tree_store_set (GTK_TREE_STORE (tm), &itr, BUS_LAYOUT_MODEL_COLUMN_NAME, gtk_entry_get_text (GTK_ENTRY (widget)), -1) ;
   }
 
 // Create a new bus from the current selection
@@ -642,9 +616,9 @@ static void tree_view_selection_changed (GtkTreeSelection *sel, gpointer data)
 
     gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_NAME, &psz, -1) ;
 
-    g_signal_handlers_block_matched (G_OBJECT (dialog->txtBusName), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, (gpointer)bus_name_changed, NULL) ;
+    bus_name_entry_set_quiet (dialog->txtBusName, TRUE, TRUE) ;
     gtk_entry_set_text (GTK_ENTRY (dialog->txtBusName), psz) ;
-    g_signal_handlers_unblock_matched (G_OBJECT (dialog->txtBusName), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, (gpointer)bus_name_changed, NULL) ;
+    bus_name_entry_set_quiet (dialog->txtBusName, FALSE, TRUE) ;
 
     g_free (psz) ;
     }
@@ -1034,7 +1008,7 @@ static void determine_first_or_last_bus (GtkTreeModel *tm, GtkTreePath *tpSelBus
 
 static void create_bus_layout_dialog (bus_layout_D *dialog)
   {
-  GtkWidget *tblMain = NULL, *frm = NULL, *img = NULL, *tbl = NULL, *align = NULL ;
+  GtkWidget *tblMain = NULL, *frm = NULL, *img = NULL, *tbl = NULL, *align = NULL, *bbox = NULL ;
 
   dialog->dialog = gtk_dialog_new () ;
   gtk_window_set_title (GTK_WINDOW (dialog->dialog), _("Bus Layout")) ;
@@ -1078,43 +1052,43 @@ static void create_bus_layout_dialog (bus_layout_D *dialog)
   gtk_container_add (GTK_CONTAINER (align), tbl) ;
   gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
 
-  dialog->bbox = gtk_vbutton_box_new () ;
-  gtk_widget_show (dialog->bbox) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->bbox, 0, 1, 0, 1,
+  bbox = gtk_vbutton_box_new () ;
+  gtk_widget_show (bbox) ;
+  gtk_table_attach (GTK_TABLE (tbl), bbox, 0, 1, 0, 1,
     (GtkAttachOptions)(0),
     (GtkAttachOptions)(0), 2, 2) ;
-  gtk_container_set_border_width (GTK_CONTAINER (dialog->bbox), 2) ;
-  gtk_button_box_set_spacing (GTK_BUTTON_BOX (dialog->bbox), gtk_vbutton_box_get_spacing_default ()) ;
+  gtk_container_set_border_width (GTK_CONTAINER (bbox), 2) ;
+  gtk_button_box_set_spacing (GTK_BUTTON_BOX (bbox), gtk_vbutton_box_get_spacing_default ()) ;
 
   dialog->btnCreateBus = create_pixmap_button (img = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_BUTTON), _("Create Bus"), FALSE) ;
   gtk_widget_show (dialog->btnCreateBus) ;
   gtk_widget_show (img) ;
-  gtk_box_pack_start (GTK_BOX (dialog->bbox), dialog->btnCreateBus, FALSE, TRUE, 0) ;
+  gtk_box_pack_start (GTK_BOX (bbox), dialog->btnCreateBus, FALSE, TRUE, 0) ;
 
   dialog->btnDeleteBus = create_pixmap_button (img = gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_BUTTON), _("Delete Bus"), FALSE) ;
   gtk_widget_show (dialog->btnDeleteBus) ;
   gtk_widget_show (img) ;
-  gtk_box_pack_start (GTK_BOX (dialog->bbox), dialog->btnDeleteBus, FALSE, TRUE, 0) ;
+  gtk_box_pack_start (GTK_BOX (bbox), dialog->btnDeleteBus, FALSE, TRUE, 0) ;
 
   dialog->btnMoveBusUp = create_pixmap_button (img = gtk_image_new_from_stock (GTK_STOCK_GO_UP, GTK_ICON_SIZE_BUTTON), _("Move Bus Up"), FALSE) ;
   gtk_widget_show (dialog->btnMoveBusUp) ;
   gtk_widget_show (img) ;
-  gtk_box_pack_start (GTK_BOX (dialog->bbox), dialog->btnMoveBusUp, FALSE, TRUE, 0) ;
+  gtk_box_pack_start (GTK_BOX (bbox), dialog->btnMoveBusUp, FALSE, TRUE, 0) ;
 
   dialog->btnMoveBusDown = create_pixmap_button (img = gtk_image_new_from_stock (GTK_STOCK_GO_DOWN, GTK_ICON_SIZE_BUTTON), _("Move Bus Down"), FALSE) ;
   gtk_widget_show (dialog->btnMoveBusDown) ;
   gtk_widget_show (img) ;
-  gtk_box_pack_start (GTK_BOX (dialog->bbox), dialog->btnMoveBusDown, FALSE, TRUE, 0) ;
+  gtk_box_pack_start (GTK_BOX (bbox), dialog->btnMoveBusDown, FALSE, TRUE, 0) ;
 
   dialog->btnMoveCellsUp = create_pixmap_button (img = gtk_image_new_from_stock (GTK_STOCK_GO_UP, GTK_ICON_SIZE_BUTTON), _("Make Cell(s) More Significant"), FALSE) ;
   gtk_widget_show (dialog->btnMoveCellsUp) ;
   gtk_widget_show (img) ;
-  gtk_box_pack_start (GTK_BOX (dialog->bbox), dialog->btnMoveCellsUp, FALSE, TRUE, 0) ;
+  gtk_box_pack_start (GTK_BOX (bbox), dialog->btnMoveCellsUp, FALSE, TRUE, 0) ;
 
   dialog->btnMoveCellsDown = create_pixmap_button (img = gtk_image_new_from_stock (GTK_STOCK_GO_DOWN, GTK_ICON_SIZE_BUTTON), _("Make Cell(s) Less Significant"), FALSE) ;
   gtk_widget_show (dialog->btnMoveCellsDown) ;
   gtk_widget_show (img) ;
-  gtk_box_pack_start (GTK_BOX (dialog->bbox), dialog->btnMoveCellsDown, FALSE, TRUE, 0) ;
+  gtk_box_pack_start (GTK_BOX (bbox), dialog->btnMoveCellsDown, FALSE, TRUE, 0) ;
 
   dialog->lblBusName = gtk_label_new (_("Bus Name:")) ;
   gtk_widget_show (dialog->lblBusName) ;
@@ -1124,33 +1098,26 @@ static void create_bus_layout_dialog (bus_layout_D *dialog)
   gtk_label_set_justify (GTK_LABEL (dialog->lblBusName), GTK_JUSTIFY_LEFT) ;
   gtk_misc_set_alignment (GTK_MISC (dialog->lblBusName), 0.0, 1.0) ;
 
-  dialog->txtBusName = gtk_entry_new () ;
+  dialog->txtBusName = g_object_new (GTK_TYPE_ENTRY, "text", _("Untitled Bus"), NULL) ;
   gtk_widget_show (dialog->txtBusName) ;
   gtk_table_attach (GTK_TABLE (tbl), dialog->txtBusName, 0, 1, 2, 3,
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(0), 2, 2) ;
 
-  dialog->lblWarning = gtk_label_new (NULL) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->lblWarning, 0, 1, 3, 4,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(0), 2, 2) ;
-  gtk_label_set_markup (GTK_LABEL (dialog->lblWarning), _("<span foreground=\"red\">Warning:</span> The bus must have a name.")) ;
-  gtk_label_set_justify (GTK_LABEL (dialog->lblWarning), GTK_JUSTIFY_LEFT) ;
-  gtk_misc_set_alignment (GTK_MISC (dialog->lblWarning), 0.0, 0.0) ;
-  gtk_label_set_line_wrap (GTK_LABEL (dialog->lblWarning), TRUE) ;
-
   gtk_dialog_add_button (GTK_DIALOG (dialog->dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
-  dialog->btnOK = gtk_dialog_add_button (GTK_DIALOG (dialog->dialog), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
+  gtk_dialog_add_button (GTK_DIALOG (dialog->dialog), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
   gtk_dialog_set_default_response (GTK_DIALOG (dialog->dialog), GTK_RESPONSE_OK) ;
 
   g_signal_connect (G_OBJECT (gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->tview))), "changed", (GCallback)tree_view_selection_changed, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->btnCreateBus),     "clicked", (GCallback)create_bus_button_clicked, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->btnDeleteBus),     "clicked", (GCallback)delete_bus_button_clicked, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->btnMoveCellsUp),   "clicked", (GCallback)raise_bus_cell_position,   dialog) ;
-  g_signal_connect (G_OBJECT (dialog->btnMoveCellsDown), "clicked", (GCallback)lower_bus_cell_position,   dialog) ;
-  g_signal_connect (G_OBJECT (dialog->btnMoveBusUp),     "clicked", (GCallback)raise_bus_position,        dialog) ;
-  g_signal_connect (G_OBJECT (dialog->btnMoveBusDown),   "clicked", (GCallback)lower_bus_position,        dialog) ;
-  g_signal_connect (G_OBJECT (dialog->txtBusName),       "changed", (GCallback)bus_name_changed,          dialog) ;
+  g_signal_connect (G_OBJECT (dialog->btnCreateBus),     "clicked",     (GCallback)create_bus_button_clicked, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->btnDeleteBus),     "clicked",     (GCallback)delete_bus_button_clicked, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->btnMoveCellsUp),   "clicked",     (GCallback)raise_bus_cell_position,   dialog) ;
+  g_signal_connect (G_OBJECT (dialog->btnMoveCellsDown), "clicked",     (GCallback)lower_bus_cell_position,   dialog) ;
+  g_signal_connect (G_OBJECT (dialog->btnMoveBusUp),     "clicked",     (GCallback)raise_bus_position,        dialog) ;
+  g_signal_connect (G_OBJECT (dialog->btnMoveBusDown),   "clicked",     (GCallback)lower_bus_position,        dialog) ;
+  g_signal_connect (G_OBJECT (dialog->txtBusName),       "changed",     (GCallback)bus_name_changed,          dialog) ;
+  g_signal_connect (G_OBJECT (dialog->txtBusName),       "insert-text", (GCallback)entry_insert_text,         dialog) ;
+  g_signal_connect (G_OBJECT (dialog->txtBusName),       "delete-text", (GCallback)entry_delete_text,         dialog) ;
   }
 
 GtkWidget *create_bus_layout_tree_view (gboolean bColsVisible, char *pszColumnTitle, GtkSelectionMode sel_mode)
@@ -1232,4 +1199,52 @@ static void bus_layout_tree_model_dump_priv (GtkTreeModel *model, FILE *pfile, G
       bus_layout_tree_model_dump_priv (model, pfile, &itrChild, icIndent + 2) ;
     }
   while (gtk_tree_model_iter_next (model, itr)) ;
+  }
+
+static void entry_delete_text (GtkWidget *entry, gint start_pos, gint end_pos, gpointer data)
+  {
+  if (0 == start_pos && strlen (gtk_entry_get_text (GTK_ENTRY (entry))) == end_pos)
+    {
+    bus_name_entry_set_quiet (entry, TRUE, FALSE) ;
+    gtk_entry_set_text (GTK_ENTRY (entry), _("Untitled Bus")) ;
+    gtk_editable_select_region (GTK_EDITABLE (entry), 0, -1) ;
+    bus_name_entry_set_quiet (entry, FALSE, FALSE) ;
+    g_signal_stop_emission_by_name (G_OBJECT (entry), "delete-text") ;
+    }
+  }
+
+static void entry_insert_text (GtkWidget *entry, char *new_text, gint new_text_length, gint *position, gpointer data)
+  {
+  int start_pos, end_pos ;
+
+  gtk_editable_get_selection_bounds (GTK_EDITABLE (entry), &start_pos, &end_pos) ;
+
+  if (0 == start_pos && strlen (gtk_entry_get_text (GTK_ENTRY (entry))) == end_pos)
+    {
+    if (strlen (new_text) > 0)
+      {
+      bus_name_entry_set_quiet (entry, TRUE, FALSE) ;
+      gtk_entry_set_text (GTK_ENTRY (entry), new_text) ;
+      bus_name_entry_set_quiet (entry, FALSE, FALSE) ;
+      }
+    g_signal_stop_emission_by_name (G_OBJECT (entry), "insert-text") ;
+    }
+  }
+
+static void bus_name_entry_set_quiet (GtkWidget *entry, gboolean bQuiet, gboolean bChangedSignalAsWell)
+  {
+  if (bQuiet)
+    {
+    g_signal_handlers_block_matched (G_OBJECT (entry), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, entry_delete_text, NULL) ;
+    g_signal_handlers_block_matched (G_OBJECT (entry), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, entry_insert_text, NULL) ;
+    if (bChangedSignalAsWell)
+      g_signal_handlers_block_matched (G_OBJECT (entry), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, bus_name_changed, NULL) ;
+    }
+  else
+    {
+    g_signal_handlers_unblock_matched (G_OBJECT (entry), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, entry_delete_text, NULL) ;
+    g_signal_handlers_unblock_matched (G_OBJECT (entry), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, entry_insert_text, NULL) ;
+    if (bChangedSignalAsWell)
+      g_signal_handlers_unblock_matched (G_OBJECT (entry), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, bus_name_changed, NULL) ;
+    }
   }

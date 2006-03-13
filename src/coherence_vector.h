@@ -61,6 +61,12 @@ typedef struct
 	int algorithm;
 	gboolean randomize_cells;
 	gboolean animate_simulation;
+	// Added by Marco
+	int jitter_phase_0; 
+	int jitter_phase_1;
+	int jitter_phase_2;
+	int jitter_phase_3;
+	// End added by Marco
   } coherence_OP;
 
 void coherence_options_dump (coherence_OP *coherence_options, FILE *pfile) ;

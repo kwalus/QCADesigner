@@ -835,6 +835,22 @@ static coherence_OP *open_coherence_options_file_fp (FILE *pfile)
     else
     if (!strncmp (pszLine, "animate_simulation", sizeof ("animate_simulation") - 1))
       coherence_options->animate_simulation = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
+// Added by Marco 
+ else
+    if (!strncmp (pszLine, "jitter_phase_0", sizeof ("jitter_phase_0") - 1))
+      coherence_options->jitter_phase_0 = atoi (pszValue);
+ else
+    if (!strncmp (pszLine, "jitter_phase_1", sizeof ("jitter_phase_1") - 1))
+      coherence_options->jitter_phase_1 = atoi (pszValue);
+ else
+    if (!strncmp (pszLine, "jitter_phase_2", sizeof ("jitter_phase_2") - 1))
+      coherence_options->jitter_phase_2 = atoi (pszValue);
+ else
+    if (!strncmp (pszLine, "jitter_phase_3", sizeof ("jitter_phase_3") - 1))
+      coherence_options->jitter_phase_3 = atoi (pszValue); 
+
+// End Added by Marco 
+
 
     g_free (pszLine) ;
     g_free (ReadLine (pfile, '\0', FALSE)) ;
@@ -915,6 +931,21 @@ static bistable_OP *open_bistable_options_file_fp (FILE *pfile)
     else
     if (!strncmp (pszLine, "randomize_cells", sizeof ("randomize_cells") - 1))
       bistable_options->randomize_cells = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
+// Added by Marco March 2
+ else
+    if (!strncmp (pszLine, "jitter_phase_0", sizeof ("jitter_phase_0") - 1))
+      bistable_options->jitter_phase_0 = atoi (pszValue);
+ else
+    if (!strncmp (pszLine, "jitter_phase_1", sizeof ("jitter_phase_1") - 1))
+      bistable_options->jitter_phase_1 = atoi (pszValue);
+ else
+    if (!strncmp (pszLine, "jitter_phase_2", sizeof ("jitter_phase_2") - 1))
+      bistable_options->jitter_phase_2 = atoi (pszValue);
+ else
+    if (!strncmp (pszLine, "jitter_phase_3", sizeof ("jitter_phase_3") - 1))
+      bistable_options->jitter_phase_3 = atoi (pszValue); 
+
+// End Added by Marco March 2
 
     g_free (pszLine) ;
     g_free (ReadLine (pfile, '\0', FALSE)) ;

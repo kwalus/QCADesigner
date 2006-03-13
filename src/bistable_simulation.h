@@ -51,7 +51,13 @@ typedef struct
 	int max_iterations_per_sample;
 	double layer_separation;
 	gboolean randomize_cells;
-  } bistable_OP;
+	// Added by Marco March 2
+	int jitter_phase_0; 
+	int jitter_phase_1;
+	int jitter_phase_2;
+	int jitter_phase_3;
+	// End added by Marco March 2
+	} bistable_OP;
 
 simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, bistable_OP *options, VectorTable *pvt);
 void bistable_options_dump (bistable_OP *bistable_options, FILE *pfile) ;

@@ -45,7 +45,10 @@
 
 //!Options for the bistable simulation engine
 //This variable is used by multiple source files
-bistable_OP bistable_options = {12800, FALSE, 1e-3, 65, 12.9, 9.8e-22, 3.8e-23, 0.0, 2.0, 100, 11.5, TRUE} ;
+// Added by Marco March 3 : last four arguments (phase shifts)
+
+bistable_OP bistable_options = {12800, FALSE, 1e-3, 65, 12.9, 9.8e-22, 3.8e-23, 0.0, 2.0, 100, 11.5, TRUE,0,0,0,0} ;
+
 
 #ifdef GTK_GUI
 extern int STOP_SIMULATION;
@@ -108,6 +111,8 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
   double polarization_math;
   bistable_model *current_cell_model = NULL ;
   QCADCell *cell;
+  int jitter_phases[4] = {options->jitter_phase_0, options->jitter_phase_1, 
+                             options->jitter_phase_2, options->jitter_phase_3} ;
 
   STOP_SIMULATION = FALSE;
 
@@ -192,21 +197,23 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
     sim_data->clock_data[i].trace_function = QCAD_CELL_FIXED; // Abusing the notation here
 
     sim_data->clock_data[i].data = g_malloc0 (sizeof (double) * sim_data->number_samples);
-
+     
+//Added by Marco : phase shift included in (-PI/2, +P/2) with steps of (1/200)PI
     if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
       for (j = 0; j < sim_data->number_samples; j++)
         {
-        sim_data->clock_data[i].data[j] = clock_prefactor * cos (((double)(1 << design->bus_layout->inputs->icUsed)) * (double) j * four_pi_over_number_samples - PI * i / 2) + clock_shift ;
-        sim_data->clock_data[i].data[j] = CLAMP (sim_data->clock_data[i].data[j], options->clock_low, options->clock_high) ;
-        }
+	      sim_data->clock_data[i].data[j] = clock_prefactor * cos (((double)(1 << design->bus_layout->inputs->icUsed)) * (double)j * four_pi_over_number_samples - (double)((jitter_phases[i]) / 100.0) * PI / 2 - PI * i / 2) + clock_shift ;
+	      sim_data->clock_data[i].data[j] = CLAMP (sim_data->clock_data[i].data[j], options->clock_low, options->clock_high) ;
+	      }
     else
-//    if (SIMULATION_TYPE == VECTOR_TABLE)
-      for (j = 0; j < sim_data->number_samples; j++)
-        {
-        sim_data->clock_data[i].data[j] = clock_prefactor * cos (((double)pvt->vectors->icUsed) * (double)j * two_pi_over_number_samples - PI * i / 2) + clock_shift ;
-        sim_data->clock_data[i].data[j] = CLAMP (sim_data->clock_data[i].data[j], options->clock_low, options->clock_high) ;
+  //if (SIMULATION_TYPE == VECTOR_TABLE)
+	    for (j = 0; j < sim_data->number_samples; j++)
+	      {
+	      sim_data->clock_data[i].data[j] = clock_prefactor * cos (((double)pvt->vectors->icUsed) * (double)j * two_pi_over_number_samples - (double)((jitter_phases[i]) / 100.0) * PI / 2 -  PI * i / 2) + clock_shift ;
+	      sim_data->clock_data[i].data[j] = CLAMP (sim_data->clock_data[i].data[j], options->clock_low, options->clock_high) ;
         }
     }
+//End added by Marco
 
   // -- refresh all the kink energies to all the cells neighbours within the radius of effect -- //
   bistable_refresh_all_Ek (number_of_cell_layers, number_of_cells_in_layer, sorted_cells, options);
@@ -578,4 +585,10 @@ void bistable_options_dump (bistable_OP *bistable_options, FILE *pfile)
 	fprintf (stderr, "bistable_options->max_iterations_per_sample = %d\n",      bistable_options->max_iterations_per_sample) ;
 	fprintf (stderr, "bistable_options->layer_separation          = %e [nm]\n", bistable_options->layer_separation) ;
 	fprintf (stderr, "bistable_options->randomize_cells           = %s\n",      bistable_options->randomize_cells ? "TRUE" : "FALSE") ;
+// Added by Marco
+	fprintf (stderr, "bistable_options->jitter_phase_0            = %d %% of PI/2\n",      bistable_options->jitter_phase_0) ;
+ 	fprintf (stderr, "bistable_options->jitter_phase_1            = %d %% of PI/2\n",      bistable_options->jitter_phase_1) ;
+ 	fprintf (stderr, "bistable_options->jitter_phase_2            = %d %% of PI/2\n",      bistable_options->jitter_phase_2) ;
+ 	fprintf (stderr, "bistable_options->jitter_phase_3            = %d %% of PI/2\n",      bistable_options->jitter_phase_3) ;
+// End added by Marco
   }

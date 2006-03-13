@@ -46,6 +46,12 @@ typedef struct
   GtkWidget *clock_high_entry;
   GtkWidget *clock_low_entry;
   GtkWidget *clock_shift_entry;
+  //Added by Marco March
+  GtkWidget *lbljitph0;
+  GtkWidget *lbljitph1;
+  GtkWidget *lbljitph2;
+  GtkWidget *lbljitph3;
+  //End Added by Marco
   GtkWidget *clock_amplitude_factor_entry;
   GtkWidget *radius_of_effect_entry;
   GtkWidget *epsilonR_entry;
@@ -59,6 +65,12 @@ typedef struct
   GtkWidget *coherence_properties_ok_button;
   GtkWidget *coherence_properties_cancel_button;
   GSList    *radio_group;
+//Added by Marco March 
+  GtkWidget *jitter_phase_0_entry;
+  GtkWidget *jitter_phase_1_entry;
+  GtkWidget *jitter_phase_2_entry;
+  GtkWidget *jitter_phase_3_entry;
+//End addded by Marco
   } coherence_properties_D;
 
 static coherence_properties_D coherence_properties = {NULL};
@@ -120,10 +132,16 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   create_coherence_properties_line (dialog->table,  9, &(label), &(dialog->radius_of_effect_entry),       &lblunits, _("Radius of Effect:"),       "nm", TRUE) ;
   create_coherence_properties_line (dialog->table, 10, &(label), &(dialog->epsilonR_entry),               NULL,      _("Relative Permittivity:"),  NULL, TRUE) ;
   create_coherence_properties_line (dialog->table, 11, &(label), &(dialog->layer_separation_entry),       &lblunits, _("Layer Separation:"),       "nm", TRUE) ;
+//Added by Marco
+  create_coherence_properties_line (dialog->table, 12, &(label), &(dialog->jitter_phase_0_entry),       &lblunits, _("Phase Shift Clock 0:"),       "[% of PI/2]", TRUE) ;
+  create_coherence_properties_line (dialog->table, 13, &(label), &(dialog->jitter_phase_1_entry),       &lblunits, _("Phase Shift Clock 1:"),       "[% of PI/2]", TRUE) ;
+  create_coherence_properties_line (dialog->table, 14, &(label), &(dialog->jitter_phase_2_entry),       &lblunits, _("Phase Shift Clock 2:"),       "[% of PI/2]", TRUE) ;
+  create_coherence_properties_line (dialog->table, 15, &(label), &(dialog->jitter_phase_3_entry),       &lblunits, _("Phase Shift Clock 3:"),       "[% of PI/2]", TRUE) ;
+//End added by Marco
 
   frm = gtk_frame_new (_("Algorithm")) ;
   gtk_widget_show (frm) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), frm, 0, 3, 12, 13, GTK_EXPAND | GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_table_attach (GTK_TABLE (dialog->table), frm, 0, 3, 16, 17, GTK_EXPAND | GTK_FILL, GTK_FILL, 2, 2) ;
   gtk_container_set_border_width (GTK_CONTAINER (frm), 2) ;
 
   tblAlgo = gtk_table_new (2, 1, FALSE) ;
@@ -150,14 +168,14 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   // Randomize Cells ?
   dialog->chkRandomizeCells = gtk_check_button_new_with_label (_("Randomize Simulation Order")) ;
   gtk_widget_show (dialog->chkRandomizeCells) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkRandomizeCells, 0, 2, 16, 17,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkRandomizeCells, 0, 2, 20, 21,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
   // Animate ?
   dialog->chkAnimate = gtk_check_button_new_with_label (_("Animate")) ;
   gtk_widget_show (dialog->chkAnimate) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 17, 18,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 21, 22,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
@@ -173,7 +191,12 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   g_signal_connect (G_OBJECT (dialog->epsilonR_entry),               "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->layer_separation_entry),       "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->clock_amplitude_factor_entry), "changed", (GCallback)properties_changed, dialog) ;
-
+//Added by Marco
+  g_signal_connect (G_OBJECT (dialog->jitter_phase_0_entry),         "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->jitter_phase_1_entry),         "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->jitter_phase_2_entry),         "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->jitter_phase_3_entry),         "changed", (GCallback)properties_changed, dialog) ;
+//End added by Marco
   gtk_dialog_add_button (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
   gtk_dialog_add_button (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_STOCK_OK,     GTK_RESPONSE_OK) ;
   gtk_dialog_set_default_response (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_RESPONSE_OK) ;
@@ -262,6 +285,19 @@ static void coherence_OP_to_dialog (coherence_OP *psco, coherence_properties_D *
   g_snprintf (sz, 16, "%lf", psco->layer_separation) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->layer_separation_entry), sz) ;
 
+//Added by Marco
+  g_snprintf (sz, 16, "%d", psco->jitter_phase_0) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->jitter_phase_0_entry), sz) ;
+  
+  g_snprintf (sz, 16, "%d", psco->jitter_phase_1) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->jitter_phase_1_entry), sz) ;
+  
+  g_snprintf (sz, 16, "%d", psco->jitter_phase_2) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->jitter_phase_2_entry), sz) ;
+  
+  g_snprintf (sz, 16, "%d", psco->jitter_phase_3) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->jitter_phase_3_entry), sz) ;
+//End added by Marco
   if (EULER_METHOD == psco->algorithm)
   	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->euler_method_radio), TRUE);
   else
@@ -282,6 +318,12 @@ static void dialog_to_coherence_OP (coherence_OP *psco, coherence_properties_D *
   psco->radius_of_effect       = atof (gtk_entry_get_text (GTK_ENTRY (dialog->radius_of_effect_entry))) ;
   psco->epsilonR               = atof (gtk_entry_get_text (GTK_ENTRY (dialog->epsilonR_entry))) ;
   psco->layer_separation       = atof (gtk_entry_get_text (GTK_ENTRY (dialog->layer_separation_entry))) ;
+//Added by Marco
+  psco->jitter_phase_0       = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->jitter_phase_0_entry))) ;
+  psco->jitter_phase_1       = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->jitter_phase_1_entry))) ;
+  psco->jitter_phase_2       = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->jitter_phase_2_entry))) ;
+  psco->jitter_phase_3       = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->jitter_phase_3_entry))) ;
+//End added by Marco
   psco->algorithm          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->euler_method_radio)) ? EULER_METHOD : RUNGE_KUTTA;
   psco->randomize_cells    = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkRandomizeCells)) ;
   psco->animate_simulation = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkAnimate)) ;

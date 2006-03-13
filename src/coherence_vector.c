@@ -48,7 +48,8 @@
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
 //!Options for the coherence simulation engine
-coherence_OP coherence_options = {1, 1e-15, 1e-16, 7e-11, 9.8e-22, 3.8e-23, 0.0, 2.0, 80, 12.9, 11.5, EULER_METHOD, TRUE, FALSE} ;
+//Added by Marco default values for phase shift (0,0,0,0)
+coherence_OP coherence_options = {1, 1e-15, 1e-16, 7e-11, 9.8e-22, 3.8e-23, 0.0, 2.0, 80, 12.9, 11.5, EULER_METHOD, TRUE, FALSE,0,0,0,0} ;
 
 typedef struct
   {
@@ -603,11 +604,15 @@ static double coherence_determine_Ek (QCADCell * cell1, QCADCell * cell2, int la
 static inline double calculate_clock_value (unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt)
   {
   double clock = 0;
+  int jitter_phases[4] = {options->jitter_phase_0, options->jitter_phase_1,
+                          options->jitter_phase_2, options->jitter_phase_3} ;
+
+//Added by Marco: phase shift included in (-PI/2, +P/2) with steps of (1/200)PI
 
   if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
     {
     clock = optimization_options.clock_prefactor *
-      cos (((double) (1 << total_number_of_inputs)) * (double) sample * optimization_options.four_pi_over_number_samples - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
+      cos (((double)(1 << total_number_of_inputs)) * (double)sample * optimization_options.four_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 100.0) * PI / 2  - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
 
     // Saturate the clock at the clock high and low values
     clock = CLAMP (clock, options->clock_low, options->clock_high) ;
@@ -616,12 +621,13 @@ static inline double calculate_clock_value (unsigned int clock_num, unsigned lon
   if (SIMULATION_TYPE == VECTOR_TABLE)
     {
     clock = optimization_options.clock_prefactor *
-      cos (((double)pvt->vectors->icUsed) * (double) sample * optimization_options.two_pi_over_number_samples - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
+      cos (((double)pvt->vectors->icUsed) * (double)sample * optimization_options.two_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 100.0) * PI / 2  - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
 
     // Saturate the clock at the clock high and low values
     clock = CLAMP (clock, options->clock_low, options->clock_high) ;
     }
-
+    
+//End added by Marco
   return clock;
   }// calculate_clock_value
 
@@ -748,4 +754,10 @@ void coherence_options_dump (coherence_OP *coherence_options, FILE *pfile)
 	fprintf (stderr, "coherence_options->algorithm                 = %d\n",      coherence_options->algorithm) ;
 	fprintf (stderr, "coherence_options->randomize_cells           = %s\n",      coherence_options->randomize_cells ? "TRUE" : "FALSE") ;
 	fprintf (stderr, "coherence_options->animate_simulation        = %s\n",      coherence_options->animate_simulation ? "TRUE" : "FALSE") ;
+// Added by Marco
+	fprintf (stderr, "coherence_options->jitter_phase_0            = %d\n",      coherence_options->jitter_phase_0) ;
+	fprintf (stderr, "coherence_options->jitter_phase_1            = %d\n",      coherence_options->jitter_phase_1) ;
+	fprintf (stderr, "coherence_options->jitter_phase_2            = %d\n",      coherence_options->jitter_phase_2) ;
+	fprintf (stderr, "coherence_options->jitter_phase_3            = %d\n",      coherence_options->jitter_phase_3) ;
+// End added by Marco
   }

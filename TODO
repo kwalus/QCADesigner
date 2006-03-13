@@ -55,6 +55,15 @@
     don't keep on making new object arrays. Keep ref-ing the same array - saves
     memory.
 
+[ ] GUI parameter analysis tool
+
+    [ ] Separate simulation engines
+
+        [ ] Via IPC: QCADesigner spawns batch_sim and communicates with it
+        XOR
+        [ ] Via .so: build QCADesigner simulation engines into .so - difficult
+            because of #ifdef GTK_GUI - will need to formalize report on progress
+
 2.0.3
 ================================================================================
 [X] Switched Windows version from antiquated dropline.net GTK+ distribution to

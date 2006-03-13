@@ -64,6 +64,8 @@
         [ ] Via .so: build QCADesigner simulation engines into .so - difficult
             because of #ifdef GTK_GUI - will need to formalize report on progress
 
+    [ ] Parameter ranges can be rendered as special QCADPropertyUIs
+
 2.0.3
 ================================================================================
 [X] Switched Windows version from antiquated dropline.net GTK+ distribution to

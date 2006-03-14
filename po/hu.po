@@ -23,8 +23,8 @@ msgstr "<span foreground=\"red\">Figyelem:</span> A busznak muszály neve legyen
 msgid "About QCADesigner"
 msgstr "QCADesigner névjegye"
 
-msgid "About..."
-msgstr "Névjegy..."
+msgid "_About"
+msgstr "_Névjegy"
 
 msgid "Active"
 msgstr "Aktív"
@@ -269,8 +269,8 @@ msgstr "Parancs:"
 msgid "Common Paper Sizes"
 msgstr "Gyakori Papírnagyságok"
 
-msgid "Contents"
-msgstr "Tartalom"
+msgid "_Contents"
+msgstr "_Tartalom"
 
 msgid "Contributers:"
 msgstr "Közreműködők:"

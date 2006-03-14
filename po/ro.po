@@ -23,8 +23,8 @@ msgstr ""
 msgid "About QCADesigner"
 msgstr "Despre QCADesigner"
 
-msgid "About..."
-msgstr "Despre..."
+msgid "_About"
+msgstr "_Despre"
 
 msgid "Active"
 msgstr "Activ"
@@ -275,8 +275,8 @@ msgstr "Comanda:"
 msgid "Common Paper Sizes"
 msgstr "Mărimi de hârtie obişnuite"
 
-msgid "Contents"
-msgstr "Conţinut"
+msgid "_Contents"
+msgstr "_Conţinut"
 
 msgid "Contributers:"
 msgstr "Colaboratori:"

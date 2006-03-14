@@ -1,16 +1,3 @@
-# Contributed by Gabriel Schulhof
-msgid ""
-msgstr ""
-"Project-Id-Version: QCADesigner 2.1.0\n"
-"Report-Msgid-Bugs-To: Gabriel Schulhof <schulhof@atips.ca>\n"
-"POT-Creation-Date: 2004-01-01 00:00-0700\n"
-"PO-Revision-Date: 2005-11-26 03:17-0700\n"
-"Last-Translator: Gabriel Schulhof <schulhof@atips.ca>\n"
-"Language-Team: Gabriel Schulhof <schulhof@atips.ca>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-
 msgid "(null)"
 msgstr ""
 
@@ -21,10 +8,10 @@ msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
 msgstr ""
 
 msgid "About QCADesigner"
-msgstr "Informacje o QCADesigner"
+msgstr ""
 
 msgid "_About"
-msgstr "_Informacje o..."
+msgstr "_Informazioni"
 
 msgid "Active"
 msgstr ""
@@ -168,7 +155,7 @@ msgid "Center"
 msgstr ""
 
 msgid "Centimeters"
-msgstr "Centymetry"
+msgstr "Centimetri"
 
 msgid "Change the order of layers in your design."
 msgstr ""
@@ -240,7 +227,7 @@ msgid "Close vector table editor."
 msgstr ""
 
 msgid "Close"
-msgstr "Zamknij"
+msgstr "Chiudi"
 
 msgid "Coherence Vector Options"
 msgstr ""
@@ -258,7 +245,7 @@ msgid "Common Paper Sizes"
 msgstr ""
 
 msgid "_Contents"
-msgstr "_Zawartość"
+msgstr "_Manuale"
 
 msgid "Contributers:"
 msgstr ""
@@ -276,7 +263,7 @@ msgid "Copy Selection"
 msgstr ""
 
 msgid "Copy"
-msgstr "Skopiuj"
+msgstr "Copia"
 
 msgid "Could not locate file \"%s\"."
 msgstr ""
@@ -318,7 +305,7 @@ msgid "Crossover"
 msgstr ""
 
 msgid "Custom"
-msgstr "Dowolny"
+msgstr "Personalizzato"
 
 msgid "DC Offset"
 msgstr ""
@@ -327,7 +314,7 @@ msgid "Decimal"
 msgstr ""
 
 msgid "Decrease The Magnification"
-msgstr ""
+msgstr "Riduci ingrandimento"
 
 msgid "Decrease the magnification to get an overall picture."
 msgstr ""
@@ -342,7 +329,7 @@ msgid "Delete Vector"
 msgstr ""
 
 msgid "Description"
-msgstr ""
+msgstr "Descrizione"
 
 msgid "Design"
 msgstr ""
@@ -408,7 +395,7 @@ msgid "Document Options"
 msgstr ""
 
 msgid "Don't save"
-msgstr "Nie zapisz"
+msgstr "Chiudi senza salvare"
 
 msgid "Dot Diameter"
 msgstr ""
@@ -501,10 +488,10 @@ msgid "Fixed"
 msgstr ""
 
 msgid "Frequency"
-msgstr ""
+msgstr "Frequenza"
 
 msgid "Function"
-msgstr ""
+msgstr "Funzione"
 
 msgid "Grid Spacing [nm]"
 msgstr ""
@@ -540,10 +527,10 @@ msgid "Import"
 msgstr ""
 
 msgid "Inches"
-msgstr "Cale"
+msgstr "Pollici"
 
 msgid "Increase The Magnification"
-msgstr ""
+msgstr "Aumenta ingrandimento"
 
 msgid "Increase the magnification so you may concentrate on specific parts of the design."
 msgstr ""
@@ -576,7 +563,7 @@ msgid "Label"
 msgstr ""
 
 msgid "Landscape"
-msgstr "Poziomo"
+msgstr "Orizzontale"
 
 msgid "Layer Description"
 msgstr ""
@@ -729,7 +716,7 @@ msgid "Open and display another vector table."
 msgstr ""
 
 msgid "Open"
-msgstr "Otwórz"
+msgstr "Apri"
 
 msgid "Opening File:"
 msgstr ""
@@ -738,7 +725,7 @@ msgid "Options"
 msgstr ""
 
 msgid "Orientation"
-msgstr "Ułożenie"
+msgstr "Orientamento"
 
 msgid "Over, then down"
 msgstr ""
@@ -750,13 +737,13 @@ msgid "Pan"
 msgstr ""
 
 msgid "Paper Height:"
-msgstr "Wysokość papieru:"
+msgstr "Altezza carta:"
 
 msgid "Paper Size"
-msgstr "Rozmiar papieru"
+msgstr "Dimensione carta"
 
 msgid "Paper Width:"
-msgstr "Szerokość papieru:"
+msgstr "Larghezza carta:"
 
 msgid "Phase"
 msgstr ""
@@ -768,13 +755,13 @@ msgid "Please Select Web Browser"
 msgstr ""
 
 msgid "Points"
-msgstr "Punkty"
+msgstr "Punti"
 
 msgid "Polarization"
 msgstr ""
 
 msgid "Portrait"
-msgstr "Pionowo"
+msgstr "Verticale"
 
 msgid "Preferred Units:"
 msgstr ""
@@ -792,13 +779,13 @@ msgid "Print Order"
 msgstr ""
 
 msgid "Print Preview"
-msgstr "Podgląd wydruku"
+msgstr "Anteprima di stampa"
 
 msgid "Print To"
 msgstr ""
 
 msgid "Print"
-msgstr "Wydrukuj"
+msgstr "Stampa"
 
 msgid "Printed Objects"
 msgstr ""
@@ -807,7 +794,7 @@ msgid "Printer Setup"
 msgstr ""
 
 msgid "Printer"
-msgstr "Drukarka"
+msgstr "Stampante"
 
 msgid "Property units"
 msgstr ""
@@ -831,7 +818,7 @@ msgid "QCA Rectangular Electrode"
 msgstr ""
 
 msgid "Quit QCADesigner"
-msgstr ""
+msgstr "Esci QCADesigner"
 
 msgid "Radius of Effect [nm]:"
 msgstr ""
@@ -915,7 +902,7 @@ msgid "Sample"
 msgstr ""
 
 msgid "Save As"
-msgstr "Zapisz jako"
+msgstr "Salva come"
 
 msgid "Save Output To _File..."
 msgstr ""
@@ -939,7 +926,7 @@ msgid "Save the displayed vector table."
 msgstr ""
 
 msgid "Save"
-msgstr "Zapisz"
+msgstr "Salva"
 
 msgid "Scale Factor:"
 msgstr ""
@@ -1023,7 +1010,7 @@ msgid "Substrate"
 msgstr ""
 
 msgid "Temperature:"
-msgstr ""
+msgstr "Temperatura:"
 
 msgid "Template for new layer"
 msgstr ""
@@ -1032,7 +1019,7 @@ msgid "Template"
 msgstr ""
 
 msgid "Text"
-msgstr "Tekst"
+msgstr ""
 
 msgid "The design"
 msgstr ""
@@ -1161,13 +1148,13 @@ msgid "Zoom Extents"
 msgstr ""
 
 msgid "Zoom In"
-msgstr ""
+msgstr "Aumenta"
 
 msgid "Zoom Layer Extents"
 msgstr ""
 
 msgid "Zoom Out"
-msgstr ""
+msgstr "Riduci"
 
 msgid "_Bus Layout..."
 msgstr ""
@@ -1176,16 +1163,16 @@ msgid "_Create Block..."
 msgstr ""
 
 msgid "_Edit"
-msgstr "_Edycja"
+msgstr "_Modifica"
 
 msgid "_Electrode Clocking"
 msgstr ""
 
 msgid "_File"
-msgstr "_Plik"
+msgstr ""
 
 msgid "_Help"
-msgstr "Pomo_c"
+msgstr "A_iuto"
 
 msgid "_Hide All But The Selected Layer"
 msgstr ""
@@ -1215,10 +1202,10 @@ msgid "_Start Simulation"
 msgstr ""
 
 msgid "_Tools"
-msgstr "_Narzędzia"
+msgstr "S_trumenti"
 
 msgid "_View"
-msgstr "_Widok"
+msgstr "_Visualizza"
 
 msgid "_Zone Clocking"
 msgstr ""

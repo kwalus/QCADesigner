@@ -24,8 +24,8 @@ msgstr ""
 msgid "About QCADesigner"
 msgstr "QCADesigner Info"
 
-msgid "About..."
-msgstr "Info..."
+msgid "_About"
+msgstr "_Info"
 
 msgid "Active"
 msgstr "Aktiv"
@@ -277,8 +277,8 @@ msgstr "Befehl:"
 msgid "Common Paper Sizes"
 msgstr "Gebräuchliche Papiergrössen"
 
-msgid "Contents"
-msgstr "Inhalt"
+msgid "_Contents"
+msgstr "I_nhalt"
 
 msgid "Contributers:"
 msgstr "Mitwirkende:"

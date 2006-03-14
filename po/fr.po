@@ -24,8 +24,8 @@ msgstr ""
 msgid "About QCADesigner"
 msgstr "À propos de QCADesigner"
 
-msgid "About..."
-msgstr "À propos..."
+msgid "_About"
+msgstr "À _propos"
 
 msgid "Active"
 msgstr "Actif"
@@ -270,8 +270,8 @@ msgstr ""
 msgid "Common Paper Sizes"
 msgstr ""
 
-msgid "Contents"
-msgstr "Contenu"
+msgid "_Contents"
+msgstr "_Sommaire"
 
 msgid "Contributers:"
 msgstr ""

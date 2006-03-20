@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include "support.h"
+#include "global_consts.h"
 #include "file_selection_window.h"
 #include "fileio_helpers.h"
 #include "custom_widgets.h"
@@ -80,28 +81,30 @@ gchar *get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszF
   while (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (file_selection_dialog.dialog)))
     {
     if (NULL == (pszRet = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_selection_dialog.dialog)))) break ;
+
     if (!bSave) break ;
 
-    if (NULL != pszRet)
+    if (g_file_test (pszRet, G_FILE_TEST_EXISTS))
       {
-      if (g_file_test (pszRet, G_FILE_TEST_EXISTS))
-        {
-        msg = gtk_message_dialog_new (GTK_WINDOW (file_selection_dialog.dialog), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, _("A file named \"%s\" already exists.\n\nDo you want to replace it with the one you are saving?"), pszRet) ;
+      msg = gtk_message_dialog_new (GTK_WINDOW (file_selection_dialog.dialog), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, _("A file named \"%s\" already exists.\n\nDo you want to replace it with the one you are saving?"), pszRet) ;
 
-        gtk_window_set_transient_for (GTK_WINDOW (msg), GTK_WINDOW (file_selection_dialog.dialog)) ;
-        gtk_dialog_add_button (GTK_DIALOG (msg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
-        gtk_dialog_add_action_widget (GTK_DIALOG (msg), gtk_button_new_with_stock_image (GTK_STOCK_REFRESH, _("_Replace")), GTK_RESPONSE_OK) ;
+      gtk_window_set_transient_for (GTK_WINDOW (msg), GTK_WINDOW (file_selection_dialog.dialog)) ;
+      gtk_dialog_add_button (GTK_DIALOG (msg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
+      gtk_dialog_add_action_widget (GTK_DIALOG (msg), gtk_button_new_with_stock_image (GTK_STOCK_REFRESH, _("_Replace")), GTK_RESPONSE_OK) ;
 
-        response = gtk_dialog_run (GTK_DIALOG (msg)) ;
+      response = gtk_dialog_run (GTK_DIALOG (msg)) ;
 
-        gtk_widget_hide (msg) ;
-        gtk_widget_destroy (msg) ;
+      gtk_widget_hide (msg) ;
+      gtk_widget_destroy (msg) ;
 
-        if (GTK_RESPONSE_OK == response) break ;
-        }
-      g_free (pszRet) ;
-      pszRet = NULL ;
+      if (GTK_RESPONSE_OK == response) break ;
       }
+    else
+      break ;
+
+    g_free (pszRet) ;
+    pszRet = NULL ;
+
     }
   gtk_widget_hide (file_selection_dialog.dialog) ;
 

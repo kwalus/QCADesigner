@@ -70,12 +70,12 @@ Source: "@packagesrcdir@\@GTK_RUNTIME_PKG@"; DestDir: "{tmp}"; Flags: dontcopy
 
 [Icons]
 Name: "{group}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; IconFilename: "{app}\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
-Name: "{group}\Simulation Results Viewer"; Filename: "{app}\bin\graph_dialog.exe"; IconFilename: "{app}\pixmaps\graph_dialog.winxp.ico"; MinVersion: 0, 1
-Name: "{userdesktop}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
+Name: "{group}\Simulation Results Viewer"; Filename: "{app}\graph_dialog.exe"; IconFilename: "{app}\pixmaps\graph_dialog.winxp.ico"; MinVersion: 0, 1
+Name: "{userdesktop}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\pixmaps\QCADesigner.winxp.ico"; MinVersion: 0, 1
 
-Name: "{group}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; IconFilename: "{app}\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
+Name: "{group}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; IconFilename: "{app}\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
 Name: "{group}\Simulation Results Viewer"; Filename: "{app}\graph_dialog.exe"; IconFilename: "{app}\share\@PACKAGE@\pixmaps\graph_dialog.win32.ico"; MinVersion: 1, 0
-Name: "{userdesktop}\QCADesigner"; Filename: "{app}\bin\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
+Name: "{userdesktop}\QCADesigner"; Filename: "{app}\QCADesigner.exe"; Tasks: desktopicon; IconFilename: "{app}\pixmaps\QCADesigner.win32.ico"; MinVersion: 1, 0
 
 [Code]
 

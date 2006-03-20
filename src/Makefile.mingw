@@ -26,15 +26,12 @@ include Makefile.am
 EXE_TARGETS = $(bin_PROGRAMS:%=%.exe)
 
 all: $(EXE_TARGETS)
+	if test -f Makefile; then \
+		make $(EXE_TARGETS); \
+	fi
 
 %.exe: Makefile
 	make $@
-
-# QCADesigner.exe: Makefile
-# 	$(MAKE) QCADesigner.exe
-# 
-# graph_dialog.exe: Makefile
-# 	$(MAKE) graph_dialog.exe
 
 Makefile: Makefile.in Makefile.am Makefile.inc
 	$(MAKE) \

@@ -737,8 +737,7 @@ void set_progress_bar_visible (gboolean bVisible)
     }
   else
     gtk_widget_hide (progress) ;
-  while (gtk_events_pending ())
-    gtk_main_iteration () ;
+  drain_gtk_events () ;
   #endif /* def GTK_GUI */
   }
 
@@ -748,8 +747,7 @@ void set_progress_bar_label (char *psz)
   if (NULL == progress || NULL == progress_bar) return ;
 
   gtk_label_set_text (g_object_get_data (G_OBJECT (progress), "lbl"), psz) ;
-  while (gtk_events_pending ())
-    gtk_main_iteration () ;
+  drain_gtk_events () ;
   #else
     fprintf (stderr, "%s\n", psz) ;
   #endif /* def GTK_GUI */
@@ -767,8 +765,7 @@ void set_progress_bar_fraction (double dFraction)
   gtk_progress_bar_set_fraction (progress_bar, dFraction) ;
   gtk_progress_bar_set_text (progress_bar, psz = g_strdup_printf ("%4.1lf%%", dFraction * 100.0)) ;
   g_free (psz) ;
-  while (gtk_events_pending ())
-    gtk_main_iteration () ;
+  drain_gtk_events () ;
   #else
     fprintf (stderr, "\r\033[K%4.1lf%%\r", dFraction * 100.0) ;
   #endif /* def GTK_GUI */
@@ -797,8 +794,7 @@ void command_history_message (char *pszFmt, ...)
   gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW (tvHistory), markEnd) ;
   gtk_text_buffer_delete_mark (ptbCH, markEnd) ;
 
-  while (gtk_events_pending ())
-    gtk_main_iteration () ;
+  drain_gtk_events () ;
 #else
   va_list va ;
   va_start (va, pszFmt) ;
@@ -806,3 +802,8 @@ void command_history_message (char *pszFmt, ...)
   va_end (va) ;
 #endif /* def GTK_GUI */
   }
+
+#ifdef GTK_GUI
+void drain_gtk_events ()
+  {while (gtk_events_pending ()) gtk_main_iteration () ;}
+#endif /* def GTK_GUI */

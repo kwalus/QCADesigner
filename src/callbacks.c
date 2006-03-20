@@ -2175,12 +2175,10 @@ static void reflect_layer_status (QCADLayer *layer)
 
   gtk_widget_queue_draw (main_window.toolbar) ;
   gtk_widget_queue_resize (main_window.toolbar) ;
-  while (gtk_events_pending ())
-    gtk_main_iteration () ;
+  drain_gtk_events () ;
   gtk_widget_queue_draw (main_window.toolbar) ;
   gtk_widget_queue_resize (main_window.toolbar) ;
-  while (gtk_events_pending ())
-    gtk_main_iteration () ;
+  drain_gtk_events () ;
   redraw_async (NULL) ;
   }
 

@@ -49,10 +49,12 @@ enum
 enum
   {
   QCADCRVT_PROP_ACTIVE = 1,
-  QCADCRVT_PROP_ROW_TYPE
+  QCADCRVT_PROP_ROW_TYPE,
+  QCADCRVT_PROP_ACTIVE_COL,
 #if (GTK_MINOR_VERSION <= 4)
-  , QCADCRVT_PROP_SENSITIVE
+  QCADCRVT_PROP_SENSITIVE,
 #endif
+  QCADCRVT_PROP_LAST
   } ;
 
 #if (GTK_MINOR_VERSION <= 4)
@@ -126,6 +128,10 @@ static void qcad_cell_renderer_vt_class_init (QCADCellRendererVTClass *klass)
     g_param_spec_int ("row-type", _("Row Type"), _("Row type:Cell/Bus"),
       1, (1 << 5) - 1, ROW_TYPE_CELL_INPUT, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
+  g_object_class_install_property (object_klass, QCADCRVT_PROP_ACTIVE_COL,
+    g_param_spec_boolean ("active-column", _("Active Column"), _("Whether this is the active vector"),
+    FALSE, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
+
 #if (GTK_MINOR_VERSION <= 4)
   g_object_class_install_property (object_klass, QCADCRVT_PROP_SENSITIVE,
     g_param_spec_boolean ("sensitive", _("Sensitive"), _("Display the cell sensitive"),
@@ -146,6 +152,7 @@ static void qcad_cell_renderer_vt_class_init (QCADCellRendererVTClass *klass)
 static void qcad_cell_renderer_vt_instance_init (QCADCellRendererVT *qcadcrvt)
   {
   qcadcrvt->value = 0 ;
+  qcadcrvt->active_column = FALSE ;
   GTK_CELL_RENDERER (qcadcrvt)->mode = GTK_CELL_RENDERER_MODE_ACTIVATABLE;
   GTK_CELL_RENDERER (qcadcrvt)->xpad = 2;
   GTK_CELL_RENDERER (qcadcrvt)->ypad = 2;
@@ -159,6 +166,10 @@ static void qcad_cell_renderer_vt_get_property (GObject *object, guint param_id,
     {
     case QCADCRVT_PROP_ACTIVE:
       g_value_set_boolean (value, (0 == qcadcrvt->value)) ;
+      break ;
+
+    case QCADCRVT_PROP_ACTIVE_COL:
+      g_value_set_boolean (value, qcadcrvt->active_column) ;
       break ;
 
 #if (GTK_MINOR_VERSION <= 4)
@@ -184,11 +195,13 @@ static void qcad_cell_renderer_vt_set_property (GObject *object, guint param_id,
   switch (param_id)
     {
     case QCADCRVT_PROP_ACTIVE:
-      if (qcadcrvt->row_type & ROW_TYPE_CELL)
-        {
-        qcadcrvt->value = (g_value_get_boolean (value) ? 1 : 0) ;
-        g_object_notify (object, "active") ;
-        }
+      qcadcrvt->value = (g_value_get_boolean (value) ? 1 : 0) ;
+      g_object_notify (object, "active") ;
+      break ;
+
+    case QCADCRVT_PROP_ACTIVE_COL:
+      qcadcrvt->active_column = g_value_get_boolean (value) ;
+      g_object_notify (object, "active-column") ;
       break ;
 
 #if (GTK_MINOR_VERSION <= 4)
@@ -255,53 +268,63 @@ static void qcad_cell_renderer_vt_get_size (GtkCellRenderer *cr, GtkWidget *widg
 
 static void qcad_cell_renderer_vt_render (GtkCellRenderer *cr, GdkWindow *window, GtkWidget *widget, GdkRectangle *background_area, GdkRectangle *cell_area, GdkRectangle *expose_area, GtkCellRendererState flags)
   {
+  QCADCellRendererVT *qcadcrvt = (QCADCellRendererVT *)cr;
+  gint width, height;
+  gint x_offset, y_offset;
+  GtkStateType state = 0 ;
+
+  qcad_cell_renderer_vt_get_size (cr, widget, cell_area, &x_offset, &y_offset, &width, &height);
+  width -= cr->xpad*2;
+  height -= cr->ypad*2;
+
+  if (qcadcrvt->active_column)
+    flags |= GTK_CELL_RENDERER_SELECTED ;
+
 #if (GTK_MINOR_VERSION <= 4)
   if (!SENSITIVITY_SOURCE (cr)->sensitive)
     flags = GTK_CELL_RENDERER_INSENSITIVE ;
 #endif
+
+  if (width <= 0 || height <= 0)
+    return;
+
+  state =
+    (flags & GTK_CELL_RENDERER_SELECTED)
+      ? (GTK_WIDGET_HAS_FOCUS (widget))
+        ? GTK_STATE_SELECTED
+        : GTK_STATE_ACTIVE
+      : GTK_STATE_NORMAL ;
+
+  if (qcadcrvt->active_column)
+    gtk_paint_flat_box (
+      widget->style,
+      window,
+      state,
+      GTK_SHADOW_NONE,
+      background_area,
+      widget,
+      "cell_even",
+      background_area->x,
+      background_area->y,
+      background_area->width,
+      background_area->height) ;
+
   if (QCAD_CELL_RENDERER_VT (cr)->row_type & ROW_TYPE_BUS)
     (GTK_CELL_RENDERER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL_RENDERER_VT))))->render (cr, window, widget, background_area, cell_area, expose_area, flags) ;
   else
-    {
     // Copied and simplified from gtk+-2.2.4/gtk/gtkcellrenderertoggle.c
-    QCADCellRendererVT *qcadcrvt = (QCADCellRendererVT *)cr;
-    gint width, height;
-    gint x_offset, y_offset;
-    GtkShadowType shadow;
-    GtkStateType state = 0;
-
-    qcad_cell_renderer_vt_get_size (cr, widget, cell_area, &x_offset, &y_offset, &width, &height);
-    width -= cr->xpad*2;
-    height -= cr->ypad*2;
-
-    if (width <= 0 || height <= 0)
-      return;
-
-    shadow = (1 == qcadcrvt->value) ? GTK_SHADOW_IN : GTK_SHADOW_OUT;
-
-    if (SENSITIVITY_SOURCE (cr)->sensitive)
-      {
-      if ((flags & GTK_CELL_RENDERER_SELECTED) == GTK_CELL_RENDERER_SELECTED)
-        {
-        if (GTK_WIDGET_HAS_FOCUS (widget))
-          state = GTK_STATE_SELECTED;
-        else
-          state = GTK_STATE_ACTIVE;
-        }
-      else
-        state = GTK_STATE_NORMAL;
-      }
-    else
-      state = GTK_STATE_INSENSITIVE ;
-
     gtk_paint_check (widget->style,
       window,
-      state, shadow,
+      // state
+       (SENSITIVITY_SOURCE (cr)->sensitive) ? state : GTK_STATE_INSENSITIVE,
+      // shadow
+      (1 == qcadcrvt->value)
+        ? GTK_SHADOW_IN 
+        : GTK_SHADOW_OUT,
       cell_area, widget, "cellcheck",
       cell_area->x + x_offset + cr->xpad,
       cell_area->y + y_offset + cr->ypad,
       width - 1, height - 1);
-    }
   }
 
 static GtkCellEditable *qcad_cell_renderer_vt_start_editing (GtkCellRenderer *cell, GdkEvent *event, GtkWidget *widget, const gchar *path, GdkRectangle *background_area, GdkRectangle *cell_area, GtkCellRendererState flags)

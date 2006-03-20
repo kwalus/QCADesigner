@@ -20,6 +20,9 @@ msgstr "1 nm az"
 msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
 msgstr "<span foreground=\"red\">Figyelem:</span> A busznak muszály neve legyen."
 
+msgid "A file named \"%s\" already exists.\n\nDo you want to replace it with the one you are saving?"
+msgstr "Egy »%s«-címü fájl létezik már.\n\nA mentendő fájlal cserélni?"
+
 msgid "About QCADesigner"
 msgstr "QCADesigner névjegye"
 
@@ -127,6 +130,7 @@ msgid ""
 "Please ensure that your selection can be dropped before attempting to %s a "
 "layer."
 msgstr ""
+# msgstr "A réteget most nem lehet %s. A választás \n"
 
 msgid "Cannot print without having a %s to print to!"
 msgstr "Nem lehet egy cél-%s nélkül nyomtatni!"
@@ -613,7 +617,7 @@ msgid "Layer Separation:"
 msgstr "Réteg elválasztás:"
 
 msgid "Layer Status:"
-msgstr "Réteg státus:"
+msgstr "Réteg állapot:"
 
 msgid "Layer Type:"
 msgstr "Réteg tipus:"
@@ -814,8 +818,8 @@ msgstr "Grafikon Nyomtatás"
 msgid "Print Order"
 msgstr "Nyomtatási sorrend"
 
-msgid "Print Preview"
-msgstr "Nyomtatási kép"
+# msgid "Print Preview"
+# msgstr "Nyomtatási kép"
 
 msgid "Print To"
 msgstr ""
@@ -909,6 +913,9 @@ msgstr "Rétegek átrendezése"
 
 msgid "Reorder"
 msgstr "Átrendezés"
+
+msgid "_Replace"
+msgstr "_Csere"
 
 msgid "Reset Zoom"
 msgstr ""
@@ -1148,6 +1155,12 @@ msgstr "Névtelen"
 
 msgid "Upper Threshold [1]:"
 msgstr "Magasabbik küszöb [1]:"
+
+msgid "vector"
+msgstr "vektor"
+
+msgid "vectors"
+msgstr "vektor"
 
 msgid "Vector Table Setup"
 msgstr "Vektortabella beállítás"

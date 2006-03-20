@@ -50,7 +50,7 @@ typedef enum
   HCT_HONEYCOMB_TO_HONEYCOMB
   } HoneycombTransition ;
 
-static long long unsigned int calculate_honeycomb_value (EXP_ARRAY *bits) ;
+static guint64 calculate_honeycomb_value (EXP_ARRAY *bits) ;
 static HoneycombTransition calculate_honeycomb_transition (EXP_ARRAY *old_bits, EXP_ARRAY *new_bits) ;
 static void calculate_trace_bits (EXP_ARRAY *arTraces, EXP_ARRAY *bits, int idxSample, int icSamples, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
 static double calculate_average_polarization (double *data, int idxSample, int icSamples, int icAverageSamples) ;
@@ -253,16 +253,16 @@ void honeycomb_data_free (HONEYCOMB_DATA *hc)
   g_free (hc) ;
   }
 
-static long long unsigned int calculate_honeycomb_value (EXP_ARRAY *bits)
+static guint64 calculate_honeycomb_value (EXP_ARRAY *bits)
   {
   int icBits = bits->icUsed ;
   int Nix ;
   int exponent = 0 ;
-  long long unsigned int value = 0 ;
+  guint64 value = 0 ;
 
-  if (icBits > sizeof (long long unsigned int) * 8 - 1)
+  if (icBits > sizeof (guint64) * 8 - 1)
     {
-    icBits = sizeof (long long unsigned int) * 8 - 1 ;
+    icBits = sizeof (guint64) * 8 - 1 ;
     fprintf (stderr, "WARNING! Truncating honeycomb value to %d bits for fear of overflow!\n", icBits) ;
     }
 
@@ -270,7 +270,7 @@ static long long unsigned int calculate_honeycomb_value (EXP_ARRAY *bits)
     {
     if (-1 == exp_array_index_1d (bits, int, Nix))
       return -1 ;
-    value |= ((long long unsigned int)exp_array_index_1d (bits, int, Nix)) << exponent ;
+    value |= ((guint64)exp_array_index_1d (bits, int, Nix)) << exponent ;
     exponent++ ;
     }
 

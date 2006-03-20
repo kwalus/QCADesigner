@@ -51,7 +51,7 @@ static char *graph_dialog_ui_xml =
         "<separator/>"
         "<menuitem name=\"FileSave\" action=\"FileSaveAction\"/>"
         "<separator/>"
-        "<menuitem name=\"FilePrintPreview\" action=\"FilePrintPreviewAction\"/>"
+        "<menuitem name=\"FilePreview\" action=\"FilePreviewAction\"/>"
 #else
         "<separator/>"
 #endif /* def STDIO_FILEIO */
@@ -67,7 +67,7 @@ static char *graph_dialog_ui_xml =
         "<menuitem name=\"ViewAsHex\" action=\"ViewAsHexAction\"/>"
       "</menu>"
       "<menu name=\"ToolsMenu\" action=\"ToolsMenuAction\">"
-        "<menuitem name=\"WaveformInterpretation\" action=\"WaveformInterpretationAction\"/>"
+        "<menuitem name=\"WaveInterp\" action=\"WaveInterpAction\"/>"
       "</menu>"
     "</menubar>"
     "<toolbar name=\"MainToolbar\" action=\"MainToolbarAction\">"
@@ -79,7 +79,7 @@ static char *graph_dialog_ui_xml =
         "<toolitem name=\"FileOpen\" action=\"FileOpenAction\"/>"
         "<toolitem name=\"FileSave\" action=\"FileSaveAction\"/>"
         "<separator/>"
-        "<toolitem name=\"FilePrintPreview\" action=\"FilePrintPreviewAction\"/>"
+        "<toolitem name=\"FilePreview\" action=\"FilePreviewAction\"/>"
 #else
         "<separator/>"
 #endif /* def STDIO_FILEIO */
@@ -87,7 +87,7 @@ static char *graph_dialog_ui_xml =
         "<separator/>"
         "<toolitem name=\"ResetZoom\" action=\"ResetZoomAction\"/>"
         "<separator/>"
-        "<toolitem name=\"WaveformInterpretation\" action=\"WaveformInterpretationAction\"/>"
+        "<toolitem name=\"WaveInterp\" action=\"WaveInterpAction\"/>"
         "<separator/>"
         "<toolitem name=\"ViewAsDecimal\" action=\"ViewAsDecimalAction\"/>"
         "<toolitem name=\"ViewAsBinary\" action=\"ViewAsBinaryAction\"/>"
@@ -99,124 +99,51 @@ static char *graph_dialog_ui_xml =
 
 static GtkActionEntry action_entries[] =
   {
-    {
-    "FileMenuAction",         
-    NULL,                    
-    "_File"
-    },
-    {
-    "FileOpenAction",         
-    GTK_STOCK_OPEN,          
-    NULL,             
-    NULL, 
-    NULL,                    
-    (GCallback)btnOpen_clicked
-    },
-    {
-    "FileSaveAction",         
-    GTK_STOCK_SAVE,          
-    NULL,             
-    NULL, 
-    NULL,                    
-    (GCallback)btnSave_clicked
-    },
-    {
-    "FilePrintPreviewAction", 
-    GTK_STOCK_PRINT_PREVIEW, 
-    NULL,             
-    NULL, 
-    NULL,                    
-    (GCallback)btnPreview_clicked
-    },
-    {
-    "FilePrintAction",        
-    GTK_STOCK_PRINT,         
-    NULL,             
-    NULL, 
-    NULL,                    
-    (GCallback)btnPrint_clicked
-    },
-    {
-    "FileCloseAction",        
-    GTK_STOCK_CLOSE,         
-    NULL,             
-    NULL, 
-    NULL,                    
-    (GCallback)btnClose_clicked
-    },
-    {"ViewMenuAction",         
-    NULL,                    
-    "_View"
-    },
-    {
-    "ResetZoomAction",       
-    GTK_STOCK_ZOOM_100,       
-    N_("Reset Zoom"), 
-    NULL, 
-    N_("Un-stretch Traces"), 
-    (GCallback)btnZoom100_clicked
-    },
-    {
-    "ToolsMenuAction", 
-    NULL, "_Tools"
-    },
-    {
-    "WaveformInterpretationAction", 
-    GTK_STOCK_PREFERENCES, 
-    N_("Interpretation..."), 
-    NULL, 
-    N_("Digital Interpretation Options"), 
-    (GCallback)btnThresh_clicked
-    }
+  {"FileMenuAction",    NULL,                    N_("_File")},
+#ifdef STDIO_FILEIO
+  {"FileOpenAction",    GTK_STOCK_OPEN,          NULL,                    NULL, 
+    NULL,                                 (GCallback)gd_actOpen_activate},
+  {"FileSaveAction",    GTK_STOCK_SAVE,          NULL,                    NULL, 
+    NULL,                                 (GCallback)gd_actSave_activate},
+  {"FilePreviewAction", GTK_STOCK_PRINT_PREVIEW, NULL,                    NULL, 
+    NULL,                                 (GCallback)gd_actPreview_activate},
+#endif /* def STDIO_FILEIO */
+  {"FilePrintAction",   GTK_STOCK_PRINT,         NULL,                    NULL, 
+    NULL,                                 (GCallback)gd_actPrint_activate},
+  {"FileCloseAction",   GTK_STOCK_CLOSE,         NULL,                    NULL, 
+    NULL,                                 (GCallback)gd_actClose_activate},
+  {"ViewMenuAction",    NULL,                    N_("_View")},
+  {"ResetZoomAction",   GTK_STOCK_ZOOM_100,      N_("Reset Zoom"),        NULL, 
+    N_("Un-stretch Traces"),              (GCallback)gd_actZoom100_activate},
+  {"ToolsMenuAction",   NULL,                    N_("_Tools")},
+  {"WaveInterpAction",  GTK_STOCK_PREFERENCES,   N_("Interpretation..."), NULL, 
+    N_("Digital Interpretation Options"), (GCallback)gd_actThresh_activate}
   } ;
 static int n_action_entries = G_N_ELEMENTS (action_entries) ;
 
 static GtkRadioActionEntry view_as_action_entries[] =
   {
-    {
-    "ViewAsDecimalAction",
-    QCAD_STOCK_GRAPH_DEC,
-    N_("Decimal"),
-    NULL,
-    N_("Show Values As Decimal"),
-    10
-    },
-    {
-    "ViewAsBinaryAction",
-    QCAD_STOCK_GRAPH_BIN,
-    N_("Binary"),
-    NULL,
-    N_("Show Values As Binary"),
-    2
-    },
-    {
-    "ViewAsHexAction",
-    QCAD_STOCK_GRAPH_HEX,
-    N_("Hex"),
-    NULL,
-    N_("Show Values As Hexadecimal"),
-    16
-    },
+  {"ViewAsDecimalAction", QCAD_STOCK_GRAPH_DEC, N_("Decimal"), NULL, N_("Show Values As Decimal"),     10},
+  {"ViewAsBinaryAction",  QCAD_STOCK_GRAPH_BIN, N_("Binary"),  NULL, N_("Show Values As Binary"),       2},
+  {"ViewAsHexAction",     QCAD_STOCK_GRAPH_HEX, N_("Hex"),     NULL, N_("Show Values As Hexadecimal"), 16},
   } ;
 static int n_view_as_action_entries = G_N_ELEMENTS (view_as_action_entries) ;
 
 static gboolean create_waveform_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTreeIter *itr) ;
 static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTreeIter *itr, int base) ;
 static GtkWidget *create_trace_drawing_area (GRAPH_DATA *graph_data, GDestroyNotify graph_data_free, GCallback graph_widget_expose, gpointer data) ;
+static void force_adj_to_lower (GtkAdjustment *adj, gpointer data) ;
 
 void create_graph_dialog (graph_D *dialog)
   {
-  GtkWidget *table = NULL, *tbl_status = NULL,
-    *tbl_vp = NULL, *sw_tview = NULL, *statusbar = NULL ;
+  GtkWidget *table = NULL, *tbl_vp = NULL, *sw_tview = NULL, *status_table = NULL, *frm = NULL ;
   GtkTreeViewColumn *col = NULL ;
   GtkCellRenderer *cr = NULL ;
-	GtkAccelGroup *accel_group = NULL ;
+  GtkAdjustment *fake_hadj = NULL ;
 
   GError *error = NULL ;
   GtkUIManager *ui_mgr = NULL ;
   GtkActionGroup *actions = NULL ;
-
-	accel_group = gtk_accel_group_new () ;
 
   // The Window
   dialog->dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -233,7 +160,7 @@ void create_graph_dialog (graph_D *dialog)
   actions = gtk_action_group_new ("QCADGraphDialogActions") ;
   gtk_action_group_set_translation_domain (actions, PACKAGE) ;
   gtk_action_group_add_actions (actions, action_entries, n_action_entries, dialog) ;
-  gtk_action_group_add_radio_actions (actions, view_as_action_entries, n_view_as_action_entries, 10, (GCallback)btnShowBase_clicked, dialog) ;
+  gtk_action_group_add_radio_actions (actions, view_as_action_entries, n_view_as_action_entries, 10, (GCallback)gd_actShowBase_activate, dialog) ;
   gtk_ui_manager_insert_action_group (ui_mgr, actions, -1) ;
   gtk_ui_manager_add_ui_from_string (ui_mgr, graph_dialog_ui_xml, -1, &error) ;
   gtk_window_add_accel_group (GTK_WINDOW (dialog->dialog), gtk_ui_manager_get_accel_group (ui_mgr)) ;
@@ -299,7 +226,7 @@ void create_graph_dialog (graph_D *dialog)
   dialog->vp = g_object_new (GTK_TYPE_VIEWPORT, "visible", TRUE, NULL) ;
   gtk_container_add (GTK_CONTAINER (dialog->vp), tbl_vp) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->vp) ;
-//  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (dialog->sw), tbl_vp) ;
+  g_object_get (G_OBJECT (dialog->vp), "hadjustment", &fake_hadj, NULL) ;
 
   dialog->table_of_traces = gtk_table_new (1, 2, FALSE) ;
   gtk_widget_show (dialog->table_of_traces) ;
@@ -307,33 +234,30 @@ void create_graph_dialog (graph_D *dialog)
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(0), 0, 0) ;
 
-  tbl_status = gtk_table_new (1, 2, FALSE) ;
-  gtk_widget_show (tbl_status) ;
-  gtk_table_attach (GTK_TABLE (table), tbl_status, 0, 1, 2, 3,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tbl_status), 2) ;
+  status_table = g_object_new (GTK_TYPE_TABLE, 
+    "n-columns", 2, "n-rows", 1, "homogeneous", FALSE, "visible", TRUE, NULL) ;
+  gtk_table_attach (GTK_TABLE (table), status_table, 0, 1, 3, 4,
+    (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
+    (GtkAttachOptions)(GTK_FILL), 0, 2) ;
 
-  dialog->lbl_status = gtk_label_new ("") ;
-  gtk_widget_show (dialog->lbl_status) ;
-  gtk_table_attach (GTK_TABLE (tbl_status), dialog->lbl_status, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+  frm = g_object_new (GTK_TYPE_FRAME, "shadow-type", GTK_SHADOW_IN, "visible", TRUE, NULL) ;
+  gtk_table_attach (GTK_TABLE (status_table), frm, 0, 1, 0, 1,
+    (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
+    (GtkAttachOptions)(GTK_FILL), 1, 0) ;
 
-  statusbar = gtk_statusbar_new () ;
-  gtk_widget_show (statusbar) ;
-  gtk_table_attach (GTK_TABLE (tbl_status), statusbar, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+  dialog->lbl_status = g_object_new (GTK_TYPE_LABEL, 
+    "label", "", "visible", TRUE, "justify", GTK_JUSTIFY_LEFT, 
+    "xalign", 0.0, "yalign", 0.5, "xpad", 2, "ypad", 2, NULL) ;
+  gtk_container_add (GTK_CONTAINER (frm), dialog->lbl_status) ;
 
-  gtk_window_add_accel_group (GTK_WINDOW (dialog->dialog), accel_group) ;
-
-  g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)model_visible_toggled, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->tview), "row-expanded", (GCallback)set_bus_expanded, (gpointer)TRUE) ;
-  g_signal_connect (G_OBJECT (dialog->tview), "row-collapsed", (GCallback)set_bus_expanded, (gpointer)FALSE) ;
-  g_signal_connect (G_OBJECT (gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (dialog->sw))), "value-changed", (GCallback)hscroll_adj_value_changed, dialog->dialog) ;
-  g_signal_connect (G_OBJECT (dialog->vp), "scroll-event", (GCallback)viewport_scroll, dialog) ;
-  g_signal_connect (G_OBJECT (dialog->dialog), "delete-event", (GCallback)btnClose_clicked, NULL) ;
+  g_signal_connect (G_OBJECT (cr),             "toggled",       (GCallback)gd_model_visible_toggled,     dialog) ;
+  g_signal_connect (G_OBJECT (dialog->tview),  "row-expanded",  (GCallback)gd_set_bus_expanded,          (gpointer)TRUE) ;
+  g_signal_connect (G_OBJECT (dialog->tview),  "row-collapsed", (GCallback)gd_set_bus_expanded,          (gpointer)FALSE) ;
+  g_signal_connect (G_OBJECT (gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (dialog->sw))),
+                                               "value-changed", (GCallback)gd_hscroll_adj_value_changed, dialog->dialog) ;
+  g_signal_connect (G_OBJECT (dialog->vp),     "scroll-event",  (GCallback)gd_viewport_scroll,           dialog) ;
+  g_signal_connect (G_OBJECT (dialog->dialog), "delete-event",  (GCallback)gd_actClose_activate,         NULL) ;
+  g_signal_connect (G_OBJECT (fake_hadj),      "value-changed", (GCallback)force_adj_to_lower,           NULL) ;
   }
 
 void attach_graph_widgets (graph_D *dialog, GtkWidget *table, GtkWidget *trace, GtkWidget *ruler, GtkWidget *ui, int idxTbl)
@@ -364,7 +288,7 @@ void attach_graph_widgets (graph_D *dialog, GtkWidget *table, GtkWidget *trace, 
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 2, 2) ;
 
-  g_signal_connect (G_OBJECT (trace), "expose-event",        (GCallback)graph_widget_one_time_expose, dialog) ;
+  g_signal_connect (G_OBJECT (trace), "expose-event",        (GCallback)gd_graph_widget_one_time_expose, dialog) ;
 
   set_window_icon (GTK_WINDOW (dialog->dialog), "graph_dialog") ;
   }
@@ -443,15 +367,15 @@ static gboolean create_waveform_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, G
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 1.0) ;
 
-  trace_drawing_widget = create_trace_drawing_area ((GRAPH_DATA *)wf, (GDestroyNotify)waveform_data_free, (GCallback)waveform_expose, graph_dialog_data) ;
+  trace_drawing_widget = create_trace_drawing_area ((GRAPH_DATA *)wf, (GDestroyNotify)waveform_data_free, (GCallback)gd_waveform_expose, graph_dialog_data) ;
 
   trace_ruler_widget = gtk_hruler_new () ;
 
   g_object_set_data (G_OBJECT (trace_drawing_widget), "ruler", trace_ruler_widget) ;
 
-  g_signal_connect (G_OBJECT (trace_ruler_widget),   "motion-notify-event", (GCallback)graph_widget_motion_notify, graph_dialog_data) ;
-  g_signal_connect (G_OBJECT (trace_drawing_widget), "size-allocate",       (GCallback)graph_widget_size_allocate, graph_dialog_data) ;
-  g_signal_connect (G_OBJECT (trace_ui_widget),      "size-allocate",       (GCallback)graph_widget_size_allocate, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_ruler_widget),   "motion-notify-event", (GCallback)gd_graph_widget_motion_notify, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "size-allocate",       (GCallback)gd_graph_widget_size_allocate, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_ui_widget),      "size-allocate",       (GCallback)gd_graph_widget_size_allocate, graph_dialog_data) ;
 
   gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), itr,
     GRAPH_MODEL_COLUMN_VISIBLE, TRUE,
@@ -505,15 +429,15 @@ static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTre
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_LEFT) ;
   gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
 
-  trace_drawing_widget = create_trace_drawing_area ((GRAPH_DATA *)hc, (GDestroyNotify)honeycomb_data_free, (GCallback)honeycomb_expose, graph_dialog_data) ;
+  trace_drawing_widget = create_trace_drawing_area ((GRAPH_DATA *)hc, (GDestroyNotify)honeycomb_data_free, (GCallback)gd_honeycomb_expose, graph_dialog_data) ;
 
   trace_ruler_widget = gtk_hruler_new () ;
 
   g_object_set_data (G_OBJECT (trace_drawing_widget), "ruler", trace_ruler_widget) ;
 
-  g_signal_connect (G_OBJECT (trace_ruler_widget),   "motion-notify-event", (GCallback)graph_widget_motion_notify, graph_dialog_data) ;
-  g_signal_connect (G_OBJECT (trace_drawing_widget), "size-allocate",       (GCallback)graph_widget_size_allocate, graph_dialog_data) ;
-  g_signal_connect (G_OBJECT (trace_ui_widget),      "size-allocate",       (GCallback)graph_widget_size_allocate, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_ruler_widget),   "motion-notify-event", (GCallback)gd_graph_widget_motion_notify, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "size-allocate",       (GCallback)gd_graph_widget_size_allocate, graph_dialog_data) ;
+  g_signal_connect (G_OBJECT (trace_ui_widget),      "size-allocate",       (GCallback)gd_graph_widget_size_allocate, graph_dialog_data) ;
 
   gtk_tree_store_set (GTK_TREE_STORE (graph_dialog_data->model), itr,
     GRAPH_MODEL_COLUMN_VISIBLE, TRUE,
@@ -542,12 +466,15 @@ static GtkWidget *create_trace_drawing_area (GRAPH_DATA *graph_data, GDestroyNot
     GDK_BUTTON_RELEASE_MASK |
     GDK_ENTER_NOTIFY_MASK |
     GDK_LEAVE_NOTIFY_MASK) ;
-  g_signal_connect (G_OBJECT (trace_drawing_widget), "expose-event",         (GCallback)graph_widget_expose,         data) ;
-  g_signal_connect (G_OBJECT (trace_drawing_widget), "button-press-event",   (GCallback)graph_widget_button_press,   data) ;
-  g_signal_connect (G_OBJECT (trace_drawing_widget), "motion-notify-event",  (GCallback)graph_widget_motion_notify,  data) ;
-  g_signal_connect (G_OBJECT (trace_drawing_widget), "button-release-event", (GCallback)graph_widget_button_release, data) ;
-  g_signal_connect (G_OBJECT (trace_drawing_widget), "enter-notify-event",   (GCallback)graph_widget_enter_notify,   data) ;
-  g_signal_connect (G_OBJECT (trace_drawing_widget), "leave-notify-event",   (GCallback)graph_widget_leave_notify,   data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "expose-event",         (GCallback)graph_widget_expose,            data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "button-press-event",   (GCallback)gd_graph_widget_button_press,   data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "motion-notify-event",  (GCallback)gd_graph_widget_motion_notify,  data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "button-release-event", (GCallback)gd_graph_widget_button_release, data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "enter-notify-event",   (GCallback)gd_graph_widget_enter_notify,   data) ;
+  g_signal_connect (G_OBJECT (trace_drawing_widget), "leave-notify-event",   (GCallback)gd_graph_widget_leave_notify,   data) ;
 
   return trace_drawing_widget ;
   }
+
+static void force_adj_to_lower (GtkAdjustment *adj, gpointer data)
+  {if (adj->value != adj->lower) gtk_adjustment_set_value (adj, adj->lower) ;}

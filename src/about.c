@@ -25,6 +25,7 @@
 //////////////////////////////////////////////////////////
 
 #include <gtk/gtk.h>
+#include "custom_widgets.h"
 #include "support.h"
 #include "about.h"
 
@@ -58,8 +59,7 @@ GtkWindow *show_about_dialog (GtkWidget **pparent, gboolean bSplash)
     gtk_dialog_set_has_separator (GTK_DIALOG (about_dialog.about_dialog), FALSE) ;
     gtk_widget_show (about_dialog.about_dialog);
     gtk_widget_hide (about_dialog.dialog_action_area1) ;
-    while (gtk_events_pending ())
-      gtk_main_iteration () ;
+    drain_gtk_events () ;
     gtk_timeout_add (50, (GtkFunction)hide_about_dialog, about_dialog.about_dialog) ;
     }
   else

@@ -42,7 +42,7 @@ typedef void (*PropertyConnectFunction) (GValue *val_src, GValue *val_dst, gpoin
 
 // General-purpose function to scale one rectangle until it is inscribed in another rectangle
 void fit_rect_inside_rect (double dWidth, double dHeight, double *px, double *py, double *pdRectWidth, double *pdRectHeight) ;
-char *strdup_convert_to_base (long long value, int base) ;
+char *strdup_convert_to_base (guint64 value, int base) ;
 gboolean LineSegmentCanBeSkipped (double dx0, double dy0, double dx1, double dy1, double dx2, double dy2, double dMaxSlopeDiff) ;
 #ifdef GTK_GUI
 void RunCmdLineAsync (char *pszCmdLine, char *pszTmpFName) ;

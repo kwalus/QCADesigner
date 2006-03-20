@@ -44,7 +44,8 @@ struct _QCADCellRendererVT
   GtkCellRendererText parent ;
 
   int row_type ;
-  long long value ;
+  guint64 value ;
+  gboolean active_column ;
 #if (GTK_MINOR_VERSION <= 4)
   gboolean sensitive ;
 #endif

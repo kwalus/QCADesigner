@@ -1,279 +1,225 @@
-//////////////////////////////////////////////////////////
-// QCADesigner                                          //
-// Copyright 2002 Konrad Walus                          //
-// All Rights Reserved                                  //
-// Author: Konrad Walus                                 //
-// Email: qcadesigner@gmail.com                         //
-// WEB: http://qcadesigner.ca/                          //
-//////////////////////////////////////////////////////////
-//******************************************************//
-//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
-//******************************************************//
-// If your editor wraps long lines disable it or don't  //
-// save the core files that way. Any independent files  //
-// you generate format as you wish.                     //
-//////////////////////////////////////////////////////////
-// Please use complete names in variables and fucntions //
-// This will reduce ramp up time for new people trying  //
-// to contribute to the project.                        //
-//////////////////////////////////////////////////////////
-// This file was contributed by Gabriel Schulhof        //
-// (schulhof@atips.ca).                                 //
-//////////////////////////////////////////////////////////
-// Contents:                                            //
-//                                                      //
-// Functions for creating vector table interface ele-   //
-// ments, including the dialog itself and adding a new  //
-// vector.                                              //
-//                                                      //
-//////////////////////////////////////////////////////////
-
-#include <stdio.h>
-#include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
-#include "qcadstock.h"
-#include "support.h"
-#include "custom_widgets.h"
+#include "intl.h"
 #include "global_consts.h"
 #include "bus_layout_dialog.h"
-#include "objects/QCADCellRendererVT.h"
-#include "objects/QCADTreeViewContainer.h"
-#include "vector_table_options_dialog_data.h"
-#include "vector_table_options_dialog_callbacks.h"
+#include "qcadstock.h"
+#include "objects/QCADScrolledWindow.h"
 #include "vector_table_options_dialog_interface.h"
+#include "vector_table_options_dialog_callbacks.h"
+
+static char *vector_table_options_dialog_ui_xml =
+  "<ui>"
+    "<menubar>"
+      "<menu name=\"FileMenu\" action=\"FileMenuAction\">"
+#ifdef STDIO_FILEIO
+        "<menuitem name=\"FileOpen\" action=\"FileOpenAction\"/>"
+        "<separator/>"
+        "<menuitem name=\"FileSave\" action=\"FileSaveAction\"/>"
+        "<separator/>"
+#endif /* def STDIO_FILEIO */
+        "<menuitem name=\"FileClose\" action=\"FileCloseAction\"/>"
+      "</menu>"
+      "<menu name=\"ToolsMenu\" action=\"ToolsMenuAction\">"
+          "<menuitem name=\"Exhaustive\" action=\"ExhaustiveAction\"/>"
+          "<menuitem name=\"VectorTable\" action=\"VectorTableAction\"/>"
+        "<separator/>"
+        "<menuitem name=\"AddVector\" action=\"AddVectorAction\"/>"
+        "<menuitem name=\"InsertVector\" action=\"InsertVectorAction\"/>"
+        "<menuitem name=\"DeleteVector\" action=\"DeleteVectorAction\"/>"
+      "</menu>"
+    "</menubar>"
+    "<toolbar name=\"MainToolBar\" action=\"MainToolBarAction\">"
+      "<placeholder name=\"ToolItems\">"
+        "<separator/>"
+        "<toolitem name=\"FileClose\" action=\"FileCloseAction\"/>"
+        "<separator/>"
+#ifdef STDIO_FILEIO
+        "<toolitem name=\"FileOpen\" action=\"FileOpenAction\"/>"
+        "<separator/>"
+        "<toolitem name=\"FileSave\" action=\"FileSaveAction\"/>"
+        "<separator/>"
+#endif /* def STDIO_FILEIO */
+        "<toolitem name=\"Exhaustive\" action=\"ExhaustiveAction\"/>"
+        "<toolitem name=\"VectorTable\" action=\"VectorTableAction\"/>"
+        "<separator/>"
+      "</placeholder>"
+    "</toolbar>"
+    "<toolbar name=\"VectorToolBar\" action=\"VectorToolBarAction\">"
+      "<placeholder name=\"ToolItems\">"
+        "<toolitem name=\"AddVector\" action=\"AddVectorAction\"/>"
+        "<toolitem name=\"InsertVector\" action=\"InsertVectorAction\"/>"
+        "<toolitem name=\"DeleteVector\" action=\"DeleteVectorAction\"/>"
+      "</placeholder>"
+    "</toolbar>"
+  "</ui>" ;
+
+static GtkActionEntry menu_action_entries[] =
+  {
+  {"FileMenuAction",     NULL,                         N_("_File")},
+  {"ToolsMenuAction",    NULL,                         N_("_Tools")}
+  } ;
+static int n_menu_action_entries = G_N_ELEMENTS (menu_action_entries) ;
+
+static GtkActionEntry vector_action_entries[] =
+  {
+  {"FileOpenAction",     GTK_STOCK_OPEN,               NULL,                NULL, NULL,                (GCallback)vtod_actOpen_activate},
+  {"FileSaveAction",     GTK_STOCK_SAVE,               NULL,                NULL, NULL,                (GCallback)vtod_actSave_activate},
+  {"AddVectorAction",    GTK_STOCK_ADD,                N_("Add Vector"),    NULL, N_("Add Vector"),    (GCallback)vtod_actAdd_activate},
+  {"InsertVectorAction", QCAD_STOCK_INSERT_COL_BEFORE, N_("Insert Vector"), NULL, N_("Insert Vector"), (GCallback)vtod_actInsert_activate},
+  {"DeleteVectorAction", GTK_STOCK_DELETE,             N_("Delete Vector"), NULL, N_("Delete Vector"), (GCallback)vtod_actDelete_activate}
+  } ;
+static int n_vector_action_entries = G_N_ELEMENTS (vector_action_entries) ;
+
+static GtkActionEntry sim_type_action_entries[] =
+  {
+  {"FileCloseAction", GTK_STOCK_CLOSE, NULL, NULL, NULL, (GCallback)vtod_actClose_activate},
+  } ;
+static int n_sim_type_action_entries = G_N_ELEMENTS (sim_type_action_entries) ;
+
+static GtkRadioActionEntry sim_type_radio_action_entries[] =
+  {
+  {"ExhaustiveAction",  GTK_STOCK_YES, N_("Exhaustive"),   NULL, N_("Exhaustive Verification"), EXHAUSTIVE_VERIFICATION},
+  {"VectorTableAction", GTK_STOCK_NO,  N_("Vector Table"), NULL, N_("Vector Table Simulation"), VECTOR_TABLE}
+  } ;
+static int n_sim_type_radio_action_entries = G_N_ELEMENTS (sim_type_radio_action_entries) ;
+
+static void force_adj_to_upper (GtkAdjustment *adj, gpointer data) ;
 
 void create_vector_table_options_dialog (vector_table_options_D *dialog)
   {
-  GtkWidget *tbl = NULL, *toolbar = NULL, *btn = NULL, *btnBaseRadioSource = NULL ;
-  GtkAccelGroup *accel_group = NULL ;
+  GError *error = NULL ;
+  GtkUIManager *ui_mgr = NULL ;
+  GtkActionGroup *actions = NULL ;
+  GtkWidget *tbl = NULL, *frm = NULL, *status_table = NULL ;
   GtkTreeViewColumn *col = NULL ;
   GtkCellRenderer *cr = NULL ;
+  GtkAdjustment *fake_hadj = NULL, *hadj = NULL ;
 
-  accel_group = gtk_accel_group_new () ;
+  dialog->dialog = g_object_new (GTK_TYPE_WINDOW, "type",  GTK_WINDOW_TOPLEVEL, "modal", TRUE, "title", _("Vector Table Setup"), "resizable", TRUE, NULL) ;
 
-  dialog->dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_modal (GTK_WINDOW (dialog->dialog), TRUE);
-  gtk_window_set_title (GTK_WINDOW (dialog->dialog), _("Vector Table Setup"));
-  gtk_window_set_resizable (GTK_WINDOW (dialog->dialog), TRUE) ;
-  g_object_set_data (G_OBJECT (dialog->dialog), "dialog", dialog) ;
-
-  tbl = gtk_table_new (2, 1, FALSE) ;
-  gtk_widget_show (tbl) ;
+  tbl = g_object_new (GTK_TYPE_TABLE, "visible", TRUE, "n-columns", 2, "n-rows", 4, "homogeneous", FALSE) ;
   gtk_container_add (GTK_CONTAINER (dialog->dialog), tbl) ;
 
-  toolbar = gtk_toolbar_new () ;
-  gtk_widget_show (toolbar) ;
-  gtk_table_attach (GTK_TABLE (tbl), toolbar, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 0, 0) ;
-  gtk_toolbar_set_orientation (GTK_TOOLBAR (toolbar), GTK_ORIENTATION_HORIZONTAL) ;
-  gtk_toolbar_set_tooltips (GTK_TOOLBAR (toolbar), TRUE) ;
-  gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH) ;
+  ui_mgr = gtk_ui_manager_new () ;
+  actions = gtk_action_group_new ("MenuActions") ;
+  gtk_action_group_set_translation_domain (actions, PACKAGE) ;
+  gtk_action_group_add_actions (actions, menu_action_entries, n_menu_action_entries, dialog) ;
+  gtk_ui_manager_insert_action_group (ui_mgr, actions, -1) ;
 
-  g_object_set_data (G_OBJECT (btn = gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Close"),
-    _("Close Window"),
-    _("Close vector table editor."),
-    gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)vector_table_options_dialog_btnClose_clicked,
-    NULL)),
-  "dialog", dialog) ;
-	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_w, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
+  actions = gtk_action_group_new ("SimTypeActions") ;
+  gtk_action_group_set_translation_domain (actions, PACKAGE) ;
+  gtk_action_group_add_actions (actions, sim_type_action_entries, n_sim_type_action_entries, dialog) ;
+  gtk_action_group_add_radio_actions (actions, sim_type_radio_action_entries, n_sim_type_radio_action_entries, EXHAUSTIVE_VERIFICATION, (GCallback)vtod_actSimType_changed, dialog) ;
+  gtk_ui_manager_insert_action_group (ui_mgr, actions, -1) ;
 
-  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
+  actions =
+  dialog->vector_table_action_group = gtk_action_group_new ("VectorTableActions") ;
+  gtk_action_group_set_translation_domain (actions, PACKAGE) ;
+  gtk_action_group_add_actions (actions, vector_action_entries, n_vector_action_entries, dialog) ;
+  gtk_ui_manager_insert_action_group (ui_mgr, actions, -1) ;
 
-#ifdef STDIO_FILEIO
-  dialog->btnOpen =
-  btn = gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Open"),
-    _("Open Vector Table"),
-    _("Open and display another vector table."),
-    gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)vector_table_options_dialog_btnOpen_clicked,
-    dialog) ;
-	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_o, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
+  gtk_ui_manager_add_ui_from_string (ui_mgr, vector_table_options_dialog_ui_xml, -1, &error) ;
 
-  dialog->btnSave =
-  btn = gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Save"),
-    _("Save Vector Table"),
-    _("Save the displayed vector table."),
-    gtk_image_new_from_stock (GTK_STOCK_SAVE, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)vector_table_options_dialog_btnSave_clicked,
-    dialog->dialog) ;
-	gtk_widget_add_accelerator (btn, "clicked", accel_group, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE) ;
-#endif /* def STDIO_FILEIO */
+  if (error != NULL)
+    {
+    g_message ("Failed to create UI: %s\n", error->message) ;
+    g_error_free (error) ;
+    }
+  else
+    {
+    GtkWidget *widget = NULL ;
 
-  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar)) ;
+    widget = gtk_ui_manager_get_widget (ui_mgr, "/ui/menubar") ;
+    gtk_widget_show (widget) ;
+    gtk_table_attach (GTK_TABLE (tbl), widget, 0, 2, 0, 1, 
+      (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
+      (GtkAttachOptions)(GTK_FILL), 0, 0) ;
 
-  g_object_set_data (G_OBJECT (
-    dialog->tbtnExhaustive =
-    btnBaseRadioSource = gtk_toolbar_append_element (
-      GTK_TOOLBAR (toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      NULL,
-      _("Exhaustive"),
-      _("Exhaustive Verification"),
-      _("Attempt all possible inputs."),
-      gtk_image_new_from_stock (GTK_STOCK_YES, GTK_ICON_SIZE_LARGE_TOOLBAR),
-      (GCallback)vector_table_options_dialog_btnSimType_clicked,
-      dialog)),
-    "sim_type", (gpointer)EXHAUSTIVE_VERIFICATION) ;
+    widget = gtk_ui_manager_get_widget (ui_mgr, "/ui/MainToolBar") ;
+    gtk_widget_show (widget) ;
+    gtk_table_attach (GTK_TABLE (tbl), widget, 0, 2, 1, 2, 
+      (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
+      (GtkAttachOptions)(GTK_FILL), 0, 0) ;
 
-  g_object_set_data (G_OBJECT (
-    dialog->tbtnVT =
-    gtk_toolbar_append_element (
-      GTK_TOOLBAR (toolbar),
-      GTK_TOOLBAR_CHILD_RADIOBUTTON,
-      btnBaseRadioSource,
-      _("Vector Table"),
-      _("Vector Table Simulation"),
-      _("Create a sequence of inputs."),
-      gtk_image_new_from_stock (GTK_STOCK_NO, GTK_ICON_SIZE_LARGE_TOOLBAR),
-      (GCallback)vector_table_options_dialog_btnSimType_clicked,
-      dialog)),
-    "sim_type", (gpointer)VECTOR_TABLE) ;
+    dialog->vector_ops = 
+    widget = gtk_ui_manager_get_widget (ui_mgr, "/ui/VectorToolBar") ;
+    g_object_set (G_OBJECT (widget), 
+      "visible", TRUE, "toolbar-style", GTK_TOOLBAR_ICONS, "orientation", GTK_ORIENTATION_VERTICAL, NULL) ;
+    gtk_table_attach (GTK_TABLE (tbl), widget, 0, 1, 2, 3, 
+      (GtkAttachOptions)(GTK_FILL),
+      (GtkAttachOptions)(GTK_FILL | GTK_EXPAND), 0, 0) ;
 
-  dialog->tblVT = gtk_table_new (1, 2, FALSE) ;
-  gtk_widget_show (dialog->tblVT) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->tblVT, 0, 1, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0) ;
+    dialog->actExhaustive  = gtk_ui_manager_get_action (ui_mgr, "/ui/menubar/ToolsMenu/Exhaustive") ;
+    dialog->actVectorTable = gtk_ui_manager_get_action (ui_mgr, "/ui/menubar/ToolsMenu/VectorTable") ;
 
-  toolbar = gtk_toolbar_new () ;
-  gtk_widget_show (toolbar) ;
-  gtk_table_attach (GTK_TABLE (dialog->tblVT), toolbar, 0, 1, 0, 1,
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0) ;
-  gtk_toolbar_set_orientation (GTK_TOOLBAR (toolbar), GTK_ORIENTATION_VERTICAL) ;
-  gtk_toolbar_set_tooltips (GTK_TOOLBAR (toolbar), TRUE) ;
-  gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS) ;
+    g_object_set_data (G_OBJECT (gtk_ui_manager_get_action (ui_mgr, "/ui/menubar/FileMenu/FileClose")), "dlgVTO", dialog->dialog) ;
+    }
 
-  dialog->btnAdd =
-  btn = gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Add"),
-    _("Add Vector"),
-    _("Apend a vector to the end of the table."),
-    gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)vector_table_options_dialog_btnAdd_clicked,
-    dialog->dialog) ;
+  gtk_window_add_accel_group (GTK_WINDOW  (dialog->dialog), gtk_ui_manager_get_accel_group (ui_mgr)) ;
 
-  dialog->btnInsert =
-  btn = gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Insert Before"),
-    _("Insert Vector Before"),
-    _("Insert vector before the selected one."),
-    gtk_image_new_from_stock (QCAD_STOCK_INSERT_COL_BEFORE, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)vector_table_options_dialog_btnAdd_clicked,
-    dialog->dialog) ;
-
-  dialog->btnDelete =
-  btn = gtk_toolbar_append_element (
-    GTK_TOOLBAR (toolbar),
-    GTK_TOOLBAR_CHILD_BUTTON,
-    NULL,
-    _("Delete Vector"),
-    _("Delete Vector"),
-    _("Insert the selected vector."),
-    gtk_image_new_from_stock (GTK_STOCK_DELETE, GTK_ICON_SIZE_LARGE_TOOLBAR),
-    (GCallback)vector_table_options_dialog_btnDelete_clicked,
-    dialog->dialog) ;
-
-  dialog->sw = g_object_new (QCAD_TYPE_TREE_VIEW_CONTAINER,
-    "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
-    "vscrollbar-policy", GTK_POLICY_AUTOMATIC,
-    "shadow-type",       GTK_SHADOW_IN,
-    "visible",           TRUE,
-    "n-frozen-columns",  2,
+  dialog->sw = g_object_new (QCAD_TYPE_SCROLLED_WINDOW, "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
+    "vscrollbar_policy", GTK_POLICY_AUTOMATIC,          "custom-hadjustment", TRUE,
+    "visible",           TRUE,                          "shadow_type",        GTK_SHADOW_IN,
     NULL) ;
-  gtk_table_attach (GTK_TABLE (dialog->tblVT), dialog->sw, 1, 2, 0, 1,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
+  gtk_table_attach (GTK_TABLE (tbl), dialog->sw, 1, 2, 2, 3,
+    (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
+    (GtkAttachOptions)(GTK_FILL | GTK_EXPAND), 2, 2) ;
 
   dialog->tv = create_bus_layout_tree_view (TRUE, _("Inputs"), GTK_SELECTION_SINGLE) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new ()) ;
   gtk_tree_view_column_set_title (col, _("Active")) ;
-  gtk_tree_view_column_pack_start (col, cr = dialog->crActive = gtk_cell_renderer_toggle_new (), TRUE) ;
-  gtk_tree_view_column_add_attribute (col, cr, "active", VECTOR_TABLE_MODEL_COLUMN_ACTIVE) ;
-  g_object_set (G_OBJECT (cr), "activatable", TRUE, NULL) ;
-  gtk_cell_renderer_toggle_set_active (GTK_CELL_RENDERER_TOGGLE (cr), TRUE) ;
+  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_toggle_new (), TRUE) ;
+  g_object_set (G_OBJECT (cr), "activatable", TRUE, "active", TRUE, NULL) ;
+  gtk_tree_view_column_set_cell_data_func (col, cr, vtod_active_flag_data_func, dialog, NULL) ;
+  g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)vtod_active_flag_toggled, dialog) ;
+  gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new ()) ;
   gtk_widget_show (dialog->tv) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->tv) ;
 
-  g_signal_connect (G_OBJECT (dialog->tv),     "style-set",    (GCallback)tree_view_style_set,                          NULL) ;
-  g_signal_connect (G_OBJECT (cr),             "toggled",      (GCallback)vt_model_active_toggled,                      dialog->tv) ;
-  g_signal_connect (G_OBJECT (dialog->dialog), "delete-event", (GCallback)vector_table_options_dialog_btnClose_clicked, NULL) ;
+  g_object_get (G_OBJECT (dialog->tv), "hadjustment", &fake_hadj, NULL) ;
+  g_object_get (G_OBJECT (dialog->sw), "hadjustment", &hadj, NULL) ;
 
-  gtk_window_add_accel_group (GTK_WINDOW (dialog->dialog), accel_group) ;
+  status_table = g_object_new (GTK_TYPE_TABLE, 
+    "n-columns", 2, "n-rows", 1, "homogeneous", FALSE, "visible", TRUE, NULL) ;
+  gtk_table_attach (GTK_TABLE (tbl), status_table, 0, 2, 3, 4,
+    (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
+    (GtkAttachOptions)(GTK_FILL), 0, 2) ;
+
+  frm = g_object_new (GTK_TYPE_FRAME, "shadow-type", GTK_SHADOW_IN, "visible", TRUE, NULL) ;
+  gtk_table_attach (GTK_TABLE (status_table), frm, 0, 1, 0, 1,
+    (GtkAttachOptions)(GTK_FILL),
+    (GtkAttachOptions)(GTK_FILL), 1, 0) ;
+
+  dialog->lblVectorCount = g_object_new (GTK_TYPE_LABEL, 
+    "label", "0 vectors", "visible", TRUE, "justify", GTK_JUSTIFY_LEFT, 
+    "xalign", 0.0, "yalign", 0.5, "xpad", 2, "ypad", 2, NULL) ;
+  gtk_container_add (GTK_CONTAINER (frm), dialog->lblVectorCount) ;
+
+  frm = g_object_new (GTK_TYPE_FRAME, "shadow-type", GTK_SHADOW_IN, "visible", TRUE, NULL) ;
+  gtk_table_attach (GTK_TABLE (status_table), frm, 1, 2, 0, 1,
+    (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
+    (GtkAttachOptions)(GTK_FILL), 1, 0) ;
+
+  dialog->lblFileName = g_object_new (GTK_TYPE_LABEL,
+    "label", "", "visible", TRUE, "justify", GTK_JUSTIFY_LEFT,
+    "xalign", 0.0, "yalign", 0.5, "xpad", 2, "ypad", 2, NULL) ;
+  gtk_container_add (GTK_CONTAINER (frm), dialog->lblFileName) ;
+
+  g_signal_connect (G_OBJECT (dialog->dialog), "delete-event",    (GCallback)vtod_actClose_activate,      NULL) ;
+  g_signal_connect (G_OBJECT (dialog->tv),     "size-allocate",   (GCallback)vtod_treeview_size_allocate, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->tv),     "focus-out-event", (GCallback)vtod_treeview_focus,         dialog) ;
+  g_signal_connect (G_OBJECT (dialog->tv),     "focus-in-event",  (GCallback)vtod_treeview_focus,         dialog) ;
+  g_signal_connect (G_OBJECT (hadj),           "value-changed",   (GCallback)vtod_hadj_value_changed,     dialog->tv) ;
+  g_signal_connect (G_OBJECT (fake_hadj),      "changed",         (GCallback)force_adj_to_upper,          dialog->tv) ;
+  g_signal_connect (G_OBJECT (fake_hadj),      "value-changed",   (GCallback)force_adj_to_upper,          dialog->tv) ;
+  g_signal_connect (G_OBJECT (dialog->vector_table_action_group), "notify::sensitive", (GCallback)vector_actions_notify_sensitive, dialog) ;
   }
 
-GtkTreeViewColumn *add_vector_to_dialog (vector_table_options_D *dialog, VectorTable *pvt, int idx)
+static void force_adj_to_upper (GtkAdjustment *adj, gpointer data)
   {
-  GList *llItr = NULL, *llCols = NULL ;
-  GtkTreeViewColumn *col = NULL ;
-  GtkCellRenderer *cr = NULL ;
-  int idxCol = (-1 == idx ? idx : idx + 2) ;
-  int idxVector = (-1 == idx ? pvt->vectors->icUsed - 1 : idx) ;
-  char *psz = NULL ;
-  int Nix, new_idx = -1 ;
+  GList *llCols = gtk_tree_view_get_columns (GTK_TREE_VIEW (data)) ;
 
-  if (idx >= 0)
-    {
-    // Move to the first vector column
-    if (NULL != (llCols = llItr = gtk_tree_view_get_columns (GTK_TREE_VIEW (dialog->tv))))
-      {
-      if (NULL != (llItr = llItr->next))
-        llItr = llItr->next ;
-      // Increment the indices for all vector columns following the new one.
-      for (Nix = 0 ; llItr != NULL ; llItr = llItr->next, Nix++)
-        if (Nix >= idx)
-          if (NULL != (cr = g_object_get_data (G_OBJECT (llItr->data), "cr")))
-            {
-            g_object_set_data (G_OBJECT (cr), "idxVector",
-              (gpointer)(new_idx = (int)g_object_get_data (G_OBJECT (cr), "idxVector") + 1)) ;
-            gtk_tree_view_column_set_title (GTK_TREE_VIEW_COLUMN (llItr->data), psz = g_strdup_printf ("%d", new_idx)) ;
-            g_free (psz) ;
-            }
-      g_list_free (llCols) ;
-      }
-    }
+  if (NULL == g_list_nth (llCols, 3))
+    if (adj->value != adj->upper - adj->page_size) gtk_adjustment_set_value (adj, adj->upper - adj->page_size) ;
 
-  gtk_tree_view_insert_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new (), idxCol) ;
-  gtk_tree_view_column_set_title (col, psz = g_strdup_printf ("%d", idxVector)) ;
-  g_free (psz) ;
-  gtk_tree_view_column_pack_start (col, cr = qcad_cell_renderer_vt_new (), FALSE) ;
-  g_object_set (G_OBJECT (cr), 
-    "cell-background-gdk", &((gtk_widget_get_style (dialog->tv))->base[3]),
-    "cell-background-set", FALSE, 
-    "editable", TRUE, NULL) ;
-  gtk_tree_view_column_add_attribute (col, cr, "row-type", BUS_LAYOUT_MODEL_COLUMN_TYPE) ;
-  gtk_tree_view_column_add_attribute (col, cr, "sensitive", VECTOR_TABLE_MODEL_COLUMN_ACTIVE) ;
-  gtk_tree_view_column_set_clickable (col, TRUE) ;
-  g_object_set_data (G_OBJECT (cr), "idxVector", (gpointer)idxVector) ;
-  g_object_set_data (G_OBJECT (cr), "pvt", pvt) ;
-  gtk_tree_view_column_set_cell_data_func (col, cr, vector_data_func, pvt, NULL) ;
-  g_object_set_data (G_OBJECT (col), "cr", cr) ;
-  g_object_set_data (G_OBJECT (cr), "col", col) ;
-
-  g_signal_connect (G_OBJECT (col), "clicked", (GCallback)vector_column_clicked, dialog) ;
-  g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)vector_column_clicked, dialog) ;
-  g_signal_connect (G_OBJECT (cr), "edited",  (GCallback)vector_value_edited, dialog->tv) ;
-  g_signal_connect (G_OBJECT (cr), "editing-started", (GCallback)vector_value_editing_started, dialog) ;
-
-  return col ;
+  g_list_free (llCols) ;
   }

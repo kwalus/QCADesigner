@@ -20,6 +20,9 @@ msgstr ""
 msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
 msgstr ""
 
+msgid "A file named \"%s\" already exists.\n\nDo you want to replace it with the one you are saving?"
+msgstr "Plik o nazwie \"%s\" już istnieje.\n\nCzy chcesz go zastąpić aktualnie zapisywanym plikiem?"
+
 msgid "About QCADesigner"
 msgstr "Informacje o QCADesigner"
 
@@ -791,8 +794,8 @@ msgstr ""
 msgid "Print Order"
 msgstr ""
 
-msgid "Print Preview"
-msgstr "Podgląd wydruku"
+# msgid "Print Preview"
+# msgstr "Podgląd wydruku"
 
 msgid "Print To"
 msgstr ""
@@ -884,6 +887,9 @@ msgstr ""
 msgid "Reorder"
 msgstr ""
 
+msgid "_Replace"
+msgstr "Z_mień"
+
 msgid "Reset Zoom"
 msgstr ""
 
@@ -894,7 +900,7 @@ msgid "Resolution (n x n pixels) used to draw the potential"
 msgstr ""
 
 msgid "Right Margin:"
-msgstr ""
+msgstr "Prawy margines:"
 
 msgid "Rotate Cell"
 msgstr ""
@@ -1119,6 +1125,12 @@ msgid "Untitled"
 msgstr ""
 
 msgid "Upper Threshold [1]:"
+msgstr ""
+
+msgid "vector"
+msgstr ""
+
+msgid "vectors"
 msgstr ""
 
 msgid "Vector Table Setup"

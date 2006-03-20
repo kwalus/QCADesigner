@@ -29,7 +29,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "global_consts.h"
 #include "support.h"
 #include "file_selection_window.h"
 #include "fileio_helpers.h"
@@ -39,78 +38,87 @@
 
 #define QCA_CELL_LIBRARY PACKAGE_DATA_DIR G_DIR_SEPARATOR_S PACKAGE G_DIR_SEPARATOR_S "qca_cell_library"
 
-static gboolean filesel_ok_button_activate (GtkWidget *widget, GdkEventButton *ev, gpointer data) ;
-static char *get_default_file_name (GtkFileSelection *file_sel, char *pszFName) ;
-
-static GtkWidget *file_selection = NULL ;
-
-gchar *get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFName, gboolean bOverwritePrompt)
+typedef struct
   {
+  GtkWidget *dialog ;
+  GtkWidget *ok_button ;
+  } file_selection_D ;
+
+static void create_file_selection_dialog (file_selection_D *dialog) ;
+static char *get_default_file_name (GtkFileChooser *file_chooser, char *pszFName) ;
+
+static file_selection_D file_selection_dialog = {NULL} ;
+
+gchar *get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszFName, gboolean bSave)
+  {
+  int response = GTK_RESPONSE_NONE ;
+  GtkWidget *msg = NULL ;
   gchar *pszRet = NULL ;
-  gulong handlerID = 0 ;
 
-  if (NULL == file_selection)
-    file_selection = gtk_file_selection_new (pszWinTitle) ;
+  if (NULL == file_selection_dialog.dialog)
+    create_file_selection_dialog (&file_selection_dialog) ;
 
-  gtk_window_set_transient_for (GTK_WINDOW (file_selection), parent) ;
-  gtk_window_set_title (GTK_WINDOW (file_selection), pszWinTitle) ;
+  g_object_set (G_OBJECT (file_selection_dialog.dialog),
+    "title",  (NULL == pszWinTitle) ? g_type_name (G_TYPE_FROM_INSTANCE (file_selection_dialog.dialog)) : pszWinTitle,
+    "action", bSave ? GTK_FILE_CHOOSER_ACTION_SAVE : GTK_FILE_CHOOSER_ACTION_OPEN,
+    NULL) ;
 
-  if (NULL != (pszRet = get_default_file_name (GTK_FILE_SELECTION (file_selection), pszFName)))
+  g_object_set (G_OBJECT (file_selection_dialog.ok_button),
+    "label",     bSave ? GTK_STOCK_SAVE : GTK_STOCK_OPEN,
+    "use-stock", TRUE,
+    NULL) ;
+
+  gtk_window_set_transient_for (GTK_WINDOW (file_selection_dialog.dialog), parent) ;
+
+  if (NULL != (pszRet = get_default_file_name (GTK_FILE_CHOOSER (file_selection_dialog.dialog), pszFName)))
     {
-    gtk_file_selection_set_filename (GTK_FILE_SELECTION (file_selection), pszRet) ;
+    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_selection_dialog.dialog), pszRet) ;
     g_free (pszRet) ;
     pszRet = NULL ;
     }
 
-  if (bOverwritePrompt)
-    handlerID = g_signal_connect (G_OBJECT (GTK_FILE_SELECTION (file_selection)->ok_button),
-      "button_release_event", G_CALLBACK (filesel_ok_button_activate), file_selection) ;
+  while (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (file_selection_dialog.dialog)))
+    {
+    if (NULL == (pszRet = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_selection_dialog.dialog)))) break ;
+    if (!bSave) break ;
 
-  if ((GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (file_selection))))
-    pszRet = g_strdup_printf ("%s", gtk_file_selection_get_filename (GTK_FILE_SELECTION (file_selection))) ;
-  gtk_widget_hide (file_selection) ;
+    if (NULL != pszRet)
+      {
+      if (g_file_test (pszRet, G_FILE_TEST_EXISTS))
+        {
+        msg = gtk_message_dialog_new (GTK_WINDOW (file_selection_dialog.dialog), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, _("A file named \"%s\" already exists.\n\nDo you want to replace it with the one you are saving?"), pszRet) ;
 
-  if (bOverwritePrompt)
-    g_signal_handler_disconnect (G_OBJECT (GTK_FILE_SELECTION (file_selection)->ok_button), handlerID) ;
+        gtk_window_set_transient_for (GTK_WINDOW (msg), GTK_WINDOW (file_selection_dialog.dialog)) ;
+        gtk_dialog_add_button (GTK_DIALOG (msg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
+        gtk_dialog_add_action_widget (GTK_DIALOG (msg), gtk_button_new_with_stock_image (GTK_STOCK_REFRESH, _("_Replace")), GTK_RESPONSE_OK) ;
+
+        response = gtk_dialog_run (GTK_DIALOG (msg)) ;
+
+        gtk_widget_hide (msg) ;
+        gtk_widget_destroy (msg) ;
+
+        if (GTK_RESPONSE_OK == response) break ;
+        }
+      g_free (pszRet) ;
+      pszRet = NULL ;
+      }
+    }
+  gtk_widget_hide (file_selection_dialog.dialog) ;
+
+  if (NULL != parent)
+    gtk_window_present (parent) ;
 
   return pszRet ;
-  }
-
-static gboolean filesel_ok_button_activate (GtkWidget *widget, GdkEventButton *ev, gpointer data)
-  {
-  char *pszFName = g_strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (data))) ;
-
-  if (g_file_test (pszFName, G_FILE_TEST_EXISTS))
-    {
-    int resp = GTK_RESPONSE_CANCEL ;
-    GtkWidget *msg = gtk_message_dialog_new (GTK_WINDOW (data), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, "A file named \"%s\" already exists.\nDo you want to replace it with the one you are saving ?", pszFName) ;
-
-    gtk_dialog_add_button (GTK_DIALOG (msg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
-    gtk_dialog_add_action_widget (GTK_DIALOG (msg), gtk_button_new_with_stock_image (GTK_STOCK_REFRESH, "Replace"), GTK_RESPONSE_OK) ;
-    resp = gtk_dialog_run (GTK_DIALOG (msg)) ;
-    gtk_widget_hide (msg) ;
-    gtk_widget_destroy (msg) ;
-
-    if (GTK_RESPONSE_OK != resp)
-      gtk_button_released (GTK_BUTTON (widget)) ;
-    else
-      gtk_button_clicked (GTK_BUTTON (widget)) ;
-    g_free (pszFName) ;
-    return (GTK_RESPONSE_OK != resp) ;
-    }
-
-  g_free (pszFName) ;
-  return FALSE ;
   }
 
 void set_file_selection_file_name (char *pszFName)
   {
   if (NULL == pszFName) return ;
 
-  if (NULL == file_selection)
-    file_selection = gtk_file_selection_new ("GtkFileSelection") ;
+  if (NULL == file_selection_dialog.dialog)
+    create_file_selection_dialog (&file_selection_dialog) ;
 
-  gtk_file_selection_set_filename (GTK_FILE_SELECTION (file_selection), pszFName) ;
+  gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_selection_dialog.dialog), pszFName) ;
   }
 
 gchar *get_external_app (GtkWindow *parent, char *pszWinTitle, char *pszCfgFName, char *pszDefaultContents, gboolean bForceNew)
@@ -157,7 +165,7 @@ gchar *get_external_app (GtkWindow *parent, char *pszWinTitle, char *pszCfgFName
     // Give the user the bad news.
     GtkWidget *msg = NULL ;
     gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (parent, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR,
-      GTK_BUTTONS_OK, "Unable to locate path!"))) ;
+      GTK_BUTTONS_OK, _("Unable to locate path!")))) ;
     gtk_widget_hide (msg) ;
     gtk_widget_destroy (msg) ;
     g_free (pszRet) ;
@@ -175,13 +183,13 @@ gchar *get_external_app (GtkWindow *parent, char *pszWinTitle, char *pszCfgFName
 
 #ifdef WIN32
   // In Windoze, we need to perform the extra step of grabbing
-  // the DOS-style path corresponding to the previewer path
+  // the DOS-style path corresponding to the app path
   GetShortPathName (pszRet, szBuf, PATH_LENGTH) ;
   g_free (pszRet) ;
   pszRet = g_strdup_printf ("%s", szBuf) ;
 #endif
 
-  /* Save the previewer to the config file */
+  /* Save the app to the config file */
   if (NULL != (pfile = fopen (pszUserFName, "w")))
     {
     fprintf (pfile, "%s\n", pszRet) ;
@@ -191,7 +199,7 @@ gchar *get_external_app (GtkWindow *parent, char *pszWinTitle, char *pszCfgFName
   return pszRet ;
   }
 
-static char *get_default_file_name (GtkFileSelection *file_sel, char *pszFName)
+static char *get_default_file_name (GtkFileChooser *file_chooser, char *pszFName)
   {
   gboolean bHaveCellLib = FALSE ;
   char *pszCellLibrary = NULL ;
@@ -205,7 +213,7 @@ static char *get_default_file_name (GtkFileSelection *file_sel, char *pszFName)
   pszCellLibrary = QCA_CELL_LIBRARY ;
 #endif /* def WIN32 */
 
-  pszOldFName = g_strdup (gtk_file_selection_get_filename (file_sel)) ;
+  pszOldFName = gtk_file_chooser_get_filename (file_chooser) ;
 
   bHaveCellLib = g_file_test (pszCellLibrary, G_FILE_TEST_IS_DIR) ;
 
@@ -222,4 +230,17 @@ static char *get_default_file_name (GtkFileSelection *file_sel, char *pszFName)
   if (NULL == pszFName) return NULL ;
 
   return strdup (pszFName) ;
+  }
+
+static void create_file_selection_dialog (file_selection_D *dialog)
+  {
+  dialog->dialog = g_object_new (GTK_TYPE_FILE_CHOOSER_DIALOG, 
+    "modal",           TRUE,
+    "select-multiple", FALSE,
+    "local-only",      TRUE,
+    "show-hidden",     TRUE,
+    NULL) ;
+  gtk_dialog_add_button (GTK_DIALOG (dialog->dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
+  dialog->ok_button = gtk_dialog_add_button (GTK_DIALOG (dialog->dialog), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
+  gtk_dialog_set_default_response (GTK_DIALOG (dialog->dialog), GTK_RESPONSE_OK) ;
   }

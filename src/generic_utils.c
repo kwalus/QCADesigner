@@ -112,8 +112,8 @@ void fit_rect_inside_rect (double dWidth, double dHeight, double *px, double *py
     }
   }
 
-// Convert a long long value to decimal, hexadecimal, or binary
-char *strdup_convert_to_base (long long value, int base)
+// Convert a guint64 value to decimal, hexadecimal, or binary
+char *strdup_convert_to_base (guint64 value, int base)
   {
   if (10 == base)
     return g_strdup_printf ("%llu", value) ;

@@ -39,6 +39,9 @@
 #include "custom_widgets.h"
 #include "global_consts.h"
 #ifdef GTK_GUI
+  #ifdef DESIGNER
+    #include "custom_widgets.h"
+  #endif /* def DESIGNER */
   #include "callback_helpers.h"
 #endif /* def GTK_GUI */
 #include "intl.h"
@@ -601,8 +604,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
         else
           redraw_async(NULL);
         gdk_flush () ;
-        while (gtk_events_pending ())
-          gtk_main_iteration () ;
+        drain_gtk_events () ;
         }
 #endif /* def DESIGNER */
       }

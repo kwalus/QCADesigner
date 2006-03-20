@@ -1,5 +1,4 @@
-# Contributed by Gabriel Schulhof but mostly courtesy of
-# Nicolas Veyrat-Charvillon and Laurent Imbert
+# Contributed by Nicolas Veyrat-Charvillon and Laurent Imbert
 msgid ""
 msgstr ""
 "Project-Id-Version: QCADesigner 2.1.0\n"
@@ -20,6 +19,9 @@ msgstr ""
 
 msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
 msgstr ""
+
+msgid "A file named \"%s\" already exists.\n\nDo you want to replace it with the one you are saving?"
+msgstr "Un fichier nommé »%s« existe déjà.\n\nVoulez-vous le remplacer par celui que vous essayez d'enregistrer?"
 
 msgid "About QCADesigner"
 msgstr "À propos de QCADesigner"
@@ -693,7 +695,7 @@ msgid "Move Bus Up"
 msgstr ""
 
 msgid "New Layer"
-msgstr ""
+msgstr "Nouveau calque"
 
 msgid "Normal"
 msgstr ""
@@ -815,8 +817,8 @@ msgstr ""
 msgid "Print Order"
 msgstr ""
 
-msgid "Print Preview"
-msgstr ""
+# msgid "Print Preview"
+# msgstr ""
 
 msgid "Print To"
 msgstr ""
@@ -910,6 +912,9 @@ msgstr ""
 
 msgid "Reorder"
 msgstr ""
+
+msgid "_Replace"
+msgstr "Re_mplacer"
 
 msgid "Reset Zoom"
 msgstr ""
@@ -1148,6 +1153,12 @@ msgid "Untitled"
 msgstr "Sans Titre"
 
 msgid "Upper Threshold [1]:"
+msgstr ""
+
+msgid "vector"
+msgstr ""
+
+msgid "vectors"
 msgstr ""
 
 msgid "Vector Table Setup"

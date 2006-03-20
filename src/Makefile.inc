@@ -77,4 +77,4 @@ VECTOR_TABLE_DIALOG_FILES = \
 	vector_table_options_dialog.c           vector_table_options_dialog.h \
 	vector_table_options_dialog_interface.c vector_table_options_dialog_interface.h \
 	vector_table_options_dialog_callbacks.c vector_table_options_dialog_callbacks.h \
-	vector_table_options_dialog_data.c      vector_table_options_dialog_data.h
+	                                        vector_table_options_dialog_callback_helpers.h

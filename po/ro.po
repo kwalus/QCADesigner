@@ -20,6 +20,9 @@ msgstr "1 nm este"
 msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
 msgstr ""
 
+msgid "A file named \"%s\" already exists.\n\nDo you want to replace it with the one you are saving?"
+msgstr "Un fişier cu numele „%s“ există deja.\n\nDoriţi să-l înlocuiţi cu cel pe care îl salvaţi?"
+
 msgid "About QCADesigner"
 msgstr "Despre QCADesigner"
 
@@ -827,8 +830,8 @@ msgstr "Tipăreşte grafurile"
 msgid "Print Order"
 msgstr "Ordinea tipăriri"
 
-msgid "Print Preview"
-msgstr "Previzualizarea tipăriri"
+# msgid "Print Preview"
+# msgstr "Previzualizarea tipăriri"
 
 msgid "Print To"
 msgstr "Tipăreşte folosind"
@@ -922,6 +925,9 @@ msgstr "Rearanjează Straturi"
 
 msgid "Reorder"
 msgstr "Rearanjează"
+
+msgid "_Replace"
+msgstr "Î_nlocuieşte"
 
 msgid "Reset Zoom"
 msgstr ""
@@ -1161,6 +1167,12 @@ msgstr "Fără titlu"
 
 msgid "Upper Threshold [1]:"
 msgstr "Limita înaltă [1]:"
+
+msgid "vector"
+msgstr ""
+
+msgid "vectors"
+msgstr "vectori"
 
 msgid "Vector Table Setup"
 msgstr "Setări tabel de vectori"

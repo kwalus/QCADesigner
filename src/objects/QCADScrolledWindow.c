@@ -53,8 +53,6 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
 static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
 static void add (GtkContainer *container, GtkWidget *child) ;
 
-static void fake_hadj_value_changed (GtkAdjustment *adj, gpointer data) ;
-
 static void qcad_scrolled_window_update_custom_adjustments (QCADScrolledWindow *qsw) ;
 
 GType qcad_scrolled_window_get_type ()
@@ -108,8 +106,6 @@ static void qcad_scrolled_window_instance_init (QCADScrolledWindow *instance)
   instance->bCustomVScroll = FALSE ;
   instance->fake_hadj = GTK_ADJUSTMENT (g_object_ref (G_OBJECT (gtk_adjustment_new (0, 0, 1, 1, 1, 1)))) ;
   instance->fake_vadj = GTK_ADJUSTMENT (g_object_ref (G_OBJECT (gtk_adjustment_new (0, 0, 1, 1, 1, 1)))) ;
-  g_signal_connect (G_OBJECT (instance->fake_hadj), "value-changed", (GCallback)fake_hadj_value_changed, NULL) ;
-  g_signal_connect (G_OBJECT (instance->fake_vadj), "value-changed", (GCallback)fake_hadj_value_changed, NULL) ;
   }
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -179,12 +175,6 @@ static void add (GtkContainer *container, GtkWidget *child)
 
   if (qsw->bCustomHScroll || qsw->bCustomVScroll)
     qcad_scrolled_window_update_custom_adjustments (qsw) ;
-/*
-  if (-1 == tvc->notify_id)
-    tvc->notify_id = 
-      g_signal_connect (G_OBJECT (gtk_range_get_adjustment (GTK_RANGE (sw->hscrollbar))),
-        "value-changed", (GCallback)hscroll_adj_value_changed, container) ;
-*/
   }
 
 GtkWidget *qcad_scrolled_window_new ()
@@ -211,6 +201,3 @@ static void qcad_scrolled_window_update_custom_adjustments (QCADScrolledWindow *
   gtk_widget_set_scroll_adjustments (child, adjHScroll, adjVScroll) ;
   GTK_WIDGET_GET_CLASS (child)->size_allocate (child, &(child->allocation)) ;
   }
-
-static void fake_hadj_value_changed (GtkAdjustment *adj, gpointer data)
-  {if (adj->value != adj->lower) gtk_adjustment_set_value (adj, adj->lower) ;}

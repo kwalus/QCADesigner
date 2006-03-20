@@ -21,6 +21,9 @@ msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
 msgstr ""
 "<span foreground=\"red\">Achtung:</span> Der Bus darf nicht namenlos bleiben."
 
+msgid "A file named \"%s\" already exists.\n\nDo you want to replace it with the one you are saving?"
+msgstr "Es existiert bereits eine Datei namens »%s«.\n\nSoll sie durch diejenige ersetzt werden, die Sie gerade speichern?"
+
 msgid "About QCADesigner"
 msgstr "QCADesigner Info"
 
@@ -830,8 +833,8 @@ msgstr "Graphe Drucken"
 msgid "Print Order"
 msgstr "Druckrichtung"
 
-msgid "Print Preview"
-msgstr "Druckvorschau"
+# msgid "Print Preview"
+# msgstr "Druckvorschau"
 
 msgid "Print To"
 msgstr "Drucke nach"
@@ -926,6 +929,9 @@ msgstr "Ebenen Umordnen"
 msgid "Reorder"
 msgstr "Umordnen"
 
+msgid "_Replace"
+msgstr "_Ersetzen"
+
 msgid "Reset Zoom"
 msgstr "Zoom zurückstellen"
 
@@ -951,7 +957,7 @@ msgid "Row type:Cell/Bus"
 msgstr "Rheientyp:Zelle/Bus"
 
 msgid "S_top Simulation"
-msgstr "Simulation be_enden"
+msgstr "Simulation bee_nden"
 
 msgid "Sample"
 msgstr "Probe"
@@ -1038,7 +1044,7 @@ msgid "Simulation Results..."
 msgstr "Simulatioinsresultate"
 
 msgid "Simulation T_ype Setup..."
-msgstr "Einstellungen des Simulationstyps..."
+msgstr "Einstellungen des Simulationst_yps..."
 
 msgid "Simulation _Engine Setup..."
 msgstr ""
@@ -1166,6 +1172,12 @@ msgstr "Namenlos"
 
 msgid "Upper Threshold [1]:"
 msgstr "Oberer Grenzwert [1]:"
+
+msgid "vector"
+msgstr "Vektor"
+
+msgid "vectors"
+msgstr "Vektoren"
 
 msgid "Vector Table Setup"
 msgstr "Einstellungen der Vektortabelle"

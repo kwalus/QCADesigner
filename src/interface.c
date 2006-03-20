@@ -618,14 +618,18 @@ void create_main_window (main_W *main_window){
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (help_menu), help_menu_menu);
 
 	// create and add the contents menu item to the help menu
-	contents_menu_item = gtk_image_menu_item_new_with_label (_("Contents"));
+	contents_menu_item = gtk_image_menu_item_new_with_mnemonic (_("_Contents"));
 	gtk_widget_show (contents_menu_item);
 	gtk_container_add (GTK_CONTAINER (help_menu_menu), contents_menu_item);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (contents_menu_item),
     gtk_image_new_from_stock (GTK_STOCK_HELP, GTK_ICON_SIZE_MENU)) ;
 
   // create and add the about menu item to the help menu //
-  about_menu_item = gtk_menu_item_new_with_label (_("About..."));
+#if (GTK_MINOR_VERSION < 6)
+  about_menu_item = gtk_menu_item_new_with_mnemonic (_("_About"));
+#else
+  about_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, accel_group);
+#endif /* GTK_MINOR_VERSION < 6 */
   gtk_widget_show (about_menu_item);
   gtk_container_add (GTK_CONTAINER (help_menu_menu), about_menu_item);
   gtk_tooltips_set_tip (tooltips, about_menu_item, _("About QCADesigner"), NULL);

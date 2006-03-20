@@ -197,37 +197,39 @@ static void DialogToBusLayout (bus_layout_D *dialog, BUS_LAYOUT *bus_layout)
     tp = gtk_tree_path_new_first () ;
     for (Nix = 0 ; Nix < icTopLevel ; Nix++, gtk_tree_path_next (tp))
       {
-      gtk_tree_model_get_iter (tm, &itr, tp) ;
-      gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type, -1) ;
-      if (ROW_TYPE_BUS & row_type)
+      if (gtk_tree_model_get_iter (tm, &itr, tp))
         {
-        exp_array_1d_insert_vals (bus_layout->buses, NULL, 1, -1) ;
-        bus = &(exp_array_index_1d (bus_layout->buses, BUS, bus_layout->buses->icUsed - 1)) ;
-        gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_NAME, &(bus->pszName), -1) ;
-	if (ROW_TYPE_INPUT & row_type)
-	  {
-	  bus->bus_function = QCAD_CELL_INPUT ;
-	  cell_list = bus_layout->inputs ;
-	  }
-	else
-	  {
-	  bus->bus_function = QCAD_CELL_OUTPUT ;
-	  cell_list = bus_layout->outputs ;
-	  }
-        bus->cell_indices = exp_array_new (sizeof (int), 1) ;
-        if ((icCells = gtk_tree_model_iter_n_children (tm, &itr)) > 0)
+        gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type, -1) ;
+        if (ROW_TYPE_BUS & row_type)
           {
-          gtk_tree_path_down (tpCells = gtk_tree_path_copy (tp)) ;
-
-          for (Nix1 = 0 ; Nix1 < icCells ; Nix1++, gtk_tree_path_next (tpCells))
+          exp_array_1d_insert_vals (bus_layout->buses, NULL, 1, -1) ;
+          bus = &(exp_array_index_1d (bus_layout->buses, BUS, bus_layout->buses->icUsed - 1)) ;
+          gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_NAME, &(bus->pszName), -1) ;
+          if (ROW_TYPE_INPUT & row_type)
             {
-            gtk_tree_model_get_iter (tm, &itr, tpCells) ;
-            gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_INDEX, &idxCell, -1) ;
-            exp_array_1d_insert_vals (bus->cell_indices, &idxCell, 1, -1) ;
-            // Flag this cell in the master cell list as a member of some bus
-            exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, idxCell).bIsInBus = TRUE ;
+            bus->bus_function = QCAD_CELL_INPUT ;
+            cell_list = bus_layout->inputs ;
             }
-          gtk_tree_path_free (tpCells) ;
+          else
+            {
+            bus->bus_function = QCAD_CELL_OUTPUT ;
+            cell_list = bus_layout->outputs ;
+            }
+          bus->cell_indices = exp_array_new (sizeof (int), 1) ;
+          if ((icCells = gtk_tree_model_iter_n_children (tm, &itr)) > 0)
+            {
+            gtk_tree_path_down (tpCells = gtk_tree_path_copy (tp)) ;
+
+            for (Nix1 = 0 ; Nix1 < icCells ; Nix1++, gtk_tree_path_next (tpCells))
+              if (gtk_tree_model_get_iter (tm, &itr, tpCells))
+                {
+                gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_INDEX, &idxCell, -1) ;
+                exp_array_1d_insert_vals (bus->cell_indices, &idxCell, 1, -1) ;
+                // Flag this cell in the master cell list as a member of some bus
+                exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, idxCell).bIsInBus = TRUE ;
+                }
+            gtk_tree_path_free (tpCells) ;
+            }
           }
         }
       }
@@ -259,7 +261,8 @@ static void lower_bus_cell_position (GtkWidget *widget, gpointer data)
 
   gtk_tree_path_down (tpDst = gtk_tree_path_copy (tpBus)) ;
   for (Nix = 1 ; Nix < icChildren ; Nix++) gtk_tree_path_next (tpDst) ;
-  gtk_tree_path_prev (tpSrc = gtk_tree_path_copy (tpDst)) ;
+    // St00pid short-circuit if statement to suppress a warning.
+    if (gtk_tree_path_prev (tpSrc = gtk_tree_path_copy (tpDst))) ;
 
   for (Nix = 1 ; Nix < icChildren ; Nix++)
     {
@@ -270,8 +273,8 @@ static void lower_bus_cell_position (GtkWidget *widget, gpointer data)
       gtk_tree_selection_unselect_path (sel, tpSrc) ;
       gtk_tree_selection_select_path (sel, tpDst) ;
       }
-    gtk_tree_path_prev (tpSrc) ;
-    gtk_tree_path_prev (tpDst) ;
+    if (!gtk_tree_path_prev (tpSrc)) break ;
+    if (!gtk_tree_path_prev (tpDst)) break ;
     }
   }
 
@@ -345,8 +348,8 @@ static void bus_name_changed (GtkWidget *widget, gpointer data)
 
   if (NULL == tp) return ;
 
-  gtk_tree_model_get_iter (tm = GTK_TREE_MODEL (gtk_tree_view_get_model (GTK_TREE_VIEW (((bus_layout_D *)data)->tview))), &itr, tp) ;
-  gtk_tree_store_set (GTK_TREE_STORE (tm), &itr, BUS_LAYOUT_MODEL_COLUMN_NAME, gtk_entry_get_text (GTK_ENTRY (widget)), -1) ;
+  if (gtk_tree_model_get_iter (tm = GTK_TREE_MODEL (gtk_tree_view_get_model (GTK_TREE_VIEW (((bus_layout_D *)data)->tview))), &itr, tp))
+    gtk_tree_store_set (GTK_TREE_STORE (tm), &itr, BUS_LAYOUT_MODEL_COLUMN_NAME, gtk_entry_get_text (GTK_ENTRY (widget)), -1) ;
   }
 
 // Create a new bus from the current selection
@@ -364,8 +367,12 @@ static void create_bus_button_clicked (GtkWidget *widget, gpointer data)
 
   if (NULL == llTreeRefs) return ;
 
-  gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itr,
-    tp = gtk_tree_row_reference_get_path (llTreeRefs->data)) ;
+  if (!gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itr,
+    tp = gtk_tree_row_reference_get_path (llTreeRefs->data)))
+    {
+    gtk_tree_path_free (tp) ;
+    return ;
+    }
 
   gtk_tree_model_get (GTK_TREE_MODEL (ts), &itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type, -1) ;
 
@@ -383,50 +390,49 @@ static void create_bus_button_clicked (GtkWidget *widget, gpointer data)
 
   for (llItr = g_list_last (llTreeRefs) ; llItr != NULL ; llItr = llItr->prev)
     {
-    gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itrBus, tp = gtk_tree_row_reference_get_path (refBus)) ;
-    gtk_tree_path_free (tp) ;
-
-    gtk_tree_store_append (ts, &itr, &itrBus) ;
-
-    gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itrSrc,
-      tp = gtk_tree_row_reference_get_path (llItr->data)) ;
-    gtk_tree_path_free (tp) ;
-
-    swap_model_iters_contents (GTK_TREE_MODEL (ts), &itrSrc, &itr) ;
-
-    gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itrSrc,
-      tp = gtk_tree_row_reference_get_path (llItr->data)) ;
-
-    if (gtk_tree_path_get_depth (tp) > 1)
+    if (gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itrBus, tp = gtk_tree_row_reference_get_path (refBus)))
       {
-      gtk_tree_path_up (tpSrcParent = gtk_tree_path_copy (tp)) ;
+      gtk_tree_path_free (tp) ;
 
-      refSrcParent = (1 == gtk_tree_model_path_n_children (GTK_TREE_MODEL (ts), tpSrcParent)) ?
-        gtk_tree_row_reference_new (GTK_TREE_MODEL (ts), tpSrcParent) : NULL ;
+      gtk_tree_store_append (ts, &itr, &itrBus) ;
 
-      gtk_tree_path_free (tpSrcParent) ;
+      if (gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itrSrc, tp = gtk_tree_row_reference_get_path (llItr->data)))
+        swap_model_iters_contents (GTK_TREE_MODEL (ts), &itrSrc, &itr) ;
+      gtk_tree_path_free (tp) ;
+
+      if (gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itrSrc, tp = gtk_tree_row_reference_get_path (llItr->data)))
+        {
+        if (gtk_tree_path_get_depth (tp) > 1)
+          {
+          if (gtk_tree_path_up (tpSrcParent = gtk_tree_path_copy (tp)))
+            refSrcParent = (1 == gtk_tree_model_path_n_children (GTK_TREE_MODEL (ts), tpSrcParent)) ?
+              gtk_tree_row_reference_new (GTK_TREE_MODEL (ts), tpSrcParent) : NULL ;
+
+          gtk_tree_path_free (tpSrcParent) ;
+          }
+        }
+      gtk_tree_path_free (tp) ;
+
+      gtk_tree_row_reference_free (llItr->data) ;
+
+      // Remove cell from old location
+      gtk_tree_store_remove (ts, &itrSrc) ;
+
+      // The bus that owned the row we just moved has become empty - delete it
+      if (NULL != refSrcParent)
+        {
+        tpSrcParent = gtk_tree_row_reference_get_path (refSrcParent) ;
+
+        if (gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itrSrcParent, tpSrcParent))
+          gtk_tree_store_remove (ts, &itrSrcParent) ;
+
+        gtk_tree_path_free (tpSrcParent) ;
+        gtk_tree_row_reference_free (refSrcParent) ;
+        refSrcParent = NULL ;
+        }
       }
-
-    gtk_tree_path_free (tp) ;
-
-    gtk_tree_row_reference_free (llItr->data) ;
-
-    // Remove cell from old location
-    gtk_tree_store_remove (ts, &itrSrc) ;
-
-    // The bus that owned the row we just moved has become empty - delete it
-    if (NULL != refSrcParent)
-      {
-      tpSrcParent = gtk_tree_row_reference_get_path (refSrcParent) ;
-
-      gtk_tree_model_get_iter (GTK_TREE_MODEL (ts), &itrSrcParent, tpSrcParent) ;
-
-      gtk_tree_store_remove (ts, &itrSrcParent) ;
-
-      gtk_tree_path_free (tpSrcParent) ;
-      gtk_tree_row_reference_free (refSrcParent) ;
-      refSrcParent = NULL ;
-      }
+    else
+      gtk_tree_path_free (tp) ;
     }
 
   gtk_tree_selection_select_path (gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->tview)), tp = gtk_tree_row_reference_get_path (refBus)) ;
@@ -462,20 +468,19 @@ static void delete_bus_button_clicked (GtkWidget *widget, gpointer data)
     {
     gtk_tree_store_append (GTK_TREE_STORE (tm), &itr, NULL) ;
 
-    gtk_tree_model_get_iter (tm, &itrSrc, tp = gtk_tree_row_reference_get_path (llItr->data)) ;
-    gtk_tree_path_free (tp) ;
+    if (gtk_tree_model_get_iter (tm, &itrSrc, tp = gtk_tree_row_reference_get_path (llItr->data)))
+      swap_model_iters_contents (tm, &itrSrc, &itr) ;
 
-    swap_model_iters_contents (tm, &itrSrc, &itr) ;
+    gtk_tree_path_free (tp) ;
 
     gtk_tree_row_reference_free (llItr->data) ;
     }
 
   g_list_free (llBusRefs) ;
 
-  gtk_tree_model_get_iter (tm, &itrSrc, tp = gtk_tree_row_reference_get_path (trrBus)) ;
+  if (gtk_tree_model_get_iter (tm, &itrSrc, tp = gtk_tree_row_reference_get_path (trrBus)))
+    gtk_tree_store_remove (GTK_TREE_STORE (tm), &itrSrc) ;
   gtk_tree_path_free (tp) ;
-
-  gtk_tree_store_remove (GTK_TREE_STORE (tm), &itrSrc) ;
 
   gtk_tree_row_reference_free (trrBus) ;
   }
@@ -490,7 +495,7 @@ static gboolean select_cell_row_p (GtkTreeSelection *sel, GtkTreeModel *tm, GtkT
 
   if (bIgnore) return TRUE ;
 
-  gtk_tree_model_get_iter (tm, &itr, tp) ;
+  if (!gtk_tree_model_get_iter (tm, &itr, tp)) return FALSE ;
 
   gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &this_row_type, -1) ;
 
@@ -612,15 +617,16 @@ static void tree_view_selection_changed (GtkTreeSelection *sel, gpointer data)
     GtkTreeIter itr ;
     char *psz = NULL ;
 
-    gtk_tree_model_get_iter (tm, &itr, tpSelBus) ;
+    if (gtk_tree_model_get_iter (tm, &itr, tpSelBus))
+      {
+      gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_NAME, &psz, -1) ;
 
-    gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_NAME, &psz, -1) ;
+      bus_name_entry_set_quiet (dialog->txtBusName, TRUE, TRUE) ;
+      gtk_entry_set_text (GTK_ENTRY (dialog->txtBusName), psz) ;
+      bus_name_entry_set_quiet (dialog->txtBusName, FALSE, TRUE) ;
 
-    bus_name_entry_set_quiet (dialog->txtBusName, TRUE, TRUE) ;
-    gtk_entry_set_text (GTK_ENTRY (dialog->txtBusName), psz) ;
-    bus_name_entry_set_quiet (dialog->txtBusName, FALSE, TRUE) ;
-
-    g_free (psz) ;
+      g_free (psz) ;
+      }
     }
 
   if (NULL != (tp = g_object_get_data (G_OBJECT (gtk_tree_selection_get_tree_view (sel)), "tpBus")))
@@ -638,12 +644,16 @@ static void swap_buses (GtkTreeModel *tm, GtkTreeSelection *sel, bus_layout_D *d
   EXP_ARRAY *ar_bSelSrc = NULL, *ar_bSelDst = NULL ;
   gboolean bDstExpanded = TRUE ;
 
+  if (!gtk_tree_model_get_iter (tm, &(src.itr), tpSrc)) return ;
   src.tp = gtk_tree_path_copy (tpSrc) ;
-  gtk_tree_model_get_iter (tm, &(src.itr), tpSrc) ;
   src.icChildren = gtk_tree_model_iter_n_children (tm, &(src.itr)) ;
 
+  if (!gtk_tree_model_get_iter (tm, &(dst.itr), tpDst))
+    {
+    gtk_tree_path_free (src.tp) ;
+    return ;
+    }
   dst.tp = gtk_tree_path_copy (tpDst) ;
-  gtk_tree_model_get_iter (tm, &(dst.itr), tpDst) ;
   dst.icChildren = gtk_tree_model_iter_n_children (tm, &(dst.itr)) ;
 
   if (dst.icChildren < src.icChildren)
@@ -683,8 +693,8 @@ static void swap_buses (GtkTreeModel *tm, GtkTreeSelection *sel, bus_layout_D *d
     gtk_tree_path_next (dst.tp) ;
     }
 
-  gtk_tree_path_up (src.tp) ;
-  gtk_tree_path_up (dst.tp) ;
+  if (!gtk_tree_path_up (src.tp)) goto swap_buses_quit ;
+  if (!gtk_tree_path_up (dst.tp)) goto swap_buses_quit ;
   gtk_tree_path_down (src.tp) ;
   gtk_tree_path_down (dst.tp) ;
 
@@ -700,8 +710,8 @@ static void swap_buses (GtkTreeModel *tm, GtkTreeSelection *sel, bus_layout_D *d
     gtk_tree_path_next (dst.tp) ;
     }
 
-  gtk_tree_path_up (src.tp) ;
-  gtk_tree_path_up (dst.tp) ;
+  if (!gtk_tree_path_up (src.tp)) goto swap_buses_quit ;
+  if (!gtk_tree_path_up (dst.tp)) goto swap_buses_quit ;
   gtk_tree_path_down (src.tp) ;
   gtk_tree_path_down (dst.tp) ;
 
@@ -712,8 +722,8 @@ static void swap_buses (GtkTreeModel *tm, GtkTreeSelection *sel, bus_layout_D *d
     gtk_tree_path_next (dst.tp) ;
     }
 
-  gtk_tree_path_up (src.tp) ;
-  gtk_tree_path_up (dst.tp) ;
+  if (!gtk_tree_path_up (src.tp)) goto swap_buses_quit ;
+  if (!gtk_tree_path_up (dst.tp)) goto swap_buses_quit ;
   gtk_tree_path_down (src.tp) ;
   gtk_tree_path_down (dst.tp) ;
 
@@ -725,8 +735,9 @@ static void swap_buses (GtkTreeModel *tm, GtkTreeSelection *sel, bus_layout_D *d
     gtk_tree_path_next (dst.tp) ;
     }
 
-  gtk_tree_path_up (src.tp) ;
-  gtk_tree_path_up (dst.tp) ;
+  if (!gtk_tree_path_up (src.tp)) goto swap_buses_quit ;
+  if (!gtk_tree_path_up (dst.tp)) goto swap_buses_quit ;
+
   swap_model_paths_contents (tm, src.tp, dst.tp) ;
 
   gtk_tree_path_down (src.tp) ;
@@ -744,11 +755,11 @@ static void swap_buses (GtkTreeModel *tm, GtkTreeSelection *sel, bus_layout_D *d
         break ;
 
     if (Nix == ar_bSelDst->icUsed)
-      {
-      gtk_tree_path_up (src.tp) ;
-      gtk_tree_view_collapse_row (gtk_tree_selection_get_tree_view (sel), src.tp) ;
-      }
+      if (gtk_tree_path_up (src.tp))
+        gtk_tree_view_collapse_row (gtk_tree_selection_get_tree_view (sel), src.tp) ;
     }
+
+swap_buses_quit:
 
   exp_array_free (ar_bSelSrc) ;
   exp_array_free (ar_bSelDst) ;
@@ -762,10 +773,9 @@ static void swap_model_paths_contents (GtkTreeModel *tm, GtkTreePath *tpSrc, Gtk
   {
   GtkTreeIter itrSrc, itrDst ;
 
-  gtk_tree_model_get_iter (tm, &itrSrc, tpSrc) ;
-  gtk_tree_model_get_iter (tm, &itrDst, tpDst) ;
-
-  swap_model_iters_contents (tm, &itrSrc, &itrDst) ;
+  if (gtk_tree_model_get_iter (tm, &itrSrc, tpSrc))
+    if (gtk_tree_model_get_iter (tm, &itrDst, tpDst))
+      swap_model_iters_contents (tm, &itrSrc, &itrDst) ;
   }
 
 static void swap_model_iters_contents (GtkTreeModel *tm, GtkTreeIter *itrSrc, GtkTreeIter *itrDst)
@@ -794,8 +804,7 @@ static inline int gtk_tree_model_path_n_children (GtkTreeModel *tm, GtkTreePath 
   {
   GtkTreeIter itr ;
 
-  gtk_tree_model_get_iter (tm, &itr, tp) ;
-  return gtk_tree_model_iter_n_children (tm, &itr) ;
+  return gtk_tree_model_get_iter (tm, &itr, tp) ? gtk_tree_model_iter_n_children (tm, &itr) : -1 ;
   }
 
 static GList *get_bus_refs (GtkTreeModel *tm, GtkTreePath *tpBus)
@@ -873,8 +882,10 @@ static void get_selection_bus_foreach_func (GtkTreeModel *tm, GtkTreePath *tp, G
 
   if (GSBS_START == gsbs->state && 2 == this_depth)
     {
-    gtk_tree_path_up (gsbs->tpBus = gtk_tree_path_copy (tp)) ;
-    gsbs->state = GSBS_D1B_ACCEPT ;
+    if (gtk_tree_path_up (gsbs->tpBus = gtk_tree_path_copy (tp)))
+      gsbs->state = GSBS_D1B_ACCEPT ;
+    else
+      gsbs->state = GSBS_REJECT ;
     }
   else
   if (GSBS_START == gsbs->state && 1 == this_depth)
@@ -894,9 +905,10 @@ static void get_selection_bus_foreach_func (GtkTreeModel *tm, GtkTreePath *tp, G
       {
       GtkTreePath *tpThisParent = NULL ;
 
-      gtk_tree_path_up (tpThisParent = gtk_tree_path_copy (tp)) ;
-
-      gsbs->state = (0 == gtk_tree_path_compare (tpThisParent, gsbs->tpBus)) ? GSBS_D1B_ACCEPT : GSBS_REJECT ;
+      if (!gtk_tree_path_up (tpThisParent = gtk_tree_path_copy (tp)))
+        gsbs->state = GSBS_REJECT ;
+      else
+        gsbs->state = (0 == gtk_tree_path_compare (tpThisParent, gsbs->tpBus)) ? GSBS_D1B_ACCEPT : GSBS_REJECT ;
 
       gtk_tree_path_free (tpThisParent) ;
       }
@@ -938,8 +950,8 @@ static GtkTreePath *get_prev_bus (GtkTreeModel *tm, GtkTreePath *tpSelBus)
   tp = gtk_tree_path_copy (tpSelBus) ;
   while (gtk_tree_path_prev (tp))
     {
-    gtk_tree_model_get_iter (tm, &itr, tp) ;
-    gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type, -1) ;
+    if (gtk_tree_model_get_iter (tm, &itr, tp))
+      gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type, -1) ;
     if (ROW_TYPE_BUS & row_type)
       return tp ;
     }
@@ -962,18 +974,22 @@ static GtkTreePath *get_next_bus (GtkTreeModel *tm, GtkTreePath *tpSelBus)
 
   tp = gtk_tree_path_new_first () ;
   while (gtk_tree_path_compare (tp, tpSelBus) <= 0 && idxChild < icRootChildren)
-    {
-    gtk_tree_model_get_iter (tm, &itr, tp) ;
-    gtk_tree_path_next (tp) ;
-    idxChild++ ;
-    }
+    if (gtk_tree_model_get_iter (tm, &itr, tp))
+      {
+      gtk_tree_path_next (tp) ;
+      idxChild++ ;
+      }
+    else
+      break ;
 
   while (idxChild < icRootChildren)
     {
-    gtk_tree_model_get_iter (tm, &itr, tp) ;
-    gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type, -1) ;
-    if (ROW_TYPE_BUS & row_type)
-      return tp ;
+    if (gtk_tree_model_get_iter (tm, &itr, tp))
+      {
+      gtk_tree_model_get (tm, &itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type, -1) ;
+      if (ROW_TYPE_BUS & row_type)
+        return tp ;
+      }
     if (++idxChild < icRootChildren)
       gtk_tree_path_next (tp) ;
     }

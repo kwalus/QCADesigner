@@ -905,7 +905,7 @@ msgid "Rotate Cell"
 msgstr ""
 
 msgid "Rotate"
-msgstr "Ruotare"
+msgstr ""
 
 msgid "Row Type"
 msgstr ""

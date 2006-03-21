@@ -80,12 +80,12 @@ static GList *DialogToLayerOrder (layer_order_D *dialog)
   tp = gtk_tree_path_new_first () ;
 
   for (Nix = 0 ; Nix < icChildren ; Nix++)
-    {
-    gtk_tree_model_get_iter (tm, &itr, tp) ;
-    gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &p, -1) ;
-    llRet = g_list_prepend (llRet, p) ;
-    gtk_tree_path_next (tp) ;
-    }
+    if (gtk_tree_model_get_iter (tm, &itr, tp))
+      {
+      gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &p, -1) ;
+      llRet = g_list_prepend (llRet, p) ;
+      gtk_tree_path_next (tp) ;
+      }
 
   gtk_tree_path_free (tp) ;
 

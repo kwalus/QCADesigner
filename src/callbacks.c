@@ -183,6 +183,7 @@ static void qcad_clocking_layer_notify_show_potential (GObject *object, GParamSp
 static void setup_rulers (int x, int y) ;
 static void setup_scrollbars () ;
 static void selection_set_state (GType type, char *pszState, GValue *value) ;
+static gboolean multiple_visible_layers_p (GList *llLayers) ;
 
 static ACTION actions[ACTION_LAST_ACTION] =
   {
@@ -562,6 +563,7 @@ void remove_layer_button_clicked (GtkWidget *widget, gpointer data)
   // If there is more than one layer in the design ...
   if (project_options.design->lstLastLayer != project_options.design->lstLayers)
     {
+    QCADLayer *model_layer = NULL ;
     GtkWidget *msg = NULL ;
     layer = g_object_get_data (G_OBJECT (selected_layer_item), "layer") ;
 
@@ -569,11 +571,25 @@ void remove_layer_button_clicked (GtkWidget *widget, gpointer data)
       _("Once deleted, a layer cannot be undeleted. Do you really want to delete layer \"%s\"?"),
         NULL == layer ? _("(null)") : NULL == layer->pszDescription ? _("Untitled") : layer->pszDescription))))
       {
+      GtkTreeModel *tm = gtk_tree_view_get_model (GTK_TREE_VIEW (main_window.layers_combo_tv)) ;
+      GtkTreeIter itr ;
       gtk_widget_hide (msg) ;
       gtk_widget_destroy (msg) ;
 
       llItem = g_list_prepend (NULL, selected_layer_item) ;
       gtk_list_remove_items (GTK_LIST (GTK_COMBO (main_window.layers_combo)->list), llItem) ;
+      if (NULL != tm)
+        if (gtk_tree_model_get_iter_first (tm, &itr))
+          do
+            {
+            gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &model_layer, -1) ;
+            if (layer == model_layer)
+              {
+              gtk_list_store_remove (GTK_LIST_STORE (tm), &itr) ;
+              break ;
+              }
+            }
+          while (gtk_tree_model_iter_next (tm, &itr)) ;
 
       layer_selected (NULL, NULL) ;
       g_list_free (llItem) ;
@@ -2086,6 +2102,41 @@ static void destroy_notify_layer_combo_item_layer_data (QCADLayer *layer)
 static void qcad_clocking_layer_notify_show_potential (GObject *object, GParamSpec *param_spec, gpointer data)
   {redraw_async (NULL) ;}
 
+void layers_list_set_toggle_data (GtkTreeViewColumn *col, GtkCellRenderer *cr, GtkTreeModel *tm, GtkTreeIter *itr, gpointer data)
+  {
+  // Is this the "Visible" cell renderer, or the "Active" one ?
+  gboolean bVisibleCR = (gboolean)data ;
+  QCADLayer *layer = NULL ;
+
+  gtk_tree_model_get (tm, itr, LAYER_MODEL_COLUMN_LAYER, &layer, -1) ;
+
+  if (bVisibleCR)
+    {
+    gboolean bLayerVisible = (QCAD_LAYER_STATUS_VISIBLE == layer->status || QCAD_LAYER_STATUS_ACTIVE == layer->status) ;
+    gboolean bMultipleLayers = (project_options.design->lstLayers != project_options.design->lstLastLayer) ;
+  
+    g_object_set (G_OBJECT (cr),
+      "active",    bLayerVisible,
+      "sensitive", (bMultipleLayers && multiple_visible_layers_p (project_options.design->lstLayers)) || !bLayerVisible,
+    NULL) ;
+    }
+  else
+    g_object_set (G_OBJECT (cr),
+      "active", QCAD_LAYER_STATUS_ACTIVE  == layer->status,
+      "sensitive", QCAD_LAYER_STATUS_HIDDEN != layer->status,
+    NULL) ;
+  }
+
+void layer_list_state_toggled (GtkCellRenderer *cr, char *pszPath, gpointer data)
+  {
+  // Is this the "Visible" cell renderer, or the "Active" one ?
+  gboolean bVisibleCR = (gboolean)data ;
+  GtkTreeModel *tm = gtk_tree_view_get_model (GTK_TREE_VIEW (main_window.layers_combo_tv)) ;
+  GtkTreePath *tp = NULL ;
+  GtkTreeIter itr ;
+  QCADLayer *layer = NULL ;
+  }
+
 static void reflect_layer_status (QCADLayer *layer)
   {
   gboolean bSensitive = (QCAD_LAYER_STATUS_ACTIVE == layer->status) ;
@@ -2316,6 +2367,9 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
   {
   QCADLayer *layer = NULL ;
   QCADSubstrate *snap_source = NULL ;
+  GtkTreeModel *tm = NULL ;
+  GtkTreeIter itr, itrLast ;
+  GtkTreeSelection *sel = NULL ;
 
   project_options.design = design_destroy (project_options.design) ;
 
@@ -2325,6 +2379,15 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
     selection_renderer_update (project_options.srSelection, new_design) ;
 
   layers_combo_fill_from_design (&main_window, new_design) ;
+
+//  gtk_tree_view_set_model (GTK_TREE_VIEW (main_window.layers_combo_tv), tm = GTK_TREE_MODEL (design_layer_list_store_new (new_design, 0))) ;
+//  if (NULL != (sel = gtk_tree_view_get_selection (GTK_TREE_VIEW (main_window.layers_combo_tv))))
+//    if (gtk_tree_model_get_iter_first (tm, &itr))
+//      {
+//      do itrLast = itr ; while (gtk_tree_model_iter_next (tm, &itr)) ;
+//
+//      gtk_tree_selection_select_iter (sel, &itrLast) ;
+//      }
 
   set_snap_source (snap_source = (NULL != subs && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (main_window.snap_to_grid_menu_item)) ? subs : NULL)) ;
   g_object_set_data (G_OBJECT (main_window.snap_to_grid_menu_item), "snap_source", snap_source) ;
@@ -2441,7 +2504,7 @@ static void setup_scrollbars ()
        main_window.adjHScroll->upper     == dHUpper && 
        main_window.adjHScroll->page_size == dHPageSize)) ;
 
-  bVChanged = 
+  bVChanged =
     (!(main_window.adjVScroll->lower     == dVLower && 
        main_window.adjVScroll->upper     == dVUpper && 
        main_window.adjVScroll->page_size == dVPageSize)) ;
@@ -2486,4 +2549,17 @@ static void selection_set_state (GType type, char *pszState, GValue *value)
     selection_renderer_update (project_options.srSelection, project_options.design) ;
     selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
     }
+  }
+
+static gboolean multiple_visible_layers_p (GList *llLayers)
+  {
+  int icVisibleLayers = 0 ;
+
+  for (; llLayers != NULL ; llLayers = llLayers->next)
+    if (QCAD_LAYER_STATUS_ACTIVE  == QCAD_LAYER (llLayers->data)->status ||
+        QCAD_LAYER_STATUS_VISIBLE == QCAD_LAYER (llLayers->data)->status)
+      if ((++icVisibleLayers) > 1)
+        return TRUE ;
+
+  return FALSE ;
   }

@@ -15,6 +15,7 @@ typedef char *(*QCADTreeViewComboLabelTextFunction) (GtkTreeView *tv) ;
 struct _QCADTreeViewCombo
   {
   GtkBin parent_instance ;
+  GtkWidget *entry ;
   } ;
 
 struct _QCADTreeViewComboClass

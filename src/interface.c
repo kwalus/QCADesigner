@@ -28,6 +28,7 @@
 #include <gtk/gtk.h>
 
 // QCADesigner includes //
+#include "design.h"
 #include "support.h"
 #include "callbacks.h"
 #include "actions.h"
@@ -42,6 +43,8 @@
 #include "objects/QCADPropertyUISingle.h"
 #include "objects/QCADToggleToolButton.h"
 #include "objects/QCADRadioToolButton.h"
+#include "objects/QCADTreeViewCombo.h"
+#include "objects/QCADCellRendererLayerList.h"
 
 main_W main_window = {NULL} ;
 extern char *layer_stock_id[] ;
@@ -73,7 +76,6 @@ void create_main_window (main_W *main_window){
     *recent_files_menu_item          = NULL, *import_block_menu_item    = NULL, *create_block_menu_item            = NULL,
     *load_output_from_file_menu_item = NULL, *preview_menu_item         = NULL, *img                               = NULL ;
 #endif /* def STDIO_FILEIO */
-
   GtkAccelGroup *accel_group = NULL ;
   GtkTooltips *tooltips;
   char *psz = NULL ;
@@ -161,13 +163,22 @@ void create_main_window (main_W *main_window){
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
     _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
 
-  main_window->layers_combo = gtk_combo_new () ;
+  main_window->layers_combo = g_object_new (GTK_TYPE_COMBO, "visible", TRUE, "border-width", 4, NULL) ;
   GTK_WIDGET_UNSET_FLAGS (main_window->layers_combo, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
   GTK_WIDGET_UNSET_FLAGS (GTK_COMBO (main_window->layers_combo)->entry, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
-  gtk_widget_show (main_window->layers_combo) ;
   gtk_entry_set_editable (GTK_ENTRY (GTK_COMBO (main_window->layers_combo)->entry), FALSE) ;
-  gtk_container_set_border_width (GTK_CONTAINER (main_window->layers_combo), 4) ;
   gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layers_combo) ;
+
+//  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
+//  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
+//    _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
+
+//  main_window->layers_combo_new = g_object_new (QCAD_TYPE_TREE_VIEW_COMBO, 
+//    "visible", TRUE, "border-width", 4, "text-column-index", LAYER_MODEL_COLUMN_NAME, NULL) ;
+//  gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layers_combo_new) ;
+
+//  main_window->layers_combo_tv = create_layers_treeview () ;
+//  gtk_container_add (GTK_CONTAINER (main_window->layers_combo_new), main_window->layers_combo_tv) ;
 
   gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),
     GTK_TOOL_ITEM (toolbar_item = 
@@ -1099,3 +1110,50 @@ void create_main_window (main_W *main_window){
     GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
     GDK_KEY_PRESS_MASK    | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
 }
+
+GtkWidget *create_layers_treeview ()
+  {
+  GtkTreeView *tv = g_object_new (GTK_TYPE_TREE_VIEW, "visible", TRUE, "headers-visible", TRUE, NULL) ;
+  GtkTreeSelection *sel = gtk_tree_view_get_selection (tv) ;
+  GtkTreeViewColumn *col = NULL ;
+  GtkCellRenderer *cr = NULL ;
+
+  if (NULL != sel)
+    gtk_tree_selection_set_mode (sel, GTK_SELECTION_BROWSE) ;
+
+  // The column listing the layer name
+  gtk_tree_view_append_column (tv, col = g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Layer"), NULL)) ;
+  // The layer icon
+  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_pixbuf_new (), FALSE) ;
+  gtk_tree_view_column_add_attribute (col, cr, "stock-id", LAYER_MODEL_COLUMN_ICON) ;
+  // The layer name
+  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_text_new (), FALSE) ;
+  g_object_set (cr, "editable", FALSE, NULL) ;
+  gtk_tree_view_column_add_attribute (col, cr, "text", LAYER_MODEL_COLUMN_NAME) ;
+
+  // The column showing whether the layer is visible
+  gtk_tree_view_append_column (tv, col = g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Visible"), NULL)) ;
+#if (GTK_MINOR_VERSION <= 4)
+  // Have to use QCADCellRendererVT, because GtkCellRendererToggle doesn't have "sensitive"
+  gtk_tree_view_column_pack_start (col, cr = qcad_cell_renderer_vt_new (), TRUE) ;
+  g_object_set (cr, "row-type", ROW_TYPE_CELL, NULL) ;
+#else
+  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_toggle_new (), TRUE) ;
+#endif /* (GTK_MINOR_VERSION <= 4) */
+  gtk_tree_view_column_set_cell_data_func (col, cr, layers_list_set_toggle_data, (gpointer)TRUE, NULL) ;
+  g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)layer_list_state_toggled, (gpointer)TRUE) ;
+
+  // The column showing whether the layer is visible
+  gtk_tree_view_append_column (tv, col = g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Active"), NULL)) ;
+#if (GTK_MINOR_VERSION <= 4)
+  // Have to use QCADCellRendererVT, because GtkCellRendererToggle doesn't have "sensitive"
+  gtk_tree_view_column_pack_start (col, cr = qcad_cell_renderer_vt_new (), TRUE) ;
+  g_object_set (cr, "row-type", ROW_TYPE_CELL, NULL) ;
+#else
+  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_toggle_new (), TRUE) ;
+#endif /* (GTK_MINOR_VERSION <= 4) */
+  gtk_tree_view_column_set_cell_data_func (col, cr, layers_list_set_toggle_data, (gpointer)FALSE, NULL) ;
+  g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)layer_list_state_toggled, (gpointer)FALSE) ;
+
+  return GTK_WIDGET (tv) ;
+  }

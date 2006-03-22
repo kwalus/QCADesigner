@@ -44,7 +44,7 @@
 #include "objects/QCADToggleToolButton.h"
 #include "objects/QCADRadioToolButton.h"
 #include "objects/QCADTreeViewCombo.h"
-#include "objects/QCADCellRendererLayerList.h"
+#include "objects/QCADCellRendererVT.h"
 
 main_W main_window = {NULL} ;
 extern char *layer_stock_id[] ;
@@ -158,7 +158,7 @@ void create_main_window (main_W *main_window){
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
     _("Layer Properties"), _("Modify the settings for the current layer.")) ;
   g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)layer_properties_button_clicked, NULL) ;
-
+/*
   gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
     _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
@@ -168,17 +168,17 @@ void create_main_window (main_W *main_window){
   GTK_WIDGET_UNSET_FLAGS (GTK_COMBO (main_window->layers_combo)->entry, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
   gtk_entry_set_editable (GTK_ENTRY (GTK_COMBO (main_window->layers_combo)->entry), FALSE) ;
   gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layers_combo) ;
+*/
+  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
+    _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
 
-//  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
-//  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
-//    _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
+  main_window->layers_combo_new = g_object_new (QCAD_TYPE_TREE_VIEW_COMBO, 
+    "visible", TRUE, "border-width", 5, "text-column-index", LAYER_MODEL_COLUMN_NAME, NULL) ;
+  gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layers_combo_new) ;
 
-//  main_window->layers_combo_new = g_object_new (QCAD_TYPE_TREE_VIEW_COMBO, 
-//    "visible", TRUE, "border-width", 4, "text-column-index", LAYER_MODEL_COLUMN_NAME, NULL) ;
-//  gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layers_combo_new) ;
-
-//  main_window->layers_combo_tv = create_layers_treeview () ;
-//  gtk_container_add (GTK_CONTAINER (main_window->layers_combo_new), main_window->layers_combo_tv) ;
+  main_window->layers_combo_tv = create_layers_treeview () ;
+  gtk_container_add (GTK_CONTAINER (main_window->layers_combo_new), main_window->layers_combo_tv) ;
 
   gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),
     GTK_TOOL_ITEM (toolbar_item = 
@@ -1095,7 +1095,7 @@ void create_main_window (main_W *main_window){
   g_signal_connect (G_OBJECT (main_window->drawing_area),                      "configure-event",      (GCallback)configure_event,                   NULL);
 
   // -- Trap the act of hiding the popup window for the layers combo
-  g_signal_connect (G_OBJECT (GTK_COMBO (main_window->layers_combo)->popwin),  "hide", (GCallback)layer_selected, NULL) ;
+//  g_signal_connect (G_OBJECT (GTK_COMBO (main_window->layers_combo)->popwin),  "hide", (GCallback)layer_selected, NULL) ;
   // -- Connect the shutdown callback signal to the main window -- //
   g_signal_connect_swapped (G_OBJECT (main_window->main_window),               "delete-event", (GCallback)on_quit_menu_item_activate, main_window->main_window);
   qcad_object_connect_signal_to_default_object (QCAD_TYPE_CELL, "notify::clock", (GCallback)qcad_cell_default_clock_changed, NULL) ;
@@ -1119,7 +1119,10 @@ GtkWidget *create_layers_treeview ()
   GtkCellRenderer *cr = NULL ;
 
   if (NULL != sel)
+    {
     gtk_tree_selection_set_mode (sel, GTK_SELECTION_BROWSE) ;
+    g_signal_connect (G_OBJECT (sel), "changed", (GCallback)layers_selection_changed, NULL) ;
+    }
 
   // The column listing the layer name
   gtk_tree_view_append_column (tv, col = g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Layer"), NULL)) ;

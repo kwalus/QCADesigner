@@ -39,7 +39,7 @@
 
 enum
   {
-  QCADCRVT_CLICKED_SIGNAL,
+  QCADCRVT_TOGGLED_SIGNAL,
 #if (GTK_MINOR_VERSION <= 4)
   QCADCRVT_EDITING_STARTED_SIGNAL,
 #endif
@@ -143,10 +143,10 @@ static void qcad_cell_renderer_vt_class_init (QCADCellRendererVTClass *klass)
         G_TYPE_NONE, 2, GTK_TYPE_CELL_EDITABLE, G_TYPE_STRING) ;
 #endif
 
-  qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL] =
+  qcadcrvt_signals[QCADCRVT_TOGGLED_SIGNAL] =
     g_signal_new ("toggled", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
-      G_STRUCT_OFFSET (QCADCellRendererVTClass, clicked), NULL, NULL, g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0) ;
+      G_STRUCT_OFFSET (QCADCellRendererVTClass, clicked), NULL, NULL, g_cclosure_marshal_VOID__STRING,
+        G_TYPE_NONE, 1, G_TYPE_STRING) ;
   }
 
 static void qcad_cell_renderer_vt_instance_init (QCADCellRendererVT *qcadcrvt)
@@ -332,7 +332,7 @@ static GtkCellEditable *qcad_cell_renderer_vt_start_editing (GtkCellRenderer *ce
   GtkCellEditable *ce = NULL ;
   if (QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_BUS && SENSITIVITY_SOURCE (cell)->sensitive)
     {
-    g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL], 0) ;
+    g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_TOGGLED_SIGNAL], 0, path) ;
     if (NULL != (ce = (GTK_CELL_RENDERER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL_RENDERER_VT))))->start_editing (cell, event, widget, path, background_area, cell_area, flags)))
 #if (GTK_MINOR_VERSION <= 4)
       g_signal_emit (G_OBJECT (cell), qcadcrvt_signals[QCADCRVT_EDITING_STARTED_SIGNAL], 0, ce, path) ;
@@ -349,7 +349,7 @@ static gboolean qcad_cell_renderer_vt_activate (GtkCellRenderer *cell, GdkEvent 
 
   if ((QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_CELL) && SENSITIVITY_SOURCE (cell)->sensitive)
     {
-    g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_CLICKED_SIGNAL], 0) ;
+    g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_TOGGLED_SIGNAL], 0, path) ;
     g_signal_emit_by_name (cell, "edited", path, psz = g_strdup_printf ("%llu", QCAD_CELL_RENDERER_VT (cell)->value)) ;
     return TRUE ;
     }

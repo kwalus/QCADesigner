@@ -730,9 +730,9 @@ void qcad_layer_dump (QCADLayer *layer, FILE *pfile)
   GList *lstSelObj = NULL, *lstObj = NULL ;
 
   fprintf (pfile, "Layer \"%s\"(0x%08X):\n", layer->pszDescription, (int)layer) ;
-#ifdef GTK_GUI
-  fprintf (pfile, "combo_item = 0x%08X\n", (int)(layer->combo_item)) ;
-#endif /* def GTK_GUI */
+//#ifdef GTK_GUI
+//  fprintf (pfile, "combo_item = 0x%08X\n", (int)(layer->combo_item)) ;
+//#endif /* def GTK_GUI */
   if (NULL != layer->lstObjs)
     {
     fprintf (stderr, "lstObjs:|0x%08X|->", (int)(layer->lstObjs)) ;
@@ -1100,10 +1100,10 @@ static void copy (QCADObject *src, QCADObject *dst)
     if (llItr == srcLayer->llContainerIter)
       dstLayer->llContainerIter = dstLayer->lstObjs ;
     }
-#ifdef GTK_GUI
-  // SHALLOW COPY of combo item
-  dstLayer->combo_item = srcLayer->combo_item ;
-#endif /* def GTK_GUI */
+//#ifdef GTK_GUI
+//  // SHALLOW COPY of combo item
+//  dstLayer->combo_item = srcLayer->combo_item ;
+//#endif /* def GTK_GUI */
   // NOT COPYING THE DEFAULT PROPERTIES HASH TABLE !!!
   }
 

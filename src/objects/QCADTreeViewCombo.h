@@ -14,13 +14,13 @@ typedef char *(*QCADTreeViewComboLabelTextFunction) (GtkTreeView *tv) ;
 
 struct _QCADTreeViewCombo
   {
-  GtkBin parent_instance ;
+  GtkTable parent_instance ;
   GtkWidget *entry ;
   } ;
 
 struct _QCADTreeViewComboClass
   {
-  GtkBinClass parent_class ;
+  GtkTableClass parent_class ;
   } ;
 
 GType qcad_tree_view_combo_get_type () ;

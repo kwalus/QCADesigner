@@ -3,6 +3,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 # bin_PROGRAMS = QCADesigner batch_sim graph_dialog test
+# bin_PROGRAMS = QCADesigner batch_sim graph_dialog combo_test
 bin_PROGRAMS = QCADesigner batch_sim graph_dialog
 
 include Makefile.inc

@@ -636,6 +636,28 @@ void tile_pixbuf (GdkDrawable *dst, GdkGC *gc, GdkPixbuf *pixbuf, int cxPb, int 
       gdk_draw_pixbuf (dst, gc, pixbuf, 0, 0, rcDst->x + Nix * cxPb, rcDst->y + Nix1 * cyPb, cxPb, cyPb, GDK_RGB_DITHER_NONE, 0, 0) ;
   }
 
+GtkCellRenderer *gtk_tree_view_get_cell_renderer_at_point (GtkTreeView *tv, int x, int y, GtkTreePath **ptp)
+  {
+  GList *llCRs = NULL, *llItr = NULL ;
+  int cell_x = 0, cell_y = 0, cell_start_pos = 0, cell_width = 0 ;
+  GtkTreePath *tp = NULL ;
+  GtkTreeViewColumn *col = NULL ;
+  GtkCellRenderer *cr = NULL ;
+
+  gtk_tree_view_get_path_at_pos (tv, x, y, &tp, &col, &cell_x, &cell_y) ;
+
+  if (NULL != col)
+    if (NULL != (llCRs = gtk_tree_view_column_get_cell_renderers (col)))
+      for (llItr = llCRs ; llItr != NULL ; llItr = llItr->next)
+        if (gtk_tree_view_column_cell_get_position (col, GTK_CELL_RENDERER (llItr->data), &cell_start_pos, &cell_width))
+          if (x >= cell_start_pos && x <= cell_start_pos + cell_width)
+            cr = llItr->data ;
+
+  g_list_free (llCRs) ;
+  if (NULL != ptp) (*ptp) = tp ;
+  return cr ;
+  }
+
 #endif /* def GTK_GUI */
 
 GdkColor *clr_idx_to_clr_struct (int clr_idx)

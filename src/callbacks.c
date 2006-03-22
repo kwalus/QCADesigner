@@ -155,20 +155,20 @@ static gboolean SaveDirtyUI (GtkWindow *parent, char *szMsg) ;
 static QCADSubstrate *find_snap_source (DESIGN *design) ;
 static QCADDesignObject *merge_selection (DESIGN *design, DESIGN *block, EXP_ARRAY *layer_mappings) ;
 #endif /* def STDIO_FILEIO */
-static void layers_combo_fill_from_design (main_W *wndMain, DESIGN *design) ;
-static GtkWidget *layers_combo_add_layer (GtkCombo *combo, GList *layer) ;
-static void layers_combo_refresh_item (GtkWidget *item) ;
-static void layers_combo_item_set_check_buttons (GtkWidget *item, QCADLayer *layer, GtkWidget *chkVisible, GtkWidget *chkActive) ;
+//static void layers_combo_fill_from_design (main_W *wndMain, DESIGN *design) ;
+//static GtkWidget *layers_combo_add_layer (GtkCombo *combo, GList *layer) ;
+//static void layers_combo_refresh_item (GtkWidget *item) ;
+//static void layers_combo_item_set_check_buttons (GtkWidget *item, QCADLayer *layer, GtkWidget *chkVisible, GtkWidget *chkActive) ;
 static gboolean redraw_async_cb (REDRAW_ASYNC_PARAMS *parms) ;
 static void reflect_layer_status (QCADLayer *layer) ;
 static gboolean drop_single_object_cb (QCADDesignObject *obj) ;
 static gboolean drop_single_object_with_undo_cb (QCADDesignObject *obj) ;
 static void rotate_single_cell_cb (DESIGN *design, QCADDesignObject *obj, gpointer data) ;
-static void destroy_notify_layer_combo_item_layer_data (QCADLayer *layer) ;
+//static void destroy_notify_layer_combo_item_layer_data (QCADLayer *layer) ;
 static void set_current_design (DESIGN *new_design, QCADSubstrate *subs) ;
 static void snap_source_is_gone (gpointer data, QCADSubstrate *subs) ;
 static void layer_status_change (GtkWidget *widget, gpointer data) ;
-static void layer_select (GtkWidget *widget, gpointer data) ;
+//static void layer_select (GtkWidget *widget, gpointer data) ;
 static void cell_function_changed (QCADCell *cell, gpointer data) ;
 static void move_selection_to_pointer (QCADDesignObject *anchor) ;
 static void place_popup_menu (GtkMenu *menu, int *x, int *y, gboolean *push_in, gpointer data) ;
@@ -184,6 +184,7 @@ static void setup_rulers (int x, int y) ;
 static void setup_scrollbars () ;
 static void selection_set_state (GType type, char *pszState, GValue *value) ;
 static gboolean multiple_visible_layers_p (GList *llLayers) ;
+static void select_layer (GtkTreeView *tv, QCADLayer *layer) ;
 
 static ACTION actions[ACTION_LAST_ACTION] =
   {
@@ -318,6 +319,7 @@ gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer 
 
 void on_hide_layers_menu_item_activate (GtkWidget *widget, gpointer data)
   {
+  /*
   GtkWidget *combo_item = NULL ;
   GtkWidget *chkVisible = NULL ;
   GList *llItr = NULL ;
@@ -333,6 +335,30 @@ void on_hide_layers_menu_item_activate (GtkWidget *widget, gpointer data)
           gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkVisible), FALSE) ;
 
   layer_selected (NULL, NULL) ;
+  */
+  }
+
+void layers_selection_changed (GtkTreeSelection *sel, gpointer data)
+  {
+  GtkTreeView *tv = gtk_tree_selection_get_tree_view (sel) ;
+  GtkTreeModel *tm = NULL ;
+  GList *llSel = NULL ;
+  GtkTreeIter itr ;
+  QCADLayer *layer = NULL ;
+
+  if (NULL == tv) return ;
+  if (NULL == (tm = gtk_tree_view_get_model (tv))) return ;
+  if (NULL == (llSel = gtk_tree_selection_get_selected_rows (sel, NULL))) return ;
+
+  if (gtk_tree_model_get_iter (tm, &itr, (GtkTreePath *)(llSel->data)))
+    {
+    gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &layer, -1) ;
+    design_set_current_layer (project_options.design, layer) ;
+    reflect_layer_status (layer) ;
+    }
+
+  g_list_foreach (llSel, (GFunc)gtk_tree_path_free, NULL) ;
+  g_list_free (llSel) ;
   }
 
 gboolean drawing_area_button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
@@ -530,6 +556,7 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
   //if (get_properties (undo_entry = NULL))
 //    {
     // If there was only one layer, enable its check buttons
+/*
     if (project_options.design->lstLayers == project_options.design->lstLastLayer)
       {
       GtkWidget *chk = NULL, *combo_item = (QCAD_LAYER (project_options.design->lstLayers->data))->combo_item ;
@@ -543,12 +570,15 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
         }
       gtk_widget_set_sensitive (main_window.remove_layer_button, TRUE) ;
       }
-
+*/
     design_layer_add (project_options.design, layer) ;
-    (QCAD_LAYER (project_options.design->lstLayers->data))->combo_item =
-      layers_combo_add_layer (GTK_COMBO (main_window.layers_combo), project_options.design->lstLayers) ;
+    gtk_tree_view_set_model (GTK_TREE_VIEW (main_window.layers_combo_tv), GTK_TREE_MODEL (design_layer_list_store_new (project_options.design, 0))) ;
+    select_layer (GTK_TREE_VIEW (main_window.layers_combo_tv), layer) ;
+    gtk_widget_set_sensitive (main_window.remove_layer_button, (project_options.design->lstLayers != project_options.design->lstLastLayer)) ;
+//    (QCAD_LAYER (project_options.design->lstLayers->data))->combo_item =
+//      layers_combo_add_layer (GTK_COMBO (main_window.layers_combo), project_options.design->lstLayers) ;
 
-    selected_layer_item = (QCAD_LAYER (project_options.design->lstLayers->data))->combo_item ;
+//    selected_layer_item = (QCAD_LAYER (project_options.design->lstLayers->data))->combo_item ;
     layer_selected (NULL, NULL) ;
 //    }
 //  else
@@ -558,14 +588,13 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
 void remove_layer_button_clicked (GtkWidget *widget, gpointer data)
   {
   QCADLayer *layer = NULL ;
-  GList *llItem = NULL ;
 
   // If there is more than one layer in the design ...
   if (project_options.design->lstLastLayer != project_options.design->lstLayers)
     {
     QCADLayer *model_layer = NULL ;
     GtkWidget *msg = NULL ;
-    layer = g_object_get_data (G_OBJECT (selected_layer_item), "layer") ;
+    layer = project_options.design->lstCurrentLayer->data ;
 
     if (GTK_RESPONSE_YES == gtk_dialog_run (GTK_DIALOG (msg = gtk_message_dialog_new (GTK_WINDOW (main_window.main_window), GTK_DIALOG_MODAL, GTK_MESSAGE_WARNING, GTK_BUTTONS_YES_NO,
       _("Once deleted, a layer cannot be undeleted. Do you really want to delete layer \"%s\"?"),
@@ -576,8 +605,6 @@ void remove_layer_button_clicked (GtkWidget *widget, gpointer data)
       gtk_widget_hide (msg) ;
       gtk_widget_destroy (msg) ;
 
-      llItem = g_list_prepend (NULL, selected_layer_item) ;
-      gtk_list_remove_items (GTK_LIST (GTK_COMBO (main_window.layers_combo)->list), llItem) ;
       if (NULL != tm)
         if (gtk_tree_model_get_iter_first (tm, &itr))
           do
@@ -585,14 +612,14 @@ void remove_layer_button_clicked (GtkWidget *widget, gpointer data)
             gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &model_layer, -1) ;
             if (layer == model_layer)
               {
+              layer = design_layer_remove (project_options.design, layer) ;
               gtk_list_store_remove (GTK_LIST_STORE (tm), &itr) ;
               break ;
               }
             }
           while (gtk_tree_model_iter_next (tm, &itr)) ;
 
-      layer_selected (NULL, NULL) ;
-      g_list_free (llItem) ;
+      select_layer (GTK_TREE_VIEW (main_window.layers_combo_tv), layer) ;
       }
     else
       {
@@ -600,36 +627,11 @@ void remove_layer_button_clicked (GtkWidget *widget, gpointer data)
       gtk_widget_destroy (msg) ;
       }
     }
-
-  if (project_options.design->lstLastLayer == project_options.design->lstLayers)
-    {
-    if (NULL != project_options.design->lstLayers->data)
-      {
-      layer = QCAD_LAYER (project_options.design->lstLayers->data) ;
-      if (NULL != layer->combo_item)
-        {
-        GtkWidget *chk = NULL ;
-
-        if (NULL != (chk = g_object_get_data (G_OBJECT (layer->combo_item), "chkVisible")))
-          {
-          gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chk), TRUE) ;
-          gtk_widget_set_sensitive (chk, FALSE) ;
-          }
-        if (NULL != (chk = g_object_get_data (G_OBJECT (layer->combo_item), "chkActive")))
-          gtk_widget_set_sensitive (chk, TRUE) ;
-        }
-      }
-    gtk_widget_set_sensitive (widget, FALSE) ;
-    }
-  else
-    gtk_widget_set_sensitive (widget, TRUE) ;
-  
+  gtk_widget_set_sensitive (widget, (project_options.design->lstLastLayer != project_options.design->lstLayers)) ;
   }
 
 void layer_properties_button_clicked (GtkWidget *widget, gpointer data)
   {
-  QCADLayer *layer = NULL ;
-
   if (NULL != project_options.design->lstCurrentLayer)
     if (NULL != project_options.design->lstCurrentLayer->data)
 //#ifdef UNDO_REDO
@@ -645,11 +647,11 @@ void layer_properties_button_clicked (GtkWidget *widget, gpointer data)
           {
           qcad_object_get_properties (QCAD_OBJECT (project_options.design->lstCurrentLayer->data), GTK_WINDOW (main_window.main_window)) ;
   
-          if (NULL != (layer = QCAD_LAYER (project_options.design->lstCurrentLayer->data))->combo_item)
-            layers_combo_refresh_item (layer->combo_item) ;
+//          if (NULL != (layer = QCAD_LAYER (project_options.design->lstCurrentLayer->data))->combo_item)
+//            layers_combo_refresh_item (layer->combo_item) ;
           // Apply default properties for all object classes in this layer
-          qcad_layer_default_properties_apply (layer) ;
-          reflect_layer_status (layer) ;
+          qcad_layer_default_properties_apply (QCAD_LAYER (project_options.design->lstCurrentLayer->data)) ;
+          reflect_layer_status (QCAD_LAYER (project_options.design->lstCurrentLayer->data)) ;
           }
   }
 
@@ -658,6 +660,7 @@ void bus_layout_button_clicked (GtkWidget *widget, gpointer data)
 
 void reorder_layers_button_clicked (GtkWidget *widget, gpointer user_data)
   {
+  /*
   GtkWidget *combo_item = NULL ;
   GList *llItr = NULL, *llLayerOrder = NULL, *llListItems = NULL ;
 
@@ -681,6 +684,7 @@ void reorder_layers_button_clicked (GtkWidget *widget, gpointer user_data)
   redraw_async (NULL) ;
   selected_layer_item = (QCAD_LAYER (project_options.design->lstCurrentLayer->data))->combo_item ;
   layer_selected (NULL, NULL) ;
+  */
   }
 
 void scrollbar_adjust_bounds (GtkRange *range, gdouble value, gpointer data)
@@ -1424,8 +1428,8 @@ void rotate_selection_menu_item_activate (GtkWidget *widget, gpointer user_data)
     }
   }
 
-static void layer_select (GtkWidget *widget, gpointer data)
-  {selected_layer_item = widget ;}
+//static void layer_select (GtkWidget *widget, gpointer data)
+//  {selected_layer_item = widget ;}
 
 void layer_selected (GtkWidget *widget, gpointer data)
   {
@@ -1439,8 +1443,8 @@ void layer_selected (GtkWidget *widget, gpointer data)
 
   if (NULL == layer) return ;
 
-  gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (main_window.layers_combo)->entry),
-    NULL == layer->pszDescription ? "" : layer->pszDescription) ;
+//  gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (main_window.layers_combo)->entry),
+//    NULL == layer->pszDescription ? "" : layer->pszDescription) ;
 
   // Apply default properties for all object classes in this layer
   reflect_layer_status (layer) ;
@@ -1449,7 +1453,7 @@ void layer_selected (GtkWidget *widget, gpointer data)
 static void layer_status_change (GtkWidget *widget, gpointer data)
   {
   GtkWidget
-    *chk         = NULL,
+//    *chk         = NULL,
     *chkActivate = GTK_WIDGET (g_object_get_data (G_OBJECT (data), "chkActive")),
     *chkVisible  = GTK_WIDGET (g_object_get_data (G_OBJECT (data), "chkVisible")) ;
   QCADLayer *layer = QCAD_LAYER (g_object_get_data (G_OBJECT (data), "layer")) ;
@@ -1506,6 +1510,7 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
       gtk_widget_set_sensitive (chkActivate, TRUE) ;
       gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActivate),
         (gboolean)g_object_get_data (G_OBJECT (widget), "bWasActive")) ;
+/*
       for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
         if (NULL != llItr->data)
           if (NULL != QCAD_LAYER (llItr->data)->combo_item)
@@ -1515,6 +1520,7 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
                 gtk_widget_set_sensitive (chk, TRUE) ;
                 break ;
                 }
+*/
       }
     else
       {
@@ -1534,10 +1540,12 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
 
       if (1 == icOtherVisibleLayers)
         {
+/*
         if (NULL != other_visible_layer)
           if (NULL != other_visible_layer->combo_item)
             if (NULL != (chk = g_object_get_data (G_OBJECT (other_visible_layer->combo_item), "chkVisible")))
               gtk_widget_set_sensitive (chk, FALSE) ;
+*/
         }
       // We should never get here (TM)
       else
@@ -1895,7 +1903,7 @@ static void tabula_rasa (GtkWindow *wndMain)
   psz = g_strdup_printf ("%s - %s", _("Untitled"), MAIN_WND_BASE_TITLE) ;
   gtk_window_set_title (wndMain, psz) ;
   g_free (psz) ;
-  gtk_list_clear_items (GTK_LIST (GTK_COMBO (main_window.layers_combo)->list), 0, -1) ;
+//  gtk_list_clear_items (GTK_LIST (GTK_COMBO (main_window.layers_combo)->list), 0, -1) ;
   set_snap_source (NULL) ;
   g_object_set_data (G_OBJECT (main_window.snap_to_grid_menu_item), "snap_source", NULL) ;
   gtk_widget_set_sensitive (main_window.snap_to_grid_menu_item, FALSE) ;
@@ -1907,6 +1915,7 @@ static void tabula_rasa (GtkWindow *wndMain)
 #endif /* def STDIO_FILEIO */
   }
 
+/*
 static void layers_combo_fill_from_design (main_W *wndMain, DESIGN *new_design)
   {
   int icLayers = 0 ;
@@ -1916,7 +1925,7 @@ static void layers_combo_fill_from_design (main_W *wndMain, DESIGN *new_design)
   QCADLayer *layer = NULL ;
 
   // Empty the combo
-  gtk_list_clear_items (GTK_LIST (GTK_COMBO (wndMain->layers_combo)->list), 0, -1) ;
+//  gtk_list_clear_items (GTK_LIST (GTK_COMBO (wndMain->layers_combo)->list), 0, -1) ;
 
   for (lstTmp = new_design->lstLastLayer; lstTmp != NULL ; lstTmp = lstTmp->prev)
     {
@@ -1935,7 +1944,6 @@ static void layers_combo_fill_from_design (main_W *wndMain, DESIGN *new_design)
       *chkActive = g_object_get_data (G_OBJECT ((QCAD_LAYER (new_design->lstLayers->data))->combo_item), "chkActive") ;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkVisible), TRUE) ;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chkActive), TRUE) ;
-
     gtk_widget_set_sensitive (chkVisible, FALSE) ;
 //    gtk_widget_set_sensitive (chkActive, FALSE) ;
     }
@@ -2007,18 +2015,6 @@ static GtkWidget *layers_combo_add_layer (GtkCombo *combo, GList *layer)
   g_signal_connect (G_OBJECT (layer->data),"added",     (GCallback)qcad_layer_design_object_added,   NULL) ;
   g_signal_connect (G_OBJECT (layer->data),"removed",   (GCallback)qcad_layer_design_object_removed, NULL) ;
 
-  if (LAYER_TYPE_CELLS == (QCAD_LAYER (layer->data))->type)
-    {
-    GList *llItrCells = NULL ;
-
-    for (llItrCells = (QCAD_LAYER (layer->data))->lstObjs ; llItrCells != NULL ; llItrCells = llItrCells->next)
-      if (QCAD_IS_CELL (llItrCells->data))
-        g_signal_connect (G_OBJECT (llItrCells->data), "cell-function-changed", (GCallback)cell_function_changed, NULL) ;
-    }
-  else
-  if (QCAD_IS_CLOCKING_LAYER (layer->data))
-    g_signal_connect (G_OBJECT (layer->data), "notify::show-potential", (GCallback)qcad_clocking_layer_notify_show_potential, NULL) ;
-
   return item ;
   }
 
@@ -2051,7 +2047,7 @@ static void layers_combo_refresh_item (GtkWidget *item)
       g_object_get_data (G_OBJECT (item), "chkActive")) ;
     }
   }
-
+*/
 static void qcad_layer_design_object_added (QCADLayer *layer, QCADDesignObject *obj, gpointer data)
   {
   if (QCAD_IS_CELL (obj))
@@ -2085,7 +2081,7 @@ static void cell_function_changed (QCADCell *cell, gpointer data)
 
   gtk_widget_set_sensitive (main_window.bus_layout_button, bHaveIO) ;
   }
-
+/*
 static void destroy_notify_layer_combo_item_layer_data (QCADLayer *layer)
   {
   if (NULL == layer) return ;
@@ -2094,11 +2090,11 @@ static void destroy_notify_layer_combo_item_layer_data (QCADLayer *layer)
   if (NULL != (layer = design_layer_remove (project_options.design, (layer))))
     {
     project_options.bDesignAltered = TRUE ;
-    if (NULL != layer->combo_item)
-      selected_layer_item = layer->combo_item ;
+//    if (NULL != layer->combo_item)
+//      selected_layer_item = layer->combo_item ;
     }
   }
-
+*/
 static void qcad_clocking_layer_notify_show_potential (GObject *object, GParamSpec *param_spec, gpointer data)
   {redraw_async (NULL) ;}
 
@@ -2135,6 +2131,36 @@ void layer_list_state_toggled (GtkCellRenderer *cr, char *pszPath, gpointer data
   GtkTreePath *tp = NULL ;
   GtkTreeIter itr ;
   QCADLayer *layer = NULL ;
+
+  if (NULL == tm) return ;
+  if (NULL == pszPath) return ;
+  if (NULL == (tp = gtk_tree_path_new_from_string (pszPath))) return ;
+
+  if (gtk_tree_model_get_iter (tm, &itr, tp))
+    {
+    gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &layer, -1) ;
+    if (bVisibleCR)
+      {
+      if (QCAD_LAYER_STATUS_HIDDEN == layer->status)
+        layer->status = ((gboolean)g_object_get_data (G_OBJECT (layer), "bWasActive")) 
+          ? QCAD_LAYER_STATUS_ACTIVE
+          : QCAD_LAYER_STATUS_VISIBLE ;
+      else
+      if (multiple_visible_layers_p (project_options.design->lstLayers))
+        {
+        g_object_set_data (G_OBJECT (layer), "bWasActive", (gpointer)(QCAD_LAYER_STATUS_ACTIVE == layer->status)) ;
+        layer->status = QCAD_LAYER_STATUS_HIDDEN ;
+        }
+      }
+    else
+      layer->status = 
+        QCAD_LAYER_STATUS_ACTIVE == layer->status ? QCAD_LAYER_STATUS_VISIBLE : QCAD_LAYER_STATUS_ACTIVE ;
+    }
+
+  gtk_tree_path_free (tp) ;
+  gtk_widget_queue_draw (main_window.layers_combo_tv) ;
+  reflect_layer_status (layer) ;
+  setup_scrollbars () ;
   }
 
 static void reflect_layer_status (QCADLayer *layer)
@@ -2266,8 +2292,7 @@ static QCADDesignObject *merge_selection (DESIGN *design, DESIGN *block, EXP_ARR
         layer_mapping->block_layer->status,
         layer_mapping->block_layer->pszDescription);
       design_layer_add (design, layer_mapping->design_layer) ;
-      layer_mapping->design_layer->combo_item = layers_combo_add_layer (GTK_COMBO (main_window.layers_combo),
-        design->lstLayers);
+//      layer_mapping->design_layer->combo_item = layers_combo_add_layer (GTK_COMBO (main_window.layers_combo), design->lstLayers);
       }
 
     if (NULL != layer_mapping->block_layer->lstObjs)
@@ -2276,8 +2301,8 @@ static QCADDesignObject *merge_selection (DESIGN *design, DESIGN *block, EXP_ARR
       // is, in fact, active. We must activate the layer by simulating a
       // click on the "Active" checkbox in the "Layers" combo, so that the
       // UI may reflect the change.
-      chkActive = GTK_WIDGET (g_object_get_data (G_OBJECT (layer_mapping->design_layer->combo_item), "chkActive")) ;
-      chkVisible = GTK_WIDGET (g_object_get_data (G_OBJECT (layer_mapping->design_layer->combo_item), "chkVisible")) ;
+//      chkActive = GTK_WIDGET (g_object_get_data (G_OBJECT (layer_mapping->design_layer->combo_item), "chkActive")) ;
+//      chkVisible = GTK_WIDGET (g_object_get_data (G_OBJECT (layer_mapping->design_layer->combo_item), "chkVisible")) ;
 
       if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chkVisible)))
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chkVisible), TRUE);
@@ -2366,6 +2391,7 @@ gboolean autosave_timer_event (gpointer data)
 static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
   {
   QCADLayer *layer = NULL ;
+  GList *llItrCells = NULL ;
   QCADSubstrate *snap_source = NULL ;
   GtkTreeModel *tm = NULL ;
   GtkTreeIter itr, itrLast ;
@@ -2378,16 +2404,35 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
   if (NULL != project_options.srSelection)
     selection_renderer_update (project_options.srSelection, new_design) ;
 
-  layers_combo_fill_from_design (&main_window, new_design) ;
+//  layers_combo_fill_from_design (&main_window, new_design) ;
 
-//  gtk_tree_view_set_model (GTK_TREE_VIEW (main_window.layers_combo_tv), tm = GTK_TREE_MODEL (design_layer_list_store_new (new_design, 0))) ;
-//  if (NULL != (sel = gtk_tree_view_get_selection (GTK_TREE_VIEW (main_window.layers_combo_tv))))
-//    if (gtk_tree_model_get_iter_first (tm, &itr))
-//      {
-//      do itrLast = itr ; while (gtk_tree_model_iter_next (tm, &itr)) ;
-//
-//      gtk_tree_selection_select_iter (sel, &itrLast) ;
-//      }
+  gtk_tree_view_set_model (GTK_TREE_VIEW (main_window.layers_combo_tv), tm = GTK_TREE_MODEL (design_layer_list_store_new (new_design, 0))) ;
+  if (NULL != (sel = gtk_tree_view_get_selection (GTK_TREE_VIEW (main_window.layers_combo_tv))))
+    if (gtk_tree_model_get_iter_first (tm, &itr))
+      {
+      do
+        {
+        gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &layer, -1) ;
+
+        g_signal_connect (G_OBJECT (layer),"added",     (GCallback)qcad_layer_design_object_added,   NULL) ;
+        g_signal_connect (G_OBJECT (layer),"removed",   (GCallback)qcad_layer_design_object_removed, NULL) ;
+
+        if (LAYER_TYPE_CELLS == (QCAD_LAYER (layer))->type)
+          {
+          for (llItrCells = (QCAD_LAYER (layer))->lstObjs ; llItrCells != NULL ; llItrCells = llItrCells->next)
+            if (QCAD_IS_CELL (llItrCells->data))
+              g_signal_connect (G_OBJECT (llItrCells->data), "cell-function-changed", (GCallback)cell_function_changed, NULL) ;
+          }
+        else
+        if (QCAD_IS_CLOCKING_LAYER (layer))
+          g_signal_connect (G_OBJECT (layer), "notify::show-potential", (GCallback)qcad_clocking_layer_notify_show_potential, NULL) ;
+
+        itrLast = itr ; 
+        }
+      while (gtk_tree_model_iter_next (tm, &itr)) ;
+
+      gtk_tree_selection_select_iter (sel, &itrLast) ;
+      }
 
   set_snap_source (snap_source = (NULL != subs && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (main_window.snap_to_grid_menu_item)) ? subs : NULL)) ;
   g_object_set_data (G_OBJECT (main_window.snap_to_grid_menu_item), "snap_source", snap_source) ;
@@ -2400,11 +2445,6 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
 
   cell_function_changed (NULL, NULL) ;
 
-  if (NULL != (layer = QCAD_LAYER (new_design->lstCurrentLayer->data))->combo_item)
-    {
-    selected_layer_item = layer->combo_item ;
-    layer_selected (NULL, NULL) ;
-    }
   redraw_async (NULL) ;
   }
 
@@ -2562,4 +2602,28 @@ static gboolean multiple_visible_layers_p (GList *llLayers)
         return TRUE ;
 
   return FALSE ;
+  }
+
+// Select the given layer or, if not found (NULL), the last layer
+static void select_layer (GtkTreeView *tv, QCADLayer *layer)
+  {
+  QCADLayer *layer_comp = NULL ;
+  GtkTreeModel *tm = gtk_tree_view_get_model (tv) ;
+  GtkTreeSelection *sel = gtk_tree_view_get_selection (tv) ;
+  GtkTreeIter itr, itrLast ;
+
+  if (NULL == tm) return ;
+  if (NULL == sel) return ;
+
+  if (gtk_tree_model_get_iter_first (tm, &itr))
+    do
+      {
+      itrLast = itr ;
+      gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &layer_comp, -1) ;
+      if (layer_comp == layer)
+        break ;
+      }
+    while (gtk_tree_model_iter_next (tm, &itr)) ;
+
+  gtk_tree_selection_select_iter (sel, &itr) ;
   }

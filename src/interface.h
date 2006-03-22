@@ -47,7 +47,7 @@ typedef struct
   GtkWidget *insert_type_1_cell_button;
   GtkWidget *label_button;
   GtkWidget *rectangle_electrode_button ;
-  GtkWidget *layers_combo;
+//  GtkWidget *layers_combo;
   GtkWidget *main_window;
 #ifdef STDIO_FILEIO
   GtkWidget *recent_files_menu;

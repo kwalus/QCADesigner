@@ -86,9 +86,9 @@ struct _QCADLayer
   char *pszDescription ;
   GList *lstObjs ;
   GList *lstSelObjs ;
-#ifdef GTK_GUI
-  GtkWidget *combo_item ;
-#endif /* def GTK_GUI */
+//#ifdef GTK_GUI
+//  GtkWidget *combo_item ;
+//#endif /* def GTK_GUI */
 #ifdef ALLOW_UNSERIALIZE_OVERLAP
   gboolean bAllowOverlap ;
 #endif /* ALLOW_UNSERIALIZE_OVERLAP */

@@ -158,17 +158,7 @@ void create_main_window (main_W *main_window){
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
     _("Layer Properties"), _("Modify the settings for the current layer.")) ;
   g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)layer_properties_button_clicked, NULL) ;
-/*
-  gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
-    _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
 
-  main_window->layers_combo = g_object_new (GTK_TYPE_COMBO, "visible", TRUE, "border-width", 4, NULL) ;
-  GTK_WIDGET_UNSET_FLAGS (main_window->layers_combo, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
-  GTK_WIDGET_UNSET_FLAGS (GTK_COMBO (main_window->layers_combo)->entry, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
-  gtk_entry_set_editable (GTK_ENTRY (GTK_COMBO (main_window->layers_combo)->entry), FALSE) ;
-  gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layers_combo) ;
-*/
   gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
     _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;

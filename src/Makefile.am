@@ -3,8 +3,8 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 # bin_PROGRAMS = QCADesigner batch_sim graph_dialog test
-# bin_PROGRAMS = QCADesigner batch_sim graph_dialog combo_test
-bin_PROGRAMS = QCADesigner batch_sim graph_dialog
+bin_PROGRAMS = QCADesigner batch_sim graph_dialog combo_test
+# bin_PROGRAMS = QCADesigner batch_sim graph_dialog
 
 include Makefile.inc
 
@@ -215,26 +215,26 @@ graph_dialog_LDADD = \
 # 	@GTHREAD_LIBS@ 
 
 #################### combo_test #####################
-# combo_test_CFLAGS = \
-#  	-DGTK_GUI \
-#   -DSTDIO_FILEIO \
-#  	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-#  	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-#  	@GTK_CFLAGS@ \
-#  	@GTHREAD_CFLAGS@
-#  
-# combo_test_SOURCES = \
-#   objects/QCADTreeViewCombo.c objects/QCADTreeViewCombo.h \
-#   $(CORE_FILES) \
-# 	$(STDIO_FILEIO_FILES) \
-#   $(OBJECT_FILES) \
-#   support.c                   support.h \
-#   gtk_preamble.c              gtk_preamble.h \
-# 	simulation_data.c           simulation_data.h \
-#  	main_combo_test.c
-#  
-# combo_test_LDADD = \
-#  	-lm \
-#  	@GTK_LIBS@ \
-#  	$(INTLLIBS) \
-#  	@GTHREAD_LIBS@ 
+combo_test_CFLAGS = \
+ 	-DGTK_GUI \
+  -DSTDIO_FILEIO \
+ 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
+ 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
+ 	@GTK_CFLAGS@ \
+ 	@GTHREAD_CFLAGS@
+ 
+combo_test_SOURCES = \
+  objects/QCADTreeViewCombo.c objects/QCADTreeViewCombo.h \
+  $(CORE_FILES) \
+	$(STDIO_FILEIO_FILES) \
+  $(OBJECT_FILES) \
+  support.c                   support.h \
+  gtk_preamble.c              gtk_preamble.h \
+	simulation_data.c           simulation_data.h \
+ 	main_combo_test.c
+ 
+combo_test_LDADD = \
+ 	-lm \
+ 	@GTK_LIBS@ \
+ 	$(INTLLIBS) \
+ 	@GTHREAD_LIBS@ 

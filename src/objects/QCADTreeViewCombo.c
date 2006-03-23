@@ -3,18 +3,20 @@
 #include "custom_widgets.h"
 #include "QCADTreeViewCombo.h"
 
+//#define USE_GRAB
+
 typedef struct
   {
   GtkWidget *btn ;
   GtkWidget *frm ;
-//  GtkWidget *tbl ;
   GtkWidget *popup ;
   guint button_press_handler_id ;
   guint entry_activate_handler_id ;
   guint tree_sel_changed_handler_id ;
   guint tree_view_key_press_handler_id ;
-  guint tree_view_button_release_handler_id ;
+  guint tree_view_button_press_handler_id ;
   guint tree_view_row_activated_handler_id ;
+  guint tree_view_button_release_handler_id ;
   int text_column ;
   } QCADTreeViewComboPrivate ;
 
@@ -37,8 +39,6 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
 static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
 static void     size_request  (GtkWidget *widget, GtkRequisition *rq) ;
 static void     size_allocate (GtkWidget *widget, GtkAllocation *alloc) ;
-//static void     style_set     (GtkWidget *widget, GtkStyle *previous_style) ;
-//static gboolean expose_event  (GtkWidget *widget, GdkEventExpose *event) ;
 static void qcad_tree_view_combo_add    (GtkContainer *container, GtkWidget *widget) ;
 static void qcad_tree_view_combo_remove (GtkContainer *container, GtkWidget *widget) ;
 static void forall                      (GtkContainer *container, gboolean bPrivate, GtkCallback cb, gpointer data) ;
@@ -53,9 +53,10 @@ static void entry_activate (GtkWidget *widget, gpointer data) ;
 
 static void qcad_tree_view_combo_update_label (QCADTreeViewCombo *tvc, int new_column) ;
 static void qcad_tree_view_combo_show_popup (QCADTreeViewCombo *tvc, gboolean bShow) ;
-
+#ifdef USE_GRAB
 // Copied from gtk+-2.4.14/gtk/gtkmenu.c
 static gboolean grab_input (GdkWindow *window, guint32 activate_time) ;
+#endif /* def USE_GRAB */
 
 GType qcad_tree_view_combo_get_type ()
   {
@@ -88,7 +89,6 @@ static void qcad_tree_view_combo_class_init (QCADTreeViewComboClass *klass)
   G_OBJECT_CLASS (klass)->finalize     = finalize ;
   G_OBJECT_CLASS (klass)->set_property = set_property ;
   G_OBJECT_CLASS (klass)->get_property = get_property ;
-//  GTK_WIDGET_CLASS (klass)->expose_event  = expose_event ;
   GTK_WIDGET_CLASS (klass)->size_request  = size_request ;
   GTK_WIDGET_CLASS (klass)->size_allocate = size_allocate ;
   GTK_CONTAINER_CLASS (klass)->add    = qcad_tree_view_combo_add ;
@@ -109,7 +109,6 @@ static void qcad_tree_view_combo_instance_init (QCADTreeViewCombo *instance)
     *frm = g_object_new (GTK_TYPE_FRAME, "visible", TRUE, "shadow-type", GTK_SHADOW_OUT, NULL),
     *arr = g_object_new (GTK_TYPE_ARROW, "visible", TRUE, "arrow-type", GTK_ARROW_DOWN, "shadow-type", GTK_SHADOW_OUT, NULL) ;
 
-  private->entry_activate_handler_id =
   private->button_press_handler_id =
   private->tree_sel_changed_handler_id =
   private->tree_view_key_press_handler_id =
@@ -117,6 +116,7 @@ static void qcad_tree_view_combo_instance_init (QCADTreeViewCombo *instance)
   private->text_column = -1 ;
 
   instance->entry = g_object_new (GTK_TYPE_ENTRY, "visible", TRUE, "editable", FALSE, "xalign", 0.0, NULL),
+  g_signal_connect (G_OBJECT (instance->entry), "activate", (GCallback)entry_activate, instance) ;
   private->btn    = g_object_new (GTK_TYPE_BUTTON, "visible", TRUE, NULL),
   gtk_container_add (GTK_CONTAINER (private->btn), arr) ;
   private->popup  = g_object_new (GTK_TYPE_WINDOW, "type", GTK_WINDOW_POPUP, "type-hint", GDK_WINDOW_TYPE_HINT_MENU, "resizable", FALSE, "modal", TRUE, "decorated", FALSE, NULL) ;
@@ -136,8 +136,6 @@ static void qcad_tree_view_combo_instance_init (QCADTreeViewCombo *instance)
 
   gtk_widget_set_parent (instance->entry, GTK_WIDGET (instance)) ;
   gtk_widget_set_parent (private->btn, GTK_WIDGET (instance)) ;
-//  gtk_box_pack_start (GTK_BOX (instance), instance->entry, TRUE, TRUE, 0) ;
-//  gtk_box_pack_end (GTK_BOX (instance), private->btn, FALSE, FALSE, 0) ;
 
   g_signal_connect (G_OBJECT (private->btn), "clicked", (GCallback)arrow_btn_clicked, instance) ;
   }
@@ -175,22 +173,7 @@ static void finalize (GObject *object)
 
   G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_TREE_VIEW_COMBO)))->finalize (object) ;
   }
-/*
-static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event)
-  {
-  QCADTreeViewCombo        *cb      = QCAD_TREE_VIEW_COMBO (widget) ;
-  QCADTreeViewComboPrivate *private = QCAD_TREE_VIEW_COMBO_GET_PRIVATE (widget) ;
 
-  g_print ("QCADTreeViewCombo::expose_event\n") ;
-
-  gtk_container_propagate_expose (GTK_CONTAINER (widget), cb->entry,      event) ;
-  gtk_container_propagate_expose (GTK_CONTAINER (widget), private->btn,   event) ;
-//  gtk_container_propagate_expose (GTK_CONTAINER (widget), private->popup, event) ;
-//  gtk_container_propagate_expose (GTK_CONTAINER (widget), private->frm,   event) ;
-
-  return FALSE ;
-  }
-*/
 static void size_request (GtkWidget *widget, GtkRequisition *rq)
   {
   QCADTreeViewCombo        *tvc     = QCAD_TREE_VIEW_COMBO (widget) ;
@@ -235,28 +218,11 @@ static void size_allocate (GtkWidget *widget, GtkAllocation *allocation)
   gtk_widget_size_allocate (tvc->entry, &alloc_entry) ;
   gtk_widget_size_allocate (private->btn, &alloc_btn) ;
   }
-/*
-static void style_set (GtkWidget *widget, GtkStyle *prev_style)
-  {
-  QCADTreeViewCombo *tvc = QCAD_TREE_VIEW_COMBO (widget) ;
-  QCADTreeViewComboPrivate *private = QCAD_TREE_VIEW_COMBO_GET_PRIVATE (widget) ;
-  GtkRcStyle *rc_style = NULL ;
-
-  rc_style = gtk_rc_style_new () ;
-  rc_style->name = "clearlooks-combo" ;
-  gtk_rc_add_widget_class_style (rc_style, "*.QCADTreeViewCombo.GtkButton") ;
-  gtk_widget_modify_style (private->btn, rc_style) ;
-
-  GTK_WIDGET_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_TREE_VIEW_COMBO)))->style_set (widget, prev_style) ;
-  }
-*/
 
 static void forall (GtkContainer *container, gboolean bPrivate, GtkCallback cb, gpointer data)
   {
   QCADTreeViewCombo *tvc = QCAD_TREE_VIEW_COMBO (container) ;
   QCADTreeViewComboPrivate *private = QCAD_TREE_VIEW_COMBO_GET_PRIVATE (container) ;
-
-//  GTK_CONTAINER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_TREE_VIEW_COMBO)))->forall (container, bPrivate, cb, data) ;
 
   if (bPrivate)
     {
@@ -275,8 +241,6 @@ static void qcad_tree_view_combo_add (GtkContainer *container, GtkWidget *widget
 
   gtk_container_add (GTK_CONTAINER (private->frm), widget) ;
 
-  private->entry_activate_handler_id =
-    g_signal_connect (G_OBJECT (QCAD_TREE_VIEW_COMBO (container)->entry), "activate", (GCallback)entry_activate, container) ;
   private->tree_view_row_activated_handler_id = 
     g_signal_connect (G_OBJECT (widget), "row-activated", (GCallback)tree_view_row_activated, container) ;
   private->tree_view_key_press_handler_id = 
@@ -299,19 +263,18 @@ static void qcad_tree_view_combo_remove (GtkContainer *container, GtkWidget *wid
 
   gtk_container_remove (GTK_CONTAINER (private->frm), widget) ;
 
-  g_signal_handler_disconnect (widget, private->entry_activate_handler_id) ;
+  g_signal_handler_disconnect (widget, private->button_press_handler_id) ;
+  g_signal_handler_disconnect (widget, private->tree_view_key_press_handler_id) ;
   g_signal_handler_disconnect (widget, private->tree_view_row_activated_handler_id) ;
   g_signal_handler_disconnect (widget, private->tree_view_button_release_handler_id) ;
-  g_signal_handler_disconnect (widget, private->tree_view_key_press_handler_id) ;
-  g_signal_handler_disconnect (widget, private->button_press_handler_id) ;
+
   if (private->tree_sel_changed_handler_id > 0)
     g_signal_handler_disconnect (widget, private->tree_sel_changed_handler_id) ;
 
-  private->tree_view_button_release_handler_id =
   private->button_press_handler_id =
-  private->entry_activate_handler_id =
+  private->tree_sel_changed_handler_id = 
   private->tree_view_row_activated_handler_id =
-  private->tree_sel_changed_handler_id = 0 ;
+  private->tree_view_button_release_handler_id = 0 ;
   }
 
 static void arrow_btn_clicked (GtkWidget *btn, gpointer data)
@@ -346,9 +309,11 @@ static gboolean tree_view_button_release_event (GtkWidget *widget, GdkEventButto
 
   g_object_get (G_OBJECT (cr), "mode", &mode, NULL) ;
   if (mode == GTK_CELL_RENDERER_MODE_INERT)
+//    {
+//    g_print ("tree_view_button_release_event: Hiding popup\n") ;
     qcad_tree_view_combo_show_popup (QCAD_TREE_VIEW_COMBO (data), FALSE) ;
-
-  return FALSE ;
+//    }
+  return TRUE ;
   }
 
 static gboolean popup_button_pressed (GtkWidget *popup, GdkEventButton *event, gpointer data)
@@ -365,11 +330,15 @@ static gboolean popup_button_pressed (GtkWidget *popup, GdkEventButton *event, g
   }
 
 static void tree_view_row_activated (GtkTreeView *tv, GtkTreePath *tp, GtkTreeViewColumn *col, gpointer data)
-  {qcad_tree_view_combo_show_popup (QCAD_TREE_VIEW_COMBO (data), FALSE) ;}
+  {
+//  g_print ("tree_view_row_activated: Hiding popup\n") ;
+  qcad_tree_view_combo_show_popup (QCAD_TREE_VIEW_COMBO (data), FALSE) ;
+  }
 
 static void entry_activate (GtkWidget *widget, gpointer data)
   {qcad_tree_view_combo_show_popup (QCAD_TREE_VIEW_COMBO (data), TRUE) ;}
 
+#ifdef USE_GRAB
 // Copied from gtk+-2.4.14/gtk/gtkmenu.c
 static gboolean grab_input (GdkWindow *window, guint32 activate_time)
   {
@@ -390,6 +359,7 @@ static gboolean grab_input (GdkWindow *window, guint32 activate_time)
 
   return FALSE;
   }
+#endif /* def USE_GRAB */
 
 static void qcad_tree_view_combo_update_label (QCADTreeViewCombo *tvc, int new_column)
   {
@@ -401,8 +371,6 @@ static void qcad_tree_view_combo_update_label (QCADTreeViewCombo *tvc, int new_c
   int old_column = private->text_column ;
   char *psz = NULL ;
   GList *llSels = NULL ;
-
-//  g_print ("qcad_tree_view_combo_update_label: Entering with new_column = %d\n", new_column) ;
 
   if (NULL != (tv = GTK_TREE_VIEW (gtk_bin_get_child (GTK_BIN (private->frm)))))
     if (NULL != (tm = gtk_tree_view_get_model (tv)))
@@ -453,7 +421,7 @@ static void qcad_tree_view_combo_show_popup (QCADTreeViewCombo *tvc, gboolean bS
     int x, y ;
 
     gtk_widget_get_root_origin (GTK_WIDGET (tvc), &x, &y) ;
-    y += GTK_WIDGET (tvc)->allocation.height - GTK_CONTAINER (tvc)->border_width + 1 ;
+    y += GTK_WIDGET (tvc)->allocation.height - GTK_CONTAINER (tvc)->border_width ;
     x += GTK_CONTAINER (tvc)->border_width ;
     gtk_window_move (GTK_WINDOW (private->popup), x, y) ;
     gtk_widget_show (private->popup) ;
@@ -461,13 +429,17 @@ static void qcad_tree_view_combo_show_popup (QCADTreeViewCombo *tvc, gboolean bS
       g_signal_connect (G_OBJECT (grab_widget), "button-press-event", (GCallback)popup_button_pressed, tvc) ;
     while (!GTK_WIDGET_VISIBLE (private->popup))
       gtk_main_iteration () ;
+#ifdef USE_GRAB
     if (!grab_input (grab_widget->window, GDK_CURRENT_TIME))
       gtk_widget_hide (private->popup) ;
+#endif /* def USE_GRAB */
     }
   else
     {
+#ifdef USE_GRAB
     gdk_display_pointer_ungrab (gtk_widget_get_display (grab_widget), GDK_CURRENT_TIME);
     gdk_display_keyboard_ungrab (gtk_widget_get_display (grab_widget), GDK_CURRENT_TIME);
+#endif /* def USE_GRAB */
     gtk_widget_hide (private->popup) ;
     while (GTK_WIDGET_VISIBLE (private->popup))
       gtk_main_iteration () ;

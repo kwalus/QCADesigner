@@ -173,8 +173,8 @@ void create_main_window (main_W *main_window){
     _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
 
   gtk_container_add (GTK_CONTAINER (toolbar_item), layers_combo_new (&(main_window->layers_combo))) ;
-  g_signal_connect (G_OBJECT (main_window->layers_combo.crVisible), "toggled", (GCallback)layer_list_state_toggled, NULL) ;
-  g_signal_connect (G_OBJECT (main_window->layers_combo.crActive),  "toggled", (GCallback)layer_list_state_toggled, NULL) ;
+  g_signal_connect (G_OBJECT (main_window->layers_combo.crVisible), "toggled",  (GCallback)layer_list_state_toggled, NULL) ;
+  g_signal_connect (G_OBJECT (main_window->layers_combo.crActive),  "toggled",  (GCallback)layer_list_state_toggled, NULL) ;
   g_signal_connect (G_OBJECT (gtk_tree_view_get_selection (GTK_TREE_VIEW (main_window->layers_combo.tv))), "changed", (GCallback)layers_selection_changed, NULL) ;
 
   gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),

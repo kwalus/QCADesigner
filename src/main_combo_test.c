@@ -5,15 +5,25 @@
 #include "design.h"
 #include "interface.h"
 #include "gtk_preamble.h"
-#include "objects/QCADTreeViewCombo.h"
+#include "layers_combo.h"
 
-GtkWidget *create_layers_treeview () ;
+/*
+const char *rc_string = ""
+"style \"my_combo\""
+"{"
+"  GtkComboBox::appears-as-list = 1"
+"}"
+"widget \"*.my_combo\" style \"my_combo\"";
+ 
+gtk_widget_set_name (combo, "my_combo");
+gtk_rc_parse_string (rc_string);
+*/
 
 int main (int argc, char **argv)
   {
   DESIGN *design = NULL ;
-  GtkWidget *wnd = NULL, *cb = NULL, *tv = NULL ;
-  GtkTreeModel *tm = NULL ;
+  GtkWidget *wnd = NULL, *cb = NULL ;
+  LAYERS_COMBO layers_combo = {NULL} ;
 
   gtk_preamble (&argc, &argv, NULL) ;
 
@@ -23,14 +33,10 @@ int main (int argc, char **argv)
     return 1 ;
     }
 
-  wnd = g_object_new (GTK_TYPE_WINDOW, "title", QCAD_TYPE_STRING_TREE_VIEW_COMBO " Test", NULL) ;
+  wnd = g_object_new (GTK_TYPE_WINDOW, "title", "Combo Test", NULL) ;
 
-  cb = g_object_new (QCAD_TYPE_TREE_VIEW_COMBO, "visible", TRUE, NULL) ;
+  cb = layers_combo_new (&layers_combo) ;
   gtk_container_add (GTK_CONTAINER (wnd), cb) ;
-
-  tv = create_layers_treeview () ;
-  gtk_widget_show (tv) ;
-  gtk_container_add (GTK_CONTAINER (cb), tv) ;
 
   if (!open_project_file (argv[1], &design))
     {
@@ -38,8 +44,8 @@ int main (int argc, char **argv)
     return 2 ;
     }
 
-  if (NULL != (tm = GTK_TREE_MODEL (design_layer_list_store_new (design, 0))))
-    gtk_tree_view_set_model (GTK_TREE_VIEW (tv), tm) ;
+  layers_combo_set_design (&layers_combo, design) ;
+  layers_combo_select_layer (&layers_combo, NULL) ;
 
   g_signal_connect (G_OBJECT (wnd), "delete-event", (GCallback)gtk_main_quit, NULL) ;
 
@@ -48,37 +54,4 @@ int main (int argc, char **argv)
   gtk_main () ;
 
   return 0 ;
-  }
-
-GtkWidget *create_layers_treeview ()
-  {
-  GtkTreeView *tv = g_object_new (GTK_TYPE_TREE_VIEW, "visible", TRUE, "headers-visible", TRUE, NULL) ;
-  GtkTreeSelection *sel = gtk_tree_view_get_selection (tv) ;
-  GtkTreeViewColumn *col = NULL ;
-  GtkCellRenderer *cr = NULL ;
-
-  if (NULL != sel)
-    gtk_tree_selection_set_mode (sel, GTK_SELECTION_BROWSE) ;
-
-  // The column listing the layer name
-  gtk_tree_view_append_column (tv, col = g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Layer"), NULL)) ;
-  // The layer icon
-  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_pixbuf_new (), FALSE) ;
-  gtk_tree_view_column_add_attribute (col, cr, "stock-id", LAYER_MODEL_COLUMN_ICON) ;
-  // The layer name
-  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_text_new (), FALSE) ;
-  g_object_set (cr, "editable", FALSE, NULL) ;
-  gtk_tree_view_column_add_attribute (col, cr, "text", LAYER_MODEL_COLUMN_NAME) ;
-
-  // The column showing whether the layer is visible
-  gtk_tree_view_append_column (tv, col = g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Visible"), NULL)) ;
-  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_toggle_new (), TRUE) ;
-  g_object_set (cr, "xalign", 0.5, NULL) ;
-
-  // The column showing whether the layer is visible
-  gtk_tree_view_append_column (tv, col = g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Active"), NULL)) ;
-  gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_toggle_new (), TRUE) ;
-  g_object_set (cr, "xalign", 0.5, NULL) ;
-
-  return GTK_WIDGET (tv) ;
   }

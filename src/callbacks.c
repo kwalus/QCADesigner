@@ -532,6 +532,7 @@ void qcad_cell_default_clock_changed (QCADCell *default_cell, GParamSpec *pspec,
 
 void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
   {
+  GtkTreeModel *tm = NULL ;
 //  GList *llItr = NULL ;
   QCADLayer *layer = NULL ;
 /*
@@ -570,7 +571,7 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
       }
 */
     design_layer_add (project_options.design, layer) ;
-    layers_combo_set_design (&(main_window.layers_combo), project_options.design) ;
+    tm = layers_combo_set_design (&(main_window.layers_combo), project_options.design) ;
     layers_combo_select_layer (&(main_window.layers_combo), layer) ;
     gtk_widget_set_sensitive (main_window.remove_layer_button, (project_options.design->lstLayers != project_options.design->lstLastLayer)) ;
 //    (QCAD_LAYER (project_options.design->lstLayers->data))->combo_item =
@@ -635,31 +636,17 @@ void bus_layout_button_clicked (GtkWidget *widget, gpointer data)
 
 void reorder_layers_button_clicked (GtkWidget *widget, gpointer user_data)
   {
-  /*
-  GtkWidget *combo_item = NULL ;
-  GList *llItr = NULL, *llLayerOrder = NULL, *llListItems = NULL ;
+  GList *llLayerOrder = NULL ;
 
   if (NULL != (llLayerOrder = get_layer_order_from_user (GTK_WINDOW (main_window.main_window), project_options.design)))
     {
-    for (llListItems = NULL, llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
-      if (NULL != (combo_item = (QCAD_LAYER (llItr->data)->combo_item)))
-        llListItems = g_list_prepend (llListItems, combo_item) ;
-
-    gtk_list_remove_items_no_unref (GTK_LIST (GTK_COMBO (main_window.layers_combo)->list), llListItems) ;
-    g_list_free (llListItems) ;
-
     design_set_layer_order (project_options.design, llLayerOrder) ;
-
     g_list_free (llLayerOrder) ;
-    for (llListItems = NULL, llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
-      llListItems = g_list_prepend (llListItems, (QCAD_LAYER (llItr->data))->combo_item) ;
-    gtk_list_append_items (GTK_LIST (GTK_COMBO (main_window.layers_combo)->list), llListItems) ;
-    }
 
-  redraw_async (NULL) ;
-  selected_layer_item = (QCAD_LAYER (project_options.design->lstCurrentLayer->data))->combo_item ;
-  layer_selected (NULL, NULL) ;
-  */
+    layers_combo_set_design (&(main_window.layers_combo), project_options.design) ;
+    layers_combo_select_layer (&(main_window.layers_combo), QCAD_LAYER (project_options.design->lstCurrentLayer->data)) ;
+    redraw_async (NULL) ;
+    }
   }
 
 void scrollbar_adjust_bounds (GtkRange *range, gdouble value, gpointer data)
@@ -2387,27 +2374,28 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
 
 //  layers_combo_fill_from_design (&main_window, new_design) ;
 
-  if (gtk_tree_model_get_iter_first (tm = layers_combo_set_design (&(main_window.layers_combo), new_design), &itr))
-    do
-      {
-      gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &layer, -1) ;
-
-      g_signal_connect (G_OBJECT (layer),"added",     (GCallback)qcad_layer_design_object_added,   NULL) ;
-      g_signal_connect (G_OBJECT (layer),"removed",   (GCallback)qcad_layer_design_object_removed, NULL) ;
-
-      if (LAYER_TYPE_CELLS == (QCAD_LAYER (layer))->type)
+  if (NULL != (tm = layers_combo_set_design (&(main_window.layers_combo), new_design)))
+    if (gtk_tree_model_get_iter_first (tm, &itr))
+      do
         {
-        for (llItrCells = (QCAD_LAYER (layer))->lstObjs ; llItrCells != NULL ; llItrCells = llItrCells->next)
-          if (QCAD_IS_CELL (llItrCells->data))
-            g_signal_connect (G_OBJECT (llItrCells->data), "cell-function-changed", (GCallback)cell_function_changed, NULL) ;
-        }
-      else
-      if (QCAD_IS_CLOCKING_LAYER (layer))
-        g_signal_connect (G_OBJECT (layer), "notify::show-potential", (GCallback)qcad_clocking_layer_notify_show_potential, NULL) ;
+        gtk_tree_model_get (tm, &itr, LAYER_MODEL_COLUMN_LAYER, &layer, -1) ;
 
-      itrLast = itr ; 
-      }
-    while (gtk_tree_model_iter_next (tm, &itr)) ;
+        g_signal_connect (G_OBJECT (layer),"added",     (GCallback)qcad_layer_design_object_added,   NULL) ;
+        g_signal_connect (G_OBJECT (layer),"removed",   (GCallback)qcad_layer_design_object_removed, NULL) ;
+
+        if (LAYER_TYPE_CELLS == (QCAD_LAYER (layer))->type)
+          {
+          for (llItrCells = (QCAD_LAYER (layer))->lstObjs ; llItrCells != NULL ; llItrCells = llItrCells->next)
+            if (QCAD_IS_CELL (llItrCells->data))
+              g_signal_connect (G_OBJECT (llItrCells->data), "cell-function-changed", (GCallback)cell_function_changed, NULL) ;
+          }
+        else
+        if (QCAD_IS_CLOCKING_LAYER (layer))
+          g_signal_connect (G_OBJECT (layer), "notify::show-potential", (GCallback)qcad_clocking_layer_notify_show_potential, NULL) ;
+
+        itrLast = itr ; 
+        }
+      while (gtk_tree_model_iter_next (tm, &itr)) ;
 
   if (NULL != (sel = gtk_tree_view_get_selection (GTK_TREE_VIEW (main_window.layers_combo.tv))))
     gtk_tree_selection_select_iter (sel, &itrLast) ;

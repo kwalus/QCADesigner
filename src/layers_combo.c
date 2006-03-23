@@ -53,7 +53,7 @@ void layers_combo_select_layer (LAYERS_COMBO *layers_combo, QCADLayer *layer)
       }
     while (gtk_tree_model_iter_next (tm, &itr)) ;
 
-  gtk_tree_selection_select_iter (sel, &itr) ;
+  gtk_tree_selection_select_iter (sel, &itrLast) ;
   }
 
 void layers_combo_remove_layer (LAYERS_COMBO *layers_combo, QCADLayer *layer)

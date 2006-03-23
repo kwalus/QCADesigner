@@ -150,7 +150,8 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
 #endif /* ifdef QCAD_NO_CONSOLE */
 #endif /* ifdef WIN32 */
 
-  set_window_icon (NULL, pszBaseName) ;
+  if (NULL != pszBaseName)
+    set_window_icon (NULL, pszBaseName) ;
 
   gtk_stock_add (stock_layers, n_stock_layers) ;
 

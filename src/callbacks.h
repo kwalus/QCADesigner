@@ -80,7 +80,6 @@ void cell_display_mode_chosen (GtkWidget *widget, gpointer data) ;
 void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data) ;
 void scrollbar_adjust_bounds (GtkRange *range, gdouble value, gpointer data) ;
 void qcad_cell_default_clock_changed (QCADCell *default_cell, GParamSpec *pspec, gpointer data) ;
-void layers_list_set_toggle_data (GtkTreeViewColumn *col, GtkCellRenderer *cr, GtkTreeModel *tm, GtkTreeIter *itr, gpointer data) ;
 void layer_list_state_toggled (GtkCellRenderer *cr, char *pszPath, gpointer data) ;
 void layers_selection_changed (GtkTreeSelection *sel, gpointer data) ;
 

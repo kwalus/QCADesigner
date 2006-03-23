@@ -203,6 +203,20 @@ DESIGN *design_destroy (DESIGN *design)
   return NULL ;
   }
 
+gboolean design_multiple_visible_layers_p (DESIGN *design)
+  {
+  GList *llLayers = NULL ;
+  int icVisibleLayers = 0 ;
+
+  for (llLayers = design->lstLayers; llLayers != NULL ; llLayers = llLayers->next)
+    if (QCAD_LAYER_STATUS_ACTIVE  == QCAD_LAYER (llLayers->data)->status ||
+        QCAD_LAYER_STATUS_VISIBLE == QCAD_LAYER (llLayers->data)->status)
+      if ((++icVisibleLayers) > 1)
+        return TRUE ;
+
+  return FALSE ;
+  }
+
 void design_layer_add (DESIGN *design, QCADLayer *layer)
   {
   GList *llItr = NULL ;

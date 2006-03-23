@@ -451,16 +451,10 @@ static void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *p
   VECTOR_TABLE_OPTIONS_DIALOG_DATA *dialog_data = g_object_get_data (G_OBJECT (dialog->dialog), "vector_table_options_dialog_data") ;
   int idxVector = (int)g_object_get_data (G_OBJECT (cr), IDX_VECTOR_KEY) ;
   GtkTreeModel *tm = gtk_tree_view_get_model (GTK_TREE_VIEW (dialog->tv)) ;
-  GtkTreePath *tp = NULL ;
   GtkTreeIter itr ;
   int row_type = ROW_TYPE_CLOCK, idx = -1 ;
 
-  if (!gtk_tree_model_get_iter (tm, &itr, tp = gtk_tree_path_new_from_string (pszPath)))
-    {
-    gtk_tree_path_free (tp) ;
-    return ;
-    }
-  gtk_tree_path_free (tp) ;
+  if (!gtk_tree_model_get_iter_from_string (tm, &itr, pszPath)) return ;
 
   gtk_tree_model_get (tm, &itr,
     BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type,
@@ -566,16 +560,10 @@ void vtod_active_flag_toggled (GtkCellRendererToggle *cr, char *pszPath, gpointe
   vector_table_options_D *dialog = (vector_table_options_D *)data ;
   VECTOR_TABLE_OPTIONS_DIALOG_DATA *dialog_data = g_object_get_data (G_OBJECT (dialog->dialog), "vector_table_options_dialog_data") ;
   GtkTreeModel *tm = gtk_tree_view_get_model (GTK_TREE_VIEW (dialog->tv)) ;
-  GtkTreePath *tp = NULL ;
   GtkTreeIter itr ;
   int row_type = ROW_TYPE_CLOCK, idx = -1 ;
 
-  if (!gtk_tree_model_get_iter (tm, &itr, tp = gtk_tree_path_new_from_string (pszPath)))
-    {
-    gtk_tree_path_free (tp) ;
-    return ;
-    }
-  gtk_tree_path_free (tp) ;
+  if (!gtk_tree_model_get_iter_from_string (tm, &itr, pszPath)) return ;
 
   gtk_tree_model_get (tm, &itr,
     BUS_LAYOUT_MODEL_COLUMN_TYPE, &row_type,

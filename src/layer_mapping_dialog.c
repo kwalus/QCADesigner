@@ -167,30 +167,26 @@ static GtkTreeModel *layer_mapping_model_new (DESIGN *design, DESIGN *block)
 void import_layer_toggled (GtkCellRendererToggle *cr, char *pszPath, gpointer user_data)
   {
   gboolean bImport = TRUE ;
-  GtkTreePath *tp = NULL ;
   GtkTreeIter itr ;
   GtkTreeModel *tm = g_object_get_data (G_OBJECT (cr), "model") ;
 
   if (NULL == tm) return ;
-  if (NULL == (tp = gtk_tree_path_new_from_string (pszPath))) return ;
 
-  gtk_tree_model_get_iter (tm, &itr, tp) ;
-  gtk_tree_model_get (tm, &itr, LAYER_MAPPING_MODEL_COLUMN_IMPORT, &bImport, -1) ;
-  bImport = !bImport ;
-  gtk_list_store_set (GTK_LIST_STORE (tm), &itr, LAYER_MAPPING_MODEL_COLUMN_IMPORT, bImport, -1) ;
-
-  gtk_tree_path_free (tp) ;
+  if (gtk_tree_model_get_iter_from_string (tm, &itr, pszPath))
+    {
+    gtk_tree_model_get (tm, &itr, LAYER_MAPPING_MODEL_COLUMN_IMPORT, &bImport, -1) ;
+    bImport = !bImport ;
+    gtk_list_store_set (GTK_LIST_STORE (tm), &itr, LAYER_MAPPING_MODEL_COLUMN_IMPORT, bImport, -1) ;
+    }
   }
 
 void dest_layer_changed (GtkCellRendererText *cr, char *pszPath, QCADLayer *new_layer, gpointer data)
   {
   QCADLayer *layer = NULL ;
-  GtkTreePath *tp = NULL ;
   GtkTreeIter itr ;
   GtkTreeModel *tm = g_object_get_data (G_OBJECT (cr), "model") ;
 
   if (NULL == tm) return ;
-  if (NULL == (tp = gtk_tree_path_new_from_string (pszPath))) return ;
 
   if (gtk_tree_model_get_iter_first (tm, &itr))
     do
@@ -204,10 +200,8 @@ void dest_layer_changed (GtkCellRendererText *cr, char *pszPath, QCADLayer *new_
       }
     while (gtk_tree_model_iter_next (tm, &itr)) ;
 
-  gtk_tree_model_get_iter (tm, &itr, tp) ;
-  gtk_list_store_set (GTK_LIST_STORE (tm), &itr, LAYER_MAPPING_MODEL_COLUMN_DEST, new_layer, -1) ;
-
-  gtk_tree_path_free (tp) ;
+  if (gtk_tree_model_get_iter_from_string (tm, &itr, pszPath))
+    gtk_list_store_set (GTK_LIST_STORE (tm), &itr, LAYER_MAPPING_MODEL_COLUMN_DEST, new_layer, -1) ;
   }
 
 static void create_layer_mapping_dialog (layer_mapping_D *dialog)

@@ -131,6 +131,7 @@ void              design_set_layer_order (DESIGN *design, GList *llLayerOrder) ;
 void              design_fix_legacy (DESIGN *design) ;
 void              design_set_current_layer (DESIGN *design, QCADLayer *layer) ;
 gboolean          design_scale_cells (DESIGN *design, double scale) ;
+gboolean          design_multiple_visible_layers_p (DESIGN *design) ;
 
 QCADLayer * design_layer_remove (DESIGN *design, QCADLayer *layer) ;
 void        design_layer_add (DESIGN *design, QCADLayer *layer) ;

@@ -1,3 +1,6 @@
+#ifdef WIN32
+  #include <windows.h>
+#endif
 #include <stdio.h>
 #include <gtk/gtk.h>
 #include "intl.h"

@@ -91,6 +91,9 @@ msgstr ""
 msgid "Binary"
 msgstr "Bináris"
 
+msgid "Bistable Approximation"
+msgstr ""
+
 msgid "Bistable Options"
 msgstr ""
 
@@ -257,6 +260,9 @@ msgstr ""
 
 msgid "Close"
 msgstr "Bezárás"
+
+msgid "Coherence Vector"
+msgstr ""
 
 msgid "Coherence Vector Options"
 msgstr ""
@@ -575,6 +581,9 @@ msgid "Inputs"
 msgstr "Input-ok"
 
 msgid "Insert Before"
+msgstr ""
+
+msgid "Insert Vector"
 msgstr ""
 
 msgid "Insert Vector Before"
@@ -990,6 +999,9 @@ msgid "Select"
 msgstr "Választás"
 
 msgid "Sensitive"
+msgstr ""
+
+msgid "Set Simulation Engine"
 msgstr ""
 
 msgid "Set Simulation Type"

@@ -91,6 +91,9 @@ msgstr ""
 msgid "Binary"
 msgstr "Binar"
 
+msgid "Bistable Approximation"
+msgstr ""
+
 msgid "Bistable Options"
 msgstr ""
 
@@ -262,6 +265,9 @@ msgstr ""
 
 msgid "Close"
 msgstr "Închide"
+
+msgid "Coherence Vector"
+msgstr ""
 
 msgid "Coherence Vector Options"
 msgstr ""
@@ -586,6 +592,9 @@ msgstr ""
 
 msgid "Insert Before"
 msgstr "Inserează înainte"
+
+msgid "Insert Vector"
+msgstr "Inserează vector"
 
 msgid "Insert Vector Before"
 msgstr "Inserează vector înainte"
@@ -1002,6 +1011,9 @@ msgid "Select"
 msgstr "Selectează"
 
 msgid "Sensitive"
+msgstr ""
+
+msgid "Set Simulation Engine"
 msgstr ""
 
 msgid "Set Simulation Type"

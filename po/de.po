@@ -92,6 +92,9 @@ msgstr "Alle möglichen Inputs versuchen."
 msgid "Binary"
 msgstr "Binär"
 
+msgid "Bistable Approximation"
+msgstr ""
+
 msgid "Bistable Options"
 msgstr ""
 
@@ -264,6 +267,9 @@ msgstr "Vektortabelleneditor schließen."
 
 msgid "Close"
 msgstr "Schließen"
+
+msgid "Coherence Vector"
+msgstr ""
 
 msgid "Coherence Vector Options"
 msgstr ""
@@ -587,6 +593,9 @@ msgstr ""
 
 msgid "Insert Before"
 msgstr "Einfügung Bevor"
+
+msgid "Insert Vector"
+msgstr "Vektor einfügen"
 
 msgid "Insert Vector Before"
 msgstr ""
@@ -1005,6 +1014,9 @@ msgid "Select"
 msgstr "Auswählen"
 
 msgid "Sensitive"
+msgstr ""
+
+msgid "Set Simulation Engine"
 msgstr ""
 
 msgid "Set Simulation Type"

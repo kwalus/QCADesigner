@@ -186,6 +186,15 @@ graph_dialog_LDADD = \
 #################### combo_test #####################
 combo_test_DEFINES = -DSTDIO_FILEIO -DGTK_GUI
 
+combo_test_LIBS =	-lgtk-win32-2.0 \
+			-latk-1.0 \
+			-lpango-1.0 \
+			-lglib-2.0 \
+			-lgthread-2.0 \
+			-lgdk-win32-2.0 \
+			-lgobject-2.0 \
+			-lintl \
+			-lgdk_pixbuf-2.0
 combo_test_CFLAGS = \
 	$(combo_test_DEFINES) \
  	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \

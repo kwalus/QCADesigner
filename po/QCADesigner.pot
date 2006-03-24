@@ -1316,3 +1316,50 @@ msgstr ""
 msgid "Failed to open the reference simulation output file !\n"
 msgstr ""
 
+msgid "Failed to open simulation options file !\n"
+msgstr ""
+
+msgid "Running %d %s with a radial tolerance of %lf\n"
+msgstr ""
+
+msgid "simulation"
+msgstr ""
+
+msgid "simulations"
+msgstr ""
+
+msgid "Running simulation %d of %d\n"
+msgstr ""
+
+msgid "Reference output bus is: (0x%08x)\"%s\"\n"
+msgstr ""
+
+msgid "Output bus is: (0x%08x)\"%s\"\n"
+msgstr ""
+
+msgid "This run[%d] bus[%d] was %s\n"
+msgstr ""
+
+msgid "successful"
+msgstr ""
+
+msgid "unsuccessful"
+msgstr ""
+
+msgid "Output has more buses than reference !\n"
+msgstr ""
+
+msgid "Creating %s to record the failure.\n"
+msgstr ""
+
+msgid "Determining success for hcdRef = 0x%08x vs. hcdOut = 0x%08x\n"
+msgstr ""
+
+msgid "Honeycomb value[%d]: "
+msgstr ""
+
+msgid "reference: %llu "
+msgstr ""
+
+msgid "output: %llu\n"
+msgstr ""

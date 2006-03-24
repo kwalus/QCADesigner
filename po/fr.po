@@ -1348,3 +1348,70 @@ msgstr ""
 
 #~ msgid "Cell Function"
 #~ msgstr "Fonction des cellules"
+
+# From main_batch_sim.c:
+msgid
+"Simulation engine               : %s\n"
+"Simulation options file         : %s\n"
+"Circuit file                    : %s\n"
+"Reference simulation output file: %s\n"
+"number of simulations           : %d\n"
+"tolerance                       : %lf\n"
+"lower polarization threshold    : %lf\n"
+"upper polarization threshold    : %lf\n"
+"samples for running average     : %d\n"
+"exit on failure ?               : %s\n"
+"  failure output file name prefix : %s\n"
+"initial honeycombs to ignore    : %d\n"
+msgstr ""
+
+msgid "Failed to open the reference simulation output file !\n"
+msgstr ""
+
+msgid "Failed to open simulation options file !\n"
+msgstr ""
+
+msgid "Running %d %s with a radial tolerance of %lf\n"
+msgstr ""
+
+msgid "simulation"
+msgstr ""
+
+msgid "simulations"
+msgstr ""
+
+msgid "Running simulation %d of %d\n"
+msgstr ""
+
+msgid "Reference output bus is: (0x%08x)\"%s\"\n"
+msgstr ""
+
+msgid "Output bus is: (0x%08x)\"%s\"\n"
+msgstr ""
+
+msgid "This run[%d] bus[%d] was %s\n"
+msgstr ""
+
+msgid "successful"
+msgstr ""
+
+msgid "unsuccessful"
+msgstr ""
+
+msgid "Output has more buses than reference !\n"
+msgstr ""
+
+msgid "Creating %s to record the failure.\n"
+msgstr ""
+
+msgid "Determining success for hcdRef = 0x%08x vs. hcdOut = 0x%08x\n"
+msgstr ""
+
+msgid "Honeycomb value[%d]: "
+msgstr ""
+
+msgid "reference: %llu "
+msgstr ""
+
+msgid "output: %llu\n"
+msgstr ""

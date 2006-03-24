@@ -214,7 +214,7 @@ int main (int argc, char **argv)
             single_success =
               determine_success (hcdRef, hcdOut, cmdline_args.circuit_delay) ;
 
-            flush_fprintf (stderr, _("This run[%d] bus[%d] was %ssuccessful\n"), Nix, Nix1, 0 == single_success ? "un" : "") ;
+            flush_fprintf (stderr, _("This run[%d] bus[%d] was %s\n"), Nix, Nix1, 0 == single_success ? _("unsuccessful") : _("successful")) ;
             }
           else
             {

@@ -19,13 +19,29 @@ gtk_widget_set_name (combo, "my_combo");
 gtk_rc_parse_string (rc_string);
 */
 
-int main (int argc, char **argv)
+#ifdef QCAD_NO_CONSOLE
+// Use WinMain and set argc and argv to reasonable values
+int APIENTRY WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *pszCmdLine, int iCmdShow)
+#else /* ifndef QCAD_NO_CONSOLE */
+// Normally, we have a console
+int main (int argc, char *argv[])
+#endif /* def QCAD_NO_CONSOLE */
   {
+#ifdef WIN32
+#ifdef QCAD_NO_CONSOLE
+  int argc = 0 ;
+  char **argv = NULL ;
+#endif
+#endif /* ifdef WIN32 */
   DESIGN *design = NULL ;
   GtkWidget *wnd = NULL, *cb = NULL ;
   LAYERS_COMBO layers_combo = {NULL} ;
 
+#ifdef QCAD_NO_CONSOLE
+  gtk_preamble (&argc, &argv, NULL, pszCmdLine) ;
+#else
   gtk_preamble (&argc, &argv, NULL) ;
+#endif /* def QCAD_NO_CONSOLE */
 
   if (argc <= 1)
     {

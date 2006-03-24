@@ -721,19 +721,19 @@ msgid "Once deleted, a layer cannot be undeleted. Do you really want to delete l
 msgstr "Una volta eliminato uno strato non può essere recuperato. Vuoi veramente eliminare lo strato \"%s\"?"
 
 msgid "Open Design"
-msgstr "Aprire il Progetto"
+msgstr "Apri il Progetto"
 
 msgid "Open Simulation Results..."
-msgstr "Aprire i Risultati della Simulazione..."
+msgstr "Apri i Risultati della Simulazione..."
 
 msgid "_Open Simulation Results..."
-msgstr "_Aprire i Risultati della Simulazione..."
+msgstr "_Apri i Risultati della Simulazione..."
 
 msgid "Open Vector Table"
 msgstr "Aprire una Tavola di Vettori"
 
 msgid "Open a project file"
-msgstr "Aprire un file di Progetto"
+msgstr "Apri un file di Progetto"
 
 msgid "Open and display another set of simulation results."
 msgstr "Apri e mostra un altro insieme di risultati di simulazione"

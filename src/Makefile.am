@@ -215,9 +215,11 @@ graph_dialog_LDADD = \
 # 	@GTHREAD_LIBS@ 
 
 #################### combo_test #####################
+combo_test_DEFINES = -DSTDIO_FILEIO -DGTK_GUI
+
 combo_test_CFLAGS = \
  	-DGTK_GUI \
-  -DSTDIO_FILEIO \
+	-DSTDIO_FILEIO \
  	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
  	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
  	@GTK_CFLAGS@ \

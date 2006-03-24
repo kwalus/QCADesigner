@@ -1,6 +1,6 @@
 #include <gdk/gdkkeysyms.h>
 #include "../intl.h"
-#include "custom_widgets.h"
+#include "../custom_widgets.h"
 #include "QCADTreeViewCombo.h"
 
 typedef struct

@@ -812,6 +812,18 @@ msgstr "Papierbreite:"
 msgid "Phase"
 msgstr ""
 
+msgid "Phase Shift Clock 0 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 1 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 2 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 3 [% of PI/2]:"
+msgstr ""
+
 msgid "Please Select PostScript Viewer"
 msgstr "PostScript <viewer> auswählen"
 
@@ -1013,6 +1025,9 @@ msgstr "Datei auswählen"
 msgid "Select"
 msgstr "Auswählen"
 
+msgid "Selection extents: (%.2lf,%.2lf)[%.2lfx%.2lf] = %.2lf nm^2 = %.2lf um^2 Objects selected: %d\n"
+msgstr "Auswahlgröße: (%.2lf,%.2lf)[%.2lfx%.2lf] = %.2lf nm^2 = %.2lf um^2 Anzahl augewählter Objekte: %d\n"
+
 msgid "Sensitive"
 msgstr ""
 
@@ -1030,6 +1045,9 @@ msgstr "Beschreibung anzeigen"
 
 msgid "Show Potential"
 msgstr "Potenzial anzeigen"
+
+msgid "Show Scrollbars"
+msgstr "Rollbalken anzeigen"
 
 msgid "Show Toolbar Icons"
 msgstr "Werkseugleiste icons anzeigen"
@@ -1115,6 +1133,9 @@ msgstr ""
 
 msgid "This button allows you to manipulate your design."
 msgstr "Dieser Knopf erlaubt es Ihnen Ihren Design zu manipulieren."
+
+msgid "Three State Coherence"
+msgstr ""
 
 msgid "Three State Coherence Options"
 msgstr ""

@@ -774,6 +774,18 @@ msgstr "Larghezza carta:"
 msgid "Phase"
 msgstr "Fase"
 
+msgid "Phase Shift Clock 0 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 1 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 2 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 3 [% of PI/2]:"
+msgstr ""
+
 msgid "Please Select PostScript Viewer"
 msgstr "Prego Selezionare il Visualizzatore per PostScript"
 
@@ -972,6 +984,9 @@ msgstr "Seleziona il file"
 msgid "Select"
 msgstr "Seleziona"
 
+msgid "Selection extents: (%.2lf,%.2lf)[%.2lfx%.2lf] = %.2lf nm^2 = %.2lf um^2 Objects selected: %d\n"
+msgstr ""
+
 msgid "Sensitive"
 msgstr "Sensibile"
 
@@ -989,6 +1004,9 @@ msgstr "Mostra l'etichetta"
 
 msgid "Show Potential"
 msgstr "Mostra il Potenziale"
+
+msgid "Show Scrollbars"
+msgstr "Mostra barre di scorrimento"
 
 msgid "Show Toolbar Icons"
 msgstr "Mostra le icone nella barra degli strumenti"
@@ -1070,6 +1088,9 @@ msgstr "Lo stato di toggle del bottone"
 
 msgid "This button allows you to manipulate your design."
 msgstr "Questo bottone permette di manipolare il tuo progetto."
+
+msgid "Three State Coherence"
+msgstr "Vettore di Coerenza a tre Stati"
 
 msgid "Three State Coherence Options"
 msgstr "Opzioni Vettore di Coerenza a tre Stati"
@@ -1216,7 +1237,7 @@ msgid "_Hide All But The Selected Layer"
 msgstr "_Nascondi Tutto tranne il Strato Selezionato"
 
 msgid "_Import Block..."
-msgstr "_Importare il Blocco..."
+msgstr "_Importa uno Blocco..."
 
 msgid "_No Smoothing"
 msgstr ""

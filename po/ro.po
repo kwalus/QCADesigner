@@ -675,7 +675,7 @@ msgid "Make Selections And Manipulate Design"
 msgstr ""
 
 msgid "Makes a copy of your selection."
-msgstr "Copiază selectia."
+msgstr "Copiază selecţia."
 
 msgid "Map Layers"
 msgstr ""
@@ -808,6 +808,18 @@ msgstr "Lăţimea hârtiei:"
 
 msgid "Phase"
 msgstr "Faza"
+
+msgid "Phase Shift Clock 0 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 1 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 2 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 3 [% of PI/2]:"
+msgstr ""
 
 msgid "Please Select PostScript Viewer"
 msgstr ""
@@ -1010,14 +1022,17 @@ msgstr "Selectează fişierul"
 msgid "Select"
 msgstr "Selectează"
 
+msgid "Selection extents: (%.2lf,%.2lf)[%.2lfx%.2lf] = %.2lf nm^2 = %.2lf um^2 Objects selected: %d\n"
+msgstr "Mărimea selecţiei: (%.2lf,%.2lf)[%.2lfx%.2lf] = %.2lf nm^2 = %.2lf um^2 - %d obiecte selectate\n"
+
 msgid "Sensitive"
 msgstr ""
 
 msgid "Set Simulation Engine"
-msgstr ""
+msgstr "Alege Algoritmul de Simulaţie"
 
 msgid "Set Simulation Type"
-msgstr ""
+msgstr "Alege Tipul de Simulaţie"
 
 msgid "Set parameters for interpreting logical bits from polarizations."
 msgstr ""
@@ -1028,8 +1043,11 @@ msgstr ""
 msgid "Show Potential"
 msgstr ""
 
+msgid "Show Scrollbars"
+msgstr "Arată barele de defilare"
+
 msgid "Show Toolbar Icons"
-msgstr ""
+msgstr "Arată icoanele pe bara cu unelte"
 
 msgid "Show Values As Binary"
 msgstr "Afişează valorile binar"
@@ -1053,10 +1071,10 @@ msgid "Simulation Results..."
 msgstr "Rezultatele simulaţiei..."
 
 msgid "Simulation T_ype Setup..."
-msgstr "Setările tipului de simulaţie"
+msgstr "Setările t_ipului de simulaţie..."
 
 msgid "Simulation _Engine Setup..."
-msgstr ""
+msgstr "Setările _algoritmului de simulaţie..."
 
 msgid "Simulation found %d inputs %d outputs %d total cells\n"
 msgstr "Simulaţia: %d inputs, %d outputs, şi %d celule în total\n"
@@ -1110,6 +1128,9 @@ msgstr ""
 
 msgid "This button allows you to manipulate your design."
 msgstr "Acest buton vă permite să manipulaţi design-ul dvs."
+
+msgid "Three State Coherence"
+msgstr ""
 
 msgid "Three State Coherence Options"
 msgstr ""

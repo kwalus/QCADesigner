@@ -796,6 +796,18 @@ msgstr "Largeur du papier:"
 msgid "Phase"
 msgstr ""
 
+msgid "Phase Shift Clock 0 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 1 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 2 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 3 [% of PI/2]:"
+msgstr ""
+
 msgid "Please Select PostScript Viewer"
 msgstr ""
 
@@ -997,6 +1009,9 @@ msgstr ""
 msgid "Select"
 msgstr ""
 
+msgid "Selection extents: (%.2lf,%.2lf)[%.2lfx%.2lf] = %.2lf nm^2 = %.2lf um^2 Objects selected: %d\n"
+msgstr ""
+
 msgid "Sensitive"
 msgstr ""
 
@@ -1014,6 +1029,9 @@ msgstr ""
 
 msgid "Show Potential"
 msgstr ""
+
+msgid "Show Scrollbars"
+msgstr "Afficher ascenseurs"
 
 msgid "Show Toolbar Icons"
 msgstr ""
@@ -1096,6 +1114,9 @@ msgid "The toggle state of the button"
 msgstr ""
 
 msgid "This button allows you to manipulate your design."
+msgstr ""
+
+msgid "Three State Coherence"
 msgstr ""
 
 msgid "Three State Coherence Options"

@@ -28,6 +28,7 @@
 //////////////////////////////////////////////////////////
 
 #include <gtk/gtk.h>
+#include "../intl.h"
 #include "../callback_helpers.h"
 #include "../custom_widgets.h"
 #ifdef UNDO_REDO
@@ -300,7 +301,7 @@ gboolean button_released_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event
           selection_renderer_draw (project_options->srSelection, project_options->design, widget->window, GDK_XOR) ;
           }
 
-        command_history_message ("Selection extents: (%.2lf,%.2lf)[%.2lfx%.2lf] = %.2lf nm^2 = %.2lf um^2 Objects selected: %d\n",
+        command_history_message (_("Selection extents: (%.2lf,%.2lf)[%.2lfx%.2lf] = %.2lf nm^2 = %.2lf um^2 Objects selected: %d\n"),
           rcWorld.xWorld, rcWorld.yWorld, rcWorld.cxWorld, rcWorld.cyWorld,
           rcWorld.cxWorld * rcWorld.cyWorld,
           (rcWorld.cxWorld * rcWorld.cyWorld) / 1.0e6, icSelObjs) ;

@@ -18,7 +18,7 @@ msgid "1 nm is"
 msgstr ""
 
 msgid "<span foreground=\"red\">Warning:</span> The bus must have a name."
-msgstr ""
+msgstr "<span foreground=\"red\">Ostrzeżenie:</span> Magistrala musi miec nazwę."
 
 msgid "A file named \"%s\" already exists.\n\nDo you want to replace it with the one you are saving?"
 msgstr "Plik o nazwie \"%s\" już istnieje.\n\nCzy chcesz go zastąpić aktualnie zapisywanym plikiem?"
@@ -87,7 +87,7 @@ msgid "Attempt all possible inputs."
 msgstr ""
 
 msgid "Binary"
-msgstr ""
+msgstr "Dwójkowo"
 
 msgid "Bistable Approximation"
 msgstr ""
@@ -99,19 +99,19 @@ msgid "Bistable simulation:"
 msgstr ""
 
 msgid "Bottom Margin:"
-msgstr ""
+msgstr "Dolny margines:"
 
 msgid "Bring various parts of the design into view by dragging visible parts of the design out of view."
 msgstr ""
 
 msgid "Browse..."
-msgstr ""
+msgstr "Przeglądaj..."
 
 msgid "Bus Layout"
 msgstr ""
 
 msgid "Bus Name:"
-msgstr ""
+msgstr "Nazwa Magistrali:"
 
 msgid "Calculates and sets the magnification such that the currently topmost layer fits inside the window."
 msgstr ""
@@ -135,7 +135,7 @@ msgid "Cannot zoom to the layer extents, because the design is empty"
 msgstr ""
 
 msgid "Cell Clock"
-msgstr ""
+msgstr "Zegar komórowy"
 
 msgid "Cell Drawing Mode"
 msgstr ""
@@ -147,10 +147,10 @@ msgid "Cell Function:Normal/Input/Output/Fixed"
 msgstr ""
 
 msgid "Cell Height"
-msgstr ""
+msgstr "Wysokość komórki"
 
 msgid "Cell Height:"
-msgstr ""
+msgstr "Wysokość komórki:"
 
 msgid "Cell Label"
 msgstr ""
@@ -159,10 +159,10 @@ msgid "Cell Polarization"
 msgstr ""
 
 msgid "Cell Width"
-msgstr ""
+msgstr "Szerokość komórki"
 
 msgid "Cell"
-msgstr ""
+msgstr "Komórka"
 
 msgid "Cells And Buses"
 msgstr ""
@@ -189,16 +189,16 @@ msgid "Click on any selected destination layer to change it:"
 msgstr ""
 
 msgid "Clock 0"
-msgstr ""
+msgstr "Zegar 0"
 
 msgid "Clock 1"
-msgstr ""
+msgstr "Zegar 1"
 
 msgid "Clock 2"
-msgstr ""
+msgstr "Zegar 2"
 
 msgid "Clock 3"
-msgstr ""
+msgstr "Zegar 3"
 
 msgid "Clock Amplitude Factor:"
 msgstr ""
@@ -231,7 +231,7 @@ msgid "Clock phase"
 msgstr ""
 
 msgid "Clock"
-msgstr ""
+msgstr "Zegar"
 
 msgid "Close Window"
 msgstr ""
@@ -240,7 +240,7 @@ msgid "Close simulation results window."
 msgstr ""
 
 msgid "Close the project file"
-msgstr ""
+msgstr "Zamknij plik projektowy"
 
 msgid "Close vector table editor."
 msgstr ""
@@ -270,7 +270,7 @@ msgid "_Contents"
 msgstr "_Zawartość"
 
 msgid "Contributers:"
-msgstr ""
+msgstr "Wspolpraca:"
 
 msgid "Convergence Tolerance:"
 msgstr ""
@@ -282,7 +282,7 @@ msgid "Converts graphs to PostScript and runs the previewer application."
 msgstr ""
 
 msgid "Copy Selection"
-msgstr ""
+msgstr "Skopiuj wybor"
 
 msgid "Copy"
 msgstr "Skopiuj"
@@ -333,7 +333,7 @@ msgid "DC Offset"
 msgstr ""
 
 msgid "Decimal"
-msgstr ""
+msgstr "Dzieśiątkowo"
 
 msgid "Decrease The Magnification"
 msgstr ""
@@ -621,7 +621,7 @@ msgid "Layers"
 msgstr ""
 
 msgid "Left Margin:"
-msgstr ""
+msgstr "Lewy margines:"
 
 msgid "List of default objects"
 msgstr ""
@@ -651,7 +651,7 @@ msgid "Map Layers"
 msgstr ""
 
 msgid "Margins"
-msgstr ""
+msgstr "Marginesy"
 
 msgid "Maximum Iterations Per Sample:"
 msgstr ""
@@ -723,16 +723,16 @@ msgid "Open Design"
 msgstr ""
 
 msgid "Open Simulation Results..."
-msgstr ""
+msgstr "Otwórz wynik symulacji..."
 
 msgid "_Open Simulation Results..."
-msgstr ""
+msgstr "_Otwórz wynik symulacji..."
 
 msgid "Open Vector Table"
 msgstr ""
 
 msgid "Open a project file"
-msgstr ""
+msgstr "Otwórz plik projektowy"
 
 msgid "Open and display another set of simulation results."
 msgstr ""
@@ -771,6 +771,18 @@ msgid "Paper Width:"
 msgstr "Szerokość papieru:"
 
 msgid "Phase"
+msgstr ""
+
+msgid "Phase Shift Clock 0 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 1 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 2 [% of PI/2]:"
+msgstr ""
+
+msgid "Phase Shift Clock 3 [% of PI/2]:"
 msgstr ""
 
 msgid "Please Select PostScript Viewer"
@@ -936,13 +948,13 @@ msgid "Save Output To _File..."
 msgstr ""
 
 msgid "Save Simulation Results"
-msgstr ""
+msgstr "Zapisz wynik symulacji"
 
 msgid "Save Vector Table"
 msgstr ""
 
 msgid "Save current project"
-msgstr ""
+msgstr "Zapisz aktualny project"
 
 msgid "Save project file as ..."
 msgstr ""
@@ -960,7 +972,7 @@ msgid "Scale Factor:"
 msgstr ""
 
 msgid "Scale"
-msgstr ""
+msgstr "Skala"
 
 msgid "Select Command"
 msgstr ""
@@ -969,6 +981,9 @@ msgid "Select File"
 msgstr ""
 
 msgid "Select"
+msgstr "Wybierz"
+
+msgid "Selection extents: (%.2lf,%.2lf)[%.2lfx%.2lf] = %.2lf nm^2 = %.2lf um^2 Objects selected: %d\n"
 msgstr ""
 
 msgid "Sensitive"
@@ -989,17 +1004,20 @@ msgstr ""
 msgid "Show Potential"
 msgstr ""
 
+msgid "Show Scrollbars"
+msgstr "Wyświetl paski przewijania"
+
 msgid "Show Toolbar Icons"
-msgstr ""
+msgstr "Wyświetl ikony w pasku narzędzi"
 
 msgid "Show Values As Binary"
-msgstr ""
+msgstr "Wyświetl wartośći dwójkowo"
 
 msgid "Show Values As Decimal"
-msgstr ""
+msgstr "Wyświetl wartośći dzieśiątkowo"
 
 msgid "Show Values As Hexadecimal"
-msgstr ""
+msgstr "Wyświetl wartośći szesnastkowo"
 
 msgid "Show potential created by the electrodes on this layer"
 msgstr ""
@@ -1008,10 +1026,10 @@ msgid "Show/Hide Property UI"
 msgstr ""
 
 msgid "Simulation Results"
-msgstr ""
+msgstr "Wynik symulacji"
 
 msgid "Simulation Results..."
-msgstr ""
+msgstr "Wynik symulacji..."
 
 msgid "Simulation T_ype Setup..."
 msgstr ""
@@ -1047,7 +1065,7 @@ msgid "Template for new layer"
 msgstr ""
 
 msgid "Template"
-msgstr ""
+msgstr "Szablon"
 
 msgid "Text"
 msgstr "Tekst"
@@ -1070,6 +1088,9 @@ msgstr ""
 msgid "This button allows you to manipulate your design."
 msgstr ""
 
+msgid "Three State Coherence"
+msgstr ""
+
 msgid "Three State Coherence Options"
 msgstr ""
 
@@ -1086,7 +1107,7 @@ msgid "Time coordinate to draw the potential for"
 msgstr ""
 
 msgid "Title"
-msgstr ""
+msgstr "Tytuł"
 
 msgid "Toggle between two different display modes."
 msgstr ""
@@ -1095,10 +1116,10 @@ msgid "Toggle state"
 msgstr ""
 
 msgid "Tooltip"
-msgstr ""
+msgstr "Podpowiedź"
 
 msgid "Top Margin:"
-msgstr ""
+msgstr "Górny margines:"
 
 msgid "Total simulation time: %g s\n"
 msgstr ""
@@ -1128,13 +1149,13 @@ msgid "Units"
 msgstr ""
 
 msgid "Untitled Bus"
-msgstr ""
+msgstr "Magistrala bez nazwy"
 
 msgid "Untitled Layer"
 msgstr ""
 
 msgid "Untitled"
-msgstr ""
+msgstr "Bez nazwy"
 
 msgid "Upper Threshold [1]:"
 msgstr ""
@@ -1233,10 +1254,10 @@ msgid "_Scale All Cells In Design..."
 msgstr ""
 
 msgid "_Simulation"
-msgstr ""
+msgstr "_Symulacja"
 
 msgid "_Start Simulation"
-msgstr ""
+msgstr "_Rozpocznij symulacje"
 
 msgid "_Tools"
 msgstr "_Narzędzia"

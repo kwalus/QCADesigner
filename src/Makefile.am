@@ -183,37 +183,6 @@ graph_dialog_LDADD = \
 	$(INTLLIBS) \
 	@GTHREAD_LIBS@ 
 
-#################### test ###########################
-# test_CFLAGS = \
-# 	-DGTK_GUI \
-# 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-# 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-# 	@GTK_CFLAGS@ \
-# 	@GTHREAD_CFLAGS@
-# 
-# test_SOURCES = \
-# 	hsl2rgb.c                                  hsl2rgb.h \
-# 	gtk_preamble.c                             gtk_preamble.h \
-# 	exp_array.c                                exp_array.h \
-# 	custom_widgets.c                           custom_widgets.h \
-# 	support.c                                  support.h \
-# 	drag_rect.c                                drag_rect.h \
-# \
-#         $(OBJECT_FILES) \
-# \
-# 	objects/QCADClockCombo.c                   objects/QCADClockCombo.h \
-# 	exp_pixmap.c                               exp_pixmap.h \
-# \
-# 	objects/object_helpers.c                   objects/object_helpers.h \
-# 	generic_utils.c                            generic_utils.h \
-# 	main_test.c
-# 
-# test_LDADD = \
-# 	-lm \
-# 	@GTK_LIBS@ \
-# 	$(INTLLIBS) \
-# 	@GTHREAD_LIBS@ 
-
 #################### combo_test #####################
 combo_test_DEFINES = -DSTDIO_FILEIO -DGTK_GUI
 

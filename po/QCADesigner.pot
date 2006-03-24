@@ -1296,3 +1296,23 @@ msgstr ""
 
 msgid "Total initialization time: %g s\n"
 msgstr ""
+
+# From main_batch_sim.c:
+msgid
+"Simulation engine               : %s\n"
+"Simulation options file         : %s\n"
+"Circuit file                    : %s\n"
+"Reference simulation output file: %s\n"
+"number of simulations           : %d\n"
+"tolerance                       : %lf\n"
+"lower polarization threshold    : %lf\n"
+"upper polarization threshold    : %lf\n"
+"samples for running average     : %d\n"
+"exit on failure ?               : %s\n"
+"  failure output file name prefix : %s\n"
+"initial honeycombs to ignore    : %d\n"
+msgstr ""
+
+msgid "Failed to open the reference simulation output file !\n"
+msgstr ""
+

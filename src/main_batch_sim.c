@@ -125,13 +125,13 @@ int main (int argc, char **argv)
 
   if (!open_project_file (cmdline_args.pszFName, &design))
     {
-    flush_fprintf (stderr, _("Failed to open the circuit file !\n")) ;
+    flush_fprintf (stderr, _("Failed to open file \"%s\"!"), cmdline_args.pszFName) ;
     return 1 ;
     }
   else
   if (NULL == design)
     {
-    flush_fprintf (stderr, _("Failed to open the circuit file !\n")) ;
+    flush_fprintf (stderr, _("Failed to open file \"%s\"!"), cmdline_args.pszFName) ;
     return 1 ;
     }
 

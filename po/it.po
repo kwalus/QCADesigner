@@ -637,10 +637,10 @@ msgid "Main Cell Layer"
 msgstr "Strato di Celle Principale"
 
 msgid "Make Cell(s) Less Significant"
-msgstr "Rendere meno Significativo (una o più celle)"
+msgstr "Rendi meno Significativo (una o più celle)"
 
 msgid "Make Cell(s) More Significant"
-msgstr "Rendere più Significativo (una o più celle)"
+msgstr "Rendi più Significativo (una o più celle)"
 
 msgid "Make Selections And Manipulate Design"
 msgstr "Fa Selezioni e Manipola il progetto"
@@ -1129,13 +1129,13 @@ msgid "Trace"
 msgstr "Traccia"
 
 msgid "Translate Selection"
-msgstr "Traslare la Selezione"
+msgstr "Trasla la Selezione"
 
 msgid "Translate your selection horizontally and/or vertically."
 msgstr "Trasla la tua selezione orizzontalmente e/o verticalmente."
 
 msgid "Translate"
-msgstr "Traslare"
+msgstr "Trasla"
 
 msgid "Tunneling Energy:"
 msgstr "Energia di Tunnel"

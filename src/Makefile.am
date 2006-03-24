@@ -22,7 +22,7 @@ QCADesigner_LIBS =	-lgtk-win32-2.0 \
 			-lgdk_pixbuf-2.0
 
 QCADesigner_CFLAGS = \
-  $(QCADesigner_DEFINES) \
+	$(QCADesigner_DEFINES) \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	@GTK_CFLAGS@ \
@@ -145,7 +145,7 @@ graph_dialog_LIBS =	-lgtk-win32-2.0 \
 			-lgdk_pixbuf-2.0
 
 graph_dialog_CFLAGS = \
-  $(graph_dialog_DEFINES) \
+	$(graph_dialog_DEFINES) \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	@GTK_CFLAGS@ \
@@ -218,8 +218,7 @@ graph_dialog_LDADD = \
 combo_test_DEFINES = -DSTDIO_FILEIO -DGTK_GUI
 
 combo_test_CFLAGS = \
- 	-DGTK_GUI \
-	-DSTDIO_FILEIO \
+	$(combo_test_DEFINES) \
  	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
  	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
  	@GTK_CFLAGS@ \

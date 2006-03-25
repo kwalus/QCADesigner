@@ -856,7 +856,7 @@ msgid "QCA Rectangular Electrode"
 msgstr "Elettrodo Rettangolare QCA"
 
 msgid "Quit QCADesigner"
-msgstr "Esci QCADesigner"
+msgstr "Esci da QCADesigner"
 
 msgid "Radius of Effect [nm]:"
 msgstr "Raggio di Efficacia [nm]:"

@@ -1050,7 +1050,7 @@ msgid "Show Scrollbars"
 msgstr "Rollbalken anzeigen"
 
 msgid "Show Toolbar Icons"
-msgstr "Werkseugleiste icons anzeigen"
+msgstr "Werkseugleiste Icons anzeigen"
 
 msgid "Show Values As Binary"
 msgstr "Werte binär anzeigen"

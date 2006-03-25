@@ -33,8 +33,6 @@ static void set_tooltip (QCADPropertyUISingle *property_ui, GtkTooltips *tooltip
 #endif /* def GTK_GUI */
 
 #ifdef GTK_GUI
-static void qcad_property_ui_int_instance_notify (GObject *obj, GParamSpec *pspec, gpointer data) ;
-static void qcad_property_ui_int_option_menu_item_activate (GtkWidget *widget, gpointer data) ;
 static void qcad_property_ui_int_set_render_as (QCADPropertyUIInt *property_ui_int, GType type) ;
 static void qcad_property_ui_int_create_option_menu (QCADPropertyUIInt *property_ui_int) ;
 #endif /* def GTK_GUI */
@@ -86,6 +84,7 @@ static void qcad_property_ui_int_class_init (QCADPropertyUIIntClass *klass)
 
 static void qcad_property_ui_int_instance_init (QCADPropertyUIInt *property_ui_int)
   {
+  GtkCellRenderer *cr = NULL ;
   QCADPropertyUI *property_ui = QCAD_PROPERTY_UI (property_ui_int) ;
 #ifdef GTK_GUI
   QCADPropertyUINumeric *property_ui_numeric = QCAD_PROPERTY_UI_NUMERIC (property_ui_int) ;
@@ -109,7 +108,9 @@ static void qcad_property_ui_int_instance_init (QCADPropertyUIInt *property_ui_i
   property_ui_numeric->lblUnits.idxX   = 2 ;
   property_ui_numeric->lblUnits.idxY   = 0 ;
 
-  property_ui_int->option_menu.widget = gtk_option_menu_new () ;
+  property_ui_int->option_menu.widget = gtk_combo_box_new () ;
+  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (property_ui_int->option_menu.widget), cr = gtk_cell_renderer_text_new (), FALSE) ;
+  gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (property_ui_int->option_menu.widget), cr, "text", 0) ;
   g_object_ref (G_OBJECT (property_ui_int->option_menu.widget)) ;
   property_ui_int->option_menu.idxX   = 1 ;
   property_ui_int->option_menu.idxY   = 0 ;
@@ -208,7 +209,6 @@ static void set_pspec (QCADPropertyUISingle *property_ui, GParamSpec *new_pspec)
 
 static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance, GObject *old_instance)
   {
-  char *psz = NULL ;
   QCADPropertyUIInt    *property_ui_int    = QCAD_PROPERTY_UI_INT (property_ui) ;
   QCADPropertyUISingle *property_ui_single = QCAD_PROPERTY_UI_SINGLE (property_ui) ;
 
@@ -217,11 +217,18 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance
       {
       if (NULL != old_instance)
         {
-        if (0 != property_ui_int->notify_id)
-          g_signal_handler_disconnect (old_instance, property_ui_int->notify_id) ;
         disconnect_object_properties (old_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_int->adj), "value",
           CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL, 
           CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
+        if (g_type_is_a (G_PARAM_SPEC_VALUE_TYPE (property_ui_single->pspec), G_TYPE_INT))
+          disconnect_object_properties (old_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_int->option_menu.widget), "active",
+            CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET,   (gpointer)(((GParamSpecInt *)(property_ui_single->pspec))->minimum),  NULL, 
+            CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET, (gpointer)(-(((GParamSpecInt *)(property_ui_single->pspec))->minimum)), NULL) ;
+        else
+        if (g_type_is_a (G_PARAM_SPEC_VALUE_TYPE (property_ui_single->pspec), G_TYPE_UINT))
+          disconnect_object_properties (old_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_int->option_menu.widget), "active",
+            CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET,   (gpointer)(((GParamSpecUInt *)(property_ui_single->pspec))->minimum),  NULL, 
+            CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET, (gpointer)(-(((GParamSpecUInt *)(property_ui_single->pspec))->minimum)), NULL) ;
         }
 
       if (NULL != new_instance)
@@ -229,10 +236,15 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance
         connect_object_properties (new_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_int->adj), "value", 
           CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL, 
           CONNECT_OBJECT_PROPERTIES_ASSIGN, NULL, NULL) ;
-        psz = g_strdup_printf ("notify::%s", property_ui_single->pspec->name) ;
-        property_ui_int->notify_id = 
-          g_signal_connect (G_OBJECT (new_instance), psz, (GCallback)qcad_property_ui_int_instance_notify, property_ui) ;
-        g_free (psz) ;
+        if (g_type_is_a (G_PARAM_SPEC_VALUE_TYPE (property_ui_single->pspec), G_TYPE_INT))
+          connect_object_properties (new_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_int->option_menu.widget), "active",
+            CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET,   (gpointer)(((GParamSpecInt *)(property_ui_single->pspec))->minimum),  NULL, 
+            CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET, (gpointer)(-(((GParamSpecInt *)(property_ui_single->pspec))->minimum)), NULL) ;
+        else
+        if (g_type_is_a (G_PARAM_SPEC_VALUE_TYPE (property_ui_single->pspec), G_TYPE_UINT))
+          connect_object_properties (new_instance, property_ui_single->pspec->name, G_OBJECT (property_ui_int->option_menu.widget), "active",
+            CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET,   (gpointer)(((GParamSpecUInt *)(property_ui_single->pspec))->minimum),  NULL, 
+            CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET, (gpointer)(-(((GParamSpecUInt *)(property_ui_single->pspec))->minimum)), NULL) ;
 
         g_object_notify (new_instance, property_ui_single->pspec->name) ;
         }
@@ -267,35 +279,6 @@ static void set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitive)
     gtk_widget_set_sensitive (QCAD_PROPERTY_UI_INT (property_ui)->option_menu.widget, bSensitive) ;
   }
 
-static void qcad_property_ui_int_instance_notify (GObject *obj, GParamSpec *pspec, gpointer data)
-  {
-  GValue val = {0, }, val_int = {0, } ;
-  QCADPropertyUIInt *property_ui_int = QCAD_PROPERTY_UI_INT (data) ;
-
-  if (pspec != QCAD_PROPERTY_UI_SINGLE (data)->pspec) return ;
-
-  g_value_init (&val,     G_PARAM_SPEC_VALUE_TYPE (pspec)) ;
-  g_value_init (&val_int, G_TYPE_INT) ;
-
-  g_object_get_property (obj, pspec->name, &val) ;
-
-  g_value_transform (&val, &val_int) ;
-
-  if (gtk_option_menu_get_history (GTK_OPTION_MENU (property_ui_int->option_menu.widget)) != (g_value_get_int (&val_int) - property_ui_int->adj->lower))
-    gtk_option_menu_set_history (GTK_OPTION_MENU (property_ui_int->option_menu.widget), g_value_get_int (&val_int) - property_ui_int->adj->lower) ;
-
-  g_value_unset (&val) ;
-  g_value_unset (&val_int) ;
-  }
-
-static void qcad_property_ui_int_option_menu_item_activate (GtkWidget *widget, gpointer data)
-  {
-  QCADPropertyUI *property_ui = QCAD_PROPERTY_UI (data) ;
-
-  if (NULL != property_ui->instance)
-    g_object_set (property_ui->instance, QCAD_PROPERTY_UI_SINGLE (data)->pspec->name, (int)g_object_get_data (G_OBJECT (widget), "val"), NULL) ;
-  }
-
 static void qcad_property_ui_int_set_render_as (QCADPropertyUIInt *property_ui_int, GType type)
   {
   if (type == property_ui_int->render_as) return ;
@@ -312,11 +295,11 @@ static void qcad_property_ui_int_create_option_menu (QCADPropertyUIInt *property
   int Nix ;
   char *psz = NULL ;
   char *pszPrefix = NULL ;
-  GtkWidget *mnu = NULL, *mnui = NULL ;
   QCADPropertyUISingle *property_ui_single = QCAD_PROPERTY_UI_SINGLE (property_ui_int) ;
+  GtkListStore *ls = NULL ;
+  GtkTreeIter itr ;
 
-  mnu = gtk_menu_new () ;
-  gtk_widget_show (mnu) ;
+  ls = gtk_list_store_new (1, G_TYPE_STRING) ;
 
   if (NULL != property_ui_single->pspec)
     if (NULL != (pszPrefix = (char *)g_param_spec_get_nick (property_ui_single->pspec)))
@@ -329,14 +312,11 @@ static void qcad_property_ui_int_create_option_menu (QCADPropertyUIInt *property
       psz = g_strdup_printf ("%d", Nix) ;
     else
       psz = g_strdup_printf ("%s %d", pszPrefix, Nix) ;
-    mnui = gtk_menu_item_new_with_label (psz) ;
-    gtk_widget_show (mnui) ;
-    g_object_set_data (G_OBJECT (mnui), "val", (gpointer)Nix) ;
+    gtk_list_store_append (ls, &itr) ;
+    gtk_list_store_set (ls, &itr, 0, psz, -1) ;
     g_free (psz) ;
-    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
-    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)qcad_property_ui_int_option_menu_item_activate, property_ui_int) ;
     }
-  gtk_option_menu_set_menu (GTK_OPTION_MENU (property_ui_int->option_menu.widget), mnu) ;
-  gtk_option_menu_set_history (GTK_OPTION_MENU (property_ui_int->option_menu.widget), property_ui_int->adj->value - property_ui_int->adj->lower) ;
+  g_object_set (G_OBJECT (property_ui_int->option_menu.widget), "model", ls, NULL) ;
+  g_object_notify (QCAD_PROPERTY_UI (property_ui_int)->instance, g_param_spec_get_name (property_ui_single->pspec)) ;
   }
 #endif /* def GTK_GUI */

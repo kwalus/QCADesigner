@@ -64,9 +64,8 @@ static void qcad_property_ui_text_instance_init (QCADPropertyUIText *property_ui
   property_ui->cyWidgets  = 1 ;
 
 #ifdef GTK_GUI
-  property_ui_text->entry.widget = gtk_entry_new () ;
+  property_ui_text->entry.widget = g_object_new (GTK_TYPE_ENTRY, "visible", TRUE, "activates-default", TRUE, NULL) ;
   g_object_ref (G_OBJECT (property_ui_text->entry.widget)) ;
-  gtk_widget_show (property_ui_text->entry.widget) ;
   property_ui_text->entry.idxX   = 1 ;
   property_ui_text->entry.idxY   = 0 ;
 #endif /* def GTK_GUI */

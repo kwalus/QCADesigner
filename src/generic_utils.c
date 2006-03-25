@@ -447,6 +447,23 @@ void CONNECT_OBJECT_PROPERTIES_ASSIGN (GValue *val_src, GValue *val_dst, gpointe
   g_value_unset (&val_src_copy) ;
   }
 
+void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET (GValue *val_src, GValue *val_dst, gpointer data)
+  {
+  GValue val_src_copy = {0, } ;
+
+  g_value_init (&val_src_copy, G_VALUE_TYPE (val_src)) ;
+
+  if (g_type_is_a (G_VALUE_TYPE (val_src), G_TYPE_INT))
+    g_value_set_int (&val_src_copy, g_value_get_int (val_src) + (gint)data) ;
+  else
+  if (g_type_is_a (G_VALUE_TYPE (val_src), G_TYPE_UINT))
+    g_value_set_uint (&val_src_copy, g_value_get_uint (val_src) + (gint)data) ;
+
+  g_value_transform (&val_src_copy, val_dst) ;
+
+  g_value_unset (&val_src_copy) ;
+  }
+
 void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P (GValue *val_src, GValue *val_dst, gpointer data)
   {
   int Nix ;
@@ -480,4 +497,39 @@ void CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA (GValue *val_src, GV
   else
   if (g_type_is_a (G_VALUE_TYPE (val_dst), G_TYPE_FLAGS))
     g_value_set_flags (val_dst, ((guint *)data)[g_value_get_boolean (val_src) ? 0 : 1]) ;
+  }
+
+void CONNECT_OBJECT_PROPERTIES_ASSIGN_ENUM_FROM_IDX (GValue *val_src, GValue *val_dst, gpointer data)
+  {
+  GEnumClass *klass = g_type_class_ref (G_VALUE_TYPE (val_dst)) ;
+
+  if (NULL == klass)
+    CONNECT_OBJECT_PROPERTIES_ASSIGN (val_src, val_dst, NULL) ;
+  else
+    {
+    int idx = g_value_get_int (val_src) ;
+    if (idx < 0 || idx >= klass->n_values)
+      CONNECT_OBJECT_PROPERTIES_ASSIGN (val_src, val_dst, NULL) ;
+    else
+      g_value_set_enum (val_dst, (klass->values)[idx].value) ;
+    }
+  }
+
+void CONNECT_OBJECT_PROPERTIES_ASSIGN_IDX_FROM_ENUM (GValue *val_src, GValue *val_dst, gpointer data)
+  {
+  int Nix = -1 ;
+  GEnumClass *klass = g_type_class_ref (G_VALUE_TYPE (val_src)) ;
+
+  if (NULL != klass)
+    {
+    gint val = g_value_get_enum (val_src) ;
+
+    for (Nix = 0 ; Nix < klass->n_values ; Nix++)
+      if (((klass->values)[Nix]).value == val)
+        break ;
+
+    if (Nix == klass->n_values) Nix = -1 ;
+    }
+
+  g_value_set_int (val_dst, Nix) ;
   }

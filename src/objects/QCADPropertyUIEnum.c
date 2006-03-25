@@ -23,7 +23,7 @@ static gboolean   set_instance  (QCADPropertyUI *property_ui, GObject *new_insta
 static void set_pspec   (QCADPropertyUISingle *property_ui_single, GParamSpec *new_pspec) ;
 static void set_tooltip (QCADPropertyUISingle *property_ui_single, GtkTooltips *tooltip) ;
 
-static void option_menu_item_activate (GtkWidget *widget, gpointer data) ;
+//static void option_menu_item_activate (GtkWidget *widget, gpointer data) ;
 static void radio_button_toggled (GtkWidget *widget, gpointer data) ;
 static void qcad_property_ui_enum_instance_notify (GObject *obj, GParamSpec *pspec, gpointer data) ;
 
@@ -78,11 +78,15 @@ static void qcad_property_ui_enum_class_init (QCADPropertyUIEnumClass *klass)
 
 static void qcad_property_ui_enum_instance_init (QCADPropertyUIEnum *property_ui_enum)
   {
+  GtkCellRenderer *cr = NULL ;
+
   QCAD_PROPERTY_UI (property_ui_enum)->cxWidgets = 2 ;
   QCAD_PROPERTY_UI (property_ui_enum)->cyWidgets = 1 ;
 
 #ifdef GTK_GUI
-  property_ui_enum->option_menu.widget = gtk_option_menu_new () ;
+  property_ui_enum->option_menu.widget = gtk_combo_box_new () ;
+  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (property_ui_enum->option_menu.widget), cr = gtk_cell_renderer_text_new (), FALSE) ;
+  gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (property_ui_enum->option_menu.widget), cr, "text", 0) ;
   g_object_ref (G_OBJECT (property_ui_enum->option_menu.widget)) ;
   gtk_widget_show (property_ui_enum->option_menu.widget) ;
   property_ui_enum->option_menu.idxX = 1 ;
@@ -165,9 +169,10 @@ static void set_tooltip (QCADPropertyUISingle *property_ui_single, GtkTooltips *
 static void set_pspec (QCADPropertyUISingle *property_ui_single, GParamSpec *new_pspec)
   {
   int Nix ;
-  GtkWidget *mnu = NULL, *mnui = NULL ;
   GParamSpecEnum *new_pspec_enum = NULL ;
   QCADPropertyUIEnum *property_ui_enum = QCAD_PROPERTY_UI_ENUM (property_ui_single) ;
+  GtkListStore *ls = NULL ;
+  GtkTreeIter itr ;
 
   if (!G_IS_PARAM_SPEC_ENUM (new_pspec)) return ;
 
@@ -175,20 +180,15 @@ static void set_pspec (QCADPropertyUISingle *property_ui_single, GParamSpec *new
 
   gtk_container_remove (GTK_CONTAINER (property_ui_enum->frame.widget), property_ui_enum->tbl) ;
 
-  mnu = g_object_new (GTK_TYPE_MENU, "visible", TRUE, NULL) ;
-
   property_ui_enum->tbl = g_object_new (GTK_TYPE_TABLE, "visible", TRUE, "n-columns", 1, "n-rows", 1, "border-width", 2, NULL) ;
   gtk_container_add (GTK_CONTAINER (property_ui_enum->frame.widget), property_ui_enum->tbl) ;
   gtk_frame_set_label (GTK_FRAME (property_ui_enum->frame.widget), g_param_spec_get_nick (new_pspec)) ;
+  ls = gtk_list_store_new (1, G_TYPE_STRING) ;
 
   for (Nix = 0 ; Nix < new_pspec_enum->enum_class->n_values ; Nix++)
     {
-    mnui = gtk_menu_item_new_with_label ((new_pspec_enum->enum_class->values)[Nix].value_nick) ;
-    gtk_widget_show (mnui) ;
-    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
-    g_object_set_data (G_OBJECT (mnui), "enum-value", (gpointer)((new_pspec_enum->enum_class->values)[Nix].value)) ;
-    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)option_menu_item_activate, property_ui_enum) ;
-
+    gtk_list_store_append (ls, &itr) ;
+    gtk_list_store_set (ls, &itr, 0, (new_pspec_enum->enum_class->values)[Nix].value_nick, -1) ;
     property_ui_enum->rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (property_ui_enum->rb), (new_pspec_enum->enum_class->values)[Nix].value_nick) ;
     gtk_widget_show (property_ui_enum->rb) ;
     gtk_table_attach (GTK_TABLE (property_ui_enum->tbl), property_ui_enum->rb, 0, 1, Nix, Nix + 1, GTK_FILL, GTK_FILL, 2, 2) ;
@@ -196,7 +196,7 @@ static void set_pspec (QCADPropertyUISingle *property_ui_single, GParamSpec *new
     g_signal_connect (G_OBJECT (property_ui_enum->rb), "toggled", (GCallback)radio_button_toggled, property_ui_enum) ;
     }
 
-  gtk_option_menu_set_menu (GTK_OPTION_MENU (property_ui_enum->option_menu.widget), mnu) ;
+  g_object_set (G_OBJECT (property_ui_enum->option_menu.widget), "model", ls, NULL) ;
 
   QCAD_PROPERTY_UI_SINGLE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_ENUM)))->set_pspec (property_ui_single, new_pspec) ;
   }
@@ -260,7 +260,12 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance
     char *psz = NULL ;
 
     if (NULL != old_instance)
+      {
       g_signal_handler_disconnect (G_OBJECT (old_instance), property_ui_enum->notify_id) ;
+      disconnect_object_properties (G_OBJECT (property_ui_enum->option_menu.widget), "active", old_instance, (char *)g_param_spec_get_name (property_ui_single->pspec),
+        CONNECT_OBJECT_PROPERTIES_ASSIGN_ENUM_FROM_IDX, NULL, NULL,
+        CONNECT_OBJECT_PROPERTIES_ASSIGN_IDX_FROM_ENUM, NULL, NULL) ;
+      }
 
     if (NULL == property_ui_single->pspec) return FALSE ;
 
@@ -271,6 +276,9 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance
           psz = g_strdup_printf ("notify::%s", property_ui_single->pspec->name),
           (GCallback)qcad_property_ui_enum_instance_notify, property_ui) ;
       g_free (psz) ;
+      connect_object_properties (G_OBJECT (property_ui_enum->option_menu.widget), "active", new_instance, (char *)g_param_spec_get_name (property_ui_single->pspec),
+        CONNECT_OBJECT_PROPERTIES_ASSIGN_ENUM_FROM_IDX, NULL, NULL,
+        CONNECT_OBJECT_PROPERTIES_ASSIGN_IDX_FROM_ENUM, NULL, NULL) ;
       g_object_notify (G_OBJECT (new_instance), property_ui_single->pspec->name) ;
       }
     return TRUE ;
@@ -278,10 +286,10 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance
 
   return FALSE ;
   }
-
+/*
 static void option_menu_item_activate (GtkWidget *widget, gpointer data)
   {set_enum_property_cond (QCAD_PROPERTY_UI (data), (gint)g_object_get_data (G_OBJECT (widget), "enum-value")) ;}
-
+*/
 static void radio_button_toggled (GtkWidget *widget, gpointer data)
   {
   if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) return ;
@@ -304,8 +312,8 @@ static void qcad_property_ui_enum_instance_notify (GObject *obj, GParamSpec *psp
 
   if (idx == pspec_enum->enum_class->n_values) return ;
 
-  if (gtk_option_menu_get_history (GTK_OPTION_MENU (property_ui_enum->option_menu.widget)) == idx) return ;
-  gtk_option_menu_set_history (GTK_OPTION_MENU (property_ui_enum->option_menu.widget), idx) ;
+//  if (gtk_option_menu_get_history (GTK_OPTION_MENU (property_ui_enum->option_menu.widget)) == idx) return ;
+//  gtk_option_menu_set_history (GTK_OPTION_MENU (property_ui_enum->option_menu.widget), idx) ;
 
   for (sllItr = gtk_radio_button_get_group (GTK_RADIO_BUTTON (property_ui_enum->rb)) ; sllItr != NULL ; sllItr = sllItr->next)
     if (value == (int)g_object_get_data (G_OBJECT (sllItr->data), "enum-value"))

@@ -4,7 +4,7 @@ docdir = $(datadir)/doc/@PACKAGE@-@VERSION@
 appdir = $(datadir)/applications
 qcasampledir = $(datadir)/@PACKAGE@/qca_cell_library
 
-SUBDIRS = src po docs pixmaps
+SUBDIRS = po docs pixmaps src
 
 doc_DATA = \
   AUTHORS \

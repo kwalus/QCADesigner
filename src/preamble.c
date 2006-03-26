@@ -172,9 +172,9 @@ void preamble (int *pargc, char ***pargv, char *pszCmdLine)
 void preamble (int *pargc, char ***pargv)
 #endif /* def QCAD_NO_CONSOLE */
   {
-#ifndef GTK_GUI
+#if (!defined(GTK_GUI) || defined(WIN32))
   char *psz = NULL ;
-#endif /* ndef GTK_GUI */
+#endif /* (!defined(GTK_GUI) || defined(WIN32)) */
 #ifdef WIN32
   char *pszModuleFName = NULL, szBuf[MAX_PATH] = "" ;
   char *pszHomeHDD = getenv ("HOMEDRIVE") ;

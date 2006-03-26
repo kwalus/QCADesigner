@@ -99,10 +99,6 @@ int main (int argc, char **argv)
 
   preamble (&argc, &argv) ;
 
-  g_print ("%s\n", _("vectors")) ;
-
-  exit (0) ;
-
   parse_cmdline (argc, argv, &cmdline_args) ;
 
   flush_fprintf (stderr,

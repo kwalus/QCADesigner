@@ -60,10 +60,6 @@ int main (int argc, char **argv)
   gtk_preamble (&argc, &argv, "graph_dialog") ;
 #endif /* def QCAD_NO_CONSOLE */
 
-  g_print ("%s\n", _("vectors")) ;
-
-  exit (0) ;
-
   if (1 == argc)
     {
     if (NULL == (psz = get_file_name_from_user (NULL, _("Open Simulation Results"), NULL, FALSE)))

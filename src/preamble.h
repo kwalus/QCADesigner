@@ -32,19 +32,29 @@
 #define _GTK_PREAMBLE_H_
 
 #ifdef GTK_GUI
-
-#include "support.h"
+  #include "support.h"
+#else
+  #include "intl.h"
+#endif /* def GTK_GUI */
 
 #ifdef WIN32
-  #define QCAD_NO_CONSOLE
+  #ifdef GTK_GUI
+    #define QCAD_NO_CONSOLE
+  #endif /* def GTK_GUI */
 #endif /* def WIN32 */
 
+#ifdef GTK_GUI
 #ifdef QCAD_NO_CONSOLE
 void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName, char *pszCmdLine) ;
 #else
 void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName) ;
 #endif /* def QCAD_NO_CONSOLE */
-
 #endif /* def GTK_GUI */
+
+#ifdef QCAD_NO_CONSOLE
+void preamble (int *pargc, char ***pargv, char *pszCmdLine) ;
+#else
+void preamble (int *pargc, char ***pargv) ;
+#endif /* def QCAD_NO_CONSOLE */
 
 #endif /* def _GTK_PREAMBLE_H_ */

@@ -28,13 +28,12 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#ifdef GTK_GUI
-
-#include "support.h"
-#include "gtk_preamble.h"
+#include "preamble.h"
 #include "qcadstock.h"
 #include "global_consts.h"
-#include "custom_widgets.h"
+#ifdef GTK_GUI
+  #include "custom_widgets.h"
+#endif /* def GTK_GUI */
 #ifdef WIN32
   #include <windows.h>
 
@@ -47,6 +46,7 @@ static void my_logger (const gchar *log_domain, GLogLevelFlags log_level, const 
 #endif /* ifdef QCAD_NO_CONSOLE */
 #endif /* ifdef WIN32 */
 
+#ifdef GTK_GUI
 static GtkStockItem stock_layers[] =
   {
   {QCAD_STOCK_SUBSTRATE_LAYER,    N_("Substrate"),    0, 0, PACKAGE},
@@ -64,72 +64,23 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
 #endif /* def QCAD_NO_CONSOLE */
   {
 #ifdef WIN32
-  char *psz = NULL, *pszModuleFName = NULL, szBuf[MAX_PATH] = "" ;
-  char *pszHomeHDD = getenv ("HOMEDRIVE") ;
-  char *pszHomeDIR = getenv ("HOMEPATH") ;
-  int Nix ;
-  // Need this buffer later on for the pixmap dirs
-  char szMyPath[PATH_LENGTH] = "" ;
-
-  // Must set the home directory to a reasonable value.  If all else fails,
-  // set it to the current directory
-  if (!(NULL == pszHomeHDD || NULL == pszHomeDIR))
-    {
-    putenv (psz = g_strdup_printf ("HOME=%s%s", pszHomeHDD, pszHomeDIR)) ;
-    g_free (psz) ;
-    }
-  else
-    putenv ("HOME=.") ;
+  char *pszMyPath = NULL, *psz = NULL ;
 #endif /* def WIN32 */
-#ifdef WIN32
-  GetModuleFileName (NULL, szBuf, MAX_PATH) ;
-  pszModuleFName = g_strdup_printf ("%s", szBuf) ;
-  GetShortPathName (pszModuleFName, szBuf, MAX_PATH) ;
-  g_free (pszModuleFName) ;
-  pszModuleFName = g_strdup_printf ("%s", szBuf) ;
-  g_snprintf (szMyPath, MAX_PATH, "%s", pszModuleFName) ;
 #ifdef QCAD_NO_CONSOLE
-  if (pszCmdLine[0] != 0)
-    psz = g_strdup_printf ("%s %s", pszModuleFName, pszCmdLine) ;
-  else
-    psz = g_strdup_printf ("%s", pszModuleFName) ;
-  (*pargv) = (char **)CmdLineToArgv (psz, pargc) ;
-  g_free (psz) ;
-#endif /* def QCAD_NO_CONSOLE */
-  g_free (pszModuleFName) ;
-
-  for (Nix = strlen (szMyPath) ; Nix > -1 ; Nix--)
-    if (G_DIR_SEPARATOR == szMyPath[Nix])
-      {
-      szMyPath[Nix] = 0 ;
-      break ;
-      }
-  putenv (psz = g_strdup_printf ("MY_PATH=%s", szMyPath)) ;
-  g_free (psz) ;
-#endif
-
-  gtk_init (pargc, pargv) ;
-
-  // Set the locale
-#ifdef ENABLE_NLS
-#ifdef WIN32
-  putenv (psz = g_strdup_printf ("LANG=%s", get_locale ())) ;
-  g_free (psz) ;
-  bindtextdomain (PACKAGE, psz = g_strdup_printf ("%s%slocale", szMyPath, G_DIR_SEPARATOR_S)) ;
-  g_free (psz) ;
+  preamble (pargc, pargv, pszCmdLine) ;
 #else
-  bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-#endif /* def WIN32 */
-  textdomain (PACKAGE);
-#endif
-  bind_textdomain_codeset (PACKAGE, "UTF-8") ;
+  preamble (pargc, pargv) ;
+#endif /* def QCAD_NO_CONSOLE */
+  gtk_init (pargc, pargv) ;
   gtk_set_locale ();
 
   // Add pixmap directories
 #ifdef WIN32
-  add_pixmap_directory (psz = g_strdup_printf ("%s%spixmaps", szMyPath, G_DIR_SEPARATOR_S)) ;
+  pszMyPath = getenv ("MY_PATH") ;
+
+  add_pixmap_directory (psz = g_strdup_printf ("%s%spixmaps", pszMyPath, G_DIR_SEPARATOR_S)) ;
   g_free (psz) ;
-  add_pixmap_directory (psz = g_strdup_printf ("%s%s..%spixmaps", szMyPath, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S)) ;
+  add_pixmap_directory (psz = g_strdup_printf ("%s%s..%spixmaps", pszMyPath, G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S)) ;
   g_free (psz) ;
 #else /* ifndef WIN32 */
   // -- Pixmaps used by the buttons in the main window -- //
@@ -137,18 +88,6 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   add_pixmap_directory (PACKAGE_SOURCE_DIR "/pixmaps");
 #endif /* ifdef WIN32 */
 // Done adding pixmap directories
-
-#ifdef WIN32
-#ifdef QCAD_NO_CONSOLE
-  // Turn off logging by setting it to an empty function
-  // This prevents a console from popping up when QCADesigner quits
-  g_log_set_handler (NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
-  g_log_set_handler ("Gtk", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
-  g_log_set_handler ("Gdk", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
-  g_log_set_handler ("GdkPixbuf", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
-  g_log_set_handler ("Pango", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
-#endif /* ifdef QCAD_NO_CONSOLE */
-#endif /* ifdef WIN32 */
 
   if (NULL != pszBaseName)
     set_window_icon (NULL, pszBaseName) ;
@@ -218,7 +157,84 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   add_stock_icon ("q_cell_mirror_other.png",  QCAD_STOCK_MIRROR_HORIZONTAL) ;
   add_stock_icon ("ruler.png",                QCAD_STOCK_MEASURE) ;
   add_stock_icon ("insert_column_before.png", QCAD_STOCK_INSERT_COL_BEFORE) ;
+#endif /* def HAVE_LIBRSVG */
+  }
+#endif /* def GTK_GUI */
+
+#ifdef QCAD_NO_CONSOLE
+void preamble (int *pargc, char ***pargv, char *pszCmdLine)
+#else
+void preamble (int *pargc, char ***pargv)
+#endif /* def QCAD_NO_CONSOLE */
+  {
+#ifdef WIN32
+  char *psz = NULL, *pszModuleFName = NULL, szBuf[MAX_PATH] = "" ;
+  char *pszHomeHDD = getenv ("HOMEDRIVE") ;
+  char *pszHomeDIR = getenv ("HOMEPATH") ;
+  int Nix ;
+  // Need this buffer later on for the pixmap dirs
+  char szMyPath[PATH_LENGTH] = "" ;
+
+  // Must set the home directory to a reasonable value.  If all else fails,
+  // set it to the current directory
+  if (!(NULL == pszHomeHDD || NULL == pszHomeDIR))
+    {
+    putenv (psz = g_strdup_printf ("HOME=%s%s", pszHomeHDD, pszHomeDIR)) ;
+    g_free (psz) ;
+    }
+  else
+    putenv ("HOME=.") ;
+#endif /* def WIN32 */
+#ifdef WIN32
+  GetModuleFileName (NULL, szBuf, MAX_PATH) ;
+  pszModuleFName = g_strdup_printf ("%s", szBuf) ;
+  GetShortPathName (pszModuleFName, szBuf, MAX_PATH) ;
+  g_free (pszModuleFName) ;
+  pszModuleFName = g_strdup_printf ("%s", szBuf) ;
+  g_snprintf (szMyPath, MAX_PATH, "%s", pszModuleFName) ;
+#ifdef QCAD_NO_CONSOLE
+  if (pszCmdLine[0] != 0)
+    psz = g_strdup_printf ("%s %s", pszModuleFName, pszCmdLine) ;
+  else
+    psz = g_strdup_printf ("%s", pszModuleFName) ;
+  (*pargv) = (char **)CmdLineToArgv (psz, pargc) ;
+  g_free (psz) ;
+#endif /* def QCAD_NO_CONSOLE */
+  g_free (pszModuleFName) ;
+
+  for (Nix = strlen (szMyPath) ; Nix > -1 ; Nix--)
+    if (G_DIR_SEPARATOR == szMyPath[Nix])
+      {
+      szMyPath[Nix] = 0 ;
+      break ;
+      }
+  putenv (psz = g_strdup_printf ("MY_PATH=%s", szMyPath)) ;
+  g_free (psz) ;
 #endif
+  // Set the locale
+#ifdef ENABLE_NLS
+#ifdef WIN32
+  putenv (psz = g_strdup_printf ("LANG=%s", get_locale ())) ;
+  g_free (psz) ;
+  bindtextdomain (PACKAGE, psz = g_strdup_printf ("%s%slocale", szMyPath, G_DIR_SEPARATOR_S)) ;
+  g_free (psz) ;
+#else
+  bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+#endif /* def WIN32 */
+  textdomain (PACKAGE);
+#endif
+  bind_textdomain_codeset (PACKAGE, "UTF-8") ;
+#ifdef WIN32
+#ifdef QCAD_NO_CONSOLE
+  // Turn off logging by setting it to an empty function
+  // This prevents a console from popping up when QCADesigner quits
+  g_log_set_handler (NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
+  g_log_set_handler ("Gtk", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
+  g_log_set_handler ("Gdk", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
+  g_log_set_handler ("GdkPixbuf", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
+  g_log_set_handler ("Pango", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, my_logger, NULL);
+#endif /* ifdef QCAD_NO_CONSOLE */
+#endif /* ifdef WIN32 */
   }
 
 #ifdef QCAD_NO_CONSOLE
@@ -358,5 +374,3 @@ static char *lcid_to_posix_locale (int lcid)
   return "C" ;
   }
 #endif /* ifdef WIN32 */
-
-#endif /* def GTK_GUI */

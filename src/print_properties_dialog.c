@@ -133,7 +133,7 @@ static void init_print_design_properties_dialog (print_properties_D *dialog, Gtk
 void chkPrintedObj_toggled (GtkWidget *widget, gpointer user_data)
   {
   QCADLayer *layer = NULL ;
-  print_properties_D *dialog = (print_properties_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
+  print_properties_D *dialog = (print_properties_D *)g_object_get_data (G_OBJECT (user_data), "dialog") ;
   int cx = -1, cy = -1 ;
 
   if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
@@ -219,7 +219,7 @@ void init_print_design_options (print_design_OP *pPrintOp, DESIGN *design)
 
 void on_tbtnPrintOrder_toggled (GtkWidget *widget, gpointer user_data)
   {
-  print_properties_D *dialog = (print_properties_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
+  print_properties_D *dialog = (print_properties_D *)g_object_get_data (G_OBJECT (user_data), "dialog") ;
   gtk_label_set_text (GTK_LABEL (dialog->lblPrintOrder),
     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)) ?
     _("Down, then over") : _("Over, then down")) ;
@@ -227,7 +227,7 @@ void on_tbtnPrintOrder_toggled (GtkWidget *widget, gpointer user_data)
 
 void on_tbtnCenter_toggled (GtkWidget *widget, gpointer user_data)
   {
-  print_properties_D *dialog = (print_properties_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
+  print_properties_D *dialog = (print_properties_D *)g_object_get_data (G_OBJECT (user_data), "dialog") ;
   gtk_label_set_text (GTK_LABEL (dialog->lblCenter), gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)) ? _("Center") : _("Do Not Center")) ;
   }
 
@@ -289,7 +289,7 @@ void fill_printed_objects_list (GtkWidget *ls, print_properties_D *dialog, DESIG
 
 void toggle_scale_mode (GtkWidget *widget, gpointer user_data)
   {
-  print_properties_D *dialog = (print_properties_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
+  print_properties_D *dialog = (print_properties_D *)g_object_get_data (G_OBJECT (user_data), "dialog") ;
   gboolean bAuto = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->rbFitPages)) ;
 
   if (NULL != widget)
@@ -368,14 +368,14 @@ static void check_scale (print_properties_D *dialog, GtkAdjustment *adj)
 // Make sure all spin buttons everywhere always have correct values
 void validate_value_change (GtkAdjustment *adj_changed, gpointer user_data)
   {
-  print_properties_D *dialog = (print_properties_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
+  print_properties_D *dialog = (print_properties_D *)g_object_get_data (G_OBJECT (user_data), "dialog") ;
   check_scale (dialog, adj_changed) ;
   }
 
 void user_wants_print_preview (GtkWidget *widget, gpointer user_data)
   {
-  print_properties_D *dialog = (print_properties_D *)gtk_object_get_data (GTK_OBJECT (user_data), "dialog") ;
-  DESIGN *design = (DESIGN *)gtk_object_get_data (GTK_OBJECT (user_data), "design") ;
+  print_properties_D *dialog = (print_properties_D *)g_object_get_data (G_OBJECT (user_data), "dialog") ;
+  DESIGN *design = (DESIGN *)g_object_get_data (G_OBJECT (user_data), "design") ;
   print_design_OP po ;
 
   po.pbPrintedObjs = g_malloc0 (dialog->icPrintedObjs * sizeof (gboolean)) ;

@@ -28,6 +28,7 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
+#include <glib.h>
 #include "preamble.h"
 #include "qcadstock.h"
 #include "global_consts.h"

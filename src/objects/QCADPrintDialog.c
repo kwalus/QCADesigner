@@ -276,6 +276,9 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
     (GtkAttachOptions)(GTK_EXPAND | GTK_SHRINK | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_SHRINK), 2, 2) ;
 
+#ifdef WIN32
+  print_dialog->rbPrintPipe =
+#endif /* def WIN32 */
   widget = dlg->rbPrintPipe = gtk_radio_button_new_with_label (grp, _("Command")) ;
   grp = gtk_radio_button_get_group (GTK_RADIO_BUTTON (widget)) ;
   gtk_widget_show (widget) ;

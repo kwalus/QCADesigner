@@ -67,6 +67,9 @@ struct _print_OP
 struct _QCADPrintDialog
   {
   GtkDialog dlg ;
+#ifdef WIN32
+  GtkWidget *rbPrintPipe ;
+#endif /* def WIN32 */
   } ;
 
 struct _QCADPrintDialogClass

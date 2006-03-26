@@ -42,6 +42,7 @@
 #include "coherence_vector.h"
 #include "graph_dialog_widget_data.h"
 #include "bistable_simulation.h"
+#include "preamble.h"
 
 extern bistable_OP bistable_options ;
 extern coherence_OP coherence_options ;
@@ -95,6 +96,8 @@ int main (int argc, char **argv)
     .pszFName                   = NULL,
     .circuit_delay              = 0
     } ;
+
+  preamble (&argc, &argv) ;
 
   parse_cmdline (argc, argv, &cmdline_args) ;
 

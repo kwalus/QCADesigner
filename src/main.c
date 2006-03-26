@@ -43,7 +43,7 @@
 #include "vector_table.h"
 #include "qcadstock.h"
 #include "global_consts.h"
-#include "gtk_preamble.h"
+#include "preamble.h"
 #include "fileio.h"
 #include "generic_utils.h"
 

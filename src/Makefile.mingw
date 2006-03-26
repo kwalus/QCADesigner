@@ -68,6 +68,7 @@ Makefile.in: Makefile.snippet
 	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
 	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
 	echo -e '\techo "regen: Makefile.am"                       >> Makefile' >> Makefile.in
+	echo -e '\techo -e "\\trm -f .deps"                        >> Makefile' >> Makefile.in
 	echo -e '\techo -e "\\tmake -C \\$$$$(QCAD_TOP) src"       >> Makefile' >> Makefile.in
 	echo -e '\techo ""                                         >> Makefile' >> Makefile.in
 	for target in $(bin_PROGRAMS); do \
@@ -81,7 +82,7 @@ install: all
 	done
 
 clean:
-	rm -f $(QCADesigner_OBJECTS) $(batch_sim_OBJECTS) $(graph_dialog_OBJECTS) Makefile.in Makefile
+	rm -f $(QCADesigner_OBJECTS) $(batch_sim_OBJECTS) $(graph_dialog_OBJECTS) Makefile.in Makefile .deps
 	rm -f `find . | grep '\.o$$'`
 	for target in $(TARGETS); do \
 		echo rm -f $${target}.exe; \

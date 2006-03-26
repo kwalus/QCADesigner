@@ -39,7 +39,7 @@
 #include "graph_dialog.h"
 #include "simulation_data.h"
 #include "fileio.h"
-#include "gtk_preamble.h"
+#include "preamble.h"
 #include "fileio_helpers.h"
 #include "generic_utils.h"
 

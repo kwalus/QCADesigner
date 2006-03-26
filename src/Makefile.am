@@ -29,7 +29,7 @@ QCADesigner_CFLAGS = \
 	@GTHREAD_CFLAGS@
 
 QCADesigner_SOURCES = \
-	gtk_preamble.c                          gtk_preamble.h \
+	preamble.c                              preamble.h \
 	support.c                               support.h \
 \
   $(CORE_FILES) \
@@ -123,6 +123,7 @@ batch_sim_SOURCES = \
 	simulation_data.c                       simulation_data.h \
 	graph_dialog_widget_data.c              graph_dialog_widget_data.h \
 \
+	preamble.c                              preamble.h \
 	main_batch_sim.c
 
 batch_sim_LDADD = \
@@ -152,7 +153,7 @@ graph_dialog_CFLAGS = \
 	@GTHREAD_CFLAGS@
 
 graph_dialog_SOURCES = \
-	gtk_preamble.c                          gtk_preamble.h \
+	preamble.c                              preamble.h \
 	support.c                               support.h \
 \
   $(CORE_FILES) \
@@ -210,7 +211,7 @@ combo_test_SOURCES = \
   $(OBJECT_FILES) \
   layers_combo.c               layers_combo.h \
   support.c                    support.h \
-  gtk_preamble.c               gtk_preamble.h \
+  preamble.c                   preamble.h \
 	simulation_data.c            simulation_data.h \
  	main_combo_test.c
 

@@ -7,7 +7,7 @@
 #include "fileio.h"
 #include "design.h"
 #include "interface.h"
-#include "gtk_preamble.h"
+#include "preamble.h"
 #include "layers_combo.h"
 
 /*

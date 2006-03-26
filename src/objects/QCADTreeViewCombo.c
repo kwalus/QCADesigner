@@ -114,7 +114,12 @@ static void qcad_tree_view_combo_instance_init (QCADTreeViewCombo *instance)
   g_signal_connect (G_OBJECT (instance->entry), "activate", (GCallback)entry_activate, instance) ;
   private->btn    = g_object_new (GTK_TYPE_BUTTON, "visible", TRUE, NULL),
   gtk_container_add (GTK_CONTAINER (private->btn), arr) ;
-  private->popup  = g_object_new (GTK_TYPE_WINDOW, "type", GTK_WINDOW_POPUP, "type-hint", GDK_WINDOW_TYPE_HINT_MENU, "resizable", FALSE, "modal", TRUE, "decorated", FALSE, NULL) ;
+  private->popup  = g_object_new (GTK_TYPE_WINDOW, 
+    "type", GTK_WINDOW_POPUP, "modal", TRUE, 
+#ifndef WIN32
+    "type-hint", GDK_WINDOW_TYPE_HINT_MENU, "resizable", FALSE, "decorated", FALSE,
+#endif /* def WIN32 */
+    NULL) ;
 
   private->popup = g_object_ref (private->popup) ;
   gtk_object_sink (GTK_OBJECT (private->popup)) ;

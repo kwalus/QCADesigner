@@ -746,6 +746,9 @@ msgstr "Egy törölt réteget nem lehet visszaszerezni. A \"%s\" nevü réteget 
 msgid "Open Design"
 msgstr "Terv Megnyitás"
 
+msgid "Open Simulation Results"
+msgstr "Szimuláció eredmények megnyitása"
+
 msgid "Open Simulation Results..."
 msgstr "Szimuláció eredmények megnyitása..."
 
@@ -1215,6 +1218,9 @@ msgstr "Függőlegesen"
 
 msgid "Visible"
 msgstr "Látható"
+
+msgid "Waveform Smoothing"
+msgstr ""
 
 msgid "You appear to have an autosave file.  Would you like to recover it ?"
 msgstr ""

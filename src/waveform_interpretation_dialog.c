@@ -129,7 +129,7 @@ static void create_honeycomb_thresholds_dialog (honeycomb_thresholds_D *dialog)
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog->dialog)->vbox), tblThresh, TRUE, TRUE, 0) ;
   gtk_container_set_border_width (GTK_CONTAINER (tblThresh), 2) ;
 
-  frm = gtk_frame_new ("Waveform Smoothing") ;
+  frm = gtk_frame_new (_("Waveform Smoothing")) ;
   gtk_widget_show (frm) ;
   gtk_table_attach (GTK_TABLE (tblThresh), frm, 0, 2, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),

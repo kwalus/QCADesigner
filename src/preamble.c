@@ -28,6 +28,10 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
+#ifndef GTK_GUI
+  #include <stdlib.h>
+  #include <locale.h>
+#endif /* ndef GTK_GUI */
 #include <glib.h>
 #include "preamble.h"
 #include "qcadstock.h"
@@ -73,7 +77,7 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   preamble (pargc, pargv) ;
 #endif /* def QCAD_NO_CONSOLE */
   gtk_init (pargc, pargv) ;
-  gtk_set_locale ();
+  return ;
 
   // Add pixmap directories
 #ifdef WIN32
@@ -168,8 +172,11 @@ void preamble (int *pargc, char ***pargv, char *pszCmdLine)
 void preamble (int *pargc, char ***pargv)
 #endif /* def QCAD_NO_CONSOLE */
   {
+#ifndef GTK_GUI
+  char *psz = NULL ;
+#endif /* ndef GTK_GUI */
 #ifdef WIN32
-  char *psz = NULL, *pszModuleFName = NULL, szBuf[MAX_PATH] = "" ;
+  char *pszModuleFName = NULL, szBuf[MAX_PATH] = "" ;
   char *pszHomeHDD = getenv ("HOMEDRIVE") ;
   char *pszHomeDIR = getenv ("HOMEPATH") ;
   int Nix ;
@@ -185,8 +192,7 @@ void preamble (int *pargc, char ***pargv)
     }
   else
     putenv ("HOME=.") ;
-#endif /* def WIN32 */
-#ifdef WIN32
+
   GetModuleFileName (NULL, szBuf, MAX_PATH) ;
   pszModuleFName = g_strdup_printf ("%s", szBuf) ;
   GetShortPathName (pszModuleFName, szBuf, MAX_PATH) ;
@@ -217,13 +223,24 @@ void preamble (int *pargc, char ***pargv)
 #ifdef WIN32
   putenv (psz = g_strdup_printf ("LANG=%s", get_locale ())) ;
   g_free (psz) ;
+#endif /* def WIN32 */
+
+// if GTK_GUI is defined, gtk_init will take care of setting the locale
+#ifndef GTK_GUI
+  psz = getenv ("LANG") ;
+  setlocale (LC_ALL, NULL == psz ? "C" : psz) ;
+#endif /* ndef GTK_GUI */
+#ifdef WIN32
   bindtextdomain (PACKAGE, psz = g_strdup_printf ("%s%slocale", szMyPath, G_DIR_SEPARATOR_S)) ;
   g_free (psz) ;
 #else
+//  g_print ("bindtextdomain (" PACKAGE ", " PACKAGE_LOCALE_DIR ")\n");
   bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
 #endif /* def WIN32 */
+//  g_print ("textdomain (" PACKAGE ")\n");
   textdomain (PACKAGE);
-#endif
+#endif /* ENABLE_NLS */
+//  g_print ("bind_textdomain_codeset (" PACKAGE ", \"UTF-8\")\n");
   bind_textdomain_codeset (PACKAGE, "UTF-8") ;
 #ifdef WIN32
 #ifdef QCAD_NO_CONSOLE

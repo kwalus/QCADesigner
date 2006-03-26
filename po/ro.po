@@ -758,6 +758,9 @@ msgstr "Odată şters, un strat nu se poate recupera. Să şterg stratul \"%s\""
 msgid "Open Design"
 msgstr "Deschide Design"
 
+msgid "Open Simulation Results"
+msgstr "Deschide resultate simulaţie"
+
 msgid "Open Simulation Results..."
 msgstr "Deschide resultate simulaţie..."
 
@@ -1227,6 +1230,9 @@ msgstr "Vertical"
 
 msgid "Visible"
 msgstr "Vizibil"
+
+msgid "Waveform Smoothing"
+msgstr ""
 
 msgid "You appear to have an autosave file.  Would you like to recover it ?"
 msgstr ""

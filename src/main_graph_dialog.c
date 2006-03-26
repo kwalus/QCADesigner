@@ -49,6 +49,7 @@ int APIENTRY WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *pszCmd
 int main (int argc, char **argv)
 #endif /* def QCAD_NO_CONSOLE */
   {
+  SIMULATION_OUTPUT *sim_output = NULL ;
   char *psz = NULL ;
 #ifdef QCAD_NO_CONSOLE
   char **argv = NULL ;
@@ -58,7 +59,10 @@ int main (int argc, char **argv)
 #else
   gtk_preamble (&argc, &argv, "graph_dialog") ;
 #endif /* def QCAD_NO_CONSOLE */
-  SIMULATION_OUTPUT *sim_output = NULL ;
+
+  g_print ("%s\n", _("vectors")) ;
+
+  exit (0) ;
 
   if (1 == argc)
     {

@@ -745,6 +745,9 @@ msgstr ""
 msgid "Open Design"
 msgstr ""
 
+msgid "Open Simulation Results"
+msgstr ""
+
 msgid "Open Simulation Results..."
 msgstr ""
 
@@ -1213,6 +1216,9 @@ msgid "Vertically"
 msgstr ""
 
 msgid "Visible"
+msgstr ""
+
+msgid "Waveform Smoothing"
 msgstr ""
 
 msgid "You appear to have an autosave file.  Would you like to recover it ?"

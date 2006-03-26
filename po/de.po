@@ -385,10 +385,10 @@ msgid "Diameter of the quantum dot"
 msgstr ""
 
 msgid "Digital Interpretation Options"
-msgstr ""
+msgstr "Einstellungen digitaler Interpretation"
 
 msgid "Digital Interpretation"
-msgstr ""
+msgstr "Digitale Interpretation"
 
 msgid "Digits"
 msgstr "Ziffern"
@@ -763,6 +763,9 @@ msgstr "Design Öffnen"
 
 msgid "Open Simulation Results..."
 msgstr "Simulationsresultate öffnen..."
+
+msgid "Open Simulation Results"
+msgstr "Simulationsresultate öffnen"
 
 msgid "_Open Simulation Results..."
 msgstr "Simulationsresultate _öffnen..."
@@ -1233,6 +1236,9 @@ msgstr "Vertikal"
 msgid "Visible"
 msgstr "Sichtbar"
 
+msgid "Waveform Smoothing"
+msgstr "Wellenformglättung"
+
 msgid "You appear to have an autosave file.  Would you like to recover it ?"
 msgstr ""
 "Sie scheinen eine Autospeicherdatei zu haben. Möchten Sie sie "
@@ -1303,7 +1309,7 @@ msgid "_Import Block..."
 msgstr "Block _Importieren..."
 
 msgid "_No Smoothing"
-msgstr ""
+msgstr "_Keine Glättung"
 
 msgid "_Recent Files"
 msgstr "_Zuletzt geöffnete Dateien"
@@ -1312,7 +1318,7 @@ msgid "_Rotate Selection"
 msgstr "Auswahl _Rotieren"
 
 msgid "_Running Average over"
-msgstr ""
+msgstr "_Gleitender Durchschnitt für "
 
 msgid "_Scale All Cells In Design..."
 msgstr "Alle Zellen im Design _maßstäblich vergrössern/verkleinern..."
@@ -1466,7 +1472,23 @@ msgid
 "  -x  --exit                    Optional: Turn on exit-on-first-failure.\n"
 "    -s  --save      file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
 "                                            and the circuit to file_prefix.qca.\n"
-msgstr ""
+msgstr
+"Usage: batch_sim options...\n"
+"\n"
+"Options are:\n"
+"  -a  --average   samples       Optional: Anzahl der Proben für gleitenden Durchschnitt. Standardeinstellung ist 1.\n"
+"  -d  --delay     honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
+"  -e  --engine    engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
+"  -f  --file      file          Required: The circuit file.\n"
+"  -l  --lower     polarization  Optional: Unterer Polarisationsgrenzwert. Zwischen -1.00 und 1.00. Standardeinstellung ist -0.5.\n"
+"  -n  --number    number        Required: Anzahl der Simulationen.\n"
+"  -o  --options   file          Required: Simulation engine options file.\n"
+"  -r  --results   file          Required: Simulation results file to compare generated results to.\n"
+"  -t  --tolerance tolerance     Required: Radialtoleranz. Non-negativer Gleitpunktwert.\n"
+"  -u  --upper     polarization  Optional: Oberer Polarisationsgrenzwert. Zwischen -1.00 und 1.00. Standardeinstellung ist 0.5.\n"
+"  -x  --exit                    Optional: Am ersten Fehler beenden.\n"
+"    -s  --save      file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
+"                                            and the circuit to file_prefix.qca.\n"
 
 msgid
 "Simulation engine               : %s\n"
@@ -1481,25 +1503,37 @@ msgid
 "exit on failure ?               : %s\n"
 "  failure output file name prefix : %s\n"
 "initial honeycombs to ignore    : %d\n"
-msgstr ""
+msgstr
+"Simulation engine                  : %s\n"
+"Simulation options file            : %s\n"
+"Circuit file                       : %s\n"
+"Reference simulation output file   : %s\n"
+"Anzahl der Simulationen            : %d\n"
+"Toleranz                           : %lf\n"
+"Unterer Polarisationsgrenzwert     : %lf\n"
+"Oberer Polarisationsgrenzwert      : %lf\n"
+"Proben für gleitenden Durchschnitt : %d\n"
+"Wegen Fehler beenden ?             : %s\n"
+"  failure output file name prefix    : %s\n"
+"initial honeycombs to ignore       : %d\n"
 
 msgid "Failed to open the reference simulation output file !\n"
 msgstr ""
 
 msgid "Failed to open simulation options file !\n"
-msgstr ""
+msgstr "Konnte Simulationseinstellungendatei nicht öffnen !\n"
 
 msgid "Running %d %s with a radial tolerance of %lf\n"
-msgstr ""
+msgstr "Werde %d %s mit %lf nm Radialtoleranz starten\n"
 
 msgid "simulation"
-msgstr ""
+msgstr "Simulation"
 
 msgid "simulations"
-msgstr ""
+msgstr "Simulationen"
 
 msgid "Running simulation %d of %d\n"
-msgstr ""
+msgstr "Simulation %d aus %d startet\n"
 
 msgid "Reference output bus is: (0x%08x)\"%s\"\n"
 msgstr ""
@@ -1508,19 +1542,19 @@ msgid "Output bus is: (0x%08x)\"%s\"\n"
 msgstr ""
 
 msgid "This run[%d] bus[%d] was %s\n"
-msgstr ""
+msgstr "Dieser Lauf[%d] Bus[%d] was %s\n"
 
 msgid "successful"
-msgstr ""
+msgstr "erfolgreich"
 
 msgid "unsuccessful"
-msgstr ""
+msgstr "erfolglos"
 
 msgid "Output has more buses than reference !\n"
 msgstr ""
 
 msgid "Creating %s to record the failure.\n"
-msgstr ""
+msgstr "%s wird erzeugt um Fehler zu speichern.\n"
 
 msgid "Determining success for hcdRef = 0x%08x vs. hcdOut = 0x%08x\n"
 msgstr ""

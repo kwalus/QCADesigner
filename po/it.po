@@ -723,6 +723,9 @@ msgstr "Una volta eliminato uno strato non può essere recuperato. Vuoi verament
 msgid "Open Design"
 msgstr "Apri il Progetto"
 
+msgid "Open Simulation Results"
+msgstr "Apri i Risultati della Simulazione"
+
 msgid "Open Simulation Results..."
 msgstr "Apri i Risultati della Simulazione..."
 
@@ -1187,6 +1190,9 @@ msgstr "Verticalmente"
 
 msgid "Visible"
 msgstr "Visibile"
+
+msgid "Waveform Smoothing"
+msgstr ""
 
 msgid "You appear to have an autosave file.  Would you like to recover it ?"
 msgstr "Sembra che ci sia un file di salvataggio automatico. Vuoi recuperarlo?"

@@ -144,11 +144,11 @@ static void BuildRecentFilesMenu (GtkWidget *menu, GtkSignalFunc pfn, gpointer d
 
     menu_item = gtk_menu_item_new_with_label (pszBaseName) ;
     gtk_widget_ref (menu_item) ;
-    gtk_object_set_data (GTK_OBJECT (menu_item), "file", ppszRecentFiles[Nix]) ;
-    gtk_object_set_data (GTK_OBJECT (menu_item), "parent", menu) ;
+    g_object_set_data (G_OBJECT (menu_item), "file", ppszRecentFiles[Nix]) ;
+    g_object_set_data (G_OBJECT (menu_item), "parent", menu) ;
     gtk_widget_show (menu_item) ;
     gtk_container_add (GTK_CONTAINER (menu), menu_item) ;
-    gtk_signal_connect (GTK_OBJECT (menu_item), "activate", pfn, data) ;
+    g_signal_connect (G_OBJECT (menu_item), "activate", pfn, data) ;
     }
   }
 

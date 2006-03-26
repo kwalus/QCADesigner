@@ -168,6 +168,8 @@ void units_changed (GtkWidget *widget, gpointer data)
       conversion_matrix[old_units][new_units]) ;
 
   g_object_set_data (G_OBJECT (widget), "old_units", (gpointer)new_units) ;
+
+  g_free (pszShortString) ;
   }
 
 // Used when the print properties dialog is to be initialized but not displayed - like

@@ -129,36 +129,17 @@ static void create_ts_coherence_properties_dialog (ts_coherence_properties_D *di
 	create_ts_coherence_properties_line (dialog->table, 12, &(label), &(dialog->cell_elevation_entry),				 &lblunits, _("Cell Elevation:"),         "nm", TRUE) ;
   create_ts_coherence_properties_line (dialog->table, 13, &(label), &(dialog->cell_height_entry),            &lblunits, _("Cell Height:"),						"nm", TRUE) ;
 	
-	/*
-  dialog->euler_method_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Euler Method");
-  gtk_object_set_data (GTK_OBJECT (dialog->euler_method_radio), "which_options", (gpointer)EULER_METHOD) ;
-  dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->euler_method_radio));
-  gtk_widget_show (dialog->euler_method_radio);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->euler_method_radio, 0, 2, 12, 13,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-
-  dialog->runge_kutta_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Runge Kutta");
-  gtk_object_set_data (GTK_OBJECT (dialog->runge_kutta_radio), "which_options", (gpointer)RUNGE_KUTTA) ;
-  dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->runge_kutta_radio));
-  gtk_widget_show (dialog->runge_kutta_radio);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->runge_kutta_radio, 0, 2, 14, 15,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-*/
-  
-	
 	dialog->zone_clocking_radio = gtk_radio_button_new_with_mnemonic (dialog->radio_group, _("_Zone Clocking"));
-  gtk_object_set_data (GTK_OBJECT (dialog->zone_clocking_radio), "which_options", (gpointer)ZONE_CLOCKING) ;
-  dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->zone_clocking_radio));
+  g_object_set_data (G_OBJECT (dialog->zone_clocking_radio), "which_options", (gpointer)ZONE_CLOCKING) ;
+  dialog->radio_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->zone_clocking_radio));
   gtk_widget_show (dialog->zone_clocking_radio);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->zone_clocking_radio, 0, 2, 14, 15,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
   dialog->electrode_clocking_radio = gtk_radio_button_new_with_mnemonic (dialog->radio_group, _("_Electrode Clocking"));
-  gtk_object_set_data (GTK_OBJECT (dialog->electrode_clocking_radio), "which_options", (gpointer)ELECTRODE_CLOCKING) ;
-  dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->electrode_clocking_radio));
+  g_object_set_data (G_OBJECT (dialog->electrode_clocking_radio), "which_options", (gpointer)ELECTRODE_CLOCKING) ;
+  dialog->radio_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->electrode_clocking_radio));
   gtk_widget_show (dialog->electrode_clocking_radio);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->electrode_clocking_radio, 0, 2, 15, 16,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),

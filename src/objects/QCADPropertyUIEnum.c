@@ -23,7 +23,6 @@ static gboolean   set_instance  (QCADPropertyUI *property_ui, GObject *new_insta
 static void set_pspec   (QCADPropertyUISingle *property_ui_single, GParamSpec *new_pspec) ;
 static void set_tooltip (QCADPropertyUISingle *property_ui_single, GtkTooltips *tooltip) ;
 
-//static void option_menu_item_activate (GtkWidget *widget, gpointer data) ;
 static void radio_button_toggled (GtkWidget *widget, gpointer data) ;
 static void qcad_property_ui_enum_instance_notify (GObject *obj, GParamSpec *pspec, gpointer data) ;
 
@@ -72,7 +71,7 @@ static void qcad_property_ui_enum_class_init (QCADPropertyUIEnumClass *klass)
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_ENUM_PROPERTY_RENDER_AS,
     qcad_param_spec_type_list ("render-as", _("Render As"), _("Render as widget"), 
-      GTK_TYPE_OPTION_MENU, G_PARAM_READABLE | G_PARAM_WRITABLE, GTK_TYPE_OPTION_MENU, GTK_TYPE_RADIO_BUTTON, 0)) ;
+      GTK_TYPE_COMBO_BOX, G_PARAM_READABLE | G_PARAM_WRITABLE, GTK_TYPE_COMBO_BOX, GTK_TYPE_RADIO_BUTTON, 0)) ;
 #endif /* def GTK_GUI */
   }
 
@@ -104,7 +103,7 @@ static void qcad_property_ui_enum_instance_init (QCADPropertyUIEnum *property_ui
   gtk_container_add (GTK_CONTAINER (property_ui_enum->frame.widget), property_ui_enum->tbl) ;
   gtk_container_set_border_width (GTK_CONTAINER (property_ui_enum->tbl), 2) ;
 
-  property_ui_enum->render_as = GTK_TYPE_OPTION_MENU ;
+  property_ui_enum->render_as = GTK_TYPE_COMBO_BOX ;
   property_ui_enum->rb = NULL ;
 #endif /* def GTK_GUI */
   property_ui_enum->notify_id = 0 ;
@@ -128,7 +127,7 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
   switch (property_id)
     {
     case QCAD_PROPERTY_UI_ENUM_PROPERTY_RENDER_AS:
-      if (GTK_TYPE_OPTION_MENU == (QCAD_PROPERTY_UI_ENUM (object)->render_as = (GType)g_value_get_uint (value)))
+      if (GTK_TYPE_COMBO_BOX == (QCAD_PROPERTY_UI_ENUM (object)->render_as = (GType)g_value_get_uint (value)))
         {
         QCAD_PROPERTY_UI (object)->cxWidgets = 2 ;
         g_object_set (G_OBJECT (object), "show-label", TRUE, NULL) ;
@@ -234,7 +233,7 @@ static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY, i
   QCADPropertyUIEnum *property_ui_enum = QCAD_PROPERTY_UI_ENUM (property_ui) ;
 
   (*col_span) = 1 ;
-  if (GTK_TYPE_OPTION_MENU == property_ui_enum->render_as)
+  if (GTK_TYPE_COMBO_BOX == property_ui_enum->render_as)
     {
     if (idxX == property_ui_enum->option_menu.idxX && idxY == property_ui_enum->option_menu.idxY)
       return property_ui_enum->option_menu.widget ;
@@ -286,10 +285,7 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance
 
   return FALSE ;
   }
-/*
-static void option_menu_item_activate (GtkWidget *widget, gpointer data)
-  {set_enum_property_cond (QCAD_PROPERTY_UI (data), (gint)g_object_get_data (G_OBJECT (widget), "enum-value")) ;}
-*/
+
 static void radio_button_toggled (GtkWidget *widget, gpointer data)
   {
   if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) return ;
@@ -311,9 +307,6 @@ static void qcad_property_ui_enum_instance_notify (GObject *obj, GParamSpec *psp
       break ;
 
   if (idx == pspec_enum->enum_class->n_values) return ;
-
-//  if (gtk_option_menu_get_history (GTK_OPTION_MENU (property_ui_enum->option_menu.widget)) == idx) return ;
-//  gtk_option_menu_set_history (GTK_OPTION_MENU (property_ui_enum->option_menu.widget), idx) ;
 
   for (sllItr = gtk_radio_button_get_group (GTK_RADIO_BUTTON (property_ui_enum->rb)) ; sllItr != NULL ; sllItr = sllItr->next)
     if (value == (int)g_object_get_data (G_OBJECT (sllItr->data), "enum-value"))

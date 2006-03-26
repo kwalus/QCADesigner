@@ -131,14 +131,14 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
   gtk_misc_set_alignment (GTK_MISC (dialog->lblPgsTall), 0, 0.5);
 
   dialog->rbFixedScale = gtk_radio_button_new_with_label (dialog->grpScaleOpts, _("Fixed"));
-  dialog->grpScaleOpts = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->rbFixedScale));
+  dialog->grpScaleOpts = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->rbFixedScale));
   gtk_widget_show (dialog->rbFixedScale);
   gtk_table_attach (GTK_TABLE (dialog->tblScale), dialog->rbFixedScale, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_SHRINK | GTK_FILL),
                     (GtkAttachOptions) (GTK_SHRINK), 2, 2);
 
   dialog->rbFitPages = gtk_radio_button_new_with_label (dialog->grpScaleOpts, _("Fit"));
-  dialog->grpScaleOpts = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->rbFitPages));
+  dialog->grpScaleOpts = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->rbFitPages));
   gtk_widget_show (dialog->rbFitPages);
   gtk_table_attach (GTK_TABLE (dialog->tblScale), dialog->rbFitPages, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_SHRINK | GTK_FILL),
@@ -163,8 +163,8 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
   dialog->tbtnPrintOrder = create_two_pixmap_toggle_button (
     create_pixmap (dialog->dlgPrintProps, "print_over_then_down.png"),
     create_pixmap (dialog->dlgPrintProps, "print_down_then_over.png"), NULL) ;
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgPrintProps), "tbtnPrintOrder", dialog->tbtnPrintOrder,
-                            (GtkDestroyNotify) gtk_widget_unref);
+  g_object_set_data_full (G_OBJECT (dialog->dlgPrintProps), "tbtnPrintOrder", dialog->tbtnPrintOrder,
+                            (GDestroyNotify)g_object_unref);
   gtk_widget_show (dialog->tbtnPrintOrder);
   gtk_table_attach (GTK_TABLE (dialog->table4), dialog->tbtnPrintOrder, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_FILL | GTK_EXPAND),
@@ -190,8 +190,7 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
   dialog->tbtnCenter = create_two_pixmap_toggle_button (
     create_pixmap (dialog->dlgPrintProps, "no_center_on_pages.png"),
     create_pixmap (dialog->dlgPrintProps, "center_on_pages.png"), NULL) ;
-  gtk_object_set_data_full (GTK_OBJECT (dialog->dlgPrintProps), "tbtnCenter", dialog->tbtnCenter,
-                            (GtkDestroyNotify) gtk_widget_unref);
+  g_object_set_data_full (G_OBJECT (dialog->dlgPrintProps), "tbtnCenter", dialog->tbtnCenter, (GDestroyNotify)g_object_unref);
   gtk_widget_show (dialog->tbtnCenter);
   gtk_table_attach (GTK_TABLE (dialog->tblCenter), dialog->tbtnCenter, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_FILL | GTK_EXPAND),

@@ -96,17 +96,17 @@ GtkWidget *create_pixmap_button (GtkWidget *pixmap, gchar *text, gboolean bToggl
   GtkWidget *vbox1, *label1 ;
 
   btn = bToggle ? gtk_toggle_button_new () : gtk_button_new () ;
-  gtk_widget_ref (btn) ;
-  gtk_object_set_data_full (GTK_OBJECT (btn), "btn", btn, (GtkDestroyNotify) gtk_widget_unref);
+  g_object_ref (btn) ;
+  g_object_set_data_full (G_OBJECT (btn), "btn", btn, (GDestroyNotify)g_object_unref);
   gtk_widget_show (btn) ;
 
   vbox1 = gtk_table_new (2, 1, FALSE) ;
-  gtk_widget_ref (vbox1) ;
-  gtk_object_set_data_full (GTK_OBJECT (btn), "vbox1", vbox1, (GtkDestroyNotify) gtk_widget_unref);
+  g_object_ref (vbox1) ;
+  g_object_set_data_full (G_OBJECT (btn), "vbox1", vbox1, (GDestroyNotify)g_object_unref);
   gtk_widget_show (vbox1) ;
   gtk_container_add (GTK_CONTAINER (btn), vbox1) ;
 
-  gtk_object_set_data_full (GTK_OBJECT (btn), "pixmap", pixmap, (GtkDestroyNotify) gtk_widget_unref);
+  g_object_set_data_full (G_OBJECT (btn), "pixmap", pixmap, (GDestroyNotify)g_object_unref);
   gtk_widget_show (pixmap) ;
   gtk_table_attach (GTK_TABLE (vbox1), pixmap, 0, 1, 0, 1,
     (GtkAttachOptions)(0),
@@ -115,8 +115,8 @@ GtkWidget *create_pixmap_button (GtkWidget *pixmap, gchar *text, gboolean bToggl
   if (NULL != text)
     {
     label1 = gtk_label_new (text) ;
-    gtk_widget_ref (label1) ;
-    gtk_object_set_data_full (GTK_OBJECT (btn), "label1", label1, (GtkDestroyNotify) gtk_widget_unref);
+    g_object_ref (label1) ;
+    g_object_set_data_full (G_OBJECT (btn), "label1", label1, (GDestroyNotify)g_object_unref);
     gtk_widget_show (label1) ;
     gtk_table_attach (GTK_TABLE (vbox1), label1, 1, 2, 0, 1,
       (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
@@ -130,7 +130,7 @@ GtkWidget *create_pixmap_button (GtkWidget *pixmap, gchar *text, gboolean bToggl
 void pixmap_button_toggle_pixmap (GtkWidget *btn, gboolean bShow)
   {
   GtkWidget *pixmap = NULL ;
-  if (NULL != (pixmap = gtk_object_get_data (GTK_OBJECT (btn), "pixmap")))
+  if (NULL != (pixmap = g_object_get_data (G_OBJECT (btn), "pixmap")))
     {
     if (bShow)
       gtk_widget_show (pixmap) ;
@@ -149,23 +149,23 @@ GtkWidget *create_two_pixmap_toggle_button (GtkWidget *pix1, GtkWidget *pix2, gc
   GtkWidget *vbox1, *label1 ;
 
   btn = gtk_toggle_button_new () ;
-  gtk_widget_ref (btn) ;
-  gtk_object_set_data_full (GTK_OBJECT (btn), "btn", btn, (GtkDestroyNotify) gtk_widget_unref);
+  g_object_ref (btn) ;
+  g_object_set_data_full (G_OBJECT (btn), "btn", btn, (GDestroyNotify)g_object_unref);
   gtk_widget_show (btn) ;
 
   vbox1 = gtk_vbox_new (FALSE, 0) ;
-  gtk_widget_ref (vbox1) ;
-  gtk_object_set_data_full (GTK_OBJECT (btn), "vbox1", vbox1, (GtkDestroyNotify) gtk_widget_unref);
+  g_object_ref (vbox1) ;
+  g_object_set_data_full (G_OBJECT (btn), "vbox1", vbox1, (GDestroyNotify)g_object_unref);
   gtk_widget_show (vbox1) ;
   gtk_container_add (GTK_CONTAINER (btn), vbox1) ;
   gtk_container_set_border_width (GTK_CONTAINER (vbox1), 2) ;
 
-  gtk_widget_ref (GTK_WIDGET (pix1)) ;
-  gtk_object_set_data_full (GTK_OBJECT (btn), "pix1", pix1, (GtkDestroyNotify) gtk_widget_unref) ;
+  g_object_ref (pix1) ;
+  g_object_set_data_full (G_OBJECT (btn), "pix1", pix1, (GDestroyNotify)g_object_unref) ;
   gtk_widget_show (GTK_WIDGET (pix1)) ;
   gtk_box_pack_start (GTK_BOX (vbox1), GTK_WIDGET (pix1), FALSE, FALSE, 0) ;
-  gtk_widget_ref (GTK_WIDGET (pix2)) ;
-  gtk_object_set_data_full (GTK_OBJECT (btn), "pix2", pix2, (GtkDestroyNotify) gtk_widget_unref) ;
+  g_object_ref (GTK_WIDGET (pix2)) ;
+  g_object_set_data_full (G_OBJECT (btn), "pix2", pix2, (GDestroyNotify)g_object_unref) ;
   gtk_widget_show (GTK_WIDGET (pix2)) ;
   gtk_box_pack_start (GTK_BOX (vbox1), GTK_WIDGET (pix2), FALSE, FALSE, 0) ;
   gtk_widget_hide (GTK_WIDGET (pix2)) ;
@@ -173,15 +173,15 @@ GtkWidget *create_two_pixmap_toggle_button (GtkWidget *pix1, GtkWidget *pix2, gc
   if (NULL != pszLbl)
     {
     label1 = gtk_label_new (pszLbl) ;
-    gtk_widget_ref (label1) ;
-    gtk_object_set_data_full (GTK_OBJECT (btn), "label1", label1, (GtkDestroyNotify) gtk_widget_unref);
+    g_object_ref (label1) ;
+    g_object_set_data_full (G_OBJECT (btn), "label1", label1, (GDestroyNotify)g_object_unref);
     gtk_widget_show (label1) ;
     gtk_box_pack_end (GTK_BOX (vbox1), label1, TRUE, TRUE, 0) ;
     gtk_label_set_justify (GTK_LABEL (label1), GTK_JUSTIFY_RIGHT) ;
     gtk_misc_set_alignment (GTK_MISC (label1), 0.5, 0.5) ;
     }
 
-  gtk_signal_connect (GTK_OBJECT (btn), "toggled", GTK_SIGNAL_FUNC (switch_pix), vbox1) ;
+  g_signal_connect (G_OBJECT (btn), "toggled", (GCallback)switch_pix, vbox1) ;
 
   return btn ;
   }
@@ -192,8 +192,8 @@ static void switch_pix (GtkWidget *tbtn, gpointer user_data)
   gboolean bActive = FALSE ;
 
   bActive = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (tbtn)) ;
-  pix_old = gtk_object_get_data (GTK_OBJECT (tbtn), bActive ? "pix1" : "pix2") ;
-  pix_new = gtk_object_get_data (GTK_OBJECT (tbtn), bActive ? "pix2" : "pix1") ;
+  pix_old = g_object_get_data (G_OBJECT (tbtn), bActive ? "pix1" : "pix2") ;
+  pix_new = g_object_get_data (G_OBJECT (tbtn), bActive ? "pix2" : "pix1") ;
   gtk_widget_hide (pix_old) ;
   gtk_widget_show (pix_new) ;
   }

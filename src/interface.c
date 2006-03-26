@@ -214,7 +214,7 @@ void create_main_window (main_W *main_window){
   gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layer_toolbar_table) ;
 
   main_window->pui_clock = qcad_object_create_property_ui_for_default_object (QCAD_TYPE_CELL, "clock", 
-    "render-as",  GTK_TYPE_OPTION_MENU, 
+    "render-as",  GTK_TYPE_COMBO_BOX, 
     "show-label", FALSE, 
     "visible",    TRUE,
     "tooltip",    GTK_TOOLBAR (layers_toolbar)->tooltips,
@@ -442,14 +442,14 @@ void create_main_window (main_W *main_window){
   gtk_widget_show (show_tb_icons_menu_item);
   gtk_container_add (GTK_CONTAINER (view_menu_menu), show_tb_icons_menu_item);
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (show_tb_icons_menu_item), TRUE);
-  gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(show_tb_icons_menu_item), TRUE);
+//  gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(show_tb_icons_menu_item), TRUE);
 
   // create and add the show toolbar icons menu item to the view menu //
   show_scrollbars_menu_item = gtk_check_menu_item_new_with_label (_("Show Scrollbars"));
   gtk_widget_show (show_scrollbars_menu_item);
   gtk_container_add (GTK_CONTAINER (view_menu_menu), show_scrollbars_menu_item);
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (show_scrollbars_menu_item), TRUE);
-  gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(show_scrollbars_menu_item), TRUE);
+//  gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(show_scrollbars_menu_item), TRUE);
 
   // create and add a seperator to the view menu //
   mnuiSep = gtk_menu_item_new ();
@@ -462,7 +462,7 @@ void create_main_window (main_W *main_window){
   gtk_widget_show (main_window->snap_to_grid_menu_item);
   gtk_container_add (GTK_CONTAINER (view_menu_menu), main_window->snap_to_grid_menu_item);
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (main_window->snap_to_grid_menu_item), TRUE);
-  gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(main_window->snap_to_grid_menu_item), TRUE);
+//  gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(main_window->snap_to_grid_menu_item), TRUE);
   g_object_add_weak_pointer (G_OBJECT (main_window->snap_to_grid_menu_item), (gpointer *)&(main_window->snap_to_grid_menu_item)) ;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1010,7 +1010,7 @@ void create_main_window (main_W *main_window){
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 0, 0) ;
 #ifdef STDIO_FILEIO
-  gtk_timeout_add (60000, (GtkFunction)autosave_timer_event, NULL) ;
+  g_timeout_add (60000, (GtkFunction)autosave_timer_event, NULL) ;
 #endif /* def STDIO_FILEIO */
 
 ////////////////////////////////////////////////////////////////////////////////////////

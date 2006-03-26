@@ -1074,7 +1074,7 @@ static void create_bus_layout_dialog (bus_layout_D *dialog)
     (GtkAttachOptions)(0),
     (GtkAttachOptions)(0), 2, 2) ;
   gtk_container_set_border_width (GTK_CONTAINER (bbox), 2) ;
-  gtk_button_box_set_spacing (GTK_BUTTON_BOX (bbox), gtk_vbutton_box_get_spacing_default ()) ;
+//  gtk_button_box_set_spacing (GTK_BUTTON_BOX (bbox), gtk_vbutton_box_get_spacing_default ()) ;
 
   dialog->btnCreateBus = create_pixmap_button (img = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_BUTTON), _("Create Bus"), FALSE) ;
   gtk_widget_show (dialog->btnCreateBus) ;

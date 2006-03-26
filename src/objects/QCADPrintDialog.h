@@ -67,56 +67,6 @@ struct _print_OP
 struct _QCADPrintDialog
   {
   GtkDialog dlg ;
-
-  GtkWidget *optUnits ;
-  GtkWidget *mnuiCentis ;
-  GtkWidget *mnuiInches ;
-  GtkWidget *mnuiPoints ;
-  GtkWidget *mnuiCurrent ;
-
-  GtkWidget *nbPropPages ;
-
-  GtkWidget *rbPrintFile ;
-  GtkWidget *fmFileSelect ;
-  GtkWidget *txtFileSelect ;
-  GtkWidget *btnFileSelect ;
-  GtkWidget *lblFileSelect ;
-  GtkWidget *rbPrintPipe ;
-  GtkWidget *fmPipeSelect ;
-  GtkWidget *txtPipeSelect ;
-  GtkWidget *btnPipeSelect ;
-  GtkWidget *lblPipeSelect ;
-  GtkWidget *lblPipeSelectBlurb ;
-
-  GtkWidget *optPaperSize ;
-  GtkWidget *mnuiPaperSize[24] ;
-  GtkAdjustment *adjPaperCX ;
-  GtkAdjustment *adjPaperCY ;
-  GtkWidget *spnPaperCX ;
-  GtkWidget *spnPaperCY ;
-  GtkWidget *lblPaperCX ;
-  GtkWidget *lblPaperCY ;
-  GtkWidget *rbPortrait ;
-  GtkWidget *rbLandscape ;
-
-  GtkAdjustment *adjLMargin ;
-  GtkAdjustment *adjTMargin ;
-  GtkAdjustment *adjRMargin ;
-  GtkAdjustment *adjBMargin ;
-  GtkWidget *spnLMargin ;
-  GtkWidget *spnTMargin ;
-  GtkWidget *spnRMargin ;
-  GtkWidget *spnBMargin ;
-  GtkWidget *lblLMargin ;
-  GtkWidget *lblTMargin ;
-  GtkWidget *lblRMargin ;
-  GtkWidget *lblBMargin ;
-
-  GtkWidget *daPreview ;
-
-  GtkWidget *btnCancel ;
-  GtkWidget *btnPrint ;
-  GtkWidget *btnPreview ;
   } ;
 
 struct _QCADPrintDialogClass

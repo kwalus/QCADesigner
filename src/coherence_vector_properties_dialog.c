@@ -150,16 +150,16 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   gtk_container_set_border_width (GTK_CONTAINER (tblAlgo), 2) ;
 
   dialog->euler_method_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Euler Method");
-  gtk_object_set_data (GTK_OBJECT (dialog->euler_method_radio), "which_options", (gpointer)EULER_METHOD) ;
-  dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->euler_method_radio));
+  g_object_set_data (G_OBJECT (dialog->euler_method_radio), "which_options", (gpointer)EULER_METHOD) ;
+  dialog->radio_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->euler_method_radio));
   gtk_widget_show (dialog->euler_method_radio);
   gtk_table_attach (GTK_TABLE (tblAlgo), dialog->euler_method_radio, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 2, 2);
 
   dialog->runge_kutta_radio = gtk_radio_button_new_with_label (dialog->radio_group, "Runge Kutta");
-  gtk_object_set_data (GTK_OBJECT (dialog->runge_kutta_radio), "which_options", (gpointer)RUNGE_KUTTA) ;
-  dialog->radio_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->runge_kutta_radio));
+  g_object_set_data (G_OBJECT (dialog->runge_kutta_radio), "which_options", (gpointer)RUNGE_KUTTA) ;
+  dialog->radio_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->runge_kutta_radio));
   gtk_widget_show (dialog->runge_kutta_radio);
   gtk_table_attach (GTK_TABLE (tblAlgo), dialog->runge_kutta_radio, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),

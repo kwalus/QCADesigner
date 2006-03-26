@@ -92,8 +92,8 @@ void get_sim_engine_from_user (GtkWindow *parent, int *piSimEng)
     gtk_widget_set_sensitive (sim_engine_setup_dialog.options_button, TRUE) ;
     }
 
-  gtk_object_set_data (GTK_OBJECT (sim_engine_setup_dialog.sim_engine_setup_dialog), "piSimEng", piSimEng) ;
-  gtk_object_set_data (GTK_OBJECT (sim_engine_setup_dialog.sim_engine_setup_dialog), "dialog", &sim_engine_setup_dialog) ;
+  g_object_set_data (G_OBJECT (sim_engine_setup_dialog.sim_engine_setup_dialog), "piSimEng", piSimEng) ;
+  g_object_set_data (G_OBJECT (sim_engine_setup_dialog.sim_engine_setup_dialog), "dialog", &sim_engine_setup_dialog) ;
 
   if (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (sim_engine_setup_dialog.sim_engine_setup_dialog)))
     if (NULL != piSimEng)
@@ -128,8 +128,8 @@ static void create_sim_engine_dialog (sim_engine_setup_D *dialog)
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->vbox1, TRUE, TRUE, 0);
 
   dialog->coherence_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, _("Coherence Vector"));
-  gtk_object_set_data (GTK_OBJECT (dialog->coherence_radio), "which_options", (gpointer)COHERENCE_VECTOR) ;
-  dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->coherence_radio));
+  g_object_set_data (G_OBJECT (dialog->coherence_radio), "which_options", (gpointer)COHERENCE_VECTOR) ;
+  dialog->vbox1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->coherence_radio));
   gtk_widget_show (dialog->coherence_radio);
   g_object_set_data (G_OBJECT (dialog->coherence_radio), "options_button", dialog->coherence_options_button) ;
   gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->coherence_radio, 0, 1, 0, 1,
@@ -137,8 +137,8 @@ static void create_sim_engine_dialog (sim_engine_setup_D *dialog)
                     (GtkAttachOptions) (GTK_FILL), 2, 2);
 
   dialog->bistable_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, _("Bistable Approximation"));
-  gtk_object_set_data (GTK_OBJECT (dialog->bistable_radio), "which_options", (gpointer)BISTABLE) ;
-  dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->bistable_radio));
+  g_object_set_data (G_OBJECT (dialog->bistable_radio), "which_options", (gpointer)BISTABLE) ;
+  dialog->vbox1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->bistable_radio));
   gtk_widget_show (dialog->bistable_radio);
   g_object_set_data (G_OBJECT (dialog->bistable_radio), "options_button", dialog->bistable_options_button) ;
   gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->bistable_radio, 0, 1, 1, 2,
@@ -146,8 +146,8 @@ static void create_sim_engine_dialog (sim_engine_setup_D *dialog)
                     (GtkAttachOptions) (GTK_FILL), 2, 2);
 										
 	dialog->ts_coherence_radio = gtk_radio_button_new_with_label (dialog->vbox1_group, _("Three State Coherence"));
-  gtk_object_set_data (GTK_OBJECT (dialog->ts_coherence_radio), "which_options", (gpointer)TS_COHERENCE_VECTOR) ;
-  dialog->vbox1_group = gtk_radio_button_group (GTK_RADIO_BUTTON (dialog->ts_coherence_radio));
+  g_object_set_data (G_OBJECT (dialog->ts_coherence_radio), "which_options", (gpointer)TS_COHERENCE_VECTOR) ;
+  dialog->vbox1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->ts_coherence_radio));
   gtk_widget_show (dialog->ts_coherence_radio);
   g_object_set_data (G_OBJECT (dialog->ts_coherence_radio), "options_button", dialog->ts_coherence_options_button) ;
   gtk_table_attach (GTK_TABLE (dialog->vbox1), dialog->ts_coherence_radio, 0, 1, 2, 3,

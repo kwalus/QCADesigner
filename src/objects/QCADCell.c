@@ -320,8 +320,8 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   // cell.dot-diameter.units = "nm"
   g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "nm") ;
 #ifdef GTK_GUI
-  // cell.clock.render-as = GTK_TYPE_OPTION_MENU
-  g_value_set_uint   (g_value_init (&(properties[4].ui_property_value), G_TYPE_UINT), (guint)GTK_TYPE_OPTION_MENU) ;
+  // cell.clock.render-as = GTK_TYPE_COMBO_BOX
+  g_value_set_uint   (g_value_init (&(properties[4].ui_property_value), G_TYPE_UINT), (guint)GTK_TYPE_COMBO_BOX) ;
 #endif /* def GTK_GUI */
 
   qcad_object_class_install_ui_behaviour (QCAD_OBJECT_CLASS (klass), behaviour, G_N_ELEMENTS (behaviour)) ;

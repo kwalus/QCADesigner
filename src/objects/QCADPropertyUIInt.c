@@ -78,7 +78,7 @@ static void qcad_property_ui_int_class_init (QCADPropertyUIIntClass *klass)
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_INT_PROPERTY_RENDER_AS,
     qcad_param_spec_type_list ("render-as", _("Render As"), _("Render as widget"),
-      GTK_TYPE_SPIN_BUTTON, G_PARAM_READABLE | G_PARAM_WRITABLE, GTK_TYPE_SPIN_BUTTON, GTK_TYPE_OPTION_MENU, 0)) ;
+      GTK_TYPE_SPIN_BUTTON, G_PARAM_READABLE | G_PARAM_WRITABLE, GTK_TYPE_SPIN_BUTTON, GTK_TYPE_COMBO_BOX, 0)) ;
 #endif /* def GTK_GUI */
   }
 
@@ -162,7 +162,7 @@ static GtkWidget *get_widget (QCADPropertyUI *property_ui, int idxX, int idxY, i
       return property_ui_int->spn.widget ;
     }
   else
-  if (property_ui_int->render_as == GTK_TYPE_OPTION_MENU)
+  if (property_ui_int->render_as == GTK_TYPE_COMBO_BOX)
     {
     if (idxX == property_ui_int->option_menu.idxX && idxY == property_ui_int->option_menu.idxY)
       return property_ui_int->option_menu.widget ;
@@ -201,7 +201,7 @@ static void set_pspec (QCADPropertyUISingle *property_ui, GParamSpec *new_pspec)
     property_ui_int->adj->value = ((GParamSpecUInt *)(new_pspec))->default_value ;
     }
 
-  if (GTK_TYPE_OPTION_MENU == property_ui_int->render_as)
+  if (GTK_TYPE_COMBO_BOX == property_ui_int->render_as)
     qcad_property_ui_int_create_option_menu (property_ui_int) ;
 
   QCAD_PROPERTY_UI_SINGLE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_INT)))->set_pspec (property_ui, new_pspec) ;
@@ -262,7 +262,7 @@ static void set_visible (QCADPropertyUI *property_ui, gboolean bVisible)
   if (GTK_TYPE_SPIN_BUTTON == property_ui_int->render_as)
     GTK_WIDGET_SET_VISIBLE (QCAD_PROPERTY_UI_INT (property_ui)->spn.widget, bVisible) ;
   else
-  if (GTK_TYPE_OPTION_MENU == property_ui_int->render_as)
+  if (GTK_TYPE_COMBO_BOX == property_ui_int->render_as)
     GTK_WIDGET_SET_VISIBLE (QCAD_PROPERTY_UI_INT (property_ui)->option_menu.widget, bVisible) ;
   }
 
@@ -275,7 +275,7 @@ static void set_sensitive (QCADPropertyUI *property_ui, gboolean bSensitive)
   if (GTK_TYPE_SPIN_BUTTON == property_ui_int->render_as)
     gtk_widget_set_sensitive (QCAD_PROPERTY_UI_INT (property_ui)->spn.widget, bSensitive) ;
   else
-  if (GTK_TYPE_OPTION_MENU == property_ui_int->render_as)
+  if (GTK_TYPE_COMBO_BOX == property_ui_int->render_as)
     gtk_widget_set_sensitive (QCAD_PROPERTY_UI_INT (property_ui)->option_menu.widget, bSensitive) ;
   }
 
@@ -283,7 +283,7 @@ static void qcad_property_ui_int_set_render_as (QCADPropertyUIInt *property_ui_i
   {
   if (type == property_ui_int->render_as) return ;
 
-  if (type == GTK_TYPE_OPTION_MENU)
+  if (type == GTK_TYPE_COMBO_BOX)
     qcad_property_ui_int_create_option_menu (property_ui_int) ;
 
   property_ui_int->render_as = type ;

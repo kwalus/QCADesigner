@@ -29,10 +29,12 @@
 #ifndef _QCADSTOCK_H_
 #define _QCADSTOCK_H_
 
-#include <gtk/gtk.h>
+#ifdef GTK_GUI
+  #include <gtk/gtk.h>
 
 #define QCAD_ICON_SIZE_SIDE_TOOLBAR GTK_ICON_SIZE_LARGE_TOOLBAR
 #define QCAD_ICON_SIZE_TOP_TOOLBAR GTK_ICON_SIZE_SMALL_TOOLBAR
+#endif /* def GTK_GUI */
 
 #define QCAD_STOCK_REORDER_LAYERS     "qcad-reorder-layers"
 #define QCAD_STOCK_CLOCK              "qcad-clock"

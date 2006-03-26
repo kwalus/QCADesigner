@@ -828,7 +828,7 @@ void file_operations (GtkWidget *widget, gpointer user_data)
     }
 #ifdef STDIO_FILEIO
   if (FILEOP_OPEN_RECENT == fFileOp)
-    pszFName = g_strdup_printf ("%s", (char *)gtk_object_get_data (GTK_OBJECT (widget), "file")) ;
+    pszFName = g_strdup_printf ("%s", (char *)g_object_get_data (G_OBJECT (widget), "file")) ;
   else
   if (FILEOP_CMDLINE == fFileOp)
     {

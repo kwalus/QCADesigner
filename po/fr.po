@@ -1351,6 +1351,25 @@ msgstr ""
 
 # From main_batch_sim.c:
 msgid
+"Usage: batch_sim options...\n"
+"\n"
+"Options are:\n"
+"  -a  --average   samples       Optional: Number of samples to use for running average. Default is 1.\n"
+"  -d  --delay     honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
+"  -e  --engine    engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
+"  -f  --file      file          Required: The circuit file.\n"
+"  -l  --lower     polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
+"  -n  --number    number        Required: Number of simulations to perform.\n"
+"  -o  --options   file          Required: Simulation engine options file.\n"
+"  -r  --results   file          Required: Simulation results file to compare generated results to.\n"
+"  -t  --tolerance tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
+"  -u  --upper     polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n"
+"  -x  --exit                    Optional: Turn on exit-on-first-failure.\n"
+"    -s  --save      file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
+"                                            and the circuit to file_prefix.qca.\n"
+msgstr ""
+
+msgid
 "Simulation engine               : %s\n"
 "Simulation options file         : %s\n"
 "Circuit file                    : %s\n"

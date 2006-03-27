@@ -74,4 +74,7 @@
 #define QCAD_STOCK_SHOW_POTENTIAL     "qcad-show-potential"
 #define QCAD_STOCK_NO_SHOW_POTENTIAL  "qcad-no-show-potential"
 
+#define QCAD_STOCK_EXHAUSTIVE_SIM     "qcad-exhaustive-simulation"
+#define QCAD_STOCK_VECTOR_TABLE_SIM   "qcad-vector-table-simulation"
+
 #endif /* _QCADSTOCK_H_ */

@@ -99,6 +99,8 @@ pixmap_DATA = \
 	working_with_qcells.svg \
 	zoom_extents.png \
 	zoom_in.png \
-	zoom_out.png
+	zoom_out.png \
+  exhaustive_verification.svg \
+  vector_table_simulation.svg  
 
 EXTRA_DIST=$(pixmap_DATA)

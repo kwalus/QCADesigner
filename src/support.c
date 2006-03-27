@@ -156,6 +156,7 @@ void add_stock_icon (const gchar *filename, const gchar *stock_id)
   if (NULL != (icon_source = gtk_icon_source_new ()))
     {
     gtk_icon_source_set_filename (icon_source, psz = find_pixmap_file (filename)) ;
+//    gtk_icon_source_set_size_wildcarded (icon_source, TRUE) ;
     if (NULL == (icon_set = gtk_icon_factory_lookup (icon_factory, stock_id)))
       {
       icon_set = gtk_icon_set_new () ;

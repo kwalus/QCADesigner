@@ -77,8 +77,8 @@ static int n_sim_type_action_entries = G_N_ELEMENTS (sim_type_action_entries) ;
 
 static GtkRadioActionEntry sim_type_radio_action_entries[] =
   {
-  {"ExhaustiveAction",  GTK_STOCK_YES, N_("Exhaustive"),   NULL, N_("Exhaustive Verification"), EXHAUSTIVE_VERIFICATION},
-  {"VectorTableAction", GTK_STOCK_NO,  N_("Vector Table"), NULL, N_("Vector Table Simulation"), VECTOR_TABLE}
+  {"ExhaustiveAction",  QCAD_STOCK_EXHAUSTIVE_SIM,    N_("Exhaustive"),   NULL, N_("Exhaustive Verification"), EXHAUSTIVE_VERIFICATION},
+  {"VectorTableAction", QCAD_STOCK_VECTOR_TABLE_SIM,  N_("Vector Table"), NULL, N_("Vector Table Simulation"), VECTOR_TABLE}
   } ;
 static int n_sim_type_radio_action_entries = G_N_ELEMENTS (sim_type_radio_action_entries) ;
 

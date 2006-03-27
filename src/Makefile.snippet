@@ -1,26 +1,38 @@
-	echo -e 'Generating object file entries for @TARGET@.exe...'; \
+	echo $$'\nGenerating object file entries for @TARGET@.exe...\n'; \
+	touch .deps; \
 	for file in $(@TARGET@_SOURCES); do \
 		if echo $$file | grep -q '\.c$$'; then \
-			BASENAME=`echo $$file | sed -e 's!\(.*\)\..*$$!\1!' -e 's!.*/\(.*$$\)!\1!'`; \
-			O_FILE="@TARGET@-$${BASENAME}.o"; \
-			C_FILE_RAW=`find . | grep -m 1 "/$$BASENAME\.c$$"`; \
-			C_FILE=`echo $$C_FILE_RAW | sed 's!^./!!'`; \
-			C_FILE_PATH=`echo $$C_FILE_RAW | sed 's!^\(.*/\).*$$!\1!'`; \
-			O_FILES="$${O_FILES} $${O_FILE}"; \
-			echo -e "$${O_FILE}: $${C_FILE} ..."; \
-			echo -n "$${O_FILE}: $${C_FILE}" >> Makefile; \
-			for H_FILE in `cat $$C_FILE_RAW | grep -E '^[ '"$$(echo -e '\t')"']*#[ '"$$(echo -e '\t')"']*include' | grep -v '<[^>]*>' | sed 's/^.*"\([^"]*\)".*$$/\1/'`; do \
-				if test -f "$${C_FILE_PATH}$${H_FILE}"; then \
-					H_FILE=`echo "$${C_FILE_PATH}$${H_FILE}" | sed 's!^./!!'`; \
-					echo ' \' >> Makefile; \
-					echo -en '\t'"$${H_FILE}" >> Makefile; \
-				fi; \
-			done; \
-			echo '' >> Makefile; \
-			echo -e '\t$$(CC) $$(CFLAGS) $$(DEFINES) $$(@TARGET@_DEFINES) $$(INCLUDE_PATHS) \' >> Makefile; \
-			echo -e '\t\t-c '"$${C_FILE}"' \' >> Makefile; \
-			echo -e '\t\t-o '"$${O_FILE}" >> Makefile; \
-			echo '' >> Makefile; \
+			DEPS=`cat .deps | grep -m 1 "^$${file}"'!'`; \
+			if test "$${DEPS}" = ""; then \
+				BASENAME=`echo $$file | sed -e 's!\(.*\)\..*$$!\1!' -e 's!.*/\(.*$$\)!\1!'`; \
+				O_FILE="@TARGET@-$${BASENAME}.o"; \
+				C_FILE_RAW=`find . | grep -m 1 "/$$BASENAME\.c$$"`; \
+				C_FILE=`echo $$C_FILE_RAW | sed 's!^./!!'`; \
+				C_FILE_PATH=`echo $$C_FILE_RAW | sed 's!^\(.*/\).*$$!\1!'`; \
+				O_FILES="$${O_FILES} $${O_FILE}"; \
+				echo -e "  $${O_FILE} ..."; \
+				echo -n "$${C_FILE}" >> .deps; \
+				echo -n "$${O_FILE}: $${C_FILE}" >> Makefile; \
+				for H_FILE in `cat $$C_FILE_RAW | grep -E '^[ '"$$(echo -e '\t')"']*#[ '"$$(echo -e '\t')"']*include' | grep -v '<[^>]*>' | sed 's/^.*"\([^"]*\)".*$$/\1/'`; do \
+					if test -f "$${C_FILE_PATH}$${H_FILE}"; then \
+						H_FILE=`echo "$${C_FILE_PATH}$${H_FILE}" | sed 's!^./!!'`; \
+						echo -n '!'"$${H_FILE}" >> .deps; \
+						echo ' \' >> Makefile; \
+						echo -en '\t'"$${H_FILE}" >> Makefile; \
+					fi; \
+				done; \
+				echo "" >> .deps; \
+			  echo '' >> Makefile; \
+			  echo -e '\t$$(CC) $$(CFLAGS) $$(DEFINES) $$(@TARGET@_DEFINES) $$(INCLUDE_PATHS) \' >> Makefile; \
+			  echo -e '\t\t-c '"$${C_FILE}"' \' >> Makefile; \
+			  echo -e '\t\t-o '"$${O_FILE}" >> Makefile; \
+			  echo '' >> Makefile; \
+			else \
+        O_FILE=`echo "$${DEPS}" | sed -e 's/!.*$$//' -e 's!\(.*\)\..*$$!\1!' -e 's!.*/\(.*$$\)!\1!' -e 's/\(.*\)/@TARGET@-\1.o/'`; \
+        echo "* $${O_FILE} ..."; \
+        O_FILES="$${O_FILES} $${O_FILE}"; \
+        echo "$${DEPS}" | sed -e 's/\(^[^!]*\)\(.*\)/'"$${O_FILE}"':\1\2/' -e 's/^\([^:]*\):\([^!]*\)!\(.*\)/\1: \2 \\\'$$'\n\t''\3\'$$'\n\t''$$(CC) $$(CFLAGS) $$(DEFINES) $$(@TARGET@_DEFINES) $$(INCLUDE_PATHS) \\\'$$'\n\t\t''-c \2 \\\'$$'\n\t\t''-o \1\'$$'\n''/' -e 's/!/ \\\'$$'\n\t''/g' >> Makefile; \
+			fi; \
 		fi; \
 	done; \
 	echo '' >> Makefile; \

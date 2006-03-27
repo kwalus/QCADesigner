@@ -2,7 +2,8 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
 
-bin_PROGRAMS = QCADesigner batch_sim graph_dialog combo_test
+bin_PROGRAMS = batch_sim combo_test graph_dialog QCADesigner 
+# bin_PROGRAMS = batch_sim
 # bin_PROGRAMS = QCADesigner batch_sim graph_dialog
 
 include Makefile.inc
@@ -29,13 +30,13 @@ QCADesigner_CFLAGS = \
 	@GTHREAD_CFLAGS@
 
 QCADesigner_SOURCES = \
-	preamble.c                              preamble.h \
-	support.c                               support.h \
-\
   $(CORE_FILES) \
   $(OBJECT_FILES) \
   $(SIMULATION_FILES) \
   $(STDIO_FILEIO_FILES) \
+\
+	preamble.c                              preamble.h \
+	support.c                               support.h \
 \
   $(GRAPH_DIALOG_FILES) \
   $(PROPERTY_UI_FILES) \

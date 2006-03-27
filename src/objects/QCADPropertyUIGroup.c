@@ -144,6 +144,7 @@ static void qcad_property_ui_group_instance_init (QCADPropertyUIGroup *property_
   property_ui_group->frm.idxX   = 0 ;
   property_ui_group->frm.idxY   = 0 ;
   gtk_dialog_add_button (GTK_DIALOG (property_ui_group->dlg.widget), GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE) ;
+  gtk_dialog_set_default_response (GTK_DIALOG (property_ui_group->dlg.widget), GTK_RESPONSE_CLOSE) ;
 
   property_ui_group->btn.widget = gtk_button_new () ;
   g_object_ref (G_OBJECT (property_ui_group->btn.widget)) ;

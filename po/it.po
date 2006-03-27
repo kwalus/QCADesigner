@@ -1401,7 +1401,7 @@ msgid "unsuccessful"
 msgstr "non riuscita"
 
 msgid "Output has more buses than reference !\n"
-msgstr "L'uscita ha più di un riferimento !\n"
+msgstr "L'uscita ha più bus del riferimento !\n"
 
 msgid "Creating %s to record the failure.\n"
 msgstr "Creazione di %s per riportare il fallimento.\n"

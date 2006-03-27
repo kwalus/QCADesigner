@@ -108,6 +108,7 @@ static void margins_changed (GtkWidget *widget, gpointer data) ;
 static void units_changed (GtkWidget *widget, gpointer data) ;
 static void browse_for_file (GtkWidget *widget, gpointer data) ;
 static void btnPreview_clicked (GtkWidget *widget, gpointer data) ;
+static void daPreview_size_request (GtkWidget *widget, GtkRequisition *rq, gpointer data) ;
 
 static struct
   {
@@ -664,6 +665,7 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
   g_signal_connect (G_OBJECT (dlg->btnFileSelect), "clicked",       (GCallback)browse_for_file,           print_dialog) ;
   g_signal_connect (G_OBJECT (dlg->btnPipeSelect), "clicked",       (GCallback)browse_for_file,           print_dialog) ;
   g_signal_connect (G_OBJECT (dlg->btnPreview),    "clicked",       (GCallback)btnPreview_clicked,        print_dialog) ;
+  g_signal_connect (G_OBJECT (dlg->daPreview),     "size-request",  (GCallback)daPreview_size_request,    NULL) ;
   }
 
 /*****************************************************************************
@@ -867,6 +869,12 @@ void emit_changed_signal (QCADPrintDialog *pd)
 /*****************************************************************************
 * CALLBACKS                                                                  *
 *****************************************************************************/
+
+static void daPreview_size_request (GtkWidget *widget, GtkRequisition *rq, gpointer data)
+  {
+  rq->width = MAX (rq->width, 200) ;
+  rq->height = MAX (rq->height, 200) ;
+  }
 
 static void browse_for_file (GtkWidget *widget, gpointer data)
   {

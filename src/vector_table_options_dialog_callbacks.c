@@ -487,7 +487,7 @@ static void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *p
 
 static void vector_column_clicked (GtkObject *obj, gpointer data)
   {
-  vector_table_options_D *dialog = (vector_table_options_D *)data ;
+  vector_table_options_D *dialog = (vector_table_options_D *)g_object_get_data (G_OBJECT (obj), "dialog") ;
   GtkTreeViewColumn *col = NULL ;
   int idx = -1 ;
 
@@ -604,6 +604,8 @@ static GtkTreeViewColumn *vector_table_tree_view_column_new (vector_table_option
   g_object_set_data (G_OBJECT (col), CR_KEY, cr) ;
   g_object_set_data (G_OBJECT (cr), IDX_VECTOR_KEY, (gpointer)idxVector) ;
   g_object_set_data (G_OBJECT (cr), COL_KEY, col) ;
+  g_object_set_data (G_OBJECT (cr), "dialog", dialog) ;
+  g_object_set_data (G_OBJECT (col), "dialog", dialog) ;
   g_object_set (G_OBJECT (cr), 
     "editable",            TRUE, 
 //    "cell-background-gdk", &((gtk_widget_get_style (dialog->tv))->base[3]),
@@ -611,8 +613,8 @@ static GtkTreeViewColumn *vector_table_tree_view_column_new (vector_table_option
     NULL) ;
   gtk_tree_view_column_set_cell_data_func (col, cr, set_cell_data, dialog, NULL) ;
 
-  g_signal_connect (G_OBJECT (col), "clicked",         (GCallback)vector_column_clicked,        dialog) ;
-  g_signal_connect (G_OBJECT (cr),  "toggled",         (GCallback)vector_column_clicked,        dialog) ;
+  g_signal_connect (G_OBJECT (col), "clicked",         (GCallback)vector_column_clicked,        NULL) ;
+  g_signal_connect (G_OBJECT (cr),  "toggled",         (GCallback)vector_column_clicked,        NULL) ;
   g_signal_connect (G_OBJECT (cr),  "edited",          (GCallback)vector_value_edited,          dialog) ;
   g_signal_connect (G_OBJECT (cr),  "editing-started", (GCallback)vector_value_editing_started, dialog) ;
 

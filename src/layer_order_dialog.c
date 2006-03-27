@@ -63,6 +63,8 @@ GList *get_layer_order_from_user (GtkWindow *parent, DESIGN *design)
 
   gtk_widget_hide (layer_order_dialog.dialog) ;
 
+  gtk_window_present (parent) ;
+
   return llRet ;
   }
 

@@ -133,10 +133,10 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   create_coherence_properties_line (dialog->table, 10, &(label), &(dialog->epsilonR_entry),               NULL,      _("Relative Permittivity:"),  NULL, TRUE) ;
   create_coherence_properties_line (dialog->table, 11, &(label), &(dialog->layer_separation_entry),       &lblunits, _("Layer Separation:"),       "nm", TRUE) ;
 //Added by Marco
-  create_coherence_properties_line (dialog->table, 12, &(label), &(dialog->jitter_phase_0_entry),       &lblunits, _("Phase Shift Clock 0:"),       "[% of PI/2]", TRUE) ;
-  create_coherence_properties_line (dialog->table, 13, &(label), &(dialog->jitter_phase_1_entry),       &lblunits, _("Phase Shift Clock 1:"),       "[% of PI/2]", TRUE) ;
-  create_coherence_properties_line (dialog->table, 14, &(label), &(dialog->jitter_phase_2_entry),       &lblunits, _("Phase Shift Clock 2:"),       "[% of PI/2]", TRUE) ;
-  create_coherence_properties_line (dialog->table, 15, &(label), &(dialog->jitter_phase_3_entry),       &lblunits, _("Phase Shift Clock 3:"),       "[% of PI/2]", TRUE) ;
+  create_coherence_properties_line (dialog->table, 12, &(label), &(dialog->jitter_phase_0_entry),         &lblunits, _("Phase Shift Clock 0:"), _("% of π/2"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 13, &(label), &(dialog->jitter_phase_1_entry),         &lblunits, _("Phase Shift Clock 1:"), _("% of π/2"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 14, &(label), &(dialog->jitter_phase_2_entry),         &lblunits, _("Phase Shift Clock 2:"), _("% of π/2"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 15, &(label), &(dialog->jitter_phase_3_entry),         &lblunits, _("Phase Shift Clock 3:"), _("% of π/2"), TRUE) ;
 //End added by Marco
 
   frm = gtk_frame_new (_("Algorithm")) ;

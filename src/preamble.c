@@ -77,7 +77,6 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   preamble (pargc, pargv) ;
 #endif /* def QCAD_NO_CONSOLE */
   gtk_init (pargc, pargv) ;
-  return ;
 
   // Add pixmap directories
 #ifdef WIN32
@@ -234,13 +233,10 @@ void preamble (int *pargc, char ***pargv)
   bindtextdomain (PACKAGE, psz = g_strdup_printf ("%s%slocale", szMyPath, G_DIR_SEPARATOR_S)) ;
   g_free (psz) ;
 #else
-//  g_print ("bindtextdomain (" PACKAGE ", " PACKAGE_LOCALE_DIR ")\n");
   bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
 #endif /* def WIN32 */
-//  g_print ("textdomain (" PACKAGE ")\n");
   textdomain (PACKAGE);
 #endif /* ENABLE_NLS */
-//  g_print ("bind_textdomain_codeset (" PACKAGE ", \"UTF-8\")\n");
   bind_textdomain_codeset (PACKAGE, "UTF-8") ;
 #ifdef WIN32
 #ifdef QCAD_NO_CONSOLE

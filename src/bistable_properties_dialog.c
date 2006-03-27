@@ -168,6 +168,7 @@ void get_bistable_properties_from_user (GtkWindow *parent, bistable_OP *pbo)
 
 static void create_bistable_properties_dialog (bistable_properties_D *dialog)
   {
+  GtkWidget *lbl = NULL ;
   if (NULL != dialog->bistable_properties_dialog) return ;
 
   dialog->bistable_properties_dialog = gtk_dialog_new ();
@@ -178,7 +179,7 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
   dialog->dialog_vbox1 = GTK_DIALOG (dialog->bistable_properties_dialog)->vbox;
   gtk_widget_show (dialog->dialog_vbox1);
 
-  dialog->table = gtk_table_new (7, 2, FALSE);
+  dialog->table = gtk_table_new (7, 3, FALSE);
   gtk_widget_show (dialog->table);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->table), 2);
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->table, TRUE, TRUE, 0);
@@ -213,7 +214,7 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->convergence_tolerance_entry), TRUE) ;
 
-  dialog->label3 = gtk_label_new (_("Radius of Effect [nm]:"));
+  dialog->label3 = gtk_label_new (_("Radius of Effect:"));
   gtk_widget_show (dialog->label3);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->label3, 0, 1, 2, 3,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -227,6 +228,14 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->radius_of_effect_entry), TRUE) ;
+
+  lbl = gtk_label_new ("nm");
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 2, 3,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
 
   dialog->label4 = gtk_label_new (_("Relative Permittivity:"));
   gtk_widget_show (dialog->label4);
@@ -258,6 +267,14 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->clock_high_entry), TRUE) ;
 
+  lbl = gtk_label_new ("J");
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 4, 5,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
+
   dialog->label6 = gtk_label_new (_("Clock Low:"));
   gtk_widget_show (dialog->label6);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->label6, 0, 1, 5, 6,
@@ -265,6 +282,14 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (dialog->label6), GTK_JUSTIFY_RIGHT);
   gtk_misc_set_alignment (GTK_MISC (dialog->label6), 1, 0.5);
+
+  lbl = gtk_label_new ("J");
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 5, 6,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
 
   dialog->clock_low_entry = gtk_entry_new ();
   gtk_widget_show (dialog->clock_low_entry);
@@ -318,6 +343,14 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->layer_separation_entry), TRUE) ;
 
+  lbl = gtk_label_new ("nm");
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 8, 9,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
+
   dialog->lblMaxIter = gtk_label_new (_("Maximum Iterations Per Sample:"));
   gtk_widget_show (dialog->lblMaxIter);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->lblMaxIter, 0, 1, 9, 10,
@@ -335,7 +368,7 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
 
 //Added by Marco March 06
 
-  dialog->lbljitph0 = gtk_label_new (_("Phase Shift Clock 0 [% of PI/2]:"));
+  dialog->lbljitph0 = gtk_label_new (_("Phase Shift Clock 0:"));
   gtk_widget_show (dialog->lbljitph0);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph0, 0, 1, 10, 11,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -350,7 +383,15 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_0_entry), TRUE) ;
   
-  dialog->lbljitph1 = gtk_label_new (_("Phase Shift Clock 1 [% of PI/2]:"));
+  lbl = gtk_label_new (_("% of π/2"));
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 10, 11,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
+
+  dialog->lbljitph1 = gtk_label_new (_("Phase Shift Clock 1:"));
   gtk_widget_show (dialog->lbljitph1);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph1, 0, 1, 11, 12,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -365,7 +406,15 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_1_entry), TRUE) ;
   
-  dialog->lbljitph2 = gtk_label_new (_("Phase Shift Clock 2 [% of PI/2]:"));
+  lbl = gtk_label_new (_("% of π/2"));
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 11, 12,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
+
+  dialog->lbljitph2 = gtk_label_new (_("Phase Shift Clock 2:"));
   gtk_widget_show (dialog->lbljitph2);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph2, 0, 1, 12, 13,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -380,7 +429,15 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_2_entry), TRUE) ;
   
-  dialog->lbljitph3 = gtk_label_new (_("Phase Shift Clock 3 [% of PI/2]:"));
+  lbl = gtk_label_new (_("% of π/2"));
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 12, 13,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
+
+  dialog->lbljitph3 = gtk_label_new (_("Phase Shift Clock 3:"));
   gtk_widget_show (dialog->lbljitph3);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph3, 0, 1, 13, 14,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -394,6 +451,14 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_3_entry), TRUE) ;
+
+  lbl = gtk_label_new (_("% of π/2"));
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 13, 14,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
 
 //End added by Marco March 06
   dialog->chkRandomizeCells = gtk_check_button_new_with_label (_("Randomize Simulation Order")) ;

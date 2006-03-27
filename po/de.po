@@ -815,16 +815,19 @@ msgstr "Papierbreite:"
 msgid "Phase"
 msgstr ""
 
-msgid "Phase Shift Clock 0 [% of PI/2]:"
+msgid "Phase Shift Clock 0:"
 msgstr ""
 
-msgid "Phase Shift Clock 1 [% of PI/2]:"
+msgid "Phase Shift Clock 1:"
 msgstr ""
 
-msgid "Phase Shift Clock 2 [% of PI/2]:"
+msgid "Phase Shift Clock 2:"
 msgstr ""
 
-msgid "Phase Shift Clock 3 [% of PI/2]:"
+msgid "Phase Shift Clock 3:"
+msgstr ""
+
+msgid "% of π/2"
 msgstr ""
 
 msgid "Please Select PostScript Viewer"

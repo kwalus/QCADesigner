@@ -2,6 +2,7 @@
 #include "../support.h"
 #include "../generic_utils.h"
 #include "../custom_widgets.h"
+#include "QCADComboBox.h"
 #include "QCADPropertyUIInt.h"
 #include "QCADParamSpecTypeList.h"
 
@@ -108,7 +109,7 @@ static void qcad_property_ui_int_instance_init (QCADPropertyUIInt *property_ui_i
   property_ui_numeric->lblUnits.idxX   = 2 ;
   property_ui_numeric->lblUnits.idxY   = 0 ;
 
-  property_ui_int->option_menu.widget = gtk_combo_box_new () ;
+  property_ui_int->option_menu.widget = g_object_new (QCAD_TYPE_COMBO_BOX, NULL) ;
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (property_ui_int->option_menu.widget), cr = gtk_cell_renderer_text_new (), FALSE) ;
   gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (property_ui_int->option_menu.widget), cr, "text", 0) ;
   g_object_ref (G_OBJECT (property_ui_int->option_menu.widget)) ;

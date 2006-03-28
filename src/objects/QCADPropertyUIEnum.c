@@ -1,6 +1,7 @@
-#include "../support.h"
+#include "../intl.h"
 #include "QCADPropertyUIEnum.h"
 #include "QCADParamSpecTypeList.h"
+#include "QCADComboBox.h"
 
 enum
   {
@@ -83,7 +84,7 @@ static void qcad_property_ui_enum_instance_init (QCADPropertyUIEnum *property_ui
   QCAD_PROPERTY_UI (property_ui_enum)->cyWidgets = 1 ;
 
 #ifdef GTK_GUI
-  property_ui_enum->option_menu.widget = gtk_combo_box_new () ;
+  property_ui_enum->option_menu.widget = g_object_new (QCAD_TYPE_COMBO_BOX, NULL) ;
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (property_ui_enum->option_menu.widget), cr = gtk_cell_renderer_text_new (), FALSE) ;
   gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (property_ui_enum->option_menu.widget), cr, "text", 0) ;
   g_object_ref (G_OBJECT (property_ui_enum->option_menu.widget)) ;

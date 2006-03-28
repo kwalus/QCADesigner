@@ -61,6 +61,7 @@ SIMULATION_UI_FILES = \
 	ts_coherence_vector_properties_dialog.c	ts_coherence_vector_properties_dialog.h
 
 GTK_WORKAROUND_FILES = \
+	objects/QCADComboBox.c                  objects/QCADComboBox.h \
 	objects/QCADToggleToolButton.c          objects/QCADToggleToolButton.h \
 	objects/QCADRadioToolButton.c           objects/QCADRadioToolButton.h \
 	objects/QCADRadioButton.c               objects/QCADRadioButton.h

@@ -202,8 +202,7 @@ static void set_pspec (QCADPropertyUISingle *property_ui, GParamSpec *new_pspec)
     property_ui_int->adj->value = ((GParamSpecUInt *)(new_pspec))->default_value ;
     }
 
-  if (GTK_TYPE_COMBO_BOX == property_ui_int->render_as)
-    qcad_property_ui_int_create_option_menu (property_ui_int) ;
+  qcad_property_ui_int_create_option_menu (property_ui_int) ;
 
   QCAD_PROPERTY_UI_SINGLE_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_PROPERTY_UI_INT)))->set_pspec (property_ui, new_pspec) ;
   }
@@ -284,40 +283,45 @@ static void qcad_property_ui_int_set_render_as (QCADPropertyUIInt *property_ui_i
   {
   if (type == property_ui_int->render_as) return ;
 
-  if (type == GTK_TYPE_COMBO_BOX)
-    qcad_property_ui_int_create_option_menu (property_ui_int) ;
-
   property_ui_int->render_as = type ;
+
+  qcad_property_ui_int_create_option_menu (property_ui_int) ;
+
   g_object_notify (G_OBJECT (property_ui_int), "render-as") ;
   }
 
 static void qcad_property_ui_int_create_option_menu (QCADPropertyUIInt *property_ui_int)
   {
-  int Nix ;
-  char *psz = NULL ;
-  char *pszPrefix = NULL ;
   QCADPropertyUISingle *property_ui_single = QCAD_PROPERTY_UI_SINGLE (property_ui_int) ;
   GtkListStore *ls = NULL ;
   GtkTreeIter itr ;
 
   ls = gtk_list_store_new (1, G_TYPE_STRING) ;
 
-  if (NULL != property_ui_single->pspec)
-    if (NULL != (pszPrefix = (char *)g_param_spec_get_nick (property_ui_single->pspec)))
-      if (0 == pszPrefix[0])
-        pszPrefix = NULL ;
-
-  for (Nix = property_ui_int->adj->lower ; Nix <= property_ui_int->adj->upper ; Nix++)
+  if (GTK_TYPE_COMBO_BOX == property_ui_int->render_as)
     {
-    if (NULL == pszPrefix)
-      psz = g_strdup_printf ("%d", Nix) ;
-    else
-      psz = g_strdup_printf ("%s %d", pszPrefix, Nix) ;
-    gtk_list_store_append (ls, &itr) ;
-    gtk_list_store_set (ls, &itr, 0, psz, -1) ;
-    g_free (psz) ;
+    int Nix ;
+    char *psz = NULL ;
+    char *pszPrefix = NULL ;
+
+    if (NULL != property_ui_single->pspec)
+      if (NULL != (pszPrefix = (char *)g_param_spec_get_nick (property_ui_single->pspec)))
+        if (0 == pszPrefix[0])
+          pszPrefix = NULL ;
+
+    for (Nix = property_ui_int->adj->lower ; Nix <= property_ui_int->adj->upper ; Nix++)
+      {
+      if (NULL == pszPrefix)
+        psz = g_strdup_printf ("%d", Nix) ;
+      else
+        psz = g_strdup_printf ("%s %d", pszPrefix, Nix) ;
+      gtk_list_store_append (ls, &itr) ;
+      gtk_list_store_set (ls, &itr, 0, psz, -1) ;
+      g_free (psz) ;
+      }
     }
   g_object_set (G_OBJECT (property_ui_int->option_menu.widget), "model", ls, NULL) ;
-  g_object_notify (QCAD_PROPERTY_UI (property_ui_int)->instance, g_param_spec_get_name (property_ui_single->pspec)) ;
+  if (NULL != property_ui_single->pspec)
+    g_object_notify (QCAD_PROPERTY_UI (property_ui_int)->instance, g_param_spec_get_name (property_ui_single->pspec)) ;
   }
 #endif /* def GTK_GUI */

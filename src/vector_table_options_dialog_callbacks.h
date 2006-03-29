@@ -3,6 +3,7 @@
 
 #include <gtk/gtk.h>
 
+void     vtod_dialog_show                (GtkWidget *widget, gpointer data) ;
 void     vtod_actOpen_activate           (GtkAction *action, gpointer data) ;
 void     vtod_actSave_activate           (GtkAction *action, gpointer data) ;
 void     vtod_actAdd_activate            (GtkAction *action, gpointer data) ;

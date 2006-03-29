@@ -204,6 +204,7 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
     "xalign", 0.0, "yalign", 0.5, "xpad", 2, "ypad", 2, NULL) ;
   gtk_container_add (GTK_CONTAINER (frm), dialog->lblFileName) ;
 
+  g_signal_connect (G_OBJECT (dialog->dialog), "show",            (GCallback)vtod_dialog_show,            dialog) ;
   g_signal_connect (G_OBJECT (dialog->dialog), "delete-event",    (GCallback)vtod_actClose_activate,      NULL) ;
   g_signal_connect (G_OBJECT (dialog->tv),     "size-allocate",   (GCallback)vtod_treeview_size_allocate, dialog) ;
   g_signal_connect (G_OBJECT (dialog->tv),     "focus-out-event", (GCallback)vtod_treeview_focus,         dialog) ;

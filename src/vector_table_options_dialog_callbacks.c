@@ -29,6 +29,16 @@ static void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *p
 static void vector_column_clicked (GtkObject *obj, gpointer data) ;
 static void vector_column_hilight (GtkTreeView *tv, int idxVector) ;
 
+void vtod_dialog_show (GtkWidget *widget, gpointer data)
+  {
+  vector_table_options_D *dialog = (vector_table_options_D *)data ;
+  VECTOR_TABLE_OPTIONS_DIALOG_DATA *dialog_data = g_object_get_data (G_OBJECT (dialog->dialog), "vector_table_options_dialog_data") ;
+  vtod_actSimType_changed (GTK_RADIO_ACTION (dialog->actVectorTable), 
+    GTK_RADIO_ACTION (VECTOR_TABLE == (*(dialog_data->sim_type_p)) 
+      ? dialog->actVectorTable 
+      : dialog->actExhaustive), dialog) ;
+  }
+
 #ifdef STDIO_FILEIO
 void vtod_actOpen_activate (GtkAction *action, gpointer data)
   {
@@ -655,6 +665,8 @@ static void update_treeview (vector_table_options_D *dialog)
         : 0 ;
   EXP_ARRAY *column_widths = NULL ;
 
+  if (!GTK_WIDGET_REALIZED (dialog->sw)) return ;
+
   gtk_tree_view_get_visible_rect (GTK_TREE_VIEW (dialog->tv), &rc) ;
   g_object_get (G_OBJECT (dialog->sw), "hadjustment", &adj, NULL) ;
 
@@ -674,8 +686,7 @@ static void update_treeview (vector_table_options_D *dialog)
       exp_array_index_1d (column_widths, int, Nix) = 0 ;
     }
 
-  if (GTK_WIDGET_REALIZED (dialog->sw))
-    drain_gtk_events () ;
+  drain_gtk_events () ;
 
   if (NULL == (llCols = gtk_tree_view_get_columns (GTK_TREE_VIEW (dialog->tv)))) return ;
 
@@ -718,8 +729,7 @@ static void update_treeview (vector_table_options_D *dialog)
           // Make sure the columns are removed and all
           g_signal_handlers_block_matched (G_OBJECT (dialog->tv), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, (GCallback)vtod_treeview_size_allocate, NULL) ;
 //          g_print ("Waiting for columns to be removed\n") ;
-          if (GTK_WIDGET_REALIZED (dialog->tv))
-            drain_gtk_events () ;
+          drain_gtk_events () ;
 //          g_print ("Columns removed\n") ;
           g_signal_handlers_unblock_matched (G_OBJECT (dialog->tv), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, (GCallback)vtod_treeview_size_allocate, NULL) ;
 
@@ -796,8 +806,7 @@ static void update_treeview (vector_table_options_D *dialog)
           // Make sure the column is added and displayed ... (?)
           g_signal_handlers_block_matched (G_OBJECT (dialog->tv), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, (GCallback)vtod_treeview_size_allocate, NULL) ;
 //          g_print ("Waiting for columns to be displayed\n") ;
-          if (GTK_WIDGET_REALIZED (dialog->tv))
-            drain_gtk_events () ;
+          drain_gtk_events () ;
 //          g_print ("Columns displayed\n") ;
           g_signal_handlers_unblock_matched (G_OBJECT (dialog->tv), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, (GCallback)vtod_treeview_size_allocate, NULL) ;
           }

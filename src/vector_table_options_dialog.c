@@ -71,9 +71,5 @@ static void vector_table_options_dialog_set_data (vector_table_options_D *dialog
     "value",     (*(dialog_data->sim_type_p)), 
     "sensitive", (dialog_data->pvt->inputs->icUsed > 0),
     NULL) ;
-  vtod_actSimType_changed (GTK_RADIO_ACTION (dialog->actVectorTable), 
-    GTK_RADIO_ACTION (VECTOR_TABLE == (*(dialog_data->sim_type_p)) 
-      ? dialog->actVectorTable 
-      : dialog->actExhaustive), dialog) ;
   gtk_window_set_default_size (GTK_WINDOW (dialog->dialog), 640, 480) ;
   }

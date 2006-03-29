@@ -477,10 +477,11 @@ static void vector_value_edited (GtkCellRendererText *cr, char *pszPath, char *p
         }
     }
 
-  gtk_tree_view_columns_autosize (GTK_TREE_VIEW (dialog->tv)) ;
+  gtk_widget_queue_resize (dialog->tv) ;
+//  gtk_tree_view_columns_autosize (GTK_TREE_VIEW (dialog->tv)) ;
   // Wait for all columns to get resized
 //  g_print ("Waiting for columns to be resized\n") ;
-  drain_gtk_events () ;
+//  drain_gtk_events () ;
 //  g_print ("Columns resized\n") ;
 //  update_treeview (dialog) ;
   }

@@ -12,7 +12,7 @@ set -x
 set +x
 
 # Hacky test for Windoze follows :o)
-if [ "" != "$WINDIR" ]; then
+if test "" != "$WINDIR" ; then
   echo '########################################################################################'
   echo 'IMPORTANT: Under cygwin, you must set the following environment variables:'
   echo ''

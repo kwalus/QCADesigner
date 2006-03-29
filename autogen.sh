@@ -24,15 +24,15 @@ if test "" != "$WINDIR" ; then
   echo 'because, for some reason, you cannot run autogen.sh twice on the same source tree'
   echo '########################################################################################'
 
-  if [ "" = "$GTK_SOURCES" ]; then
+  if test "" = "$GTK_SOURCES" ; then
     echo "The environment variable GTK_SOURCES is not defined. Please enter the location of your GTK+ development environment (see http://www.gimp.org/~tml/gimp/win32/downloads.html):"
     read
   fi
   ACLOCAL_FLAGS="${ACLOCAL_FLAGS} ${GTK_SOURCES}/share/aclocal"
   export ACLOCAL_FLAGS
 # Test for Fink if Darwin
-elif [ "Darwin" = "$(uname)" ]; then
-  if ![ -d /sw/share/aclocal ]; then
+elif test "Darwin" = "$(uname)"; then
+  if ! test -d /sw/share/aclocal ; then
     echo "Couldn't find directory /sw/share/aclocal. This probably means that you don't have Fink installed, or that it is installed improperly. Please download Fink from http://fink.sourceforge.net/ and re-run this script afterwards."
   else
     ACLOCAL_FLAGS="${ACLOCAL_FLAGS} -I /sw/share/aclocal"

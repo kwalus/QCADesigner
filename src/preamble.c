@@ -163,6 +163,10 @@ void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName)
   add_stock_icon ("q_cell_mirror_other.png",     QCAD_STOCK_MIRROR_HORIZONTAL) ;
   add_stock_icon ("ruler.png",                   QCAD_STOCK_MEASURE) ;
   add_stock_icon ("insert_column_before.png",    QCAD_STOCK_INSERT_COL_BEFORE) ;
+  add_stock_icon ("show_potential.png",          QCAD_STOCK_SHOW_POTENTIAL) ;
+  add_stock_icon ("no_show_potential.png",       QCAD_STOCK_NO_SHOW_POTENTIAL) ;
+  add_stock_icon ("exhaustive_verification.png", QCAD_STOCK_EXHAUSTIVE_SIM) ;
+  add_stock_icon ("vector_table_simulation.png", QCAD_STOCK_VECTOR_TABLE_SIM) ;
 #endif /* def HAVE_LIBRSVG */
   }
 #endif /* def GTK_GUI */

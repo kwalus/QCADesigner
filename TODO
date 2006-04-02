@@ -6,6 +6,7 @@
     - design creation: main_window
     - design testing: graph dialog + bus layout + vector table + sim engine
       - Simulation data /is/ vector table
+      - How do you load a vector table ?
       - What about number of samples ? Assemble simulation data the way the 
         engine would. IOW, copy the assembly code out of the top of the main
         simulation routine

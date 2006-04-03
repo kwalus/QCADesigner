@@ -8,7 +8,6 @@
 #include "design.h"
 #include "interface.h"
 #include "preamble.h"
-#include "layers_combo.h"
 #include "objects/QCADLayersCombo.h"
 
 /*
@@ -39,7 +38,6 @@ int main (int argc, char *argv[])
 #endif /* ifdef WIN32 */
   DESIGN *design = NULL ;
   GtkWidget *wnd = NULL, *cb = NULL, *box = NULL ;
-  LAYERS_COMBO layers_combo = {NULL} ;
 
 #ifdef QCAD_NO_CONSOLE
   gtk_preamble (&argc, &argv, NULL, pszCmdLine) ;
@@ -59,9 +57,6 @@ int main (int argc, char *argv[])
   gtk_widget_show (box) ;
   gtk_container_add (GTK_CONTAINER (wnd), box) ;
 
-  cb = layers_combo_new (&layers_combo) ;
-  gtk_box_pack_start (GTK_BOX (box), cb, TRUE, TRUE, 0) ;
-
   cb = g_object_new (QCAD_TYPE_LAYERS_COMBO, "visible", TRUE, "border-width", 5, NULL) ;
   gtk_box_pack_start (GTK_BOX (box), cb, TRUE, TRUE, 0) ;
 
@@ -72,9 +67,6 @@ int main (int argc, char *argv[])
     }
 
   g_object_set (G_OBJECT (cb), "design", design, NULL) ;
-
-  layers_combo_set_design (&layers_combo, design) ;
-  layers_combo_select_layer (&layers_combo, QCAD_LAYER (design->lstCurrentLayer->data)) ;
 
   g_signal_connect_swapped (G_OBJECT (cb), "notify::layer", (GCallback)g_print, "QCADLayersCombo::notify::layer\n") ;
 

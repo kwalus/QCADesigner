@@ -29,7 +29,6 @@
 #define _INTERFACE_H_
 
 #include <gtk/gtk.h>
-#include "layers_combo.h"
 #include "objects/QCADPropertyUI.h"
 
 #define MAIN_WND_BASE_TITLE "QCADesigner"

@@ -1,3 +1,4 @@
+#include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include "QCADFlexiCombo.h"
 #include "../intl.h"

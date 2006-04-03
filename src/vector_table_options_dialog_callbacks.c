@@ -21,6 +21,7 @@ static GtkTreeViewColumn *vector_table_tree_view_column_new (vector_table_option
 static void update_treeview (vector_table_options_D *dialog) ;
 static void set_cell_data (GtkTreeViewColumn *tvc, GtkCellRenderer *cell, GtkTreeModel *tm, GtkTreeIter *itr, gpointer data) ;
 static guint64 calculate_bus_value (VectorTable *pvt, int idx, BUS *bus) ;
+static guint64 calculate_exhaustive_value (guint64 value, GtkTreeModel *tm, GtkTreeIter *itr, int total_inputs) ;
 static void vector_column_edit (GtkTreeView *tv, GtkWidget *sw, GtkTreePath *tp, int idxDst, gboolean bForward) ;
 
 static void vector_value_editing_started (GtkCellRendererText *cr, GtkCellEditable *editable, char *pszPath, gpointer data) ;
@@ -154,7 +155,9 @@ void vector_actions_notify_sensitive (GtkActionGroup *ag, GParamSpec *spec, gpoi
   gtk_tree_selection_set_mode (gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->tv)), 
     bSensitive ? GTK_SELECTION_SINGLE : GTK_SELECTION_NONE) ;
 
+  gtk_widget_set_sensitive (dialog->dialog, FALSE) ;
   update_treeview (dialog) ;
+  gtk_widget_set_sensitive (dialog->dialog, TRUE) ;
 
   gtk_adjustment_set_value (gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (dialog->sw)), 0) ;
   vtod_reflect_number_of_vectors_changed (dialog, g_object_get_data (G_OBJECT (dialog->dialog), "vector_table_options_dialog_data")) ;
@@ -353,7 +356,7 @@ static void set_cell_data (GtkTreeViewColumn *tvc, GtkCellRenderer *cell, GtkTre
     }
   else
     {
-    int value = idxVector % (1 << dialog_data->bus_layout->inputs->icUsed) ;
+    guint64 value = idxVector % (1 << dialog_data->bus_layout->inputs->icUsed) ;
     if (row_type & ROW_TYPE_CELL)
       g_object_set (G_OBJECT (cell), 
         "active",    (gboolean)((value >> (dialog_data->bus_layout->inputs->icUsed - 1 - idx_dfs)) & 0x1),
@@ -367,7 +370,7 @@ static void set_cell_data (GtkTreeViewColumn *tvc, GtkCellRenderer *cell, GtkTre
       char *psz = NULL ;
 
       g_object_set (G_OBJECT (cell), 
-        "text",      psz = g_strdup_printf ("%d", value),
+        "text",      psz = g_strdup_printf ("%llu", calculate_exhaustive_value (value, tm, itr, dialog_data->bus_layout->inputs->icUsed)),
         "row-type",  row_type,
         "sensitive", FALSE,
         "editable",  FALSE,
@@ -873,6 +876,24 @@ static guint64 calculate_bus_value (VectorTable *pvt, int idx, BUS *bus)
       if (exp_array_index_2d (pvt->vectors, gboolean, idx, exp_array_index_1d (bus->cell_indices, int, Nix)))
         ret |= 0x1 ;
       }
+
+  return ret ;
+  }
+
+static guint64 calculate_exhaustive_value (guint64 value, GtkTreeModel *tm, GtkTreeIter *itr, int total_inputs)
+  {
+  int idx_dfs = -1 ;
+  guint64 ret = 0 ;
+  GtkTreeIter itrChild ;
+
+  if (gtk_tree_model_iter_children (tm, &itrChild, itr))
+    do
+      {
+      ret = ret << 1 ;
+      gtk_tree_model_get (tm, &itrChild, VECTOR_TABLE_MODEL_COLUMN_IDX_DFS, &idx_dfs, -1) ;
+      ret |= ((value & (1 << (total_inputs - 1 - idx_dfs))) ? 0x1 : 0x0) ;
+      }
+    while (gtk_tree_model_iter_next (tm, &itrChild)) ;
 
   return ret ;
   }

@@ -1,9 +1,11 @@
+#include <gdk/gdkkeysyms.h>
 #include "QCADFlexiCombo.h"
 #include "../intl.h"
 #include "../custom_widgets.h"
 
 typedef struct
   {
+  GtkWidget *combo_box_btn ;
   GtkWidget *btn ;
   GtkWidget *popup ;
   guint hide_grab_widget_handler_id ;
@@ -34,6 +36,7 @@ static void forall (GtkContainer *container, gboolean bInternals, GtkCallback ca
 static void arrow_btn_clicked    (GtkWidget *widget, gpointer data) ;
 static void forall_callback      (GtkWidget *widget, gpointer data) ;
 static gboolean hide_grab_widget (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
+static gboolean popup_key_release (GtkWidget *widget, GdkEventKey *event, gpointer data) ;
 
 void qcad_flexi_combo_show_popup (QCADFlexiCombo *flexi_combo, gboolean bShow) ;
 // Copied from gtk+-2.4.14/gtk/gtkmenu.c
@@ -101,17 +104,17 @@ static void instance_init (QCADFlexiCombo *instance)
   QCADFlexiComboPrivate *private = QCAD_FLEXI_COMBO_GET_PRIVATE (instance) ;
 
   private->bParentWidgetsVisible = TRUE ;
+  private->combo_box_btn = NULL ;
 
   gtk_container_remove (GTK_CONTAINER (instance), GTK_BIN (instance)->child) ;
   GTK_BIN (instance)->child = NULL ;
 
-  private->btn = gtk_button_new () ;
+  private->btn = g_object_new (GTK_TYPE_BUTTON, "visible", TRUE, NULL) ;
   gtk_container_add (GTK_CONTAINER (private->btn), 
     g_object_new (GTK_TYPE_ARROW, "visible", TRUE, "arrow-type", GTK_ARROW_DOWN, "shadow-type", GTK_SHADOW_NONE, NULL)) ;
   gtk_widget_set_parent (private->btn, GTK_WIDGET (instance)) ;
   g_object_ref (private->btn) ;
   gtk_object_sink (GTK_OBJECT (private->btn)) ;
-  gtk_widget_show (private->btn) ;
 
   private->popup  = g_object_new (GTK_TYPE_WINDOW, 
     "type", GTK_WINDOW_POPUP, "modal", TRUE, 
@@ -119,9 +122,11 @@ static void instance_init (QCADFlexiCombo *instance)
     "type-hint", GDK_WINDOW_TYPE_HINT_MENU, "resizable", FALSE, "decorated", FALSE,
 #endif /* def WIN32 */
     NULL) ;
+  gtk_widget_add_events (private->popup, GDK_KEY_RELEASE_MASK) ;
   private->popup = g_object_ref (private->popup) ;
   gtk_object_sink (GTK_OBJECT (private->popup)) ;
   g_signal_connect (G_OBJECT (private->btn), "clicked", (GCallback)arrow_btn_clicked, instance) ;
+  g_signal_connect (G_OBJECT (private->popup), "key-release-event", (GCallback)popup_key_release, instance) ;
   }
 
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -179,19 +184,19 @@ static void size_request (GtkWidget *widget, GtkRequisition *rq)
 
   gtk_widget_size_request (private->btn, &rq_btn) ;
 
-//  g_print ("size_request: Button wants [%dx%d]\n", rq_btn.width, rq_btn.height) ;
+  g_print ("size_request: Button wants [%dx%d]\n", rq_btn.width, rq_btn.height) ;
 
   if (NULL != bin_child)
     {
     gtk_widget_size_request (bin_child, &rq_child) ;
 
-//    g_print ("size_request: Child wants [%dx%d]\n", rq_child.width, rq_child.height) ;
+    g_print ("size_request: Child wants [%dx%d]\n", rq_child.width, rq_child.height) ;
     }
 
   rq->width  =     rq_btn.width  + rq_child.width   + (GTK_CONTAINER (widget)->border_width << 1) ;
   rq->height = (0 == rq_child.height ? rq_btn.height : rq_child.height) + (GTK_CONTAINER (widget)->border_width << 1) ;
 
-//  g_print ("size_request: Setting rq to [%dx%d]\n", rq->width, rq->height) ;
+  g_print ("size_request: Setting rq to [%dx%d]\n", rq->width, rq->height) ;
   }
 
 static void size_allocate (GtkWidget *widget, GtkAllocation *alloc)
@@ -202,15 +207,15 @@ static void size_allocate (GtkWidget *widget, GtkAllocation *alloc)
 
   widget->allocation = (*alloc) ;
   
-//  g_print ("size_allocate: Gotten (%d,%d)[%dx%d]\n", alloc->x, alloc->y, alloc->width, alloc->height) ;
-//  g_print ("size_allocate: GTK_CONTAINER (widget)->border_width = %d\n", GTK_CONTAINER (widget)->border_width) ;
+  g_print ("size_allocate: Gotten (%d,%d)[%dx%d]\n", alloc->x, alloc->y, alloc->width, alloc->height) ;
+  g_print ("size_allocate: GTK_CONTAINER (widget)->border_width = %d\n", GTK_CONTAINER (widget)->border_width) ;
 
   alloc_inside.x      = alloc->x      + GTK_CONTAINER (widget)->border_width ;
   alloc_inside.y      = alloc->y      + GTK_CONTAINER (widget)->border_width ;
   alloc_inside.width  = alloc->width  - (GTK_CONTAINER (widget)->border_width << 1) ;
   alloc_inside.height = alloc->height - (GTK_CONTAINER (widget)->border_width << 1) ;
 
-//  g_print ("size_allocate: Minus border width: (%d,%d)[%dx%d]\n", alloc_inside.x, alloc_inside.y, alloc_inside.width, alloc_inside.height) ;
+  g_print ("size_allocate: Minus border width: (%d,%d)[%dx%d]\n", alloc_inside.x, alloc_inside.y, alloc_inside.width, alloc_inside.height) ;
 
   alloc_child.x      = alloc_inside.x ;
   alloc_child.y      = alloc_inside.y ;
@@ -221,12 +226,12 @@ static void size_allocate (GtkWidget *widget, GtkAllocation *alloc)
     }
   
   alloc_btn.x      = alloc_child.x + alloc_child.width ;
-  alloc_btn.y      = alloc_child.y ;
-  alloc_btn.width  = MAX (0, alloc_inside.width - alloc_child.width) ;
   alloc_btn.height = (0 == alloc_child.height ? private->btn->requisition.height : alloc_child.height) ;
+  alloc_btn.y      = alloc_child.y + ((alloc_child.height - alloc_btn.height) >> 1) ;
+  alloc_btn.width  = MAX (0, alloc_inside.width - alloc_child.width) ;
 
-//  g_print ("size_allocate: Giving the button (%d,%d)[%dx%d]\n", alloc_btn.x, alloc_btn.y, alloc_btn.width, alloc_btn.height) ;
-//  g_print ("size_allocate: Giving the child (%d,%d)[%dx%d]\n", alloc_child.x, alloc_child.y, alloc_child.width, alloc_child.height) ;
+  g_print ("size_allocate: Giving the button (%d,%d)[%dx%d]\n", alloc_btn.x, alloc_btn.y, alloc_btn.width, alloc_btn.height) ;  
+  g_print ("size_allocate: Giving the child (%d,%d)[%dx%d]\n", alloc_child.x, alloc_child.y, alloc_child.width, alloc_child.height) ;
 
   gtk_widget_size_allocate (private->btn, &alloc_btn) ;
   if (NULL != bin_child)
@@ -251,6 +256,13 @@ static void forall (GtkContainer *container, gboolean bInternals, GtkCallback ca
     (*callback) (GTK_BIN (container)->child, data) ;
   }
 
+static gboolean popup_key_release (GtkWidget *widget, GdkEventKey *event, gpointer data)
+  {
+  if (0 == event->state && GDK_Escape == event->keyval)
+    qcad_flexi_combo_show_popup (QCAD_FLEXI_COMBO (data), FALSE) ;
+  return FALSE ;
+  }
+
 static void arrow_btn_clicked (GtkWidget *widget, gpointer data)
   {
   GtkWidget *popup = QCAD_FLEXI_COMBO_GET_PRIVATE (data)->popup ;
@@ -262,7 +274,10 @@ static void arrow_btn_clicked (GtkWidget *widget, gpointer data)
 static void forall_callback (GtkWidget *widget, gpointer data)
   {
   QCADFlexiCombo *flexi_combo = QCAD_FLEXI_COMBO (data) ;
-  if (QCAD_FLEXI_COMBO_GET_PRIVATE (flexi_combo)->btn == widget || GTK_BIN (flexi_combo)->child == widget) return ;
+  QCADFlexiComboPrivate *private = QCAD_FLEXI_COMBO_GET_PRIVATE (flexi_combo) ;
+
+  if (private->btn == widget || GTK_BIN (flexi_combo)->child == widget) return ;
+  if (GTK_TYPE_TOGGLE_BUTTON == G_TYPE_FROM_INSTANCE (widget)) private->combo_box_btn = widget ;
 //  g_print ("forall_callback: Hiding widget %s\n", g_type_name (G_TYPE_FROM_INSTANCE (widget))) ;
   g_signal_connect (G_OBJECT (widget), "show", (GCallback)gtk_widget_hide, NULL) ;
   gtk_widget_hide (widget) ;
@@ -286,7 +301,9 @@ void qcad_flexi_combo_show_popup (QCADFlexiCombo *flexi_combo, gboolean bShow)
   {
   QCADFlexiComboPrivate *private = QCAD_FLEXI_COMBO_GET_PRIVATE (flexi_combo) ;
 //  GtkWidget *tv = gtk_bin_get_child (GTK_BIN (private->frm)) ;
-  GtkWidget *grab_widget = private->popup ;
+  GtkWidget 
+    *grab_widget = private->popup, 
+    *popup_ref_widget = (NULL == (GTK_BIN (flexi_combo)->child) ? private->btn : GTK_BIN (flexi_combo)->child) ;
 
   if (NULL == GTK_BIN (private->popup)->child)
     bShow = FALSE ;
@@ -295,9 +312,8 @@ void qcad_flexi_combo_show_popup (QCADFlexiCombo *flexi_combo, gboolean bShow)
     {
     int x, y ;
 
-    gtk_widget_get_root_origin (GTK_WIDGET (flexi_combo), &x, &y) ;
-    y += GTK_WIDGET (flexi_combo)->allocation.height - GTK_CONTAINER (flexi_combo)->border_width ;
-    x += GTK_CONTAINER (flexi_combo)->border_width ;
+    gtk_widget_get_root_origin (popup_ref_widget, &x, &y) ;
+    y += popup_ref_widget->allocation.height + 1 ;
     gtk_window_move (GTK_WINDOW (private->popup), x, y) ;
     gtk_widget_show (private->popup) ;
 /*

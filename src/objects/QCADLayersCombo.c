@@ -132,9 +132,12 @@ static void instance_init (QCADLayersCombo *instance)
 
   frm = g_object_new (GTK_TYPE_FRAME, "visible", TRUE, "shadow-type", GTK_SHADOW_IN, NULL) ;
   gtk_container_add (GTK_CONTAINER (instance), frm) ;
+//  gtk_container_add (GTK_CONTAINER (instance), g_object_new (GTK_TYPE_ENTRY, "visible", TRUE, NULL)) ;
   private->tv_current = g_object_new (GTK_TYPE_TREE_VIEW, "visible", TRUE, "headers-visible", FALSE, NULL) ;
+  GTK_WIDGET_UNSET_FLAGS (private->tv_current, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
   gtk_tree_selection_set_mode (gtk_tree_view_get_selection (GTK_TREE_VIEW (private->tv_current)), GTK_SELECTION_NONE) ;
   gtk_container_add (GTK_CONTAINER (frm), private->tv_current) ;
+//  gtk_container_add (GTK_CONTAINER (instance), private->tv_current) ;
   col = g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, NULL) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (private->tv_current), GTK_TREE_VIEW_COLUMN (col)) ;
   gtk_cell_layout_pack_start (col, cr = gtk_cell_renderer_pixbuf_new (), FALSE) ;
@@ -263,7 +266,7 @@ static void layers_selection_changed (GtkTreeSelection *sel, gpointer data)
   GList *llSel = gtk_tree_selection_get_selected_rows (sel, NULL) ;
   QCADLayer *layer = NULL ;
 
-  g_print ("layers_selection_changed:Entering\n") ;
+//  g_print ("layers_selection_changed:Entering\n") ;
 
   if (NULL == llSel) return ;
   if (NULL != private->model)
@@ -272,7 +275,7 @@ static void layers_selection_changed (GtkTreeSelection *sel, gpointer data)
       gtk_tree_model_get (private->model, &itr, LAYER_MODEL_COLUMN_LAYER, &layer, -1) ;
       if (layer != private->design->lstCurrentLayer->data)
         {
-        g_print ("layers_selection_changed:Setting current layer: %s\n", layer->pszDescription) ;
+//        g_print ("layers_selection_changed:Setting current layer: %s\n", layer->pszDescription) ;
         design_set_current_layer (private->design, layer) ;
         g_object_notify (G_OBJECT (data), "layer") ;
         if (NULL != private->tm_filter)
@@ -421,8 +424,8 @@ static void set_layer (QCADLayersCombo *layers_combo, QCADLayer *layer)
     do
       {
       gtk_tree_model_get (private->model, &itr, LAYER_MODEL_COLUMN_LAYER, &model_layer, -1) ;
-      g_print ("QCADLayersCombo::set_layer:Deciding model_layer = %s vs. layer->data = %s\n",
-        model_layer->pszDescription, layer->pszDescription) ;
+//      g_print ("QCADLayersCombo::set_layer:Deciding model_layer = %s vs. layer->data = %s\n",
+//        model_layer->pszDescription, layer->pszDescription) ;
       if (model_layer == layer)
         {
         gtk_tree_selection_select_iter (gtk_tree_view_get_selection (GTK_TREE_VIEW (private->tv)), &itr) ;

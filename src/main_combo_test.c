@@ -8,6 +8,7 @@
 #include "design.h"
 #include "interface.h"
 #include "preamble.h"
+#include "custom_widgets.h"
 #include "objects/QCADLayersCombo.h"
 
 /*

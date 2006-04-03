@@ -280,7 +280,7 @@ static void qcad_property_ui_int_set_render_as (QCADPropertyUIInt *property_ui_i
 
   property_ui_int->render_as = type ;
 
-  g_print ("qcad_property_ui_int_set_render_as: Set rendering to %s\n", g_type_name (type)) ;
+//  g_print ("qcad_property_ui_int_set_render_as: Set rendering to %s\n", g_type_name (type)) ;
 
   qcad_property_ui_int_create_option_menu (property_ui_int) ;
 
@@ -335,11 +335,11 @@ static void qcad_property_ui_int_connect_combo_box (QCADPropertyUIInt *property_
 
   private->bComboBoxConnected = bConnect ;
 
-  g_print ("qcad_property_ui_int_connect_combo_box: %sonnecting combo box for %s.%s with render_as = %s\n",
-    bConnect ? "C" : "Disc",
-    g_type_name (G_TYPE_FROM_INSTANCE (instance)),
-    g_param_spec_get_name (property_ui_single->pspec),
-    g_type_name (property_ui_int->render_as)) ;
+//  g_print ("qcad_property_ui_int_connect_combo_box: %sonnecting combo box for %s.%s with render_as = %s\n",
+//    bConnect ? "C" : "Disc",
+//    g_type_name (G_TYPE_FROM_INSTANCE (instance)),
+//    g_param_spec_get_name (property_ui_single->pspec),
+//    g_type_name (property_ui_int->render_as)) ;
 
   if (bConnect)
     {

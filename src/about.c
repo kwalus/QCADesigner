@@ -60,7 +60,7 @@ GtkWindow *show_about_dialog (GtkWidget **pparent, gboolean bSplash)
     gtk_widget_show (about_dialog.about_dialog);
     gtk_widget_hide (about_dialog.dialog_action_area1) ;
     drain_gtk_events () ;
-    gtk_timeout_add (50, (GtkFunction)hide_about_dialog, about_dialog.about_dialog) ;
+    g_timeout_add (50, (GSourceFunc)hide_about_dialog, about_dialog.about_dialog) ;
     }
   else
     {

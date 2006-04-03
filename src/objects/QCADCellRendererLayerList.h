@@ -31,6 +31,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include "QCADCellRendererText.h"
 #include "../design.h"
 
 typedef struct _QCADCellRendererLayerList      QCADCellRendererLayerList ;
@@ -38,7 +39,7 @@ typedef struct _QCADCellRendererLayerListClass QCADCellRendererLayerListClass ;
 
 struct _QCADCellRendererLayerList
   {
-  GtkCellRendererText parent ;
+  QCADCellRendererText parent ;
 
   DESIGN *design ;
   QCADLayer *layer ;
@@ -47,7 +48,7 @@ struct _QCADCellRendererLayerList
 
 struct _QCADCellRendererLayerListClass
   {
-  GtkCellRendererTextClass parent_class ;
+  QCADCellRendererTextClass parent_class ;
   void (*layer_changed) (GtkCellRenderer *cell, char *pszPath, QCADLayer *layer) ;
   } ;
 

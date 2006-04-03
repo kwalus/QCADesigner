@@ -65,7 +65,7 @@ GtkWidget *create_labelled_progress_bar () ;
 void push_cursor (GtkWidget *widget, GdkCursor *cursor) ;
 GdkCursor *pop_cursor (GtkWidget *widget) ;
 void set_window_icon (GtkWindow *window, char *pszBaseName) ;
-GtkCellRenderer *gtk_tree_view_get_cell_renderer_at_point (GtkTreeView *tv, int x, int y, GtkTreePath **ptp) ;
+GtkCellRenderer *gtk_tree_view_get_cell_renderer_at_point (GtkTreeView *tv, int x, int y, GtkTreePath **ptp, GtkTreeViewColumn **pcol) ;
 
 #define NUMBER_OF_RULER_SUBDIVISIONS 3
 void set_ruler_scale (GtkRuler *ruler, double dLower, double dUpper) ;

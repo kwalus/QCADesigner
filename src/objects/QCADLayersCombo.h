@@ -2,6 +2,7 @@
 #define _OBJECTS_QCADLayersCombo_H_
 
 #include "QCADFlexiCombo.h"
+#include "objects/QCADLayer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,6 +19,7 @@ struct _QCADLayersCombo
 struct _QCADLayersComboClass
   {
   QCADFlexiComboClass parent_class ;
+  gboolean (*deactivate_layer) (QCADLayersCombo *layers_combo, QCADLayer *layer, gpointer data) ;
   } ;
 
 GType qcad_layers_combo_get_type () ;

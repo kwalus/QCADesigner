@@ -43,7 +43,8 @@
 #include "objects/QCADPropertyUISingle.h"
 #include "objects/QCADToggleToolButton.h"
 #include "objects/QCADRadioToolButton.h"
-#include "layers_combo.h"
+#include "objects/QCADLayersCombo.h"
+//#include "layers_combo.h"
 
 main_W main_window = {NULL} ;
 extern char *layer_stock_id[] ;
@@ -157,25 +158,29 @@ void create_main_window (main_W *main_window){
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
     _("Layer Properties"), _("Modify the settings for the current layer.")) ;
   g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)layer_properties_button_clicked, NULL) ;
-/*
+
   gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
     _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
 
-  main_window->layers_combo = g_object_new (GTK_TYPE_COMBO, "visible", TRUE, "border-width", 4, NULL) ;
+/*main_window->layers_combo = g_object_new (GTK_TYPE_COMBO, "visible", TRUE, "border-width", 4, NULL) ;
   GTK_WIDGET_UNSET_FLAGS (main_window->layers_combo, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
   GTK_WIDGET_UNSET_FLAGS (GTK_COMBO (main_window->layers_combo)->entry, GTK_CAN_FOCUS | GTK_CAN_DEFAULT) ;
   gtk_entry_set_editable (GTK_ENTRY (GTK_COMBO (main_window->layers_combo)->entry), FALSE) ;
-  gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layers_combo) ;
 */
+  main_window->layers_combo = g_object_new (QCAD_TYPE_LAYERS_COMBO, "visible", TRUE, "border-width", 5, NULL) ;
+  gtk_container_add (GTK_CONTAINER (toolbar_item), main_window->layers_combo) ;
+  g_signal_connect (G_OBJECT (main_window->layers_combo), "deactivate-layer", (GCallback)layers_combo_deactivate_layer, NULL) ;
+  g_signal_connect (G_OBJECT (main_window->layers_combo), "notify::layer", (GCallback)layers_combo_notify_layer, NULL) ;
+
   gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar), GTK_TOOL_ITEM (toolbar_item = g_object_new (GTK_TYPE_TOOL_ITEM, "visible", TRUE, NULL)), -1) ;
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (layers_toolbar)->tooltips, 
     _("Layers"), _("Lists the layers in the current design and allows you to switch between them.")) ;
 
-  gtk_container_add (GTK_CONTAINER (toolbar_item), layers_combo_new (&(main_window->layers_combo))) ;
-  g_signal_connect (G_OBJECT (main_window->layers_combo.crVisible), "toggled",  (GCallback)layer_list_state_toggled, NULL) ;
-  g_signal_connect (G_OBJECT (main_window->layers_combo.crActive),  "toggled",  (GCallback)layer_list_state_toggled, NULL) ;
-  g_signal_connect (G_OBJECT (gtk_tree_view_get_selection (GTK_TREE_VIEW (main_window->layers_combo.tv))), "changed", (GCallback)layers_selection_changed, NULL) ;
+//  gtk_container_add (GTK_CONTAINER (toolbar_item), layers_combo_new (&(main_window->layers_combo))) ;
+//  g_signal_connect (G_OBJECT (main_window->layers_combo.crVisible), "toggled",  (GCallback)layer_list_state_toggled, NULL) ;
+//  g_signal_connect (G_OBJECT (main_window->layers_combo.crActive),  "toggled",  (GCallback)layer_list_state_toggled, NULL) ;
+//  g_signal_connect (G_OBJECT (gtk_tree_view_get_selection (GTK_TREE_VIEW (main_window->layers_combo.tv))), "changed", (GCallback)layers_selection_changed, NULL) ;
 
   gtk_toolbar_insert (GTK_TOOLBAR (layers_toolbar),
     GTK_TOOL_ITEM (toolbar_item = 

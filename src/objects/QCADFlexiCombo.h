@@ -23,6 +23,7 @@ struct _QCADFlexiComboClass
   } ;
 
 GType qcad_flexi_combo_get_type () ;
+void qcad_flexi_combo_show_popup (QCADFlexiCombo *flexi_combo, gboolean bShow) ;
 
 #define QCAD_TYPE_STRING_FLEXI_COMBO "QCADFlexiCombo"
 #define QCAD_TYPE_FLEXI_COMBO (qcad_flexi_combo_get_type ())

@@ -47,7 +47,6 @@ QCADesigner_SOURCES = \
 \
 	interface.c                             interface.h \
 	callbacks.c                             callbacks.h \
-	layers_combo.c                          layers_combo.h \
 	                                        actions.h \
                                          	actions/action_handlers.h \
 	actions/array.c                         actions/array.h \
@@ -63,9 +62,11 @@ QCADesigner_SOURCES = \
 	objects/mouse_handlers.c                objects/mouse_handlers.h \
 	                                    	  objects/mouse_handler_struct.h \
 	                                    	  objects/objects_debug.h \
+	objects/QCADCellRendererText.c          objects/QCADCellRendererText.h \
 	objects/QCADCellRendererVT.c            objects/QCADCellRendererVT.h \
 	objects/QCADCellRendererLayerList.c     objects/QCADCellRendererLayerList.h \
-	objects/QCADTreeViewCombo.c             objects/QCADTreeViewCombo.h \
+	objects/QCADFlexiCombo.c                objects/QCADFlexiCombo.h \
+	objects/QCADLayersCombo.c               objects/QCADLayersCombo.h \
 \
 	objects/QCADPrintDialog.c               objects/QCADPrintDialog.h \
 	print_properties_dialog.c               print_properties_dialog.h \
@@ -205,17 +206,18 @@ combo_test_CFLAGS = \
  	@GTHREAD_CFLAGS@
 
 combo_test_SOURCES = \
-  objects/QCADTreeViewCombo.c  objects/QCADTreeViewCombo.h \
-  objects/QCADFlexiCombo.c     objects/QCADFlexiCombo.h \
-  objects/QCADLayersCombo.c    objects/QCADLayersCombo.h \
-  objects/QCADCellRendererVT.c objects/QCADCellRendererVT.h \
+  objects/QCADTreeViewCombo.c    objects/QCADTreeViewCombo.h \
+  objects/QCADFlexiCombo.c       objects/QCADFlexiCombo.h \
+  objects/QCADLayersCombo.c      objects/QCADLayersCombo.h \
+	objects/QCADCellRendererText.c objects/QCADCellRendererText.h \
+  objects/QCADCellRendererVT.c   objects/QCADCellRendererVT.h \
   $(CORE_FILES) \
 	$(STDIO_FILEIO_FILES) \
   $(OBJECT_FILES) \
-  support.c                    support.h \
-  preamble.c                   preamble.h \
-	simulation_data.c            simulation_data.h \
-  layers_combo.c               layers_combo.h \
+  support.c                      support.h \
+  preamble.c                     preamble.h \
+	simulation_data.c              simulation_data.h \
+  layers_combo.c                 layers_combo.h \
  	main_combo_test.c
 
 combo_test_LDADD = \

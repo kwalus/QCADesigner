@@ -72,7 +72,7 @@ typedef struct
   QCADPropertyUI *pui_show_potential ;
   GtkAdjustment *adjHScroll ;
   GtkAdjustment *adjVScroll ;
-  LAYERS_COMBO layers_combo ;
+  GtkWidget *layers_combo ;
   } main_W ;
 
 void create_main_window (main_W *main_window);

@@ -304,7 +304,7 @@ static gboolean tree_view_button_release_event (GtkWidget *widget, GdkEventButto
   GtkWidget *tv = NULL ;
 
   if (NULL == (tv = gtk_bin_get_child (GTK_BIN (private->frm)))) return FALSE ;
-  if (NULL == (cr = gtk_tree_view_get_cell_renderer_at_point (GTK_TREE_VIEW (tv), event->x, event->y, NULL))) return FALSE ;
+  if (NULL == (cr = gtk_tree_view_get_cell_renderer_at_point (GTK_TREE_VIEW (tv), event->x, event->y, NULL, NULL))) return FALSE ;
 
   g_object_get (G_OBJECT (cr), "mode", &mode, NULL) ;
   if (mode == GTK_CELL_RENDERER_MODE_INERT)

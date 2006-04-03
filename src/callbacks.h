@@ -29,6 +29,7 @@
 
 #include <gtk/gtk.h>
 #include "objects/QCADCell.h"
+#include "objects/QCADLayer.h"
 
 void popup_menu_button_clicked (GtkWidget *widget, gpointer data) ;
 void remove_layer_button_clicked (GtkWidget *widget, gpointer data) ;
@@ -69,7 +70,6 @@ gboolean autosave_timer_event (gpointer data) ;
 #endif /* def STDIO_FILEIO */
 void rotate_selection_menu_item_activate (GtkWidget *widget, gpointer user_data);
 void on_scale_menu_item_activate(GtkMenuItem *menuitem, gpointer user_data);
-void layer_selected (GtkWidget *widget, gpointer data) ;
 void on_translate_selection_button_clicked (GtkWidget *widget, gpointer user_data) ;
 void reorder_layers_button_clicked (GtkWidget *widget, gpointer user_data) ;
 void action_button_clicked (GtkWidget *widget, gpointer data) ;
@@ -80,8 +80,10 @@ void cell_display_mode_chosen (GtkWidget *widget, gpointer data) ;
 void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data) ;
 void scrollbar_adjust_bounds (GtkRange *range, gdouble value, gpointer data) ;
 void qcad_cell_default_clock_changed (QCADCell *default_cell, GParamSpec *pspec, gpointer data) ;
-void layer_list_state_toggled (GtkCellRenderer *cr, char *pszPath, gpointer data) ;
-void layers_selection_changed (GtkTreeSelection *sel, gpointer data) ;
+//void layer_list_state_toggled (GtkCellRenderer *cr, char *pszPath, gpointer data) ;
+//void layers_selection_changed (GtkTreeSelection *sel, gpointer data) ;
+gboolean layers_combo_deactivate_layer (GtkWidget *widget, QCADLayer *layer, gboolean bHide, gpointer data) ;
+void layers_combo_notify_layer (GtkWidget *widget, GParamSpec *param_spec, gpointer data) ;
 
 gboolean drawing_area_motion_notify (GtkWidget *widget, GdkEventMotion *event, gpointer user_data);
 gboolean drawing_area_button_pressed (GtkWidget *widget, GdkEventButton *event, gpointer user_data);

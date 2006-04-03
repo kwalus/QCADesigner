@@ -40,9 +40,6 @@
 enum
   {
   QCADCRVT_TOGGLED_SIGNAL,
-#if (GTK_MINOR_VERSION <= 4)
-  QCADCRVT_EDITING_STARTED_SIGNAL,
-#endif
   QCADCRVT_LAST_SIGNAL
   } ;
 
@@ -51,26 +48,8 @@ enum
   QCADCRVT_PROP_ACTIVE = 1,
   QCADCRVT_PROP_ROW_TYPE,
   QCADCRVT_PROP_ACTIVE_COL,
-#if (GTK_MINOR_VERSION <= 4)
-  QCADCRVT_PROP_SENSITIVE,
-#endif
   QCADCRVT_PROP_LAST
   } ;
-
-#if (GTK_MINOR_VERSION <= 4)
-#define SENSITIVITY_SOURCE(x) (QCAD_CELL_RENDERER_VT((x)))
-G_BEGIN_DECLS
-extern void g_cclosure_user_marshal_VOID__OBJECT_STRING (GClosure     *closure,
-                                                         GValue       *return_value,
-                                                         guint         n_param_values,
-                                                         const GValue *param_values,
-                                                         gpointer      invocation_hint,
-                                                         gpointer      marshal_data);
-
-G_END_DECLS
-#else
-#define SENSITIVITY_SOURCE(x) (GTK_CELL_RENDERER((x)))
-#endif
 
 static guint qcadcrvt_signals[QCADCRVT_LAST_SIGNAL] = {0} ;
 
@@ -101,7 +80,7 @@ GType qcad_cell_renderer_vt_get_type ()
       0,
       (GInstanceInitFunc)qcad_cell_renderer_vt_instance_init
       } ;
-    if ((qcadcrvt_type = g_type_register_static (GTK_TYPE_CELL_RENDERER_TEXT, QCAD_TYPE_STRING_CELL_RENDERER_VT, &info, 0)))
+    if ((qcadcrvt_type = g_type_register_static (QCAD_TYPE_CELL_RENDERER_TEXT, QCAD_TYPE_STRING_CELL_RENDERER_VT, &info, 0)))
       g_type_class_ref (qcadcrvt_type) ;
     }
   return qcadcrvt_type ;
@@ -132,20 +111,9 @@ static void qcad_cell_renderer_vt_class_init (QCADCellRendererVTClass *klass)
     g_param_spec_boolean ("active-column", _("Active Column"), _("Whether this is the active vector"),
     FALSE, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
-#if (GTK_MINOR_VERSION <= 4)
-  g_object_class_install_property (object_klass, QCADCRVT_PROP_SENSITIVE,
-    g_param_spec_boolean ("sensitive", _("Sensitive"), _("Display the cell sensitive"),
-    TRUE, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
-
-  qcadcrvt_signals[QCADCRVT_EDITING_STARTED_SIGNAL] =
-    g_signal_new ("editing-started", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
-      G_STRUCT_OFFSET (QCADCellRendererVTClass, editing_started), NULL, NULL, g_cclosure_user_marshal_VOID__OBJECT_STRING,
-        G_TYPE_NONE, 2, GTK_TYPE_CELL_EDITABLE, G_TYPE_STRING) ;
-#endif
-
   qcadcrvt_signals[QCADCRVT_TOGGLED_SIGNAL] =
     g_signal_new ("toggled", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
-      G_STRUCT_OFFSET (QCADCellRendererVTClass, clicked), NULL, NULL, g_cclosure_marshal_VOID__STRING,
+      G_STRUCT_OFFSET (QCADCellRendererVTClass, toggled), NULL, NULL, g_cclosure_marshal_VOID__STRING,
         G_TYPE_NONE, 1, G_TYPE_STRING) ;
   }
 
@@ -172,12 +140,6 @@ static void qcad_cell_renderer_vt_get_property (GObject *object, guint param_id,
       g_value_set_boolean (value, qcadcrvt->active_column) ;
       break ;
 
-#if (GTK_MINOR_VERSION <= 4)
-    case QCADCRVT_PROP_SENSITIVE:
-      g_value_set_boolean (value, qcadcrvt->sensitive) ;
-      break ;
-#endif
-
     case QCADCRVT_PROP_ROW_TYPE:
       g_value_set_int (value, qcadcrvt->row_type) ;
       break ;
@@ -203,13 +165,6 @@ static void qcad_cell_renderer_vt_set_property (GObject *object, guint param_id,
       qcadcrvt->active_column = g_value_get_boolean (value) ;
       g_object_notify (object, "active-column") ;
       break ;
-
-#if (GTK_MINOR_VERSION <= 4)
-    case QCADCRVT_PROP_SENSITIVE:
-      qcadcrvt->sensitive = g_value_get_boolean (value) ;
-      g_object_notify (object, "sensitive") ;
-      break ;
-#endif
 
     case QCADCRVT_PROP_ROW_TYPE:
       qcadcrvt->row_type = g_value_get_int (value) ;
@@ -280,10 +235,8 @@ static void qcad_cell_renderer_vt_render (GtkCellRenderer *cr, GdkWindow *window
   if (qcadcrvt->active_column)
     flags |= GTK_CELL_RENDERER_SELECTED ;
 
-#if (GTK_MINOR_VERSION <= 4)
-  if (!SENSITIVITY_SOURCE (cr)->sensitive)
+  if (!QCAD_CELL_RENDERER_TEXT_SENSITIVITY_SOURCE (cr)->sensitive)
     flags = GTK_CELL_RENDERER_INSENSITIVE ;
-#endif
 
   if (width <= 0 || height <= 0)
     return;
@@ -316,7 +269,7 @@ static void qcad_cell_renderer_vt_render (GtkCellRenderer *cr, GdkWindow *window
     gtk_paint_check (widget->style,
       window,
       // state
-       (SENSITIVITY_SOURCE (cr)->sensitive) ? state : GTK_STATE_INSENSITIVE,
+       (QCAD_CELL_RENDERER_TEXT_SENSITIVITY_SOURCE (cr)->sensitive) ? state : GTK_STATE_INSENSITIVE,
       // shadow
       (1 == qcadcrvt->value)
         ? GTK_SHADOW_IN 
@@ -329,25 +282,16 @@ static void qcad_cell_renderer_vt_render (GtkCellRenderer *cr, GdkWindow *window
 
 static GtkCellEditable *qcad_cell_renderer_vt_start_editing (GtkCellRenderer *cell, GdkEvent *event, GtkWidget *widget, const gchar *path, GdkRectangle *background_area, GdkRectangle *cell_area, GtkCellRendererState flags)
   {
-  GtkCellEditable *ce = NULL ;
-  if (QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_BUS && SENSITIVITY_SOURCE (cell)->sensitive)
-    {
+  if (QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_BUS && QCAD_CELL_RENDERER_TEXT_SENSITIVITY_SOURCE (cell)->sensitive)
     g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_TOGGLED_SIGNAL], 0, path) ;
-    if (NULL != (ce = (GTK_CELL_RENDERER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL_RENDERER_VT))))->start_editing (cell, event, widget, path, background_area, cell_area, flags)))
-#if (GTK_MINOR_VERSION <= 4)
-      g_signal_emit (G_OBJECT (cell), qcadcrvt_signals[QCADCRVT_EDITING_STARTED_SIGNAL], 0, ce, path) ;
-#else
-      ;
-#endif
-    }
-  return ce ;
+  return GTK_CELL_RENDERER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL_RENDERER_VT)))->start_editing (cell, event, widget, path, background_area, cell_area, flags) ;
   }
 
 static gboolean qcad_cell_renderer_vt_activate (GtkCellRenderer *cell, GdkEvent *event, GtkWidget *widget, const gchar *path, GdkRectangle *background_area, GdkRectangle *cell_area, GtkCellRendererState flags)
   {
   char *psz = NULL ;
 
-  if ((QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_CELL) && SENSITIVITY_SOURCE (cell)->sensitive)
+  if ((QCAD_CELL_RENDERER_VT (cell)->row_type & ROW_TYPE_CELL) && QCAD_CELL_RENDERER_TEXT_SENSITIVITY_SOURCE (cell)->sensitive)
     {
     g_signal_emit (cell, qcadcrvt_signals[QCADCRVT_TOGGLED_SIGNAL], 0, path) ;
     g_signal_emit_by_name (cell, "edited", path, psz = g_strdup_printf ("%llu", QCAD_CELL_RENDERER_VT (cell)->value)) ;
@@ -355,40 +299,3 @@ static gboolean qcad_cell_renderer_vt_activate (GtkCellRenderer *cell, GdkEvent 
     }
   return FALSE ;
   }
-#if (GTK_MINOR_VERSION <= 4)
-void
-g_cclosure_user_marshal_VOID__OBJECT_STRING (GClosure     *closure,
-                                             GValue       *return_value,
-                                             guint         n_param_values,
-                                             const GValue *param_values,
-                                             gpointer      invocation_hint,
-                                             gpointer      marshal_data)
-{
-  typedef void (*GMarshalFunc_VOID__OBJECT_STRING) (gpointer     data1,
-                                                    gpointer     arg_1,
-                                                    gpointer     arg_2,
-                                                    gpointer     data2);
-  register GMarshalFunc_VOID__OBJECT_STRING callback;
-  register GCClosure *cc = (GCClosure*) closure;
-  register gpointer data1, data2;
-
-  g_return_if_fail (n_param_values == 3);
-
-  if (G_CCLOSURE_SWAP_DATA (closure))
-    {
-      data1 = closure->data;
-      data2 = g_value_get_object (param_values + 0);
-    }
-  else
-    {
-      data1 = g_value_get_object (param_values + 0);
-      data2 = closure->data;
-    }
-  callback = (GMarshalFunc_VOID__OBJECT_STRING) (marshal_data ? marshal_data : cc->callback);
-
-  callback (data1,
-            g_value_get_object (param_values + 1),
-            (char *)g_value_get_string (param_values + 2),
-            data2);
-}
-#endif

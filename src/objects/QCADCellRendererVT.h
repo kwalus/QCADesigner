@@ -32,6 +32,8 @@
 #ifndef _OBJECTS_QCADCellRendererVT_H_
 #define _OBJECTS_QCADCellRendererVT_H_
 
+#include "QCADCellRendererText.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -41,22 +43,17 @@ typedef struct _QCADCellRendererVTClass QCADCellRendererVTClass ;
 
 struct _QCADCellRendererVT
   {
-  GtkCellRendererText parent ;
+  QCADCellRendererText parent ;
 
   int row_type ;
   guint64 value ;
   gboolean active_column ;
-#if (GTK_MINOR_VERSION <= 4)
-  gboolean sensitive ;
-#endif
   } ;
 
 struct _QCADCellRendererVTClass
   {
-  GtkCellRendererTextClass parent_class ;
+  QCADCellRendererTextClass parent_class ;
   void (*toggled) (QCADCellRendererVT *cr, const gchar *pszPath) ;
-  void (*clicked) (QCADCellRendererVT *cr) ;
-  void (*editing_started) (QCADCellRendererVT *cr, GtkCellEditable *ce, char *pszPath) ;
   } ;
 
 GType qcad_cell_renderer_vt_get_type () ;

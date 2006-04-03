@@ -62,7 +62,7 @@ int main (int argc, char *argv[])
   cb = layers_combo_new (&layers_combo) ;
   gtk_box_pack_start (GTK_BOX (box), cb, TRUE, TRUE, 0) ;
 
-  cb = g_object_new (QCAD_TYPE_LAYERS_COMBO, "visible", TRUE, NULL) ;
+  cb = g_object_new (QCAD_TYPE_LAYERS_COMBO, "visible", TRUE, "border-width", 5, NULL) ;
   gtk_box_pack_start (GTK_BOX (box), cb, TRUE, TRUE, 0) ;
 
   if (!open_project_file (argv[1], &design))
@@ -75,6 +75,8 @@ int main (int argc, char *argv[])
 
   layers_combo_set_design (&layers_combo, design) ;
   layers_combo_select_layer (&layers_combo, QCAD_LAYER (design->lstCurrentLayer->data)) ;
+
+  g_signal_connect_swapped (G_OBJECT (cb), "notify::layer", (GCallback)g_print, "QCADLayersCombo::notify::layer\n") ;
 
   g_signal_connect (G_OBJECT (wnd), "delete-event", (GCallback)gtk_main_quit, NULL) ;
 

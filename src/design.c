@@ -90,7 +90,7 @@ int n_layer_stock_id = G_N_ELEMENTS (layer_stock_id) ;
 
 DESIGN *design_new (QCADSubstrate **psubs)
   {
-  QCADLayer *layer = NULL ;
+  QCADLayer *layer = NULL, *cell_layer = NULL ;
   DESIGN *design = NULL ;
 
   design = g_malloc0 (sizeof (DESIGN)) ;
@@ -107,6 +107,7 @@ DESIGN *design_new (QCADSubstrate **psubs)
   qcad_do_container_add (QCAD_DO_CONTAINER (layer), QCAD_DESIGN_OBJECT ((*psubs) = QCAD_SUBSTRATE (qcad_substrate_new (0.0, 0.0, 6000.0, 3000.0, 20.0)))) ;
   g_object_unref (G_OBJECT (*psubs)) ;
 
+  cell_layer =
   layer = qcad_layer_new (LAYER_TYPE_CELLS, QCAD_LAYER_STATUS_ACTIVE, _("Main Cell Layer")) ;
   design_layer_add (design, layer) ;
 
@@ -115,6 +116,8 @@ DESIGN *design_new (QCADSubstrate **psubs)
   design_rebuild_io_lists (design) ;
 
   design->lstClockingLayer = NULL ;
+
+  design_set_current_layer (design, cell_layer) ;
 
   return design ;
   }

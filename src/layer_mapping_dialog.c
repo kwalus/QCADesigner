@@ -132,7 +132,10 @@ static GtkTreeModel *layer_mapping_model_new (DESIGN *design, DESIGN *block)
   GtkTreeIter itr ;
   QCADLayer *src_layer = NULL, *dst_layer = NULL ;
 
-  ls = design_layer_list_store_new (block, 2, G_TYPE_BOOLEAN, G_TYPE_POINTER) ;
+  ls = design_layer_list_store_new (block, 2, 
+    G_TYPE_BOOLEAN, 
+    G_TYPE_POINTER) ;
+  
 
   if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (ls), &itr))
     do
@@ -246,7 +249,9 @@ static void create_layer_mapping_dialog (layer_mapping_D *dialog)
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tv), col = gtk_tree_view_column_new ()) ;
   gtk_tree_view_column_set_title (GTK_TREE_VIEW_COLUMN (col), _("Source Layer")) ;
   gtk_tree_view_column_pack_start (col, cr = gtk_cell_renderer_pixbuf_new (), FALSE) ;
+#if (GTK_MINOR_VERSION > 4)
   gtk_tree_view_column_add_attribute (col, cr, "sensitive", LAYER_MAPPING_MODEL_COLUMN_IMPORT) ;
+#endif /* (GTK_MINOR_VERSION > 4) */
   gtk_tree_view_column_add_attribute (col, cr, "stock-id", LAYER_MODEL_COLUMN_ICON) ;
   gtk_tree_view_column_pack_start (col, cr = qcad_cell_renderer_layer_list_new (), FALSE) ;
   gtk_tree_view_column_add_attribute (col, cr, "sensitive", LAYER_MAPPING_MODEL_COLUMN_IMPORT) ;

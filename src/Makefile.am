@@ -206,7 +206,6 @@ combo_test_CFLAGS = \
  	@GTHREAD_CFLAGS@
 
 combo_test_SOURCES = \
-  objects/QCADTreeViewCombo.c    objects/QCADTreeViewCombo.h \
   objects/QCADFlexiCombo.c       objects/QCADFlexiCombo.h \
   objects/QCADLayersCombo.c      objects/QCADLayersCombo.h \
 	objects/QCADCellRendererText.c objects/QCADCellRendererText.h \
@@ -217,7 +216,6 @@ combo_test_SOURCES = \
   support.c                      support.h \
   preamble.c                     preamble.h \
 	simulation_data.c              simulation_data.h \
-  layers_combo.c                 layers_combo.h \
  	main_combo_test.c
 
 combo_test_LDADD = \

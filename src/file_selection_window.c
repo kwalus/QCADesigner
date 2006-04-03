@@ -72,11 +72,12 @@ gchar *get_file_name_from_user (GtkWindow *parent, char *pszWinTitle, char *pszF
   gtk_window_set_transient_for (GTK_WINDOW (file_selection_dialog.dialog), parent) ;
 
   if (NULL != (pszRet = get_default_file_name (GTK_FILE_CHOOSER (file_selection_dialog.dialog), pszFName)))
-    {
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_selection_dialog.dialog), pszRet) ;
-    g_free (pszRet) ;
-    pszRet = NULL ;
-    }
+    if (0 != pszRet[0])
+      {
+      gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_selection_dialog.dialog), pszRet) ;
+      g_free (pszRet) ;
+      pszRet = NULL ;
+      }
 
   while (GTK_RESPONSE_OK == gtk_dialog_run (GTK_DIALOG (file_selection_dialog.dialog)))
     {

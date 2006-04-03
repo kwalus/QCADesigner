@@ -54,7 +54,7 @@ GType qcad_cell_renderer_layer_list_get_type ()
       0,
       (GInstanceInitFunc)qcad_cell_renderer_layer_list_instance_init
       } ;
-    if ((cell_renderer_layer_list_type = g_type_register_static (GTK_TYPE_CELL_RENDERER_TEXT, QCAD_TYPE_STRING_CELL_RENDERER_LAYER_LIST, &cell_renderer_layer_list_info, 0)))
+    if ((cell_renderer_layer_list_type = g_type_register_static (QCAD_TYPE_CELL_RENDERER_TEXT, QCAD_TYPE_STRING_CELL_RENDERER_LAYER_LIST, &cell_renderer_layer_list_info, 0)))
       g_type_class_ref (cell_renderer_layer_list_type) ;
     }
 

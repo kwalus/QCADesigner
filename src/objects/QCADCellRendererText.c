@@ -110,10 +110,17 @@ static void set_property (GObject *object, guint param_id, const GValue *value, 
 
 static void render (GtkCellRenderer *cr, GdkWindow *window, GtkWidget *widget, GdkRectangle *background_area, GdkRectangle *cell_area, GdkRectangle *expose_area, GtkCellRendererState flags)
   {
-  if (!(QCAD_CELL_RENDERER_TEXT (cr)->sensitive))
-    flags = GTK_CELL_RENDERER_INSENSITIVE ;
+  GtkStateType widget_state = GTK_WIDGET_STATE (widget) ;
 
+// The things you have to do to make sensitive work in GTK+-2.4 ...
+
+  if (!(QCAD_CELL_RENDERER_TEXT (cr)->sensitive))
+    {
+    flags = GTK_CELL_RENDERER_INSENSITIVE ;
+    GTK_WIDGET_STATE (widget) = GTK_STATE_INSENSITIVE ;
+    }
   GTK_CELL_RENDERER_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL_RENDERER_TEXT)))->render (cr, window, widget, background_area, cell_area, expose_area, flags) ;
+  GTK_WIDGET_STATE (widget) = widget_state ;
   }
 
 static GtkCellEditable *start_editing (GtkCellRenderer *cell, GdkEvent *event, GtkWidget *widget, const gchar *path, GdkRectangle *background_area, GdkRectangle *cell_area, GtkCellRendererState flags)

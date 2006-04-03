@@ -121,8 +121,8 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   g_value_set_string (g_value_init (&(properties[1].ui_property_value), G_TYPE_STRING), "nm") ;
   // electrode.frequency.units = "Hz"
   g_value_set_string (g_value_init (&(properties[2].ui_property_value), G_TYPE_STRING), "MHz") ;
-  // electrode.phase.units = "°"
-  g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "°") ;
+  // electrode.phase.units = "deg"
+  g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "deg") ;
   // electrode.dc-offset.units = "V"
   g_value_set_string (g_value_init (&(properties[4].ui_property_value), G_TYPE_STRING), "V") ;
   // electrode.min-clock.units = "V"
@@ -468,7 +468,7 @@ static double get_voltage (QCADElectrode *electrode, double t)
   double voltage =
     electrode->electrode_options.amplitude * 
     (*(electrode->electrode_options.clock_function)) 
-      (electrode->electrode_options.frequency * TWO_PI * t - electrode->electrode_options.phase) +
+      (TWO_PI * (electrode->electrode_options.frequency * t - electrode->electrode_options.phase/360.0)) +
     electrode->electrode_options.dc_offset ;
 
   return CLAMP (voltage, electrode->electrode_options.min_clock, electrode->electrode_options.max_clock) ;

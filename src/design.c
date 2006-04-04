@@ -75,15 +75,8 @@ static void cell_function_changed (QCADCell *cell, DESIGN *design) ;
 static void design_bus_layout_next_unassigned_cell (BUS_LAYOUT_ITER *bus_layout_iter) ;
 
 #ifdef GTK_GUI
-char *layer_stock_id[LAYER_TYPE_LAST_TYPE] =
-  {
-  QCAD_STOCK_SUBSTRATE_LAYER,
-  QCAD_STOCK_CELL_LAYER,
-  QCAD_STOCK_CLOCKING_LAYER,
-  QCAD_STOCK_DRAWING_LAYER,
-  QCAD_STOCK_DISTRIBUTION_LAYER
-  } ;
-int n_layer_stock_id = G_N_ELEMENTS (layer_stock_id) ;
+extern GtkStockItem stock_layers[] ;
+extern int n_stock_layers ;
 #endif /* def GTK_GUI */
 
 // ASSUMPTION: only active layers can contain selections.
@@ -341,7 +334,7 @@ GtkListStore *design_layer_list_store_new (DESIGN *design, int icExtraColumns, .
     {
     gtk_list_store_append (ls, &itr) ;
     gtk_list_store_set (ls, &itr,
-      LAYER_MODEL_COLUMN_ICON, layer_stock_id[(QCAD_LAYER (llItr->data))->type],
+      LAYER_MODEL_COLUMN_ICON, stock_layers[(QCAD_LAYER (llItr->data))->type].stock_id,
       LAYER_MODEL_COLUMN_NAME, (QCAD_LAYER (llItr->data))->pszDescription,
       LAYER_MODEL_COLUMN_LAYER, llItr->data, -1) ;
     }

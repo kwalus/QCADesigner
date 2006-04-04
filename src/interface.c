@@ -47,8 +47,8 @@
 //#include "layers_combo.h"
 
 main_W main_window = {NULL} ;
-extern char *layer_stock_id[] ;
-extern int n_layer_stock_id ;
+extern GtkStockItem stock_layers[] ;
+extern int n_stock_layers ;
 
 // -- creates the main application window and returns a pointer to it -- //
 void create_main_window (main_W *main_window){
@@ -116,10 +116,10 @@ void create_main_window (main_W *main_window){
   gtk_toolbar_set_style (GTK_TOOLBAR (layers_toolbar), GTK_TOOLBAR_ICONS) ;
 
   mnu = gtk_menu_new () ;
-  for (Nix = 0 ; Nix < n_layer_stock_id ; Nix++)
+  for (Nix = 0 ; Nix < n_stock_layers ; Nix++)
     if (Nix != LAYER_TYPE_DISTRIBUTION)
       {
-      mnui = gtk_image_menu_item_new_from_stock (layer_stock_id[Nix], NULL) ;
+      mnui = gtk_image_menu_item_new_from_stock (stock_layers[Nix].stock_id, NULL) ;
       gtk_widget_show (mnui) ;
       gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
       g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)type_for_new_layer_chosen, (gpointer)Nix) ;

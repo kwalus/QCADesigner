@@ -52,7 +52,7 @@ static void my_logger (const gchar *log_domain, GLogLevelFlags log_level, const 
 #endif /* ifdef WIN32 */
 
 #ifdef GTK_GUI
-static GtkStockItem stock_layers[] =
+GtkStockItem stock_layers[] =
   {
   {QCAD_STOCK_SUBSTRATE_LAYER,    N_("Substrate"),    0, 0, PACKAGE},
   {QCAD_STOCK_CELL_LAYER,         N_("Cells"),        0, 0, PACKAGE},
@@ -60,7 +60,7 @@ static GtkStockItem stock_layers[] =
   {QCAD_STOCK_DRAWING_LAYER,      N_("Drawing"),      0, 0, PACKAGE},
   {QCAD_STOCK_DISTRIBUTION_LAYER, N_("Distribution"), 0, 0, PACKAGE},
   } ;
-static int n_stock_layers = G_N_ELEMENTS (stock_layers) ;
+int n_stock_layers = G_N_ELEMENTS (stock_layers) ;
 
 #ifdef QCAD_NO_CONSOLE
 void gtk_preamble (int *pargc, char ***pargv, char *pszBaseName, char *pszCmdLine)

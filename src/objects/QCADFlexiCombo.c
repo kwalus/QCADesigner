@@ -185,19 +185,19 @@ static void size_request (GtkWidget *widget, GtkRequisition *rq)
 
   gtk_widget_size_request (private->btn, &rq_btn) ;
 
-  g_print ("size_request: Button wants [%dx%d]\n", rq_btn.width, rq_btn.height) ;
+//  g_print ("size_request: Button wants [%dx%d]\n", rq_btn.width, rq_btn.height) ;
 
   if (NULL != bin_child)
     {
     gtk_widget_size_request (bin_child, &rq_child) ;
 
-    g_print ("size_request: Child wants [%dx%d]\n", rq_child.width, rq_child.height) ;
+//    g_print ("size_request: Child wants [%dx%d]\n", rq_child.width, rq_child.height) ;
     }
 
   rq->width  =     rq_btn.width  + rq_child.width   + (GTK_CONTAINER (widget)->border_width << 1) ;
   rq->height = (0 == rq_child.height ? rq_btn.height : rq_child.height) + (GTK_CONTAINER (widget)->border_width << 1) ;
 
-  g_print ("size_request: Setting rq to [%dx%d]\n", rq->width, rq->height) ;
+//  g_print ("size_request: Setting rq to [%dx%d]\n", rq->width, rq->height) ;
   }
 
 static void size_allocate (GtkWidget *widget, GtkAllocation *alloc)
@@ -208,15 +208,15 @@ static void size_allocate (GtkWidget *widget, GtkAllocation *alloc)
 
   widget->allocation = (*alloc) ;
   
-  g_print ("size_allocate: Gotten (%d,%d)[%dx%d]\n", alloc->x, alloc->y, alloc->width, alloc->height) ;
-  g_print ("size_allocate: GTK_CONTAINER (widget)->border_width = %d\n", GTK_CONTAINER (widget)->border_width) ;
+//  g_print ("size_allocate: Gotten (%d,%d)[%dx%d]\n", alloc->x, alloc->y, alloc->width, alloc->height) ;
+//  g_print ("size_allocate: GTK_CONTAINER (widget)->border_width = %d\n", GTK_CONTAINER (widget)->border_width) ;
 
   alloc_inside.x      = alloc->x      + GTK_CONTAINER (widget)->border_width ;
   alloc_inside.y      = alloc->y      + GTK_CONTAINER (widget)->border_width ;
   alloc_inside.width  = alloc->width  - (GTK_CONTAINER (widget)->border_width << 1) ;
   alloc_inside.height = alloc->height - (GTK_CONTAINER (widget)->border_width << 1) ;
 
-  g_print ("size_allocate: Minus border width: (%d,%d)[%dx%d]\n", alloc_inside.x, alloc_inside.y, alloc_inside.width, alloc_inside.height) ;
+//  g_print ("size_allocate: Minus border width: (%d,%d)[%dx%d]\n", alloc_inside.x, alloc_inside.y, alloc_inside.width, alloc_inside.height) ;
 
   alloc_child.x      = alloc_inside.x ;
   alloc_child.y      = alloc_inside.y ;
@@ -231,8 +231,8 @@ static void size_allocate (GtkWidget *widget, GtkAllocation *alloc)
   alloc_btn.y      = alloc_child.y + ((alloc_child.height - alloc_btn.height) >> 1) ;
   alloc_btn.width  = MAX (0, alloc_inside.width - alloc_child.width) ;
 
-  g_print ("size_allocate: Giving the button (%d,%d)[%dx%d]\n", alloc_btn.x, alloc_btn.y, alloc_btn.width, alloc_btn.height) ;  
-  g_print ("size_allocate: Giving the child (%d,%d)[%dx%d]\n", alloc_child.x, alloc_child.y, alloc_child.width, alloc_child.height) ;
+//  g_print ("size_allocate: Giving the button (%d,%d)[%dx%d]\n", alloc_btn.x, alloc_btn.y, alloc_btn.width, alloc_btn.height) ;  
+//  g_print ("size_allocate: Giving the child (%d,%d)[%dx%d]\n", alloc_child.x, alloc_child.y, alloc_child.width, alloc_child.height) ;
 
   gtk_widget_size_allocate (private->btn, &alloc_btn) ;
   if (NULL != bin_child)

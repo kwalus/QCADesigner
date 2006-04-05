@@ -76,6 +76,8 @@ void gtk_widget_button_press (GtkWidget *widget, int button, int x, int y, GdkMo
 #define PIXBUF_BRUSH_CX 16
 #define PIXBUF_BRUSH_CY 16
 void tile_pixbuf (GdkDrawable *dst, GdkGC *gc, GdkPixbuf *pixbuf, int cxPb, int cyPb, GdkRectangle *rcDst) ;
+
+void gtk_tree_view_queue_columns_autosize (GtkTreeView *tv) ;
 #endif /* def GTK_GUI */
 void command_history_message (char *pszFmt, ...) ;
 void set_progress_bar_visible (gboolean bVisible) ;

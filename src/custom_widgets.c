@@ -661,6 +661,16 @@ GtkCellRenderer *gtk_tree_view_get_cell_renderer_at_point (GtkTreeView *tv, int 
   return cr ;
   }
 
+static gboolean columns_autosize (gpointer data)
+  {
+  if (GTK_IS_TREE_VIEW (data))
+    gtk_tree_view_columns_autosize (GTK_TREE_VIEW (data)) ;
+  return FALSE ;
+  }
+
+void gtk_tree_view_queue_columns_autosize (GtkTreeView *tv)
+  {g_idle_add ((GSourceFunc)columns_autosize, tv) ;}
+
 #endif /* def GTK_GUI */
 
 GdkColor *clr_idx_to_clr_struct (int clr_idx)

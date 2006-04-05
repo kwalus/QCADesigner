@@ -38,6 +38,8 @@
 /* Create it */
 void create_print_design_properties_dialog (print_properties_D *dialog, print_design_OP *pPO)
   {
+  GtkTreeViewColumn *col = NULL ;
+  GtkCellRenderer *cr = NULL ;
   GtkWidget *tbl = NULL ;
 
   if (NULL != dialog->dlgPrintProps) return ;
@@ -210,14 +212,13 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
   gtk_widget_show (tbl) ;
   gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
 
-  dialog->scrwPrintedObjs = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_show (dialog->scrwPrintedObjs);
+  dialog->scrwPrintedObjs = g_object_new (GTK_TYPE_SCROLLED_WINDOW, 
+    "visible", TRUE, "hscrollbar-policy", GTK_POLICY_AUTOMATIC, "vscrollbar-policy", GTK_POLICY_AUTOMATIC,
+    "border-width", 2, "shadow-type", GTK_SHADOW_IN, NULL) ;
   gtk_table_attach (GTK_TABLE (tbl), dialog->scrwPrintedObjs, 0, 1, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
-  gtk_container_set_border_width (GTK_CONTAINER (dialog->scrwPrintedObjs), 2);
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (dialog->scrwPrintedObjs), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-
+/*
   dialog->vpPrintedObjs = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (dialog->vpPrintedObjs);
   gtk_container_add (GTK_CONTAINER (dialog->scrwPrintedObjs), dialog->vpPrintedObjs);
@@ -227,6 +228,19 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
   gtk_widget_show (dialog->vbPrintedObjs);
   gtk_container_add (GTK_CONTAINER (dialog->vpPrintedObjs), dialog->vbPrintedObjs);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->vbPrintedObjs), 2);
+*/
+  dialog->tvPrintedObjs = g_object_new (GTK_TYPE_TREE_VIEW, "visible", TRUE, "headers-visible", TRUE, NULL) ;
+  gtk_container_add (GTK_CONTAINER (dialog->scrwPrintedObjs), dialog->tvPrintedObjs) ;
+  gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tvPrintedObjs),
+    col = gtk_tree_view_column_new_with_attributes (_("Layer"),
+      gtk_cell_renderer_pixbuf_new (), "stock-id", LAYER_MODEL_COLUMN_ICON, NULL)) ;
+  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (col), cr = gtk_cell_renderer_text_new (), FALSE) ;
+  gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (col), cr, "text", LAYER_MODEL_COLUMN_NAME) ;
+  gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tvPrintedObjs),
+    gtk_tree_view_column_new_with_attributes (_("Printed"),
+      cr = gtk_cell_renderer_toggle_new (), "active", PRINTED_LAYERS_MODEL_COLUMN_PRINTED, NULL)) ;
+  gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tvPrintedObjs), gtk_tree_view_column_new ()) ;
+  g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)chkPrintedObj_toggled, dialog->dlgPrintProps) ;
 
   dialog->chkColour = gtk_check_button_new_with_label (_("Print Colours")) ;
   gtk_widget_show (dialog->chkColour) ;

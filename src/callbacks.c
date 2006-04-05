@@ -108,7 +108,7 @@ extern GdkColor clrYellow ;
 extern GdkColor clrBlack ;
 
 static print_design_OP print_options =
-  {{612, 792, 72, 72, 72, 72, TRUE, TRUE, NULL}, 3, TRUE, FALSE, TRUE, TRUE, NULL, 0, 1, 1} ;
+  {{612, 792, 72, 72, 72, 72, TRUE, TRUE, NULL}, 3, TRUE, FALSE, TRUE, TRUE, 1, 1} ;
 
 extern char *layer_stock_id[] ;
 extern int n_layer_stock_id ;
@@ -272,9 +272,6 @@ void main_window_show (GtkWidget *widget, gpointer data)
 
   gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrWhite)) ;
   gdk_color_alloc (gdk_colormap_get_system (), &(project_options.clrCyan)) ;
-
-  print_options.pbPrintedObjs = NULL ;
-  print_options.icPrintedObjs = 0 ;
 
   new_design = design_new (&subs) ;
   set_current_design (new_design, subs) ;

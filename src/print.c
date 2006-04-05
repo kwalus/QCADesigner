@@ -50,11 +50,10 @@ static void PrintObjectPreamble (FILE *pfile, GList **lstPages, int icPages) ;
 void print_world (print_design_OP *pPO, DESIGN *design)
   {
   FILE *pfile = NULL ;
-  int Nix ;
   GList
     *lstItr = NULL,
     **lstPages = NULL ; // 2D array of GList * (cxPages wide and cyPages long)
-  gboolean bPrintThisLayer = FALSE, bFirstLayer = TRUE ;
+  gboolean *pbPrint = NULL, bPrintThisLayer = FALSE, bFirstLayer = TRUE ;
   double dxMinNm = 0, dyMinNm = 0, dxMaxNm = 0, dyMaxNm = 0, cxNm = 0, cyNm = 0,
     dxDiffMinNm = 0, dyDiffMinNm = 0,
     dEffPageCXPts = pPO->po.dPaperCX - pPO->po.dLMargin - pPO->po.dRMargin,
@@ -64,12 +63,10 @@ void print_world (print_design_OP *pPO, DESIGN *design)
   DBG_P (fprintf (stderr, "print_world:Entering\n")) ;
 
   // Get the size of the world in nanos
-  for (Nix = 0, lstItr = design->lstLayers ; lstItr != NULL ; Nix++, lstItr = lstItr->next)
+  for (lstItr = design->lstLayers ; lstItr != NULL ; lstItr = lstItr->next)
     {
-    if (Nix < pPO->icPrintedObjs)
-      bPrintThisLayer = pPO->pbPrintedObjs[Nix] ;
-    else
-      bPrintThisLayer = TRUE ;
+    if (!(bPrintThisLayer = (NULL == (pbPrint = g_object_get_data (G_OBJECT (lstItr->data), PRINT_LAYER_KEY)))))
+      bPrintThisLayer = (*pbPrint) ;
 
     if (bPrintThisLayer)
       {
@@ -130,7 +127,7 @@ void print_world (print_design_OP *pPO, DESIGN *design)
     "%%%%BoundingBox: 0 0 %d %d\n"
     "%%%%HiResBoundingBox: %f %f %f %f\n"
     "%%........................................................\n"
-    "%%%%Creator: QCADesigner\n"
+    "%%%%Creator: " PACKAGE "\n"
     "%%%%EndComments\n"
     "%%%%BeginProlog\n"
     "/epsilon 0.1 def\n"
@@ -191,23 +188,21 @@ void print_world (print_design_OP *pPO, DESIGN *design)
 
 static GList **PlaceObjectsOnPages (DESIGN *design, print_design_OP *pPO, double cxPageNm, double cyPageNm, double dxMinNm, double dyMinNm)
   {
-  gboolean bPrintThisLayer = FALSE ;
+  gboolean *pbPrint = NULL, bPrintThisLayer = FALSE ;
   GList
     **lstRet = g_malloc0 (pPO->iCXPages * pPO->iCYPages * sizeof (GList *)),
     *lstItr = NULL,
     *lstItrObjs = NULL ;
-  int Nix, idxX1 = -1, idxX2 = -1, idxY1 = -1, idxY2 = -1, Nix1, Nix2, idx = -1 ;
+  int idxX1 = -1, idxX2 = -1, idxY1 = -1, idxY2 = -1, Nix1, Nix2, idx = -1 ;
   WorldRectangle rcWorld ;
 
   DBG_P (fprintf (stderr, "PlaceObjectsOnPage:Entering\n")) ;
 
-  for (Nix = 0, lstItr = design->lstLayers ; lstItr != NULL ; Nix++, lstItr = lstItr->next)
+  for (lstItr = design->lstLayers ; lstItr != NULL ; lstItr = lstItr->next)
     {
     DBG_P (fprintf (stderr, "PlaceObjectsOnPage:Checking whether to examine layer \"%s\"...", ((LAYER *)(lstItr->data))->pszDescription)) ;
-    if (Nix < pPO->icPrintedObjs)
-      bPrintThisLayer = pPO->pbPrintedObjs[Nix] ;
-    else
-      bPrintThisLayer = TRUE ;
+    if (!(bPrintThisLayer = (NULL == (pbPrint = g_object_get_data (G_OBJECT (lstItr->data), PRINT_LAYER_KEY)))))
+      bPrintThisLayer = (*pbPrint) ;
 
     DBG_P (fprintf (stderr, "%s\n", bPrintThisLayer ? "yes" : "no")) ;
 

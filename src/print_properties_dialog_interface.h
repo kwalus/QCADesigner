@@ -47,7 +47,7 @@ typedef struct
   GtkWidget     *lblPgsWide ;
   GtkWidget     *lblPrintOrder ;
   GtkWidget     *lblScale ;
-  GtkWidget     *lstPrintedObjs ;
+//  GtkWidget     *lstPrintedObjs ;
   GtkWidget     *rbFitPages ;
   GtkWidget     *rbFixedScale ;
   GtkWidget     *scrwPrintedObjs ;
@@ -59,8 +59,9 @@ typedef struct
   GtkWidget     *table4 ;
   GtkWidget     *tblScale ;
   GtkWidget     *tbtnPrintOrder ;
-  GtkWidget     *vbPrintedObjs ;
-  GtkWidget     *vpPrintedObjs ;
+  GtkWidget     *tvPrintedObjs ;
+//  GtkWidget     *vbPrintedObjs ;
+//  GtkWidget     *vpPrintedObjs ;
   GtkWidget     *vbScale ;
   GtkWidget     *tbtnCenter ;
   GtkWidget     *tblCenter ;
@@ -69,8 +70,8 @@ typedef struct
   GtkWidget     *chkColour ;
   GtkWidget     *chkPrintDots ;
 
-  GtkWidget     **ppPrintedObjs ;
-  int           icPrintedObjs ;
+//  GtkWidget     **ppPrintedObjs ;
+//  int           icPrintedObjs ;
   } print_properties_D ;
 
 void create_print_design_properties_dialog (print_properties_D *dialog, print_design_OP *pPO) ;

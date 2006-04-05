@@ -35,6 +35,8 @@
 #include "objects/QCADPrintDialog.h"
 #include "design.h"
 
+#define PRINT_LAYER_KEY "print_layer"
+
 typedef struct
   {
   print_OP po ;
@@ -44,8 +46,8 @@ typedef struct
   gboolean bCenter ;
   gboolean bFit ;
   gboolean bColour ;
-  gboolean *pbPrintedObjs ;
-  int icPrintedObjs ;
+//  gboolean *pbPrintedObjs ;
+//  int icPrintedObjs ;
   int iCXPages ;
   int iCYPages ;
   } print_design_OP ;

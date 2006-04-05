@@ -27,8 +27,10 @@
 
 [ ] Graph dialog time reference
 
-[ ] Fork off a process to wait for the previewer and then delete the temp file, 
+[W] Fork off a process to wait for the previewer and then delete the temp file, 
     in case the previewer survives us
+    Created wait_for_async_cmdlines() to be called after gtk_main_quit to wait for
+    all previewers to die.
 
 [ ] Print dialog: list of strings representing font names to be used
 

@@ -55,8 +55,7 @@ GtkWindow *show_about_dialog (GtkWidget **pparent, gboolean bSplash)
     g_object_set_data (G_OBJECT (about_dialog.about_dialog), "bSplashHadParent", (gpointer)FALSE) ;
     g_object_set_data (G_OBJECT (about_dialog.about_dialog), "pparent", pparent) ;
 
-    gtk_window_set_modal (GTK_WINDOW (about_dialog.about_dialog), FALSE) ;
-    gtk_dialog_set_has_separator (GTK_DIALOG (about_dialog.about_dialog), FALSE) ;
+    g_object_set (G_OBJECT (about_dialog.about_dialog), "modal", FALSE, "has-separator", FALSE, NULL) ;
     gtk_widget_show (about_dialog.about_dialog);
     gtk_widget_hide (about_dialog.dialog_action_area1) ;
     drain_gtk_events () ;
@@ -82,15 +81,12 @@ static void create_about_dialog (about_D *about_dialog)
   {
   char *psz = NULL ;
 
-  about_dialog->about_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (about_dialog->about_dialog), _("About QCADesigner"));
-  gtk_window_set_resizable (GTK_WINDOW (about_dialog->about_dialog), FALSE);
+  about_dialog->about_dialog = g_object_new (GTK_TYPE_DIALOG, "resizable", FALSE, "title", _("About QCADesigner"), NULL) ;
 
   about_dialog->dialog_vbox1 = GTK_DIALOG (about_dialog->about_dialog)->vbox;
   gtk_widget_show (about_dialog->dialog_vbox1);
 
-  about_dialog->vbox1 = gtk_vbox_new (FALSE, 2);
-  gtk_widget_show (about_dialog->vbox1);
+  about_dialog->vbox1 = g_object_new (GTK_TYPE_VBOX, "visible", TRUE, "homogeneous", FALSE, "spacing", 2, NULL) ;
   gtk_box_pack_start (GTK_BOX (about_dialog->dialog_vbox1), about_dialog->vbox1, TRUE, TRUE, 0);
 
 #ifdef HAVE_LIBRSVG
@@ -112,8 +108,7 @@ static void create_about_dialog (about_D *about_dialog)
     _("Protected by Copright 2005 K. Walus"),
     _("Contributers:"),
     _("Download free version of QCADesigner from:"));
-  about_dialog->about_label = gtk_label_new (psz);
-  gtk_widget_show (about_dialog->about_label);
+  about_dialog->about_label = g_object_new (GTK_TYPE_LABEL, "visible", TRUE, "label", psz, NULL) ;
   gtk_box_pack_start (GTK_BOX (about_dialog->vbox1), about_dialog->about_label, FALSE, FALSE, 2);
   g_free (psz) ;
 

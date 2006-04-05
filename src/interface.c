@@ -104,12 +104,12 @@ void create_main_window (main_W *main_window)
   gtk_box_pack_start (GTK_BOX (main_window->vbox1), main_menubar, FALSE, FALSE, 0);
 
   // Layers toolbar
-  layers_toolbar = g_object_new (GTK_TYPE_TOOLBAR, "visible", TRUE, "toolbar-style", GTK_TOOLBAR_ICONS, "orientation", GTK_ORIENTATION_HORIZONTAL, NULL) ;
+  layers_toolbar = g_object_new (GTK_TYPE_TOOLBAR, "visible", TRUE, "orientation", GTK_ORIENTATION_HORIZONTAL, NULL) ;
   layers_toolbar = gtk_toolbar_new () ;
   gtk_widget_show (layers_toolbar) ;
   gtk_box_pack_start (GTK_BOX (main_window->vbox1), layers_toolbar, FALSE, FALSE, 0);
   gtk_toolbar_set_tooltips (GTK_TOOLBAR (layers_toolbar), TRUE) ;
-//  gtk_toolbar_set_style (GTK_TOOLBAR (layers_toolbar), GTK_TOOLBAR_ICONS) ;
+  gtk_toolbar_set_style (GTK_TOOLBAR (layers_toolbar), GTK_TOOLBAR_ICONS) ;
 
   mnu = gtk_menu_new () ;
   for (Nix = 0 ; Nix < n_stock_layers ; Nix++)

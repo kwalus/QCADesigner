@@ -362,8 +362,7 @@ static const char *PostScript_preamble ()
 //    "  if\n"
     "\n"
     "  x y moveto\n"
-    "  (" PS_FONT ") findfont labelfontsize scalefont setfont\n"
-    "  label txtlt\n"
+    "  (" PS_FONT ") labelfontsize label 0 txt\n"
     "  grestore\n"
     "  } def\n" ;
   }

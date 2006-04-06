@@ -122,7 +122,7 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   // electrode.frequency.units = "Hz"
   g_value_set_string (g_value_init (&(properties[2].ui_property_value), G_TYPE_STRING), "MHz") ;
   // electrode.phase.units = "deg"
-  g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "deg") ;
+  g_value_set_string (g_value_init (&(properties[3].ui_property_value), G_TYPE_STRING), "°") ;
   // electrode.dc-offset.units = "V"
   g_value_set_string (g_value_init (&(properties[4].ui_property_value), G_TYPE_STRING), "V") ;
   // electrode.min-clock.units = "V"

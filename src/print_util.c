@@ -51,3 +51,31 @@ void ClosePrintStream  (FILE *pfile, print_OP *pPO)
   else
     pclose (pfile) ;
   }
+
+void PrintMagic (FILE *pfile, gboolean bPortrait, double dPaperCX, double dPaperCY)
+  {
+  char doubles[2][G_ASCII_DTOSTR_BUF_SIZE] ;
+
+  fprintf (pfile,
+    "%%!PS-Adobe 3.0\n"
+    "%%%%Pages: (atend)\n"
+    "%%%%Orientation: %s\n"
+    "%%%%BoundingBox: 0 0 %d %d\n"
+    "%%%%HiResBoundingBox: 0.0 0.0 %s %s\n"
+    "%%........................................................\n"
+    "%%%%Creator: QCADesigner\n"
+    "%%%%EndComments\n",
+    bPortrait ? "Portrait" : "Landscape",
+    (int)(dPaperCX), (int)(dPaperCY),
+    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dPaperCX), 
+    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, dPaperCY)) ;
+  }
+
+void PrintTrailer (FILE *pfile, int icPages)
+  {
+  fprintf (pfile,
+    "%%%%Trailer\n"
+    "%%%%Pages: %d\n"
+    "%%%%EOF\n",
+    icPages) ;
+  }

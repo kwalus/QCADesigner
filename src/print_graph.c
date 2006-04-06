@@ -56,6 +56,19 @@
 
 #define DBG_PG(s)
 
+enum
+  {
+  PS_TXT_LT,
+  PS_TXT_LM,
+  PS_TXT_LB,
+  PS_TXT_CT,
+  PS_TXT_CM,
+  PS_TXT_CB,
+  PS_TXT_RT,
+  PS_TXT_RM,
+  PS_TXT_RB
+  } ;
+
 typedef struct
   {
   double x ;
@@ -80,7 +93,7 @@ static void PlaceSingleWaveform     (print_graph_OP *pPO, PAGES *pPages, struct 
 static void PlaceSingleBusTrace     (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_DATA *hc_data, BUS *bus, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyTrace, int icSamples, int base) ;
 static void PlaceSingleTraceBox     (print_graph_OP *pPO, PAGES *pPages, double dyTraceTop, double dcxTraceHeader, double dcxEffective, double dcyEffective, double dcyTrace, gboolean bDrawMidLine) ;
 static void PlaceSingleBox          (print_graph_OP *pPO, PAGES *pPages, double dxMin, double dyMin, double dxMax, double dyMax, double dcxEffective, double dcyEffective) ;
-static void PlaceSingleString       (print_graph_OP *pPO, PAGES *pPages, double dcxEffective, double dcyEffective, double dx, double dy, char *pszClr, char *pszClrType, char *pszString, int font_size, char *pszStringPlacement) ;
+static void PlaceSingleString       (print_graph_OP *pPO, PAGES *pPages, double dcxEffective, double dcyEffective, double dx, double dy, char *pszClr, char *pszClrType, char *pszString, int font_size, int alignment) ;
 static void PlaceSingleLine         (print_graph_OP *pPO, PAGES *pPages, double dxMin, double dyMin, double dxMax, double dyMax, double dcxEffective, double dcyEffective, char *pszClr, char *pszClrType, char *pszDash) ;
 static void PlaceSingleHoneycomb    (print_graph_OP *pPO, PAGES *pPages, double dxMin, double dxL, double dxR, double dxMax, double dyMin, double dyMax, char *pszLabel, double dcxEffective, double dcyEffective, char *pszClr, char *pszClrType) ;
 static void PlaceRuler              (print_graph_OP *pPO, PAGES *pPages, simulation_data *sim_data, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyRuler) ;
@@ -95,8 +108,8 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
   PAGES pg = {NULL, NULL} ;
   char *pszClr = pPrintOpts->bPrintClr ? PS_GREEN : "0.00",
        *pszClrHCFill = pPrintOpts->bPrintClr ? PS_HCFILL : "0.90",
-       *pszClrType = pPrintOpts->bPrintClr ? "setrgbcolor" : "setgray",
-       doubles[G_ASCII_DTOSTR_BUF_SIZE][4] = {"", "", "", ""} ;
+       *pszClrType = pPrintOpts->bPrintClr ? "setrgbcolor" : "setgray" ;
+//       doubles[G_ASCII_DTOSTR_BUF_SIZE][4] = {"", "", "", ""} ;
 
 
   if (NULL == (pfile = OpenPrintStream ((print_OP *)pPrintOpts)))
@@ -114,38 +127,15 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
     return ;
     }
 
-  fprintf (pfile,
-    "%%!PS-Adobe 3.0\n"
-    "%%%%Pages: (atend)\n"
-    "%%%%Orientation: %s\n"
-    "%%%%BoundingBox: 0 0 %d %d\n"
-    "%%%%HiResBoundingBox: %s %s %s %s\n"
-    "%%........................................................\n"
-    "%%%%Creator: QCADesigner\n"
-    "%%%%EndComments\n",
-    pPrintOpts->po.bPortrait ? "Portrait" : "Landscape",
-    (int)(pPrintOpts->po.dPaperCX), (int)(pPrintOpts->po.dPaperCY),
-    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, 0.0), 
-    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, 0.0), 
-    g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, pPrintOpts->po.dPaperCX), 
-    g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, pPrintOpts->po.dPaperCY)) ;
+  PrintMagic (pfile, pPrintOpts->po.bPortrait, pPrintOpts->po.dPaperCX, pPrintOpts->po.dPaperCY) ;
 
   // Print prolog at this point, if any
   fprintf (pfile,
     "%%%%BeginProlog\n"
     "/labelfontsize %d def\n"
-    "/txtlt { /font_size exch def gsave dup 0 -1 font_size mul rmoveto show grestore } def\n"
-    "/txtlm { /font_size exch def gsave dup 0 font_size 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtlb { /font_size exch def gsave dup 0 0 rmoveto show grestore } def\n"
-    "/txtct { /font_size exch def gsave dup stringwidth exch 2 div -1 mul exch pop font_size -1 mul rmoveto show grestore } def\n"
-    "/txtcm { /font_size exch def gsave dup stringwidth exch 2 div -1 mul exch pop font_size 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtcb { /font_size exch def gsave dup stringwidth pop 2 div -1 mul 0 rmoveto show grestore } def\n"
-    "/txtrt { /font_size exch def gsave dup stringwidth exch -1 mul exch pop font_size -1 mul rmoveto show grestore } def\n"
-    "/txtrm { /font_size exch def gsave dup stringwidth exch -1 mul exch pop font_size 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtrb { /font_size exch def gsave dup stringwidth exch -1 mul exch pop 0 rmoveto show grestore } def\n"
-    "/point {} def\n"
-    "%%/point { -3 -3 rmoveto 6 6 rlineto -6 0 rmoveto 6 -6 rlineto -3 3 rmoveto } def\n"
+    "2 setlinejoin 2 setlinecap\n"
     "\n"
+    PS_TEXT_PLACEMENT_PREAMBLE
     "%%xTop yTop xBot yBot tracebox\n"
     "/tracebox\n"
     "  {\n"
@@ -193,13 +183,11 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
     "  stroke\n"
     "  newpath\n"
     "  xL xR add 2 div yMid moveto\n"
-    "  (" PS_FONT ") findfont labelfontsize scalefont setfont\n"
-    "  label labelfontsize txtcm\n"
+    "  (" PS_FONT ") labelfontsize label 4 txt\n"
     "  stroke\n"
     "  grestore\n"
     "  } def\n"
     "\n"
-    "2 setlinejoin 2 setlinecap\n"
     "%%%%EndProlog\n", FONT_SIZE,
     pszClr, pszClrType,
     pszClrHCFill, pszClrType) ;
@@ -207,11 +195,7 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
   for (Nix = 0 ; Nix < pg.pages->icUsed ; Nix++)
     PrintSingleGraphPage (pPrintOpts, pfile, exp_array_index_1d (pg.pages, EXP_ARRAY *, Nix), Nix) ;
 
-  fprintf (pfile,
-    "%%%%Trailer\n"
-    "%%%%Pages: %d\n"
-    "%%%%EOF\n",
-    pg.pages->icUsed) ;
+  PrintTrailer (pfile, pg.pages->icUsed) ;
 
   for (Nix = 0 ; Nix < pg.strings->icUsed ; Nix++)
     g_free (exp_array_index_1d (pg.strings, char *, Nix)) ;
@@ -353,9 +337,8 @@ static void SimDataToPageData (print_graph_OP *pPO, PAGES *pPages, PRINT_GRAPH_D
   psz = g_strdup_printf (
     "gsave\n"
     "newpath\n"
-    "(" PS_FONT ") findfont labelfontsize scalefont setfont\n"
     "%s %s moveto\n"
-    "(%s) labelfontsize txtct\n"
+    "(" PS_FONT ") labelfontsize (%s) 3 txt\n"
     "stroke\n"
     "grestore\n",
     g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dxTitle - xIdxTitle * (dcxEffective / pPO->iCXPages) + pPO->po.dLMargin),
@@ -391,22 +374,22 @@ static void PlaceSingleTrace (print_graph_OP *pPO, PAGES *pPages, struct TRACEDA
   // Filling in the trace header
   tracedata_get_min_max (ptd, 0, icSamples -1, &dTraceMinVal, &dTraceMaxVal) ;
 
-  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT, dyTraceTop + TRACE_GAP_HEIGHT,
+  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT / 2.0, dyTraceTop /*+ TRACE_GAP_HEIGHT / 2.0*/,
     pPO->bPrintClr ? pszClr : "0.00",
     pPO->bPrintClr ? "setrgbcolor" : "setgray",
-    psz = g_strdup_printf ("max: %9.2e", dTraceMaxVal), FONT_SIZE, "txtlt") ;
+    psz = g_strdup_printf ("max: %9.2e", dTraceMaxVal), FONT_SIZE, PS_TXT_LT) ;
   g_free (psz) ;
 
-  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT, dyTraceTop + dcyTrace - TRACE_GAP_HEIGHT,
+  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT / 2.0, dyTraceTop + dcyTrace /*- TRACE_GAP_HEIGHT / 2.0*/,
     pPO->bPrintClr ? pszClr : "0.00",
     pPO->bPrintClr ? "setrgbcolor" : "setgray",
-    psz = g_strdup_printf ("min: %9.2e", dTraceMinVal), FONT_SIZE, "txtlb") ;
+    psz = g_strdup_printf ("min: %9.2e", dTraceMinVal), FONT_SIZE, PS_TXT_LB) ;
   g_free (psz) ;
 
-  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT, dyTraceTop +  dcyTrace / 2,
+  PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT / 2.0, dyTraceTop + dcyTrace / 2,
     pPO->bPrintClr ? pszClr : "0.00",
     pPO->bPrintClr ? "setrgbcolor" : "setgray",
-    ptd->data_labels, FONT_SIZE, "txtlm") ;
+    ptd->data_labels, FONT_SIZE, PS_TXT_LM) ;
   }
 
 static void PlaceRuler (print_graph_OP *pPO, PAGES *pPages, simulation_data *sim_data, int idx, int icVisibleTraces, double dcxEffective, double dcyEffective, double dcyRuler)
@@ -471,7 +454,7 @@ static void PlaceRuler (print_graph_OP *pPO, PAGES *pPages, simulation_data *sim
     // Label
     PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, 
       dxRulerTop + (current_sample * dcxRuler) / (double)(sim_data->number_samples), 
-      dyRulerTop + RULER_GRAD_HEIGHT, PS_BLACK, "setrgbcolor", psz = g_strdup_printf ("%d", current_sample), RULER_FONT_SIZE, "txtct") ;
+      dyRulerTop + RULER_GRAD_HEIGHT, PS_BLACK, "setrgbcolor", psz = g_strdup_printf ("%d", current_sample), RULER_FONT_SIZE, PS_TXT_CT) ;
     g_free (psz) ;
 
     for (Nix = 0 ; Nix < 10 ; Nix++)
@@ -483,7 +466,7 @@ static void PlaceRuler (print_graph_OP *pPO, PAGES *pPages, simulation_data *sim
     }
   }
 
-static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEffective, double dcyEffective, double dx, double dy, char *pszClr, char *pszClrType, char *pszString, int font_size, char *pszStringPlacement)
+static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEffective, double dcyEffective, double dx, double dy, char *pszClr, char *pszClrType, char *pszString, int font_size, int alignment)
   {
   char *psz = NULL ;
   int idxXPgMin = -1, idxYPgMin = -1, idxPg = -1 ;
@@ -497,9 +480,8 @@ static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEff
     "gsave\n"
     "%s %s\n"
     "newpath\n"
-    "%s %s moveto\n"
-    "(" PS_FONT ") findfont %d scalefont setfont\n"
-    "(%s) %d %s\n"
+    "%s %s moveto point\n"
+    "(" PS_FONT ") %d (%s) %d txt\n"
     "stroke\n"
     "grestore\n",
     pszClr,
@@ -508,8 +490,7 @@ static void PlaceSingleString (print_graph_OP *pPO, PAGES *pPages, double dcxEff
     g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy - (idxYPgMin * dcyEffective) / pPO->iCYPages + pPO->po.dTMargin)), 
     font_size,
     pszString,
-    font_size,
-    pszStringPlacement) ;
+    alignment) ;
 
   exp_array_1d_insert_vals (pPages->strings, &psz, 1, -1) ;
   exp_array_insert_vals (pPages->pages, &psz, 1, 2, idxPg, FALSE, -1, TRUE) ;
@@ -537,7 +518,7 @@ static void PlaceSingleBusTrace (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_D
 
   PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT, dyTraceTop + TRACE_GAP_HEIGHT,
     pszClr, pszClrType,
-    bus->pszName, FONT_SIZE, "txtlt") ;
+    bus->pszName, FONT_SIZE, PS_TXT_LT) ;
 
   if (0 == hc_data->arHCs->icUsed)
     PlaceSingleLine (pPO, pPages,

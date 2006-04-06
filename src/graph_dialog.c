@@ -33,6 +33,7 @@
 
 #include <gtk/gtk.h>
 #include "print.h"
+#include "custom_widgets.h"
 #include "graph_dialog.h"
 #include "graph_dialog_data.h"
 #include "graph_dialog_interface.h"
@@ -69,6 +70,8 @@ void show_graph_dialog (GtkWindow *parent, SIMULATION_OUTPUT *sim_output, gboole
   if (bModal)
     while (GTK_WIDGET_VISIBLE (graph.dialog))
       gtk_main_iteration () ;
+
+  drain_gtk_events () ;
 
   if (NULL != parent)
     gtk_window_present (parent) ;

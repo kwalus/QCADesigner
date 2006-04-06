@@ -120,19 +120,14 @@ void print_world (print_design_OP *pPO, DESIGN *design)
     return ;
     }
 
+  PrintMagic (pfile, pPO->po.bPortrait, pPO->po.dPaperCX, pPO->po.dPaperCY) ;
+
   fprintf (pfile,
-    "%%!PS-Adobe 3.0\n"
-    "%%%%Pages: (atend)\n"
-    "%%%%Orientation: %s\n"
-    "%%%%BoundingBox: 0 0 %d %d\n"
-    "%%%%HiResBoundingBox: %f %f %f %f\n"
-    "%%........................................................\n"
-    "%%%%Creator: " PACKAGE "\n"
-    "%%%%EndComments\n"
     "%%%%BeginProlog\n"
     "/epsilon 0.1 def\n"
     "/nm { %f mul } def\n"
     "/labelfontsize 12 nm def\n"
+    "1 setlinejoin 1 setlinecap\n"
     "\n"
     "%% a b min\n"
     "/min\n"
@@ -154,22 +149,9 @@ void print_world (print_design_OP *pPO, DESIGN *design)
     "\n"
     "/linewidth 0.1 nm 1 min def\n"
     "\n"
-    "%% (string) txt??\n"
-    "/txtlt { gsave dup 0 -1 labelfontsize mul rmoveto show grestore } def\n"
-    "/txtlm { gsave dup 0 labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtlb { gsave dup 0 0 rmoveto show grestore } def\n"
-    "/txtct { gsave dup stringwidth exch 2 div -1 mul exch pop labelfontsize -1 mul rmoveto show grestore } def\n"
-    "/txtcm { gsave dup stringwidth exch 2 div -1 mul exch pop labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtcb { gsave dup stringwidth pop 2 div -1 mul 0 rmoveto show grestore } def\n"
-    "/txtrt { gsave dup stringwidth exch -1 mul exch pop labelfontsize -1 mul rmoveto show grestore } def\n"
-    "/txtrm { gsave dup stringwidth exch -1 mul exch pop labelfontsize 2 div -1 mul rmoveto show grestore } def\n"
-    "/txtrb { gsave dup stringwidth exch -1 mul exch pop 0 rmoveto show grestore } def\n"
-    "1 setlinejoin\n"
-    "1 setlinecap\n"
+    PS_TEXT_PLACEMENT_PREAMBLE
     "linewidth setlinewidth\n",
-    pPO->po.bPortrait ? "Portrait" : "Landscape",
-    (int)(pPO->po.dPaperCX), (int)(pPO->po.dPaperCY),
-    0.0, 0.0, pPO->po.dPaperCX, pPO->po.dPaperCY, pPO->dPointsPerNano) ;
+    pPO->dPointsPerNano) ;
 
   PrintObjectPreamble (pfile, lstPages, pPO->iCXPages * pPO->iCYPages) ;
 
@@ -177,11 +159,7 @@ void print_world (print_design_OP *pPO, DESIGN *design)
 
   PrintPages (pfile, pPO, lstPages, dEffPageCYPts, dxMinNm, dyMinNm, dxDiffMinNm, dyDiffMinNm) ;
 
-  fprintf (pfile,
-    "%%%%Trailer\n"
-    "%%%%Pages: %d\n"
-    "%%%%EOF\n",
-    pPO->iCXPages * pPO->iCYPages) ;
+  PrintTrailer (pfile, pPO->iCXPages * pPO->iCYPages) ;
 
   ClosePrintStream (pfile, (print_OP *)pPO) ;
   }

@@ -141,18 +141,20 @@ void chkPrintedObj_toggled (GtkCellRenderer *cr, char *pszPath, gpointer user_da
 
   bPrintLayer = (!bPrintLayer) ;
 
+  if (NULL != pbPrintLayer) (*pbPrintLayer) = bPrintLayer ;
+  gtk_list_store_set (GTK_LIST_STORE (tm), &itr, PRINTED_LAYERS_MODEL_COLUMN_PRINTED, bPrintLayer, -1) ;
+
   if (!bPrintLayer)
     {
     calc_world_size (&cx, &cy, dialog) ;
     if (0 == cx || 0 == cy)
       {
+      if (NULL != pbPrintLayer) (*pbPrintLayer) = !bPrintLayer ;
+      gtk_list_store_set (GTK_LIST_STORE (tm), &itr, PRINTED_LAYERS_MODEL_COLUMN_PRINTED, !bPrintLayer, -1) ;
       gdk_beep () ;
       return ;
       }
     }
-
-  gtk_list_store_set (GTK_LIST_STORE (tm), &itr, PRINTED_LAYERS_MODEL_COLUMN_PRINTED, bPrintLayer, -1) ;
-  if (NULL != pbPrintLayer) (*pbPrintLayer) = bPrintLayer ;
 
   check_scale (dialog, NULL) ;
   }

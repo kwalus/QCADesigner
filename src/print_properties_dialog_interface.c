@@ -237,7 +237,7 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (col), cr = gtk_cell_renderer_text_new (), FALSE) ;
   gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (col), cr, "text", LAYER_MODEL_COLUMN_NAME) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tvPrintedObjs),
-    gtk_tree_view_column_new_with_attributes (_("Printed"),
+    gtk_tree_view_column_new_with_attributes (_("Print"),
       cr = gtk_cell_renderer_toggle_new (), "active", PRINTED_LAYERS_MODEL_COLUMN_PRINTED, NULL)) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tvPrintedObjs), gtk_tree_view_column_new ()) ;
   g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)chkPrintedObj_toggled, dialog->dlgPrintProps) ;

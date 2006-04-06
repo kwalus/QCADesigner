@@ -49,13 +49,6 @@
 
 static print_properties_D print_properties = {NULL} ;
 
-static double conversion_matrix[3][3] =
-  {
-  {    1.00     , 1.00 /  2.54 , 72.00 / 2.54},
-  {    2.54     ,     1.00     ,     72.00   },
-  {2.54 / 72.00 , 1.00 / 72.00 ,      1.00   }
-  } ;
-
 static void fill_printed_objects_list (print_properties_D *dialog, DESIGN *design) ;
 static void init_print_design_properties_dialog (print_properties_D *dialog, GtkWindow *parent, print_design_OP *print_op, DESIGN *design) ;
 static void calc_world_size (int *piCX, int *piCY, print_properties_D *dialog) ;
@@ -94,8 +87,6 @@ static void init_print_design_properties_dialog (print_properties_D *dialog, Gtk
   // The static data needs to be set right away, because signals will come up empty
   g_object_set_data (G_OBJECT (dialog->dlgPrintProps), "design", design) ;
   g_object_set_data (G_OBJECT (dialog->dlgPrintProps), "dialog", dialog) ;
-  g_object_set_data (G_OBJECT (dialog->dlgPrintProps), "old_units",
-    (gpointer)qcad_print_dialog_get_units (QCAD_PRINT_DIALOG (dialog->dlgPrintProps))) ;
 
   gtk_window_set_transient_for (GTK_WINDOW (dialog->dlgPrintProps), parent) ;
 
@@ -159,21 +150,15 @@ void chkPrintedObj_toggled (GtkCellRenderer *cr, char *pszPath, gpointer user_da
   check_scale (dialog, NULL) ;
   }
 
-void units_changed (GtkWidget *widget, gpointer data)
+void units_changed (GtkWidget *widget, double conversion_factor, gpointer data)
   {
   print_properties_D *dialog = (print_properties_D *)g_object_get_data (G_OBJECT (widget), "dialog") ;
-  QCADPrintDialogUnits
-    old_units = (QCADPrintDialogUnits)g_object_get_data (G_OBJECT (widget), "old_units"),
-    new_units = qcad_print_dialog_get_units (QCAD_PRINT_DIALOG (widget)) ;
   char *pszShortString = qcad_print_dialog_get_units_short_string (QCAD_PRINT_DIALOG (widget)) ;
 
   gtk_label_set_text (GTK_LABEL (dialog->lblScale), pszShortString) ;
 
   gtk_adjustment_set_value (GTK_ADJUSTMENT (dialog->adjNanoToUnits),
-    gtk_adjustment_get_value (GTK_ADJUSTMENT (dialog->adjNanoToUnits)) *
-      conversion_matrix[old_units][new_units]) ;
-
-  g_object_set_data (G_OBJECT (widget), "old_units", (gpointer)new_units) ;
+    gtk_adjustment_get_value (GTK_ADJUSTMENT (dialog->adjNanoToUnits)) * conversion_factor) ;
 
   g_free (pszShortString) ;
   }

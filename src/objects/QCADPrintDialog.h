@@ -46,9 +46,10 @@ typedef struct _QCADPrintDialogClass QCADPrintDialogClass ;
 
 enum _QCADPrintDialogUnits
   {
-  PD_UNITS_CENTIS,
+  PD_UNITS_CENTIS = 0,
   PD_UNITS_INCHES,
-  PD_UNITS_POINTS
+  PD_UNITS_POINTS,
+  PD_UNITS_LAST
   } ;
 
 struct _print_OP

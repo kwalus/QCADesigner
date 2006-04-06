@@ -38,7 +38,7 @@ void toggle_scale_mode (GtkWidget *widget, gpointer user_data) ;
 void validate_value_change (GtkAdjustment *adj_changed, gpointer user_data) ;
 void chkPrintedObj_toggled (GtkCellRenderer *cr, char *pszPath, gpointer user_data) ;
 void user_wants_print_preview (GtkWidget *widget, gpointer user_data) ;
-void units_changed (GtkWidget *widget, gpointer user_data) ;
+void units_changed (GtkWidget *widget, double conversion_factor, gpointer user_data) ;
 
 enum
   {

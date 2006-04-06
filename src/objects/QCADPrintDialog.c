@@ -134,7 +134,7 @@ static struct
   char *pszDescription ;
   char *pszShort ;
   int unit_val ;
-  double dConv[3] ;
+  double dConv[PD_UNITS_LAST] ;
   } units[] =
     {
     {N_("Centimeters"), "cm", PD_UNITS_CENTIS, {    1.0,    (1.0 / 2.54), (72.0 / 2.54)}},
@@ -183,7 +183,7 @@ static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer 
       G_STRUCT_OFFSET (QCADPrintDialogClass, changed), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
   qcad_print_dialog_signals[QCAD_PRINT_DIALOG_UNITS_CHANGED_SIGNAL] =
     g_signal_new ("units_changed", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
-      G_STRUCT_OFFSET (QCADPrintDialogClass, units_changed), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
+      G_STRUCT_OFFSET (QCADPrintDialogClass, units_changed), NULL, NULL, g_cclosure_marshal_VOID__DOUBLE, G_TYPE_NONE, 1, G_TYPE_DOUBLE) ;
   qcad_print_dialog_signals[QCAD_PRINT_DIALOG_PREVIEW_SIGNAL] =
     g_signal_new ("preview", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADPrintDialogClass, preview), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
@@ -904,7 +904,8 @@ static void units_changed (GtkWidget *widget, gpointer data)
     dLMargin = qcad_print_dialog_from_current_units (print_dialog, gtk_spin_button_get_value (GTK_SPIN_BUTTON (pd->spnLMargin))),
     dTMargin = qcad_print_dialog_from_current_units (print_dialog, gtk_spin_button_get_value (GTK_SPIN_BUTTON (pd->spnTMargin))),
     dRMargin = qcad_print_dialog_from_current_units (print_dialog, gtk_spin_button_get_value (GTK_SPIN_BUTTON (pd->spnRMargin))),
-    dBMargin = qcad_print_dialog_from_current_units (print_dialog, gtk_spin_button_get_value (GTK_SPIN_BUTTON (pd->spnBMargin))) ;
+    dBMargin = qcad_print_dialog_from_current_units (print_dialog, gtk_spin_button_get_value (GTK_SPIN_BUTTON (pd->spnBMargin))),
+    convert  = qcad_print_dialog_from_current_units (print_dialog, 1.0) ;
   char *pszUnits = NULL ;
   GtkTreeModel *tm = NULL ;
   GtkTreeIter itr ;
@@ -927,6 +928,8 @@ static void units_changed (GtkWidget *widget, gpointer data)
   // set pd->current_units so (to|from)_current_units continues to work correctly
   g_object_get (G_OBJECT (pd->cbUnits), "active", &(pd->current_units), NULL) ;
 
+  convert = qcad_print_dialog_to_current_units (print_dialog, convert) ;
+
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), qcad_print_dialog_to_current_units (print_dialog, dPaperCX)) ;
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), qcad_print_dialog_to_current_units (print_dialog, dPaperCY)) ;
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjLMargin), qcad_print_dialog_to_current_units (print_dialog, dLMargin)) ;
@@ -934,7 +937,7 @@ static void units_changed (GtkWidget *widget, gpointer data)
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjRMargin), qcad_print_dialog_to_current_units (print_dialog, dRMargin)) ;
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjBMargin), qcad_print_dialog_to_current_units (print_dialog, dBMargin)) ;
 
-  g_signal_emit (G_OBJECT (print_dialog), qcad_print_dialog_signals[QCAD_PRINT_DIALOG_UNITS_CHANGED_SIGNAL], 0) ;
+  g_signal_emit (G_OBJECT (print_dialog), qcad_print_dialog_signals[QCAD_PRINT_DIALOG_UNITS_CHANGED_SIGNAL], 0, convert) ;
   }
 
 static void margins_changed (GtkWidget *widget, gpointer data)

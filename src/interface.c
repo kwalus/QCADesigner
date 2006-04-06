@@ -848,17 +848,15 @@ void create_main_window (main_W *main_window)
 
   // create and add the horizontal ruler to the table //
   // purpose to provide a real time ruler for measuring the design //
-  main_window->horizontal_ruler = g_object_new (GTK_TYPE_HRULER, "visible", TRUE, NULL) ;
+  main_window->horizontal_ruler = g_object_new (GTK_TYPE_HRULER, "visible", TRUE, "lower", (gdouble)0.0, "upper", (gdouble)100.0, "position", (gdouble)0.0, "max-size", (gdouble)1.0, NULL) ;
   gtk_table_attach (GTK_TABLE (table1), main_window->horizontal_ruler, 1, 2, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (GTK_FILL), 0, 0);
   gtk_ruler_set_metric (GTK_RULER (main_window->horizontal_ruler), GTK_PIXELS) ;
-  gtk_ruler_set_range (GTK_RULER (main_window->horizontal_ruler), 0, 100, 0, 1) ;
 
   // create and add the vertical ruler to the table //
   // purpose to provide a real time ruler for measuring the design //
-  main_window->vertical_ruler = g_object_new (GTK_TYPE_VRULER, "visible", TRUE, NULL) ;
+  main_window->vertical_ruler = g_object_new (GTK_TYPE_VRULER, "visible", TRUE, "lower", (gdouble)0.0, "upper", (gdouble)100.0, "position", (gdouble)0.0, "max-size", (gdouble)1.0, NULL) ;
   gtk_table_attach (GTK_TABLE (table1), main_window->vertical_ruler, 0, 1, 1, 2, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
   gtk_ruler_set_metric (GTK_RULER (main_window->vertical_ruler), GTK_PIXELS) ;
-  gtk_ruler_set_range (GTK_RULER (main_window->vertical_ruler), 0, 100, 0, 1) ;
 
   // create and add the command history text box to the scrolled window //
   command_history = command_history_create () ;

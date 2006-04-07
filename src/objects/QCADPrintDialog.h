@@ -44,14 +44,6 @@ typedef struct _print_OP             print_OP ;
 typedef struct _QCADPrintDialog      QCADPrintDialog ;
 typedef struct _QCADPrintDialogClass QCADPrintDialogClass ;
 
-enum _QCADPrintDialogUnits
-  {
-  PD_UNITS_CENTIS = 0,
-  PD_UNITS_INCHES,
-  PD_UNITS_POINTS,
-  PD_UNITS_LAST
-  } ;
-
 struct _print_OP
   {
   double dPaperCX ;
@@ -90,7 +82,6 @@ void qcad_print_dialog_get_options (QCADPrintDialog *pd, print_OP *pPO) ;
 double qcad_print_dialog_to_current_units (QCADPrintDialog *pd, double dPoints) ;
 double qcad_print_dialog_from_current_units (QCADPrintDialog *pd, double dPoints) ;
 char *qcad_print_dialog_get_units_short_string (QCADPrintDialog *pd) ;
-QCADPrintDialogUnits qcad_print_dialog_get_units (QCADPrintDialog *pd) ;
 
 #define QCAD_TYPE_STRING_PRINT_DIALOG "QCADPrintDialog"
 #define QCAD_TYPE_PRINT_DIALOG (qcad_print_dialog_get_type ())

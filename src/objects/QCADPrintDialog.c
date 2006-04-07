@@ -88,6 +88,14 @@ typedef struct
 
 #define QCAD_PRINT_DIALOG_GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE ((instance), QCAD_TYPE_PRINT_DIALOG, QCADPrintDialogPrivate))
 
+enum _QCADPrintDialogUnits
+  {
+  PD_UNITS_CENTIS = 0,
+  PD_UNITS_INCHES,
+  PD_UNITS_POINTS,
+  PD_UNITS_LAST
+  } ;
+
 #define MIN_MARGIN_SEPARATION 72 /* points */
 
 static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer data) ;
@@ -701,21 +709,6 @@ void qcad_print_dialog_get_options (QCADPrintDialog *print_dialog, print_OP *pPO
   pPO->bPrintFile = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pd->rbPrintFile)) ;
   pPO->pszPrintString =
     gtk_editable_get_chars (GTK_EDITABLE (pPO->bPrintFile ? pd->txtFileSelect : pd->txtPipeSelect), 0, -1) ;
-  }
-
-QCADPrintDialogUnits qcad_print_dialog_get_units (QCADPrintDialog *print_dialog)
-  {
-  int val ;
-  GtkTreeModel *tm = NULL ;
-  GtkTreeIter itr ;
-  QCADPrintDialogPrivate *pd = QCAD_PRINT_DIALOG_GET_PRIVATE (print_dialog) ;
-
-  g_object_get (G_OBJECT (pd->cbUnits), "model", &tm, NULL) ;
-  if (!gtk_combo_box_get_active_iter (GTK_COMBO_BOX (pd->cbUnits), &itr)) return -1 ;
-
-  gtk_tree_model_get (GTK_TREE_MODEL (tm), &itr, 2, &val, -1) ;
-
-  return val ;
   }
 
 char *qcad_print_dialog_get_units_short_string (QCADPrintDialog *print_dialog)

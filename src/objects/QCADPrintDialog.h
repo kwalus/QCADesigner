@@ -33,6 +33,7 @@
 #define _OBJECTS_QCADPrintDialog_H_
 
 #include <gtk/gtk.h>
+#include "../print.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,22 +41,8 @@ extern "C" {
 
 typedef enum _QCADPrintDialogUnits QCADPrintDialogUnits ;
 
-typedef struct _print_OP             print_OP ;
 typedef struct _QCADPrintDialog      QCADPrintDialog ;
 typedef struct _QCADPrintDialogClass QCADPrintDialogClass ;
-
-struct _print_OP
-  {
-  double dPaperCX ;
-  double dPaperCY ;
-  double dLMargin ;
-  double dTMargin ;
-  double dRMargin ;
-  double dBMargin ;
-  gboolean bPrintFile ;
-  gboolean bPortrait ;
-  char *pszPrintString ;
-  } ;
 
 struct _QCADPrintDialog
   {

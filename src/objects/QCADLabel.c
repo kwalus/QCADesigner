@@ -371,6 +371,7 @@ static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   {
   QCADLabel *lbl = QCAD_LABEL (obj) ;
   GdkColor clr = {0} ;
+  char doubles[7][G_ASCII_DTOSTR_BUF_SIZE] = {""} ;
   double
     r = ((double)(obj->clr.red)) / 65535.0,
     g = ((double)(obj->clr.green)) / 65535.0,
@@ -385,8 +386,14 @@ static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
     b = ((double)(obj->clr.blue)) / 65536.0 ; // .blue has become the luminance
     }
 
-  return g_strdup_printf ("%lf nmx %lf nmy %lf nm %lf nm %lf %lf %lf (%s) QCADLabel",
-    obj->bounding_box.xWorld, obj->bounding_box.yWorld, obj->bounding_box.cxWorld, obj->bounding_box.cyWorld, r, g, b, lbl->psz) ;
+  return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s (%s) QCADLabel",
+    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld), 
+    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld), 
+    g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld), 
+    g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld), 
+    g_ascii_dtostr (doubles[4], G_ASCII_DTOSTR_BUF_SIZE, r), 
+    g_ascii_dtostr (doubles[5], G_ASCII_DTOSTR_BUF_SIZE, g), 
+    g_ascii_dtostr (doubles[6], G_ASCII_DTOSTR_BUF_SIZE, b), lbl->psz) ;
   }
 
 QCADLabel *qcad_label_new (char *psz, ...)

@@ -67,7 +67,6 @@ typedef struct
   GtkWidget     *tblCenter ;
   GtkWidget     *fmCenter ;
   GtkWidget     *lblCenter ;
-  GtkWidget     *chkColour ;
   GtkWidget     *chkPrintDots ;
 
 //  GtkWidget     **ppPrintedObjs ;

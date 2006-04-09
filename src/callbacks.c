@@ -108,7 +108,7 @@ extern GdkColor clrYellow ;
 extern GdkColor clrBlack ;
 
 static print_design_OP print_options =
-  {{612, 792, 72, 72, 72, 72, TRUE, TRUE, NULL}, 3, TRUE, FALSE, TRUE, TRUE, 1, 1} ;
+  {{612, 792, 72, 72, 72, 72, TRUE, TRUE, TRUE, NULL}, 3, TRUE, FALSE, TRUE, 1, 1} ;
 
 extern char *layer_stock_id[] ;
 extern int n_layer_stock_id ;

@@ -34,6 +34,7 @@
 #include "print.h"
 #include "print_properties_dialog_interface.h"
 #include "print_properties_dialog_callbacks.h"
+#include "objects/QCADPrintDialog.h"
 
 /* Create it */
 void create_print_design_properties_dialog (print_properties_D *dialog, print_design_OP *pPO)
@@ -241,12 +242,6 @@ void create_print_design_properties_dialog (print_properties_D *dialog, print_de
       cr = gtk_cell_renderer_toggle_new (), "active", PRINTED_LAYERS_MODEL_COLUMN_PRINTED, NULL)) ;
   gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->tvPrintedObjs), gtk_tree_view_column_new ()) ;
   g_signal_connect (G_OBJECT (cr), "toggled", (GCallback)chkPrintedObj_toggled, dialog->dlgPrintProps) ;
-
-  dialog->chkColour = gtk_check_button_new_with_label (_("Print Colours")) ;
-  gtk_widget_show (dialog->chkColour) ;
-  gtk_table_attach (GTK_TABLE (tbl), dialog->chkColour, 0, 1, 1, 2,
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
 
   qcad_print_dialog_add_page (QCAD_PRINT_DIALOG (dialog->dlgPrintProps), tbl, _("Printed Objects")) ;
 

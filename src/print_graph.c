@@ -106,9 +106,9 @@ void print_graphs (print_graph_OP *pPrintOpts, PRINT_GRAPH_DATA *print_graph_dat
   int Nix ;
   FILE *pfile = NULL ;
   PAGES pg = {NULL, NULL} ;
-  char *pszClr = pPrintOpts->bPrintClr ? PS_GREEN : "0.00",
-       *pszClrHCFill = pPrintOpts->bPrintClr ? PS_HCFILL : "0.90",
-       *pszClrType = pPrintOpts->bPrintClr ? "setrgbcolor" : "setgray" ;
+  char *pszClr = pPrintOpts->po.bPrintColours ? PS_GREEN : "0.00",
+       *pszClrHCFill = pPrintOpts->po.bPrintColours ? PS_HCFILL : "0.90",
+       *pszClrType = pPrintOpts->po.bPrintColours ? "setrgbcolor" : "setgray" ;
 //       doubles[G_ASCII_DTOSTR_BUF_SIZE][4] = {"", "", "", ""} ;
 
 
@@ -375,20 +375,20 @@ static void PlaceSingleTrace (print_graph_OP *pPO, PAGES *pPages, struct TRACEDA
   tracedata_get_min_max (ptd, 0, icSamples -1, &dTraceMinVal, &dTraceMaxVal) ;
 
   PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT / 2.0, dyTraceTop /*+ TRACE_GAP_HEIGHT / 2.0*/,
-    pPO->bPrintClr ? pszClr : "0.00",
-    pPO->bPrintClr ? "setrgbcolor" : "setgray",
+    pPO->po.bPrintColours ? pszClr : "0.00",
+    pPO->po.bPrintColours ? "setrgbcolor" : "setgray",
     psz = g_strdup_printf ("max: %9.2e", dTraceMaxVal), FONT_SIZE, PS_TXT_LT) ;
   g_free (psz) ;
 
   PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT / 2.0, dyTraceTop + dcyTrace /*- TRACE_GAP_HEIGHT / 2.0*/,
-    pPO->bPrintClr ? pszClr : "0.00",
-    pPO->bPrintClr ? "setrgbcolor" : "setgray",
+    pPO->po.bPrintColours ? pszClr : "0.00",
+    pPO->po.bPrintColours ? "setrgbcolor" : "setgray",
     psz = g_strdup_printf ("min: %9.2e", dTraceMinVal), FONT_SIZE, PS_TXT_LB) ;
   g_free (psz) ;
 
   PlaceSingleString (pPO, pPages, dcxEffective, dcyEffective, TRACE_GAP_HEIGHT / 2.0, dyTraceTop + dcyTrace / 2,
-    pPO->bPrintClr ? pszClr : "0.00",
-    pPO->bPrintClr ? "setrgbcolor" : "setgray",
+    pPO->po.bPrintColours ? pszClr : "0.00",
+    pPO->po.bPrintColours ? "setrgbcolor" : "setgray",
     ptd->data_labels, FONT_SIZE, PS_TXT_LM) ;
   }
 
@@ -508,8 +508,8 @@ static void PlaceSingleBusTrace (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_D
     dyMax = dyTraceTop + TRACE_GAP_HEIGHT,
     dxInc = (dxMax - dxMin) / icSamples,
     dSlopeDistance = 0 ;
-  char *pszClr = pPO->bPrintClr ? ((QCAD_CELL_INPUT == bus->bus_function) ? PS_BLUE : PS_YELLOW) : "0.00",
-       *pszClrType = pPO->bPrintClr ? "setrgbcolor" : "setgray",
+  char *pszClr = pPO->po.bPrintColours ? ((QCAD_CELL_INPUT == bus->bus_function) ? PS_BLUE : PS_YELLOW) : "0.00",
+       *pszClrType = pPO->po.bPrintColours ? "setrgbcolor" : "setgray",
        *psz = NULL ;
   int Nix ;
   int idxCurrentSample = 0 ;
@@ -569,8 +569,8 @@ static void PlaceSingleBusTrace (print_graph_OP *pPO, PAGES *pPages, HONEYCOMB_D
 static void PlaceSingleTraceBox (print_graph_OP *pPO, PAGES *pPages, double dyTraceTop, double dcxTraceHeader, double dcxEffective, double dcyEffective, double dcyTrace, gboolean bDrawMidLine)
   {
   double dxMin, dyMin, dxMax, dyMax ;
-  char *pszClr = pPO->bPrintClr ? PS_GREEN : "0.00",
-       *pszClrType = pPO->bPrintClr ? "setrgbcolor" : "setgray" ;
+  char *pszClr = pPO->po.bPrintColours ? PS_GREEN : "0.00",
+       *pszClrType = pPO->po.bPrintColours ? "setrgbcolor" : "setgray" ;
 
   // Trace header box
   dxMin = 0 ;
@@ -895,8 +895,8 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
       "%s %s\n"
       "newpath\n"
       "%s %s moveto point\n",
-      pPO->bPrintClr ? pszClr : "0.00",
-      pPO->bPrintClr ? "setrgbcolor" : "setgray",
+      pPO->po.bPrintColours ? pszClr : "0.00",
+      pPO->po.bPrintColours ? "setrgbcolor" : "setgray",
       g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dx0 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
       g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy0 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin))) ;
 
@@ -936,8 +936,8 @@ static void PlaceSingleWaveform (print_graph_OP *pPO, PAGES *pPages, struct TRAC
           "newpath\n"
           "%s %s moveto point\n"
           "%s %s lineto point\n",
-          pPO->bPrintClr ? pszClr : "0.00",
-          pPO->bPrintClr ? "setrgbcolor" : "setgray",
+          pPO->po.bPrintColours ? pszClr : "0.00",
+          pPO->po.bPrintColours ? "setrgbcolor" : "setgray",
           g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, dx1 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),
           g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - (dy1 - (Nix  * dcy) / pPO->iCYPages + pPO->po.dTMargin)),
           g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, dx2 - (xIdx * dcx) / pPO->iCXPages + pPO->po.dLMargin),

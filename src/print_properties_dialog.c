@@ -36,6 +36,7 @@
 #include "support.h"
 #include "print_preview.h"
 #include "file_selection_window.h"
+#include "objects/QCADPrintDialog.h"
 #include "print_properties_dialog.h"
 #include "print_properties_dialog_interface.h"
 #include "print_properties_dialog_callbacks.h"
@@ -106,8 +107,6 @@ static void init_print_design_properties_dialog (print_properties_D *dialog, Gtk
     gtk_adjustment_set_value (GTK_ADJUSTMENT (dialog->adjCXPages), print_op->iCXPages) ;
     gtk_adjustment_set_value (GTK_ADJUSTMENT (dialog->adjCYPages), print_op->iCYPages) ;
     }
-
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->chkColour), print_op->bColour) ;
 
   toggle_scale_mode (NULL, dialog->dlgPrintProps) ;
   }
@@ -193,8 +192,6 @@ void init_print_design_options (print_design_OP *pPrintOp, DESIGN *design)
   pPrintOp->iCYPages = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (print_properties.spnCYPages)) ;
 
   pPrintOp->bFit = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (print_properties.rbFitPages)) ;
-
-  pPrintOp->bColour = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (print_properties.chkColour)) ;
   }
 
 void on_tbtnPrintOrder_toggled (GtkWidget *widget, gpointer user_data)

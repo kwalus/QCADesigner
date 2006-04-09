@@ -55,7 +55,7 @@ static void draw_trace_reference_lines (GdkDrawable *dst, int cx, int cy) ;
 static void print_graph_data_init (PRINT_GRAPH_DATA *print_graph_data, GRAPH_DIALOG_DATA *gdd) ;
 static void reflect_scale_change (GRAPH_DIALOG_DATA *dialog_data) ;
 
-static print_graph_OP print_graph_options = {{612, 792, 72, 72, 72, 72, TRUE, TRUE, NULL}, TRUE, TRUE, 1, 1} ;
+static print_graph_OP print_graph_options = {{612, 792, 72, 72, 72, 72, TRUE, TRUE, TRUE, NULL}, TRUE, 1, 1} ;
 
 // Extremely hacky solution to the problem of making all traces the same size
 gboolean gd_graph_widget_one_time_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)

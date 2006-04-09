@@ -59,6 +59,7 @@ void print_world (print_design_OP *pPO, DESIGN *design)
     dEffPageCXPts = pPO->po.dPaperCX - pPO->po.dLMargin - pPO->po.dRMargin,
     dEffPageCYPts = pPO->po.dPaperCY - pPO->po.dTMargin - pPO->po.dBMargin ;
   WorldRectangle extentsNm = {0.0} ;
+  char doubles[1][G_ASCII_DTOSTR_BUF_SIZE] = {""} ;
 
   DBG_P (fprintf (stderr, "print_world:Entering\n")) ;
 
@@ -125,7 +126,7 @@ void print_world (print_design_OP *pPO, DESIGN *design)
   fprintf (pfile,
     "%%%%BeginProlog\n"
     "/epsilon 0.1 def\n"
-    "/nm { %f mul } def\n"
+    "/nm { %s mul } def\n"
     "/labelfontsize 12 nm def\n"
     "1 setlinejoin 1 setlinecap\n"
     "\n"
@@ -151,7 +152,7 @@ void print_world (print_design_OP *pPO, DESIGN *design)
     "\n"
     PS_TEXT_PLACEMENT_PREAMBLE
     "linewidth setlinewidth\n",
-    pPO->dPointsPerNano) ;
+    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, pPO->dPointsPerNano)) ;
 
   PrintObjectPreamble (pfile, lstPages, pPO->iCXPages * pPO->iCYPages) ;
 
@@ -239,6 +240,7 @@ void PrintPages (FILE *pfile, print_design_OP *pPO, GList **lstPages, double dEf
   GList *lstItr = NULL ;
   char *pszPSInstance = NULL ;
   double cxPageOffsetNm = 0, cyPageOffsetNm = 0 ;
+  char doubles[19][G_ASCII_DTOSTR_BUF_SIZE] = {""} ;
 
   for (Nix = 0 ; Nix < icPages ; Nix++)
     {
@@ -256,25 +258,38 @@ void PrintPages (FILE *pfile, print_design_OP *pPO, GList **lstPages, double dEf
     fprintf (pfile,
       "%%%%Page: %d %d\n"
       "%%%%BeginPageSetup\n"
-      "/nmx { %f sub %f sub %f add %f mul %f add } def\n"
-      "/nmy { %f exch %f sub %f sub %f add %f mul %f add sub } def\n"
+      "/nmx { %s sub %s sub %s add %s mul %s add } def\n"
+      "/nmy { %s exch %s sub %s sub %s add %s mul %s add sub } def\n"
       "%%%%EndPageSetup\n"
       "gsave\n"
       "%%The margin\n"
       "newpath\n"
-      "%lf %lf moveto\n"
-      "%lf %lf lineto\n"
-      "%lf %lf lineto\n"
-      "%lf %lf lineto\n"
+      "%s %s moveto\n"
+      "%s %s lineto\n"
+      "%s %s lineto\n"
+      "%s %s lineto\n"
       "closepath eoclip\n",
-      Nix + 1, Nix + 1, // %%Page:
-      dxMinNm, cxPageOffsetNm, dxDiffMinNm, pPO->dPointsPerNano, pPO->po.dLMargin, // nmx
-      pPO->po.dPaperCY, dyMinNm, cyPageOffsetNm, dyDiffMinNm, pPO->dPointsPerNano, pPO->po.dTMargin, // nmy
-      pPO->po.dLMargin, pPO->po.dBMargin, // moveto
-      pPO->po.dLMargin, pPO->po.dPaperCY - pPO->po.dTMargin, // lineto
-      pPO->po.dPaperCX - pPO->po.dRMargin, pPO->po.dPaperCY - pPO->po.dTMargin, // lineto
-      pPO->po.dPaperCX - pPO->po.dRMargin,
-      pPO->po.dBMargin // lineto
+      Nix + 1, 
+      Nix + 1, // %%Page:
+      g_ascii_dtostr (doubles[ 0], G_ASCII_DTOSTR_BUF_SIZE, dxMinNm), 
+      g_ascii_dtostr (doubles[ 1], G_ASCII_DTOSTR_BUF_SIZE, cxPageOffsetNm), 
+      g_ascii_dtostr (doubles[ 2], G_ASCII_DTOSTR_BUF_SIZE, dxDiffMinNm), 
+      g_ascii_dtostr (doubles[ 3], G_ASCII_DTOSTR_BUF_SIZE, pPO->dPointsPerNano), 
+      g_ascii_dtostr (doubles[ 4], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dLMargin), // nmx
+      g_ascii_dtostr (doubles[ 5], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY), 
+      g_ascii_dtostr (doubles[ 6], G_ASCII_DTOSTR_BUF_SIZE, dyMinNm), 
+      g_ascii_dtostr (doubles[ 7], G_ASCII_DTOSTR_BUF_SIZE, cyPageOffsetNm), 
+      g_ascii_dtostr (doubles[ 8], G_ASCII_DTOSTR_BUF_SIZE, dyDiffMinNm), 
+      g_ascii_dtostr (doubles[ 9], G_ASCII_DTOSTR_BUF_SIZE, pPO->dPointsPerNano), 
+      g_ascii_dtostr (doubles[10], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dTMargin), // nmy
+      g_ascii_dtostr (doubles[11], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dLMargin), 
+      g_ascii_dtostr (doubles[12], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dBMargin), // moveto
+      g_ascii_dtostr (doubles[13], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dLMargin), 
+      g_ascii_dtostr (doubles[14], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - pPO->po.dTMargin), // lineto
+      g_ascii_dtostr (doubles[15], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCX - pPO->po.dRMargin), 
+      g_ascii_dtostr (doubles[16], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY - pPO->po.dTMargin), // lineto
+      g_ascii_dtostr (doubles[17], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCX - pPO->po.dRMargin), 
+      g_ascii_dtostr (doubles[18], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dBMargin) // lineto
       ) ;
 
     if (pPO->bPrintOrderOver)
@@ -298,7 +313,7 @@ void PrintPages (FILE *pfile, print_design_OP *pPO, GList **lstPages, double dEf
 
     for (lstItr = lstPages[Nix] ; lstItr != NULL ; lstItr = lstItr->next)
       {
-      pszPSInstance = qcad_design_object_get_PostScript_instance (QCAD_DESIGN_OBJECT (lstItr->data), pPO->bColour) ;
+      pszPSInstance = qcad_design_object_get_PostScript_instance (QCAD_DESIGN_OBJECT (lstItr->data), pPO->po.bPrintColours) ;
       fprintf (pfile, "%s\n", pszPSInstance) ;
       g_free (pszPSInstance) ;
       }

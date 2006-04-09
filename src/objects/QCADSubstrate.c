@@ -208,9 +208,13 @@ static void copy (QCADObject *src, QCADObject *dst)
 
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   {
+  char doubles[4][G_ASCII_DTOSTR_BUF_SIZE] = {""} ;
   return
-    g_strdup_printf ("%lf nmx %lf nmy %lf nm %lf nm QCADSubstrate",
-      obj->bounding_box.xWorld, obj->bounding_box.yWorld, obj->bounding_box.cxWorld, obj->bounding_box.cyWorld) ;
+    g_strdup_printf ("%s nmx %s nmy %s nm %s nm QCADSubstrate",
+      g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld), 
+      g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld), 
+      g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld), 
+      g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld)) ;
   }
 
 static const char *PostScript_preamble ()

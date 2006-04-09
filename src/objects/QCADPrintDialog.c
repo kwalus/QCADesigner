@@ -53,6 +53,7 @@ typedef struct
   GtkWidget *btnPipeSelect ;
   GtkWidget *lblPipeSelect ;
   GtkWidget *lblPipeSelectBlurb ;
+  GtkWidget *chkPrintColours ;
 
   GtkWidget *cbPaperSize ;
   GtkAdjustment *adjPaperCX ;
@@ -202,7 +203,7 @@ static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer 
 static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpointer data)
   {
   QCADPrintDialogPrivate *dlg = QCAD_PRINT_DIALOG_GET_PRIVATE (print_dialog) ;
-  GtkWidget *tbl = NULL, *widget = NULL, *frame = NULL, *tblPg = NULL, *tblFm = NULL ;
+  GtkWidget *tbl = NULL, *widget = NULL, *frame = NULL, *tblPg = NULL, *tblFm = NULL, *tblPrintColours = NULL, *align = NULL ;
   GSList *grp = NULL ;
   int Nix, Nix1 ;
   GType *types = NULL ;
@@ -213,14 +214,10 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
   dlg->current_units = 0 ;
   dlg->bIgnorePaperSizeChanges = FALSE ;
 
-  gtk_window_set_title (GTK_WINDOW (print_dialog), QCAD_TYPE_STRING_PRINT_DIALOG) ;
-  gtk_window_set_resizable (GTK_WINDOW (print_dialog), FALSE) ;
-  gtk_window_set_modal (GTK_WINDOW (print_dialog), TRUE) ;
+  g_object_set (G_OBJECT (print_dialog), "title", QCAD_TYPE_STRING_PRINT_DIALOG, "resizable", FALSE, "modal", TRUE, NULL) ;
 
-  tbl = gtk_table_new (2, 3, FALSE) ;
-  gtk_widget_show (tbl) ;
+  tbl = g_object_new (GTK_TYPE_TABLE, "visible", TRUE, "n-rows", 2, "n-columns", 3, "homogeneous", FALSE, "border-width", 2, NULL) ;
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (print_dialog)->vbox), tbl, TRUE, TRUE, 0) ;
-  gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
 
   widget = dlg->cbUnits = gtk_combo_box_new () ;
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), cr = gtk_cell_renderer_text_new (), FALSE) ;
@@ -249,13 +246,11 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
   g_object_set (G_OBJECT (widget), "model", ls, NULL) ;
   g_object_set (G_OBJECT (widget), "active", 0, NULL) ;
 
-  widget = gtk_label_new (_("Preferred Units:")) ;
-  gtk_widget_show (widget) ;
+  widget = g_object_new (GTK_TYPE_LABEL, "visible", TRUE, "label", _("Preferred Units:"), 
+    "justify", GTK_JUSTIFY_RIGHT, "xalign", (gdouble)1.0, "yalign", (gdouble)0.5, NULL) ;
   gtk_table_attach (GTK_TABLE (tbl), widget, 0, 1, 0, 1,
     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions) (GTK_SHRINK), 2, 2) ;
-  gtk_label_set_justify (GTK_LABEL (widget), GTK_JUSTIFY_RIGHT);
-  gtk_misc_set_alignment (GTK_MISC (widget), 1, 0.5);
 
   widget = dlg->nbPropPages = gtk_notebook_new () ;
   gtk_widget_show (widget) ;
@@ -264,14 +259,28 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2) ;
 
   //Notebook page 0: Printer
-  widget = frame = gtk_frame_new (_("Print To")) ;
-  gtk_widget_show (widget) ;
-  gtk_container_set_border_width (GTK_CONTAINER (widget), 2) ;
+  tblPrintColours = g_object_new (GTK_TYPE_TABLE, 
+    "visible", TRUE, "n-rows", 2, "n-columns", 1, "homogeneous", FALSE, "border-width", 2, NULL) ;
 
-  widget = gtk_label_new (_("Printer")) ;
-  gtk_widget_show (widget) ;
+  widget = frame = g_object_new (GTK_TYPE_FRAME, "visible", TRUE, "label", _("Print To"), "border-width", 2, NULL) ;
+  gtk_table_attach (GTK_TABLE (tblPrintColours), widget, 0, 1, 0, 1, 
+    (GtkAttachOptions)(GTK_FILL | GTK_EXPAND), 
+    (GtkAttachOptions)(GTK_FILL | GTK_EXPAND), 2, 2) ;
 
-  gtk_notebook_append_page (GTK_NOTEBOOK (dlg->nbPropPages), frame, widget) ;
+  gtk_table_attach (GTK_TABLE (tblPrintColours),
+    align = g_object_new (GTK_TYPE_TABLE, "visible", TRUE, "n-rows", 1, "n-columns", 1, "homogeneous", FALSE, "border-width", 0, NULL),
+    0, 1, 1, 2,
+    (GtkAttachOptions)(GTK_FILL), 
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+
+  gtk_table_attach (GTK_TABLE (align),
+    dlg->chkPrintColours = g_object_new (GTK_TYPE_CHECK_BUTTON, "visible", TRUE, "label", _("Print Colours"), NULL),
+    0, 1, 0, 1,
+    (GtkAttachOptions)(GTK_FILL), 
+    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+
+  gtk_notebook_append_page (GTK_NOTEBOOK (dlg->nbPropPages), tblPrintColours, 
+    g_object_new (GTK_TYPE_LABEL, "visible", TRUE, "label", _("Printer"), NULL)) ;
 
   widget = tblPg = gtk_table_new (2, 2, FALSE) ;
   gtk_widget_show (tblPg) ;
@@ -699,16 +708,16 @@ void qcad_print_dialog_get_options (QCADPrintDialog *print_dialog, print_OP *pPO
   {
   QCADPrintDialogPrivate *pd = QCAD_PRINT_DIALOG_GET_PRIVATE (print_dialog) ;
 
-  pPO->dPaperCX = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCX))) ;
-  pPO->dPaperCY = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCY))) ;
-  pPO->dLMargin = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjLMargin))) ;
-  pPO->dTMargin = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjTMargin))) ;
-  pPO->dRMargin = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjRMargin))) ;
-  pPO->dBMargin = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjBMargin))) ;
-  pPO->bPortrait = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pd->rbPortrait)) ;
-  pPO->bPrintFile = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pd->rbPrintFile)) ;
-  pPO->pszPrintString =
-    gtk_editable_get_chars (GTK_EDITABLE (pPO->bPrintFile ? pd->txtFileSelect : pd->txtPipeSelect), 0, -1) ;
+  pPO->bPrintColours  = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pd->chkPrintColours)) ;
+  pPO->dPaperCX       = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCX))) ;
+  pPO->dPaperCY       = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjPaperCY))) ;
+  pPO->dLMargin       = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjLMargin))) ;
+  pPO->dTMargin       = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjTMargin))) ;
+  pPO->dRMargin       = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjRMargin))) ;
+  pPO->dBMargin       = qcad_print_dialog_from_current_units (print_dialog, gtk_adjustment_get_value (GTK_ADJUSTMENT (pd->adjBMargin))) ;
+  pPO->bPortrait      = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pd->rbPortrait)) ;
+  pPO->bPrintFile     = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pd->rbPrintFile)) ;
+  pPO->pszPrintString = gtk_editable_get_chars (GTK_EDITABLE (pPO->bPrintFile ? pd->txtFileSelect : pd->txtPipeSelect), 0, -1) ;
   }
 
 char *qcad_print_dialog_get_units_short_string (QCADPrintDialog *print_dialog)
@@ -820,6 +829,7 @@ static void print_op_to_dialog (QCADPrintDialog *print_dialog, print_OP *pPO)
     if (NULL != pPO->pszPrintString)
       gtk_entry_set_text (GTK_ENTRY (pd->txtPipeSelect), pPO->pszPrintString) ;
     }
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pd->chkPrintColours), pPO->bPrintColours) ;
 
   // the second tab
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), qcad_print_dialog_to_current_units (print_dialog, pPO->dPaperCX)) ;

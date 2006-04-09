@@ -32,12 +32,30 @@
 #define _PRINT_H_
 
 #include "simulation.h"
-#include "objects/QCADPrintDialog.h"
 #include "design.h"
 
 #define PRINT_LAYER_KEY "print_layer"
 
-typedef struct
+typedef struct _print_OP         print_OP ;
+typedef struct _print_design_OP  print_design_OP ;
+typedef struct _print_graph_OP   print_graph_OP ;
+typedef struct _PRINT_GRAPH_DATA PRINT_GRAPH_DATA ;
+
+struct _print_OP
+  {
+  double dPaperCX ;
+  double dPaperCY ;
+  double dLMargin ;
+  double dTMargin ;
+  double dRMargin ;
+  double dBMargin ;
+  gboolean bPrintFile ;
+  gboolean bPortrait ;
+  gboolean bPrintColours ;
+  char *pszPrintString ;
+  } ;
+
+struct _print_design_OP
   {
   print_OP po ;
   // Units are in points == 1/72 inches
@@ -45,30 +63,28 @@ typedef struct
   gboolean bPrintOrderOver ;
   gboolean bCenter ;
   gboolean bFit ;
-  gboolean bColour ;
 //  gboolean *pbPrintedObjs ;
 //  int icPrintedObjs ;
   int iCXPages ;
   int iCYPages ;
-  } print_design_OP ;
+  } ;
 
-typedef struct
+struct _print_graph_OP
   {
   print_OP po ;
   // Units are in points == 1/72 inches
-  gboolean bPrintClr ;
   gboolean bPrintOrderOver ;
   int iCXPages ;
   int iCYPages ;
-  } print_graph_OP ;
+  } ;
 
-typedef struct
+struct _PRINT_GRAPH_DATA
   {
   simulation_data *sim_data ;
   BUS_LAYOUT *bus_layout ;
   EXP_ARRAY *bus_traces ; // HONEYCOMB_DATA *
   int honeycomb_base ;
-  } PRINT_GRAPH_DATA ;
+  } ;
 
 typedef void (*PrintFunction) (print_OP *pPO, void *data) ;
 

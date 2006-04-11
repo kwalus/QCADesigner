@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <bookinfo>
+    <title>QCADesigner Reference Manual</title>
+  </bookinfo>
+
+  <chapter>
+    <title>[Insert title here]</title>
+    <xi:include href="xml/QCADDesignObject.xml"/>
+    <xi:include href="xml/QCADPropertyUIObjectList.xml"/>
+    <xi:include href="xml/QCADCell.xml"/>
+    <xi:include href="xml/QCADPrintDialog.xml"/>
+    <xi:include href="xml/QCADPropertyUIGroup.xml"/>
+    <xi:include href="xml/QCADObject.xml"/>
+    <xi:include href="xml/QCADLayersCombo.xml"/>
+    <xi:include href="xml/QCADStretchyObject.xml"/>
+    <xi:include href="xml/QCADSubstrate.xml"/>
+    <xi:include href="xml/QCADRadioButton.xml"/>
+    <xi:include href="xml/QCADComboBox.xml"/>
+    <xi:include href="xml/QCADPropertyUIBoolean.xml"/>
+    <xi:include href="xml/QCADFlexiCombo.xml"/>
+    <xi:include href="xml/QCADCellRendererText.xml"/>
+    <xi:include href="xml/QCADUndoEntryGroup.xml"/>
+    <xi:include href="xml/QCADParamSpecTypeList.xml"/>
+    <xi:include href="xml/QCADRectangleElectrode.xml"/>
+    <xi:include href="xml/QCADPropertyUINumeric.xml"/>
+    <xi:include href="xml/QCADCompoundDO.xml"/>
+    <xi:include href="xml/QCADCellRendererLayerList.xml"/>
+    <xi:include href="xml/QCADPropertyUIEnum.xml"/>
+    <xi:include href="xml/QCADUndoEntry.xml"/>
+    <xi:include href="xml/QCADRadioToolButton.xml"/>
+    <xi:include href="xml/QCADPropertyUI.xml"/>
+    <xi:include href="xml/QCADScrolledWindow.xml"/>
+    <xi:include href="xml/QCADClockingLayer.xml"/>
+    <xi:include href="xml/QCADPropertyUIDouble.xml"/>
+    <xi:include href="xml/QCADElectrode.xml"/>
+    <xi:include href="xml/QCADPropertyUIText.xml"/>
+    <xi:include href="xml/QCADLabel.xml"/>
+    <xi:include href="xml/QCADPropertyUISingle.xml"/>
+    <xi:include href="xml/QCADLayer.xml"/>
+    <xi:include href="xml/QCADParamSpecObjectList.xml"/>
+    <xi:include href="xml/QCADToggleToolButton.xml"/>
+    <xi:include href="xml/QCADDOContainer.xml"/>
+    <xi:include href="xml/QCADPropertyUIInt.xml"/>
+    <xi:include href="xml/QCADCellRendererVT.xml"/>
+    <xi:include href="xml/QCADUndoEntryObjectState.xml"/>
+    <xi:include href="xml/QCADRuler.xml"/>
+    <xi:include href="xml/selection_undo.xml"/>
+    <xi:include href="xml/interface.xml"/>
+    <xi:include href="xml/graph_dialog_callbacks.xml"/>
+    <xi:include href="xml/generic_utils.xml"/>
+    <xi:include href="xml/bistable_simulation.xml"/>
+    <xi:include href="xml/drag_rect.xml"/>
+    <xi:include href="xml/print_util.xml"/>
+    <xi:include href="xml/print_preview.xml"/>
+    <xi:include href="xml/translate_selection_dialog.xml"/>
+    <xi:include href="xml/exp_pixmap.xml"/>
+    <xi:include href="xml/graph_dialog_data.xml"/>
+    <xi:include href="xml/file_selection_window.xml"/>
+    <xi:include href="xml/vector_table_options_dialog_interface.xml"/>
+    <xi:include href="xml/print_properties_dialog_callbacks.xml"/>
+    <xi:include href="xml/coherence_vector.xml"/>
+    <xi:include href="xml/recent_files.xml"/>
+    <xi:include href="xml/layer_order_dialog.xml"/>
+    <xi:include href="xml/fileio.xml"/>
+    <xi:include href="xml/exp_array.xml"/>
+    <xi:include href="xml/print_graph_properties_dialog.xml"/>
+    <xi:include href="xml/simulation.xml"/>
+    <xi:include href="xml/simulation_data.xml"/>
+    <xi:include href="xml/sim_type_setup_dialog.xml"/>
+    <xi:include href="xml/custom_widgets.xml"/>
+    <xi:include href="xml/ts_coherence_vector_properties_dialog.xml"/>
+    <xi:include href="xml/preamble.xml"/>
+    <xi:include href="xml/scale_dialog.xml"/>
+    <xi:include href="xml/callbacks.xml"/>
+    <xi:include href="xml/fileio_helpers.xml"/>
+    <xi:include href="xml/support.xml"/>
+    <xi:include href="xml/graph_dialog_interface.xml"/>
+    <xi:include href="xml/hsl2rgb.xml"/>
+    <xi:include href="xml/about.xml"/>
+    <xi:include href="xml/selection_renderer.xml"/>
+    <xi:include href="xml/callback_helpers.xml"/>
+    <xi:include href="xml/vector_table_options_dialog.xml"/>
+    <xi:include href="xml/waveform_interpretation_dialog.xml"/>
+    <xi:include href="xml/vector_table_options_dialog_callbacks.xml"/>
+    <xi:include href="xml/global_consts.xml"/>
+    <xi:include href="xml/design.xml"/>
+    <xi:include href="xml/print_properties_dialog.xml"/>
+    <xi:include href="xml/matrixlib_3x3.xml"/>
+    <xi:include href="xml/print_properties_dialog_interface.xml"/>
+    <xi:include href="xml/three_state_coherence.xml"/>
+    <xi:include href="xml/vector_table_options_dialog_callback_helpers.xml"/>
+    <xi:include href="xml/coherence_vector_properties_dialog.xml"/>
+    <xi:include href="xml/layer_mapping_dialog.xml"/>
+    <xi:include href="xml/bus_layout_dialog.xml"/>
+    <xi:include href="xml/qcadstock.xml"/>
+    <xi:include href="xml/sim_engine_setup_dialog.xml"/>
+    <xi:include href="xml/print.xml"/>
+    <xi:include href="xml/graph_dialog.xml"/>
+    <xi:include href="xml/bistable_properties_dialog.xml"/>
+    <xi:include href="xml/rotate.xml"/>
+    <xi:include href="xml/select.xml"/>
+    <xi:include href="xml/array.xml"/>
+    <xi:include href="xml/object_helpers.xml"/>
+    <xi:include href="xml/mouse_handlers.xml"/>
+  </chapter>
+</book>

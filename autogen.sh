@@ -42,6 +42,7 @@ fi
 
 set -x
 
+gtkdocize
 aclocal ${ACLOCAL_FLAGS}
 automake --gnu --add-missing
 glib-gettextize -c

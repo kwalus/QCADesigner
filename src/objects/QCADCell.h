@@ -79,20 +79,20 @@ struct _QCADCellOptions
 
 struct _QCADCellDot
   {
-  // absolute world qdot coords //
+  /* absolute world qdot coords */
   double x;
   double y;
 
-  // qdot diameter //
+  /* qdot diameter */
   double diameter;
 
-  // qdot charge //
+  /* qdot charge */
   double charge;
 
-  // quantum spin of charge within dot //
+  /* quantum spin of charge within dot */
   float spin;
 
-  // electrostatic potential induced by all other cells on this dot
+  /* electrostatic potential induced by all other cells on this dot */
   double potential;
   } ;
 

@@ -141,11 +141,11 @@ void        design_layer_dump (QCADLayer *layer, FILE *pfile) ;
 #ifdef GTK_GUI
 QCADDesignObject *design_selection_create_from_selection (DESIGN *design, GdkWindow *window, GdkFunction rop) ;
 EXP_ARRAY *       design_selection_release (DESIGN *design, GdkDrawable *dst, GdkFunction rop) ;
-EXP_ARRAY *       design_selection_subtract_window (DESIGN *design, GdkWindow *window, GdkFunction rop, WorldRectangle *rcWorld) ;
+EXP_ARRAY *       design_selection_subtract_window (DESIGN *design, GdkWindow *dst, GdkFunction rop, WorldRectangle *rcWorld) ;
 #endif /* def GTK_GUI */
 EXP_ARRAY *       design_selection_create_from_window (DESIGN *design, WorldRectangle *rcWorld) ;
 EXP_ARRAY *       design_selection_add_window (DESIGN *design, WorldRectangle *rcWorld) ;
-EXP_ARRAY *       design_selection_get_object_array (DESIGN *) ;
+EXP_ARRAY *       design_selection_get_object_array (DESIGN *design) ;
 void              design_selection_serialize (DESIGN *design, FILE *pfile) ;
 void              design_selection_move (DESIGN *design, double dxWorld, double dyWorld) ;
 gboolean          design_selection_drop (DESIGN *design) ;

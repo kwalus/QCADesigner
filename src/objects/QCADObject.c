@@ -104,7 +104,7 @@ GType qcad_object_get_type ()
       (GInstanceInitFunc)NULL
       } ;
 
-    if ((qcad_object_type = g_type_register_static (G_TYPE_OBJECT, QCAD_TYPE_STRING_OBJECT, &qcad_object_info, 0)))
+    if ((qcad_object_type = g_type_register_static (G_TYPE_OBJECT, "QCADObject", &qcad_object_info, 0)))
       g_type_class_ref (qcad_object_type) ;
     }
   return qcad_object_type ;

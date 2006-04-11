@@ -2,6 +2,7 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
 
+# lib_LIBRARIES = libqcadesigner.a
 bin_PROGRAMS = batch_sim combo_test graph_dialog QCADesigner 
 # bin_PROGRAMS = batch_sim
 # bin_PROGRAMS = QCADesigner batch_sim graph_dialog
@@ -100,6 +101,7 @@ QCADesigner_LDADD = \
 	$(INTLLIBS) \
 	@GTHREAD_LIBS@ 
 
+# libqcadesigner_a_SOURCES = $(QCADesigner_SOURCES)
 #################### batch_sim ######################
 
 # This variable is only used in Windoze

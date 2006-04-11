@@ -49,21 +49,21 @@ struct _QCADElectrodeOptions
   {
   ClockFunction clock_function ;
   double amplitude ;
-  double frequency ; // Hz
-  double phase ;     // radians
-  double dc_offset ; // Volts
-  double min_clock ; // Volts
-  double max_clock ; // Volts
+  double frequency ; /* Hz */
+  double phase ;     /* radians */
+  double dc_offset ; /* Volts */
+  double min_clock ; /* Volts */
+  double max_clock ; /* Volts */
   double relative_permittivity ;
-  double z_to_ground ; // nm
-	double thickness ; // nm
+  double z_to_ground ; /* nm */
+	double thickness ; /* nm */
   } ;
 
 struct _QCADElectrodePrecompute
   {
-  double permittivity ; // epsilon_nought * epsilon_r
-  double two_z_to_ground ; // nm
-  double capacitance ; // Farads
+  double permittivity ; /* epsilon_nought * epsilon_r */
+  double two_z_to_ground ; /* nm */
+  double capacitance ; /* Farads */
   } ;
 
 typedef struct

@@ -367,6 +367,11 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   G_OBJECT_CLASS (klass)->set_property                         = qcad_cell_set_property ;
   G_OBJECT_CLASS (klass)->get_property                         = qcad_cell_get_property ;
 
+  /**
+   * QCADCell:function:
+   *
+   * The cell's function. One of %QCAD_CELL_NORMAL, %QCAD_CELL_INPUT, %QCAD_CELL_OUTPUT, or %QCAD_CELL_FIXED
+   */
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CELL_PROPERTY_FUNCTION,
     g_param_spec_enum ("function", _("Function"), _("Cell Function:Normal/Input/Output/Fixed"),
       QCAD_TYPE_CELL_FUNCTION, QCAD_CELL_NORMAL, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
@@ -399,6 +404,12 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
     g_param_spec_double ("dot-diameter", _("Dot Diameter"), _("Diameter of the quantum dot"),
       0.1, 1e9, 5.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
+  /**
+   * QCADCell::cell-function-changed
+   * @QCADCell: the cell whose function has changed.
+   *
+   * This signal is emitted when the function 
+   */
   qcad_cell_signals[QCAD_CELL_CELL_FUNCTION_CHANGED_SIGNAL] =
     g_signal_new ("cell-function-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADCellClass, cell_function_changed), NULL, NULL, g_cclosure_marshal_VOID__VOID,

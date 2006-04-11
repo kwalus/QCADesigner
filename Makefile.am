@@ -4,7 +4,7 @@ docdir = $(datadir)/doc/@PACKAGE@-@VERSION@
 appdir = $(datadir)/applications
 qcasampledir = $(datadir)/@PACKAGE@/qca_cell_library
 
-SUBDIRS = po docs pixmaps src
+SUBDIRS = po pixmaps src docs
 
 doc_DATA = \
   AUTHORS \
@@ -34,4 +34,5 @@ squeaky : distclean
 	graph_dialog.desktop \
 	QCADesigner-win32.iss \
 	po/Makefile po/Makefile.in po/Makefile.in.in \
-	po/POTFILES po/*.gmo `find . | grep '.#'` *~
+	po/POTFILES po/*.gmo `find . | grep '.#'` *~ gtk-doc.make
+	rm -rf `ls -d docs/reference/* | grep -v CVS | grep -v '@PACKAGE@.types' | grep -v 'Makefile\.am' | grep -v 'gtkdoc\.h'`

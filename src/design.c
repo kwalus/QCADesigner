@@ -81,6 +81,14 @@ extern int n_stock_layers ;
 
 // ASSUMPTION: only active layers can contain selections.
 
+/**
+ * design_new:
+ * @psubs: Pointer to fill out with new design's substrate object
+ *
+ * Create a new design.
+ *
+ * Returns: A new design, to be destroyed by design_destroy()
+ */
 DESIGN *design_new (QCADSubstrate **psubs)
   {
   QCADLayer *layer = NULL, *cell_layer = NULL ;
@@ -115,6 +123,14 @@ DESIGN *design_new (QCADSubstrate **psubs)
   return design ;
   }
 
+/**
+ * design_copy:
+ * @design: Design to copy
+ *
+ * Creates a deep copy of an existing design.
+ *
+ * Returns: A copy of @design, to be destroyed by design_destroy()
+ */
 DESIGN *design_copy (DESIGN *design)
   {
   DESIGN *new_design = NULL ;
@@ -177,7 +193,14 @@ DESIGN *design_copy (DESIGN *design)
   return new_design ;
   }
 
-// This function always returns NULL
+/**
+ * design_destroy:
+ * @design: Design to destroy
+ *
+ * Destroys a design.
+ *
+ * Returns: NULL
+ */
 DESIGN *design_destroy (DESIGN *design)
   {
   GList *lstLayer = NULL ;
@@ -199,6 +222,14 @@ DESIGN *design_destroy (DESIGN *design)
   return NULL ;
   }
 
+/**
+ * design_multiple_visible_layers_p:
+ * @design: Design to check
+ *
+ * Checks whether a design has multiple visible layers.
+ *
+ * Returns: %TRUE if the design has more than one visible layer.
+ */
 gboolean design_multiple_visible_layers_p (DESIGN *design)
   {
   GList *llLayers = NULL ;
@@ -213,6 +244,14 @@ gboolean design_multiple_visible_layers_p (DESIGN *design)
   return FALSE ;
   }
 
+/**
+ * design_layer_add:
+ * @design: Destination design
+ * @layer: Layer to add
+ *
+ * Adds a layer to a design. The layer becomes the top-most layer in the design.
+ *
+ */
 void design_layer_add (DESIGN *design, QCADLayer *layer)
   {
   GList *llItr = NULL ;
@@ -232,7 +271,15 @@ void design_layer_add (DESIGN *design, QCADLayer *layer)
       qcad_layer_design_object_added (layer, llItr->data, design) ;
   }
 
-// Removes the layer and returns the new current layer
+/**
+ * design_layer_remove:
+ * @design: Design to affect
+ * @layer: Layer to remove
+ *
+ * Removes @layer from @design.
+ *
+ * Returns: The new current layer.
+ */
 QCADLayer *design_layer_remove (DESIGN *design, QCADLayer *layer)
   {
   GList *llLayer = NULL, *llRet = NULL, *llCellItr = NULL ;
@@ -274,6 +321,16 @@ QCADLayer *design_layer_remove (DESIGN *design, QCADLayer *layer)
   return (QCAD_LAYER (llRet->data)) ;
   }
 
+/**
+ * design_hit_test:
+ * @design: Design to hit-test
+ * @x: x-coordinate in pixels
+ * @y: y-coordinate in pixels
+ *
+ * Find the #QCADDesignObject at the given (@x,@y) point in pixels.
+ *
+ * Returns: The #QCADDesignObject found, or NULL.
+ */
 QCADDesignObject *design_hit_test (DESIGN *design, int x, int y)
   {
   GList *lstLayer = NULL ;
@@ -286,9 +343,23 @@ QCADDesignObject *design_hit_test (DESIGN *design, int x, int y)
   }
 
 #ifdef GTK_GUI
+/**
+ * design_draw:
+ * @design: Design to draw
+ * @dst: Surface to draw it on
+ * @rop: #GdkFunction to use
+ * @rcClip: #GdkRectangle to use for clipping
+ * @flags: A bit-field indicating which objects to draw
+ *
+ * Draws @design onto surface @dst using function @rop and clipping rectangle @rcClip.
+ * @flags is a bitfield consisting of %QCAD_LAYER_DRAW_SELECTION and/or %QCAD_LAYER_DRAW_NON_SELECTION
+ */
 void design_draw (DESIGN *design, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip, int flags)
   {
   GList *llLayer = NULL ;
+
+  // If we're to draw nothing, well, draw nothing
+  if (0 == flags) return ;
 
   for (llLayer = design->lstLayers ; NULL != llLayer ; llLayer = llLayer->next)
     if (QCAD_LAYER_STATUS_VISIBLE == QCAD_LAYER (llLayer->data)->status ||
@@ -299,6 +370,17 @@ void design_draw (DESIGN *design, GdkDrawable *dst, GdkFunction rop, GdkRectangl
       }
   }
 
+/**
+ * design_layer_list_store_new:
+ * @design: Design to create the #GtkListStore for
+ * @icExtraColumns: number of extra columns
+ * @...: #GType of each extra column to add
+ *
+ * Creates a new #GtkListStore containing the layers in @design. The list store has
+ * %LAYER_MODEL_COLUMN_LAST + @icExtraColumns columns.
+ *
+ * Returns: The newly created #GtkListStore
+ */
 GtkListStore *design_layer_list_store_new (DESIGN *design, int icExtraColumns, ...)
   {
   GList *llItr = NULL ;
@@ -342,6 +424,19 @@ GtkListStore *design_layer_list_store_new (DESIGN *design, int icExtraColumns, .
   return ls ;
   }
 
+/**
+ * design_bus_layout_tree_store_new:
+ * @bus_layout: #BUS_LAYOUT to create the #GtkTreeStore for
+ * @row_types: Flag indicating which row types to include
+ * @icExtraColumns: number of extra columns
+ * @...: #GType of each extra column to add
+ *
+ * Creates a new #GtkTreeStore containing the buses and ungrouped cells in @design. 
+ * @row_types is a bit-field of %ROW_TYPE_CELL_INPUT, %ROW_TYPE_CELL_OUTPUT, %ROW_TYPE_BUS_INPUT, %ROW_TYPE_BUS_OUTPUT,
+ * and/or %ROW_TYPE_CLOCK. The tree store has %BUS_LAYOUT_MODEL_COLUMN_LAST + @icExtraColumns columns.
+ *
+ * Returns: The newly created #GtkTreeStore
+ */
 GtkTreeStore *design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_types, int icExtraColumns, ...)
   {
   GtkTreeStore *ts = NULL ;
@@ -457,286 +552,17 @@ GtkTreeStore *design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_
 
   return ts ;
   }
-/*
-GtkTreeStore *design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_types, int icExtraColumns, ...)
-  {
-  GtkTreeStore *ts = NULL ;
-  EXP_ARRAY *ar = NULL ;
-  GType type = 0 ;
-  va_list va ;
-  BUS *bus = NULL ;
-  int bus_type = -1 ;
-  int cell_type = -1 ;
-  GtkTreeIter gtiBus, gtiCell ;
-  int Nix = -1, Nix1 = -1, idx = -1 ;
-  EXP_ARRAY *cell_list = NULL ;
-  char *pszStockCell = NULL, *pszStockBus = NULL ;
-  QCADCell *cell = NULL ;
 
-  if (NULL == bus_layout) return NULL ;
-
-  ar = exp_array_new (sizeof (GType), 1) ;
-
-<<<<<<< design.c
-GtkListStore *design_layer_list_store_new (DESIGN *design, int icExtraColumns, ...)
-  {
-  GList *llItr = NULL ;
-  int Nix ;
-  GType type = 0 ;
-  GtkListStore *ls = NULL ;
-  EXP_ARRAY *ar = NULL ;
-  GtkTreeIter itr ;
-
-  if (NULL == design) return NULL ;
-
-  ar = exp_array_new (sizeof (GType), 1) ;
-
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_POINTER ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-
-  if (icExtraColumns > 0)
-    {
-    va_list va ;
-
-    va_start (va, icExtraColumns) ;
-    for (Nix = 0 ; Nix < icExtraColumns ; Nix++)
-      {type = va_arg (va, GType) ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;}
-    va_end (va) ;
-    }
-
-  ls = gtk_list_store_newv (ar->icUsed, (GType *)(ar->data)) ;
-
-  exp_array_free (ar) ;
-
-  for (llItr = design->lstLastLayer ; llItr != NULL ; llItr = llItr->prev)
-    {
-    gtk_list_store_append (ls, &itr) ;
-    gtk_list_store_set (ls, &itr,
-      LAYER_MODEL_COLUMN_ICON, layer_pixmap_stock_id[(QCAD_LAYER (llItr->data))->type],
-      LAYER_MODEL_COLUMN_NAME, (QCAD_LAYER (llItr->data))->pszDescription,
-      LAYER_MODEL_COLUMN_LAYER, llItr->data, -1) ;
-    }
-
-  return ls ;
-  }
-
-GtkTreeStore *design_bus_layout_tree_store_new (BUS_LAYOUT *bus_layout, int row_types, int icExtraColumns, ...)
-  {
-  GtkTreeStore *ts = NULL ;
-  EXP_ARRAY *ar = NULL ;
-  GType type = 0 ;
-  va_list va ;
-  BUS *bus = NULL ;
-  int bus_type = -1 ;
-  int cell_type = -1 ;
-  GtkTreeIter gtiBus, gtiCell ;
-  int Nix = -1, Nix1 = -1, idx = -1 ;
-  EXP_ARRAY *cell_list = NULL ;
-  char *pszStockCell = NULL, *pszStockBus = NULL ;
-  QCADCell *cell = NULL ;
-
-  if (NULL == bus_layout) return NULL ;
-
-  ar = exp_array_new (sizeof (GType), 1) ;
-
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_POINTER ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-
-  if (icExtraColumns > 0)
-    {
-    va_start (va, icExtraColumns) ;
-    for (Nix = 0 ; Nix < icExtraColumns ; Nix++)
-      {type = va_arg (va, GType) ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;}
-    va_end (va) ;
-    }
-
-  ts = gtk_tree_store_newv (ar->icUsed, (GType *)(ar->data)) ;
-
-  exp_array_free (ar) ;
-
-// Add all the buses
-  for (Nix = 0 ; Nix < bus_layout->buses->icUsed ; Nix++)
-    {
-    bus = &(exp_array_index_1d (bus_layout->buses, BUS, Nix)) ;
-    if (bus->bus_function & row_types)
-      {
-      if (QCAD_CELL_INPUT == bus->bus_function)
-        {
-        bus_type = ROW_TYPE_BUS_INPUT ;
-        cell_type = ROW_TYPE_CELL_INPUT ;
-        cell_list = bus_layout->inputs ;
-        pszStockCell = QCAD_STOCK_CELL_INPUT ;
-        pszStockBus = QCAD_STOCK_BUS_INPUT ;
-        cell = NULL ;
-        }
-      else
-        {
-        bus_type = ROW_TYPE_BUS_OUTPUT ;
-        cell_type = ROW_TYPE_CELL_OUTPUT ;
-        cell_list = bus_layout->outputs ;
-        pszStockCell = QCAD_STOCK_CELL_OUTPUT ;
-        pszStockBus = QCAD_STOCK_BUS_OUTPUT ;
-        cell = NULL ;
-        }
-      gtk_tree_store_append (ts, &gtiBus, NULL) ;
-      gtk_tree_store_set (ts, &gtiBus,
-        BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockBus,
-        BUS_LAYOUT_MODEL_COLUMN_NAME, bus->pszName,
-        BUS_LAYOUT_MODEL_COLUMN_TYPE, bus_type,
-        BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix,
-        BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
-
-      for (Nix1 = 0 ; Nix1 < bus->cell_indices->icUsed ; Nix1++)
-        {
-        idx = exp_array_index_1d (bus->cell_indices, int, Nix1) ;
-        gtk_tree_store_append (ts, &gtiCell, &gtiBus) ;
-        gtk_tree_store_set (ts, &gtiCell,
-          BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockCell,
-          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (QCAD_CELL (exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, idx).cell)),
-          BUS_LAYOUT_MODEL_COLUMN_TYPE, cell_type,
-          BUS_LAYOUT_MODEL_COLUMN_INDEX, idx,
-          BUS_LAYOUT_MODEL_COLUMN_CELL, exp_array_index_1d ((QCAD_CELL_INPUT == bus->bus_function ? bus_layout->inputs : bus_layout->outputs), BUS_LAYOUT_CELL, idx).cell,
-          -1) ;
-        }
-      }
-    }
-
-// Add whatever remaining free inputs and outputs to their respective lists
-  if (row_types & ROW_TYPE_INPUT)
-    for (Nix = 0 ; Nix < bus_layout->inputs->icUsed ; Nix++)
-      if (!(exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
-        {
-        cell = QCAD_CELL (exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).cell) ;
-        gtk_tree_store_append (ts, &gtiCell, NULL) ;
-        gtk_tree_store_set (ts, &gtiCell,
-          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_INPUT,
-          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
-          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_INPUT,
-          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
-          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
-        }
-
-  if (row_types & ROW_TYPE_OUTPUT)
-    for (Nix = 0 ; Nix < bus_layout->outputs->icUsed ; Nix++)
-      if (!(exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
-        {
-        cell = QCAD_CELL (exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).cell) ;
-        gtk_tree_store_append (ts, &gtiCell, NULL) ;
-        gtk_tree_store_set (ts, &gtiCell,
-          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_OUTPUT,
-          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
-          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_OUTPUT,
-          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
-          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
-        }
-
-  return ts ;
-  }
-
-=======
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_STRING  ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_INT     ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-  type = G_TYPE_POINTER ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;
-
-  if (icExtraColumns > 0)
-    {
-    va_start (va, icExtraColumns) ;
-    for (Nix = 0 ; Nix < icExtraColumns ; Nix++)
-      {type = va_arg (va, GType) ; exp_array_insert_vals (ar, &type, 1, 1, -1) ;}
-    va_end (va) ;
-    }
-
-  ts = gtk_tree_store_newv (ar->icUsed, (GType *)(ar->data)) ;
-
-  exp_array_free (ar) ;
-
-// Add all the buses
-  for (Nix = 0 ; Nix < bus_layout->buses->icUsed ; Nix++)
-    {
-    bus = &(exp_array_index_1d (bus_layout->buses, BUS, Nix)) ;
-    if (bus->bus_function & row_types)
-      {
-      if (QCAD_CELL_INPUT == bus->bus_function)
-        {
-        bus_type = ROW_TYPE_BUS_INPUT ;
-        cell_type = ROW_TYPE_CELL_INPUT ;
-        cell_list = bus_layout->inputs ;
-        pszStockCell = QCAD_STOCK_CELL_INPUT ;
-        pszStockBus = QCAD_STOCK_BUS_INPUT ;
-        cell = NULL ;
-        }
-      else
-        {
-        bus_type = ROW_TYPE_BUS_OUTPUT ;
-        cell_type = ROW_TYPE_CELL_OUTPUT ;
-        cell_list = bus_layout->outputs ;
-        pszStockCell = QCAD_STOCK_CELL_OUTPUT ;
-        pszStockBus = QCAD_STOCK_BUS_OUTPUT ;
-        cell = NULL ;
-        }
-      gtk_tree_store_append (ts, &gtiBus, NULL) ;
-      gtk_tree_store_set (ts, &gtiBus,
-        BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockBus,
-        BUS_LAYOUT_MODEL_COLUMN_NAME, bus->pszName,
-        BUS_LAYOUT_MODEL_COLUMN_TYPE, bus_type,
-        BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix,
-        BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
-
-      for (Nix1 = 0 ; Nix1 < bus->cell_indices->icUsed ; Nix1++)
-        {
-        idx = exp_array_index_1d (bus->cell_indices, int, Nix1) ;
-        gtk_tree_store_append (ts, &gtiCell, &gtiBus) ;
-        gtk_tree_store_set (ts, &gtiCell,
-          BUS_LAYOUT_MODEL_COLUMN_ICON, pszStockCell,
-          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (QCAD_CELL (exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, idx).cell)),
-          BUS_LAYOUT_MODEL_COLUMN_TYPE, cell_type,
-          BUS_LAYOUT_MODEL_COLUMN_INDEX, idx,
-          BUS_LAYOUT_MODEL_COLUMN_CELL, exp_array_index_1d ((QCAD_CELL_INPUT == bus->bus_function ? bus_layout->inputs : bus_layout->outputs), BUS_LAYOUT_CELL, idx).cell,
-          -1) ;
-        }
-      }
-    }
-
-// Add whatever remaining free inputs and outputs to their respective lists
-  if (row_types & ROW_TYPE_INPUT)
-    for (Nix = 0 ; Nix < bus_layout->inputs->icUsed ; Nix++)
-      if (!(exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
-        {
-        cell = QCAD_CELL (exp_array_index_1d (bus_layout->inputs, BUS_LAYOUT_CELL, Nix).cell) ;
-        gtk_tree_store_append (ts, &gtiCell, NULL) ;
-        gtk_tree_store_set (ts, &gtiCell,
-          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_INPUT,
-          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
-          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_INPUT,
-          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
-          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
-        }
-
-  if (row_types & ROW_TYPE_OUTPUT)
-    for (Nix = 0 ; Nix < bus_layout->outputs->icUsed ; Nix++)
-      if (!(exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).bIsInBus))
-        {
-        cell = QCAD_CELL (exp_array_index_1d (bus_layout->outputs, BUS_LAYOUT_CELL, Nix).cell) ;
-        gtk_tree_store_append (ts, &gtiCell, NULL) ;
-        gtk_tree_store_set (ts, &gtiCell,
-          BUS_LAYOUT_MODEL_COLUMN_ICON, QCAD_STOCK_CELL_OUTPUT,
-          BUS_LAYOUT_MODEL_COLUMN_NAME, qcad_cell_get_label (cell),
-          BUS_LAYOUT_MODEL_COLUMN_TYPE, ROW_TYPE_CELL_OUTPUT,
-          BUS_LAYOUT_MODEL_COLUMN_INDEX, Nix, 
-          BUS_LAYOUT_MODEL_COLUMN_CELL, cell, -1) ;
-        }
-
-  return ts ;
-  }
->>>>>>> 1.3.2.9
-*/
-// Used for copying selections
+/**
+ * design_selection_create_from_selection:
+ * @design: Design wherein to copy the selection
+ * @window: Surface whereupon to draw the old selection
+ * @rop: #GdkFunction to use when drawing the old selection
+ *
+ * Copies a selection: drops the old selection and replaces it with a copy of itself.
+ *
+ * Returns: The new selection anchor #QCADDesignObject.
+ */
 QCADDesignObject *design_selection_create_from_selection (DESIGN *design, GdkWindow *window, GdkFunction rop)
   {
   GList *lstLayer = NULL, *lstSelObj = NULL ;
@@ -760,6 +586,18 @@ QCADDesignObject *design_selection_create_from_selection (DESIGN *design, GdkWin
   return ret ;
   }
 
+/**
+ * design_selection_subtract_window:
+ * @design: Design whose selection is to be reduced
+ * @dst: Surface whereupon to draw the dropped objects
+ * @rop: #GdkFunction to use when drawing the dropped objects
+ * @rcWorld: #WorldRectangle to subtract
+ *
+ * Drop the objects inside @rcWorld from the @design's selection.
+ *
+ * Returns: The #EXP_ARRAY containing pointers to the dropped objects. These pointers become %NULL if the objects
+ * they refer to are destroyed.
+ */
 EXP_ARRAY *design_selection_subtract_window (DESIGN *design, GdkDrawable *dst, GdkFunction rop, WorldRectangle *rcWorld)
   {
   GList *lstLayer = NULL ;
@@ -772,6 +610,17 @@ EXP_ARRAY *design_selection_subtract_window (DESIGN *design, GdkDrawable *dst, G
   return design_selection_object_array_add_weak_pointers (ar) ;
   }
 
+/**
+ * design_selection_release:
+ * @design: Design whose selection is to be dropped
+ * @dst: Surface whereupon to draw the dropped objects
+ * @rop: #GdkFunction to use when drawing the dropped objects
+ *
+ * Drop the @design's selection.
+ *
+ * Returns: The #EXP_ARRAY containing pointers to the dropped objects. These pointers become %NULL if the objects
+ * they refer to are destroyed.
+ */
 EXP_ARRAY *design_selection_release (DESIGN *design, GdkDrawable *dst, GdkFunction rop)
   {
   GList *lstLayer = NULL ;
@@ -786,7 +635,17 @@ EXP_ARRAY *design_selection_release (DESIGN *design, GdkDrawable *dst, GdkFuncti
   }
 #endif /* def GTK_GUI */
 
-//Calculates bounding box around design //
+/**
+ * design_get_extents:
+ * @design: Design whose extents is to be calculated
+ * @extents: #WorldRectangle to fill out
+ * @bSelection: Whether to restrict calculation to selected objects
+ *
+ * Calculates the bounding box around @design and fills out @extents with the results.
+ * Zeroes out @extents if the design is empty.
+ *
+ * Returns: %TRUE if @extents was filled out.
+ */
 gboolean design_get_extents (DESIGN *design, WorldRectangle *extents, gboolean bSelection)
   {
   WorldRectangle ext = {0.0} ;
@@ -818,6 +677,15 @@ gboolean design_get_extents (DESIGN *design, WorldRectangle *extents, gboolean b
 //SELECTIONS:
 //Creating and destroying selections
 
+/**
+ * design_selection_get_object_array:
+ * @design: Design whose selection is to be rendered as an object array
+ *
+ * Creates an #EXP_ARRAY of #QCADDesignObject pointers each of which becomes %NULL,
+ * should the object be destroyed. This is done via g_object_add_weak_pointer().
+ *
+ * Returns: The array.
+ */
 EXP_ARRAY *design_selection_get_object_array (DESIGN *design)
   {
   GList *llItr = NULL ;
@@ -831,6 +699,17 @@ EXP_ARRAY *design_selection_get_object_array (DESIGN *design)
   return design_selection_object_array_add_weak_pointers (ar) ;
   }
 
+/**
+ * design_selection_create_from_window:
+ * @design: Design wherein to create the selection.
+ * @rcWorld: Rectangle in world coordinates wherein to look for unselected objects.
+ *
+ * Creates an #EXP_ARRAY of #QCADDesignObject pointers each of which becomes %NULL,
+ * should the object be destroyed. This is done via g_object_add_weak_pointer().
+ * The objects inside @rcWorld are selected and added to the array.
+ *
+ * Returns: The array.
+ */
 EXP_ARRAY *design_selection_create_from_window (DESIGN *design, WorldRectangle *rcWorld)
   {
   GList *lstLayer = NULL, *lstObj = NULL ;
@@ -873,6 +752,17 @@ static EXP_ARRAY *design_select_single_object (QCADDesignObject *obj, EXP_ARRAY 
   return ar ;
   }
 
+/**
+ * design_selection_add_window:
+ * @design: Design wherein to create augment selection.
+ * @rcWorld: Rectangle in world coordinates wherein to look for non-selected objects.
+ *
+ * Creates an #EXP_ARRAY of #QCADDesignObject pointers each of which becomes %NULL,
+ * should the object be destroyed. This is done via g_object_add_weak_pointer().
+ * The objects inside @rcWorld are selected and added to the array.
+ *
+ * Returns: The array.
+ */
 EXP_ARRAY *design_selection_add_window (DESIGN *design, WorldRectangle *rcWorld)
   {
   GList *lstLayer = NULL, *lstObj = NULL ;
@@ -1067,6 +957,14 @@ void design_selection_move (DESIGN *design, double dxWorld, double dyWorld)
 //END SELECTIONS
 
 #ifdef STDIO_FILEIO
+/**
+ * design_serialize:
+ * @design: Design to serialize
+ * @pfile: Stream to write it to
+ *
+ * Serializes @design as plain UTF-8 text to stream @pfile. The design can later be unserialized with
+ * design_unserialize(). See also: design_bus_layout_serialize().
+ */
 void design_serialize (DESIGN *design, FILE *pfile)
   {
   GList *lstLayer = NULL ;
@@ -1079,6 +977,19 @@ void design_serialize (DESIGN *design, FILE *pfile)
   fprintf (pfile, "[#TYPE:DESIGN]\n") ;
   }
 
+/**
+ * design_bus_layout_serialize:
+ * @bus_layout: #BUS_LAYOUT to serialize
+ * @pfile: Stream to write it to
+ *
+ * Serializes @bus_layout as plain UTF-8 text to stream @pfile. This function is used by design_serialize() and 
+ * by create_simulation_output_file(). The bus layout can later be unserialized with design_bus_layout_unserialize().
+ *
+ * Note: The master input and output arrays are not serialized. Only the buses are serialized. The input and output
+ * arrays have to be reconstructed before the unserialized bus layout can be used.
+ *
+ * Unserialize buses with design_bus_layout_unserialize().
+ */
 void design_bus_layout_serialize (BUS_LAYOUT *bus_layout, FILE *pfile)
   {
   int Nix, Nix1 ;
@@ -1105,6 +1016,15 @@ void design_bus_layout_serialize (BUS_LAYOUT *bus_layout, FILE *pfile)
   fprintf (pfile, "[#TYPE:BUS_LAYOUT]\n") ;
   }
 
+/**
+ * design_unserialize:
+ * @pdesign: Pointer to fill out with a pointer to the new design.
+ * @pfile: Stream to read from
+ *
+ * Unserializes a #DESIGN from a stream and fills out @pdesign with a pointer to it.
+ *
+ * Returns: TRUE if the design was successfully loaded.
+ */
 gboolean design_unserialize (DESIGN **pdesign, FILE *pfile)
   {
   QCADLayer *layer = NULL ;
@@ -1176,6 +1096,14 @@ gboolean design_unserialize (DESIGN **pdesign, FILE *pfile)
   return (NULL != (*pdesign)) ;
   }
 
+/**
+ * design_bus_layout_unserialize:
+ * @pfile: Stream to read from
+ *
+ * Unserializes a #BUS_LAYOUT from a stream. See design_bus_layout_serialize() for caveats.
+ *
+ * Returns: The new bus layout, or NULL, if it failed to unserialize
+ */
 BUS_LAYOUT *design_bus_layout_unserialize (FILE *pfile)
   {
   char *pszLine = NULL ;
@@ -1385,6 +1313,14 @@ gboolean design_selection_drop (DESIGN *design)
   return TRUE ;
   }
 
+/**
+ * design_dump:
+ * @design: The design to dump
+ * @pfile: The stream to dump it to.
+ *
+ * "Dump" a design to a stream. This prints information useful for debugging code that uses @design to stream
+ * @pfile.
+ */
 void design_dump (DESIGN *design, FILE *pfile)
   {
   GList *lstLayer = NULL ;
@@ -1399,6 +1335,14 @@ void design_dump (DESIGN *design, FILE *pfile)
   design_bus_layout_dump (design->bus_layout, pfile) ;
   }
 
+/**
+ * design_bus_layout_dump:
+ * @design: The #BUS_LAYOUT to dump
+ * @pfile: The stream to dump it to.
+ *
+ * "Dump" a bus layout to a stream. This prints information useful for debugging code that uses @bus_layout to stream
+ * @pfile.
+ */
 void design_bus_layout_dump (BUS_LAYOUT *bus_layout, FILE *pfile)
   {
   int Nix, Nix1 ;
@@ -1417,6 +1361,15 @@ void design_bus_layout_dump (BUS_LAYOUT *bus_layout, FILE *pfile)
     }
   }
 
+/**
+ * design_bus_layout_cell_list_dump:
+ * @cell_list: The master cell list.
+ * @pszVarName: The variable name inside the #BUS_LAYOUT the cell list corresponds to.
+ * @pfile: The stream to dump it to.
+ *
+ * "Dump" a bus layout's master cell list to a stream. This function is used mostly by design_bus_layout_dump().
+ * It prints information useful for debugging code that uses a bus layout's master cell list to stream @pfile.
+ */
 void design_bus_layout_cell_list_dump (EXP_ARRAY *cell_list, char *pszVarName, FILE *pfile)
   {
   int Nix ;
@@ -1428,6 +1381,15 @@ void design_bus_layout_cell_list_dump (EXP_ARRAY *cell_list, char *pszVarName, F
       exp_array_index_1d (cell_list, BUS_LAYOUT_CELL, Nix).bIsInBus ? "Used" : "Unused") ;
   }
 
+/**
+ * design_selection_get_anchor:
+ * @design: The #DESIGN containing the selection whose anchor is to be retrieved.
+ *
+ * Retrieves the selection anchor for a design. This is a #QCADDesignObject to be used as a reference when the
+ * selection is moved.
+ *
+ * Returns: The selection anchor.
+ */
 QCADDesignObject *design_selection_get_anchor (DESIGN *design)
   {
   GList *lstLayerItr = NULL ;
@@ -1876,6 +1838,13 @@ static void design_rebuild_io_lists (DESIGN *design)
     }
   }
 
+/**
+ * design_bus_layout_new:
+ *
+ * Creates a new, empty #BUS_LAYOUT
+ *
+ * Returns: The new, empty #BUS_LAYOUT
+ */
 BUS_LAYOUT *design_bus_layout_new ()
   {
   BUS_LAYOUT *bus_layout = g_malloc0 (sizeof (BUS_LAYOUT)) ;
@@ -1890,7 +1859,14 @@ BUS_LAYOUT *design_bus_layout_new ()
   return bus_layout ;
   }
 
-// Always returns NULL
+/**
+ * design_bus_layout_free:
+ * @bus_layout
+ *
+ * Destroys the #BUS_LAYOUT @bus_layout.
+ *
+ * Returns: NULL
+ */
 BUS_LAYOUT *design_bus_layout_free (BUS_LAYOUT *bus_layout)
   {
   BUS *bus = NULL ;
@@ -1912,6 +1888,17 @@ BUS_LAYOUT *design_bus_layout_free (BUS_LAYOUT *bus_layout)
   return NULL ;
   }
 
+/**
+ * design_selectioin_object_array_add_weak_pointers:
+ * @obj_array: #EXP_ARRAY of #QCADDesignObject pointers
+ *
+ * Adds weak pointers via g_object_add_weak_pointer() to @obj_array. This function is used by
+ * design_selection_subtract_window(), design_selection_release(), design_selection_get_object_array(), 
+ * design_selection_create_from_window(), design_selection_add_window(), and 
+ * design_selection_create_object_array().
+ *
+ * Returns: @obj_array
+ */
 EXP_ARRAY *design_selection_object_array_add_weak_pointers (EXP_ARRAY *obj_array)
   {
   int Nix ;

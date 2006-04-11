@@ -58,13 +58,13 @@ struct _print_OP
 struct _print_design_OP
   {
   print_OP po ;
-  // Units are in points == 1/72 inches
+  /* Units are in points == 1/72 inches */
   double dPointsPerNano ;
   gboolean bPrintOrderOver ;
   gboolean bCenter ;
   gboolean bFit ;
-//  gboolean *pbPrintedObjs ;
-//  int icPrintedObjs ;
+/*gboolean *pbPrintedObjs ;
+  int icPrintedObjs ; */
   int iCXPages ;
   int iCYPages ;
   } ;
@@ -72,7 +72,7 @@ struct _print_design_OP
 struct _print_graph_OP
   {
   print_OP po ;
-  // Units are in points == 1/72 inches
+  /* Units are in points == 1/72 inches */
   gboolean bPrintOrderOver ;
   int iCXPages ;
   int iCYPages ;

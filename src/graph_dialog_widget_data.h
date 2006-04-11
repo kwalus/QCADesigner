@@ -49,7 +49,7 @@ typedef struct
   int cyGiven ;
   int cxWanted ;
   int cyWanted ;
-//  int xOffset ;
+/*int xOffset ; */
   GdkColor clr ;
   gboolean bVisible ;
   } GRAPH_DATA ;
@@ -65,8 +65,8 @@ typedef struct
 typedef struct
   {
   GRAPH_DATA graph_data ;
-  EXP_ARRAY *arTraces ; // struct TRACEDATA *
-  EXP_ARRAY *arHCs ; // HONEYCOMB
+  EXP_ARRAY *arTraces ; /* struct TRACEDATA * */
+  EXP_ARRAY *arHCs ; /* HONEYCOMB */
   int icHCSamples ;
   BUS *bus ;
   } HONEYCOMB_DATA ;
@@ -75,7 +75,7 @@ typedef struct
   {
   GRAPH_DATA graph_data ;
   struct TRACEDATA *trace ;
-  EXP_ARRAY *arPoints ; // GdkPoint
+  EXP_ARRAY *arPoints ; /* GdkPoint */
   gboolean bStretch ;
   } WAVEFORM_DATA ;
 

@@ -7,6 +7,7 @@ AM_MAINTAINER_MODE
 AC_ISC_POSIX
 AC_CANONICAL_HOST
 AC_PROG_CC
+AC_PROG_RANLIB
 dnl AC_PROG_CXX
 AM_PROG_CC_STDC
 AM_PROG_CC_C_O
@@ -38,11 +39,6 @@ fi
 
 pkg_modules="gtk+-2.0 >= 2.2.0"
 PKG_CHECK_MODULES(GTK, [$pkg_modules])
-
-if $PKG_CONFIG --modversion cairo > /dev/null 2>&1; then
-  GTK_CFLAGS=${GTK_CFLAGS} `$PKG_CONFIG --cflags cairo`
-  GTK_LIBS=${GTK_LIBS} `$PKG_CONFIG --libs cairo`
-fi
 
 pkg_modules="gthread-2.0 >= 2.0.0"
 PKG_CHECK_MODULES(GTHREAD, [$pkg_modules])
@@ -116,11 +112,14 @@ AC_SUBST(prefix)
 AC_SUBST(ICON_EXT)
 AC_SUBST(packagesrcdir)
 
+GTK_DOC_CHECK(1.0)
+
 AC_OUTPUT([
 Makefile
 src/Makefile
 po/Makefile.in
 docs/Makefile
+docs/reference/Makefile
 pixmaps/Makefile
 QCADesigner.desktop
 graph_dialog.desktop

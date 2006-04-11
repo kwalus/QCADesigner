@@ -36,27 +36,27 @@
 
 struct TRACEDATA
   {
-	// array containing the labels for each trace //
+	/* array containing the labels for each trace */
 	char  *data_labels;
 
-	// default color to use with trace //
+	/* default color to use with trace */
 	QCADCellFunction trace_function ;
 
 	int drawtrace;
 
-	// array containing all plot data //
+	/* array containing all plot data */
 	double *data;
   } ;
 
 typedef struct
   {
-	// total number of simulation samples //
+	/* total number of simulation samples */
 	int number_samples;
 
-	// Total number of traces //
+	/* Total number of traces */
 	int number_of_traces;
 
-	// property of trace //
+	/* property of trace */
 	struct TRACEDATA *trace;
 
 	struct TRACEDATA *clock_data ;

@@ -2,7 +2,7 @@
 #define _OBJECTS_QCADLayersCombo_H_
 
 #include "QCADFlexiCombo.h"
-#include "objects/QCADLayer.h"
+#include "QCADLayer.h"
 
 #ifdef __cplusplus
 extern "C" {

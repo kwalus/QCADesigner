@@ -40,39 +40,45 @@
 #include "objects/QCADSubstrate.h"
 #include "objects/QCADLayer.h"
 
-typedef struct
+typedef struct _BUS             BUS ;
+typedef struct _BUS_LAYOUT_CELL BUS_LAYOUT_CELL ;
+typedef struct _BUS_LAYOUT      BUS_LAYOUT ;
+typedef struct _DESIGN          DESIGN ;
+typedef struct _BUS_LAYOUT_ITER BUS_LAYOUT_ITER ;
+
+struct _BUS
   {
   char *pszName ;
   QCADCellFunction bus_function ;
   EXP_ARRAY *cell_indices ;
-  } BUS ;
+  } ;
 
-typedef struct
+struct _BUS_LAYOUT_CELL
   {
   QCADCell *cell ;
   gboolean bIsInBus ;
-  } BUS_LAYOUT_CELL ;
+  } ;
 
-typedef struct
+struct _BUS_LAYOUT
   {
   EXP_ARRAY *inputs ;
   EXP_ARRAY *outputs ;
   EXP_ARRAY *buses ;
-  } BUS_LAYOUT ;
+  } ;
 
-typedef struct
+struct _DESIGN
   {
   GList *lstLayers ;
   GList *lstLastLayer ;
   GList *lstCurrentLayer ;
   GList *lstClockingLayer ;
   BUS_LAYOUT *bus_layout ;
-  } DESIGN ;
+  } ;
 
 // This structure helps iterate over the inputs/outputs of a design in a well-defined manner:
 // Currently, we want to go through all the buses, followed by all free cells
 // NEVER keep these structures around outside iteration loops
-typedef struct
+struct _BUS_LAYOUT_ITER
   {
   BUS_LAYOUT *bus_layout ;
   QCADCellFunction cell_function ;
@@ -81,7 +87,7 @@ typedef struct
   int idxBus ;
   int idxBusCell ;
   int idxCell ;
-  } BUS_LAYOUT_ITER ;
+  } ;
 
 typedef void (*DesignObjectCallback) (DESIGN *design, QCADDesignObject *obj, gpointer data) ;
 

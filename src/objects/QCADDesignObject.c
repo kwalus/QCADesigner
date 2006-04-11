@@ -47,12 +47,6 @@
 #include "../intl.h"
 #include "QCADRectangleElectrode.h"
 
-typedef struct
-  {
-  char *pszName ;
-  GValue val ;
-  } OBJECT_PROPERTY_AND_VALUE ;
-
 #define DBG_QCADDO_FIN(s)
 
 static void qcad_design_object_class_init (GObjectClass *klass, gpointer data) ;
@@ -190,16 +184,60 @@ static void qcad_design_object_instance_finalize (GObject *object)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * qcad_design_object_add_types:
+ * @obj: #QCADDesignObject whose type to add
+ * @lst: #GList of unique types (->data is a #GType)
+ *
+ * Add this object's #GType to the linked list of unique types stored in @lst, if not already present.
+ *
+ * Returns: the new start of @lst.
+ */
 GList *qcad_design_object_add_types (QCADDesignObject *obj, GList *lst)
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->add_unique_types (obj, lst) ;}
 
+/**
+ * qcad_design_object_get_PostScript_preamble:
+ * @obj: #QCADDesignObject whose PostScript preamble to retrieve
+ *
+ * This function returns a string containing the definition of a PostScript function which renders a
+ * #QCADDesignObject of this type into a PostScript stream. This function may make use of the PostScript
+ * functions defined in %PS_TEXT_PLACEMENT_PREAMBLE, as well as PrintMagic() and the per-page preamble.
+ *
+ * See also: print_world().
+ *
+ * Returns: the PostScript preamble for this object's #GType as a string.
+ */
 const char *qcad_design_object_get_PostScript_preamble (QCADDesignObject *obj)
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->PostScript_preamble () ;}
 
+/**
+ * qcad_design_object_get_PostScript_instance:
+ * @obj: #QCADDesignObject to render as PostScript.
+ * @bColour: Whether to render it in colour.
+ *
+ * This function returns a string containing a PostScript function call to the function returned by 
+ * qcad_design_object_get_PostScript_preamble() for this object type. The parameters to the function may be
+ * defined in terms of calls to the PostScript functions defined in %PS_TEXT_PLACEMENT_PREAMBLE, as well as 
+ * PrintMagic() and the per-page preamble.
+ *
+ * See also: print_world().
+ *
+ * Returns: the PostScript instance function call for this object as a string.
+ */
 char *qcad_design_object_get_PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->PostScript_instance (obj, bColour) ;}
 
 #ifdef GTK_GUI
+/**
+ * qcad_design_object_draw:
+ * @obj: #QCADDesignObject to draw
+ * @dst: Surface to draw it on
+ * @rop: #GdkFunction to use
+ * @rcClip: #GdkRectangle to use for clipping
+ *
+ * Draws object @obj onto surface @dst using function @rop and clipping rectangle @rcClip.
+ */
 void qcad_design_object_draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip)
   {
   GdkRectangle *rcPass = rcClip, rc = {0} ;
@@ -213,34 +251,112 @@ void qcad_design_object_draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFuncti
 
 #endif /* def GTK_GUI */
 #ifdef STDIO_FILEIO
+/**
+ * qcad_design_object_serialize:
+ * @obj: #QCADDesignObject to be serialized
+ * @fp: Stream to serialize it to
+ *
+ * Serializes @obj as plain UTF-8 text to stream @fp. The object can later be unserialized with
+ * qcad_design_object_new_from_stream().
+ */
 void qcad_design_object_serialize (QCADDesignObject *obj, FILE *fp)
   {QCAD_DESIGN_OBJECT_GET_CLASS (obj)->serialize (obj, fp) ;}
 #endif /* def STDIO_FILEIO */
 
+/**
+ * qcad_design_object_set_selected:
+ * @obj: #QCADDesignObject to (de)select
+ * @bSelected: Whether the object is to be (de)selected
+ *
+ * Set @obj as selected if @bSelected is %TRUE. Set @obj as deselected otherwise.
+ */
 gboolean qcad_design_object_set_selected (QCADDesignObject *obj, gboolean bSelected)
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->set_selected (obj, bSelected) ;}
 
+/**
+ * qcad_design_object_move:
+ * @obj: #QCADDesignObject to be translated
+ * @dxDelta: amount in world coordinates of x-translation
+ * @dyDelta: amount in world coordinates of y-translation
+ *
+ * move the specified #QCADDesignObject by a given x- and y-offset.
+ */
 void qcad_design_object_move (QCADDesignObject *obj, double dxDelta, double dyDelta)
   {QCAD_DESIGN_OBJECT_GET_CLASS (obj)->move (obj, dxDelta, dyDelta) ;}
 
+/**
+ * qcad_design_object_move_to:
+ * @obj: #QCADDesignObject to be moved
+ * @xWorld: world x-coordinate to move it to
+ * @yWorld: world y-coordinate to move it to
+ *
+ * move the specified #QCADDesignObject to the given coordinates.
+ */
 void qcad_design_object_move_to (QCADDesignObject *obj, double xWorld, double yWorld)
   {
   if (NULL != obj)
     qcad_design_object_move (obj, xWorld - obj->x, yWorld - obj->y) ;
   }
 
+/**
+ * qcad_design_object_get_bounds_box:
+ * @obj: #QCADDesignObject whose bounding box to calculate
+ * @rcWorld: #WorldRectangle to fill out
+ *
+ * Fill out @rcWorld with the bounding box of @obj.
+ */
 void qcad_design_object_get_bounds_box (QCADDesignObject *obj, WorldRectangle *rcWorld)
   {QCAD_DESIGN_OBJECT_GET_CLASS (obj)->get_bounds_box (obj, rcWorld) ;}
 
+/**
+ * qcad_design_object_select_test:
+ * @obj: #QCADDesignObject to examine
+ * @rc: #WorldRectangle to use for comparison
+ * @method: #QCADSelectionMethod to use for comparison
+ *
+ * Determine whether @obj lies inside @rcWorld according to @method. @method is one of
+ * %SELECTION_CONTAINMENT or %SELECTION_INTERSECTION.
+ *
+ * Returns: %TRUE if @obj lies inside @rcWorld according to @method
+ */
 gboolean qcad_design_object_select_test (QCADDesignObject *obj, WorldRectangle *rc, QCADSelectionMethod method)
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->select_test (obj, rc, method) ;}
 
+/**
+ * qcad_design_object_hit_test:
+ * @obj: #QCADDesignObject to examine
+ * @x: x-coordinate in pixels to examine
+ * @y: y-coordinate in pixels to examine
+ *
+ * Determine whether (@x,@y) lies inside @obj or any of its sub-objects.
+ *
+ * Returns: The object hit (which may or may not be @obj), or %NULL if nothing was hit.
+ */
 QCADDesignObject *qcad_design_object_hit_test (QCADDesignObject *obj, int x, int y)
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->hit_test (obj, x, y) ;}
 
+/**
+ * qcad_design_object_transform:
+ * @obj: #QCADDesignObject to transform
+ * @m11: 2x2 matrix entry
+ * @m12: 2x2 matrix entry
+ * @m21: 2x2 matrix entry
+ * @m22: 2x2 matrix entry
+ *
+ * Transform object @obj according to world coordinate matrix ((m11,m12),(m21,m22)).
+ */
 void qcad_design_object_transform (QCADDesignObject *obj, double m11, double m12, double m21, double m22)
   {QCAD_DESIGN_OBJECT_GET_CLASS (obj)->transform (obj, m11, m12, m21, m22) ;}
 
+/**
+ * qcad_design_object_overlaps:
+ * @obj1: A #QCADDesignObject
+ * @obj2: Another #QCADDesignObject
+ *
+ * Determines whether two objects overlap by intersecting their bounding boxes.
+ *
+ * Returns: %TRUE, if the two objects overlap.
+ */
 gboolean qcad_design_object_overlaps (QCADDesignObject *obj1, QCADDesignObject *obj2)
   {
   double
@@ -266,6 +382,17 @@ gboolean qcad_design_object_overlaps (QCADDesignObject *obj1, QCADDesignObject *
   }
 
 #ifdef STDIO_FILEIO
+/**
+ * qcad_design_object_new_from_stream:
+ * @fp: Stream to read from
+ *
+ * Unserializes a #QCADDesignObject from a stream. The type of object returned depends on the type of object
+ * found in the stream.
+ *
+ * See also: qcad_design_object_serialize().
+ *
+ * Returns: a #QCADDesignObject, or %NULL if unsuccessful.
+ */
 QCADDesignObject *qcad_design_object_new_from_stream (FILE *fp)
   {
   int idx = -1, length = -1 ;
@@ -314,12 +441,21 @@ QCADDesignObject *qcad_design_object_new_from_stream (FILE *fp)
   }
 #endif /* def STDIO_FILEIO */
 
+/**
+ * qcad_design_object_get_state_array:
+ * @obj: Object whose state is to be recorded.
+ * @...: %NULL-terminated list of object properties.
+ *
+ * Creates an #EXP_ARRAY of #GValue items, each containing the value of a property listed in the @... list in order.
+ *
+ * Returns: an #EXP_ARRAY, or %NULL if unsuccessful.
+ */
 EXP_ARRAY *qcad_design_object_get_state_array (QCADDesignObject *obj, ...)
   {
   va_list va ;
   char *pszPropertyName = NULL ;
   EXP_ARRAY *ar = NULL ;
-  OBJECT_PROPERTY_AND_VALUE *opv = NULL ;
+  GParameter *opv = NULL ;
   GParamSpec *param_spec = NULL ;
   GValue *val = NULL ;
 
@@ -332,11 +468,11 @@ EXP_ARRAY *qcad_design_object_get_state_array (QCADDesignObject *obj, ...)
       if (0 != param_spec->value_type)
         {
         if (NULL == ar)
-          ar = exp_array_new (sizeof (OBJECT_PROPERTY_AND_VALUE), 1) ;
+          ar = exp_array_new (sizeof (GParameter), 1) ;
         exp_array_1d_insert_vals (ar, NULL, 1, -1) ;
-        opv = &exp_array_index_1d (ar, OBJECT_PROPERTY_AND_VALUE, ar->icUsed - 1) ;
-        opv->pszName = g_strdup (pszPropertyName) ;
-        val = &(opv->val) ;
+        opv = &exp_array_index_1d (ar, GParameter, ar->icUsed - 1) ;
+        opv->name = g_strdup (pszPropertyName) ;
+        val = &(opv->value) ;
         memset (val, 0, sizeof (GValue)) ;
         g_value_init (val, param_spec->value_type) ;
         g_object_get_property (G_OBJECT (obj), pszPropertyName, val) ;
@@ -350,13 +486,13 @@ EXP_ARRAY *qcad_design_object_get_state_array (QCADDesignObject *obj, ...)
 void qcad_design_object_state_array_free (EXP_ARRAY *ar)
   {
   int Nix ;
-  OBJECT_PROPERTY_AND_VALUE *opv = NULL ;
+  GParameter *opv = NULL ;
 
   for (Nix = 0 ; Nix < ar->icUsed ; Nix++)
     {
-    opv = &(exp_array_index_1d (ar, OBJECT_PROPERTY_AND_VALUE, Nix)) ;
-    g_free (opv->pszName) ;
-    g_value_unset (&(opv->val)) ;
+    opv = &(exp_array_index_1d (ar, GParameter, Nix)) ;
+    g_free ((char *)(opv->name)) ;
+    g_value_unset (&(opv->value)) ;
     }
 
   exp_array_free (ar) ;

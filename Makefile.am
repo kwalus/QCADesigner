@@ -35,4 +35,10 @@ squeaky : distclean
 	QCADesigner-win32.iss \
 	po/Makefile po/Makefile.in po/Makefile.in.in \
 	po/POTFILES po/*.gmo `find . | grep '.#'` *~ gtk-doc.make
-	rm -rf `ls -d docs/reference/* | grep -v CVS | grep -v '@PACKAGE@.types' | grep -v 'Makefile\.am' | grep -v 'gtkdoc\.h'`
+	rm -rf `ls -d docs/reference/* \
+	  | grep -v CVS \
+	  | grep -v '@PACKAGE@\.types$$' \
+	  | grep -v 'Makefile\.am$$' \
+	  | grep -v 'gtkdoc\.h$$' \
+	  | grep -v '@PACKAGE@-docs\.sgml$$' \
+	  | grep -v '@PACKAGE@-sections\.txt$$'`

@@ -35,14 +35,16 @@
 #include <stdio.h>
 #include <glib.h>
 
-typedef struct
+typedef struct _EXP_ARRAY EXP_ARRAY ;
+
+struct _EXP_ARRAY
   {
   void *data ;
   int icUsed ;
   int icAvail ;
   int cbSize ;
   int icDimensions ;
-  } EXP_ARRAY ;
+  } ;
 
 EXP_ARRAY *exp_array_new (int cbElementSize, int icDimensions) ;
 EXP_ARRAY *exp_array_copy (EXP_ARRAY *exp_array) ;

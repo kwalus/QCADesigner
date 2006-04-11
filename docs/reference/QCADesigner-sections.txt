@@ -902,6 +902,7 @@ export_block_fp
 </SECTION>
 
 <SECTION>
+EXP_ARRAY
 <FILE>exp_array</FILE>
 exp_array_new
 exp_array_copy
@@ -1195,6 +1196,8 @@ PAN_STEP
 </SECTION>
 
 <SECTION>
+DESIGN
+BUS_LAYOUT
 <FILE>design</FILE>
 DesignObjectCallback
 ROW_TYPE_CELL_INPUT

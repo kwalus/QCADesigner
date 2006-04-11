@@ -1,26 +1,64 @@
-#include <gtk/gtk.h>
 #include "gtkdoc.h"
+#include "../../src/objects/QCADCell.h"
+#include "../../src/objects/QCADCellRendererLayerList.h"
+#include "../../src/objects/QCADCellRendererVT.h"
+#include "../../src/objects/QCADClockingLayer.h"
+#include "../../src/objects/QCADComboBox.h"
+#include "../../src/objects/QCADCompoundDO.h"
+#include "../../src/objects/QCADDOContainer.h"
+#include "../../src/objects/QCADDesignObject.h"
+#include "../../src/objects/QCADElectrode.h"
+#include "../../src/objects/QCADFlexiCombo.h"
+#include "../../src/objects/QCADLabel.h"
+#include "../../src/objects/QCADLayer.h"
+#include "../../src/objects/QCADLayersCombo.h"
+#include "../../src/objects/QCADObject.h"
+#include "../../src/objects/QCADParamSpecObjectList.h"
+#include "../../src/objects/QCADParamSpecTypeList.h"
+#include "../../src/objects/QCADPrintDialog.h"
+#include "../../src/objects/QCADPropertyUI.h"
+#include "../../src/objects/QCADPropertyUIBoolean.h"
+#include "../../src/objects/QCADPropertyUIDouble.h"
+#include "../../src/objects/QCADPropertyUIEnum.h"
+#include "../../src/objects/QCADPropertyUIGroup.h"
+#include "../../src/objects/QCADPropertyUIInt.h"
+#include "../../src/objects/QCADPropertyUINumeric.h"
+#include "../../src/objects/QCADPropertyUIObjectList.h"
+#include "../../src/objects/QCADPropertyUISingle.h"
+#include "../../src/objects/QCADPropertyUIText.h"
+#include "../../src/objects/QCADRadioButton.h"
+#include "../../src/objects/QCADRadioToolButton.h"
+#include "../../src/objects/QCADRectangleElectrode.h"
+#include "../../src/objects/QCADRuler.h"
+#include "../../src/objects/QCADScrolledWindow.h"
+#include "../../src/objects/QCADStretchyObject.h"
+#include "../../src/objects/QCADSubstrate.h"
+#include "../../src/objects/QCADToggleToolButton.h"
+#include "../../src/objects/QCADUndoEntry.h"
+#include "../../src/objects/QCADUndoEntryGroup.h"
+#include "../../src/objects/QCADUndoEntryObjectState.h"
 
 qcad_cell_get_type
 qcad_cell_renderer_layer_list_get_type
-qcad_layer_list_editable_get_type
 qcad_cell_renderer_vt_get_type
 qcad_clocking_layer_get_type
 qcad_combo_box_get_type
 qcad_compound_do_get_type
-qcad_do_container_get_type
 qcad_design_object_get_type
+qcad_do_container_get_type
 qcad_electrode_get_type
 qcad_flexi_combo_get_type
 qcad_label_get_type
 qcad_layer_get_type
+qcad_layer_list_editable_get_type
 qcad_layers_combo_get_type
 qcad_object_get_type
+qcad_object_list_get_type
 qcad_print_dialog_get_type
-qcad_property_ui_get_type
 qcad_property_ui_boolean_get_type
 qcad_property_ui_double_get_type
 qcad_property_ui_enum_get_type
+qcad_property_ui_get_type
 qcad_property_ui_group_get_type
 qcad_property_ui_int_get_type
 qcad_property_ui_numeric_get_type

@@ -1337,7 +1337,7 @@ void design_dump (DESIGN *design, FILE *pfile)
 
 /**
  * design_bus_layout_dump:
- * @design: The #BUS_LAYOUT to dump
+ * @bus_layout: The #BUS_LAYOUT to dump.
  * @pfile: The stream to dump it to.
  *
  * "Dump" a bus layout to a stream. This prints information useful for debugging code that uses @bus_layout to stream
@@ -1861,7 +1861,7 @@ BUS_LAYOUT *design_bus_layout_new ()
 
 /**
  * design_bus_layout_free:
- * @bus_layout
+ * @bus_layout: #BUS_LAYOUT to destroy.
  *
  * Destroys the #BUS_LAYOUT @bus_layout.
  *

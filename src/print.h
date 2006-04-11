@@ -82,7 +82,7 @@ struct _PRINT_GRAPH_DATA
   {
   simulation_data *sim_data ;
   BUS_LAYOUT *bus_layout ;
-  EXP_ARRAY *bus_traces ; // HONEYCOMB_DATA *
+  EXP_ARRAY *bus_traces ; /* HONEYCOMB_DATA * */
   int honeycomb_base ;
   } ;
 

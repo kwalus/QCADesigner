@@ -67,7 +67,7 @@ expand_content_files=
 # signals and properties.
 # e.g. INCLUDES=-I$(top_srcdir) -I$(top_builddir) $(GTK_DEBUG_FLAGS)
 # e.g. GTKDOC_LIBS=$(top_builddir)/gtk/$(gtktargetlib)
-INCLUDES=$(GTK_CFLAGS) $(GTHREAD_CFLAGS)
+INCLUDES=$(GTK_CFLAGS) $(GTHREAD_CFLAGS) -DGTK_GUI -DUNDO_REDO -DDESIGNER -DFILEIO_STDIO -DPROPERTY_UIS
 GTKDOC_LIBS=$(GTK_LIBS) $(GTHREAD_LIBS) $(shell bash -c 'find ../../src | grep QCADesigner-.\*\\.o | grep -v QCADesigner-main\\.o')
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
@@ -76,3 +76,28 @@ include $(top_srcdir)/gtk-doc.make
 # Other files to distribute
 # e.g. EXTRA_DIST += version.xml.in
 EXTRA_DIST += 
+
+GNOME_DEV_HOME = http://developer.gnome.org/doc/API/2.0
+
+webdocs: all
+	rm -rf html-web
+	mkdir -p html-web
+	for file in `find html`; do \
+	  ROOT_PATH=`echo $${file} | sed 's/^html//'`; \
+	  if test "" != "$${ROOT_PATH}"; then \
+	    if test -d $$file; then \
+	      echo "Creating directory html-web$${ROOT_PATH}..."; \
+	      mkdir -p html-web$${ROOT_PATH}; \
+	    else \
+	      if echo $$file | grep -q '\.html$$'; then \
+	        echo "Creating file html-web$${ROOT_PATH}..."; \
+	        cat $$file | sed \
+	          -e 's!href="/usr/share/gtk-doc/html!href="$(GNOME_DEV_HOME)!g' \
+	          > html-web$${ROOT_PATH}; \
+	      else \
+	        echo "Copying file html-web$${ROOT_PATH}..."; \
+	        cp $$file html-web$${ROOT_PATH}; \
+	      fi \
+	    fi; \
+	  fi; \
+	done

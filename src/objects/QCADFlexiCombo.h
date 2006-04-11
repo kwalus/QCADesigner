@@ -1,5 +1,5 @@
 #ifndef _OBJECTS_QCADFlexiCombo_H_
-#define _OBJECTS_QCADComboBox_H_
+#define _OBJECTS_QCADFlexiCombo_H_
 
 #include <gtk/gtk.h>
 

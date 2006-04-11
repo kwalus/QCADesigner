@@ -405,10 +405,10 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
       0.1, 1e9, 5.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
   /**
-   * QCADCell::cell-function-changed
+   * QCADCell::cell-function-changed:
    * @QCADCell: the cell whose function has changed.
    *
-   * This signal is emitted when the function 
+   * This signal is emitted when the cell function changes.
    */
   qcad_cell_signals[QCAD_CELL_CELL_FUNCTION_CHANGED_SIGNAL] =
     g_signal_new ("cell-function-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,

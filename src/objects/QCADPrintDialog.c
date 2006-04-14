@@ -36,6 +36,17 @@
 #include "../file_selection_window.h"
 #include "../support.h"
 
+/**
+ * SECTION:QCADPrintDialog
+ * @short_description: QCADesigner's print dialog widget
+ *
+ * This dialog creates widgets necessary for manipulating a #print_OP structure and keeping its settings
+ * consistent. You can add more pages of widgets to it, and it will issue the #QCADPrintDialog::changed and
+ * #QCADPrintDialog::units-changed signals when your widgets need updating. It will also issue
+ * #QCADPrintDialog::preview when the user asks for a preview.
+ *
+ */
+
 typedef struct
   {
   GtkWidget *cbUnits ;
@@ -187,12 +198,41 @@ GType qcad_print_dialog_get_type ()
 
 static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer data)
   {
+  /**
+   * QCADPrintDialog::changed:
+   * @qcadprintdialog: The dialog that has changed.
+   * @user_data: data passed to the handler at creation time.
+   *
+   * This signal is emitted whenever the user adjusts one of the widgets on one of the #QCADPrintDialog
+   * widget's pages. It allows you to update whatever widgets you may have added to the dialog to stay
+   * consistent with the new settings.
+   *
+   */
   qcad_print_dialog_signals[QCAD_PRINT_DIALOG_CHANGED_SIGNAL] =
     g_signal_new ("changed", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADPrintDialogClass, changed), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;
+
+  /**
+   * QCADPrintDialog::units-changed:
+   * @qcadprintdialog: The dialog whose units have changed.
+   * @arg1: The conversion factor from the old units to the new units.
+   * @user_data: data passed to the handler at creation time.
+   *
+   * This signal is emitted whenever the user changes the units to display in the dialog.
+   *
+   */
   qcad_print_dialog_signals[QCAD_PRINT_DIALOG_UNITS_CHANGED_SIGNAL] =
     g_signal_new ("units_changed", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADPrintDialogClass, units_changed), NULL, NULL, g_cclosure_marshal_VOID__DOUBLE, G_TYPE_NONE, 1, G_TYPE_DOUBLE) ;
+
+  /**
+   * QCADPrintDialog::preview:
+   * @qcadprintdialog: The dialog wherein the user asked for a preview.
+   * @user_data: data passed to the handler at creation time.
+   *
+   * This signal is emitted whenever the user clicks the "Print Preview" button in the dialog.
+   *
+   */
   qcad_print_dialog_signals[QCAD_PRINT_DIALOG_PREVIEW_SIGNAL] =
     g_signal_new ("preview", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADPrintDialogClass, preview), NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0) ;

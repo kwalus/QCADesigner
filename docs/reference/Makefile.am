@@ -67,8 +67,15 @@ expand_content_files=
 # signals and properties.
 # e.g. INCLUDES=-I$(top_srcdir) -I$(top_builddir) $(GTK_DEBUG_FLAGS)
 # e.g. GTKDOC_LIBS=$(top_builddir)/gtk/$(gtktargetlib)
-INCLUDES=$(GTK_CFLAGS) $(GTHREAD_CFLAGS) -DGTK_GUI -DUNDO_REDO -DDESIGNER -DFILEIO_STDIO -DPROPERTY_UIS
-GTKDOC_LIBS=$(GTK_LIBS) $(GTHREAD_LIBS) $(shell bash -c 'find ../../src | grep QCADesigner-.\*\\.o | grep -v QCADesigner-main\\.o')
+INCLUDES=$(GTK_CFLAGS) $(GTHREAD_CFLAGS) -DGTK_GUI -DUNDO_REDO -DDESIGNER -DFILEIO_STDIO -DPROPERTY_UIS -DGTK_DOC \
+        $(DOC_SOURCE_DIR)/objects/QCADComboBox.c \
+        $(DOC_SOURCE_DIR)/objects/QCADRadioButton.c \
+        $(DOC_SOURCE_DIR)/objects/QCADCellRendererText.c
+GTKDOC_LIBS=$(GTK_LIBS) $(GTHREAD_LIBS) $(shell bash -c 'find ../../src | grep QCADesigner-.\*\\.o | \
+        grep -v QCADesigner-main\\.o | \
+        grep -v QCADesigner-QCADComboBox\\.o | \
+        grep -v QCADesigner-QCADRadioButton\\.o | \
+        grep -v QCADesigner-QCADCellRendererText\\.o')
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make

@@ -4,6 +4,17 @@
 #include "../design.h"
 #include "../custom_widgets.h"
 
+/**
+ * SECTION:QCADLayersCombo
+ * @short_description: QCADesigner layers combo box
+ *
+ * The layers combo takes a design and renders it as a list of layers in a dropdown. It maintains the design's
+ * current layer in its "layer" property and provides checkboxes for (de)activating and hiding/showing a layer.
+ * When either of those checkboxes is deactivated, the "deactivate-layer" signal is emitted and the layer is
+ * only deactivated/hidden if those signals return %TRUE.
+ *
+ */
+
 typedef struct
   {
   GtkWidget *tv_current ;

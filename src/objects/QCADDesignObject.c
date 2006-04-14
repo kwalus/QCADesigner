@@ -47,6 +47,15 @@
 #include "../intl.h"
 #include "QCADRectangleElectrode.h"
 
+/**
+ * SECTION:QCADDesignObject
+ * @short_description: Common base class for all objects appearing in a design
+ *
+ * #QCADDesignObject is the common base class for all design objects. It defines the necessary virtual 
+ * functions for serialization, bounds calculation, selection, drawing, and transformation.
+ *
+ */
+
 #define DBG_QCADDO_FIN(s)
 
 static void qcad_design_object_class_init (GObjectClass *klass, gpointer data) ;

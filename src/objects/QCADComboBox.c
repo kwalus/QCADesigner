@@ -1,4 +1,5 @@
 #include "QCADComboBox.h"
+#if (GTK_MINOR_VERSION < 8 || defined (GTK_DOC))
 
 static void instance_init (QCADComboBox *instance, gpointer data) ;
 
@@ -30,3 +31,4 @@ GType qcad_combo_box_get_type ()
 
 static void instance_init (QCADComboBox *instance, gpointer data)
   {g_signal_connect (G_OBJECT (instance), "changed", (GCallback)g_object_notify, "active") ;}
+#endif /* (GTK_MINOR_VERION < 8) */

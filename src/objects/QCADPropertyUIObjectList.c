@@ -4,6 +4,18 @@
 #include "QCADPropertyUIObjectList.h"
 #include "QCADPropertyUIGroup.h"
 
+/**
+ * SECTION:QCADPropertyUIObjectList
+ * @short_description: Property UI for a param of type #QCADParamSpecObjectList
+ *
+ * Parameters of type #QCADParamSpecObjectList return a #GList of #GObject items. This property UI
+ * creates a #QCADPropertyUIGroup for each object in the list and assembles them all into two widgets:
+ * A #GtkTreeView with the friendly names of the object classes in the #GList on the left, and a #GtkVBox
+ * with each object's #QCADPropertyUIGroup. Only the #QCADPropertyUIGroup for the currently hilighted
+ * #GtkTreeView item is displayed.
+ *
+ */
+
 static void qcad_property_ui_object_list_class_init (QCADPropertyUIObjectListClass *propert_ui_object_list_class) ;
 static void qcad_property_ui_object_list_instance_init (QCADPropertyUIObjectList *propert_ui_object_list) ;
 

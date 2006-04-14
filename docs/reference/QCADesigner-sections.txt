@@ -47,16 +47,8 @@ QCADCell
 <FILE>QCADCell</FILE>
 CLOCK_INC
 CLOCK_DEC
-QCADCellOptions
-QCADCellDot
 <TITLE>QCADCell</TITLE>
-qcad_cell_function_get_type
-qcad_cell_mode_get_type
 QCAD_CELL
-QCAD_TYPE_STRING_CELL_FUNCTION
-QCAD_TYPE_CELL_FUNCTION
-QCAD_TYPE_STRING_CELL_MODE
-QCAD_TYPE_CELL_MODE
 qcad_cell_drexp_array
 qcad_cell_create_array
 qcad_cell_calculate_polarization
@@ -70,6 +62,15 @@ qcad_cell_rotate_dots
 qcad_cell_get_label
 qcad_cell_scale
 <SUBSECTION Standard>
+<SUBSECTION Private>
+QCADCellOptions
+QCADCellDot
+qcad_cell_function_get_type
+qcad_cell_mode_get_type
+QCAD_TYPE_STRING_CELL_FUNCTION
+QCAD_TYPE_CELL_FUNCTION
+QCAD_TYPE_STRING_CELL_MODE
+QCAD_TYPE_CELL_MODE
 QCAD_TYPE_STRING_CELL
 QCAD_IS_CELL
 QCAD_TYPE_CELL

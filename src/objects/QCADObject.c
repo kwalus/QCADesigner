@@ -36,6 +36,68 @@
 #include "QCADPropertyUISingle.h"
 #include "QCADPropertyUIGroup.h"
 
+/**
+ * SECTION:QCADObject
+ * @short_description: QCADesigner's extensions to #GObject
+ *
+ * #QCADObject provides several additions to #GObject:
+ * <itemizedlist>
+ * <listitem><para>
+ * A consistent way of performing a deep copy of an object via qcad_object_new_from_object().
+ * </para></listitem>
+ * <listitem><para>
+ * The concept of a default object. Each subclass of #QCADObject can have a default instance. This instance 
+ * can then serve as a template for new objects. For example:
+ * <informalexample><programlisting>
+ * new_object = qcad_object_new_from_default (qcad_object_get_default (qcad_object_subtype)) ;
+ * </programlisting></informalexample>
+ * When an object becomes the default object, it emits the "set-default" signal, and when another object
+ * becomes the default, it emits the "unset-default" signal, and the new default object emits the "set-default"
+ * signal.
+ *
+ * As a convenience, qcad_object_connect_signal_to_default_object() will connect a signal handler to the
+ * current default object, and will keep it connected to whatever object becomes default at a later time.
+ *
+ * As an additional convenience, qcad_object_create_property_ui_for_default_object() will create a property
+ * UI for one of the default object's properties, and will keep it pointing at the object currently set as
+ * default.
+ * </para></listitem>
+ * <listitem><para>
+ * Property UI property hints. When constructing a UI for a #QCADObject property, the UI itself might have some
+ * properties whose default values should be overridden. Assembling an array of #QCADPropertyUIProperty 
+ * structures and passing the array to qcad_object_class_install_ui_properties() at class initialization time 
+ * will cause UIs exposing the given property to have properties set as described in the array. For example:
+ * <informalexample><programlisting>
+ * static QCADPropertyUIProperty properties[] =
+ *   {
+ *   {NULL,     "title",     {0, }},
+ *   {"width",  "units",     {0, }},
+ *   {"height", "units",     {0, }},
+ *   } ;
+ *  
+ * // RectangleElectrode.title = "QCA Rectangular Electrode"
+ * g_value_set_string (g_value_init (&(properties[0].ui_property_value), G_TYPE_STRING), _("QCA Rectangular Electrode")) ;
+ * // RectangleElectrode.width.units = "nm"
+ * g_value_set_string (g_value_init (&(properties[1].ui_property_value), G_TYPE_STRING), "nm") ;
+ * // RectangleElectrode.height.units = "nm"
+ * g_value_set_string (g_value_init (&(properties[2].ui_property_value), G_TYPE_STRING), "nm") ;
+ *  
+ * qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+ * </programlisting></informalexample>
+ * This will cause property UIs exposing an object's "width" property and "height" property to display
+ * a "nm" label as part of the property UI. Note that, when the first member of the structure is %NULL, the 
+ * second member refers to a property UI hint for the property UI group that will be created for objects of 
+ * this type.
+ * </para></listitem>
+ * <listitem><para>
+ * Property UI behaviour. In addition to assigning values to certain property UI properties at class 
+ * initialization time, it is also possible to ``connect'' property UI properties to other property UI 
+ * properties, as well as property UI properties to properties of the instance treated by the property UIs. 
+ * This is accomplished using the connect_object_properties() function.
+ * </para></listitem>
+ * </itemizedlist>
+ */
+
 typedef struct
   {
   GType type ;

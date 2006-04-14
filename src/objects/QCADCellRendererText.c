@@ -1,5 +1,5 @@
 #include "QCADCellRendererText.h"
-#if (GTK_MINOR_VERSION <= 4)
+#if (GTK_MINOR_VERSION <= 4 || defined (GTK_DOC))
 
 G_BEGIN_DECLS
 extern void g_cclosure_user_marshal_VOID__OBJECT_STRING (GClosure     *closure,

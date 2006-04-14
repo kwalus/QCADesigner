@@ -7,6 +7,16 @@
 #include "QCADPropertyUISingle.h"
 #include "QCADPropertyUIGroup.h"
 
+/**
+ * SECTION:QCADPropertyUIGroup
+ * @short_description: Group several property UIs into one
+ *
+ * This property UI takes an instance of a #GObject and creates a property UI for each of the object's
+ * properties. If the #GObject happens to be a #QCADObject, it will install the #QCADObject's behaviours,
+ * as well as those of its properties UI hints not specific to any of its properties.
+ *
+ */
+
 typedef struct
   {
   char *pszPropName ;

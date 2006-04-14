@@ -143,7 +143,7 @@ static void qcad_property_ui_single_class_init (QCADPropertyUISingleClass *klass
 
 #ifdef GTK_GUI
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_SINGLE_PROPERTY_TOOLTIP,
-    g_param_spec_pointer ("tooltip", _("Tooltip"), _("Tooltip"), G_PARAM_WRITABLE)) ;
+    g_param_spec_object ("tooltip", _("Tooltip"), _("Tooltip"), GTK_TYPE_TOOLTIPS, G_PARAM_WRITABLE)) ;
 #endif /* def GTK_GUI */
   }
 
@@ -197,7 +197,7 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
 #ifdef GTK_GUI
     case QCAD_PROPERTY_UI_SINGLE_PROPERTY_TOOLTIP:
       {
-      GtkTooltips *tooltip = g_value_get_pointer (value) ;
+      GtkTooltips *tooltip = g_value_get_object (value) ;
 
       if (GTK_IS_TOOLTIPS (tooltip))
         if (tooltip != property_ui_single->tooltip)

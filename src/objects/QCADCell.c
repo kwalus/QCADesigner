@@ -51,6 +51,17 @@
 #include "object_helpers.h"
 #include "../fileio_helpers.h"
 
+/**
+ * SECTION:QCADCell
+ * @short_description: QCA Cell
+ *
+ * Implementation of the QCA cell. Every cell is assumed to have 4 dots, located either inside the cell's
+ * corners, or inside the midpoints of the cell's edges. Cells can serve 4 different functions
+ * (%QCAD_CELL_NORMAL, %QCAD_CELL_INPUT, %QCAD_CELL_OUTPUT, %QCAD_CELL_FIXED) and 3 different appearances
+ * (%QCAD_CELL_MODE_NORMAL, %QCAD_CELL_MODE_CROSSOVER, %QCAD_CELL_MODE_VERTICAL).
+ *
+ */
+
 #define QCAD_CELL_LABEL_DEFAULT_OFFSET_Y 1
 
 #define DBG_VAL(s)

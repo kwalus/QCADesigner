@@ -1,6 +1,7 @@
 #include "gtkdoc.h"
 #include "../../src/objects/QCADCell.h"
 #include "../../src/objects/QCADCellRendererLayerList.h"
+#include "../../src/objects/QCADCellRendererText.h"
 #include "../../src/objects/QCADCellRendererVT.h"
 #include "../../src/objects/QCADClockingLayer.h"
 #include "../../src/objects/QCADComboBox.h"
@@ -40,6 +41,7 @@
 
 qcad_cell_get_type
 qcad_cell_renderer_layer_list_get_type
+qcad_cell_renderer_text_get_type
 qcad_cell_renderer_vt_get_type
 qcad_clocking_layer_get_type
 qcad_combo_box_get_type

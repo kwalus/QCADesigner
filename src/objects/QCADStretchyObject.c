@@ -41,6 +41,16 @@
 #include "../global_consts.h"
 #include "../fileio_helpers.h"
 
+/**
+ * SECTION:QCADStretchyObject
+ * @short_description: Base class for all resizable design objects
+ *
+ * #QCADStretchyObject provides default mouse handlers for creating resizable objects. Once such an object has
+ * been created, these mouse handlers are responsible for selecting it and resizing it. This latter 
+ * functionality has not yet been implemented.
+ *
+ */
+
 static void qcad_stretchy_object_class_init (GObjectClass *klass, gpointer data) ;
 
 #ifdef STDIO_FILEIO

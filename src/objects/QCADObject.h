@@ -95,9 +95,6 @@ void qcad_object_set_default (GType type, QCADObject *obj) ;
 void qcad_object_connect_signal_to_default_object (GType type, char *pszSignal, GCallback callback, gpointer data) ;
 #ifdef PROPERTY_UIS
 QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, char *property, ...) ;
-#ifdef GTK_GUI
-void qcad_object_get_properties (QCADObject *obj, GtkWindow *parent_window) ;
-#endif /* def GTK_GUI */
 void qcad_object_class_install_ui_behaviour (QCADObjectClass *klass, QCADPropertyUIBehaviour *behaviour, int icBehaviour) ;
 void qcad_object_class_install_ui_properties (QCADObjectClass *klass, QCADPropertyUIProperty *properties, int icProperties) ;
 #endif /* def PROPERTY_UIS */

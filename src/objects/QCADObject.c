@@ -173,24 +173,6 @@ GType qcad_object_get_type ()
   }
 
 #ifdef PROPERTY_UIS
-#ifdef GTK_GUI
-void qcad_object_get_properties (QCADObject *obj, GtkWindow *parent_window)
-  {
-  GtkWidget *widget = NULL ;
-  QCADPropertyUI *pui = qcad_property_ui_group_new (G_OBJECT (obj), 
-    "render-as", GTK_TYPE_DIALOG,
-    NULL) ;
-
-  if (NULL != (widget = qcad_property_ui_get_widget (pui, 0, 0, NULL)))
-    if (GTK_IS_DIALOG (widget))
-      {
-      gtk_window_set_transient_for (GTK_WINDOW (widget), parent_window) ;
-      gtk_dialog_run (GTK_DIALOG (widget)) ;
-      gtk_widget_hide (widget) ;
-      }
-  }
-#endif /* def GTK_GUI */
-
 static void qcad_object_base_init (QCADObjectClass *klass)
   {
   QCADObjectClass *parent_klass = g_type_class_peek (g_type_parent (G_TYPE_FROM_CLASS (klass))) ;

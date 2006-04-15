@@ -68,7 +68,7 @@ gboolean button_pressed_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event,
 #ifdef UNDO_REDO
       QCADUndoEntry *entry = g_object_new (QCAD_TYPE_UNDO_ENTRY_OBJECT_STATE, "instance", obj, NULL) ;
 #endif /* def UNDO_REDO */
-      qcad_object_get_properties (QCAD_OBJECT (obj), GTK_WINDOW (project_options->main_window->main_window)) ;
+      object_get_properties (obj, GTK_WINDOW (project_options->main_window->main_window)) ;
 #ifdef UNDO_REDO
       g_object_set (G_OBJECT (entry), "frozen", TRUE, NULL) ;
       if (qcad_undo_entry_object_state_get_changed (QCAD_UNDO_ENTRY_OBJECT_STATE (entry)))

@@ -1,4 +1,19 @@
 #include "QCADComboBox.h"
+/**
+ * SECTION:QCADComboBox
+ * @short_description: QCADesigner workaround class for #GtkComboBox.
+ *
+ * #GtkComboBox widgets in versions of GTK prior to 2.8.0 did not emit the "notify::active" signal when
+ * the active entry was changed. A #QCADComboBox will emit such a signal by connecting to #GtkComboBox's
+ * "changed" signal, and emitting its "notify::active" signal:
+ * <informalexample><programlisting>
+ * static void instance_init (QCADComboBox *instance, gpointer data)
+ *   {g_signal_connect (G_OBJECT (instance), "changed", (GCallback)g_object_notify, "active") ;}
+ * </programlisting></informalexample>
+ *
+ * For versions of GTK >= 2.8.0 detected at compile time, the definition of this widget evaluates to
+ * #GtkComboBox and none of the #QCADComboBox code gets compiled.
+ */
 #if (GTK_MINOR_VERSION < 8 || defined (GTK_DOC))
 
 static void instance_init (QCADComboBox *instance, gpointer data) ;

@@ -67,5 +67,6 @@ void pan_design (int cx, int cy) ;
 void redraw_async (GdkRegion *rgn) ;
 void reflect_zoom () ;
 void redraw_sync (GdkRegion *rgn, gboolean bDestroyRegion) ;
+void object_get_properties (gpointer instance, GtkWindow *parent) ;
 
 #endif /* _CALLBACK_HELPERS_H_ */

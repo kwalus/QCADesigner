@@ -83,6 +83,7 @@
 //#include "objects/QCADClockCombo.h"
 #include "objects/QCADRectangleElectrode.h"
 #include "objects/QCADClockingLayer.h"
+#include "objects/QCADPropertyUIGroup.h"
 
 #define DBG_CB(s)
 #define DBG_CB_HERE(s)
@@ -506,7 +507,7 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
 */
 
     layer = qcad_layer_new ((int)data, QCAD_LAYER_STATUS_ACTIVE, _("New Layer")) ;
-    qcad_object_get_properties (QCAD_OBJECT (layer), GTK_WINDOW (main_window.main_window)) ;
+    object_get_properties (layer, GTK_WINDOW (main_window.main_window)) ;
   //if (get_properties (undo_entry = NULL))
 //    {
     // If there was only one layer, enable its check buttons
@@ -581,7 +582,7 @@ void layer_properties_button_clicked (GtkWidget *widget, gpointer data)
 //        layer = (QCAD_LAYER (project_options.design->lstCurrentLayer->data)), FALSE,
 //        !(project_options.design->lstLayers == project_options.design->lstLastLayer)))
           {
-          qcad_object_get_properties (QCAD_OBJECT (project_options.design->lstCurrentLayer->data), GTK_WINDOW (main_window.main_window)) ;
+          object_get_properties (project_options.design->lstCurrentLayer->data, GTK_WINDOW (main_window.main_window)) ;
   
 //          if (NULL != (layer = QCAD_LAYER (project_options.design->lstCurrentLayer->data))->combo_item)
 //            layers_combo_refresh_item (layer->combo_item) ;
@@ -2324,4 +2325,20 @@ static void selection_set_state (GType type, char *pszState, GValue *value)
     selection_renderer_update (project_options.srSelection, project_options.design) ;
     selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
     }
+  }
+
+void object_get_properties (gpointer instance, GtkWindow *parent_window)
+  {
+  GtkWidget *widget = NULL ;
+  QCADPropertyUI *pui = qcad_property_ui_group_new (G_OBJECT (instance), 
+    "render-as", GTK_TYPE_DIALOG,
+    NULL) ;
+
+  if (NULL != (widget = qcad_property_ui_get_widget (pui, 0, 0, NULL)))
+    if (GTK_IS_DIALOG (widget))
+      {
+      gtk_window_set_transient_for (GTK_WINDOW (widget), parent_window) ;
+      gtk_dialog_run (GTK_DIALOG (widget)) ;
+      gtk_widget_hide (widget) ;
+      }
   }

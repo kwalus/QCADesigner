@@ -41,6 +41,13 @@
 #include "../fileio_helpers.h"
 #include "QCADCell.h"
 
+/**
+ * SECTION:QCADSubstrate
+ * @short_description: QCA substrate.
+ *
+ * The substrate serves as the object to snap other design objects to.
+ */
+
 static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer data) ;
 static void qcad_substrate_instance_init (QCADStretchyObject *object, gpointer data) ;
 static void qcad_substrate_instance_finalize (GObject *object) ;
@@ -126,6 +133,11 @@ static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer 
   QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize         = unserialize ;
 #endif /* def STDIO_FILEIO */
 
+  /**
+   * QCADSubstrate:spacing:
+   *
+   * The substrate's grid spacing in world coordinates.
+   */
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_SUBSTRATE_PROPERTY_SPACING,
     g_param_spec_double ("spacing", _("Grid Spacing"), _("Grid Spacing [nm]"),
       1.0, G_MAXDOUBLE, 10.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
@@ -172,7 +184,18 @@ static void qcad_substrate_get_property (GObject *object, guint property_id, GVa
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Parameters are world coordinates
+/**
+ * qcad_substrate_new:
+ * @x: World x-coordinate of substrate's top left corner.
+ * @y: World y-coordinate of substrate's top left corner.
+ * @cx: Substrate width in world coordinates.
+ * @cy: Substrate height in world coordinates.
+ * @grid_spacing: Grid spacing to use when objects are snapped with respect to this substrate.
+ *
+ * Creates a new substrate of the given world size and grid spacing originating at the given world coordinates.
+ *
+ * Returns: A new substrate object.
+ */
 QCADDesignObject *qcad_substrate_new (double x, double y, double cx, double cy, double grid_spacing)
   {
   QCADDesignObject *obj = QCAD_DESIGN_OBJECT (g_object_new (QCAD_TYPE_SUBSTRATE, NULL)) ;
@@ -187,7 +210,15 @@ QCADDesignObject *qcad_substrate_new (double x, double y, double cx, double cy, 
   return obj ;
   }
 
-// Parameters are world coordinates
+/**
+ * qcad_substrate_snap_point:
+ * @subs: Reference substrate.
+ * @px: Pointer containing x-coordinate to manipulate.
+ * @py: Pointer containing y-coordinate to manipulate.
+ *
+ * Retrieves the world x and y coordinates of a point from @px and @py, respectively, and overwrites them with 
+ * the coordinates of @subs' nearest grid point.
+ */
 void qcad_substrate_snap_point (QCADSubstrate *subs, double *px, double *py)
   {
   if (!QCAD_IS_SUBSTRATE (subs)) return ;

@@ -1,5 +1,20 @@
 #include "QCADRadioButton.h"
-
+/**
+ * SECTION:QCADRadioButton
+ * @short_description: QCADesigner workaround class for #GtkRadioButton.
+ *
+ * #GtkRadioButton widgets in versions of GTK <= 2.8.0 did not emit the "notify::active" signal when
+ * their active state was changed. A #QCADRadioButton will emit such a signal by connecting to #GtkRadioButton's
+ * "toggled" signal, and emitting its "notify::active" signal:
+ * <informalexample><programlisting>
+ * static void instance_init (GObject *obj)
+ *   {g_signal_connect (obj, "toggled", (GCallback)g_object_notify, "active") ;}
+ * </programlisting></informalexample>
+ *
+ * For versions of GTK > 2.8.0 detected at compile time, the definition of this widget evaluates to
+ * #GtkRadioButton and none of the #QCADRadioButton code gets compiled.
+ */
+#if (GTK_MINOR_VERSION <= 8 || defined (GTK_DOC))
 static void instance_init (GObject *obj) ;
 
 GType qcad_radio_button_get_type ()
@@ -32,3 +47,4 @@ GType qcad_radio_button_get_type ()
 
 static void instance_init (GObject *obj)
   {g_signal_connect (obj, "toggled", (GCallback)g_object_notify, "active") ;}
+#endif

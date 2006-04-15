@@ -127,7 +127,6 @@ qcad_object_get_default
 qcad_object_set_default
 qcad_object_connect_signal_to_default_object
 qcad_object_create_property_ui_for_default_object
-qcad_object_get_properties
 qcad_object_class_install_ui_behaviour
 qcad_object_class_install_ui_properties
 <SUBSECTION Standard>

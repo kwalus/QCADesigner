@@ -1,6 +1,19 @@
 #include "QCADCellRendererText.h"
 #if (GTK_MINOR_VERSION <= 4 || defined (GTK_DOC))
 
+/**
+ * SECTION:QCADCellRendererText
+ * @short_description: QCADesigner's workaround class for #GtkCellRendererText.
+ *
+ * #GtkCellRendererText widgets in versions of GTK <= 2.4.0 had neither a "sensitive" property, nor an
+ * "editing-started" signal. The signal documented here as "workaround-editing-started" will be defined in your
+ * application as "editing-started", and the "sensitive" property will also be defined if, at compile time, the
+ * version of GTK is found to be <= 2.4.0.
+ *
+ * For versions of GTK > 2.4.0 detected at compile time, the definition of this widget evaluates to
+ * #GtkCellRendererText and none of the #QCADCellRendererText code gets compiled.
+ */
+
 G_BEGIN_DECLS
 extern void g_cclosure_user_marshal_VOID__OBJECT_STRING (GClosure     *closure,
                                                          GValue       *return_value,
@@ -77,7 +90,13 @@ static void class_init (QCADCellRendererTextClass *klass)
       TRUE, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
   cell_renderer_text_signals[QCAD_CELL_RENDERER_TEXT_EDITING_STARTED_SIGNAL] =
-    g_signal_new ("editing-started", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
+    g_signal_new (
+#ifdef GTK_DOC
+      "workaround-editing-started",
+#else
+      "editing-started",
+#endif /* def GTK_DOC */
+      G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADCellRendererTextClass, editing_started), NULL, NULL, g_cclosure_user_marshal_VOID__OBJECT_STRING,
         G_TYPE_NONE, 2, GTK_TYPE_CELL_EDITABLE, G_TYPE_STRING) ;
   }

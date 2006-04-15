@@ -27,9 +27,7 @@
 #ifndef _OBJECTS_QCADCellRendererLayerList_H_
 #define _OBJECTS_QCADCellRendererLayerList_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+G_BEGIN_DECLS
 
 #include "QCADCellRendererText.h"
 #include "../design.h"
@@ -63,31 +61,6 @@ GtkCellRenderer *qcad_cell_renderer_layer_list_new () ;
 #define QCAD_CELL_RENDERER_LAYER_LIST_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_CELL_RENDERER_LAYER_LIST, QCADCellRendererLayerListClass))
 #define QCAD_IS_CELL_RENDERER_LAYER_LIST_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_CELL_RENDERER_LAYER_LIST))
 
-typedef struct
-  {
-  GtkEventBox parent;
-
-  gboolean editing_cancelled ;
-  } QCADLayerListEditable ;
-
-typedef struct
-  {
-  GtkEventBoxClass parent_class;
-  } QCADLayerListEditableClass ;
-
-GType qcad_layer_list_editable_get_type () ;
-GtkCellEditable *qcad_layer_list_editable_new (DESIGN *design, int layer_type) ;
-
-#define QCAD_TYPE_STRING_LAYER_LIST_EDITABLE "QCADLayerListEditable"
-#define QCAD_TYPE_LAYER_LIST_EDITABLE (qcad_layer_list_editable_get_type ())
-#define QCAD_LAYER_LIST_EDITABLE(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), QCAD_TYPE_LAYER_LIST_EDITABLE, QCADLayerListEditable))
-#define QCAD_IS_LAYER_LIST_EDITABLE(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), QCAD_TYPE_LAYER_LIST_EDITABLE))
-#define QCAD_LAYER_LIST_EDITABLE_GET_CLASS(object) (G_TYPE_INSTANCE_GET_CLASS  ((object), QCAD_TYPE_LAYER_LIST_EDITABLE, QCADLayerListEditableClass))
-#define QCAD_LAYER_LIST_EDITABLE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST    ((klass),  QCAD_TYPE_LAYER_LIST_EDITABLE, QCADLayerListEditableClass))
-#define QCAD_IS_LAYER_LIST_EDITABLE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE    ((klass),  QCAD_TYPE_LAYER_LIST_EDITABLE))
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
+G_END_DECLS
 
 #endif /* def _OBJECTS_QCADCellRendererLayerList_H_ */

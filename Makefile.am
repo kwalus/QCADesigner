@@ -20,7 +20,9 @@ app_DATA = QCADesigner.desktop graph_dialog.desktop
 
 EXTRA_DIST = $(doc_DATA) $(app_DATA)
 
-squeaky : distclean
+squeaky :
+	$(MAKE) -C docs/reference deepclean
+	$(MAKE) distclean
 	rm -rf \
 	Output \
 	Makefile Makefile.in aclocal.m4 autom4te.cache \
@@ -35,10 +37,3 @@ squeaky : distclean
 	QCADesigner-win32.iss \
 	po/Makefile po/Makefile.in po/Makefile.in.in \
 	po/POTFILES po/*.gmo `find . | grep '.#'` *~ gtk-doc.make
-	rm -rf `ls -d docs/reference/* \
-	  | grep -v '/CVS' \
-	  | grep -v '/@PACKAGE@\.types$$' \
-	  | grep -v '/Makefile\.am$$' \
-	  | grep -v '/gtkdoc\.h$$' \
-	  | grep -v '/@PACKAGE@-docs\.sgml$$' \
-	  | grep -v '/@PACKAGE@-sections\.txt$$'`

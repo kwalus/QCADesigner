@@ -108,3 +108,10 @@ webdocs: all
 	    fi; \
 	  fi; \
 	done
+
+deepclean: clean
+	rm -rf \
+	  QCADesigner-decl-list.txt QCADesigner-decl.txt QCADesigner-overrides.txt QCADesigner-undocumented.txt \
+	  QCADesigner-unused.txt QCADesigner.args QCADesigner.hierarchy QCADesigner.interfaces \
+	  QCADesigner.prerequisites QCADesigner.signals html html-build.stamp html-web html.stamp scan-build.stamp \
+	  sgml-build.stamp sgml.stamp tmpl tmpl-build.stamp tmpl.stamp xml

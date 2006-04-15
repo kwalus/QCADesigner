@@ -52,7 +52,6 @@ qcad_electrode_get_type
 qcad_flexi_combo_get_type
 qcad_label_get_type
 qcad_layer_get_type
-qcad_layer_list_editable_get_type
 qcad_layers_combo_get_type
 qcad_object_get_type
 qcad_object_list_get_type

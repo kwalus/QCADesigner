@@ -112,7 +112,7 @@ AC_SUBST(prefix)
 AC_SUBST(ICON_EXT)
 AC_SUBST(packagesrcdir)
 
-GTK_DOC_CHECK(1.0)
+GTK_DOC_CHECK(1.4)
 
 AC_OUTPUT([
 Makefile

@@ -42,7 +42,31 @@ fi
 
 set -x
 
-gtkdocize
+# Make sure GTK_DOC_CHECK is only present in configure in if we have gtkdocize
+#
+# First, make sure GTK_DOC_CHECK is uncommented
+if ! cat configure.in | grep -q '^GTK_DOC_CHECK'; then
+  if cat configure.in | grep -q '^dnl GTK_DOC_CHECK'; then
+    TMPFILE=`mktemp`
+    if cat configure.in | sed 's/^dnl GTK_DOC_CHECK/GTK_DOC_CHECK/' > $TMPFILE; then
+      mv -f $TMPFILE configure.in
+    fi
+  fi
+fi
+# Then, call gtkdocize
+if ! gtkdocize; then
+  # If it fails, make sure GTK_DOC_CHECK is commented
+  echo 'EXTRA_DIST =' > gtk-doc.make
+  if ! cat configure.in | grep -q '^dnl GTK_DOC_CHECK'; then
+    if cat configure.in | grep -q '^GTK_DOC_CHECK'; then
+      TMPFILE=`mktemp`
+      if cat configure.in | sed 's/^GTK_DOC_CHECK/dnl GTK_DOC_CHECK/' > $TMPFILE; then
+        mv -f $TMPFILE configure.in
+      fi
+    fi
+  fi
+fi
+
 aclocal ${ACLOCAL_FLAGS}
 automake --gnu --add-missing
 glib-gettextize -c

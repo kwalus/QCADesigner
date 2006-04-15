@@ -86,7 +86,7 @@ EXTRA_DIST +=
 
 GNOME_DEV_HOME = http://developer.gnome.org/doc/API/2.0
 
-webdocs: all
+webdocs:all
 	rm -rf html-web
 	mkdir -p html-web
 	for file in `find html`; do \

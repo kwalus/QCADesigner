@@ -36,4 +36,6 @@ squeaky :
 	graph_dialog.desktop \
 	QCADesigner-win32.iss \
 	po/Makefile po/Makefile.in po/Makefile.in.in \
-	po/POTFILES po/*.gmo `find . | grep '.#'` *~ gtk-doc.make
+	po/POTFILES po/*.gmo `find . | grep '.#'` *~ gtk-doc.make \
+	docs/reference/Makefile docs/reference/Makefile.in
+

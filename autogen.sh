@@ -1,15 +1,11 @@
 #!/bin/bash
 
-set -x
-
 #Ask for the appropriate automake/autoconf versions
 # WANT_AUTOMAKE=1.6
 # WANT_AUTOCONF_2_5=1
 
 # export WANT_AUTOMAKE
 # export WANT_AUTOCONF_2_5
-
-set +x
 
 # Hacky test for Windoze follows :o)
 if test "" != "$WINDIR" ; then
@@ -40,11 +36,10 @@ elif test "Darwin" = "$(uname)"; then
   fi
 fi
 
-set -x
-
 # Make sure GTK_DOC_CHECK is only present in configure in if we have gtkdocize
-#
+
 # First, make sure GTK_DOC_CHECK is uncommented
+echo "Making sure GTK_DOC_CHECK is uncommented inside configure.in ..."
 if ! cat configure.in | grep -q '^GTK_DOC_CHECK'; then
   if cat configure.in | grep -q '^dnl GTK_DOC_CHECK'; then
     TMPFILE=`mktemp`
@@ -54,19 +49,26 @@ if ! cat configure.in | grep -q '^GTK_DOC_CHECK'; then
   fi
 fi
 # Then, call gtkdocize
-if ! gtkdocize; then
+echo -n "Running gtkdocize ..."
+if ! gtkdocize > /dev/null 2>&1; then
+  echo "failed"
   # If it fails, make sure GTK_DOC_CHECK is commented
+  rm -f gtk-doc.make
   echo 'EXTRA_DIST =' > gtk-doc.make
   if ! cat configure.in | grep -q '^dnl GTK_DOC_CHECK'; then
     if cat configure.in | grep -q '^GTK_DOC_CHECK'; then
       TMPFILE=`mktemp`
       if cat configure.in | sed 's/^GTK_DOC_CHECK/dnl GTK_DOC_CHECK/' > $TMPFILE; then
+        echo "Commented out GTK_DOC_CHECK inside configure.in ..."
         mv -f $TMPFILE configure.in
       fi
     fi
   fi
+else
+  echo "suceeded"
 fi
 
+set -x
 aclocal ${ACLOCAL_FLAGS}
 automake --gnu --add-missing
 glib-gettextize -c

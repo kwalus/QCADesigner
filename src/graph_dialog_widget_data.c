@@ -39,6 +39,8 @@
 #include "graph_dialog_widget_data.h"
 #include "objects/QCADCell.h"
 
+#define DEBUG_HONEYCOMB_CALCULATION
+
 // Bits per decimal digit == ln(10)/ln(2)
 #define BITS_PER_DEC_DIGIT 3.321928095
 
@@ -67,7 +69,7 @@ void fit_graph_data_to_window (GRAPH_DATA *graph_data, int cxWindow, int cxWante
   graph_data->bNeedCalc = TRUE ;
   }
 */
-HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr)
+HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr, BUS *bus)
   {
   HONEYCOMB_DATA *hc = NULL ;
 
@@ -80,7 +82,7 @@ HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr)
   hc->graph_data.cyGiven   = -1 ;
 //  hc->graph_data.xOffset   =  0 ;
   hc->graph_data.bVisible  = TRUE ;
-  hc->bus                  = NULL ;
+  hc->bus                  = bus ;
   hc->arTraces             = exp_array_new (sizeof (struct TRACEDATA *), 1) ;
   memcpy (&(hc->graph_data.clr), clr, sizeof (GdkColor)) ;
 
@@ -91,9 +93,7 @@ HONEYCOMB_DATA *honeycomb_data_new_with_array (GdkColor *clr, simulation_data *s
   {
   struct TRACEDATA *the_trace = NULL ;
   int Nix2 ;
-  HONEYCOMB_DATA *hc = honeycomb_data_new (clr) ;
-
-  hc->bus = bus ;
+  HONEYCOMB_DATA *hc = honeycomb_data_new (clr, bus) ;
 
   for (Nix2 = 0 ; Nix2 < bus->cell_indices->icUsed ; Nix2++)
     {
@@ -135,10 +135,15 @@ void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThres
   EXP_ARRAY *bits = NULL ;
   EXP_ARRAY *old_bits = NULL ;
   int idxStart = -1 ; // -1 == honeycomb has not started
+#ifdef DEBUG_HONEYCOMB_CALCULATION
+  int dbg0 ;
+#endif /* def DEBUG_HONEYCOMB_CALCULATION */
 
   hc->icHCSamples = 0 ;
 
-  fprintf (stderr, "calculate_honeycomb_array: Entering with icAverageSamples = %d\n", icAverageSamples) ;
+#ifdef DEBUG_HONEYCOMB_CALCULATION
+    g_print ("calculate_honeycomb_array: Calculating array for (0x%x): \"%s\"\n", (int)hc, hc->bus->pszName) ;
+#endif /* def DEBUG_HONEYCOMB_CALCULATION */
 
   if (NULL == hc->arHCs)
     hc->arHCs = exp_array_new (sizeof (HONEYCOMB), 1) ;
@@ -157,6 +162,22 @@ void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThres
     {
     calculate_trace_bits (hc->arTraces, bits, Nix, icSamples, dThreshLower, dThreshUpper, icAverageSamples) ;
     hct = calculate_honeycomb_transition (old_bits, bits) ;
+#ifdef DEBUG_HONEYCOMB_CALCULATION
+    g_print ("sample %d:\n", Nix) ;
+    g_print ("old_bits: ") ;
+    for (dbg0 = 0 ; dbg0 < old_bits->icUsed ; dbg0++)
+      g_print ("%d ", exp_array_index_1d (old_bits, int, Nix)) ;
+    g_print ("\n") ;
+    g_print ("bits: ") ;
+    for (dbg0 = 0 ; dbg0 < bits->icUsed ; dbg0++)
+      g_print ("%d ", exp_array_index_1d (bits, int, Nix)) ;
+    g_print ("\n") ;
+    g_print ("transition:%s idxStart = %d\n",
+      HCT_HONEYCOMB_TO_GARBAGE   == hct ? "HCT_HONEYCOMB_TO_GARBAGE"   :
+      HCT_GARBAGE_TO_HONEYCOMB   == hct ? "HCT_GARBAGE_TO_HONEYCOMB"   :
+      HCT_HONEYCOMB_TO_HONEYCOMB == hct ? "HCT_HONEYCOMB_TO_HONEYCOMB" : "HCT_NONE",
+      idxStart) ;
+#endif /* def DEBUG_HONEYCOMB_CALCULATION */
     // First, eliminate impossible transitions
     if (HCT_HONEYCOMB_TO_GARBAGE == hct && idxStart < 0)
       fprintf (stderr, "honeycomb_display_data_new: O_o How can a honeycomb end before it starts ?!\n") ;

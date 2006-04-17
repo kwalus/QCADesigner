@@ -92,7 +92,7 @@ WAVEFORM_DATA *waveform_data_new (struct TRACEDATA *trace, GdkColor *clr, gboole
 void calculate_waveform_coords (WAVEFORM_DATA *hc, int icSamples) ;
 void waveform_data_free (WAVEFORM_DATA *wf) ;
 
-HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr) ;
+HONEYCOMB_DATA *honeycomb_data_new (GdkColor *clr, BUS *bus) ;
 HONEYCOMB_DATA *honeycomb_data_new_with_array (GdkColor *clr, simulation_data *sim_data, BUS *bus, int offset, double thresh_lower, double thresh_upper, int icAverageSamples, int base) ;
 void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThreshLower, double dThreshUpper, int icAverageSamples, int base) ;
 #ifdef GTK_GUI

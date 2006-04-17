@@ -397,9 +397,12 @@ static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTre
 
   if (!gtk_tree_model_iter_children (graph_dialog_data->model, &itrChildren, itr)) return FALSE ;
 
-  gtk_tree_model_get (graph_dialog_data->model, itr, BUS_LAYOUT_MODEL_COLUMN_TYPE, &bus_type, -1) ;
+  gtk_tree_model_get (graph_dialog_data->model, itr, 
+    BUS_LAYOUT_MODEL_COLUMN_TYPE,  &bus_type, 
+    BUS_LAYOUT_MODEL_COLUMN_INDEX, &idx, -1) ;
 
-  hc = honeycomb_data_new (clr_idx_to_clr_struct ((bus_type & ROW_TYPE_OUTPUT) ? YELLOW : BLUE)) ;
+  hc = honeycomb_data_new (clr_idx_to_clr_struct ((bus_type & ROW_TYPE_OUTPUT) ? YELLOW : BLUE),
+    &exp_array_index_1d (graph_dialog_data->bus_layout->buses, BUS, idx)) ;
 
   if (bus_type & ROW_TYPE_OUTPUT) offset = graph_dialog_data->bus_layout->inputs->icUsed ;
 

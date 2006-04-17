@@ -196,7 +196,7 @@ int main (int argc, char **argv)
       if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, EXHAUSTIVE_VERIFICATION, working_design, NULL)))
         {
         out_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT, cmdline_args.dThreshLower, cmdline_args.dThreshUpper, cmdline_args.icAverageSamples) ;
-        // Compare the output honeycombs to the reference honeycombs
+        // Print out the results for comparison
         for (Nix1 = 0 ; Nix1 < out_hcs->icUsed && !bDie ; Nix1++)
           {
           if (Nix1 < ref_hcs->icUsed)
@@ -213,6 +213,16 @@ int main (int argc, char **argv)
             for (Nix2 = 0 ; Nix2 < hcdOut->arHCs->icUsed ; Nix2++)
               flush_fprintf (stderr, "%llu ", exp_array_index_1d (hcdOut->arHCs, HONEYCOMB, Nix2).value) ;
             flush_fprintf (stderr, "\n") ;
+            }
+          }
+
+        // Compare the output honeycombs to the reference honeycombs
+        for (Nix1 = 0 ; Nix1 < out_hcs->icUsed && !bDie ; Nix1++)
+          {
+          if (Nix1 < ref_hcs->icUsed)
+            {
+            hcdRef = exp_array_index_1d (ref_hcs, HONEYCOMB_DATA *, Nix1) ;
+            hcdOut = exp_array_index_1d (out_hcs, HONEYCOMB_DATA *, Nix1) ;
 
             single_success =
               determine_success (hcdRef, hcdOut, cmdline_args.circuit_delay) ;

@@ -10,7 +10,6 @@ MANUAL_FILES = \
 	manual.src/installation.html                      \
 	manual.src/create_import_block.html               \
 	manual.src/object_properties.html                 \
-	manual.src/index.html                             \
 	manual.src/managing_layers.html                   \
 	manual.src/vector_table.html                      \
 	manual.src/exhaustive_verification.html           \
@@ -93,7 +92,6 @@ MANUAL_FILES = \
 	manual.src/images/pan-step-3.png                  \
 	manual.src/images/radius_of_effect.ai             \
 	manual.src/images/remove_layer_button.png         \
-	manual.src/QCADesigner.ico                        \
 	manual.src/hot_keys.html                          \
 	manual.src/print_dialog.html                      \
 	manual.src/bistable_simulation_engine.html        \
@@ -104,13 +102,16 @@ MANUAL_FILES = \
 	manual.src/images/editing_vectors.png             \
 	manual.src/images/delete-vector-button.png        \
 	manual.src/images/close-vector-table-button.png   \
-	manual.src/bus_layout.html
+	manual.src/bus_layout.html                        \
+	../pixmaps/QCADesigner.ico                        \
+	manual.src/index.html
 
 all:manual
 
 manual:$(MANUAL_FILES)
 	rm -rf manual ; \
 	mkdir manual ; \
+	cp ../pixmaps/QCADesigner.ico manual ; \
 	cd manual.src ; \
 	for Nix in `find . | grep -v CVS | grep -v '^\.$$'`; do \
 	if [ -d $$Nix ]; then \

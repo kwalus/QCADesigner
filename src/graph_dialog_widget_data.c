@@ -39,7 +39,7 @@
 #include "graph_dialog_widget_data.h"
 #include "objects/QCADCell.h"
 
-#define DEBUG_HONEYCOMB_CALCULATION
+//#define DEBUG_HONEYCOMB_CALCULATION
 
 // Bits per decimal digit == ln(10)/ln(2)
 #define BITS_PER_DEC_DIGIT 3.321928095
@@ -166,11 +166,11 @@ void calculate_honeycomb_array (HONEYCOMB_DATA *hc, int icSamples, double dThres
     g_print ("sample %d:\n", Nix) ;
     g_print ("old_bits: ") ;
     for (dbg0 = 0 ; dbg0 < old_bits->icUsed ; dbg0++)
-      g_print ("%d ", exp_array_index_1d (old_bits, int, Nix)) ;
+      g_print ("%d ", exp_array_index_1d (old_bits, int, dbg0)) ;
     g_print ("\n") ;
     g_print ("bits: ") ;
     for (dbg0 = 0 ; dbg0 < bits->icUsed ; dbg0++)
-      g_print ("%d ", exp_array_index_1d (bits, int, Nix)) ;
+      g_print ("%d ", exp_array_index_1d (bits, int, dbg0)) ;
     g_print ("\n") ;
     g_print ("transition:%s idxStart = %d\n",
       HCT_HONEYCOMB_TO_GARBAGE   == hct ? "HCT_HONEYCOMB_TO_GARBAGE"   :

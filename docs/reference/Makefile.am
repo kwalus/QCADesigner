@@ -86,7 +86,7 @@ EXTRA_DIST +=
 
 GNOME_DEV_HOME = http://developer.gnome.org/doc/API/2.0
 
-webdocs:all
+webdocs: all ../../pixmaps/QCADesigner.ico
 	rm -rf html-web
 	mkdir -p html-web
 	for file in `find html`; do \
@@ -98,8 +98,13 @@ webdocs:all
 	    else \
 	      if echo $$file | grep -q '\.html$$'; then \
 	        echo "Creating file html-web$${ROOT_PATH}..."; \
-	        cat $$file | sed \
-	          -e 's!href="/usr/share/gtk-doc/html!href="$(GNOME_DEV_HOME)!g' \
+	        tac $$file \
+	          | sed \
+	            -e 's!href="/usr/share/gtk-doc/html!href="$(GNOME_DEV_HOME)!g' \
+	            -e 's@</head>@<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>@' \
+	          | awk -v 'maxmatch=0' \
+	            '/<\/div>/{if (0 == maxmatch) sub ("</div>", "<font size=\"-3\"><!--#config timefmt=\"%F %T\" --><!--#set var=\"LastModifiedMsg\" value=\"Last modified: $${LAST_MODIFIED}\" --><!--#echo var=\"LastModifiedMsg\" --></font>&") ; maxmatch = 1 ;} {print $$0 ;}' \
+	          | tac \
 	          > html-web$${ROOT_PATH}; \
 	      else \
 	        echo "Copying file html-web$${ROOT_PATH}..."; \
@@ -108,6 +113,7 @@ webdocs:all
 	    fi; \
 	  fi; \
 	done
+	cp ../../pixmaps/QCADesigner.ico html-web
 
 deepclean: clean
 	rm -rf \

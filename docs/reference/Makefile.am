@@ -86,6 +86,18 @@ EXTRA_DIST +=
 
 GNOME_DEV_HOME = http://developer.gnome.org/doc/API/2.0
 
+# Things to do to make the gtk-doc-generated HTML Web-friendly:
+# 1. Replace all hrefs of the form href="/usr/share/doc/gtk-doc with
+#    hrefs of the form href="http://developer.gnome.org/doc/API/2.0
+#    This is accomplished by the first sed's first "-e"
+# 2. Insert the shortcut icon before </head>
+#    This is accomplished by the first sed's second "-e"
+# 3. Find the last occurrence of </div> and replace it with
+#    <the comments necessary to produce the "Last Modified:" message></div>
+#    This is accomplished by reversing the order of lines in the file with
+#    "tac" and replacing the /first/ occurrence of </div> as described, and
+#    then reversing the order of lines again with another "tac"
+#    Tasks 1. and 2. are unaffected by these reversals
 webdocs: all ../../pixmaps/QCADesigner.ico
 	rm -rf html-web
 	mkdir -p html-web

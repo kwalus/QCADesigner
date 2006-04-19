@@ -43,9 +43,7 @@ To allow the user to manipulate the properties of any <link linkend="GObject">GO
 void object_get_properties (gpointer instance, GtkWindow *parent_window)
   {
   GtkWidget *widget = NULL ;
-  QCADPropertyUI *pui = qcad_property_ui_group_new (G_OBJECT (instance), 
-    "render-as", GTK_TYPE_DIALOG,
-    NULL) ;
+  QCADPropertyUI *pui = qcad_property_ui_new (G_OBJECT (instance), NULL, "render-as", GTK_TYPE_DIALOG, NULL) ;
 
   if (NULL != (widget = qcad_property_ui_get_widget (pui, 0, 0, NULL)))
     if (GTK_IS_DIALOG (widget))
@@ -57,7 +55,9 @@ void object_get_properties (gpointer instance, GtkWindow *parent_window)
   }
 </programlisting></informalexample>
 You can create a UI for a <link linkend="GObject">GObject</link>'s single property with
-<link linkend="qcad-property-ui-single-new"><function>qcad_property_ui_single_new()</function></link>.
+<informalexample><programlisting>
+single_property_ui = qcad_property_ui_new (the_object, "property-name", NULL) ;
+</programlisting></informalexample>
         </para>
       </partintro>
       <xi:include href="xml/QCADParamSpecObjectList.xml"/>

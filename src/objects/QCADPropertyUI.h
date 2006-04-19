@@ -71,6 +71,7 @@ GType qcad_property_ui_get_type () ;
 #define QCAD_PROPERTY_UI_CLASS(class)      (G_TYPE_CHECK_CLASS_CAST    ((class),  QCAD_TYPE_PROPERTY_UI, QCADPropertyUIClass))
 #define QCAD_IS_PROPERTY_UI_CLASS(class)   (G_TYPE_CHECK_CLASS_TYPE    ((class),  QCAD_TYPE_PROPERTY_UI))
 
+QCADPropertyUI *qcad_property_ui_new (GObject *instance, char *property_name, ...) ;
 void qcad_property_ui_set_instance (QCADPropertyUI *property_ui, GObject *instance) ;
 int qcad_property_ui_get_cx_widgets (QCADPropertyUI *property_ui) ;
 int qcad_property_ui_get_cy_widgets (QCADPropertyUI *property_ui) ;

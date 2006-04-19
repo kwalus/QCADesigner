@@ -311,7 +311,7 @@ QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, c
 
   if (0 == type || NULL == property) return NULL ;
   if (NULL == (obj = qcad_object_get_default (type))) return NULL ;
-  if (NULL == (pui = qcad_property_ui_single_new (G_OBJECT (obj), property, NULL))) return NULL ;
+  if (NULL == (pui = qcad_property_ui_new (G_OBJECT (obj), property, NULL))) return NULL ;
 
   va_start (va, property) ;
   if (NULL != (pszFirstProp = va_arg (va, char *)))

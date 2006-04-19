@@ -61,7 +61,7 @@ GType qcad_property_ui_single_get_type () ;
 // instance - self-explanatory
 // property - the property to create the UI for
 // ...      - name, value, ..., NULL pairs of properties to set for the new UI
-QCADPropertyUI *qcad_property_ui_single_new (GObject *instance, char *property, ...) ;
+QCADPropertyUI *qcad_property_ui_single_newv (GObject *instance, char *property, va_list va) ;
 
 #ifdef __cplusplus
 }

@@ -37,7 +37,7 @@ struct _QCADPropertyUIGroupClass
   } ;
 
 GType qcad_property_ui_group_get_type () ;
-QCADPropertyUI *qcad_property_ui_group_new (GObject *instance, ...) ;
+QCADPropertyUI *qcad_property_ui_group_newv (GObject *instance, va_list va) ;
 
 #define QCAD_TYPE_STRING_PROPERTY_UI_GROUP "QCADPropertyUIGroup"
 #define QCAD_TYPE_PROPERTY_UI_GROUP (qcad_property_ui_group_get_type ())

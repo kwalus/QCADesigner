@@ -172,7 +172,7 @@ static gboolean set_instance (QCADPropertyUI *property_ui, GObject *new_instance
           {
           gtk_list_store_append (ls, &itr) ;
 
-          pui = qcad_property_ui_group_new (G_OBJECT (llItr->data), "render-as", GTK_TYPE_FRAME, "visible", FALSE, NULL) ;
+          pui = qcad_property_ui_new (G_OBJECT (llItr->data), NULL, "render-as", GTK_TYPE_FRAME, "visible", FALSE, NULL) ;
           property_ui_object_list->llPUIs = g_list_prepend (property_ui_object_list->llPUIs, pui) ;
 
           // Initially, set the title to the type name

@@ -354,14 +354,14 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
           if (0 == j % record_interval)
             sim_data->trace[i].data[j/record_interval] = dPolarization ;
           }
-
+/*
     if (0 == j % record_interval)
       {
       for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
         sim_data->trace[i].data[j/record_interval] =
           qcad_cell_calculate_polarization (exp_array_index_1d (design->bus_layout->inputs, BUS_LAYOUT_CELL, i).cell) ;
       }
-
+*/
     // Randomize cells so as to minimize numerical error
     if (options->randomize_cells)
       // for each layer ...

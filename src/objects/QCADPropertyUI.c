@@ -2,6 +2,8 @@
 #include "../custom_widgets.h"
 #include "../support.h"
 #include "QCADPropertyUI.h"
+#include "QCADPropertyUIGroup.h"
+#include "QCADPropertyUISingle.h"
 
 enum
   {
@@ -67,6 +69,21 @@ static void qcad_property_ui_instance_init (QCADPropertyUI *property_ui)
   property_ui->bVisible   = TRUE ;
   property_ui->cxWidgets  = 0 ;
   property_ui->cyWidgets  = 0 ;
+  }
+
+QCADPropertyUI *qcad_property_ui_new (GObject *instance, char *property_name, ...)
+  {
+  QCADPropertyUI *pui = NULL ;
+  va_list va ;
+
+  va_start (va, property_name) ;
+  if (NULL == property_name)
+    pui = qcad_property_ui_group_newv (instance, va) ;
+  else
+    pui = qcad_property_ui_single_newv (instance, property_name, va) ;
+  va_end (va) ;
+
+  return pui ;
   }
 
 void qcad_property_ui_set_instance (QCADPropertyUI *property_ui, GObject *instance)

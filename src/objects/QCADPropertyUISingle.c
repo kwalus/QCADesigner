@@ -69,12 +69,11 @@ GType qcad_property_ui_single_get_type ()
   return qcad_property_ui_single_type ;
   }
 
-QCADPropertyUI *qcad_property_ui_single_new (GObject *instance, char *property, ...)
+QCADPropertyUI *qcad_property_ui_single_newv (GObject *instance, char *property, va_list va)
   {
   GType value_type = 0 ;
   QCADPropertyUI *pui = NULL ;
   GParamSpec *pspec = NULL ;
-  va_list va ;
   char *pszFirstProperty = NULL ;
 
   if (NULL == instance) return NULL ;
@@ -105,10 +104,8 @@ QCADPropertyUI *qcad_property_ui_single_new (GObject *instance, char *property, 
 
   if (NULL != pui)
     {
-    va_start (va, property) ;
     if (NULL != (pszFirstProperty = va_arg (va, char *)))
       g_object_set_valist (G_OBJECT (pui), pszFirstProperty, va) ;
-    va_end (va) ;
 
     QCAD_PROPERTY_UI_SINGLE_GET_CLASS (pui)->set_pspec (QCAD_PROPERTY_UI_SINGLE (pui), pspec) ;
     qcad_property_ui_set_instance (pui, instance) ;

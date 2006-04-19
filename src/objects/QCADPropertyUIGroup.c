@@ -83,9 +83,8 @@ GType qcad_property_ui_group_get_type ()
   return qcad_property_ui_group_type ;
   }
 
-QCADPropertyUI *qcad_property_ui_group_new (GObject *instance, ...)
+QCADPropertyUI *qcad_property_ui_group_newv (GObject *instance, va_list va)
   {
-  va_list va ;
   char *pszFirstProperty = NULL ;
   QCADPropertyUI *pui = NULL ;
 
@@ -94,10 +93,8 @@ QCADPropertyUI *qcad_property_ui_group_new (GObject *instance, ...)
 
   qcad_property_ui_set_instance (pui, instance) ;
 
-  va_start (va, instance) ;
   if (NULL != (pszFirstProperty = va_arg (va, char *)))
     g_object_set_valist (G_OBJECT (pui), pszFirstProperty, va) ;
-  va_end (va) ;
 
   return pui ;
   }
@@ -378,7 +375,7 @@ static void qcad_property_ui_group_create_from_instance (QCADPropertyUIGroup *pr
   param_specs = g_object_class_list_properties (G_OBJECT_GET_CLASS (instance), &icParamSpecs) ;
 
   for (Nix = 0 ; Nix < icParamSpecs ; Nix++)
-    if (NULL != (puig_entry.property_ui = qcad_property_ui_single_new (instance, param_specs[Nix]->name, NULL)))
+    if (NULL != (puig_entry.property_ui = qcad_property_ui_new (instance, param_specs[Nix]->name, NULL)))
       {
       puig_entry.pszPropName = g_strdup (param_specs[Nix]->name) ;
       exp_array_1d_insert_vals (property_ui_group->property_uis, &puig_entry, 1, -1) ;

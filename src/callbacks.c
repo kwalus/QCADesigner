@@ -2330,9 +2330,7 @@ static void selection_set_state (GType type, char *pszState, GValue *value)
 void object_get_properties (gpointer instance, GtkWindow *parent_window)
   {
   GtkWidget *widget = NULL ;
-  QCADPropertyUI *pui = qcad_property_ui_group_new (G_OBJECT (instance), 
-    "render-as", GTK_TYPE_DIALOG,
-    NULL) ;
+  QCADPropertyUI *pui = qcad_property_ui_new (G_OBJECT (instance), NULL, "render-as", GTK_TYPE_DIALOG, NULL) ;
 
   if (NULL != (widget = qcad_property_ui_get_widget (pui, 0, 0, NULL)))
     if (GTK_IS_DIALOG (widget))

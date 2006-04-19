@@ -78,6 +78,14 @@ static void qcad_property_ui_boolean_class_init (QCADPropertyUIBooleanClass *kla
   QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_pspec   = set_pspec ;
   QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_tooltip = set_tooltip ;
 
+  /**
+   * QCADPropertyUIBoolean:render-as:
+   *
+   * This property UI can be rendered as either a #GtkCheckButton (default) or a #GtkToolItem (a 
+   * #GtkToggleToolButton).
+   *
+   * Valid values: %GTK_TYPE_CHECK_BUTTON, %GTK_TYPE_TOOL_ITEM
+   */
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_BOOLEAN_PROPERTY_RENDER_AS,
     qcad_param_spec_type_list ("render-as", _("Render As"), _("Render as widget"),
       GTK_TYPE_CHECK_BUTTON, G_PARAM_READABLE | G_PARAM_WRITABLE, GTK_TYPE_CHECK_BUTTON, GTK_TYPE_TOOL_ITEM, 0)) ;

@@ -9,13 +9,17 @@
 
 /**
  * SECTION:QCADPropertyUIGroup
- * @short_description: Group several property UIs into one
+ * @short_description: Property UI group.
  *
- * This property UI takes an instance of a #GObject and creates a property UI for each of the object's
- * properties. If the #GObject happens to be a #QCADObject, it will install the #QCADObject's behaviours,
- * as well as those of its properties UI hints not specific to any of its properties.
+ * A propert UI group covers all the properties of a #GObject instance. It creates
+ * a list of #QCADPropertyUISingle objects, each covering one of the instance's properties. It then concatenates
+ * the 2D grid of widgets created by each "single" property UI vertically, into a larger 2D widget grid.
  *
+ * In addition, if the instance happens to be of type #QCADObject, the property hints specific to the property
+ * UI group, rather than any of its components, are applied. The behaviour hints connecting the various "single"
+ * property UIs contained within the group are also applied.
  */
+
 
 typedef struct
   {
@@ -83,6 +87,27 @@ GType qcad_property_ui_group_get_type ()
   return qcad_property_ui_group_type ;
   }
 
+/**
+ * qcad_property_ui_group_newv:
+ * @instance: Instance to create the UI for.
+ * @va: #va_list of %NULL-terminated property name - property value pairs to set on the newly created UI.
+ *
+ * Creates a new property UI exposing the properties of #GObject instance @instance.
+ *
+ * If @instance happens to be of type #QCADObject, then this function looks up those #QCADPropertyUIBehaviour
+ * entries which connect the new property UI's properties to @instance's properties and those that connect to 
+ * one another the properties of #QCADPropertyUISingle objects contained within the newly created
+ * #QCADPropertyUIGroup object and makes the appropriate connections.
+ *
+ * If @instance happens to be of type #QCADObject, then this function looks up those #QCADPropertyUIProperty
+ * entries which apply to the new property UI's properties and not to any of the properties for its contained
+ * #QCADPropertyUISingle objects and sets the values as prescribed in the matching #QCADPropertyUIProperty 
+ * entries.
+ *
+ * See also: qcad_property_ui_new(), #QCADPropertyUIBehaviour, #QCADPropertyUIProperty
+ *
+ * Returns: A newly created #QCADPropertyUIGroup for #GObject instance @instance.
+ */
 QCADPropertyUI *qcad_property_ui_group_newv (GObject *instance, va_list va)
   {
   char *pszFirstProperty = NULL ;
@@ -113,6 +138,15 @@ static void qcad_property_ui_group_class_init (QCADPropertyUIGroupClass *klass)
   QCAD_PROPERTY_UI_CLASS (klass)->set_sensitive = set_sensitive ;
   QCAD_PROPERTY_UI_CLASS (klass)->get_widget    = get_widget ;
 
+  /**
+   * QCADPropertyUIGroup:render-as:
+   *
+   * This property UI can be rendered as either a #GtkDialog, a #GtkButton that runs a #GtkDialog, a
+   * #GtkFrame, a #GtkExpander, or a property UI - that is, a 2D grid of widgets accessible via
+   * qcad_property_ui_get_cx_widgets(), qcad_property_ui_get_cy_widgets(), and qcad_property_ui_get_widget().
+   *
+   * Valid values: %GTK_TYPE_DIALOG, %GTK_TYPE_BUTTON, %0, %GTK_TYPE_FRAME, %GTK_TYPE_EXPANDER
+   */
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_GROUP_PROPERTY_RENDER_AS,
     qcad_param_spec_type_list ("render-as", _("Render As"), _("Render as widget"),
       GTK_TYPE_DIALOG, G_PARAM_READABLE | G_PARAM_WRITABLE, 0, GTK_TYPE_DIALOG, GTK_TYPE_BUTTON, GTK_TYPE_FRAME, GTK_TYPE_EXPANDER, 0)) ;

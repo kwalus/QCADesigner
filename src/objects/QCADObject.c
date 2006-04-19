@@ -51,9 +51,10 @@
  * <informalexample><programlisting>
  * new_object = qcad_object_new_from_default (qcad_object_get_default (qcad_object_subtype)) ;
  * </programlisting></informalexample>
- * When an object becomes the default object, it emits the "set-default" signal, and when another object
- * becomes the default, it emits the "unset-default" signal, and the new default object emits the "set-default"
- * signal.
+ * When an object becomes the default object, it emits the
+ * "<link linkend="QCADObject-set-default">set-default</link>" signal, and when another object becomes the 
+ * default, it emits the "<link linkend="QCADObject-unset-default">unset-default</link>" signal, and the new 
+ * default object emits the "<link linkend="QCADObject-unset-default">unset-default</link>" signal.
  *
  * As a convenience, qcad_object_connect_signal_to_default_object() will connect a signal handler to the
  * current default object, and will keep it connected to whatever object becomes default at a later time.
@@ -91,9 +92,10 @@
  * </para></listitem>
  * <listitem><para>
  * Property UI behaviour. In addition to assigning values to certain property UI properties at class 
- * initialization time, it is also possible to ``connect'' property UI properties to other property UI 
+ * initialization time, it is also possible to "connect" property UI properties to other property UI 
  * properties, as well as property UI properties to properties of the instance treated by the property UIs. 
- * This is accomplished using the connect_object_properties() function.
+ * This is accomplished using the connect_object_properties() function and the #QCADPropertyUIBehaviour 
+ * structure.
  * </para></listitem>
  * </itemizedlist>
  */
@@ -207,11 +209,23 @@ static void qcad_object_class_init (GObjectClass *klass, gpointer data)
   QCAD_OBJECT_CLASS (klass)->copy                     = copy ;
   QCAD_OBJECT_CLASS (klass)->class_get_default_object = NULL ;
 
+  /**
+   * QCADObject::set-default:
+   * @qcadobject: The object that has become the default.
+   *
+   * This signal is emitted after @qcadobject has become the default object for its type.
+   */
   qcad_object_signals[QCAD_OBJECT_SET_DEFAULT_SIGNAL] =
     g_signal_new ("set-default", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADObjectClass, set_default), NULL, NULL, g_cclosure_marshal_VOID__VOID, 
       G_TYPE_NONE, 0) ;
 
+  /**
+   * QCADObject::unset-default:
+   * @qcadobject: The object that has become the default.
+   *
+   * This signal is emitted after @qcadobject has ceased being the default object for its type.
+   */
   qcad_object_signals[QCAD_OBJECT_UNSET_DEFAULT_SIGNAL] =
     g_signal_new ("unset-default", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADObjectClass, unset_default), NULL, NULL, g_cclosure_marshal_VOID__VOID, 
@@ -227,6 +241,14 @@ static void qcad_object_instance_finalize (GObject *object)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * qcad_object_new_from_object:
+ * @src: Source #QCADObject
+ *
+ * Creates a deep copy of @src.
+ *
+ * Returns: a deep copy of @src.
+ */
 QCADObject *qcad_object_new_from_object (QCADObject *src)
   {
   GType type = 0 ;
@@ -245,6 +267,14 @@ QCADObject *qcad_object_new_from_object (QCADObject *src)
   return dst ;
   }
 
+/**
+ * qcad_object_get_default:
+ * @type: Type to retrieve default object for.
+ *
+ * Retrieves the default object for @type.
+ *
+ * Returns: The default object for @type, or %NULL.
+ */
 QCADObject *qcad_object_get_default (GType type)
   {
   QCADObject *ret = NULL ;
@@ -268,6 +298,13 @@ QCADObject *qcad_object_get_default (GType type)
   return ret ;
   }
 
+/**
+ * qcad_object_set_default:
+ * @type: Type to set default object for.
+ * @obj: New default object for @type.
+ *
+ * Sets a new default object for @type.
+ */
 void qcad_object_set_default (GType type, QCADObject *obj)
   {
   QCADObject *old_default = NULL ;
@@ -301,6 +338,20 @@ void qcad_object_set_default (GType type, QCADObject *obj)
   }
 
 #ifdef PROPERTY_UIS
+/**
+ * qcad_object_create_property_ui_for_default_object:
+ * @type: Type to create property UI for.
+ * @property: Instance property to create UI for, or %NULL to create "group" UI for default object.
+ * @...: %NULL-terminated property name - property value pairs.
+ *
+ * Creates a new property UI for the default object. When the default object changes,
+ * qcad_property_ui_set_instance() with the new default object is automaticallly called on the returned 
+ * property UI.
+ *
+ * See also: qcad_property_ui_new(), qcad_property_ui_set_instance().
+ *
+ * Returns: A new #QCADPropertyUI for @type's default object.
+ */
 QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, char *property, ...)
   {
   QCADPropertyUI *pui = NULL ;
@@ -332,6 +383,17 @@ QCADPropertyUI *qcad_object_create_property_ui_for_default_object (GType type, c
   }
 #endif /* def PROPERTY_UIS */
 
+/**
+ * qcad_object_connect_signal_to_default_object:
+ * @type: The #GType who's default object to connect to.
+ * @pszSignal: Name of the signal to connect to.
+ * @callback: Callback function to connect.
+ * @data: Data to pass to @callback.
+ *
+ * Connects signal handler @callback to signal @pszSignal of the default object for @type. When the default
+ * object changes, the handler is disconnected from the old default instance and connected to the new default
+ * instance.
+ */
 void qcad_object_connect_signal_to_default_object (GType type, char *pszSignal, GCallback callback, gpointer data)
   {
   QCADObject *obj = NULL ;
@@ -354,6 +416,16 @@ void qcad_object_connect_signal_to_default_object (GType type, char *pszSignal, 
   }
 
 #ifdef PROPERTY_UIS
+/**
+ * qcad_object_class_install_ui_behaviour:
+ * @klass: #QCADObject subclass to install behaviour for.
+ * @behaviour: #QCADPropertyUIBehaviour array to append.
+ * @icBehaviour: Number of items in the @behaviour array.
+ *
+ * Installs an array of behaviours to be used by property UIs for instances of @klass.
+ *
+ * See also: #QCADPropertyUIBehaviour
+ */
 void qcad_object_class_install_ui_behaviour (QCADObjectClass *klass, QCADPropertyUIBehaviour *behaviour, int icBehaviour)
   {
   if (NULL == klass->property_ui_behaviour)
@@ -361,6 +433,16 @@ void qcad_object_class_install_ui_behaviour (QCADObjectClass *klass, QCADPropert
   exp_array_1d_insert_vals (klass->property_ui_behaviour, behaviour, icBehaviour, -1) ;
   }
 
+/**
+ * qcad_object_class_install_ui_properties:
+ * @klass: #QCADObject subclass to install behaviour for.
+ * @properties: #QCADPropertyUIProperty array to append.
+ * @icProperties: Number of items in the @properties array.
+ *
+ * Installs an array of properties to be used by property UIs for instances of @klass.
+ *
+ * See also: #QCADPropertyUIProperty
+ */
 void qcad_object_class_install_ui_properties (QCADObjectClass *klass, QCADPropertyUIProperty *properties, int icProperties)
   {
   int Nix, Nix1 ;

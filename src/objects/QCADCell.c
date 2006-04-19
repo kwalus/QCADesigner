@@ -417,7 +417,7 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
 
   /**
    * QCADCell::cell-function-changed:
-   * @QCADCell: the cell whose function has changed.
+   * @cell: the cell whose function has changed.
    *
    * This signal is emitted when the cell function changes.
    */
@@ -622,6 +622,26 @@ void qcad_cell_set_display_mode (QCADCell *cell, int cell_mode)
 
 #ifdef DESIGNER
 #ifdef GTK_GUI
+/**
+ * qcad_cell_drexp_array:
+ * @dst: Drawing surface
+ * @rop: #GdkFunction to draw with
+ * @orientation: Orientation of the cell array
+ * @dRangeBeg: Beginning of the array
+ * @dRangeEnd: End of the array
+ * @dOtherCoord: "other" coordinate
+ *
+ * Draws the outlines of a horizontal or vertical array of cells onto the surface @dst using GDK drawing function
+ * @rop, respecting grid-snap and assuring that the resulting cells do not overlap.
+ *
+ * If @orientation is %GTK_ORIENTATION_HORIZONTAL, a horizontal cell array will be drawn: @dRangeBeg and
+ * @dRangeEnd refer to its beginning and ending world x-coordinates, respectively, and @dOtherCoord refers to 
+ * its world y-coordinate.
+ *
+ * If @orientation is %GTK_ORIENTATION_VERTICAL, a vertical cell array will be drawn: @dRangeBeg and
+ * @dRangeEnd refer to its beginning and ending world y-coordinates, respectively, and @dOtherCoord refers to 
+ * its world x-coordinate.
+ */
 void qcad_cell_drexp_array (GdkDrawable *dst, GdkFunction rop, GtkOrientation orientation, double dRangeBeg, double dRangeEnd, double dOtherCoord)
   {
   int idx[2] = {-1} ;
@@ -663,6 +683,26 @@ void qcad_cell_drexp_array (GdkDrawable *dst, GdkFunction rop, GtkOrientation or
   }
 #endif /* def GTK_GUI */
 
+/**
+ * qcad_cell_create_array:
+ * @bHorizontal: Whether the array is to be a horizontal one
+ * @dRangeBeg: Beginning of the array
+ * @dRangeEnd: End of the array
+ * @dOtherCoord: "other" coordinate
+ *
+ * Creates a horizontal or vertical array of cells based on the given world coordinates and the current default
+ * object for class #QCADCell and stores the resulting instances in the return #EXP_ARRAY.
+ *
+ * If @bHorizontal is %TRUE, a horizontal cell array will be created: @dRangeBeg and
+ * @dRangeEnd refer to its beginning and ending world x-coordinates, respectively, and @dOtherCoord refers to 
+ * its world y-coordinate.
+ *
+ * If @bHorizontal is %FALSE, a vertical cell array will be created: @dRangeBeg and
+ * @dRangeEnd refer to its beginning and ending world y-coordinates, respectively, and @dOtherCoord refers to 
+ * its world x-coordinate.
+ *
+ * Returns: An #EXP_ARRAY containing #QCADCell instances.
+ */
 EXP_ARRAY *qcad_cell_create_array (gboolean bHorizontal, double dRangeBeg, double dRangeEnd, double dOtherCoord)
   {
   int idx[2] = {-1} ;
@@ -701,6 +741,15 @@ EXP_ARRAY *qcad_cell_create_array (gboolean bHorizontal, double dRangeBeg, doubl
   }
 #endif /* def DESIGNER */
 
+/**
+ * qcad_cell_rotate_dots:
+ * @cell: Cell whose dots to rotate.
+ * @angle: Angle (in radians) to rotate the dots by (within the cell).
+ *
+ * Rotates @cell's dots by @angle radians. That is, the cell's four dots are rotated with respect to the center of the cell. So,
+ * for example, a rotation of &pi; / 4 will cause the dot in the top left corner to move below the midpoint of 
+ * the cell's top border.
+ */
 void qcad_cell_rotate_dots (QCADCell *cell, double angle)
   {
   int i;

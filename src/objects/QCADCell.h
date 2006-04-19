@@ -41,7 +41,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * CLOCK_INC:
+ * @c: clock value to increment
+ *
+ * Increments the clock (mod 4)
+ */
 #define CLOCK_INC(c) (((c)+1)%4)
+/**
+ * CLOCK_DEC:
+ * @c: clock value to decrement
+ *
+ * Decrements the clock (mod 4)
+ */
 #define CLOCK_DEC(c) (0==(c)?3:(c)-1)
 
 typedef enum   _QCADCellMode     QCADCellMode ;

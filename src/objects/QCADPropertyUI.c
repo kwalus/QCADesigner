@@ -5,6 +5,23 @@
 #include "QCADPropertyUIGroup.h"
 #include "QCADPropertyUISingle.h"
 
+/**
+ * SECTION:QCADPropertyUI
+ * @short_description: Base class for property UIs.
+ *
+ * A property UI is a collection of widgets bound to either a #GObject instance as a whole
+ * (#QCADPropertyUIGroup), or to a specific property of the instance (#QCADPropertyUISingle). The widgets are 
+ * arranged logically in a 2D grid whose dimensions can be retrieved with qcad_property_ui_get_cx_widgets() 
+ * and qcad_property_ui_get_cy_widgets(). You can then retrieve the widgets one-by-one with
+ * qcad_property_ui_get_widget().
+ *
+ * When bound to a #QCADObject instance, property UIs can behave more intelligently by applying the behaviour
+ * and property hints stored within the instance's class as an array of #QCADPropertyUIBehaviour and
+ * #QCADPropertyUIProperty entries, respectively.
+ *
+ * See also: #QCADObject
+ */
+
 enum
   {
   QCAD_PROPERTY_UI_SENSITIVE = 1,
@@ -71,6 +88,20 @@ static void qcad_property_ui_instance_init (QCADPropertyUI *property_ui)
   property_ui->cyWidgets  = 0 ;
   }
 
+/**
+ * qcad_property_ui_new:
+ * @instance: Instance to create the UI for.
+ * @property_name: Property of @instance to create the UI for.
+ * @...: %NULL-terminated list of property name - property value pairs to set on the newly created property UI.
+ *
+ * Creates a new property UI for #GObject instance @instance. If @property_name is %NULL, it creates a
+ * #QCADPropertyUIGroup covering all of @instance's properties. Otherwise, it creates a #QCADPropertyUISingle
+ * covering only @property_name.
+ *
+ * See also: qcad_property_ui_single_newv(), qcad_property_ui_group_newv()
+ *
+ * Returns: A newly created #QCADPropertyUI.
+ */
 QCADPropertyUI *qcad_property_ui_new (GObject *instance, char *property_name, ...)
   {
   QCADPropertyUI *pui = NULL ;

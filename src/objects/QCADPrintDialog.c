@@ -41,10 +41,10 @@
  * @short_description: QCADesigner's print dialog widget
  *
  * This dialog creates widgets necessary for manipulating a #print_OP structure and keeping its settings
- * consistent. You can add more pages of widgets to it, and it will issue the #QCADPrintDialog::changed and
- * #QCADPrintDialog::units-changed signals when your widgets need updating. It will also issue
- * #QCADPrintDialog::preview when the user asks for a preview.
- *
+ * consistent. You can add more pages of widgets to it, and it will issue the
+ * "<link linkend="QCADPrintDialog-changed">changed</link>" and "<link linkend="QCADPrintDialog-units-changed">units-changed</link>"
+ * signals when your widgets need updating. It will also issue
+ * "<link linkend="QCADPrintDialog-preview">preview</link>" when the user asks for a preview.
  */
 
 typedef struct
@@ -112,12 +112,12 @@ enum _QCADPrintDialogUnits
 
 static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer data) ;
 static void qcad_print_dialog_instance_init (QCADPrintDialog *dlg, gpointer data) ;
-//Helpers
+/* Helpers */
 static void print_op_to_dialog (QCADPrintDialog *pd, print_OP *pPO) ;
 static int get_paper_index (double cx, double cy) ;
 static void redraw_preview (GtkWidget *daPreview, double dPaperWidth, double dPaperHeight, double dLeftMargin, double dTopMargin, double dRightMargin, double dBottomMargin) ;
 void emit_changed_signal (QCADPrintDialog *pd) ;
-//Callbacks
+/* Callbacks */
 static void print_destination_toggled (GtkWidget *widget, gpointer data) ;
 static void btnPrint_clicked (GtkWidget *widget, gpointer data) ;
 static void daPreview_expose (GtkWidget *widget, GdkEventExpose *ev, gpointer data) ;
@@ -200,13 +200,11 @@ static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer 
   {
   /**
    * QCADPrintDialog::changed:
-   * @qcadprintdialog: The dialog that has changed.
-   * @user_data: data passed to the handler at creation time.
+   * @print_dialog: The dialog that has changed.
    *
    * This signal is emitted whenever the user adjusts one of the widgets on one of the #QCADPrintDialog
    * widget's pages. It allows you to update whatever widgets you may have added to the dialog to stay
    * consistent with the new settings.
-   *
    */
   qcad_print_dialog_signals[QCAD_PRINT_DIALOG_CHANGED_SIGNAL] =
     g_signal_new ("changed", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
@@ -214,12 +212,10 @@ static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer 
 
   /**
    * QCADPrintDialog::units-changed:
-   * @qcadprintdialog: The dialog whose units have changed.
-   * @arg1: The conversion factor from the old units to the new units.
-   * @user_data: data passed to the handler at creation time.
+   * @print_dialog: The dialog whose units have changed.
+   * @conversion_factor: The conversion factor from the old units to the new units.
    *
    * This signal is emitted whenever the user changes the units to display in the dialog.
-   *
    */
   qcad_print_dialog_signals[QCAD_PRINT_DIALOG_UNITS_CHANGED_SIGNAL] =
     g_signal_new ("units_changed", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
@@ -227,11 +223,9 @@ static void qcad_print_dialog_class_init (QCADPrintDialogClass *klass, gpointer 
 
   /**
    * QCADPrintDialog::preview:
-   * @qcadprintdialog: The dialog wherein the user asked for a preview.
-   * @user_data: data passed to the handler at creation time.
+   * @print_dialog: The dialog wherein the user asked for a preview.
    *
    * This signal is emitted whenever the user clicks the "Print Preview" button in the dialog.
-   *
    */
   qcad_print_dialog_signals[QCAD_PRINT_DIALOG_PREVIEW_SIGNAL] =
     g_signal_new ("preview", G_TYPE_FROM_CLASS  (klass), G_SIGNAL_RUN_FIRST,
@@ -298,7 +292,7 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2) ;
 
-  //Notebook page 0: Printer
+  /* Notebook page 0: Printer */
   tblPrintColours = g_object_new (GTK_TYPE_TABLE, 
     "visible", TRUE, "n-rows", 2, "n-columns", 1, "homogeneous", FALSE, "border-width", 2, NULL) ;
 
@@ -418,7 +412,7 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
   gtk_label_set_line_wrap (GTK_LABEL (widget), TRUE);
   gtk_misc_set_alignment (GTK_MISC (widget), 0, 0.5);
 
-  //Notebook page 1: Paper size:
+  /* Notebook page 1: Paper size: */
   widget = tblPg = gtk_table_new (2, 2, FALSE) ;
   gtk_widget_show (widget) ;
   gtk_container_set_border_width (GTK_CONTAINER (tblPg), 2) ;
@@ -573,7 +567,7 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
   gtk_label_set_justify (GTK_LABEL (widget), GTK_JUSTIFY_LEFT) ;
   gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5) ;
 
-  //Notebook page 2: Margins:
+  /* Notebook page 2: Margins: */
   widget = tblPg = gtk_table_new (4, 3, FALSE) ;
   gtk_widget_show (widget) ;
   gtk_container_set_border_width (GTK_CONTAINER (tblPg), 2) ;
@@ -694,7 +688,6 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
   widget = dlg->daPreview = gtk_drawing_area_new ();
   gtk_widget_show (widget);
   gtk_container_add (GTK_CONTAINER (frame), widget) ;
-//  gtk_widget_set_usize (widget, 200, 200) ;
 
   widget = dlg->btnPreview = gtk_button_new_from_stock (GTK_STOCK_PRINT_PREVIEW) ;
   gtk_widget_show (widget) ;
@@ -725,10 +718,14 @@ static void qcad_print_dialog_instance_init (QCADPrintDialog *print_dialog, gpoi
   g_signal_connect (G_OBJECT (dlg->daPreview),     "size-request",  (GCallback)daPreview_size_request,    NULL) ;
   }
 
-/*****************************************************************************
-* PUBLIC FUNCTIONS                                                           *
-*****************************************************************************/
-
+/**
+ * qcad_print_dialog_new:
+ * @pPO: #print_OP structure to manipulate
+ *
+ * Creates a new print dialog widget displaying the settings inside @pPO.
+ *
+ * Returns: A new #QCADPrintDialog widget.
+ */
 GtkWidget *qcad_print_dialog_new (print_OP *pPO)
   {
   QCADPrintDialog *ret = QCAD_PRINT_DIALOG (g_object_new (QCAD_TYPE_PRINT_DIALOG, NULL)) ;
@@ -736,6 +733,14 @@ GtkWidget *qcad_print_dialog_new (print_OP *pPO)
   return GTK_WIDGET (ret) ;
   }
 
+/**
+ * qcad_print_dialog_add_page:
+ * @print_dialog: The dialog to append the page to.
+ * @contents: Widget to display.
+ * @pszLbl: Label to display in page's tab.
+ *
+ * Adds @contents as a new page to @print_dialog and names the tab @pszLbl.
+ */
 void qcad_print_dialog_add_page (QCADPrintDialog *print_dialog, GtkWidget *contents, char *pszLbl)
   {
   QCADPrintDialogPrivate *pd = QCAD_PRINT_DIALOG_GET_PRIVATE (print_dialog) ;
@@ -744,6 +749,13 @@ void qcad_print_dialog_add_page (QCADPrintDialog *print_dialog, GtkWidget *conte
   gtk_notebook_append_page (GTK_NOTEBOOK (pd->nbPropPages), contents, lbl) ;
   }
 
+/**
+ * qcad_print_dialog_get_options:
+ * @print_dialog: The dialog to retrieve the options from.
+ * @pPO: The #print_OP structure to fill out.
+ *
+ * Retrieves the #print_OP settings from @print_dialog and stores them in @pPO.
+ */
 void qcad_print_dialog_get_options (QCADPrintDialog *print_dialog, print_OP *pPO)
   {
   QCADPrintDialogPrivate *pd = QCAD_PRINT_DIALOG_GET_PRIVATE (print_dialog) ;
@@ -760,6 +772,14 @@ void qcad_print_dialog_get_options (QCADPrintDialog *print_dialog, print_OP *pPO
   pPO->pszPrintString = gtk_editable_get_chars (GTK_EDITABLE (pPO->bPrintFile ? pd->txtFileSelect : pd->txtPipeSelect), 0, -1) ;
   }
 
+/**
+ * qcad_print_dialog_get_units_short_string:
+ * @print_dialog: The print dialog.
+ *
+ * Retrieves the string representing the current units used in the dialog (currently one of "cm", "in", or "pt").
+ *
+ * Returns: A string that should be freed with g_free() when no longer needed.
+ */
 char *qcad_print_dialog_get_units_short_string (QCADPrintDialog *print_dialog)
   {
   char *psz = NULL ;
@@ -775,6 +795,15 @@ char *qcad_print_dialog_get_units_short_string (QCADPrintDialog *print_dialog)
   return psz ;
   }
 
+/**
+ * qcad_print_dialog_to_current_units:
+ * @print_dialog: The print dialog to convert with respect to.
+ * @dPoints: Value (in points) to convert to current units.
+ *
+ * Converts @dPoints to @print_dialog's current units.
+ *
+ * Returns: @dPoints converted to @print_dialog's current units.
+ */
 double qcad_print_dialog_to_current_units (QCADPrintDialog *print_dialog, double dPoints)
   {
   int unit_type ;
@@ -797,6 +826,15 @@ double qcad_print_dialog_to_current_units (QCADPrintDialog *print_dialog, double
   return dPoints * conversion_factor ;
   }
 
+/**
+ * qcad_print_dialog_from_current_units:
+ * @print_dialog: The print dialog to convert with respect to.
+ * @dUnits: Value (in @print_dialog's current units) to convert to points.
+ *
+ * Converts @dUnits, in @print_dialog's current units, to points.
+ *
+ * Returns: the number of points corresponding to @dUnits in @print_dialog's current units.
+ */
 double qcad_print_dialog_from_current_units (QCADPrintDialog *print_dialog, double dUnits)
   {
   char *psz = NULL ;
@@ -854,7 +892,7 @@ static void print_op_to_dialog (QCADPrintDialog *print_dialog, print_OP *pPO)
   {
   QCADPrintDialogPrivate *pd = QCAD_PRINT_DIALOG_GET_PRIVATE (print_dialog) ;
   int idxPaper = 0 ;
-  // The first tab
+  /* The first tab */
   if (pPO->bPrintFile)
     {
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pd->rbPrintFile), TRUE) ;
@@ -871,20 +909,20 @@ static void print_op_to_dialog (QCADPrintDialog *print_dialog, print_OP *pPO)
     }
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pd->chkPrintColours), pPO->bPrintColours) ;
 
-  // the second tab
+  /* the second tab */
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCX), qcad_print_dialog_to_current_units (print_dialog, pPO->dPaperCX)) ;
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjPaperCY), qcad_print_dialog_to_current_units (print_dialog, pPO->dPaperCY)) ;
   if ((idxPaper = get_paper_index (pPO->dPaperCX, pPO->dPaperCY)))
     g_object_set (G_OBJECT (pd->cbPaperSize), "active", idxPaper, NULL) ;
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pPO->bPortrait ? pd->rbPortrait : pd->rbLandscape), TRUE) ;
 
-  // the third tab
+  /* the third tab */
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjLMargin), qcad_print_dialog_to_current_units (print_dialog, pPO->dLMargin)) ;
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjTMargin), qcad_print_dialog_to_current_units (print_dialog, pPO->dTMargin)) ;
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjRMargin), qcad_print_dialog_to_current_units (print_dialog, pPO->dRMargin)) ;
   gtk_adjustment_set_value (GTK_ADJUSTMENT (pd->adjBMargin), qcad_print_dialog_to_current_units (print_dialog, pPO->dBMargin)) ;
 
-  // Repaint the drawing area
+  /* Repaint the drawing area */
   gtk_widget_queue_draw (pd->daPreview) ;
   }
 
@@ -968,7 +1006,7 @@ static void units_changed (GtkWidget *widget, gpointer data)
 
   g_free (pszUnits) ;
 
-  // set pd->current_units so (to|from)_current_units continues to work correctly
+  /* set pd->current_units so (to|from)_current_units continues to work correctly */
   g_object_get (G_OBJECT (pd->cbUnits), "active", &(pd->current_units), NULL) ;
 
   convert = qcad_print_dialog_to_current_units (print_dialog, convert) ;
@@ -997,7 +1035,7 @@ static void margins_changed (GtkWidget *widget, gpointer data)
     dPaperCY = qcad_print_dialog_from_current_units (print_dialog, gtk_spin_button_get_value (GTK_SPIN_BUTTON (pd->spnPaperCY))),
     dDiff ;
 
-  // This ensures that all spin buttons (margins AND paper size) can go up forever
+  /* This ensures that all spin buttons (margins AND paper size) can go up forever */
   if (gtk_adjustment_get_value (adj) / adj->upper > 0.9)
     adj->upper += adj->page_increment ;
 
@@ -1040,7 +1078,7 @@ static void cbPaperSize_changed (GtkWidget *widget, gpointer data)
 
   g_object_get (G_OBJECT (widget), "active", &idx, NULL) ;
 
-  // idx == 0 => custom
+  /* idx == 0 => custom */
   if (idx > 0)
     {
     double cx, cy ;

@@ -85,6 +85,16 @@ static void qcad_property_ui_int_class_init (QCADPropertyUIIntClass *klass)
   QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_pspec    = set_pspec ;
   QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_tooltip = set_tooltip ;
 
+  /**
+   * QCADPropertyUIInt:render-as:
+   *
+   * This property UI can be rendered either as a #GtkSpinButton or as a #GtkComboBox. Note that, if you
+   * render it as a #GtkComboBox and the range of the instance's #GParamSpec is too large, the resulting
+   * #GtkComboBox popup menu will be enormous and will likely take a long time to construct. When in doubt,
+   * leave "<link linkend="QCADPropertyUIInt-render-as">render-as</link>" set to its default: #GtkSpinButton.
+   *
+   * Valid values: GTK_TYPE_SPIN_BUTTON, GTK_TYPE_COMBO_BOX
+   */
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_INT_PROPERTY_RENDER_AS,
     qcad_param_spec_type_list ("render-as", _("Render As"), _("Render as widget"),
       GTK_TYPE_SPIN_BUTTON, G_PARAM_READABLE | G_PARAM_WRITABLE, GTK_TYPE_SPIN_BUTTON, GTK_TYPE_COMBO_BOX, 0)) ;

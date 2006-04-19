@@ -12,6 +12,17 @@
 #include "QCADPropertyUIObjectList.h"
 #include "QCADPropertyUIBoolean.h"
 
+/**
+ * SECTION:QCADPropertyUISingle
+ * @short_description: Base class for "single" property UIs.
+ *
+ * A "single" propert UI covers only one of a #GObject instance's properties, identified by its name. It creates
+ * a 2D grid of widgets that allow you to set the instance's property to any value allowed by its #GParamSpec.
+ *
+ * In addition, if the instance happens to be of type #QCADObject, the property and behaviour hints pertaining
+ * to the instance property being covered are retrieved from the instance's class and applied.
+ */
+
 enum
   {
   QCAD_PROPERTY_UI_SINGLE_PROPERTY_SHOW_LABEL=1,
@@ -69,6 +80,26 @@ GType qcad_property_ui_single_get_type ()
   return qcad_property_ui_single_type ;
   }
 
+/**
+ * qcad_property_ui_single_newv:
+ * @instance: Instance to create the UI for.
+ * @property: @instance's property to create the UI for.
+ * @va: #va_list of %NULL-terminated property name - property value pairs to set on the newly created UI.
+ *
+ * Creates a new property UI exposing the property @property of #GObject instance @instance.
+ *
+ * If @instance happens to be of type #QCADObject, then this function looks up those #QCADPropertyUIBehaviour
+ * entries which connect the new property UI's properties to @instance's properties and makes the appropriate
+ * connections.
+ *
+ * If @instance happens to be of type #QCADObject, then this function looks up those #QCADPropertyUIProperty
+ * entries which apply to the new property UI's properties and sets the values as prescribed in the matching
+ * #QCADPropertyUIProperty entries.
+ *
+ * See also: qcad_property_ui_new(), #QCADPropertyUIBehaviour, #QCADPropertyUIProperty
+ *
+ * Returns: A newly created #QCADPropertyUISingle for property @property of #GObject instance @instance.
+ */
 QCADPropertyUI *qcad_property_ui_single_newv (GObject *instance, char *property, va_list va)
   {
   GType value_type = 0 ;

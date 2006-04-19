@@ -70,6 +70,14 @@ static void qcad_property_ui_enum_class_init (QCADPropertyUIEnumClass *klass)
   QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_pspec   = set_pspec ;
   QCAD_PROPERTY_UI_SINGLE_CLASS (klass)->set_tooltip = set_tooltip ;
 
+  /**
+   * QCADPropertyUIEnum:render-as:
+   *
+   * This widget can be rendered as either a #GtkComboBox (default), or as a set of #GtkRadioButton widgets 
+   * inside a #GtkFrame.
+   *
+   * Valid values: %GTK_TYPE_COMBO_BOX, %GTK_TYPE_RADIO_BUTTON
+   */
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_PROPERTY_UI_ENUM_PROPERTY_RENDER_AS,
     qcad_param_spec_type_list ("render-as", _("Render As"), _("Render as widget"), 
       GTK_TYPE_COMBO_BOX, G_PARAM_READABLE | G_PARAM_WRITABLE, GTK_TYPE_COMBO_BOX, GTK_TYPE_RADIO_BUTTON, 0)) ;

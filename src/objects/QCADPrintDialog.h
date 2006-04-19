@@ -64,11 +64,11 @@ GType qcad_print_dialog_get_type () ;
 
 // Public function
 GtkWidget *qcad_print_dialog_new (print_OP *pPO) ;
-void qcad_print_dialog_add_page (QCADPrintDialog *pd, GtkWidget *contents, char *pszLbl) ;
-void qcad_print_dialog_get_options (QCADPrintDialog *pd, print_OP *pPO) ;
-double qcad_print_dialog_to_current_units (QCADPrintDialog *pd, double dPoints) ;
-double qcad_print_dialog_from_current_units (QCADPrintDialog *pd, double dPoints) ;
-char *qcad_print_dialog_get_units_short_string (QCADPrintDialog *pd) ;
+void qcad_print_dialog_add_page (QCADPrintDialog *print_dialog, GtkWidget *contents, char *pszLbl) ;
+void qcad_print_dialog_get_options (QCADPrintDialog *print_dialog, print_OP *pPO) ;
+double qcad_print_dialog_to_current_units (QCADPrintDialog *print_dialog, double dPoints) ;
+double qcad_print_dialog_from_current_units (QCADPrintDialog *print_dialog, double dUnits) ;
+char *qcad_print_dialog_get_units_short_string (QCADPrintDialog *print_dialog) ;
 
 #define QCAD_TYPE_STRING_PRINT_DIALOG "QCADPrintDialog"
 #define QCAD_TYPE_PRINT_DIALOG (qcad_print_dialog_get_type ())

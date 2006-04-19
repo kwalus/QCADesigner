@@ -5,7 +5,7 @@
  *
  * #GtkComboBox widgets in versions of GTK prior to 2.8.0 did not emit the "notify::active" signal when
  * the active entry was changed. A #QCADComboBox will emit such a signal by connecting to #GtkComboBox's
- * "changed" signal, and emitting its "notify::active" signal:
+ * "<link linkend="GtkComboBox-changed">changed</link>" signal, and emitting its "notify::active" signal:
  * <informalexample><programlisting>
  * static void instance_init (QCADComboBox *instance, gpointer data)
  *   {g_signal_connect (G_OBJECT (instance), "changed", (GCallback)g_object_notify, "active") ;}

@@ -104,6 +104,7 @@ MANUAL_FILES = \
 	manual.src/images/close-vector-table-button.png   \
 	manual.src/bus_layout.html                        \
 	../pixmaps/QCADesigner.ico                        \
+	manual.src/hacking.html                           \
 	manual.src/index.html
 
 all:manual

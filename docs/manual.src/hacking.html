@@ -1,0 +1,75 @@
+<html>
+<head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    <title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo_gradient.png" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+<!--#include virtual="menu.html" -->
+</td>
+<td align="left" valign="top">
+<table border="0" cellspacing="0" cellpadding="10"><tr><td>
+<h1>QCA<em>Designer</em> Documentation</h1>
+<p>
+Follow these instructions to get a working QCADesigner development environment on 
+<a href="#UNIX">UNIX-like Systems</a>, <a href="#Windoze">Windows</a>, and <a href="#OSX">Apple OS X</a>.
+</p><p>
+QCADesigner depends on GTK+ version 2.4 or later.
+</p>
+<h2>UNIX-like Systems</h2><a name="UNIX">
+
+<ol>
+<li>
+Aside from the usual utilities, you must have <tt>gcc</tt>, <tt>make</tt>, <tt>ed</tt>, <tt>automake</tt>, <tt>autoconf</tt>, <tt>aclocal</tt>, and <tt>pkgconfig</tt> installed.
+</li>
+<li>
+You must have the <tt>GTK+</tt> development package. To check whether you have it, run<br>
+<tt>pkg-config --modversion gtk+-2.0</tt><br>
+</li>
+<li>
+Download the source code from the <a href="http://qcadesigner.ca/download.html">download</a> page.<br>
+Note: You should always modify the latest CVS source code, rather than a <b>QCA<i>Designer</i></b> release source tarball. So, check the project out of CVS, following the instructions at the top of the page.
+</li>
+<li>Change to the root directory of the source tree<br>
+<tt>cd QCADesigner</tt><br>
+and run<br>
+<tt>./autogen.sh</tt><br>
+<tt>./configure --prefix=${HOME}/sw --enable-maintainer-mode</tt><br>
+This will configure the build system telling it to install <b>QCA<i>Designer</i></b> into your home directory under <tt>sw/</tt>. If you want to build the <tt>gtk-doc</tt> API reference, run<br>
+<tt>./configure --prefix=${HOME}/sw --enable-maintainer-mode --enable-gtk-doc</tt><br>
+See<br>
+<tt>./configure --help</tt><br>
+for more information.
+Now, run<br>
+<tt>make</tt>
+If you have enabled <tt>gtk-doc</tt>, don't be surprised if <tt>make</tt> initially fails. Run it again.
+Now, you must install <b>QCA<i>Designer</i></b> into your home directory, because, even if you end up running it from the <tt>src/</tt> subdirectory, it will expect to find some files at their installed location - for example, the internationalization <tt>.mo</tt> files generated in <tt>po/</tt>, as well as this user manual. To install, run<br>
+<tt>make install</tt>
+</li>
+</ol>
+
+<h2>Windows</h2><a name="UNIX">
+
+</td></tr></table>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+<font size="-3">
+<!--#config timefmt="%F %T" -->
+<!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" -->
+<!--#echo var="LastModifiedMsg" -->
+</font>
+</body></html>

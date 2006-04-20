@@ -128,7 +128,7 @@ by subclassing <link linkend="QCADUndoEntry">QCADUndoEntry</link> and overriding
 virtual function,
             </listitem>
             <listitem>
-or by connecting to its <link linkend="QCADUndoEntry-apply"><function>"apply"</function></link> signal. 
+or by connecting to its "<link linkend="QCADUndoEntry-apply"><function>apply</function></link>" signal. 
             </listitem>
           </itemizedlist>
 The <link linkend="qcad-undo-entry-signal-connect"><function>qcad_undo_entry_signal_connect()</function></link>

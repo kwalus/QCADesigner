@@ -57,7 +57,48 @@ Now, you must install <b>QCA<i>Designer</i></b> into your home directory, becaus
 </li>
 </ol>
 
-<h2>Windows</h2><a name="UNIX">
+<h2>Windows</h2><a name="Windoze">
+The Windows development environment consists mostly of <tt>cygwin</tt> and <tt>mingw</tt>.
+<ol>
+<li>
+Follow the instructions at <a href="http://gaim-extprefs.sourceforge.net/bef.shtml">this page</a>. This page will have you install all necessary cygwin packages to compile <a href="http://gaim.sourceforge.net/">gaim</a>. Since <b>QCA<i>Designer</i></b> is built the same way, it is a good idea for you to actually build gaim.
+</li>
+<li>
+When the build environment fetcher script completes, it instructs you to close the cygwin window and open it again. Do that. In the new window, change to the gaim source root directory and run<br>
+<tt>make -f Makefile.mingw</tt><br>
+<tt>make -f Makefile.mingw install</tt><br>
+<tt>make -f Makefile.mingw installers</tt><br>
+</li>
+<li>
+Install <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> if you want to create self-extracting installers. After you install Inno Setup, add the path to its <tt>ISCC.exe</tt> executable to your cygwin <tt>PATH</tt> variable:
+<ol>
+<li>
+Edit the file <tt>${HOME}/.bash_profile</tt>
+</li>
+<li>
+Append the following line:<br>
+<tt>export PATH="${PATH}:/cygdrive/c/Program Files/Inno Setup 5/"</tt><br>
+In the above command, replace <tt>/cygdrive/c/Program Files/Inno Setup 5/</tt> with the path to Inno Setup's <tt>ISCC.exe</tt>.
+</li>
+<li>
+Save and exit. Then, in the terminal, type<br>
+<tt>source ~/.bash_profile</tt><br>
+To make sure <tt>ISCC.exe</tt> is now in your <tt>PATH</tt>, type<br>
+<tt>iscc</tt><br>
+This should produce <tt>ISCC.exe</tt>'s help message.
+</li>
+</ol>
+</li>
+<li>
+Grab <b>QCA<i>Designer</i></b> from CVS as described on the <a href="http://qcadesigner.ca/download.html">download</a> page. Then,<br>
+<tt>cd QCADesigner</tt><br>
+Now you must copy gaim's GTK+ Runtime Environment into the <b>QCA<i>Designer</i></b> top-level source directory. The GTK+ Runtime Environment is a file of the form <tt>gtk-runtime-*.exe</tt> usually placed into <tt>${HOME}/gtk_installer</tt> by the gaim build environment shell script. Thus,<br>
+<tt>cp ${HOME}/gtk_installer/gtk-runtime-*.exe .</tt><br>
+Now, you must edit the top-level <tt>Makefile.mingw</tt> and correctly set the variable <tt>GTK_PREFIX</tt> to the <tt>win32-dev/gtk_2_0</tt> directory. <tt>win32-dev</tt> should reside in your cygwin home directory. Save the top-level <tt>Makefile.mingw</tt> and return to the cygwin terminal. Build <b>QCA<i>Designer</i></b>'s self-extracting installers with<br>
+<tt>make -f Makefile.mingw installers</tt><br>
+You should build the installers to ensure that the installation process is successful from beginning to end.
+</li>
+</ol>
 
 </td></tr></table>
 </td>

@@ -20,13 +20,13 @@
 <table border="0" cellspacing="0" cellpadding="10"><tr><td>
 <h1>QCA<em>Designer</em> Documentation</h1>
 <p>
+<h2>Hacking <b>QCA<i>Designer</i></b></h2>
 Follow these instructions to get a working QCADesigner development environment on 
 <a href="#UNIX">UNIX-like Systems</a>, <a href="#Windoze">Windows</a>, and <a href="#OSX">Apple OS X</a>.
 </p><p>
 QCADesigner depends on GTK+ version 2.4 or later.
 </p>
-<h2>UNIX-like Systems</h2><a name="UNIX">
-
+<a name="UNIX"><h2>UNIX-like Systems</h2>
 <ol>
 <li>
 Aside from the usual utilities, you must have <tt>gcc</tt>, <tt>make</tt>, <tt>ed</tt>, <tt>automake</tt>, <tt>autoconf</tt>, <tt>aclocal</tt>, and <tt>pkgconfig</tt> installed.
@@ -34,6 +34,7 @@ Aside from the usual utilities, you must have <tt>gcc</tt>, <tt>make</tt>, <tt>e
 <li>
 You must have the <tt>GTK+</tt> development package. To check whether you have it, run<br>
 <tt>pkg-config --modversion gtk+-2.0</tt><br>
+This should return the version of GTK+ currently installed.
 </li>
 <li>
 Download the source code from the <a href="http://qcadesigner.ca/download.html">download</a> page.<br>
@@ -57,7 +58,7 @@ Now, you must install <b>QCA<i>Designer</i></b> into your home directory, becaus
 </li>
 </ol>
 
-<h2>Windows</h2><a name="Windoze">
+<a name="Windoze"><h2>Windows</h2>
 The Windows development environment consists mostly of <tt>cygwin</tt> and <tt>mingw</tt>.
 <ol>
 <li>
@@ -70,7 +71,7 @@ When the build environment fetcher script completes, it instructs you to close t
 <tt>make -f Makefile.mingw installers</tt><br>
 </li>
 <li>
-Install <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> if you want to create self-extracting installers. After you install Inno Setup, add the path to its <tt>ISCC.exe</tt> executable to your cygwin <tt>PATH</tt> variable:
+Install <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> if you want to create <b>QCA<i>Designer</i></b> self-extracting installers. After you install Inno Setup, add the path to its <tt>ISCC.exe</tt> executable to your cygwin <tt>PATH</tt> variable:
 <ol>
 <li>
 Edit the file <tt>${HOME}/.bash_profile</tt>
@@ -96,7 +97,66 @@ Now you must copy gaim's GTK+ Runtime Environment into the <b>QCA<i>Designer</i>
 <tt>cp ${HOME}/gtk_installer/gtk-runtime-*.exe .</tt><br>
 Now, you must edit the top-level <tt>Makefile.mingw</tt> and correctly set the variable <tt>GTK_PREFIX</tt> to the <tt>win32-dev/gtk_2_0</tt> directory. <tt>win32-dev</tt> should reside in your cygwin home directory. Save the top-level <tt>Makefile.mingw</tt> and return to the cygwin terminal. Build <b>QCA<i>Designer</i></b>'s self-extracting installers with<br>
 <tt>make -f Makefile.mingw installers</tt><br>
-You should build the installers to ensure that the installation process is successful from beginning to end.
+You should build the installers to ensure that the installation process is successful from beginning to end. At the end of the build process, the installers will be in <tt>Output/</tt>.
+</li>
+<li>
+You can now run QCADesigner from the <tt>src/</tt> subdirectory:<br>
+<tt>cd src</tt><br>
+<tt>./QCADesigner &amp;</tt>
+</li>
+<li>
+Now you're ready to hack: From the <tt>src/</tt> subdirectory, you can edit the various source files, after which you must run<br>
+<tt>make</tt><br>
+<tt>./QCADesigner &amp;</tt><br>
+in order to see the effects of the source code changes you have made.
+</li>
+</ol>
+
+<a name="OSX"><h2>Apple OS X</h2>
+Apple OS X is similar to <a href="#UNIX">UNIX-like Systems</a>, however, there are significant differences.
+<ol>
+<li>
+First you will have to install the OS X development utilities, X11, and <a href="http://fink.sourceforge.net/">Fink</a>. Fink is a package management system that will allow you to install a great number of UNIX packages onto OS X.
+</li>
+<li>
+After installing Fink and before installing any packages you must edit <tt>/sw/etc/fink.conf</tt> and append
+<tt>unstable/main unstable/crypto</tt> to the line that begins with "<tt>Trees:</tt>"
+</li>
+<li>
+Now, you must run<br>
+<tt>
+fink selfupdate<br>
+fink update-all</tt><br>
+Each one of these commands will take a long time, so go have some food.
+</li>
+<li>
+Next, you must install the following packages within Fink:
+<ul>
+<li><tt>gtk+2</tt>, <tt>gtk+2-dev</tt>, <tt>gtk+2-shlibs</tt> (GTK+, including development files)</li>
+<li><tt>libgettext3-dev</tt> (Makes internationalization work properly)</li>
+</ul>
+</li>
+<li>
+Append<br>
+<tt>
+. /sw/bin/init.sh<br>
+<br>
+export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/sw/lib/pkgconfig<br>
+export CFLAGS="${CFLAGS}"' -I/sw/include'<br>
+export LDFLAGS="${LDFLAGS}"' -L /sw/lib'<br>
+<br>
+# Uncomment the followings if you would like to debug QCADesigner<br>
+# export CFLAGS="${CFLAGS}"' -g -O0'<br>
+# export CFLAGS="${CFLAGS}"' -DG_DISABLE_DEPRECATED'<br>
+# export CFLAGS="${CFLAGS}"' -DGTK_DISABLE_DEPRECATED'<br>
+# export CFLAGS="${CFLAGS}"' -DGDK_PIXBUF_DISABLE_DEPRECATED'<br>
+<br>
+export CXXFLAGS="${CFLAGS}"<br>
+export CPPFLAGS="${CFLAGS}"</tt><br>
+to the file <tt>.bash_profile</tt> located in your home directory.
+</li>
+<li>
+At this point you can follow the instructions for <a href="#UNIX">UNIX-like Systems</a>.
 </li>
 </ol>
 

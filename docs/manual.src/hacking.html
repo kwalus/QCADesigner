@@ -45,14 +45,14 @@ Note: You should always modify the latest CVS source code, rather than a <b>QCA<
 and run<br>
 <tt>./autogen.sh</tt><br>
 <tt>./configure --prefix=${HOME}/sw --enable-maintainer-mode</tt><br>
-This will configure the build system telling it to install <b>QCA<i>Designer</i></b> into your home directory under <tt>sw/</tt>. If you want to build the <tt>gtk-doc</tt> API reference, run<br>
+This will configure the build system telling it to install <b>QCA<i>Designer</i></b> into your home directory under <tt>sw/</tt>. If you want to build the gtk-doc API reference, run<br>
 <tt>./configure --prefix=${HOME}/sw --enable-maintainer-mode --enable-gtk-doc</tt><br>
 See<br>
 <tt>./configure --help</tt><br>
 for more information.
 Now, run<br>
-<tt>make</tt>
-If you have enabled <tt>gtk-doc</tt>, don't be surprised if <tt>make</tt> initially fails. Run it again.
+<tt>make</tt><br>
+If you have enabled gtk-doc, don't be surprised if <tt>make</tt> initially fails. Run it again.
 Now, you must install <b>QCA<i>Designer</i></b> into your home directory, because, even if you end up running it from the <tt>src/</tt> subdirectory, it will expect to find some files at their installed location - for example, the internationalization <tt>.mo</tt> files generated in <tt>po/</tt>, as well as this user manual. To install, run<br>
 <tt>make install</tt>
 </li>
@@ -79,7 +79,7 @@ Edit the file <tt>${HOME}/.bash_profile</tt>
 <li>
 Append the following line:<br>
 <tt>export PATH="${PATH}:/cygdrive/c/Program Files/Inno Setup 5/"</tt><br>
-In the above command, replace <tt>/cygdrive/c/Program Files/Inno Setup 5/</tt> with the path to Inno Setup's <tt>ISCC.exe</tt>.
+In the above command, replace <tt>/cygdrive/c/Program Files/Inno Setup 5/</tt> with the path to Inno Setup's <tt>ISCC.exe</tt>. Note that <tt>/cygdrive/c</tt> is equivalent to Windows' <tt>C:</tt>. You can refer to all drive letters from cygwin by using the form <tt>/cygdrive/&lt;driveletter&gt;</tt>.
 </li>
 <li>
 Save and exit. Then, in the terminal, type<br>

@@ -20,6 +20,8 @@
  * property UIs contained within the group are also applied.
  */
 
+// Uncomment this to draw #808080-coloured borders between widgets
+//#define SET_TABLE_BACKGROUND
 
 typedef struct
   {
@@ -62,6 +64,56 @@ static void qcad_property_ui_group_remove_widgets_from_table (QCADPropertyUIGrou
 static QCADPropertyUI *qcad_property_ui_group_get_property_ui (QCADPropertyUIGroup *property_ui_group, char *pszPropertyName) ;
 static void qcad_property_ui_group_do_behaviour (QCADPropertyUIGroup *property_ui_group, GObject *instance, gboolean bDisconnect) ;
 static void qcad_property_ui_group_do_properties (QCADPropertyUIGroup *property_ui_group, GObject *instance) ;
+
+#ifdef SET_TABLE_BACKGROUND
+static gboolean tbl_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+  {
+  static GdkColor clr = {0, 0x8080, 0x8080, 0x8080} ;
+  GdkGC *gc = NULL ;
+  GdkRegion *rgn = NULL, *rgnFinal = NULL ;
+  GdkRectangle rc ;
+  GList *ls = NULL, *llItr = NULL ;
+
+  if (0 == clr.pixel)
+    gdk_colormap_alloc_color (gdk_colormap_get_system (), &clr, FALSE, FALSE) ;
+
+  if (NULL != (ls = gtk_container_get_children (GTK_CONTAINER (widget))))
+    {
+    rgn = gdk_region_new () ;
+    for (llItr = ls ; llItr != NULL ; llItr = llItr->next)
+      {
+      rc.x      = GTK_WIDGET (llItr->data)->allocation.x ;
+      rc.y      = GTK_WIDGET (llItr->data)->allocation.y ;
+      rc.width  = GTK_WIDGET (llItr->data)->allocation.width ;
+      rc.height = GTK_WIDGET (llItr->data)->allocation.height ;
+      gdk_region_union_with_rect (rgn, &rc) ;
+      }
+    g_list_free (ls) ;
+    }
+
+  if (NULL == rgn) return FALSE ;
+
+  rc.x      = widget->allocation.x ;
+  rc.y      = widget->allocation.y ;
+  rc.width  = widget->allocation.width ;
+  rc.height = widget->allocation.height ;
+  rgnFinal = gdk_region_rectangle (&rc) ;
+
+  gdk_region_subtract (rgnFinal, rgn) ;
+
+  gdk_region_destroy (rgn) ;
+
+  gc = gdk_gc_new (widget->window) ;
+  gdk_gc_set_foreground (gc, &clr) ;
+  gdk_gc_set_background (gc, &clr) ;
+  gdk_gc_set_clip_region (gc, rgnFinal) ;
+  gdk_draw_rectangle (widget->window, gc, TRUE, widget->allocation.x, widget->allocation.y, widget->allocation.width, widget->allocation.height) ;
+  g_object_unref (gc) ;
+  gdk_region_destroy (rgnFinal) ;
+
+  return FALSE ;
+  }
+#endif /* def SET_TABLE_BACKGROUND */
 
 GType qcad_property_ui_group_get_type ()
   {
@@ -164,6 +216,9 @@ static void qcad_property_ui_group_instance_init (QCADPropertyUIGroup *property_
   g_object_ref (G_OBJECT (property_ui_group->tbl)) ;
   gtk_widget_show (property_ui_group->tbl) ;
   gtk_container_set_border_width (GTK_CONTAINER (property_ui_group->tbl), 2) ;
+#ifdef SET_TABLE_BACKGROUND
+  g_signal_connect_after (G_OBJECT (property_ui_group->tbl), "expose-event", (GCallback)tbl_expose, NULL) ;
+#endif /* def SET_TABLE_BACKGROUND */
 
   property_ui_group->frm.widget = gtk_frame_new (NULL) ;
   g_object_ref (G_OBJECT (property_ui_group->frm.widget)) ;

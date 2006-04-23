@@ -43,8 +43,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define ALLOW_UNSERIALIZE_OVERLAP
-
 typedef enum _LayerType   LayerType ;
 typedef enum _LayerStatus LayerStatus ;
 
@@ -89,9 +87,6 @@ struct _QCADLayer
 //#ifdef GTK_GUI
 //  GtkWidget *combo_item ;
 //#endif /* def GTK_GUI */
-#ifdef ALLOW_UNSERIALIZE_OVERLAP
-  gboolean bAllowOverlap ;
-#endif /* ALLOW_UNSERIALIZE_OVERLAP */
   GList *llContainerIter ;
   GHashTable *default_properties ;
   GList *default_objects ;

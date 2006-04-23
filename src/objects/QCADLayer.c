@@ -51,6 +51,8 @@
 
 #define DBG_REFS(s)
 
+#define ALLOW_UNSERIALIZE_OVERLAP
+
 typedef struct
   {
   QCADLayer *layer ;
@@ -69,6 +71,15 @@ typedef struct
     WorldRectangle *rcClipWorld ;
     } QCAD_LAYER_DRAW_PARAMS ;
 #endif /* def GTK_GUI */
+
+#ifdef ALLOW_UNSERIALIZE_OVERLAP
+typedef struct
+  {
+  gboolean bAllowOverlap ;
+  } QCADLayerPrivate ;
+
+#define QCAD_LAYER_GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE ((instance), QCAD_TYPE_LAYER, QCADLayerPrivate))
+#endif /* def ALLOW_UNSERIALIZE_OVERLAP */
 
 enum
   {
@@ -210,6 +221,9 @@ static void qcad_layer_class_init (QCADDesignObjectClass *klass, gpointer data)
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_LAYER_PROPERTY_DEFAULT_OBJECT_LIST,
     qcad_param_spec_object_list ("default-objects", _("Default Objects"), _("List of default objects"),
       G_PARAM_READABLE)) ;
+#ifdef ALLOW_UNSERIALIZE_OVERLAP
+  g_type_class_add_private (klass, sizeof (QCADLayerPrivate)) ;
+#endif /* def ALLOW_UNSERIALIZE_OVERLAP */
   }
 
 static void qcad_compound_do_interface_init (gpointer interface, gpointer interface_data)
@@ -240,7 +254,7 @@ static void qcad_layer_instance_init (QCADDesignObject *object, gpointer data)
   layer->default_properties = NULL ;
   layer->default_objects = NULL ;
   #ifdef ALLOW_UNSERIALIZE_OVERLAP
-  layer->bAllowOverlap = FALSE ;
+  QCAD_LAYER_GET_PRIVATE (layer)->bAllowOverlap = FALSE ;
   #endif /* def ALLOW_UNSERIALIZE_OVERLAP */
 
   qcad_layer_set_type (layer, LAYER_TYPE_CELLS) ;
@@ -350,7 +364,7 @@ static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *
     if (!(obj->bSelected))
       {
 #ifdef ALLOW_UNSERIALIZE_OVERLAP
-      if (!(layer->bAllowOverlap))
+      if (!(QCAD_LAYER_GET_PRIVATE (layer)->bAllowOverlap))
 #endif /* def ALLOW_UNSERIALIZE_OVERLAP */
       for (lstIter = layer->lstObjs ; lstIter != NULL ; lstIter = lstIter->next)
         if (qcad_design_object_overlaps (obj, QCAD_DESIGN_OBJECT (lstIter->data)))
@@ -367,7 +381,7 @@ static gboolean do_container_add (QCADDOContainer *container, QCADDesignObject *
     if (!(obj->bSelected))
       {
 #ifdef ALLOW_UNSERIALIZE_OVERLAP
-      if (!(layer->bAllowOverlap))
+      if (!(QCAD_LAYER_GET_PRIVATE (layer)->bAllowOverlap))
 #endif /* def ALLOW_UNSERIALIZE_OVERLAP */
       for (lstIter = layer->lstObjs ; lstIter != NULL ; lstIter = lstIter->next)
         if (qcad_design_object_overlaps (obj, QCAD_DESIGN_OBJECT (lstIter->data)))
@@ -1001,7 +1015,7 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *pfile)
   layer = QCAD_LAYER (obj) ;
 
 #ifdef ALLOW_UNSERIALIZE_OVERLAP
-  layer->bAllowOverlap = TRUE ;
+  QCAD_LAYER_GET_PRIVATE (layer)->bAllowOverlap = TRUE ;
 #endif /* def ALLOW_UNSERIALIZE_OVERLAP */
 
   if (!SkipPast (pfile, '\0', "[TYPE:" QCAD_TYPE_STRING_LAYER "]", NULL))
@@ -1051,7 +1065,7 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *pfile)
     }
 
 #ifdef ALLOW_UNSERIALIZE_OVERLAP
-  layer->bAllowOverlap = FALSE ;
+  QCAD_LAYER_GET_PRIVATE (layer)->bAllowOverlap = FALSE ;
 #endif /* def ALLOW_UNSERIALIZE_OVERLAP */
 
   return (layer->type >= 0 && layer->type < LAYER_TYPE_LAST_TYPE &&

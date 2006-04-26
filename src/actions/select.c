@@ -349,9 +349,9 @@ static gboolean selection_needs_snap_p (DESIGN *design)
   GList *lstSelTypes = design_selection_get_type_list (design), *llItr = NULL ;
 
   for (llItr = lstSelTypes ; llItr != NULL ; llItr = llItr->next)
-    if (QCAD_TYPE_CELL                    == (G_TYPE_FROM_INSTANCE (llItr->data)) ||
-        QCAD_TYPE_SUBSTRATE               == (G_TYPE_FROM_INSTANCE (llItr->data)) ||
-        QCAD_TYPE_RECTANGLE_ELECTRODE     == (G_TYPE_FROM_INSTANCE (llItr->data)))
+    if (QCAD_TYPE_CELL                    == ((GType)(llItr->data)) ||
+        QCAD_TYPE_SUBSTRATE               == ((GType)(llItr->data)) ||
+        QCAD_TYPE_RECTANGLE_ELECTRODE     == ((GType)(llItr->data)))
       return TRUE ;
 
   return FALSE ;

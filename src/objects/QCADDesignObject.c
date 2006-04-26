@@ -207,7 +207,7 @@ GList *qcad_design_object_add_types (QCADDesignObject *obj, GList *lst)
 
 /**
  * qcad_design_object_get_PostScript_preamble:
- * @obj: #QCADDesignObject whose PostScript preamble to retrieve
+ * @klass: #QCADDesignObjectClass whose PostScript preamble to retrieve
  *
  * This function returns a string containing the definition of a PostScript function which renders a
  * #QCADDesignObject of this type into a PostScript stream. This function may make use of the PostScript
@@ -215,10 +215,10 @@ GList *qcad_design_object_add_types (QCADDesignObject *obj, GList *lst)
  *
  * See also: print_world().
  *
- * Returns: the PostScript preamble for this object's #GType as a string.
+ * Returns: the PostScript preamble for this class' #GType as a string.
  */
-const char *qcad_design_object_get_PostScript_preamble (QCADDesignObject *obj)
-  {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->PostScript_preamble () ;}
+const char *qcad_design_object_class_get_PostScript_preamble (QCADDesignObjectClass *klass)
+  {return klass->PostScript_preamble () ;}
 
 /**
  * qcad_design_object_get_PostScript_instance:
@@ -793,10 +793,10 @@ static GList *add_unique_types (QCADDesignObject *obj, GList *lst)
   GList *lstItr = NULL ;
 
   for (lstItr = lst ; lstItr != NULL ; lstItr = lstItr->next)
-    if (G_TYPE_FROM_INSTANCE (obj) == G_TYPE_FROM_INSTANCE (lstItr->data))
+    if (G_TYPE_FROM_INSTANCE (obj) == (GType)(lstItr->data))
       return lst ;
 
-  return g_list_prepend (lst, obj) ;
+  return g_list_prepend (lst, (gpointer)G_TYPE_FROM_INSTANCE (obj)) ;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

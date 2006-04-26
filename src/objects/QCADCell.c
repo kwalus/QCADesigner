@@ -861,30 +861,12 @@ static void copy (QCADObject *src, QCADObject *dst)
 static GList *add_unique_types (QCADDesignObject *obj, GList *lst)
   {
   QCADCell *cell = QCAD_CELL (obj) ;
-  GList *lstItr = NULL ;
-  gboolean bHaveLabel = FALSE, bHaveCell = FALSE ;
 
-  // If there's no label, then perform default behaviour
-  if (NULL == cell->label)
-    return QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL)))->add_unique_types (obj, lst) ;
-  else
-    {
-    //Look for "QCADCell" and "QCADLabel"
-    for (lstItr = lst ; lstItr != NULL && !(bHaveCell && bHaveLabel) ; lstItr = lstItr->next)
-      if (QCAD_TYPE_CELL == G_TYPE_FROM_INSTANCE (lstItr->data))
-        bHaveCell = TRUE ;
-      else
-      if (QCAD_TYPE_LABEL == G_TYPE_FROM_INSTANCE (lstItr->data))
-        bHaveLabel = TRUE ;
-    }
-
-  if (bHaveCell && bHaveLabel) return lst ;
-
-  if (!bHaveCell)
-    lst = g_list_prepend (lst, cell) ;
-
-  if (!bHaveLabel)
-    lst = g_list_prepend (lst, cell->label) ;
+  // Perform default behaviour
+  lst = QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CELL)))->add_unique_types (obj, lst) ;
+  // If we have a label, potentially add the label's type to the list
+  if (NULL != cell->label)
+    lst = qcad_design_object_add_types (QCAD_DESIGN_OBJECT (cell->label), lst) ;
 
   return lst ;
   }

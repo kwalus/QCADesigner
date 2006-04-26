@@ -230,7 +230,8 @@ static void PrintObjectPreamble (FILE *pfile, GList **lstPages, int icPages)
 
   // For each link in lstObjs, print out the preamble
   for (lstItr = lstObjs ; lstItr != NULL ; lstItr = lstItr->next)
-    fprintf (pfile, "\n%s", qcad_design_object_get_PostScript_preamble (QCAD_DESIGN_OBJECT (lstItr->data))) ;
+    fprintf (pfile, "\n%s", 
+      qcad_design_object_class_get_PostScript_preamble (QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek ((GType)(lstItr->data))))) ;
   fprintf (pfile, "\n") ;
   }
 

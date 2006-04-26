@@ -131,7 +131,7 @@ QCADDesignObject *qcad_design_object_hit_test (QCADDesignObject *obj, int x, int
 #ifdef GTK_GUI
 void qcad_design_object_draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkRectangle *rcClip) ;
 #endif /* def GTK_GUI */
-const char *qcad_design_object_get_PostScript_preamble (QCADDesignObject *obj) ;
+const char *qcad_design_object_class_get_PostScript_preamble (QCADDesignObjectClass *klass) ;
 char *qcad_design_object_get_PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
 GList *qcad_design_object_add_types (QCADDesignObject *obj, GList *lst) ;
 void qcad_design_object_transform (QCADDesignObject *obj, double m11, double m12, double m21, double m22) ;

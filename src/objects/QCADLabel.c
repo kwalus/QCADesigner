@@ -383,7 +383,7 @@ static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
     RGBToHSL (&clr) ;
     r =
     g =
-    b = ((double)(obj->clr.blue)) / 65536.0 ; // .blue has become the luminance
+    b = ((double)(clr.blue)) / 65536.0 ; // .blue has become the luminance
     }
 
   return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s (%s) QCADLabel",

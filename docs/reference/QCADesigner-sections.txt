@@ -12,7 +12,7 @@ qcad_design_object_overlaps
 qcad_design_object_select_test
 qcad_design_object_hit_test
 qcad_design_object_draw
-qcad_design_object_get_PostScript_preamble
+qcad_design_object_class_get_PostScript_preamble
 qcad_design_object_get_PostScript_instance
 qcad_design_object_add_types
 qcad_design_object_transform
@@ -1368,6 +1368,7 @@ get_sim_engine_from_user
 
 <SECTION>
 <FILE>print</FILE>
+PS_TEXT_PLACEMENT_PREAMBLE
 PRINT_LAYER_KEY
 print_OP
 print_design_OP

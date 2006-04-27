@@ -206,7 +206,7 @@ GList *qcad_design_object_add_types (QCADDesignObject *obj, GList *lst)
   {return QCAD_DESIGN_OBJECT_GET_CLASS (obj)->add_unique_types (obj, lst) ;}
 
 /**
- * qcad_design_object_get_PostScript_preamble:
+ * qcad_design_object_class_get_PostScript_preamble:
  * @klass: #QCADDesignObjectClass whose PostScript preamble to retrieve
  *
  * This function returns a string containing the definition of a PostScript function which renders a

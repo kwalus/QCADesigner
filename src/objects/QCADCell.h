@@ -164,7 +164,6 @@ double qcad_cell_calculate_polarization (QCADCell *cell) ;
 
 void qcad_cell_set_polarization (QCADCell *cell, double dPolarization) ;
 void qcad_cell_set_clock (QCADCell *cell, int iClock) ;
-void qcad_cell_set_display_mode (QCADCell *cell, int display_mode) ;
 void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function) ;
 void qcad_cell_set_label (QCADCell *cell, char *pszLabel) ;
 void qcad_cell_set_host_name (QCADCell *cell, char *pszHostName) ;

@@ -902,7 +902,7 @@ void design_selection_set_cell_display_mode (DESIGN *design, int display_mode)
       for (lstObj = layer->lstSelObjs ; NULL != lstObj ; lstObj = lstObj->next)
         if (NULL != lstObj->data)
           if (QCAD_IS_CELL (lstObj->data))
-        	  qcad_cell_set_display_mode (QCAD_CELL (lstObj->data), display_mode) ;
+        	  g_object_set (QCAD_CELL (lstObj->data), "mode", display_mode, NULL) ;
     }
   }
 

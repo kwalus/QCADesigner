@@ -445,7 +445,8 @@ static void qcad_cell_set_property (GObject *object, guint property_id, const GV
       break ;
 
     case QCAD_CELL_PROPERTY_MODE:
-      qcad_cell_set_display_mode (cell, g_value_get_enum (value)) ;
+      cell->cell_options.mode = g_value_get_enum (value) ;
+      g_object_notify (object, "mode") ;
       DBG_VAL (fprintf (stderr, "qcad_cell_set_property:Setting cell mode to %s\n",
         g_enum_get_value (g_type_class_peek (QCAD_TYPE_CELL_MODE), g_value_get_enum (value))->value_name)) ;
       break ;
@@ -616,9 +617,6 @@ const char *qcad_cell_get_label (QCADCell *cell)
   else
     return cell->label->psz ;
   }
-
-void qcad_cell_set_display_mode (QCADCell *cell, int cell_mode)
-  {cell->cell_options.mode = cell_mode ;}
 
 #ifdef DESIGNER
 #ifdef GTK_GUI

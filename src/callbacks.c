@@ -732,7 +732,7 @@ void on_clock_increment_menu_item_activate (GtkMenuItem * menuitem, gpointer use
        if (NULL != lstItrSel->data)
          {
          project_options.bDesignAltered = bFoundSelection = TRUE ;
-         qcad_cell_set_clock (QCAD_CELL (lstItrSel->data), CLOCK_INC (QCAD_CELL (lstItrSel->data)->cell_options.clock)) ;
+         g_object_set (G_OBJECT (lstItrSel->data), "clock", CLOCK_INC (QCAD_CELL (lstItrSel->data)->cell_options.clock), NULL) ;
          }
 
   if (bFoundSelection)

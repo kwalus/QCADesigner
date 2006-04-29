@@ -162,7 +162,7 @@ static void rotate_single_cell_cb (DESIGN *design, QCADDesignObject *obj, gpoint
 static void set_current_design (DESIGN *new_design, QCADSubstrate *subs) ;
 static void snap_source_is_gone (gpointer data, QCADSubstrate *subs) ;
 static void layer_status_change (GtkWidget *widget, gpointer data) ;
-static void cell_function_changed (QCADCell *cell, gpointer data) ;
+static void cell_function_changed (QCADCell *cell, GParamSpec *pspec, gpointer data) ;
 static void move_selection_to_pointer (QCADDesignObject *anchor) ;
 static void place_popup_menu (GtkMenu *menu, int *x, int *y, gboolean *push_in, gpointer data) ;
 static void real_coords_from_rulers (int *px, int *py) ;
@@ -1216,7 +1216,7 @@ void on_delete_menu_item_activate(GtkMenuItem * menuitem, gpointer user_data)
   bHaveExtents = design_get_extents (project_options.design, &rcWorld, TRUE) ;
   arDeletedObjs = design_selection_destroy (project_options.design) ;
   selection_renderer_update (project_options.srSelection, project_options.design) ;
-  cell_function_changed (NULL, NULL) ;
+  cell_function_changed (NULL, NULL, NULL) ;
 
 #ifdef UNDO_REDO
   // TEMPORARY
@@ -1820,10 +1820,10 @@ static void qcad_layer_design_object_added (QCADLayer *layer, QCADDesignObject *
   {
   if (QCAD_IS_CELL (obj))
     {
-    g_signal_connect (G_OBJECT (obj), "cell-function-changed", (GCallback)cell_function_changed, NULL) ;
+    g_signal_connect (G_OBJECT (obj), "notify::function", (GCallback)cell_function_changed, NULL) ;
     if (QCAD_CELL_INPUT == QCAD_CELL (obj)->cell_function)
       VectorTable_update_inputs (project_options.pvt, QCAD_CELL (obj)) ;
-    cell_function_changed (NULL, NULL) ;
+    cell_function_changed (NULL, NULL, NULL) ;
     }
   setup_scrollbars () ;
   }
@@ -1836,7 +1836,7 @@ static void qcad_layer_design_object_removed (QCADLayer *layer, QCADDesignObject
   setup_scrollbars () ;
   }
 
-static void cell_function_changed (QCADCell *cell, gpointer data)
+static void cell_function_changed (QCADCell *cell, GParamSpec *pspec, gpointer data)
   {
   gboolean bHaveIO = FALSE ;
 
@@ -2160,7 +2160,7 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
         {
         for (llItrCells = (QCAD_LAYER (layer))->lstObjs ; llItrCells != NULL ; llItrCells = llItrCells->next)
           if (QCAD_IS_CELL (llItrCells->data))
-            g_signal_connect (G_OBJECT (llItrCells->data), "cell-function-changed", (GCallback)cell_function_changed, NULL) ;
+            g_signal_connect (G_OBJECT (llItrCells->data), "notify::function", (GCallback)cell_function_changed, NULL) ;
         }
       else
       if (QCAD_IS_CLOCKING_LAYER (layer))
@@ -2179,7 +2179,7 @@ static void set_current_design (DESIGN *new_design, QCADSubstrate *subs)
 
   VectorTable_fill (pvt, new_design) ;
 
-  cell_function_changed (NULL, NULL) ;
+  cell_function_changed (NULL, NULL, NULL) ;
 
   redraw_async (NULL) ;
   }

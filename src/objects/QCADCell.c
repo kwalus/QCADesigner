@@ -130,12 +130,6 @@ static GdkColor clrClock[4] =
 
 enum
   {
-  QCAD_CELL_CELL_FUNCTION_CHANGED_SIGNAL,
-  QCAD_CELL_LAST_SIGNAL
-  } ;
-
-enum
-  {
   QCAD_CELL_PROPERTY_FIRST=1,
 
   QCAD_CELL_PROPERTY_FUNCTION,
@@ -149,8 +143,6 @@ enum
 
   QCAD_CELL_PROPERTY_LAST
   } ;
-
-static guint qcad_cell_signals[QCAD_CELL_LAST_SIGNAL] = {0} ;
 
 #ifdef PROPERTY_UIS
 int label_enabled_if[] =
@@ -414,17 +406,6 @@ static void qcad_cell_class_init (GObjectClass *klass, gpointer data)
   g_object_class_install_property (G_OBJECT_CLASS (klass), QCAD_CELL_PROPERTY_DOT_DIAM,
     g_param_spec_double ("dot-diameter", _("Dot Diameter"), _("Diameter of the quantum dot"),
       0.1, 1e9, 5.0, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
-
-  /**
-   * QCADCell::cell-function-changed:
-   * @cell: the cell whose function has changed.
-   *
-   * This signal is emitted when the cell function changes.
-   */
-  qcad_cell_signals[QCAD_CELL_CELL_FUNCTION_CHANGED_SIGNAL] =
-    g_signal_new ("cell-function-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
-      G_STRUCT_OFFSET (QCADCellClass, cell_function_changed), NULL, NULL, g_cclosure_marshal_VOID__VOID,
-      G_TYPE_NONE, 0) ;
   }
 
 static void qcad_cell_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -1505,9 +1486,7 @@ void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function)
     qcad_design_object_set_selected (QCAD_DESIGN_OBJECT (cell->label), QCAD_DESIGN_OBJECT (cell)->bSelected) ;
 
   if (old_function != function)
-    g_signal_emit (cell, qcad_cell_signals[QCAD_CELL_CELL_FUNCTION_CHANGED_SIGNAL], 0) ;
-
-  g_object_notify (G_OBJECT (cell), "function") ;
+    g_object_notify (G_OBJECT (cell), "function") ;
   }
 
 void qcad_cell_scale (QCADCell *cell, double dScale, double dxOrigin, double dyOrigin)

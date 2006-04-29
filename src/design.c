@@ -71,7 +71,7 @@ static void design_selection_object_array_member_destroyed (gpointer data, gpoin
 #endif /* def DBG_WEAK_REFS */
 static void qcad_layer_design_object_added (QCADLayer *layer, QCADDesignObject *obj, gpointer data) ;
 static void qcad_layer_design_object_removed (QCADLayer *layer, QCADDesignObject *obj, gpointer data) ;
-static void cell_function_changed (QCADCell *cell, DESIGN *design) ;
+static void cell_function_changed (QCADCell *cell, GParamSpec *pspec, DESIGN *design) ;
 static void design_bus_layout_next_unassigned_cell (BUS_LAYOUT_ITER *bus_layout_iter) ;
 
 #ifdef GTK_GUI
@@ -166,7 +166,7 @@ DESIGN *design_copy (DESIGN *design)
     for (llItrObj = new_layer->lstObjs ; llItrObj != NULL ; llItrObj = llItrObj->next)
       {
       if (QCAD_IS_CELL (llItrObj->data))
-        g_signal_connect (G_OBJECT (llItrObj->data), "cell-function-changed", (GCallback)cell_function_changed, new_design) ;
+        g_signal_connect (G_OBJECT (llItrObj->data), "notify::function", (GCallback)cell_function_changed, new_design) ;
       qcad_layer_design_object_added (new_layer, QCAD_DESIGN_OBJECT (llItrObj->data), new_design) ;
       }
 
@@ -578,7 +578,7 @@ QCADDesignObject *design_selection_create_from_selection (DESIGN *design, GdkWin
           ret = QCAD_DESIGN_OBJECT (layer->lstSelObjs->data) ;
         for (lstSelObj = layer->lstSelObjs ; lstSelObj != NULL ; lstSelObj = lstSelObj->next)
           if (QCAD_IS_CELL (obj = QCAD_DESIGN_OBJECT (lstSelObj->data)))
-            g_signal_connect (G_OBJECT (obj), "cell-function-changed", (GCallback)cell_function_changed, design) ;
+            g_signal_connect (G_OBJECT (obj), "notify::function", (GCallback)cell_function_changed, design) ;
         }
 
   design_rebuild_io_lists (design) ;
@@ -1069,7 +1069,7 @@ gboolean design_unserialize (DESIGN **pdesign, FILE *pfile)
           if (LAYER_TYPE_CELLS == layer->type)
             for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
               if (QCAD_IS_CELL (llItr->data))
-                g_signal_connect (G_OBJECT (llItr->data), "cell-function-changed", (GCallback)cell_function_changed, (*pdesign)) ;
+                g_signal_connect (G_OBJECT (llItr->data), "notify::function", (GCallback)cell_function_changed, (*pdesign)) ;
           }
         }
       else
@@ -1670,7 +1670,7 @@ void design_fix_legacy (DESIGN *design)
     if (LAYER_TYPE_CELLS == (QCAD_LAYER (llItrLayers->data))->type)
       for (llItrCells = (QCAD_LAYER (llItrLayers->data))->lstObjs ; llItrCells != NULL ; llItrCells = llItrCells->next)
       	if (QCAD_IS_CELL (llItrCells->data))
-      	  g_signal_connect (G_OBJECT (llItrCells->data), "cell-function-changed", (GCallback)cell_function_changed, design) ;
+      	  g_signal_connect (G_OBJECT (llItrCells->data), "notify::function", (GCallback)cell_function_changed, design) ;
   }
 
 static void qcad_layer_design_object_added (QCADLayer *layer, QCADDesignObject *obj, gpointer data)
@@ -1680,8 +1680,8 @@ static void qcad_layer_design_object_added (QCADLayer *layer, QCADDesignObject *
   if (QCAD_IS_CELL (obj))
     {
     g_signal_handlers_disconnect_matched (G_OBJECT (obj), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, cell_function_changed, NULL) ;
-    g_signal_connect (G_OBJECT (obj), "cell-function-changed", (GCallback)cell_function_changed, design) ;
-    cell_function_changed (QCAD_CELL (obj), design) ;
+    g_signal_connect (G_OBJECT (obj), "notify::function", (GCallback)cell_function_changed, design) ;
+    cell_function_changed (QCAD_CELL (obj), NULL, design) ;
     }
   }
 
@@ -1694,7 +1694,7 @@ static void qcad_layer_design_object_removed (QCADLayer *layer, QCADDesignObject
       design_rebuild_io_lists (design) ;
   }
 
-static void cell_function_changed (QCADCell *cell, DESIGN *design)
+static void cell_function_changed (QCADCell *cell, GParamSpec *pspec, DESIGN *design)
   {
   int Nix ;
 

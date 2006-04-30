@@ -259,8 +259,8 @@ void PrintPages (FILE *pfile, print_design_OP *pPO, GList **lstPages, double dEf
     fprintf (pfile,
       "%%%%Page: %d %d\n"
       "%%%%BeginPageSetup\n"
-      "/nmx { %s sub %s sub %s add %s mul %s add } def\n"
-      "/nmy { %s exch %s sub %s sub %s add %s mul %s add sub } def\n"
+      "/nmx { %s sub %s sub %s add 1 nm mul %s add } def\n"
+      "/nmy { %s exch %s sub %s sub %s add 1 nm mul %s add sub } def\n"
       "%%%%EndPageSetup\n"
       "gsave\n"
       "%%The margin\n"
@@ -275,13 +275,11 @@ void PrintPages (FILE *pfile, print_design_OP *pPO, GList **lstPages, double dEf
       g_ascii_dtostr (doubles[ 0], G_ASCII_DTOSTR_BUF_SIZE, dxMinNm), 
       g_ascii_dtostr (doubles[ 1], G_ASCII_DTOSTR_BUF_SIZE, cxPageOffsetNm), 
       g_ascii_dtostr (doubles[ 2], G_ASCII_DTOSTR_BUF_SIZE, dxDiffMinNm), 
-      g_ascii_dtostr (doubles[ 3], G_ASCII_DTOSTR_BUF_SIZE, pPO->dPointsPerNano), 
       g_ascii_dtostr (doubles[ 4], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dLMargin), // nmx
       g_ascii_dtostr (doubles[ 5], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dPaperCY), 
       g_ascii_dtostr (doubles[ 6], G_ASCII_DTOSTR_BUF_SIZE, dyMinNm), 
       g_ascii_dtostr (doubles[ 7], G_ASCII_DTOSTR_BUF_SIZE, cyPageOffsetNm), 
       g_ascii_dtostr (doubles[ 8], G_ASCII_DTOSTR_BUF_SIZE, dyDiffMinNm), 
-      g_ascii_dtostr (doubles[ 9], G_ASCII_DTOSTR_BUF_SIZE, pPO->dPointsPerNano), 
       g_ascii_dtostr (doubles[10], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dTMargin), // nmy
       g_ascii_dtostr (doubles[11], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dLMargin), 
       g_ascii_dtostr (doubles[12], G_ASCII_DTOSTR_BUF_SIZE, pPO->po.dBMargin), // moveto

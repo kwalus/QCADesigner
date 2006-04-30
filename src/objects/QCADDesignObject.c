@@ -566,28 +566,21 @@ static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
   if (QCAD_IS_RECTANGLE_ELECTRODE (obj))
     printf ("(%lf,%lf)[%lfx%lf]\n", obj->bounding_box.xWorld, obj->bounding_box.yWorld, obj->bounding_box.cxWorld, obj->bounding_box.cyWorld) ;
 
-  if (bColour)
-    return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s QCADDesignObject",
-      g_ascii_dtostr (pszDouble[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
-      g_ascii_dtostr (pszDouble[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
-      g_ascii_dtostr (pszDouble[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
-      g_ascii_dtostr (pszDouble[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
-      g_ascii_dtostr (pszDouble[4], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.red)) / 65536.0),
-      g_ascii_dtostr (pszDouble[5], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.green)) / 65536.0),
-      g_ascii_dtostr (pszDouble[6], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0)) ;
-  else
+  clr = obj->clr ;
+  if (!bColour)
     {
-    memcpy (&clr, &(obj->clr), sizeof (GdkColor)) ;
     RGBToHSL (&clr) ;
-    return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s QCADDesignObject",
-      g_ascii_dtostr (pszDouble[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
-      g_ascii_dtostr (pszDouble[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
-      g_ascii_dtostr (pszDouble[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
-      g_ascii_dtostr (pszDouble[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
-      g_ascii_dtostr (pszDouble[4], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0),
-      g_ascii_dtostr (pszDouble[5], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0),
-      g_ascii_dtostr (pszDouble[6], G_ASCII_DTOSTR_BUF_SIZE, ((double)(obj->clr.blue)) / 65536.0)) ;
+    clr.red = clr.green = clr.blue ;
     }
+
+  return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s " QCAD_TYPE_STRING_DESIGN_OBJECT,
+    g_ascii_dtostr (pszDouble[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
+    g_ascii_dtostr (pszDouble[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
+    g_ascii_dtostr (pszDouble[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
+    g_ascii_dtostr (pszDouble[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
+    g_ascii_dtostr (pszDouble[4], G_ASCII_DTOSTR_BUF_SIZE, ((double)(clr.red)) / 65536.0),
+    g_ascii_dtostr (pszDouble[5], G_ASCII_DTOSTR_BUF_SIZE, ((double)(clr.green)) / 65536.0),
+    g_ascii_dtostr (pszDouble[6], G_ASCII_DTOSTR_BUF_SIZE, ((double)(clr.blue)) / 65536.0)) ;
   }
 
 static const char *PostScript_preamble ()

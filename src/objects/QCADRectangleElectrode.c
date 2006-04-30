@@ -89,6 +89,8 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
 static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z) ;
 static void precompute (QCADElectrode *electrode) ;
 static QCADObject *class_get_default_object () ;
+static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
+static const char *PostScript_preamble () ;
 
 GType qcad_rectangle_electrode_get_type ()
   {
@@ -148,6 +150,8 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   QCAD_DESIGN_OBJECT_CLASS (klass)->draw                       = draw ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->mh.button_pressed          = (GCallback)button_pressed ;
 #endif /* def GTK_GUI */
+  QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_preamble        = PostScript_preamble ;
+  QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance        = PostScript_instance ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->move                       = move ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize                  = serialize ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize                = unserialize ;
@@ -720,4 +724,60 @@ static void precompute (QCADElectrode *electrode)
         ptSrcLine.yWorld + dsty_minus_srcy * reciprocal_of_y_divisions * (Nix1 + 0.5) ;
       }
     }
+  }
+
+static const char *PostScript_preamble ()
+  {
+  return
+    "% x y cx cy r g b" QCAD_TYPE_STRING_RECTANGLE_ELECTRODE "\n"
+    "/" QCAD_TYPE_STRING_RECTANGLE_ELECTRODE " {\n"
+    "  gsave\n"
+    "  /b exch def\n"
+    "  /g exch def\n"
+    "  /r exch def\n"
+    "  /cy exch def\n"
+    "  /cx exch def\n"
+    "  /y exch def\n"
+    "  /x exch def\n"
+    "  \n"
+    "  [2 2 2 2] 0 setdash\n"
+    "\n"
+    "  newpath\n"
+    "  x y moveto\n"
+    "  x cx add y lineto\n"
+    "  x cx add y cy sub lineto\n"
+    "  x y cy sub lineto\n"
+    "  r g b setrgbcolor\n"
+    "  closepath fill\n"
+    "  newpath\n"
+    "  x y moveto\n"
+    "  x cx add y lineto\n"
+    "  x cx add y cy sub lineto\n"
+    "  x y cy sub lineto\n"
+    "  0 0 0 setgray\n"
+    "  closepath stroke\n"
+    "\n"
+    "  grestore\n"
+    "} def\n" ;
+  }
+
+static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
+  {
+  GdkColor clr ;
+  char doubles[7][G_ASCII_DTOSTR_BUF_SIZE] = {""} ;
+
+  clr = obj->clr ;
+  if (!bColour)
+    clr.red = clr.green = clr.blue = 0xC0C0 ;
+
+  g_print ("QCADRectangleElectrode::PostScript_instance: colour is (0x%4x,0x%4x,0x%4x)\n", clr.red, clr.green, clr.blue) ;
+
+  return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s " QCAD_TYPE_STRING_RECTANGLE_ELECTRODE,
+    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
+    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
+    g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
+    g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
+    g_ascii_dtostr (doubles[4], G_ASCII_DTOSTR_BUF_SIZE, ((double)(clr.red)) / 65536.0),
+    g_ascii_dtostr (doubles[5], G_ASCII_DTOSTR_BUF_SIZE, ((double)(clr.green)) / 65536.0),
+    g_ascii_dtostr (doubles[6], G_ASCII_DTOSTR_BUF_SIZE, ((double)(clr.blue)) / 65536.0)) ;
   }

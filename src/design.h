@@ -156,7 +156,7 @@ void              design_selection_serialize (DESIGN *design, FILE *pfile) ;
 void              design_selection_move (DESIGN *design, double dxWorld, double dyWorld) ;
 gboolean          design_selection_drop (DESIGN *design) ;
 EXP_ARRAY *       design_selection_destroy (DESIGN *design) ;
-void              design_selection_set_cell_host_name (DESIGN *design, char *pszHostName) ;
+//void              design_selection_set_cell_host_name (DESIGN *design, char *pszHostName) ;
 QCADDesignObject *design_selection_hit_test (DESIGN *design, int x, int y) ;
 void              design_selection_set_cell_display_mode (DESIGN *design, int display_mode) ;
 void              design_selection_objects_foreach (DESIGN *design, DesignObjectCallback cb, gpointer data) ;

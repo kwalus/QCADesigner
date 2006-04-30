@@ -119,7 +119,7 @@ struct _QCADCell
   int number_of_dots ;
   QCADLabel *label ;
   gboolean bLabelRemoved ;
-  char *host_name ;
+//  char *host_name ;
   } ;
 
 struct _QCADCellClass
@@ -166,7 +166,7 @@ void qcad_cell_set_polarization (QCADCell *cell, double dPolarization) ;
 void qcad_cell_set_clock (QCADCell *cell, int iClock) ;
 void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function) ;
 void qcad_cell_set_label (QCADCell *cell, char *pszLabel) ;
-void qcad_cell_set_host_name (QCADCell *cell, char *pszHostName) ;
+//void qcad_cell_set_host_name (QCADCell *cell, char *pszHostName) ;
 void qcad_cell_rotate_dots (QCADCell *cell, double angle) ;
 const char *qcad_cell_get_label (QCADCell *cell) ;
 void qcad_cell_scale (QCADCell *cell, double dScale, double dxOrigin, double dyOrigin) ;

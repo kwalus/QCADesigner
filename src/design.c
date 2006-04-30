@@ -1233,7 +1233,7 @@ static gboolean design_bus_layout_bus_data_unserialize (EXP_ARRAY *cell_indices,
   return bRet ;
   }
 #endif /* def STDIO_FILEIO */
-
+/*
 void design_selection_set_cell_host_name (DESIGN *design, char *pszHostName)
   {
   GList *lstCurrentLayer = NULL, *lstCurrentCell = NULL ;
@@ -1245,7 +1245,7 @@ void design_selection_set_cell_host_name (DESIGN *design, char *pszHostName)
         if (QCAD_IS_CELL (lstCurrentCell->data))
           qcad_cell_set_host_name (QCAD_CELL (lstCurrentCell->data), pszHostName) ;
   }
-
+*/
 gboolean design_selection_drop (DESIGN *design)
   {
   // For each layer, make sure that the selected objects in that layer do not overlap with non-selected

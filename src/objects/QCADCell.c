@@ -513,7 +513,7 @@ static void qcad_cell_instance_init (GObject *object, gpointer data)
   
   memcpy (&(QCAD_DESIGN_OBJECT (object)->clr), &(clrClock[0]), sizeof (GdkColor)) ;
   cell->id = (int)object ;
-  cell->host_name = NULL ;
+//  cell->host_name = NULL ;
   cell->cell_function = QCAD_CELL_NORMAL ;
   cell->cell_model = NULL ;
   cell->cell_dots = malloc (4 * sizeof (QCADCellDot)) ;
@@ -748,10 +748,10 @@ void qcad_cell_rotate_dots (QCADCell *cell, double angle)
     cell->cell_dots[i].y = y;
     }
   }
-
+/*
 void qcad_cell_set_host_name (QCADCell *cell, char *pszHostName)
   {cell->host_name = g_strdup (pszHostName) ;}
-
+*/
 ///////////////////////////////////////////////////////////////////////////////
 
 static QCADObject *class_get_default_object ()

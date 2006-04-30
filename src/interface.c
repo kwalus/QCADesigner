@@ -71,7 +71,7 @@ void create_main_window (main_W *main_window)
     *start_simulation_menu_item      = NULL, *status_bar                = NULL, *stop_simulation_menu_item         = NULL,
     *table1                          = NULL, *tools_menu                = NULL, *tools_menu_menu                   = NULL,
     *view_menu                       = NULL, *hide_layers_menu_item     = NULL, *mnu                               = NULL,
-    *show_scrollbars_menu_item       = NULL,
+    *show_scrollbars_menu_item       = NULL, *copy_menu_item            = NULL,
 #ifdef STDIO_FILEIO
     *open_menu_item                  = NULL, *save_menu_item            = NULL, *save_as_menu_item                 = NULL,
     *recent_files_menu_item          = NULL, *import_block_menu_item    = NULL, *create_block_menu_item            = NULL,
@@ -313,7 +313,7 @@ void create_main_window (main_W *main_window)
   // initially, there is nothing to undo //
   gtk_widget_set_sensitive (GTK_WIDGET (main_window->undo_menu_item), FALSE);
 
-  //create and add the redu menu item to the menu bar //
+  //create and add the redo menu item to the menu bar //
   main_window->redo_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_REDO, accel_group);
   gtk_widget_show (main_window->redo_menu_item);
   gtk_container_add (GTK_CONTAINER (edit_menu_menu), main_window->redo_menu_item);
@@ -326,6 +326,19 @@ void create_main_window (main_W *main_window)
   gtk_container_add (GTK_CONTAINER (edit_menu_menu), mnuiSep);
   gtk_widget_set_sensitive (mnuiSep, FALSE);
 #endif /* def UNDO_REDO */
+
+  //create and add the copy menu item to the menu bar //
+  copy_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_COPY, accel_group);
+  gtk_widget_show (copy_menu_item);
+  gtk_container_add (GTK_CONTAINER (edit_menu_menu), copy_menu_item);
+  // initially, there's nothing to redo //
+//  gtk_widget_set_sensitive (GTK_WIDGET (main_window->redo_menu_item), FALSE);
+
+  // create and add a seperator to the edit menu //
+  mnuiSep = gtk_menu_item_new ();
+  gtk_widget_show (mnuiSep);
+  gtk_container_add (GTK_CONTAINER (edit_menu_menu), mnuiSep);
+  gtk_widget_set_sensitive (mnuiSep, FALSE);
 
   // create and add the delete item to the edit menu //
   delete_menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_DELETE, accel_group);
@@ -924,8 +937,9 @@ void create_main_window (main_W *main_window)
 #endif /* def STDIO_FILEIO */
 #ifdef UNDO_REDO
   g_signal_connect (G_OBJECT (main_window->undo_menu_item),                    "activate", (GCallback)on_undo_menu_item_activate,                    NULL);
-  g_signal_connect (G_OBJECT (main_window->redo_menu_item),                    "activate", (GCallback)on_redo_menu_item_activate,                     NULL);
+  g_signal_connect (G_OBJECT (main_window->redo_menu_item),                    "activate", (GCallback)on_redo_menu_item_activate,                    NULL);
 #endif /* def UNDO_REDO */
+  g_signal_connect (G_OBJECT (copy_menu_item),                                 "activate", (GCallback)on_copy_cell_button_clicked,                   NULL);
   g_signal_connect (G_OBJECT (hide_layers_menu_item),                          "activate", (GCallback)on_hide_layers_menu_item_activate,             NULL);
   g_signal_connect (G_OBJECT (print_menu_item),                                "activate", (GCallback)on_print_menu_item_activate,                   NULL);
   g_signal_connect (G_OBJECT (delete_menu_item),                               "activate", (GCallback)on_delete_menu_item_activate,                  NULL);

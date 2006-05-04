@@ -53,10 +53,8 @@ qcad_cell_create_array
 qcad_cell_calculate_polarization
 qcad_cell_set_polarization
 qcad_cell_set_clock
-qcad_cell_set_display_mode
 qcad_cell_set_function
 qcad_cell_set_label
-qcad_cell_set_host_name
 qcad_cell_rotate_dots
 qcad_cell_get_label
 qcad_cell_scale
@@ -569,15 +567,15 @@ QCAD_LAYER_SET_DRAW_FLAGS
 <TITLE>QCADLayer</TITLE>
 qcad_layer_new
 qcad_layer_object_containment_rules
+qcad_layer_from_object
 qcad_layer_selection_drop
 qcad_layer_selection_subtract_window
 qcad_layer_selection_release
-qcad_layer_get_extents
-qcad_layer_dump
 qcad_layer_selection_serialize
 qcad_layer_selection_create_from_selection
 qcad_layer_selection_get_object_array
-qcad_layer_from_object
+qcad_layer_get_extents
+qcad_layer_dump
 qcad_layer_objects_foreach
 qcad_layer_default_properties_apply
 <SUBSECTION Standard>
@@ -1236,7 +1234,6 @@ design_selection_serialize
 design_selection_move
 design_selection_drop
 design_selection_destroy
-design_selection_set_cell_host_name
 design_selection_hit_test
 design_selection_set_cell_display_mode
 design_selection_objects_foreach

@@ -1461,18 +1461,14 @@ void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function)
   if (QCAD_CELL_NORMAL == function)
     {
     memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &(clrClock[cell->cell_options.clock]), sizeof (GdkColor)) ;
-    if (NULL != cell->label)
+//    if (NULL != cell->label)
       qcad_cell_set_label (cell, "") ;
     }
   else
   if (QCAD_CELL_FIXED == function)
     {
     memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &clrOrange, sizeof (GdkColor)) ;
-    if (NULL != cell->label)
-      {
-      memcpy (&(QCAD_DESIGN_OBJECT (cell->label)->clr), &clrOrange, sizeof (GdkColor)) ;
-      qcad_cell_set_polarization (cell, qcad_cell_calculate_polarization (cell)) ;
-      }
+    qcad_cell_set_polarization (cell, qcad_cell_calculate_polarization (cell)) ;
     }
   else
   if (QCAD_CELL_INPUT == function || QCAD_CELL_OUTPUT == function)

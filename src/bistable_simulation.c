@@ -41,8 +41,6 @@
 #include "custom_widgets.h"
 #include "global_consts.h"
 
-//#define REDUCE_DEREF
-
 //!Options for the bistable simulation engine
 //This variable is used by multiple source files
 // Added by Marco March 3 : last four arguments (phase shifts)
@@ -88,17 +86,6 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
   int idxMasterBitOrder = -1 ;
   int max_iterations_per_sample = ((bistable_OP *)options)->max_iterations_per_sample;
   BUS_LAYOUT_ITER bli ;
-#ifdef REDUCE_DEREF
-  // For dereference reduction
-  int sim_data_number_samples = 0, pvt_vectors_icUsed = 0,
-    design_bus_layout_outputs_icUsed = 0, design_bus_layout_inputs_icUsed = 0, pvt_inputs_icUsed = 0 ;
-  int number_of_cells_in_current_layer = 0 ;
-  EXP_ARRAY *pvt_inputs = NULL ;
-  EXP_ARRAY *pvt_vectors = NULL ;
-  EXP_ARRAY *design_bus_layout_inputs = NULL ;
-  EXP_ARRAY *design_bus_layout_outputs = NULL ;
-  BUS_LAYOUT *design_bus_layout = NULL ;
-#endif
   // For randomization
   int Nix, Nix1, idxCell1, idxCell2 ;
   QCADCell *swap = NULL ;
@@ -125,12 +112,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
 
   for(i = 0; i < number_of_cell_layers; i++)
     {
-#ifdef REDUCE_DEREF
-    number_of_cells_in_current_layer = number_of_cells_in_layer[i] ;
-    for(j = 0; j < number_of_cells_in_current_layer ; j++)
-#else
     for(j = 0; j < number_of_cells_in_layer[i] ; j++)
-#endif
       {
       // attach the model parameters to each of the simulation cells //
       current_cell_model = g_malloc0 (sizeof(bistable_model)) ;
@@ -246,48 +228,19 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
   set_progress_bar_fraction (0.0) ;
 
   // perform the iterations over all samples //
-#ifdef REDUCE_DEREF
-  // Dereference some structures now so we don't do it over and over in the loop
-  sim_data_number_samples = sim_data->number_samples ;
-  pvt_inputs = pvt->inputs ;
-  pvt_inputs_icUsed = pvt_inputs->icUsed ;
-  pvt_vectors = pvt->vectors ;
-  pvt_vectors_icUsed = pvt->vectors->icUsed ;
-  design_bus_layout = design->bus_layout ;
-  design_bus_layout_inputs = design_bus_layout->inputs ;
-  design_bus_layout_inputs_icUsed = design_bus_layout_inputs->icUsed ;
-  design_bus_layout_outputs = design_bus_layout->outputs ;
-  design_bus_layout_outputs_icUsed = design_bus_layout_outputs->icUsed ;
-#else
-  #define sim_data_number_samples sim_data->number_samples
-  #define pvt_inputs pvt->inputs
-  #define pvt_inputs_icUsed pvt_inputs->icUsed
-  #define pvt_vectors pvt->vectors
-  #define pvt_vectors_icUsed pvt->vectors->icUsed
-  #define design_bus_layout design->bus_layout
-  #define design_bus_layout_inputs design_bus_layout->inputs
-  #define design_bus_layout_inputs_icUsed design_bus_layout_inputs->icUsed
-  #define design_bus_layout_outputs design_bus_layout->outputs
-  #define design_bus_layout_outputs_icUsed design_bus_layout_outputs->icUsed
-#endif
-  for (j = 0; j < sim_data_number_samples ; j++)
+  for (j = 0; j < sim_data->number_samples ; j++)
     {
-    if (j % 10 == 0 || j == sim_data_number_samples - 1)
+    if (j % 10 == 0 || j == sim_data->number_samples - 1)
       {
       // write the completion percentage to the command history window //
-      set_progress_bar_fraction ((float) j / (float) sim_data_number_samples) ;
+      set_progress_bar_fraction ((float) j / (float)sim_data->number_samples) ;
       // redraw the design if the user wants it to appear animated or if this is the last sample //
-      if(options->animate_simulation || j == sim_data_number_samples - 1)
+      if(options->animate_simulation || j == sim_data->number_samples - 1)
         {
         // update the charges to reflect the polarizations so that they can be animated //
         for(icLayers = 0; icLayers < number_of_cell_layers; icLayers++)
           {
-#ifdef REDUCE_DEREF
-          number_of_cells_in_current_layer = number_of_cells_in_layer[icLayers] ;
-          for(icCellsInLayer = 0; icCellsInLayer < number_of_cells_in_current_layer; icCellsInLayer++)
-#else
           for(icCellsInLayer = 0; icCellsInLayer < number_of_cells_in_layer[icLayers]; icCellsInLayer++)
-#endif
             qcad_cell_set_polarization(sorted_cells[icLayers][icCellsInLayer],((bistable_model *)sorted_cells[icLayers][icCellsInLayer]->cell_model)->polarization);
           }
 #ifdef DESIGNER
@@ -299,15 +252,15 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
 
     // -- for each of the (VECTOR_TABLE => active?) inputs -- //
     if (EXHAUSTIVE_VERIFICATION == SIMULATION_TYPE)
-      for (idxMasterBitOrder = 0, design_bus_layout_iter_first (design_bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i), idxMasterBitOrder++)
-        ((bistable_model *)exp_array_index_1d (design_bus_layout_inputs, BUS_LAYOUT_CELL, i).cell->cell_model)->polarization =
-          sim_data->trace[i].data[j] = (-1 * sin (((double)(1 << idxMasterBitOrder)) * (double)j * FOUR_PI / (double)sim_data_number_samples) > 0) ? 1 : -1 ;
+      for (idxMasterBitOrder = 0, design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i), idxMasterBitOrder++)
+        ((bistable_model *)exp_array_index_1d (design->bus_layout->inputs, BUS_LAYOUT_CELL, i).cell->cell_model)->polarization =
+          sim_data->trace[i].data[j] = (-1 * sin (((double)(1 << idxMasterBitOrder)) * (double)j * FOUR_PI / (double)sim_data->number_samples) > 0) ? 1 : -1 ;
     else
 //    if (VECTOR_TABLE == SIMULATION_TYPE)
-      for (design_bus_layout_iter_first (design_bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
-        if (exp_array_index_1d (pvt_inputs, VT_INPUT, i).active_flag)
-          ((bistable_model *)exp_array_index_1d (pvt_inputs, VT_INPUT, i).input->cell_model)->polarization =
-            sim_data->trace[i].data[j] = exp_array_index_2d (pvt_vectors, gboolean, (j * pvt_vectors_icUsed) / sim_data_number_samples, i) ? 1 : -1 ;
+      for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
+        if (exp_array_index_1d (pvt->inputs, VT_INPUT, i).active_flag)
+          ((bistable_model *)exp_array_index_1d (pvt->inputs, VT_INPUT, i).input->cell_model)->polarization =
+            sim_data->trace[i].data[j] = exp_array_index_2d (pvt->vectors, gboolean, (j * pvt->vectors->icUsed) / sim_data->number_samples, i) ? 1 : -1 ;
 
     // randomize the order in which the cells are simulated to try and minimize numerical errors
     // associated with the imposed simulation order.
@@ -316,20 +269,10 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
       for (Nix = 0 ; Nix < number_of_cell_layers ; Nix++)
         {
         // ...perform as many swaps as there are cells therein
-#ifdef REDUCE_DEREF
-        number_of_cells_in_current_layer = number_of_cells_in_layer[Nix] ;
-        for (Nix1 = 0 ; Nix1 < number_of_cells_in_current_layer ; Nix1++)
-#else
         for (Nix1 = 0 ; Nix1 < number_of_cells_in_layer[Nix] ; Nix1++)
-#endif
           {
-#ifdef REDUCE_DEREF
-          idxCell1 = rand () % number_of_cells_in_current_layer ;
-          idxCell2 = rand () % number_of_cells_in_current_layer ;
-#else
           idxCell1 = rand () % number_of_cells_in_layer[Nix] ;
           idxCell2 = rand () % number_of_cells_in_layer[Nix] ;
-#endif
 
           swap = sorted_cells[Nix][idxCell1] ;
           sorted_cells[Nix][idxCell1] = sorted_cells[Nix][idxCell2] ;
@@ -349,12 +292,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
 
       for (icLayers = 0; icLayers < number_of_cell_layers; icLayers++)
         {
-#ifdef REDUCE_DEREF
-        number_of_cells_in_current_layer = number_of_cells_in_layer[icLayers] ;
-        for (icCellsInLayer = 0 ; icCellsInLayer < number_of_cells_in_current_layer ; icCellsInLayer++)
-#else
         for (icCellsInLayer = 0 ; icCellsInLayer < number_of_cells_in_layer[icLayers] ; icCellsInLayer++)
-#endif
           {
           cell = sorted_cells[icLayers][icCellsInLayer] ;
 
@@ -392,28 +330,23 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
       }//WHILE !STABLE
 
     if (VECTOR_TABLE == SIMULATION_TYPE)
-      for (design_bus_layout_iter_first (design_bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
-        if (!exp_array_index_1d (pvt_inputs, VT_INPUT, i).active_flag)
-          sim_data->trace[i].data[j] = ((bistable_model *)exp_array_index_1d (pvt_inputs, VT_INPUT, i).input->cell_model)->polarization;
+      for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
+        if (!exp_array_index_1d (pvt->inputs, VT_INPUT, i).active_flag)
+          sim_data->trace[i].data[j] = ((bistable_model *)exp_array_index_1d (pvt->inputs, VT_INPUT, i).input->cell_model)->polarization;
 
     // -- collect all the output data from the simulation -- //
-    for (design_bus_layout_iter_first (design_bus_layout, &bli, QCAD_CELL_OUTPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
-      sim_data->trace[design_bus_layout_inputs_icUsed + i].data[j] = ((bistable_model *)exp_array_index_1d (design_bus_layout_outputs, BUS_LAYOUT_CELL, i).cell->cell_model)->polarization;
+    for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_OUTPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
+      sim_data->trace[design->bus_layout->inputs->icUsed + i].data[j] = ((bistable_model *)exp_array_index_1d (design->bus_layout->outputs, BUS_LAYOUT_CELL, i).cell->cell_model)->polarization;
 
     // -- if the user wants to stop the simulation then exit. -- //
     if(TRUE == STOP_SIMULATION)
-      j = sim_data_number_samples ;
+      j = sim_data->number_samples ;
     }//for number of samples
 
   // Free the neigbours and Ek array introduced by this simulation//
   for (k = 0; k < number_of_cell_layers; k++)
     {
-#ifdef REDUCE_DEREF
-    number_of_cells_in_current_layer = number_of_cells_in_layer[k] ;
-    for (l = 0 ; l < number_of_cells_in_current_layer ; l++)
-#else
     for (l = 0 ; l < number_of_cells_in_layer[k] ; l++)
-#endif
       {
       g_free(((bistable_model *)sorted_cells[k][l]->cell_model)->neighbours);
       g_free(((bistable_model *)sorted_cells[k][l]->cell_model)->neighbour_layer);
@@ -425,8 +358,8 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
 
 // Restore the input flag for the inactive inputs
   if (VECTOR_TABLE == SIMULATION_TYPE)
-    for (i = 0 ; i < pvt_inputs_icUsed ; i++)
-      exp_array_index_1d (pvt_inputs, VT_INPUT, i).input->cell_function = QCAD_CELL_INPUT ;
+    for (i = 0 ; i < pvt->inputs->icUsed ; i++)
+      exp_array_index_1d (pvt->inputs, VT_INPUT, i).input->cell_function = QCAD_CELL_INPUT ;
 
 // -- get and print the total simulation time -- //
   if ((end_time = time (NULL)) < 0)
@@ -435,19 +368,6 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
   command_history_message (_("Total simulation time: %g s\n"), (double)(end_time - start_time));
 
   set_progress_bar_visible (FALSE) ;
-
-#ifndef REDUCE_DEREF
-  #undef sim_data_number_samples
-  #undef pvt_inputs
-  #undef pvt_inputs_icUsed
-  #undef pvt_vectors
-  #undef pvt_vectors_icUsed
-  #undef design_bus_layout
-  #undef design_bus_layout_inputs
-  #undef design_bus_layout_inputs_icUsed
-  #undef design_bus_layout_outputs
-  #undef design_bus_layout_outputs_icUsed
-#endif
 
   return sim_data;
   }//run_bistable
@@ -461,13 +381,6 @@ static inline void bistable_refresh_all_Ek (int number_of_cell_layers, int *numb
   int icNeighbours = 0 ;
   bistable_model *cell_model = NULL ;
   int i, j, k, idx = 0, total_number_of_cells = 0;
-#ifdef REDUCE_DEREF
-  // dereference reduction variables
-  double radius_of_effect = ((bistable_OP *)options)->radius_of_effect ;
-  int number_of_cells_in_current_layer = 0 ;
-#else
-  #define radius_of_effect ((bistable_OP *)options)->radius_of_effect
-#endif
 
   for(i = 0; i < number_of_cell_layers; i++)
     total_number_of_cells+= number_of_cells_in_layer[i];
@@ -475,12 +388,7 @@ static inline void bistable_refresh_all_Ek (int number_of_cell_layers, int *numb
   // calculate the Ek for each cell //
   for(i = 0; i < number_of_cell_layers; i++)
     {
-#ifdef REDUCE_DEREF
-    number_of_cells_in_current_layer = number_of_cells_in_layer[i] ;
-    for(j = 0 ; j < number_of_cells_in_current_layer ; j++)
-#else
     for(j = 0 ; j < number_of_cells_in_layer[i] ; j++)
-#endif
       {
       if (0 == (idx++) % 100)
         set_progress_bar_fraction((double)idx / (double)total_number_of_cells);
@@ -497,7 +405,7 @@ static inline void bistable_refresh_all_Ek (int number_of_cell_layers, int *numb
 
       // select all neighbours within the provided radius //
       cell_model->number_of_neighbours = icNeighbours =
-        select_cells_in_radius (sorted_cells, sorted_cells[i][j], radius_of_effect, i, number_of_cell_layers, number_of_cells_in_layer,
+        select_cells_in_radius (sorted_cells, sorted_cells[i][j], options->radius_of_effect, i, number_of_cell_layers, number_of_cells_in_layer,
           ((bistable_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer));
 
       if (icNeighbours > 0)
@@ -517,9 +425,6 @@ static inline void bistable_refresh_all_Ek (int number_of_cell_layers, int *numb
         }
       }
     }
-#ifndef REDUCE_DEREF
-  #undef radius_of_effect
-#endif
   }//refresh_all_Ek
 
 //-------------------------------------------------------------------//

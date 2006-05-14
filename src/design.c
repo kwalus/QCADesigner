@@ -269,6 +269,8 @@ void design_layer_add (DESIGN *design, QCADLayer *layer)
   for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
     if (NULL != llItr->data)
       qcad_layer_design_object_added (layer, llItr->data, design) ;
+
+  // Forgetting to hook up handler for cell's notify::function
   }
 
 /**
@@ -300,7 +302,7 @@ QCADLayer *design_layer_remove (DESIGN *design, QCADLayer *layer)
     for (llCellItr = layer->lstObjs ; llCellItr != NULL ; llCellItr = llCellItr->next)
       if (QCAD_CELL_INPUT  == QCAD_CELL (llCellItr->data)->cell_function ||
           QCAD_CELL_OUTPUT == QCAD_CELL (llCellItr->data)->cell_function)
-        design_bus_layout_remove_cell (design, QCAD_CELL (llCellItr->data), QCAD_CELL (llCellItr->data)->cell_function) ;
+         design_bus_layout_remove_cell (design, QCAD_CELL (llCellItr->data), QCAD_CELL (llCellItr->data)->cell_function) ;
   if (QCAD_IS_CLOCKING_LAYER (layer))
     design->lstClockingLayer = NULL ;
 
@@ -888,45 +890,6 @@ QCADDesignObject *design_selection_transform (DESIGN *design, double m11, double
         qcad_design_object_transform (obj = QCAD_DESIGN_OBJECT (llItrSelObj->data), m11, m12, m21, m22) ;
 
   return obj ;
-  }
-
-void design_selection_set_cell_display_mode (DESIGN *design, int display_mode)
-  {
-  GList *lstLayer = NULL, *lstObj = NULL ;
-  QCADLayer *layer = NULL ;
-
-  for (lstLayer = design->lstLayers ; NULL != lstLayer ; lstLayer = lstLayer->next)
-    {
-    layer = (QCAD_LAYER (lstLayer->data)) ;
-    if (LAYER_TYPE_CELLS == layer->type)
-      for (lstObj = layer->lstSelObjs ; NULL != lstObj ; lstObj = lstObj->next)
-        if (NULL != lstObj->data)
-          if (QCAD_IS_CELL (lstObj->data))
-        	  g_object_set (QCAD_CELL (lstObj->data), "mode", display_mode, NULL) ;
-    }
-  }
-
-GList *design_selection_get_input_cells (DESIGN *design, int *picCells)
-  {
-  GList *lstLayer = NULL, *lstObj = NULL, *lstFirstCell = NULL ;
-  QCADLayer *layer = NULL ;
-
-  (*picCells) = 0 ;
-
-  for (lstLayer = design->lstLayers ; NULL != lstLayer ; lstLayer = lstLayer->next)
-    {
-    layer = (QCAD_LAYER (lstLayer->data)) ;
-    if (LAYER_TYPE_CELLS == layer->type)
-      for (lstObj = layer->lstSelObjs ; NULL != lstObj ; lstObj = lstObj->next)
-        if (NULL != lstObj->data)
-          if (QCAD_CELL_INPUT == QCAD_CELL (lstObj->data)->cell_function)
-            {
-            lstFirstCell = g_list_prepend (lstFirstCell, lstObj->data) ;
-            (*picCells)++ ;
-            }
-    }
-
-  return lstFirstCell ;
   }
 
 QCADDesignObject *design_selection_hit_test (DESIGN *design, int x, int y)

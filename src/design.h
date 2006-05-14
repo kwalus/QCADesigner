@@ -158,11 +158,9 @@ gboolean          design_selection_drop (DESIGN *design) ;
 EXP_ARRAY *       design_selection_destroy (DESIGN *design) ;
 //void              design_selection_set_cell_host_name (DESIGN *design, char *pszHostName) ;
 QCADDesignObject *design_selection_hit_test (DESIGN *design, int x, int y) ;
-void              design_selection_set_cell_display_mode (DESIGN *design, int display_mode) ;
 void              design_selection_objects_foreach (DESIGN *design, DesignObjectCallback cb, gpointer data) ;
 GList *           design_selection_get_type_list (DESIGN *design) ;
 QCADDesignObject *design_selection_get_anchor (DESIGN *design) ;
-GList *           design_selection_get_input_cells (DESIGN *design, int *picCells) ;
 QCADDesignObject *design_selection_transform (DESIGN *design, double m11, double m12, double m21, double m22) ;
 
 EXP_ARRAY *design_selection_object_array_add_weak_pointers (EXP_ARRAY *obj_array) ;

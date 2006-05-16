@@ -57,42 +57,6 @@ static void reflect_scale_change (GRAPH_DIALOG_DATA *dialog_data) ;
 
 static print_graph_OP print_graph_options = {{612, 792, 72, 72, 72, 72, TRUE, TRUE, TRUE, NULL}, TRUE, 1, 1} ;
 
-// Extremely hacky solution to the problem of making all traces the same size
-gboolean gd_graph_widget_one_time_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
-  {
-  GtkWidget *trace = NULL ;
-  graph_D *dialog = (graph_D *)data ;
-  GRAPH_DIALOG_DATA *gdd = NULL ;
-  GtkTreeIter itr ;
-
-  if (NULL == dialog) return FALSE ;
-
-  if (NULL == (gdd = g_object_get_data (G_OBJECT (dialog->dialog), "graph_dialog_data"))) return FALSE ;
-
-  if (gdd->bOneTime)
-    {
-    gdd->bOneTime = FALSE ;
-    if (gtk_tree_model_get_iter_first (gdd->model, &itr))
-      {
-      while (TRUE)
-        {
-        gtk_tree_model_get (gdd->model, &itr,
-          GRAPH_MODEL_COLUMN_TRACE, &trace, -1) ;
-        if (GTK_WIDGET_VISIBLE (trace))
-          {
-          gtk_widget_hide (trace) ;
-          gtk_widget_show (trace) ;
-          }
-        if (!gtk_tree_model_iter_next_dfs (gdd->model, &itr)) break ;
-        }
-      }
-    }
-
-  g_signal_handlers_block_matched (G_OBJECT (widget), G_SIGNAL_MATCH_FUNC, 0, 0, NULL, (gpointer)gd_graph_widget_one_time_expose, NULL) ;
-
-  return FALSE ;
-  }
-
 void gd_actShowBase_activate (GtkRadioAction *action, GtkRadioAction *current, gpointer data)
   {
   graph_D *dialog = (graph_D *)data ;
@@ -480,7 +444,7 @@ void gd_actOpen_activate (GtkWidget *widget, gpointer user_data)
     }
 
   g_object_set_data_full (G_OBJECT (dialog->dialog), "graph_dialog_data",
-    gdd = graph_dialog_data_new (sim_output, TRUE, dThreshLower, dThreshUpper, icAverageSamples, base),
+    gdd = graph_dialog_data_new (/*dialog->size_group_horz, */dialog->size_group_vert, sim_output, TRUE, dThreshLower, dThreshUpper, icAverageSamples, base),
     (GDestroyNotify)graph_dialog_data_free) ;
 
   apply_graph_dialog_data (dialog, gdd) ;
@@ -540,7 +504,6 @@ void gd_actThresh_activate (GtkWidget *widget, gpointer user_data)
 
   if (get_honeycomb_thresholds_from_user (dialog->dialog, &lower, &upper, &icAverageSamples))
     {
-    gdd->bOneTime = TRUE ;
     gdd->dHCThreshLower = lower ;
     gdd->dHCThreshUpper = upper ;
     gdd->icAverageSamples = icAverageSamples ;
@@ -836,12 +799,7 @@ static void recalculate_honeycombs (GRAPH_DIALOG_DATA *gdd, gboolean bCalcHoneyc
         else
           hc->graph_data.cxWanted = calculate_honeycomb_cxWanted (hc, gdd->sim_data->number_samples, gdd->base) ;
 
-        if (hc->graph_data.cxWanted > hc->graph_data.cxGiven)
-          {
-          gdd->bOneTime = TRUE ;
-          g_signal_connect (G_OBJECT (trace), "expose-event", (GCallback)gd_graph_widget_one_time_expose, dialog) ;
-          }
-        gtk_widget_queue_draw (trace) ;
+        gtk_widget_queue_resize (trace) ;
         }
 
     if (!gtk_tree_model_iter_next (gdd->model, &itr)) return ;

@@ -36,7 +36,7 @@
 #include "graph_dialog_interface.h"
 #include "graph_dialog_data.h"
 
-GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int icAverageSamples, int base)
+GRAPH_DIALOG_DATA *graph_dialog_data_new (GtkSizeGroup *size_group_vert, SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int icAverageSamples, int base)
   {
   GtkTreeStore *ts = NULL ;
   GtkTreeIter itr ;
@@ -47,6 +47,7 @@ GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolea
 
   graph_dialog_data = g_malloc0 (sizeof (GRAPH_DIALOG_DATA)) ;
 
+  graph_dialog_data->size_group_vert  = size_group_vert ;
   graph_dialog_data->sim_data         = sim_output->sim_data ;
   graph_dialog_data->bus_layout       = sim_output->bus_layout ;
   graph_dialog_data->bFakeCells       = sim_output->bFakeIOLists ;
@@ -63,7 +64,6 @@ GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolea
   graph_dialog_data->cxUIWidget       =
   graph_dialog_data->cyUIWidget       =
   graph_dialog_data->icGraphLines     =  0 ;
-  graph_dialog_data->bOneTime         = TRUE ;
   graph_dialog_data->base             = base ;
   graph_dialog_data->dScale           = 1.0 ;
 
@@ -127,6 +127,8 @@ void graph_dialog_data_free (GRAPH_DIALOG_DATA *gdd)
         GRAPH_MODEL_COLUMN_RULER, &ruler,
         GRAPH_MODEL_COLUMN_UI, &ui, -1) ;
 
+      gtk_size_group_remove_widget (gdd->size_group_vert, trace) ;
+      gtk_size_group_remove_widget (gdd->size_group_vert, ui) ;
       gtk_container_remove (GTK_CONTAINER (gtk_widget_get_parent (trace)), trace) ;
       gtk_container_remove (GTK_CONTAINER (gtk_widget_get_parent (ruler)), ruler) ;
       gtk_container_remove (GTK_CONTAINER (gtk_widget_get_parent (ui)), ui) ;

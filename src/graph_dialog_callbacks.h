@@ -52,7 +52,7 @@ gboolean gd_honeycomb_expose (GtkWidget *widget, GdkEventExpose *event, gpointer
 gboolean gd_viewport_scroll (GtkWidget *widget, GdkEventScroll *event, gpointer data) ;
 //gboolean trace_ruler_motion_event (GtkWidget *widget, GdkEventMotion *event, gpointer data) ;
 //gboolean trace_motion_update_rulers (GtkWidget *widget, GdkEventMotion *event, gpointer data) ;
-gboolean gd_graph_widget_one_time_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data) ;
+//gboolean gd_graph_widget_one_time_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data) ;
 gboolean gd_graph_widget_button_press (GtkWidget *widget, GdkEventButton *event, gpointer data) ;
 gboolean gd_graph_widget_motion_notify (GtkWidget *widget, GdkEventMotion *event, gpointer data) ;
 gboolean gd_graph_widget_button_release (GtkWidget *widget, GdkEventButton *event, gpointer data) ;

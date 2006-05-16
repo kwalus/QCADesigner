@@ -53,6 +53,8 @@ typedef struct
   gboolean bFreeSourceData ;
   gboolean bFakeCells ;
   GtkTreeModel *model ;
+  GtkSizeGroup *size_group_horz ;
+  GtkSizeGroup *size_group_vert ;
   double dHCThreshLower ;
   double dHCThreshUpper ;
   int icAverageSamples ;
@@ -64,14 +66,14 @@ typedef struct
   int cyUIWidget ;
   int cxMaxGiven ;
   int cyMaxGiven ;
-  int bOneTime ;
+//  int bOneTime ;
   int icGraphLines ;
   int base ;
   double dScale ;
   int xOffset ;
   } GRAPH_DIALOG_DATA ;
 
-GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int icAverageSamples, int base) ;
+GRAPH_DIALOG_DATA *graph_dialog_data_new (GtkSizeGroup *size_group_vert, SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int icAverageSamples, int base) ;
 void graph_dialog_data_free (GRAPH_DIALOG_DATA *gdd) ;
 
 #endif /* def _GRAPH_DIALOG_DATA_H_ */

@@ -188,18 +188,13 @@ void create_graph_dialog (graph_D *dialog)
     g_object_set_data (G_OBJECT (gtk_ui_manager_get_action (ui_mgr, "/ui/menubar/FileMenu/FileClose")), "dlgGraphs", dialog->dialog) ;
     }
 
-  dialog->hpaned = gtk_hpaned_new () ;
-  gtk_widget_show (dialog->hpaned) ;
+  dialog->hpaned = g_object_new (GTK_TYPE_HPANED, "visible", TRUE, NULL) ;
   gtk_table_attach (GTK_TABLE (table), dialog->hpaned, 0, 1, 2, 3,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 2, 2) ;
 
-  sw_tview = g_object_new (GTK_TYPE_SCROLLED_WINDOW, 
-    "visible",           TRUE,
-    "shadow-type",       GTK_SHADOW_IN,
-    "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
-    "vscrollbar-policy", GTK_POLICY_AUTOMATIC,
-    NULL) ;
+  sw_tview = g_object_new (GTK_TYPE_SCROLLED_WINDOW, "visible", TRUE, "shadow-type", GTK_SHADOW_IN,
+    "hscrollbar-policy", GTK_POLICY_AUTOMATIC, "vscrollbar-policy", GTK_POLICY_AUTOMATIC, NULL) ;
   gtk_paned_add1 (GTK_PANED (dialog->hpaned), sw_tview) ;
 
   dialog->tview = create_bus_layout_tree_view (TRUE, _("Trace"), GTK_SELECTION_SINGLE) ;
@@ -212,30 +207,23 @@ void create_graph_dialog (graph_D *dialog)
   gtk_widget_show (dialog->tview) ;
   gtk_container_add (GTK_CONTAINER (sw_tview), dialog->tview) ;
 
-  dialog->sw = g_object_new (QCAD_TYPE_SCROLLED_WINDOW, 
-    "hscrollbar-policy",  GTK_POLICY_AUTOMATIC,
-    "vscrollbar-policy",  GTK_POLICY_AUTOMATIC,
-    "shadow-type",        GTK_SHADOW_NONE,
-    "visible",            TRUE, 
-    "custom-hadjustment", TRUE, 
-    NULL) ;
+  dialog->sw = g_object_new (QCAD_TYPE_SCROLLED_WINDOW, "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
+    "vscrollbar-policy", GTK_POLICY_AUTOMATIC, "shadow-type", GTK_SHADOW_NONE, "visible", TRUE, 
+    "custom-hadjustment", TRUE, NULL) ;
   gtk_paned_add2 (GTK_PANED (dialog->hpaned), dialog->sw) ;
 
-  tbl_vp = gtk_table_new (1, 1, FALSE) ;
-  gtk_widget_show (tbl_vp) ;
+  tbl_vp = g_object_new (GTK_TYPE_TABLE, "visible", TRUE, "n-rows", 1, "n-columns", 1, "homogeneous", FALSE, NULL) ;
   dialog->vp = g_object_new (GTK_TYPE_VIEWPORT, "visible", TRUE, NULL) ;
   gtk_container_add (GTK_CONTAINER (dialog->vp), tbl_vp) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->vp) ;
   g_object_get (G_OBJECT (dialog->vp), "hadjustment", &fake_hadj, NULL) ;
 
-  dialog->table_of_traces = gtk_table_new (1, 2, FALSE) ;
-  gtk_widget_show (dialog->table_of_traces) ;
+  dialog->table_of_traces = g_object_new (GTK_TYPE_TABLE, "visible", TRUE, "n-rows", 1, "n-columns", 2, "homogeneous", FALSE, NULL) ;
   gtk_table_attach (GTK_TABLE (tbl_vp), dialog->table_of_traces, 0, 1, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(0), 0, 0) ;
 
-  status_table = g_object_new (GTK_TYPE_TABLE, 
-    "n-columns", 2, "n-rows", 1, "homogeneous", FALSE, "visible", TRUE, NULL) ;
+  status_table = g_object_new (GTK_TYPE_TABLE, "n-columns", 2, "n-rows", 1, "homogeneous", FALSE, "visible", TRUE, NULL) ;
   gtk_table_attach (GTK_TABLE (table), status_table, 0, 1, 3, 4,
     (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
     (GtkAttachOptions)(GTK_FILL), 0, 2) ;
@@ -245,10 +233,11 @@ void create_graph_dialog (graph_D *dialog)
     (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
     (GtkAttachOptions)(GTK_FILL), 1, 0) ;
 
-  dialog->lbl_status = g_object_new (GTK_TYPE_LABEL, 
-    "label", "", "visible", TRUE, "justify", GTK_JUSTIFY_LEFT, 
+  dialog->lbl_status = g_object_new (GTK_TYPE_LABEL, "label", "", "visible", TRUE, "justify", GTK_JUSTIFY_LEFT, 
     "xalign", 0.0, "yalign", 0.5, "xpad", 2, "ypad", 2, NULL) ;
   gtk_container_add (GTK_CONTAINER (frm), dialog->lbl_status) ;
+
+  dialog->size_group_vert = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL) ;
 
   g_signal_connect (G_OBJECT (cr),             "toggled",       (GCallback)gd_model_visible_toggled,     dialog) ;
   g_signal_connect (G_OBJECT (dialog->tview),  "row-expanded",  (GCallback)gd_set_bus_expanded,          (gpointer)TRUE) ;
@@ -264,31 +253,26 @@ void attach_graph_widgets (graph_D *dialog, GtkWidget *table, GtkWidget *trace, 
   {
   gtk_widget_show (trace) ;
   gtk_widget_set_redraw_on_allocate (trace, FALSE) ;
-  gtk_table_attach (GTK_TABLE (table), trace,
-    TRACE_TABLE_MIN_X + 2,
-    TRACE_TABLE_MIN_X + 3,
-    TRACE_TABLE_MIN_Y + ((idxTbl << 1) + 1),
-    TRACE_TABLE_MIN_Y + ((idxTbl + 1) << 1),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+
+  // Attach the trace
+  gtk_table_attach (GTK_TABLE (table), trace, 
+    TRACE_TABLE_MIN_X + 2,                   TRACE_TABLE_MIN_X + 3,
+    TRACE_TABLE_MIN_Y + ((idxTbl << 1) + 1), TRACE_TABLE_MIN_Y + ((idxTbl + 1) << 1),
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(0), 2, 2) ;
+
+  // Attach the ruler
   gtk_widget_show (ruler) ;
   gtk_table_attach (GTK_TABLE (table), ruler,
-    TRACE_TABLE_MIN_X + 2,
-    TRACE_TABLE_MIN_X + 3,
-    TRACE_TABLE_MIN_Y + (idxTbl << 1),
-    TRACE_TABLE_MIN_Y + ((idxTbl << 1) + 1),
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+    TRACE_TABLE_MIN_X + 2,             TRACE_TABLE_MIN_X + 3,
+    TRACE_TABLE_MIN_Y + (idxTbl << 1), TRACE_TABLE_MIN_Y + ((idxTbl << 1) + 1),
+    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 2, 2) ;
+
+  // Attach the UI
   gtk_widget_show (ui) ;
   gtk_table_attach (GTK_TABLE (table), ui,
-    TRACE_TABLE_MIN_X + 1,
-    TRACE_TABLE_MIN_X + 2,
-    TRACE_TABLE_MIN_Y + ((idxTbl << 1) + 1),
-    TRACE_TABLE_MIN_Y + ((idxTbl + 1) << 1),
-    (GtkAttachOptions)(GTK_FILL),
-    (GtkAttachOptions)(GTK_FILL), 2, 2) ;
-
-  g_signal_connect (G_OBJECT (trace), "expose-event",        (GCallback)gd_graph_widget_one_time_expose, dialog) ;
+    TRACE_TABLE_MIN_X + 1,                   TRACE_TABLE_MIN_X + 2,
+    TRACE_TABLE_MIN_Y + ((idxTbl << 1) + 1), TRACE_TABLE_MIN_Y + ((idxTbl + 1) << 1),
+    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 2, 2) ;
 
   set_window_icon (GTK_WINDOW (dialog->dialog), "graph_dialog") ;
   }
@@ -369,6 +353,9 @@ static gboolean create_waveform_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, G
 
   trace_drawing_widget = create_trace_drawing_area ((GRAPH_DATA *)wf, (GDestroyNotify)waveform_data_free, (GCallback)gd_waveform_expose, graph_dialog_data) ;
 
+  gtk_size_group_add_widget (graph_dialog_data->size_group_vert, trace_drawing_widget) ;
+  gtk_size_group_add_widget (graph_dialog_data->size_group_vert, trace_ui_widget) ;
+
   trace_ruler_widget = gtk_hruler_new () ;
 
   g_object_set_data (G_OBJECT (trace_drawing_widget), "ruler", trace_ruler_widget) ;
@@ -437,6 +424,9 @@ static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTre
   trace_ruler_widget = gtk_hruler_new () ;
 
   g_object_set_data (G_OBJECT (trace_drawing_widget), "ruler", trace_ruler_widget) ;
+
+  gtk_size_group_add_widget (graph_dialog_data->size_group_vert, trace_drawing_widget) ;
+  gtk_size_group_add_widget (graph_dialog_data->size_group_vert, trace_ui_widget) ;
 
   g_signal_connect (G_OBJECT (trace_ruler_widget),   "motion-notify-event", (GCallback)gd_graph_widget_motion_notify, graph_dialog_data) ;
   g_signal_connect (G_OBJECT (trace_drawing_widget), "size-allocate",       (GCallback)gd_graph_widget_size_allocate, graph_dialog_data) ;

@@ -114,6 +114,17 @@ static void qcad_undo_entry_instance_finalize (GObject *object)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * qcad_undo_entry_new_with_callbacks:
+ * @callback: The callback function to attach
+ * @data: The data to pass to the callback
+ * @destroy_data: The function to use to destroy @data when the entry is destroyed, or %NULL
+ *
+ * Creates a new #QCADUndoEntry and attaches @callback with @data to its
+ * "<link linkend="QCADUndoEntry-apply">apply</link>" signal.
+ *
+ * Returns: A newly created undo entry with a handler connected
+ */
 QCADUndoEntry *qcad_undo_entry_new_with_callbacks (GCallback callback, gpointer data, GDestroyNotify destroy_data)
   {
   QCADUndoEntry *entry = qcad_undo_entry_new () ;
@@ -123,6 +134,16 @@ QCADUndoEntry *qcad_undo_entry_new_with_callbacks (GCallback callback, gpointer 
   return entry ;
   }
 
+/**
+ * qcad_undo_entry_signal_connect:
+ * @entry: The entry to connect to
+ * @callback: The callback function to attach
+ * @data: The data to pass to the callback
+ * @destroy_data: The function to use to destroy @data when the signal is disconnected, or %NULL
+ *
+ * Connects @callback with @data to @entry's "<link linkend="QCADUndoEntry-apply">apply</link>" signal and 
+ * connects @destroy_data such that it is called with @data when @entry is destroyed.
+ */
 void qcad_undo_entry_signal_connect (QCADUndoEntry *entry, GCallback callback, gpointer data, GDestroyNotify destroy_data)
   {
   g_signal_connect (G_OBJECT (entry), "apply", callback, data) ;
@@ -130,9 +151,24 @@ void qcad_undo_entry_signal_connect (QCADUndoEntry *entry, GCallback callback, g
   g_object_weak_ref (G_OBJECT (entry), (GWeakNotify)destroy_data, data) ;
   }
 
+/**
+ * qcad_undo_entry_new:
+ *
+ * Creates a new #QCADUndoEntry.
+ *
+ * Returns: A new entry
+ */
 QCADUndoEntry *qcad_undo_entry_new ()
   {return g_object_new (QCAD_TYPE_UNDO_ENTRY, NULL) ;}
 
+/**
+ * qcad_undo_entry_fire:
+ * @undo_entry: Entry to fire
+ * @bUndo: Whether to undo (%TRUE) or redo (%FALSE)
+ *
+ * Causes the #QCADUndoEntry to "fire". In such a case, a #QCADUndoEntry will emit the
+ * "<link linkend="QCADUndoEntry-apply">apply</link>" signal, calling any attached handlers.
+ */
 void qcad_undo_entry_fire (QCADUndoEntry *undo_entry, gboolean bUndo)
   {QCAD_UNDO_ENTRY_GET_CLASS (undo_entry)->fire (undo_entry, bUndo) ;}
 

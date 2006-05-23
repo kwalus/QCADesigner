@@ -72,7 +72,7 @@ GType qcad_undo_entry_get_type () ;
 QCADUndoEntry *qcad_undo_entry_new () ;
 QCADUndoEntry *qcad_undo_entry_new_with_callbacks (GCallback callback, gpointer data, GDestroyNotify destroy_data) ;
 void qcad_undo_entry_signal_connect (QCADUndoEntry *entry, GCallback callback, gpointer data, GDestroyNotify destroy_data) ;
-void qcad_undo_entry_fire (QCADUndoEntry *entry, gboolean bUndo) ;
+void qcad_undo_entry_fire (QCADUndoEntry *undo_entry, gboolean bUndo) ;
 
 #ifdef __cplusplus
 }

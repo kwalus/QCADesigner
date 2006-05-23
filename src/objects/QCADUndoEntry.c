@@ -35,6 +35,17 @@
 #include <glib-object.h>
 #include "QCADUndoEntry.h"
 
+/**
+ * SECTION:QCADUndoEntry
+ * @short_description: Basic undo/redo functionality
+ *
+ * This object incorporates the basic functionality necessary for undo/redo.
+ *
+ * You create a #QCADUndoEntry with qcad_undo_entry_new(), connect to its
+ * "<link linkend="QCADUndoEntry-apply">apply</link>" signal, and push the #QCADUndoEntry into a 
+ * #QCADUndoEntryGroup using qcad_undo_entry_group_push_group().
+ */
+
 static void qcad_undo_entry_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_undo_entry_instance_finalize (GObject *object) ;
 
@@ -75,6 +86,13 @@ GType qcad_undo_entry_get_type ()
 
 static void qcad_undo_entry_class_init (GObjectClass *klass, gpointer data)
   {
+  /**
+   * QCADUndoEntry::apply:
+   * @entry: Undo entry
+   * @bUndo: Whether to undo (%TRUE) or redo (%FALSE)
+   *
+   * This signal is emitted whenever @entry is activated by a #QCADUndoEntryGroup.
+   */
   qcad_undo_entry_signals[QCAD_UNDO_ENTRY_APPLY_SIGNAL] =
     g_signal_new ("apply", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
       G_STRUCT_OFFSET (QCADUndoEntryClass, apply), NULL, NULL, g_cclosure_marshal_VOID__BOOLEAN,

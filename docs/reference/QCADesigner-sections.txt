@@ -523,7 +523,6 @@ QCAD_PROPERTY_UI_TEXT_GET_CLASS
 <TITLE>QCADLabel</TITLE>
 QCADLabel
 qcad_label_new
-qcad_label_vnew
 qcad_label_shrinkwrap
 qcad_label_set_text
 qcad_label_vset_text
@@ -733,7 +732,6 @@ gd_graph_widget_size_allocate
 gd_waveform_expose
 gd_honeycomb_expose
 gd_viewport_scroll
-gd_graph_widget_one_time_expose
 gd_graph_widget_button_press
 gd_graph_widget_motion_notify
 gd_graph_widget_button_release
@@ -807,6 +805,7 @@ get_translation_from_user
 
 <SECTION>
 <FILE>exp_pixmap</FILE>
+EXP_PIXMAP
 exp_pixmap_new
 exp_pixmap_cond_new
 exp_pixmap_resize
@@ -1235,11 +1234,9 @@ design_selection_move
 design_selection_drop
 design_selection_destroy
 design_selection_hit_test
-design_selection_set_cell_display_mode
 design_selection_objects_foreach
 design_selection_get_type_list
 design_selection_get_anchor
-design_selection_get_input_cells
 design_selection_transform
 design_selection_object_array_add_weak_pointers
 design_selection_object_array_free

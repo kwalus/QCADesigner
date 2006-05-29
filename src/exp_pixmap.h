@@ -38,14 +38,16 @@
 
 #include <gdk/gdk.h>
 
-typedef struct
+typedef struct _EXP_PIXMAP EXP_PIXMAP ;
+
+struct _EXP_PIXMAP
   {
   GdkPixmap *pixmap ;
   int cxUsed ;
   int cyUsed ;
   int cxAvail ;
   int cyAvail ;
-  } EXP_PIXMAP ;
+  } ;
 
 EXP_PIXMAP *exp_pixmap_new (GdkWindow *window, int cx, int cy, int depth) ;
 EXP_PIXMAP *exp_pixmap_cond_new (EXP_PIXMAP *epm, GdkWindow *window, int cx, int cy, int depth) ;

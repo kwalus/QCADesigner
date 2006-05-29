@@ -240,6 +240,7 @@ gboolean button_released_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event
       real_to_world_rect (&rcWorld, &rcReal) ;
       if (event->state & GDK_SHIFT_MASK)
         {
+        g_print ("actions:select:button_released: SHIFT: rcWorld = (%lf,%lf)[%lfx%lf]\n", rcWorld.xWorld, rcWorld.yWorld, rcWorld.cxWorld, rcWorld.cyWorld) ;
         if ((bSelIsNew = (NULL != (arNewObjs = design_selection_add_window (project_options->design, &rcWorld)))))
           {
 #ifdef UNDO_REDO
@@ -251,6 +252,7 @@ gboolean button_released_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event
       else
       if (event->state & GDK_CONTROL_MASK)
         {
+        g_print ("actions:select:button_released: CTRL: rcWorld = (%lf,%lf)[%lfx%lf]\n", rcWorld.xWorld, rcWorld.yWorld, rcWorld.cxWorld, rcWorld.cyWorld) ;
         if ((bSelIsNew = (NULL != (arNewObjs = design_selection_subtract_window (project_options->design, widget->window, GDK_COPY, &rcWorld)))))
           {
 #ifdef UNDO_REDO

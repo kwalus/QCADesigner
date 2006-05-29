@@ -398,20 +398,12 @@ static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
 
 QCADLabel *qcad_label_new (char *psz, ...)
   {
-  QCADLabel *lbl = NULL ;
+  QCADLabel *lbl = g_object_new (QCAD_TYPE_LABEL, NULL) ;
   va_list va ;
 
   va_start (va, psz) ;
-  lbl = qcad_label_vnew (psz, va) ;
-  va_end (va) ;
-  return lbl ;
-  }
-
-QCADLabel *qcad_label_vnew (char *psz, va_list va)
-  {
-  QCADLabel *lbl = g_object_new (QCAD_TYPE_LABEL, NULL) ;
-
   qcad_label_vset_text (lbl, psz, va) ;
+  va_end (va) ;
   return lbl ;
   }
 

@@ -6,7 +6,7 @@
  *
  * #GtkToggleToolButton widgets in versions of GTK <= 2.8.0 did not have the "active" property until versions
  * > 2.6.0. Between those versions and versions <= 2.8.0 the "notify::active" signal was not emitted. The
- * property documented here as "workaround-active" will be implemented into as "active" if, at compile time,
+ * property documented here as "workaround-active" will be implemented as "active" if, at compile time,
  * GTK's version is found to be <= 2.6.0 and it will be overridden to ensure that the "notify::active" signal
  * is emitted if, at compile time, GTK's version is found to be <= 2.8.0.
  *

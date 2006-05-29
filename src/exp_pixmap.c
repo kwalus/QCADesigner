@@ -35,8 +35,25 @@
 #include <gdk/gdk.h>
 #include "exp_pixmap.h"
 
+/**
+ * exp_pixmap:
+ * @short_description: A resizable pixmap.
+ */
+
 extern GdkColor clrBlack ;
 
+/**
+ * exp_pixmap_new:
+ * @window: Reference drawing surface
+ * @cx: Initial pixmap width
+ * @cy: Initial pixmap height
+ * @depth: Pixmap depth
+ *
+ * Creates a new "expanding pixmap". An expanding pixmap can be resized later on. When the size is to increase,
+ * a new pixmap is created and the old one is copied into the top left corner of the new one.
+ *
+ * Returns: A new "expanding pixmap".
+ */
 EXP_PIXMAP *exp_pixmap_new (GdkWindow *window, int cx, int cy, int depth)
   {
   EXP_PIXMAP *exp_pixmap = NULL ;
@@ -50,6 +67,19 @@ EXP_PIXMAP *exp_pixmap_new (GdkWindow *window, int cx, int cy, int depth)
   return exp_pixmap ;
   }
 
+/**
+ * exp_pixmap_cond_new:
+ * @epm: An existing #EXP_PIXMAP
+ * @window: Reference drawing surface
+ * @cx: Pixmap width
+ * @cy: Pixmap height
+ * @depth: Pixmap depth
+ *
+ * Conditionally creates a new "expanding pixmap". If @epm is %NULL, a new pixmap is created. Otherwise, the
+ * existing pixmap is resized.
+ *
+ * Returns: A properly sized, possibly new #EXP_PIXMAP
+ */
 EXP_PIXMAP *exp_pixmap_cond_new (EXP_PIXMAP *epm, GdkWindow *window, int cx, int cy, int depth)
   {
   if (NULL == epm)
@@ -59,6 +89,15 @@ EXP_PIXMAP *exp_pixmap_cond_new (EXP_PIXMAP *epm, GdkWindow *window, int cx, int
   return epm ;
   }
 
+/**
+ * exp_pixmap_resize:
+ * @exp_pixmap: An "expanding pixmap"
+ * @cxNew: New width
+ * @cyNew: New height
+ *
+ * Resizes an #EXP_PIXMAP. The pixmap contained therein needs to be replaced by a larger one if the requested 
+ * size in one of the dimensions exceeds its corresponding size.
+ */
 void exp_pixmap_resize (EXP_PIXMAP *exp_pixmap, int cxNew, int cyNew)
   {
   GdkPixmap *new_pixmap = NULL ;
@@ -81,6 +120,14 @@ void exp_pixmap_resize (EXP_PIXMAP *exp_pixmap, int cxNew, int cyNew)
   exp_pixmap->cyUsed = cyNew ;
   }
 
+/**
+ * exp_pixmap_free:
+ * @exp_pixmap: An "expanding pixmap"
+ *
+ * Destroys an #EXP_PIXMAP and frees all associated resources.
+ *
+ * Returns: %NULL
+ */
 EXP_PIXMAP *exp_pixmap_free (EXP_PIXMAP *exp_pixmap)
   {
   if (NULL == exp_pixmap) return NULL ;
@@ -91,6 +138,12 @@ EXP_PIXMAP *exp_pixmap_free (EXP_PIXMAP *exp_pixmap)
   return NULL ;
   }
 
+/**
+ * exp_pixmap_clean:
+ * @exp_pixmap: An "expanding pixmap"
+ *
+ * Paints the entire surface area of an #EXP_PIXMAP black.
+ */
 void exp_pixmap_clean (EXP_PIXMAP *exp_pixmap)
   {
   GdkGC *gc = NULL ;

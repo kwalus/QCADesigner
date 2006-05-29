@@ -70,7 +70,6 @@ struct _QCADLabelClass
 GType qcad_label_get_type () ;
 
 QCADLabel *qcad_label_new (char *psz, ...) ;
-QCADLabel *qcad_label_vnew (char *psz, va_list va) ;
 void qcad_label_shrinkwrap (QCADLabel *lbl) ;
 void qcad_label_set_text (QCADLabel *label, char *psz, ...) ;
 void qcad_label_vset_text (QCADLabel *label, char *psz, va_list va) ;

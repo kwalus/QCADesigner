@@ -102,24 +102,29 @@ gboolean button_pressed_ACTION_SELECT (GtkWidget *widget, GdkEventButton *event,
 
   objNewSelRef = design_selection_hit_test (project_options->design, event->x, event->y) ;
 
-  if (NULL != objSelRef) 
+  // If we Ctrl+button_press a selected object, we intend to deselect it. We do not intend to move the selection.
+  // Treat this as a window creating event.
+  if (!((event->state & GDK_CONTROL_MASK) || NULL == objNewSelRef))
     {
-    if (NULL != objNewSelRef)
-      objSelRef = objNewSelRef ;
-    return FALSE ;
-    }
+    if (NULL != objSelRef) 
+      {
+      if (NULL != objNewSelRef)
+        objSelRef = objNewSelRef ;
+      return FALSE ;
+      }
 
-  if (NULL != (objSelRef = objNewSelRef))
-    {
-    bHaveWindow = FALSE ;
+    if (NULL != (objSelRef = objNewSelRef))
+      {
+      bHaveWindow = FALSE ;
 
-    dxOrig = objSelRef->x ;
-    dyOrig = objSelRef->y ;
+      dxOrig = objSelRef->x ;
+      dyOrig = objSelRef->y ;
 
-    xOffset = world_to_real_x (objSelRef->x) - event->x ;
-    yOffset = world_to_real_y (objSelRef->y) - event->y ;
+      xOffset = world_to_real_x (objSelRef->x) - event->x ;
+      yOffset = world_to_real_y (objSelRef->y) - event->y ;
 
-    return FALSE ;
+      return FALSE ;
+      }
     }
 
   // Otherwise, if we don't already have a window, then we are creating a new window

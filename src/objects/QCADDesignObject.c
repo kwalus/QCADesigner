@@ -674,12 +674,13 @@ static QCADDesignObject *hit_test (QCADDesignObject *obj, int xReal, int yReal)
 
 static gboolean select_test (QCADDesignObject *obj, WorldRectangle *rc, QCADSelectionMethod method)
   {
+  gboolean bRet = FALSE ;
 //  if (!QCAD_IS_SUBSTRATE (obj))
 //    fprintf (stderr, "QCADDesignObject::select_test for 0x%08X:(%.2lf,%.2lf)[%.2lfx%.2lf] %s (%.2lf,%.2lf)[%.2lfx%.2lf]\n", (int)obj,
 //      obj->bounding_box.xWorld, obj->bounding_box.yWorld, obj->bounding_box.cxWorld, obj->bounding_box.cyWorld, 
 //      SELECTION_CONTAINMENT == method ? "contained in" : "intersects",
 //      rc->xWorld, rc->yWorld, rc->cxWorld, rc->cyWorld) ;
-  return
+  bRet = 
     (((SELECTION_CONTAINMENT == method) &&
        (RECT_IN_RECT (
           obj->bounding_box.xWorld,
@@ -709,6 +710,10 @@ static gboolean select_test (QCADDesignObject *obj, WorldRectangle *rc, QCADSele
         rc->yWorld,
         rc->cxWorld,
         rc->cyWorld)))) ;
+
+//  g_print ("QCADDesignObject::select_test: obj = 0x%x, ret = %s\n", (int)obj, bRet ? "TRUE" : "FALSE") ;
+
+  return bRet ;
   }
 
 #ifdef STDIO_FILEIO

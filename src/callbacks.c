@@ -1481,9 +1481,13 @@ void action_button_clicked (GtkWidget *widget, gpointer data)
   int idx = (int)data ;
 
   if (NULL != widget)
-    if (GTK_IS_TOGGLE_BUTTON (widget))
-      if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
+    if (NULL != g_object_class_find_property (G_OBJECT_GET_CLASS (widget), "active"))
+      {
+      gboolean bActive = FALSE ;
+      g_object_get (G_OBJECT (widget), "active", &bActive, NULL) ;
+      if (!bActive)
         return ;
+      }
 
   // Preamble for each action
   if (ACTION_ROTATE == idx)

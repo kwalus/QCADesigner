@@ -112,12 +112,6 @@ static gboolean qcad_layer_compound_do_last (QCADCompoundDO *container) ;
 static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDesignObject *obj) ;
 static gboolean qcad_layer_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
 
-static QCADDesignObject *qcad_layer_compound_do_first (QCADCompoundDO *container) ;
-static QCADDesignObject *qcad_layer_compound_do_next (QCADCompoundDO *container) ;
-static gboolean qcad_layer_compound_do_last (QCADCompoundDO *container) ;
-static gboolean qcad_layer_do_container_add (QCADDOContainer *container, QCADDesignObject *obj) ;
-static gboolean qcad_layer_do_container_remove (QCADDOContainer *container, QCADDesignObject *obj) ;
-
 static QCADDesignObject *compound_do_first (QCADCompoundDO *container) ;
 static QCADDesignObject *compound_do_next (QCADCompoundDO *container) ;
 static gboolean compound_do_last (QCADCompoundDO *container) ;

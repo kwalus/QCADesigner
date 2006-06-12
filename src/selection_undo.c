@@ -149,11 +149,20 @@ void push_undo_selection_transform (DESIGN *design, SELECTION_RENDERER *sr, GdkW
     qcad_undo_entry_new_with_callbacks ((GCallback)undo_sel_apply, pust, (GDestroyNotify)g_free)) ;
   }
 
-// This function is responsible for recording the offset the selection has moved for later undo purposes.
-// There is a subtle point to be made here: We do not remember all the objects that were moved. Instead,
-// we trust that the selection present at the time of the undo is identical to the selection present at
-// the time this undo event was created. Thus, we must keep track of all selection alteration events and
-// add them to the undo stack.
+/**
+ * push_undo_selection_move:
+ * @design: The design whose selection this action refers to
+ * @sr: The #SELECTION_RENDERER responsible for drawing the selection
+ * @dst: The window to update when something needs drawing
+ * @dxOffset: The amount in the x-direction the selection has moved by
+ * @dyOffset: The amount in the y-direction the selection has moved by
+ * 
+ * This function is responsible for recording the offset (@dxOffset,@dyOffset) the selection has moved for 
+ * later undo purposes. There is a subtle point to be made here: We do not remember all the objects that were 
+ * moved. Instead, we trust that the selection present at the time of the undo is identical to the selection
+ * present at the time this undo event was created. Thus, we must keep track of all selection alteration 
+ * events and add them to the undo stack.
+ */
 void push_undo_selection_move (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, double dxOffset, double dyOffset)
   {
   UndoSelectionMove *pusm = NULL ;

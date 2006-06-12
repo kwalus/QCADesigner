@@ -384,39 +384,11 @@ gboolean qcad_design_object_overlaps (QCADDesignObject *obj1, QCADDesignObject *
   obj2_yBot = obj2->bounding_box.yWorld + obj2->bounding_box.cyWorld ;
 
   return
-//    ((obj1_xTop >= obj2_xTop && obj1_xTop <= obj2_xBot && obj1_yTop >= obj2_yTop && obj1_yTop <= obj2_yBot) ||
-//     (obj1_xTop >= obj2_xTop && obj1_xTop <= obj2_xBot && obj1_yBot >= obj2_yTop && obj1_yBot <= obj2_yBot) ||
-//     (obj1_xBot >= obj2_xTop && obj1_xBot <= obj2_xBot && obj1_yTop >= obj2_yTop && obj1_yTop <= obj2_yBot) ||
-//     (obj1_xBot >= obj2_xTop && obj1_xBot <= obj2_xBot && obj1_yBot >= obj2_yTop && obj1_yBot <= obj2_yBot)) ;
-
-    (obj1_xTop == obj2_xTop && 
-     obj1_yTop == obj2_yTop && 
-     obj1_xBot == obj2_xBot && 
-     obj1_yBot == obj2_yBot) ||
-
-    ((obj1_xTop > obj2_xTop && 
-      obj1_xTop < obj2_xBot && 
-
-      obj1_yTop > obj2_yTop && 
-      obj1_yTop < obj2_yBot) ||
-
-     (obj1_xTop > obj2_xTop && 
-      obj1_xTop < obj2_xBot && 
-
-      obj1_yBot > obj2_yTop && 
-      obj1_yBot < obj2_yBot) ||
-
-     (obj1_xBot > obj2_xTop && 
-      obj1_xBot < obj2_xBot && 
-
-      obj1_yTop > obj2_yTop && 
-      obj1_yTop < obj2_yBot) ||
-
-     (obj1_xBot > obj2_xTop && 
-      obj1_xBot < obj2_xBot && 
-
-      obj1_yBot > obj2_yTop && 
-      obj1_yBot < obj2_yBot)) ;
+    ((obj1_xTop == obj2_xTop && obj1_yTop == obj2_yTop && obj1_xBot == obj2_xBot && obj1_yBot == obj2_yBot) ||
+     (obj1_xTop  > obj2_xTop && obj1_xTop  < obj2_xBot && obj1_yTop  > obj2_yTop && obj1_yTop  < obj2_yBot) ||
+     (obj1_xTop  > obj2_xTop && obj1_xTop  < obj2_xBot && obj1_yBot  > obj2_yTop && obj1_yBot  < obj2_yBot) ||
+     (obj1_xBot  > obj2_xTop && obj1_xBot  < obj2_xBot && obj1_yTop  > obj2_yTop && obj1_yTop  < obj2_yBot) ||
+     (obj1_xBot  > obj2_xTop && obj1_xBot  < obj2_xBot && obj1_yBot  > obj2_yTop && obj1_yBot  < obj2_yBot)) ;
   }
 
 #ifdef STDIO_FILEIO

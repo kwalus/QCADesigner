@@ -35,6 +35,8 @@
 #include "design.h"
 #include "exp_pixmap.h"
 
+//#define ENABLE_DEBUG_WINDOW
+
 typedef struct
   {
   GtkWidget *signal_widget ;
@@ -44,6 +46,9 @@ typedef struct
   GdkRectangle rcVisible ;
   GdkPoint ptOffset ;
   gboolean bEnabled ;
+#ifdef ENABLE_DEBUG_WINDOW
+  GtkWidget *debug_window ;
+#endif /* def ENABLE_DEBUG_WINDOW */
   } SELECTION_RENDERER ;
 
 SELECTION_RENDERER *selection_renderer_new (GtkWidget *dst) ;

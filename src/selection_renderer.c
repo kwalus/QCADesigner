@@ -35,12 +35,19 @@
 #include "exp_pixmap.h"
 #include "selection_renderer.h"
 
+#ifdef ENABLE_DEBUG_WINDOW
+static void selection_renderer_update_debug_window (SELECTION_RENDERER *sr) ;
+#endif /* def ENABLE_DEBUG_WINDOW */
 static gboolean sr_configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer data) ;
 
 extern GdkColor clrBlack ;
 
 SELECTION_RENDERER *selection_renderer_new (GtkWidget *dst)
   {
+#ifdef ENABLE_DEBUG_WINDOW
+  GdkDisplay *display = NULL ;
+  GdkScreen *screen = NULL ;
+#endif /* def ENABLE_DEBUG_WINDOW */
   int cx, cy ;
   SELECTION_RENDERER *sr = NULL ;
 
@@ -54,6 +61,19 @@ SELECTION_RENDERER *selection_renderer_new (GtkWidget *dst)
 
   g_signal_connect (G_OBJECT (dst), "configure-event", (GCallback)sr_configure_event, sr) ;
 
+#ifdef ENABLE_DEBUG_WINDOW
+  if (NULL != (display = gdk_display_get_default ()))
+    screen = gdk_display_get_screen (display, MAX (0, gdk_display_get_n_screens (display) - 1)) ;
+  sr->debug_window = g_object_new (GTK_TYPE_WINDOW, "type", GTK_WINDOW_TOPLEVEL, NULL) ;
+  if (NULL != screen)
+    g_object_set (G_OBJECT (sr->debug_window), "screen", screen, NULL) ;
+  g_object_set (G_OBJECT (sr->debug_window), "visible", TRUE, NULL) ;
+  gtk_container_add (GTK_CONTAINER (sr->debug_window), 
+    GTK_WIDGET (g_object_new (GTK_TYPE_DRAWING_AREA, "visible", TRUE, NULL))) ;
+
+  selection_renderer_update_debug_window (sr) ;
+#endif /* def ENABLE_DEBUG_WINDOW */
+
   return sr ;
   }
 
@@ -63,6 +83,9 @@ SELECTION_RENDERER *selection_renderer_free (SELECTION_RENDERER *sr)
     G_SIGNAL_MATCH_FUNC, 0, 0, NULL, (gpointer)sr_configure_event, (gpointer)sr) ;
 
   exp_pixmap_free (sr->pixmap) ;
+#ifdef ENABLE_DEBUG_WINDOW
+  g_object_unref (G_OBJECT (sr->debug_window)) ;
+#endif /* def ENABLE_DEBUG_WINDOW */
   g_free (sr) ;
 
   return NULL ;
@@ -109,6 +132,10 @@ void selection_renderer_update (SELECTION_RENDERER *sr, DESIGN *design)
       design_draw (design, sr->pixmap->pixmap, GDK_COPY, &(sr->rcVisible), QCAD_LAYER_DRAW_SELECTION) ;
 //      }
     }
+
+#ifdef ENABLE_DEBUG_WINDOW 
+  selection_renderer_update_debug_window (sr) ;
+#endif /* def ENABLE_DEBUG_WINDOW */
   }
 
 void selection_renderer_move (SELECTION_RENDERER *sr, DESIGN *design, double dcxDiff, double dcyDiff)
@@ -172,7 +199,30 @@ void selection_renderer_move (SELECTION_RENDERER *sr, DESIGN *design, double dcx
 static gboolean sr_configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
   {
   exp_pixmap_resize (((SELECTION_RENDERER *)data)->pixmap, event->width, event->height) ;
+#ifdef ENABLE_DEBUG_WINDOW
+  selection_renderer_update_debug_window ((SELECTION_RENDERER *)data) ;
+#endif /* def ENABLE_DEBUG_WINDOW */
   return FALSE ;
   }
 
 ////////////////////////////////////////////////////////////
+
+#ifdef ENABLE_DEBUG_WINDOW
+static void selection_renderer_update_debug_window (SELECTION_RENDERER *sr)
+  {
+  GdkGC *gc = NULL ;
+  GdkPixbuf *pixbuf = NULL ;
+
+  if (NULL == (pixbuf = gdk_pixbuf_get_from_drawable (NULL, sr->pixmap->pixmap, NULL, 0, 0, 0, 0, sr->pixmap->cxUsed, sr->pixmap->cyUsed)))
+    return ;
+
+  gtk_widget_set_size_request (GTK_BIN (sr->debug_window)->child, sr->pixmap->cxUsed, sr->pixmap->cyUsed) ;
+  gc = gdk_gc_new (GTK_BIN (sr->debug_window)->child->window) ;
+  gdk_draw_pixbuf (GTK_BIN (sr->debug_window)->child->window, gc, pixbuf, 
+    0, 0, 0, 0, sr->pixmap->cxUsed, sr->pixmap->cyUsed, 
+    GDK_RGB_DITHER_NONE, 0, 0) ;
+//  gdk_draw_drawable (GTK_BIN (sr->debug_window)->child->window, gc, sr->pixmap->pixmap,
+//    0, 0, 0, 0, sr->pixmap->cxUsed, sr->pixmap->cyUsed) ;
+  g_object_unref (gc) ;
+  }
+#endif /* def ENABLE_DEBUG_WINDOW */

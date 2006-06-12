@@ -718,12 +718,8 @@ void on_clock_increment_menu_item_activate (GtkMenuItem * menuitem, gpointer use
   {
   gboolean bFoundSelection = FALSE ;
   GList *lstItrLayer = NULL, *lstItrSel = NULL ;
-  EXP_ARRAY *arSelObjs = NULL ;
-
-  arSelObjs = design_selection_get_object_array (project_options.design) ;
 #ifdef UNDO_REDO
-  if (NULL != arSelObjs)
-    push_undo_selection_clock (project_options.design, project_options.srSelection, main_window.drawing_area->window, arSelObjs, 1) ;
+  push_undo_selection_clock (project_options.design, project_options.srSelection, main_window.drawing_area->window, 1) ;
 #endif /* def UNDO_REDO */
 
   for (lstItrLayer = project_options.design->lstLayers ; lstItrLayer != NULL ; lstItrLayer = lstItrLayer->next)

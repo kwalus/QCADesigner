@@ -41,9 +41,9 @@
 
 void push_undo_selection_move      (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, double dxOffset, double dyOffset) ;
 void push_undo_selection_transform (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, double mtxFore[2][2], double mtxBack[2][2]) ;
+void push_undo_selection_clock     (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, int clock_new) ;
 void push_undo_selection_altered   (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, EXP_ARRAY *objs, gboolean bAdded) ;
 void push_undo_selection_existence (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, EXP_ARRAY *objs, gboolean bCreated) ;
-void push_undo_selection_clock     (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, EXP_ARRAY *objs, int clock_new) ;
 void push_undo_selection_state     (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, EXP_ARRAY *objs, char *state, GValue *value) ;
 void track_undo_object_update      (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, QCADUndoEntry *entry) ;
 

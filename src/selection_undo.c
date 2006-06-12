@@ -98,7 +98,7 @@ typedef struct
 
 typedef struct
   {
-  UndoSelectionObjArray ar_undo ;
+  UndoSelection undo ;
   int relative_clock_change ;
   } UndoSelectionClock ;
 
@@ -114,10 +114,17 @@ typedef struct
   gboolean bCreated ;
   } UndoSelectionExistence ;
 
+typedef struct
+  { 
+  gboolean bUndo ; 
+  int relative_clock_change ;
+  } UndoSelClockCBParams ;
+
 static void undo_sel_apply (QCADUndoEntry *entry, gboolean bUndo, gpointer data) ;
 
 static void undo_selection_object_array_free (gpointer data) ;
 static void undo_selection_state_free (gpointer data) ;
+static void undo_sel_clock_cb (DESIGN *design, QCADDesignObject *obj, gpointer data) ;
 
 #ifdef DBG_FREE_STRUCTS
 static char *selection_undo_descriptions[] =
@@ -261,23 +268,22 @@ void push_undo_selection_state (DESIGN *design, SELECTION_RENDERER *sr, GdkWindo
     qcad_undo_entry_new_with_callbacks ((GCallback)undo_sel_apply, puss, (GDestroyNotify)undo_selection_state_free)) ;
   }
 
-void push_undo_selection_clock (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, EXP_ARRAY *objs, int clock_new)
+void push_undo_selection_clock (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, int clock_new)
   {
   UndoSelectionClock *pusc = NULL ;
 
-  if (NULL == design || NULL == sr || NULL == dst || NULL == objs) return ;
+  if (NULL == design || NULL == sr || NULL == dst) return ;
 
   if (NULL == (pusc = g_malloc0 (sizeof (UndoSelectionClock)))) return ;
 
-  pusc->ar_undo.undo.type     = SELECTION_UNDO_CLOCK ;
-  pusc->ar_undo.undo.sr       = sr ;
-  pusc->ar_undo.undo.design   = design ;
-  pusc->ar_undo.undo.dst      = dst ;
-  pusc->ar_undo.objs          = objs ;
+  pusc->undo.type     = SELECTION_UNDO_CLOCK ;
+  pusc->undo.sr       = sr ;
+  pusc->undo.design   = design ;
+  pusc->undo.dst      = dst ;
   pusc->relative_clock_change = clock_new ;
 
   qcad_undo_entry_group_push (qcad_undo_entry_group_get_default (),
-    qcad_undo_entry_new_with_callbacks ((GCallback)undo_sel_apply, pusc, (GDestroyNotify)undo_selection_object_array_free)) ;
+    qcad_undo_entry_new_with_callbacks ((GCallback)undo_sel_apply, pusc, (GDestroyNotify)g_free)) ;
   }
 
 void track_undo_object_update (DESIGN *design, SELECTION_RENDERER *sr, GdkWindow *dst, QCADUndoEntry *entry)
@@ -336,25 +342,11 @@ static void undo_sel_apply (QCADUndoEntry *entry, gboolean bUndo, gpointer data)
     {
     case SELECTION_UNDO_CLOCK :
       {
-      int Nix ;
-      QCADDesignObject *obj = NULL ;
       UndoSelectionClock *pusc = (UndoSelectionClock *)pus ;
-      guint clock_current =  -1 ;
+      UndoSelClockCBParams clock_cb_params = { bUndo, pusc->relative_clock_change } ;
 
-      for (Nix = 0 ; Nix < pusc->ar_undo.objs->icUsed ; Nix++)
-        if (NULL != (obj = exp_array_index_1d (pusc->ar_undo.objs, QCADDesignObject *, Nix)))
-          if (QCAD_IS_CELL (obj))
-            {
-            g_object_get (G_OBJECT (obj), "clock", &clock_current, NULL) ;
-            g_object_set (G_OBJECT (obj), "clock",
-              (bUndo
-                ? (pusc->relative_clock_change > 0
-                  ? (CLOCK_DEC (clock_current))
-                  : (CLOCK_INC (clock_current)))
-                : (pusc->relative_clock_change > 0
-                  ? (CLOCK_INC (clock_current))
-                  : (CLOCK_DEC (clock_current)))), NULL) ;
-            }
+      design_selection_objects_foreach (pusc->undo.design, undo_sel_clock_cb, &clock_cb_params) ;
+
       break ;
       }
 
@@ -468,4 +460,18 @@ static void undo_sel_apply (QCADUndoEntry *entry, gboolean bUndo, gpointer data)
   DBG_UNDO_SEL_APPLY (fprintf (stderr, "undo_sel_apply:After performing undo, design looks like this:\n")) ;
   DBG_UNDO_SEL_APPLY (design_dump (pus->design, stderr)) ;
   DBG_UNDO_SEL_APPLY (fprintf (stderr, "undo_sel_apply:Leaving\n")) ;
+  }
+
+static void undo_sel_clock_cb (DESIGN *design, QCADDesignObject *obj, gpointer data)
+  {
+  int clock_current = -1 ;
+  UndoSelClockCBParams *clock_cb_params = (UndoSelClockCBParams *)data ;
+
+  if (NULL == obj || NULL == clock_cb_params) return ;
+
+  g_object_get (G_OBJECT (obj), "clock", &clock_current, NULL) ;
+  g_object_set (G_OBJECT (obj), "clock",
+    (clock_cb_params->bUndo
+      ? (clock_cb_params->relative_clock_change > 0 ? (CLOCK_DEC (clock_current)) : (CLOCK_INC (clock_current)))
+      : (clock_cb_params->relative_clock_change > 0 ? (CLOCK_INC (clock_current)) : (CLOCK_DEC (clock_current)))), NULL) ;
   }

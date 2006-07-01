@@ -237,7 +237,7 @@ void create_graph_dialog (graph_D *dialog)
     "xalign", 0.0, "yalign", 0.5, "xpad", 2, "ypad", 2, NULL) ;
   gtk_container_add (GTK_CONTAINER (frm), dialog->lbl_status) ;
 
-  dialog->size_group_vert = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL) ;
+//  dialog->size_group_vert = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL) ;
 
   g_signal_connect (G_OBJECT (cr),             "toggled",       (GCallback)gd_model_visible_toggled,     dialog) ;
   g_signal_connect (G_OBJECT (dialog->tview),  "row-expanded",  (GCallback)gd_set_bus_expanded,          (gpointer)TRUE) ;
@@ -258,7 +258,7 @@ void attach_graph_widgets (graph_D *dialog, GtkWidget *table, GtkWidget *trace, 
   gtk_table_attach (GTK_TABLE (table), trace, 
     TRACE_TABLE_MIN_X + 2,                   TRACE_TABLE_MIN_X + 3,
     TRACE_TABLE_MIN_Y + ((idxTbl << 1) + 1), TRACE_TABLE_MIN_Y + ((idxTbl + 1) << 1),
-    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(0), 2, 2) ;
+    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(GTK_FILL), 2, 2) ;
 
   // Attach the ruler
   gtk_widget_show (ruler) ;
@@ -272,7 +272,7 @@ void attach_graph_widgets (graph_D *dialog, GtkWidget *table, GtkWidget *trace, 
   gtk_table_attach (GTK_TABLE (table), ui,
     TRACE_TABLE_MIN_X + 1,                   TRACE_TABLE_MIN_X + 2,
     TRACE_TABLE_MIN_Y + ((idxTbl << 1) + 1), TRACE_TABLE_MIN_Y + ((idxTbl + 1) << 1),
-    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 2, 2) ;
+    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 2, 2) ;
 
   set_window_icon (GTK_WINDOW (dialog->dialog), "graph_dialog") ;
   }
@@ -322,6 +322,7 @@ static gboolean create_waveform_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, G
   gtk_widget_show (tbl) ;
   gtk_container_add (GTK_CONTAINER (trace_ui_widget), tbl) ;
   gtk_container_set_border_width (GTK_CONTAINER (tbl), 2) ;
+//  g_object_weak_ref (G_OBJECT (trace_ui_widget), (GWeakNotify)g_print, "Waveform trace UI widget g0ne!\n") ;
 
   lbl = gtk_label_new (psz = g_strdup_printf ("max: %6.2e", dMax)) ;
   g_free (psz) ;
@@ -352,6 +353,7 @@ static gboolean create_waveform_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, G
   gtk_misc_set_alignment (GTK_MISC (lbl), 1.0, 1.0) ;
 
   trace_drawing_widget = create_trace_drawing_area ((GRAPH_DATA *)wf, (GDestroyNotify)waveform_data_free, (GCallback)gd_waveform_expose, graph_dialog_data) ;
+//  g_object_weak_ref (G_OBJECT (trace_ui_widget), (GWeakNotify)g_print, "Waveform trace drawing widget g0ne!\n") ;
 
   gtk_size_group_add_widget (graph_dialog_data->size_group_vert, trace_drawing_widget) ;
   gtk_size_group_add_widget (graph_dialog_data->size_group_vert, trace_ui_widget) ;
@@ -409,6 +411,7 @@ static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTre
   tbl = gtk_table_new (1, 1, FALSE) ;
   gtk_widget_show (tbl) ;
   gtk_container_add (GTK_CONTAINER (trace_ui_widget), tbl) ;
+//  g_object_weak_ref (G_OBJECT (trace_ui_widget), (GWeakNotify)g_print, "Bus trace UI widget g0ne!\n") ;
 
   lbl = gtk_label_new (pszBusName) ;
   g_free (pszBusName) ;
@@ -420,6 +423,7 @@ static gboolean create_bus_widgets (GRAPH_DIALOG_DATA *graph_dialog_data, GtkTre
   gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5) ;
 
   trace_drawing_widget = create_trace_drawing_area ((GRAPH_DATA *)hc, (GDestroyNotify)honeycomb_data_free, (GCallback)gd_honeycomb_expose, graph_dialog_data) ;
+//  g_object_weak_ref (G_OBJECT (trace_ui_widget), (GWeakNotify)g_print, "Bus trace drawing widget g0ne!\n") ;
 
   trace_ruler_widget = gtk_hruler_new () ;
 

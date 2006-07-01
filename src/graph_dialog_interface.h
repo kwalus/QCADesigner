@@ -52,7 +52,7 @@ typedef struct
   GtkWidget *hpaned ;
   GtkWidget *lbl_status ;
 //  GtkSizeGroup *size_group_horz ;
-  GtkSizeGroup *size_group_vert ;
+//  GtkSizeGroup *size_group_vert ;
   } graph_D ;
 
 void create_graph_dialog (graph_D *dialog) ;

@@ -444,7 +444,7 @@ void gd_actOpen_activate (GtkWidget *widget, gpointer user_data)
     }
 
   g_object_set_data_full (G_OBJECT (dialog->dialog), "graph_dialog_data",
-    gdd = graph_dialog_data_new (/*dialog->size_group_horz, */dialog->size_group_vert, sim_output, TRUE, dThreshLower, dThreshUpper, icAverageSamples, base),
+    gdd = graph_dialog_data_new (/*dialog->size_group_horz, dialog->size_group_vert, */sim_output, TRUE, dThreshLower, dThreshUpper, icAverageSamples, base),
     (GDestroyNotify)graph_dialog_data_free) ;
 
   apply_graph_dialog_data (dialog, gdd) ;

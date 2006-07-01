@@ -36,7 +36,7 @@
 #include "graph_dialog_interface.h"
 #include "graph_dialog_data.h"
 
-GRAPH_DIALOG_DATA *graph_dialog_data_new (GtkSizeGroup *size_group_vert, SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int icAverageSamples, int base)
+GRAPH_DIALOG_DATA *graph_dialog_data_new (SIMULATION_OUTPUT *sim_output, gboolean bOKToFree, double dThreshLower, double dThreshUpper, int icAverageSamples, int base)
   {
   GtkTreeStore *ts = NULL ;
   GtkTreeIter itr ;
@@ -47,7 +47,8 @@ GRAPH_DIALOG_DATA *graph_dialog_data_new (GtkSizeGroup *size_group_vert, SIMULAT
 
   graph_dialog_data = g_malloc0 (sizeof (GRAPH_DIALOG_DATA)) ;
 
-  graph_dialog_data->size_group_vert  = size_group_vert ;
+  graph_dialog_data->size_group_vert  = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL) ;
+//  g_object_weak_ref (G_OBJECT (graph_dialog_data->size_group_vert), (GWeakNotify)g_print, "Vertical size group is g0ne!\n") ;
   graph_dialog_data->sim_data         = sim_output->sim_data ;
   graph_dialog_data->bus_layout       = sim_output->bus_layout ;
   graph_dialog_data->bFakeCells       = sim_output->bFakeIOLists ;
@@ -158,6 +159,9 @@ void graph_dialog_data_free (GRAPH_DIALOG_DATA *gdd)
 
   // Destroy the model
   g_object_unref (gdd->model) ;
+
+  // Destroy the size group
+  g_object_unref (gdd->size_group_vert) ;
 
   // Free the structure itself
   g_free (gdd) ;

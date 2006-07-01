@@ -60,7 +60,7 @@ void show_graph_dialog (GtkWindow *parent, SIMULATION_OUTPUT *sim_output, gboole
     }
 
   g_object_set_data_full (G_OBJECT (graph.dialog), "graph_dialog_data",
-    gdd = graph_dialog_data_new (graph.size_group_vert, sim_output, bOKToFree, dThreshLower, dThreshUpper, icAverageSamples, base),
+    gdd = graph_dialog_data_new (sim_output, bOKToFree, dThreshLower, dThreshUpper, icAverageSamples, base),
     (GDestroyNotify)graph_dialog_data_free) ;
 
   apply_graph_dialog_data (&graph, gdd) ;

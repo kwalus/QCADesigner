@@ -449,7 +449,9 @@ static void undo_sel_apply (QCADUndoEntry *entry, gboolean bUndo, gpointer data)
       break ;
       }
 
-    case OBJECT_UNDO_STATE: // Nothing to do when only the object state has changed
+    // Nothing to do when only the object state has changed
+    // This callback is only necessary for updating the selection renderer
+    case OBJECT_UNDO_STATE:
     default:
       break ;
     }

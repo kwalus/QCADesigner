@@ -79,6 +79,7 @@ void create_main_window (main_W *main_window)
 #endif /* def STDIO_FILEIO */
   GtkAccelGroup *accel_group = NULL ;
   GtkTooltips *tooltips;
+  GtkSizeGroup *size_group = NULL ;
   char *psz = NULL ;
   int Nix, Nix1, x_offset = 0 ;
 
@@ -879,16 +880,22 @@ void create_main_window (main_W *main_window)
   tbl = g_object_new (GTK_TYPE_TABLE, "visible", TRUE, "n-rows", 1, "n-columns", 2, "border-width", 2, "homogeneous", FALSE, NULL) ;
   gtk_box_pack_start (GTK_BOX (vbProgress), tbl, FALSE, FALSE, 0) ;
 
+  size_group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL) ;
+
   progress = create_labelled_progress_bar () ;
   gtk_table_attach (GTK_TABLE (tbl), progress, 0, 1, 0, 1,
     (GtkAttachOptions)(GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+
+  gtk_size_group_add_widget (size_group, progress) ;
 
   // create and add tbe status bar to the main window //
   status_bar = g_object_new (GTK_TYPE_STATUSBAR, "visible", TRUE, NULL) ;
   gtk_table_attach (GTK_TABLE (tbl), status_bar, 1, 2, 0, 1,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
     (GtkAttachOptions)(GTK_FILL), 0, 0) ;
+
+  gtk_size_group_add_widget (size_group, status_bar) ;
 #ifdef STDIO_FILEIO
   g_timeout_add (60000, (GtkFunction)autosave_timer_event, NULL) ;
 #endif /* def STDIO_FILEIO */

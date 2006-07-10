@@ -1259,7 +1259,11 @@ void on_start_simulation_menu_item_activate(GtkMenuItem * menuitem, gpointer use
     return ;
     }
 
+  g_object_set (G_OBJECT (menuitem), "sensitive", FALSE, NULL) ;
+
   project_options.sim_data = run_simulation (project_options.SIMULATION_ENGINE, project_options.SIMULATION_TYPE, project_options.design, pvt);
+
+  g_object_set (G_OBJECT (menuitem), "sensitive", TRUE, NULL) ;
 
   if (NULL != project_options.sim_data)
     {

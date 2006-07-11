@@ -2,7 +2,6 @@
 #include "global_consts.h"
 #include "bus_layout_dialog.h"
 #include "qcadstock.h"
-#include "objects/QCADScrolledWindow.h"
 #include "vector_table_options_dialog_interface.h"
 #include "vector_table_options_dialog_callbacks.h"
 
@@ -156,9 +155,9 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
 
   gtk_window_add_accel_group (GTK_WINDOW  (dialog->dialog), gtk_ui_manager_get_accel_group (ui_mgr)) ;
 
-  dialog->sw = g_object_new (QCAD_TYPE_SCROLLED_WINDOW, "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
-    "vscrollbar_policy", GTK_POLICY_AUTOMATIC,          "custom-hadjustment", TRUE,
-    "visible",           TRUE,                          "shadow_type",        GTK_SHADOW_IN,
+  dialog->sw = g_object_new (GTK_TYPE_SCROLLED_WINDOW, "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
+    "vscrollbar_policy", GTK_POLICY_AUTOMATIC,         "visible",           TRUE,
+    "shadow_type",       GTK_SHADOW_IN,
     NULL) ;
   gtk_table_attach (GTK_TABLE (tbl), dialog->sw, 1, 2, 2, 3,
     (GtkAttachOptions)(GTK_FILL | GTK_EXPAND),
@@ -175,7 +174,8 @@ void create_vector_table_options_dialog (vector_table_options_D *dialog)
   gtk_widget_show (dialog->tv) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->tv) ;
 
-  g_object_get (G_OBJECT (dialog->tv), "hadjustment", &fake_hadj, NULL) ;
+  fake_hadj = g_object_new (GTK_TYPE_ADJUSTMENT, NULL) ;
+  g_object_set (G_OBJECT (dialog->tv), "hadjustment", fake_hadj, NULL) ;
   g_object_get (G_OBJECT (dialog->sw), "hadjustment", &hadj, NULL) ;
 
   status_table = g_object_new (GTK_TYPE_TABLE, 

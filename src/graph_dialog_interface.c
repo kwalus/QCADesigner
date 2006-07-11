@@ -40,7 +40,6 @@
 #include "graph_dialog_interface.h"
 #include "graph_dialog_widget_data.h"
 #include "graph_dialog_callbacks.h"
-#include "objects/QCADScrolledWindow.h"
 
 static char *graph_dialog_ui_xml =
   "<ui>"
@@ -207,16 +206,16 @@ void create_graph_dialog (graph_D *dialog)
   gtk_widget_show (dialog->tview) ;
   gtk_container_add (GTK_CONTAINER (sw_tview), dialog->tview) ;
 
-  dialog->sw = g_object_new (QCAD_TYPE_SCROLLED_WINDOW, "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
-    "vscrollbar-policy", GTK_POLICY_AUTOMATIC, "shadow-type", GTK_SHADOW_NONE, "visible", TRUE, 
-    "custom-hadjustment", TRUE, NULL) ;
+  dialog->sw = g_object_new (GTK_TYPE_SCROLLED_WINDOW, "hscrollbar-policy", GTK_POLICY_AUTOMATIC,
+    "vscrollbar-policy", GTK_POLICY_AUTOMATIC, "shadow-type", GTK_SHADOW_NONE, "visible", TRUE, NULL) ;
   gtk_paned_add2 (GTK_PANED (dialog->hpaned), dialog->sw) ;
 
   tbl_vp = g_object_new (GTK_TYPE_TABLE, "visible", TRUE, "n-rows", 1, "n-columns", 1, "homogeneous", FALSE, NULL) ;
   dialog->vp = g_object_new (GTK_TYPE_VIEWPORT, "visible", TRUE, NULL) ;
   gtk_container_add (GTK_CONTAINER (dialog->vp), tbl_vp) ;
   gtk_container_add (GTK_CONTAINER (dialog->sw), dialog->vp) ;
-  g_object_get (G_OBJECT (dialog->vp), "hadjustment", &fake_hadj, NULL) ;
+  fake_hadj = g_object_new (GTK_TYPE_ADJUSTMENT, NULL) ;
+  g_object_set (G_OBJECT (dialog->vp), "hadjustment", fake_hadj, NULL) ;
 
   dialog->table_of_traces = g_object_new (GTK_TYPE_TABLE, "visible", TRUE, "n-rows", 1, "n-columns", 2, "homogeneous", FALSE, NULL) ;
   gtk_table_attach (GTK_TABLE (tbl_vp), dialog->table_of_traces, 0, 1, 0, 1,

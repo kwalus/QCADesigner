@@ -3,7 +3,6 @@
 #include "design.h"
 #include "global_consts.h"
 #include "custom_widgets.h"
-#include "objects/QCADScrolledWindow.h"
 #include "objects/QCADCellRendererVT.h"
 #include "file_selection_window.h"
 #include "vector_table_options_dialog_callbacks.h"

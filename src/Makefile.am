@@ -127,6 +127,7 @@ batch_sim_SOURCES = \
 	simulation_data.c                       simulation_data.h \
 	graph_dialog_widget_data.c              graph_dialog_widget_data.h \
 \
+	vector_table.c                          vector_table.h \
 	preamble.c                              preamble.h \
 	main_batch_sim.c
 

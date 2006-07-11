@@ -60,6 +60,7 @@ typedef struct
   char *pszSimOptsFName ;
   char *pszReferenceSimOutputFName ;
   char *pszFName ;
+  char *pszVTFName ;
   int circuit_delay ;
   } CMDLINE_ARGS ;
 
@@ -70,6 +71,8 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args) ;
 
 int main (int argc, char **argv)
   {
+  VectorTable *pvt = NULL ;
+  VTL_RESULT vt_load_result = VTL_OK ;
   int Nix, Nix1, Nix2 ;
   DESIGN *design = NULL, *working_design = NULL ;
   simulation_data *sim_data = NULL ;
@@ -94,6 +97,7 @@ int main (int argc, char **argv)
     .pszSimOptsFName            = NULL,
     .pszReferenceSimOutputFName = NULL,
     .pszFName                   = NULL,
+    .pszVTFName                 = NULL,
     .circuit_delay              = 0
     } ;
 
@@ -142,6 +146,27 @@ int main (int argc, char **argv)
     {
     flush_fprintf (stderr, _("Failed to open the reference simulation output file !\n")) ;
     return 3 ;
+    }
+
+  if (NULL != cmdline_args.pszVTFName)
+    {
+    pvt = VectorTable_new () ;
+    if (NULL != pvt->pszFName)
+      g_free (pvt->pszFName) ;
+    pvt->pszFName = g_strdup (cmdline_args.pszVTFName) ;
+    VectorTable_add_inputs (pvt, design) ;
+    vt_load_result = VectorTable_load (pvt) ;
+    if (VTL_FILE_FAILED == vt_load_result || VTL_MAGIC_FAILED == vt_load_result)
+      {
+      VectorTable_free (pvt) ;
+      pvt = NULL ;
+      }
+    }
+
+  if (NULL != pvt)
+    {
+    flush_fprintf (stderr, _("Using the following vector table:\n")) ;
+    VectorTable_dump (pvt, stderr, 0) ;
     }
 
   if (BISTABLE == cmdline_args.sim_engine)
@@ -193,7 +218,7 @@ int main (int argc, char **argv)
       if (cmdline_args.dTolerance != 0.0)
         randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance) ;
 
-      if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, EXHAUSTIVE_VERIFICATION, working_design, NULL)))
+      if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, EXHAUSTIVE_VERIFICATION, working_design, pvt)))
         {
         out_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT, cmdline_args.dThreshLower, cmdline_args.dThreshUpper, cmdline_args.icAverageSamples) ;
         // Print out the results for comparison
@@ -357,6 +382,15 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
               : BISTABLE /* default */ ;
       }
     else
+    if (!(strcmp (argv[Nix], _("-v")) && strcmp (argv[Nix], _("--vector-table"))))
+      {
+      if (++Nix < argc)
+        {
+        cmdline_args->pszVTFName = argv[Nix] ;
+        icParms++ ;
+        }
+      }
+    else
     if (!(strcmp (argv[Nix], _("-f")) && strcmp (argv[Nix], _("--file"))))
       {
       if (++Nix < argc)
@@ -430,19 +464,20 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
     _("Usage: batch_sim options...\n"
       "\n"
       "Options are:\n"
-      "  -a  --average   samples       Optional: Number of samples to use for running average. Default is 1.\n"
-      "  -d  --delay     honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
-      "  -e  --engine    engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
-      "  -f  --file      file          Required: The circuit file.\n"
-      "  -l  --lower     polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
-      "  -n  --number    number        Required: Number of simulations to perform.\n"
-      "  -o  --options   file          Required: Simulation engine options file.\n"
-      "  -r  --results   file          Required: Simulation results file to compare generated results to.\n"
-      "  -t  --tolerance tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
-      "  -u  --upper     polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n"
-      "  -x  --exit                    Optional: Turn on exit-on-first-failure.\n"
-      "    -s  --save      file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
-      "                                            and the circuit to file_prefix.qca.\n")) ;
+      "  -a  --average      samples       Optional: Number of samples to use for running average. Default is 1.\n"
+      "  -d  --delay        honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
+      "  -e  --engine       engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
+      "  -f  --file         file          Required: The circuit file.\n"
+      "  -l  --lower        polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
+      "  -n  --number       number        Required: Number of simulations to perform.\n"
+      "  -o  --options      file          Required: Simulation engine options file.\n"
+      "  -r  --results      file          Required: Simulation results file to compare generated results to.\n"
+      "  -t  --tolerance    tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
+      "  -u  --upper        polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n"
+      "  -v  --vector-table file          Optional: Vector table file to use.\n"
+      "  -x  --exit                       Optional: Turn on exit-on-first-failure.\n"
+      "    -s  --save         file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
+      "                                               and the circuit to file_prefix.qca.\n")) ;
     exit (1) ;
     }
   }

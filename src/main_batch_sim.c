@@ -215,6 +215,7 @@ int main (int argc, char **argv)
     flush_fprintf (stderr, _("Running %s simulation %d of %d\n"), NULL == pvt ? _("exhaustive") : _("vector table"), Nix + 1, cmdline_args.number_of_sims) ;
     if (NULL != (working_design = design_copy (design)))
       {
+      VectorTable_fill (pvt, working_design) ;
       if (cmdline_args.dTolerance != 0.0)
         randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance) ;
 

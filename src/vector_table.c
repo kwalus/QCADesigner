@@ -68,7 +68,11 @@ VectorTable *VectorTable_new ()
 
 VectorTable *VectorTable_copy (VectorTable *pvt)
   {
-  VectorTable *pvtNew = g_malloc0 (sizeof (VectorTable)) ;
+  VectorTable *pvtNew = NULL ;
+
+  if (NULL == pvt) return NULL ;
+
+  pvtNew = g_malloc0 (sizeof (VectorTable)) ;
 
   pvtNew->pszFName = g_strdup (pvt->pszFName) ;
   pvtNew->inputs = exp_array_copy (pvt->inputs) ;
@@ -79,6 +83,8 @@ VectorTable *VectorTable_copy (VectorTable *pvt)
 
 VectorTable *VectorTable_free (VectorTable *pvt)
   {
+  if (NULL == pvt) return NULL ;
+
   g_free (pvt->pszFName) ;
   exp_array_free (pvt->inputs) ;
   exp_array_free (pvt->vectors) ;

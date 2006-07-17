@@ -218,7 +218,7 @@ int main (int argc, char **argv)
       if (cmdline_args.dTolerance != 0.0)
         randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance) ;
 
-      if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, EXHAUSTIVE_VERIFICATION, working_design, pvt)))
+      if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, (NULL == pvt ? EXHAUSTIVE_VERIFICATION : VECTOR_TABLE), working_design, pvt)))
         {
         out_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT, cmdline_args.dThreshLower, cmdline_args.dThreshUpper, cmdline_args.icAverageSamples) ;
         // Print out the results for comparison

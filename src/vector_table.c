@@ -102,6 +102,7 @@ void VectorTable_empty (VectorTable *pvt)
 // Replace the inputs in the vector table with those from design, and clean out the vectors
 void VectorTable_fill (VectorTable *pvt, DESIGN *design)
   {
+  if (NULL == pvt || NULL == design) return ;
   DBG_VT (fprintf (stderr, "Entering VectorTable_fill\n")) ;
   VectorTable_empty (pvt) ;
   VectorTable_add_inputs (pvt, design) ;

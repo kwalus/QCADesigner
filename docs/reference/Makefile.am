@@ -67,13 +67,8 @@ expand_content_files=
 # signals and properties.
 # e.g. INCLUDES=-I$(top_srcdir) -I$(top_builddir) $(GTK_DEBUG_FLAGS)
 # e.g. GTKDOC_LIBS=$(top_builddir)/gtk/$(gtktargetlib)
-INCLUDES=$(GTK_CFLAGS) $(GTHREAD_CFLAGS) -DGTK_GUI -DUNDO_REDO -DDESIGNER -DFILEIO_STDIO -DPROPERTY_UIS -DGTK_DOC \
-        $(DOC_SOURCE_DIR)/objects/QCADComboBox.c \
-        $(DOC_SOURCE_DIR)/objects/QCADRadioButton.c \
-        $(DOC_SOURCE_DIR)/objects/QCADRadioToolButton.c \
-        $(DOC_SOURCE_DIR)/objects/QCADToggleToolButton.c \
-        $(DOC_SOURCE_DIR)/objects/QCADCellRendererText.c
-GTKDOC_LIBS=$(GTK_LIBS) $(GTHREAD_LIBS) $(shell bash -c 'find ../../src | grep QCADesigner-.\*\\.o | \
+INCLUDES=$(GTK_CFLAGS) $(GTHREAD_CFLAGS) -DGTK_GUI -DUNDO_REDO -DDESIGNER -DFILEIO_STDIO -DPROPERTY_UIS -DGTK_DOC
+GTKDOC_LIBS=$(GTK_LIBS) $(GTHREAD_LIBS) $(DOC_SOURCE_DIR)/libgtkdocfiles.a $(shell bash -c 'find ../../src | grep QCADesigner-.\*\\.o | \
         grep -v QCADesigner-main\\.o | \
         grep -v QCADesigner-QCADComboBox\\.o | \
         grep -v QCADesigner-QCADRadioButton\\.o | \

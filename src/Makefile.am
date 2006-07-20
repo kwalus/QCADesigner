@@ -2,7 +2,8 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
 
-# lib_LIBRARIES = libqcadesigner.a
+lib_LIBRARIES = libgtkdocfiles.a
+
 bin_PROGRAMS = batch_sim combo_test graph_dialog QCADesigner 
 # bin_PROGRAMS = batch_sim
 # bin_PROGRAMS = QCADesigner batch_sim graph_dialog
@@ -209,20 +210,40 @@ combo_test_CFLAGS = \
  	@GTHREAD_CFLAGS@
 
 combo_test_SOURCES = \
-  objects/QCADFlexiCombo.c       objects/QCADFlexiCombo.h \
-  objects/QCADLayersCombo.c      objects/QCADLayersCombo.h \
+	objects/QCADFlexiCombo.c       objects/QCADFlexiCombo.h \
+	objects/QCADLayersCombo.c      objects/QCADLayersCombo.h \
 	objects/QCADCellRendererText.c objects/QCADCellRendererText.h \
-  objects/QCADCellRendererVT.c   objects/QCADCellRendererVT.h \
-  $(CORE_FILES) \
+	objects/QCADCellRendererVT.c   objects/QCADCellRendererVT.h \
+	$(CORE_FILES) \
 	$(STDIO_FILEIO_FILES) \
-  $(OBJECT_FILES) \
-  support.c                      support.h \
-  preamble.c                     preamble.h \
+	$(OBJECT_FILES) \
+	support.c                      support.h \
+	preamble.c                     preamble.h \
 	simulation_data.c              simulation_data.h \
- 	main_combo_test.c
+	main_combo_test.c
 
 combo_test_LDADD = \
  	-lm \
  	@GTK_LIBS@ \
  	$(INTLLIBS) \
  	@GTHREAD_LIBS@ 
+
+#################### libgtkdocfiles.a #####################
+
+libgtkdocfiles_a_SOURCES = \
+	objects/QCADComboBox.c         objects/QCADComboBox.h \
+	objects/QCADRadioButton.c      objects/QCADRadioButton.h \
+	objects/QCADRadioToolButton.c  objects/QCADRadioToolButton.h \
+	objects/QCADToggleToolButton.c objects/QCADToggleToolButton.h \
+	objects/QCADCellRendererText.c objects/QCADCellRendererText.h
+
+libgtkdocfiles_a_CFLAGS = \
+	@GTK_CFLAGS@ \
+	@GTHREAD_CFLAGS@ \
+	-DGTK_GUI -DUNDO_REDO -DDESIGNER -DFILEIO_STDIO -DPROPERTY_UIS -DGTK_DOC
+
+# libgtkdocfiles_a_LIBADD = \
+#  	-lm \
+#  	@GTK_LIBS@ \
+#  	$(INTLLIBS) \
+#  	@GTHREAD_LIBS@ 

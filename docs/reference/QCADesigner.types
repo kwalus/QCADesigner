@@ -31,7 +31,6 @@
 #include "../../src/objects/QCADRadioToolButton.h"
 #include "../../src/objects/QCADRectangleElectrode.h"
 #include "../../src/objects/QCADRuler.h"
-#include "../../src/objects/QCADScrolledWindow.h"
 #include "../../src/objects/QCADStretchyObject.h"
 #include "../../src/objects/QCADSubstrate.h"
 #include "../../src/objects/QCADToggleToolButton.h"
@@ -70,7 +69,6 @@ qcad_radio_button_get_type
 qcad_radio_tool_button_get_type
 qcad_rectangle_electrode_get_type
 qcad_ruler_get_type
-qcad_scrolled_window_get_type
 qcad_stretchy_object_get_type
 qcad_substrate_get_type
 qcad_toggle_tool_button_get_type

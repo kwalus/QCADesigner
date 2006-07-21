@@ -4,6 +4,14 @@
 #include "../custom_widgets.h"
 #include "QCADPropertyUIDouble.h"
 
+/**
+ * SECTION:QCADPropertyUIDouble
+ * @short_description: Property UI for exposing single and double precision floating point properties
+ *
+ * Creates a property UI for properties with a single or double precision floating point value type.
+ *
+ */
+
 static void qcad_property_ui_double_class_init (QCADPropertyUIDoubleClass *klass) ;
 static void qcad_property_ui_double_instance_init (QCADPropertyUIDouble *property_ui_double) ;
 

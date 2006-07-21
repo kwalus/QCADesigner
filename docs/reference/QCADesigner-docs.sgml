@@ -81,7 +81,6 @@ Most of these widgets are specific to QCADesigner, however, some of them are ope
 use.
         </para>
       </partintro>
-      <xi:include href="xml/QCADScrolledWindow.xml"/>
       <xi:include href="xml/QCADPrintDialog.xml"/>
       <xi:include href="xml/QCADFlexiCombo.xml"/>
         <xi:include href="xml/QCADLayersCombo.xml"/>

@@ -98,6 +98,7 @@ GNOME_DEV_HOME = http://developer.gnome.org/doc/API/2.0
 #    then reversing the order of lines again with another "tac"
 #    Tasks 1. and 2. are unaffected by these reversals
 webdocs: all ../../pixmaps/QCADesigner.ico
+	echo "$(prefix)"
 	rm -rf html-web
 	mkdir -p html-web
 	for file in `find html`; do \
@@ -110,8 +111,8 @@ webdocs: all ../../pixmaps/QCADesigner.ico
 	      if echo $$file | grep -q '\.html$$'; then \
 	        echo "Creating file html-web$${ROOT_PATH}..."; \
 	        tac $$file \
-	          | sed \
-	            -e 's!href="/usr/share/gtk-doc/html!href="$(GNOME_DEV_HOME)!g' \
+	          | sed -r \
+	            -e 's!href="(/usr/share/gtk-doc/html|\.\.)!href="$(GNOME_DEV_HOME)!g' \
 	            -e 's@</head>@<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>@' \
 	          | awk -v 'maxmatch=0' \
 	            '/<\/div>/{if (0 == maxmatch) sub ("</div>", "<font size=\"-3\"><!--#config timefmt=\"%F %T\" --><!--#set var=\"LastModifiedMsg\" value=\"Last modified: $${LAST_MODIFIED}\" --><!--#echo var=\"LastModifiedMsg\" --></font>&") ; maxmatch = 1 ;} {print $$0 ;}' \

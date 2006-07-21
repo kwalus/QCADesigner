@@ -19,7 +19,7 @@ struct _QCADLayersCombo
 struct _QCADLayersComboClass
   {
   QCADFlexiComboClass parent_class ;
-  gboolean (*deactivate_layer) (QCADLayersCombo *layers_combo, QCADLayer *layer, gpointer data) ;
+  gboolean (*deactivate_layer) (QCADLayersCombo *layers_combo, QCADLayer *layer, gboolean bHide, gpointer data) ;
   } ;
 
 GType qcad_layers_combo_get_type () ;

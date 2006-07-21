@@ -4,6 +4,14 @@
 #include "../generic_utils.h"
 #include "QCADPropertyUIText.h"
 
+/**
+ * SECTION:QCADPropertyUIText
+ * @short_description: Property UI for exposing string properties
+ *
+ * Creates a property UI for string properties rendered as a #GtkEntry.
+ *
+ */
+
 static void qcad_property_ui_text_class_init (QCADPropertyUITextClass *klass) ;
 static void qcad_property_ui_text_instance_init (QCADPropertyUIText *qcad_property_ui_text) ;
 

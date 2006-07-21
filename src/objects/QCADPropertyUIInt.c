@@ -6,6 +6,16 @@
 #include "QCADPropertyUIInt.h"
 #include "QCADParamSpecTypeList.h"
 
+/**
+ * SECTION:QCADPropertyUIInt
+ * @short_description: Property UI for exposing signed and unsigned integer properties
+ *
+ * Creates a property UI for integer properties. It can be rendered as a spin button or a combo box.
+ *
+ * Note: Rendering the property UI as a combo for a property having a large range of values is a bad idea.
+ *
+ */
+
 enum
   {
   QCAD_PROPERTY_UI_INT_PROPERTY_RENDER_AS = 1,

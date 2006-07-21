@@ -53,6 +53,14 @@
 
 #define ALLOW_UNSERIALIZE_OVERLAP
 
+/**
+ * SECTION:QCADLayer:
+ * @short_description: Layer containing QCADesigner design objects
+ *
+ * 
+ *
+ */
+
 typedef struct
   {
   QCADLayer *layer ;

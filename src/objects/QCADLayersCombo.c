@@ -71,7 +71,7 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
 static void get_property (GObject *object, guint property_id,       GValue *value, GParamSpec *pspec) ;
 static void finalize     (GObject *object) ;
 
-static gboolean deactivate_layer (QCADLayersCombo *layers_combo, QCADLayer *layer, gpointer data) ;
+static gboolean deactivate_layer (QCADLayersCombo *layers_combo, QCADLayer *layer, gboolean bHide, gpointer data) ;
 static gboolean layer_list_model_current_layer_p (GtkTreeModel *tm, GtkTreeIter *itr, gpointer data) ;
 static void layers_list_set_toggle_data (GtkCellLayout *col, GtkCellRenderer *cr, GtkTreeModel *tm, GtkTreeIter *itr, gpointer data) ;
 static void layers_selection_changed (GtkTreeSelection *sel, gpointer data) ;
@@ -121,6 +121,19 @@ static void class_init (QCADLayersComboClass *klass)
       QCAD_TYPE_LAYER, G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
 
   QCAD_LAYERS_COMBO_CLASS (klass)->deactivate_layer = deactivate_layer ;
+
+/**
+ * QCADLayersCombo::deactivate-layer:
+ * @layers_combo: The object that received the signal
+ * @layer: The layer to be deactivated
+ * @bHide: %TRUE if the layer is also to be hidden
+ *
+ * This signal is emitted when the user clears the "active" or "visible" checkbox, indicating that the
+ * selected layer is to be deactivated, and possibly hidden. Returning %TRUE in this signal handler indicates
+ * that the layer has, in fact, been deactivated/hidden.
+ *
+ * Returns: %TRUE if the layer may be deactivated/hidden
+ */
 
   layers_combo_signals[QCAD_LAYERS_COMBO_SIGNAL_DEACTIVATE_LAYER] = 
     g_signal_new ("deactivate-layer",
@@ -327,7 +340,7 @@ static gboolean tree_view_button_release (GtkWidget *widget, GdkEventButton *eve
   return FALSE ;
   }
 
-static gboolean deactivate_layer (QCADLayersCombo *layers_combo, QCADLayer *layer, gpointer data) 
+static gboolean deactivate_layer (QCADLayersCombo *layers_combo, QCADLayer *layer, gboolean bHide, gpointer data) 
   {return FALSE ;}
 
 static void layer_list_state_toggled (GtkCellRenderer *cr, char *pszPath, gpointer data)

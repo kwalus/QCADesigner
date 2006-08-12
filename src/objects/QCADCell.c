@@ -1378,6 +1378,11 @@ static void qcad_cell_apply_transformation (QCADCell *cell, double xOld, double 
 
   if (NULL != cell->label)
     qcad_design_object_move (QCAD_DESIGN_OBJECT (cell->label), dx, dy) ;
+
+  cell->cell_options.cxCell = QCAD_DESIGN_OBJECT (cell)->bounding_box.cxWorld ;
+  g_object_notify (G_OBJECT (cell), "width") ;
+  cell->cell_options.cyCell = QCAD_DESIGN_OBJECT (cell)->bounding_box.cyWorld ;
+  g_object_notify (G_OBJECT (cell), "height") ;
   }
 
 static QCADDesignObject *hit_test (QCADDesignObject *obj, int xReal, int yReal)
@@ -1519,6 +1524,13 @@ void qcad_cell_scale (QCADCell *cell, double dScale, double dxOrigin, double dyO
 
   if (NULL != cell->label)
     qcad_design_object_move (QCAD_DESIGN_OBJECT (cell->label), obj->bounding_box.xWorld - xOld, obj->bounding_box.yWorld - yOld) ;
+
+  cell->cell_options.cxCell = obj->bounding_box.cxWorld ;
+  g_object_notify (G_OBJECT (obj), "width") ;
+  cell->cell_options.cyCell = obj->bounding_box.cyWorld ;
+  g_object_notify (G_OBJECT (obj), "height") ;
+  cell->cell_options.dot_diameter *= dScale ;
+  g_object_notify (G_OBJECT (obj), "dot-diameter") ;
   }
 
 void qcad_cell_set_clock (QCADCell *cell, int iClock)

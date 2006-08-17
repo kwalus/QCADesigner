@@ -729,7 +729,7 @@ gboolean gd_graph_widget_button_release (GtkWidget *widget, GdkEventButton *even
   graph_dialog_data->dScale = MAX (1.0, graph_dialog_data->dScale) ;
 
   graph_dialog_data->xOffset = 
-    (((double)beg_sample / ((double)(graph_dialog_data->sim_data->number_samples))) *
+    (((double)(MIN (beg_sample, end_sample)) / ((double)(graph_dialog_data->sim_data->number_samples))) *
       ((double)(graph_dialog_data->cxMaxGiven * graph_dialog_data->dScale))) ;
 
   if (NULL != hadj)

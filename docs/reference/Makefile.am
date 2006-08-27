@@ -115,7 +115,7 @@ webdocs: all ../../pixmaps/QCADesigner.ico
 	            -e 's!href="(/usr/share/gtk-doc/html|\.\.)!href="$(GNOME_DEV_HOME)!g' \
 	            -e 's@</head>@<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>@' \
 	          | awk -v 'maxmatch=0' \
-	            '/<\/div>/{if (0 == maxmatch) sub ("</div>", "<font size=\"-3\"><!--#config timefmt=\"%F %T\" --><!--#set var=\"LastModifiedMsg\" value=\"Last modified: $${LAST_MODIFIED}\" --><!--#echo var=\"LastModifiedMsg\" --></font>&") ; maxmatch = 1 ;} {print $$0 ;}' \
+	            '/<\/div>/{if (0 == maxmatch) sub ("</div>", "<font size=\"-3\"><!--#config timefmt=\"%Y-%m-%d %T\" --><!--#set var=\"LastModifiedMsg\" value=\"Last modified: $${LAST_MODIFIED}\" --><!--#echo var=\"LastModifiedMsg\" --></font>&") ; maxmatch = 1 ;} {print $$0 ;}' \
 	          | tac \
 	          > html-web$${ROOT_PATH}; \
 	      else \

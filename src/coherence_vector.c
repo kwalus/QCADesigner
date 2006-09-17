@@ -537,7 +537,7 @@ static void coherence_refresh_all_Ek (int number_of_cell_layers, int *number_of_
       // select all neighbours within the provided radius //
       cell_model->number_of_neighbours = icNeighbours =
         select_cells_in_radius(sorted_cells, sorted_cells[i][j], ((coherence_OP *)options)->radius_of_effect, i, number_of_cell_layers, number_of_cells_in_layer,
-             ((coherence_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer));
+             ((coherence_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer), NULL);
 
       //printf("number of neighbors = %d\n", icNeighbours);
 

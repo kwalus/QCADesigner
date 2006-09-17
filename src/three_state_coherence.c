@@ -1001,7 +1001,7 @@ static void ts_coherence_refresh_all_potentials (int number_of_cell_layers, int 
       // select all neighbours within the provided radius //
       cell_model->number_of_neighbours = icNeighbours =
         select_cells_in_radius(sorted_cells, sorted_cells[i][j], ((ts_coherence_OP *)options)->radius_of_effect, i, number_of_cell_layers, number_of_cells_in_layer,
-             ((ts_coherence_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer));
+             ((ts_coherence_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer), NULL);
 			
 			//printf("cell dot[0] is located at x=%e y=%e, extra dot x=%e y=%e and x=%e y=%e\n", sorted_cells[i][j]->cell_dots[0].x,sorted_cells[i][j]->cell_dots[0].y, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].x,((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].y,((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].x,((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].y);
 			

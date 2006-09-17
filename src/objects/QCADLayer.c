@@ -47,6 +47,7 @@
 #include "QCADDOContainer.h"
 #include "QCADRectangleElectrode.h"
 #include "QCADClockingLayer.h"
+#include "QCADDistributionLayer.h"
 #include "QCADParamSpecObjectList.h"
 
 #define DBG_REFS(s)
@@ -563,7 +564,9 @@ static void qcad_layer_track_new_object (QCADLayer *layer, QCADDesignObject *obj
 
 QCADLayer *qcad_layer_new (LayerType type, LayerStatus status, char *pszDescription)
   {
-  QCADLayer *layer = g_object_new ((LAYER_TYPE_CLOCKING == type ? QCAD_TYPE_CLOCKING_LAYER : QCAD_TYPE_LAYER), NULL) ;
+  QCADLayer *layer = g_object_new (
+    (LAYER_TYPE_CLOCKING     == type ? QCAD_TYPE_CLOCKING_LAYER     : 
+     LAYER_TYPE_DISTRIBUTION == type ? QCAD_TYPE_DISTRIBUTION_LAYER : QCAD_TYPE_LAYER), NULL) ;
 
   if (NULL != layer)
     {

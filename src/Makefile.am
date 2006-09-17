@@ -163,6 +163,7 @@ graph_dialog_SOURCES = \
 	support.c                               support.h \
 \
   $(CORE_FILES) \
+	$(SIMULATION_FILES) \
   $(OBJECT_FILES) \
   $(GRAPH_DIALOG_FILES) \
   $(STDIO_FILEIO_FILES) \
@@ -217,9 +218,10 @@ combo_test_SOURCES = \
 	$(CORE_FILES) \
 	$(STDIO_FILEIO_FILES) \
 	$(OBJECT_FILES) \
+	$(SIMULATION_FILES) \
+	simulation_data.c              simulation_data.h \
 	support.c                      support.h \
 	preamble.c                     preamble.h \
-	simulation_data.c              simulation_data.h \
 	main_combo_test.c
 
 combo_test_LDADD = \

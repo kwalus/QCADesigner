@@ -114,7 +114,7 @@ void create_main_window (main_W *main_window)
 
   mnu = gtk_menu_new () ;
   for (Nix = 0 ; Nix < n_stock_layers ; Nix++)
-    if (Nix != LAYER_TYPE_DISTRIBUTION)
+//    if (Nix != LAYER_TYPE_DISTRIBUTION)
       {
       mnui = gtk_image_menu_item_new_from_stock (stock_layers[Nix].stock_id, NULL) ;
       gtk_widget_show (mnui) ;
@@ -641,6 +641,14 @@ void create_main_window (main_W *main_window)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
     _("Make Selections And Manipulate Design"), _("This button allows you to manipulate your design.")) ;
   g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_SELECT) ;
+
+  // create and add the "generate distribution" button to the toolbar //
+  gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
+    GTK_TOOL_ITEM (main_window->default_action_button = toolbar_item = 
+      g_object_new (GTK_TYPE_TOOL_BUTTON, "stock-id", GTK_STOCK_EXECUTE, "label", _("Distribution"), "visible", TRUE, NULL)), -1) ;
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
+    _("Generate Circuit Distribution"), _("This button generates a distribution within the distribution layer.")) ;
+  g_signal_connect (G_OBJECT (toolbar_item), "clicked", (GCallback)action_button_clicked, (gpointer)ACTION_GEN_DISTRO) ;
 
   // create and add the type 1 cell button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),

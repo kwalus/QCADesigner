@@ -28,6 +28,7 @@ OBJECT_FILES = \
 	objects/QCADLabel.c                     objects/QCADLabel.h \
 	objects/QCADLayer.c                     objects/QCADLayer.h \
 	objects/QCADClockingLayer.c             objects/QCADClockingLayer.h \
+	objects/QCADDistributionLayer.c         objects/QCADDistributionLayer.h \
 	objects/QCADStretchyObject.c            objects/QCADStretchyObject.h \
 	objects/QCADElectrode.c                 objects/QCADElectrode.h \
 	objects/QCADRectangleElectrode.c        objects/QCADRectangleElectrode.h \

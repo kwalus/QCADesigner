@@ -84,6 +84,7 @@
 #include "objects/QCADRectangleElectrode.h"
 #include "objects/QCADClockingLayer.h"
 #include "objects/QCADPropertyUIGroup.h"
+#include "objects/QCADDistributionLayer.h"
 
 #define DBG_CB(s)
 #define DBG_CB_HERE(s)
@@ -238,8 +239,10 @@ static ACTION actions[ACTION_LAST_ACTION] =
   // ACTION_RECTANGLE_ELECTRODE
   {0, // Needs to be set to QCAD_TYPE_RECTANGLE_ELECTRODE in main_window_show
     {NULL, NULL, NULL},
-  NULL, drop_single_object_with_undo_cb}
+  NULL, drop_single_object_with_undo_cb},
 
+  // ACTION_GEN_DISTRO
+  {0, {NULL, NULL, NULL}, NULL, NULL},
   } ;
 
 // zoom/pan variables
@@ -489,9 +492,9 @@ void qcad_cell_default_clock_changed (QCADCell *default_cell, GParamSpec *pspec,
 
 void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
   {
-//  GList *llItr = NULL ;
+  GList *llItr = NULL ;
   QCADLayer *layer = NULL ;
-/*
+
   if (LAYER_TYPE_DISTRIBUTION == (int)data)
     {
     for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
@@ -501,10 +504,7 @@ void type_for_new_layer_chosen (GtkWidget *widget, gpointer data)
           gdk_beep () ;
           return ;
           }
-    layer = qcad_layer_distribution_new (project_options.design, LAYER_STATUS_ACTIVE, _("Distribution Layer")) ;
     }
-  else
-*/
 
     layer = qcad_layer_new ((int)data, QCAD_LAYER_STATUS_ACTIVE, _("New Layer")) ;
     object_get_properties (layer, GTK_WINDOW (main_window.main_window)) ;
@@ -1480,6 +1480,7 @@ void action_button_clicked (GtkWidget *widget, gpointer data)
   static int action = ACTION_LAST_ACTION ;
   int idx = (int)data ;
 
+  // Ignore toggle button deactivation - we only care when a toggle button becomes active
   if (NULL != widget)
     if (NULL != g_object_class_find_property (G_OBJECT_GET_CLASS (widget), "active"))
       {
@@ -1496,6 +1497,21 @@ void action_button_clicked (GtkWidget *widget, gpointer data)
     design_selection_objects_foreach (project_options.design, rotate_single_cell_cb, NULL) ;
     selection_renderer_update (project_options.srSelection, project_options.design) ;
     selection_renderer_draw (project_options.srSelection, project_options.design, main_window.drawing_area->window, GDK_XOR) ;
+    }
+  else
+  if (ACTION_GEN_DISTRO == idx)
+    {
+    GList *llItr = NULL ;
+
+    // Find a distribution layer, and have it generate a distribution based on its current properties
+    for (llItr = project_options.design->lstLayers ; llItr != NULL ; llItr = llItr->next)
+      if (NULL != llItr->data)
+        if (QCAD_IS_DISTRIBUTION_LAYER (llItr->data))
+          {
+          qcad_distribution_layer_generate_distribution (QCAD_DISTRIBUTION_LAYER (llItr->data), project_options.design) ;
+          break ;
+          }
+    return ;
     }
 
   set_mouse_handlers (actions[idx].type, &(actions[idx].mh), actions[idx].data, main_window.drawing_area, actions[idx].drop_function) ;

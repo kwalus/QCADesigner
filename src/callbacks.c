@@ -1937,6 +1937,7 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.substrate_button) ;
     gtk_widget_hide (main_window.label_button) ;
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
+    gtk_widget_hide (main_window.gen_distro_button) ;
     g_object_set (main_window.pui_show_potential, "visible", FALSE, NULL) ;
 
     g_object_set (main_window.pui_clock,          "visible", TRUE,  NULL) ;
@@ -1954,6 +1955,7 @@ static void reflect_layer_status (QCADLayer *layer)
     {
     qcad_object_set_default (QCAD_TYPE_CLOCKING_LAYER, QCAD_OBJECT (layer)) ;
 
+    gtk_widget_hide (main_window.gen_distro_button) ;
     gtk_widget_hide (main_window.insert_type_1_cell_button) ;
     gtk_widget_hide (main_window.insert_cell_array_button) ;
     gtk_widget_hide (main_window.substrate_button) ;
@@ -1969,6 +1971,7 @@ static void reflect_layer_status (QCADLayer *layer)
   if (LAYER_TYPE_SUBSTRATE == layer->type)
     {
     DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_SUBSTRATE\n")) ;
+    gtk_widget_hide (main_window.gen_distro_button) ;
     gtk_widget_hide (main_window.insert_type_1_cell_button) ;
     gtk_widget_hide (main_window.insert_cell_array_button) ;
     gtk_widget_hide (main_window.label_button) ;
@@ -1985,6 +1988,7 @@ static void reflect_layer_status (QCADLayer *layer)
   if (LAYER_TYPE_DRAWING == layer->type)
     {
     DBG_LAYER (fprintf (stderr, "reflect_layer_status: Layer type is LAYER_TYPE_DRAWING\n")) ;
+    gtk_widget_hide (main_window.gen_distro_button) ;
     gtk_widget_hide (main_window.insert_type_1_cell_button) ;
     gtk_widget_hide (main_window.insert_cell_array_button) ;
     gtk_widget_hide (main_window.substrate_button) ;
@@ -2010,6 +2014,8 @@ static void reflect_layer_status (QCADLayer *layer)
     gtk_widget_hide (main_window.rectangle_electrode_button) ;
     g_object_set (main_window.pui_clock,          "visible", FALSE, NULL) ;
     g_object_set (main_window.pui_show_potential, "visible", FALSE, NULL) ;
+
+    gtk_widget_show (main_window.gen_distro_button) ;
     }
 
   gtk_widget_queue_draw (main_window.toolbar) ;

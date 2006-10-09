@@ -644,7 +644,7 @@ void create_main_window (main_W *main_window)
 
   // create and add the "generate distribution" button to the toolbar //
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
-    GTK_TOOL_ITEM (main_window->default_action_button = toolbar_item = 
+    GTK_TOOL_ITEM (main_window->gen_distro_button = toolbar_item = 
       g_object_new (GTK_TYPE_TOOL_BUTTON, "stock-id", GTK_STOCK_EXECUTE, "label", _("Distribution"), "visible", TRUE, NULL)), -1) ;
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (toolbar_item), GTK_TOOLBAR (main_window->toolbar)->tooltips, 
     _("Generate Circuit Distribution"), _("This button generates a distribution within the distribution layer.")) ;

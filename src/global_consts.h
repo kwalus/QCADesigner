@@ -87,6 +87,12 @@
 #define RUNGE_KUTTA 1
 #define EULER_METHOD 2
 
+//Added by Faizal for cont. clocking
+//!Coherence Clocking Schemes
+#define FOUR_PHASE_CLOCKING 1
+#define CONT_CLOCKING 2
+//End added by Faizal
+
 //!Clocking Schemes
 #define ZONE_CLOCKING 1
 #define ELECTRODE_CLOCKING 2

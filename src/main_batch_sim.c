@@ -50,6 +50,8 @@ extern coherence_OP coherence_options ;
 typedef struct
   {
   gboolean bExitOnFailure ;
+  gboolean bDisplaceInputs ;
+  gboolean bDisplaceOutputs ;
   int number_of_sims ;
   int sim_engine ;
   double dTolerance ;
@@ -64,7 +66,8 @@ typedef struct
   int circuit_delay ;
   } CMDLINE_ARGS ;
 
-static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius) ;
+static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean 
+bDisplaceOutputs) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
 static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, int delay) ;
 static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args) ;
@@ -87,6 +90,8 @@ int main (int argc, char **argv)
   CMDLINE_ARGS cmdline_args = 
     {
     .bExitOnFailure             = FALSE,
+    .bDisplaceInputs            = FALSE,
+    .bDisplaceOutputs           = FALSE,
     .number_of_sims             =  1,
     .sim_engine                 = BISTABLE,
     .dTolerance                 =  0.0,
@@ -116,13 +121,17 @@ int main (int argc, char **argv)
     "upper polarization threshold    : %lf\n"
     "samples for running average     : %d\n"
     "exit on failure ?               : %s\n"
-    "  failure output file name prefix : %s\n"
-    "initial honeycombs to ignore    : %d\n"),
+    "failure output file name prefix : %s\n"
+    "initial honeycombs to ignore    : %d\n"
+    "displace input cells also?      : %d\n"
+    "displace output cells also?     : %d\n"
+    ),
     COHERENCE_VECTOR == cmdline_args.sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
     cmdline_args.pszSimOptsFName,         cmdline_args.pszFName,         cmdline_args.pszReferenceSimOutputFName, 
     cmdline_args.number_of_sims,          cmdline_args.dTolerance,       cmdline_args.dThreshLower, 
     cmdline_args.dThreshUpper,            cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
-    cmdline_args.pszFailureFNamePrefix,   cmdline_args.circuit_delay) ;
+    cmdline_args.pszFailureFNamePrefix,   cmdline_args.circuit_delay, cmdline_args.bDisplaceInputs ? "TRUE" : "FALSE", 
+cmdline_args.bDisplaceOutputs ? "TRUE" : "FALSE") ;
 
 #ifdef GTK_GUI
   gtk_init (&argc, &argv) ;
@@ -216,8 +225,15 @@ int main (int argc, char **argv)
     if (NULL != (working_design = design_copy (design)))
       {
       VectorTable_fill (pvt, working_design) ;
+      // Gotta re-load VT from the file, because VectorTable_fill destroys the vectors
+      vt_load_result = VectorTable_load (pvt) ;
+      if (VTL_FILE_FAILED == vt_load_result || VTL_MAGIC_FAILED == vt_load_result)
+        {
+        VectorTable_free (pvt) ;
+        pvt = NULL ;
+        }
       if (cmdline_args.dTolerance != 0.0)
-        randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance) ;
+        randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs) ;
 
       if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, (NULL == pvt ? EXHAUSTIVE_VERIFICATION : VECTOR_TABLE), working_design, pvt)))
         {
@@ -252,9 +268,10 @@ int main (int argc, char **argv)
 
             single_success =
               determine_success (hcdRef, hcdOut, cmdline_args.circuit_delay) ;
-
+	        
             flush_fprintf (stderr, _("This run[%d] bus[%d] was %s\n"), Nix, Nix1, 0 == single_success ? _("unsuccessful") : _("successful")) ;
-            }
+			flush_fprintf (stderr, _("hcdOut->arHCs->icUsed equals %d\n"),hcdOut->arHCs->icUsed);
+			}
           else
             {
             flush_fprintf (stderr, _("Output has more buses than reference !\n")) ;
@@ -325,7 +342,8 @@ static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_L
   return output_hcs ;
   }
 
-static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius)
+static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean 
+bDisplaceOutputs)
   {
   double dRadius = -1.0, dAngle = 0.0 ;
   double dx = 0.0, dy = 0.0 ;
@@ -339,7 +357,12 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
       for (llItrObj = layer->lstObjs ; llItrObj != NULL ; llItrObj = llItrObj->next)
         if (NULL != llItrObj->data)
           {
-          dRadius = g_rand_double_range (rnd, dMinRadius, dMaxRadius) ;
+
+	  if(QCAD_CELL_INPUT == QCAD_CELL(llItrObj->data)->cell_function && !bDisplaceInputs)continue;
+          if(QCAD_CELL_OUTPUT == QCAD_CELL(llItrObj->data)->cell_function && 
+!bDisplaceOutputs)continue;
+          
+	  dRadius = g_rand_double_range (rnd, dMinRadius, dMaxRadius) ;
           dAngle = g_rand_double_range (rnd, 0, 2.0 * PI) ;
 
           dx = dRadius * cos (dAngle) ;
@@ -452,6 +475,12 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
     if (!(strcmp (argv[Nix], _("-x")) && strcmp (argv[Nix], _("--exit"))))
       cmdline_args->bExitOnFailure = TRUE ;
     else
+    if (!(strcmp (argv[Nix], _("-I")) && strcmp (argv[Nix], _("--displace-in"))))
+      cmdline_args->bDisplaceInputs = TRUE ;
+    else
+    if (!(strcmp (argv[Nix], _("-O")) && strcmp (argv[Nix], _("--displace-out"))))
+      cmdline_args->bDisplaceOutputs = TRUE ;
+    else
     if (!(strcmp (argv[Nix], _("-s")) && strcmp (argv[Nix], _("--save"))))
       {
       if (++Nix < argc)
@@ -477,8 +506,10 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
       "  -u  --upper        polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n"
       "  -v  --vector-table file          Optional: Vector table file to use.\n"
       "  -x  --exit                       Optional: Turn on exit-on-first-failure.\n"
-      "    -s  --save         file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
-      "                                               and the circuit to file_prefix.qca.\n")) ;
+      "  -s  --save         file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
+      "                                             and the circuit to file_prefix.qca.\n"
+      "  -I  --displace-in                Optional: include the inputs in the displacements.\n"
+      "  -O  --displace-out               Optional: include the outputs in the displacements.\n")) ;
     exit (1) ;
     }
   }
@@ -509,6 +540,25 @@ static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, in
       if (hcRef->value != hcOut->value)
         break ;
       }
+	 
+    flush_fprintf (stderr, "Nix = %d vs. hcdRef->arHCs->icUsed = %d\n", Nix, hcdRef->arHCs->icUsed) ;
+    return (Nix == hcdRef->arHCs->icUsed) ? 1 : 0 ;
+    }
+
+  else
+    {
+	for (Nix = delay ; Nix < (hcdOut->arHCs->icUsed)-1 ; Nix++)
+      {
+      hcRef = &exp_array_index_1d (hcdRef->arHCs, HONEYCOMB, Nix) ;
+      hcOut = &exp_array_index_1d (hcdOut->arHCs, HONEYCOMB, Nix) ;
+      // windoze doesn't seem to be able to format a string containing multiple %llu tokens
+      flush_fprintf (stderr, _("Honeycomb value[%d]: "), Nix) ;
+      flush_fprintf (stderr, _("reference: %llu "), hcRef->value) ;
+      flush_fprintf (stderr, _("output: %llu\n"), hcOut->value) ;
+      if (hcRef->value != hcOut->value)
+        break ;
+      }
+	 
     flush_fprintf (stderr, "Nix = %d vs. hcdRef->arHCs->icUsed = %d\n", Nix, hcdRef->arHCs->icUsed) ;
     return (Nix == hcdRef->arHCs->icUsed) ? 1 : 0 ;
     }

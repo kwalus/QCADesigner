@@ -72,7 +72,6 @@ typedef struct
   GtkAdjustment *adjHScroll ;
   GtkAdjustment *adjVScroll ;
   GtkWidget *layers_combo ;
-  GtkWidget *gen_distro_button ;
   } main_W ;
 
 void create_main_window (main_W *main_window);

@@ -49,7 +49,8 @@
 
 //!Options for the coherence simulation engine
 //Added by Marco default values for phase shift (0,0,0,0)
-coherence_OP coherence_options = {1, 1e-15, 1e-16, 7e-11, 9.8e-22, 3.8e-23, 0.0, 2.0, 80, 12.9, 11.5, EULER_METHOD, TRUE, FALSE,0,0,0,0} ;
+//Added by Faizal: wave_numbers (defaults kx=0, ky=0)
+coherence_OP coherence_options = {1, 1.11e-15, 1.11e-18, 1.11e-12, 9.43e-19, 1.41e-20, 0.0, 2.0, 200, 1, 1.15, EULER_METHOD, TRUE, FALSE,0,0,0,0,0,0,FOUR_PHASE_CLOCKING} ;
 
 typedef struct
   {
@@ -87,6 +88,7 @@ static void coherence_refresh_all_Ek (int number_of_cell_layers, int *number_of_
 static void run_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy);
 
 static inline double calculate_clock_value (unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
+static inline double calculate_clock_value_cc (QCADCell *cell, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
 static inline double lambda_ss_x (double t, double PEk, double Gamma, const coherence_OP *options);
 static inline double lambda_ss_y (double t, double PEk, double Gamma, const coherence_OP *options);
 static inline double lambda_ss_z (double t, double PEk, double Gamma, const coherence_OP *options);
@@ -221,6 +223,7 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
     sim_data->trace[i + total_number_of_inputs].data = g_malloc0 (sim_data->number_samples * sizeof (double));
     }
 
+//  if (options->clocking == four_phase_clocking) {
   // create and initialize the clock data //
   sim_data->clock_data = g_malloc0 (sizeof (struct TRACEDATA) * 4);
 
@@ -236,8 +239,8 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
     for (j = 0; j<sim_data->number_samples; j++)
       //printf("j=%d, j*record_interval = %d\n",j,j*record_interval);
       sim_data->clock_data[i].data[j] = calculate_clock_value(i, j * record_interval, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
-    }
-
+ //   }
+  }
   // -- refresh all the kink energies and neighbours-- //
   coherence_refresh_all_Ek (number_of_cell_layers, number_of_cells_in_layer, sorted_cells, options);
 
@@ -453,7 +456,7 @@ static void run_coherence_iteration (int sample_number, int number_of_cell_layer
   double clock_value;
   unsigned int num_neighbours;
   double Gamma[4][3];
-
+ 
   t = options->time_step * (double)sample_number;
 
 	// precalculte the clock value for each of the four clocking zones
@@ -486,8 +489,16 @@ static void run_coherence_iteration (int sample_number, int number_of_cell_layer
            (QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function)))
         continue;
 
-      clock_value = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
-
+ //Added by Faizal for cont. clocking	
+	if(FOUR_PHASE_CLOCKING == options->clocking){
+      clock_value = calculate_clock_value(sorted_cells[i][j]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt); 
+    }
+    else {  
+	  clock_value = calculate_clock_value_cc(sorted_cells[i][j], sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
+	}
+//	  printf("%e\n", clock_value/1e-19);
+//End added by Faizal
+	  
       PEk = 0;
       // Calculate the sum of neighboring polarizations //
       num_neighbours = ((coherence_model *)sorted_cells[i][j]->cell_model)->number_of_neighbours;
@@ -510,7 +521,7 @@ static void run_coherence_iteration (int sample_number, int number_of_cell_layer
       ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y = lambda_y_new;
       ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z = lambda_z_new;
       }
-  }//run_iteration
+}//run_iteration
 
 //-------------------------------------------------------------------//
 // -- refreshes the array of Ek values for each cell in the design this is done to speed up the simulation
@@ -537,7 +548,7 @@ static void coherence_refresh_all_Ek (int number_of_cell_layers, int *number_of_
       // select all neighbours within the provided radius //
       cell_model->number_of_neighbours = icNeighbours =
         select_cells_in_radius(sorted_cells, sorted_cells[i][j], ((coherence_OP *)options)->radius_of_effect, i, number_of_cell_layers, number_of_cells_in_layer,
-             ((coherence_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer), NULL);
+             ((coherence_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer));
 
       //printf("number of neighbors = %d\n", icNeighbours);
 
@@ -612,7 +623,7 @@ static inline double calculate_clock_value (unsigned int clock_num, unsigned lon
   if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
     {
     clock = optimization_options.clock_prefactor *
-      cos (((double)(1 << total_number_of_inputs)) * (double)sample * optimization_options.four_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 100.0) * PI / 2  - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
+      cos (((double)(1 << total_number_of_inputs)) * (double)sample * optimization_options.four_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 180.0) * PI   - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
 
     // Saturate the clock at the clock high and low values
     clock = CLAMP (clock, options->clock_low, options->clock_high) ;
@@ -621,7 +632,8 @@ static inline double calculate_clock_value (unsigned int clock_num, unsigned lon
   if (SIMULATION_TYPE == VECTOR_TABLE)
     {
     clock = optimization_options.clock_prefactor *
-      cos (((double)pvt->vectors->icUsed) * (double)sample * optimization_options.two_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 100.0) * PI / 2  - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
+      cos (((double)pvt->vectors->icUsed) * (double)sample * optimization_options.two_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 180.0) * PI   - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + 
+options->clock_shift;
 
     // Saturate the clock at the clock high and low values
     clock = CLAMP (clock, options->clock_low, options->clock_high) ;
@@ -630,6 +642,38 @@ static inline double calculate_clock_value (unsigned int clock_num, unsigned lon
 //End added by Marco
   return clock;
   }// calculate_clock_value
+
+
+static inline double calculate_clock_value_cc (QCADCell *cell, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt) //Added by Faizal for cont. clocking
+  {
+  double clock = 0;
+  int jitter_phases[4] = {options->jitter_phase_0, options->jitter_phase_1,
+                          options->jitter_phase_2, options->jitter_phase_3} ;
+
+//Added by Marco: phase shift included in (-PI/2, +P/2) with steps of (1/200)PI
+
+  if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
+    {
+    clock = optimization_options.clock_prefactor *
+      cos (((double)(1 << total_number_of_inputs)) * (double)sample * optimization_options.four_pi_over_number_samples - sqrt(((options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x) * (options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x)) + ((options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y) * (options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y))) ) + optimization_options.clock_shift + options->clock_shift;
+	  
+    // Saturate the clock at the clock high and low values
+    clock = CLAMP (clock, options->clock_low, options->clock_high) ;
+    }
+  else
+  if (SIMULATION_TYPE == VECTOR_TABLE)
+    {
+    clock = optimization_options.clock_prefactor *
+      cos (((double)pvt->vectors->icUsed) * (double)sample * optimization_options.two_pi_over_number_samples - sqrt(((options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x) * (options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x)) + ((options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y) * (options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y)))) + optimization_options.clock_shift + options->clock_shift;
+
+    // Saturate the clock at the clock high and low values
+    clock = CLAMP (clock, options->clock_low, options->clock_high) ;
+    }
+    
+//End added by Marco
+  return clock;
+  }// calculate_clock_value
+
 
 //-------------------------------------------------------------------//
 
@@ -755,9 +799,14 @@ void coherence_options_dump (coherence_OP *coherence_options, FILE *pfile)
 	fprintf (stderr, "coherence_options->randomize_cells           = %s\n",      coherence_options->randomize_cells ? "TRUE" : "FALSE") ;
 	fprintf (stderr, "coherence_options->animate_simulation        = %s\n",      coherence_options->animate_simulation ? "TRUE" : "FALSE") ;
 // Added by Marco
-	fprintf (stderr, "coherence_options->jitter_phase_0            = %d\n",      coherence_options->jitter_phase_0) ;
-	fprintf (stderr, "coherence_options->jitter_phase_1            = %d\n",      coherence_options->jitter_phase_1) ;
-	fprintf (stderr, "coherence_options->jitter_phase_2            = %d\n",      coherence_options->jitter_phase_2) ;
-	fprintf (stderr, "coherence_options->jitter_phase_3            = %d\n",      coherence_options->jitter_phase_3) ;
+	fprintf (stderr, "coherence_options->jitter_phase_0            = %lf\n",      coherence_options->jitter_phase_0) ;
+	fprintf (stderr, "coherence_options->jitter_phase_1            = %lf\n",      coherence_options->jitter_phase_1) ;
+	fprintf (stderr, "coherence_options->jitter_phase_2            = %lf\n",      coherence_options->jitter_phase_2) ;
+	fprintf (stderr, "coherence_options->jitter_phase_3            = %lf\n",      coherence_options->jitter_phase_3) ;
 // End added by Marco
+//Added by Faizal
+	fprintf (stderr, "coherence_options->wave_number_kx            = %lf [1/m]\n",      coherence_options->wave_number_kx) ;
+	fprintf (stderr, "coherence_options->wave_number_ky            = %lf [1/m]\n",      coherence_options->wave_number_ky) ;
+	fprintf (stderr, "coherence_options->clocking                  = %d\n",             coherence_options->clocking) ;
+//End added by Faizal	
   }

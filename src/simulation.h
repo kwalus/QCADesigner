@@ -30,7 +30,7 @@
 #include "simulation_data.h"
 
 simulation_data *run_simulation (int sim_engine, int sim_type, DESIGN *design, VectorTable *pvt);
-int select_cells_in_radius (QCADCell ***sorted_cells, QCADCell *cell, double world_radius, int the_cells_layer, int number_of_cell_layers, int *number_of_cells_in_layer, double layer_ation, QCADCell ***p_selected_cells, int **p_neighbour_layer, double **neighbour_distances);
+int select_cells_in_radius (QCADCell ***sorted_cells, QCADCell *cell, double world_radius, int the_cells_layer, int number_of_cell_layers, int *number_of_cells_in_layer, double layer_ation, QCADCell ***p_selected_cells, int **p_neighbour_layer);
 double determine_distance (QCADCell * cell1, QCADCell * cell2, int dot_cell_1, int dot_cell_2, double layer_separation);
 void simulation_inproc_data_new (DESIGN *design, int *p_number_of_cell_layers, int **p_number_of_cells_in_layer, QCADCell ****p_sorted_cells) ;
 void simulation_inproc_data_free (int *p_number_of_cell_layers, int **p_number_of_cells_in_layer, QCADCell ****p_sorted_cells) ;

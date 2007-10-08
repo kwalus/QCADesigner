@@ -71,6 +71,13 @@ typedef struct
   GtkWidget *jitter_phase_2_entry;
   GtkWidget *jitter_phase_3_entry;
 //End addded by Marco
+//Added by Faizal
+  GtkWidget *wave_number_kx_entry;
+  GtkWidget *wave_number_ky_entry;
+  GtkWidget *cont_clocking_radio;
+  GtkWidget *four_phase_clocking_radio;
+  GSList    *clock_radio_group;
+//End added by Faizal
   } coherence_properties_D;
 
 static coherence_properties_D coherence_properties = {NULL};
@@ -116,7 +123,7 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   dialog->dialog_vbox1 = GTK_DIALOG (dialog->coherence_properties_dialog)->vbox;
   gtk_widget_show (dialog->dialog_vbox1);
 
-  dialog->table = gtk_table_new (16, 3, FALSE);
+  dialog->table = gtk_table_new (18, 3, FALSE);
   gtk_widget_show (dialog->table);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->table), 2);
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->table, TRUE, TRUE, 0);
@@ -133,15 +140,19 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   create_coherence_properties_line (dialog->table, 10, &(label), &(dialog->epsilonR_entry),               NULL,      _("Relative Permittivity:"),  NULL, TRUE) ;
   create_coherence_properties_line (dialog->table, 11, &(label), &(dialog->layer_separation_entry),       &lblunits, _("Layer Separation:"),       "nm", TRUE) ;
 //Added by Marco
-  create_coherence_properties_line (dialog->table, 12, &(label), &(dialog->jitter_phase_0_entry),         &lblunits, _("Phase Shift Clock 0:"), _("% of π/2"), TRUE) ;
-  create_coherence_properties_line (dialog->table, 13, &(label), &(dialog->jitter_phase_1_entry),         &lblunits, _("Phase Shift Clock 1:"), _("% of π/2"), TRUE) ;
-  create_coherence_properties_line (dialog->table, 14, &(label), &(dialog->jitter_phase_2_entry),         &lblunits, _("Phase Shift Clock 2:"), _("% of π/2"), TRUE) ;
-  create_coherence_properties_line (dialog->table, 15, &(label), &(dialog->jitter_phase_3_entry),         &lblunits, _("Phase Shift Clock 3:"), _("% of π/2"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 12, &(label), &(dialog->jitter_phase_0_entry),         &lblunits, _("Phase Shift Clock 0:"), _("degrees"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 13, &(label), &(dialog->jitter_phase_1_entry),         &lblunits, _("Phase Shift Clock 1:"), _("degrees"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 14, &(label), &(dialog->jitter_phase_2_entry),         &lblunits, _("Phase Shift Clock 2:"), _("degrees"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 15, &(label), &(dialog->jitter_phase_3_entry),         &lblunits, _("Phase Shift Clock 3:"), _("degrees"), TRUE) ;
 //End added by Marco
+//Added by Faizal
+  create_coherence_properties_line (dialog->table, 16, &(label), &(dialog->wave_number_kx_entry),         &lblunits, _("Wave Number, kx:"), "1/nm", TRUE) ;
+  create_coherence_properties_line (dialog->table, 17, &(label), &(dialog->wave_number_ky_entry),         &lblunits, _("Wave Number, ky:"), "1/nm", TRUE) ;
+//End added by Faizal
 
   frm = gtk_frame_new (_("Algorithm")) ;
   gtk_widget_show (frm) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), frm, 0, 3, 16, 17, GTK_EXPAND | GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_table_attach (GTK_TABLE (dialog->table), frm, 0, 3, 18, 19, GTK_EXPAND | GTK_FILL, GTK_FILL, 2, 2) ;
   gtk_container_set_border_width (GTK_CONTAINER (frm), 2) ;
 
   tblAlgo = gtk_table_new (2, 1, FALSE) ;
@@ -165,17 +176,48 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 2, 2);
 
+//Added by Faizal for cont. clocking
+                    
+  frm = gtk_frame_new (_("Clocking")) ;
+  gtk_widget_show (frm) ;
+  gtk_table_attach (GTK_TABLE (dialog->table), frm, 0, 3, 20, 21, GTK_EXPAND | GTK_FILL, GTK_FILL, 2, 2) ;
+  gtk_container_set_border_width (GTK_CONTAINER (frm), 2) ;
+
+  tblAlgo = gtk_table_new (2, 1, FALSE) ;
+  gtk_widget_show (tblAlgo) ;
+  gtk_container_add (GTK_CONTAINER (frm), tblAlgo) ;
+  gtk_container_set_border_width (GTK_CONTAINER (tblAlgo), 2) ;
+
+  dialog->cont_clocking_radio = gtk_radio_button_new_with_label (dialog->clock_radio_group, "Continuous Clocking");
+  g_object_set_data (G_OBJECT (dialog->cont_clocking_radio), "which_options", (gpointer)CONT_CLOCKING) ;
+  dialog->clock_radio_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->cont_clocking_radio));
+  gtk_widget_show (dialog->cont_clocking_radio);
+  gtk_table_attach (GTK_TABLE (tblAlgo), dialog->cont_clocking_radio, 0, 1, 0, 1,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 2, 2);
+
+  dialog->four_phase_clocking_radio = gtk_radio_button_new_with_label (dialog->clock_radio_group, "4 Phase Clocking");
+  g_object_set_data (G_OBJECT (dialog->four_phase_clocking_radio), "which_options", (gpointer)FOUR_PHASE_CLOCKING) ;
+  dialog->clock_radio_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (dialog->four_phase_clocking_radio));
+  gtk_widget_show (dialog->four_phase_clocking_radio);
+  gtk_table_attach (GTK_TABLE (tblAlgo), dialog->four_phase_clocking_radio, 0, 1, 1, 2,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 2, 2);                  
+
+//End added by Faizal
+
+
   // Randomize Cells ?
   dialog->chkRandomizeCells = gtk_check_button_new_with_label (_("Randomize Simulation Order")) ;
   gtk_widget_show (dialog->chkRandomizeCells) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkRandomizeCells, 0, 2, 20, 21,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkRandomizeCells, 0, 2, 22, 23,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
   // Animate ?
   dialog->chkAnimate = gtk_check_button_new_with_label (_("Animate")) ;
   gtk_widget_show (dialog->chkAnimate) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 21, 22,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 23, 24,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
@@ -197,6 +239,10 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   g_signal_connect (G_OBJECT (dialog->jitter_phase_2_entry),         "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->jitter_phase_3_entry),         "changed", (GCallback)properties_changed, dialog) ;
 //End added by Marco
+//Added by Faizal
+  g_signal_connect (G_OBJECT (dialog->wave_number_kx_entry),            "changed", (GCallback)properties_changed, dialog) ;
+  g_signal_connect (G_OBJECT (dialog->wave_number_ky_entry),            "changed", (GCallback)properties_changed, dialog) ;
+//End added by Faizal  
   gtk_dialog_add_button (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
   gtk_dialog_add_button (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_STOCK_OK,     GTK_RESPONSE_OK) ;
   gtk_dialog_set_default_response (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_RESPONSE_OK) ;
@@ -286,24 +332,42 @@ static void coherence_OP_to_dialog (coherence_OP *psco, coherence_properties_D *
   gtk_entry_set_text (GTK_ENTRY (dialog->layer_separation_entry), sz) ;
 
 //Added by Marco
-  g_snprintf (sz, 16, "%d", psco->jitter_phase_0) ;
+  g_snprintf (sz, 16, "%lf", psco->jitter_phase_0) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->jitter_phase_0_entry), sz) ;
   
-  g_snprintf (sz, 16, "%d", psco->jitter_phase_1) ;
+  g_snprintf (sz, 16, "%lf", psco->jitter_phase_1) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->jitter_phase_1_entry), sz) ;
   
-  g_snprintf (sz, 16, "%d", psco->jitter_phase_2) ;
+  g_snprintf (sz, 16, "%lf", psco->jitter_phase_2) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->jitter_phase_2_entry), sz) ;
   
-  g_snprintf (sz, 16, "%d", psco->jitter_phase_3) ;
+  g_snprintf (sz, 16, "%lf", psco->jitter_phase_3) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->jitter_phase_3_entry), sz) ;
 //End added by Marco
+//Added by Faizal
+  g_snprintf (sz, 16, "%lf", psco->wave_number_kx) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->wave_number_kx_entry), sz) ;
+  
+  g_snprintf (sz, 16, "%lf", psco->wave_number_ky) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->wave_number_ky_entry), sz) ;
+//End added by Faizal
+
   if (EULER_METHOD == psco->algorithm)
   	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->euler_method_radio), TRUE);
   else
   if (RUNGE_KUTTA == psco->algorithm)
   	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->runge_kutta_radio), TRUE);
-  }
+
+//Added by Faizal for cont. clocking
+
+  if (CONT_CLOCKING == psco->clocking)
+  	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->cont_clocking_radio), TRUE);
+  else
+  if (FOUR_PHASE_CLOCKING == psco->clocking)
+  	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->four_phase_clocking_radio), TRUE);
+
+//End added by Faizal 
+ }
 
 static void dialog_to_coherence_OP (coherence_OP *psco, coherence_properties_D *dialog)
   {
@@ -324,7 +388,13 @@ static void dialog_to_coherence_OP (coherence_OP *psco, coherence_properties_D *
   psco->jitter_phase_2       = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->jitter_phase_2_entry))) ;
   psco->jitter_phase_3       = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->jitter_phase_3_entry))) ;
 //End added by Marco
+//Added by Faizal
+  psco->wave_number_kx       = atof (gtk_entry_get_text (GTK_ENTRY (dialog->wave_number_kx_entry))) ;
+  psco->wave_number_ky       = atof (gtk_entry_get_text (GTK_ENTRY (dialog->wave_number_ky_entry))) ;
+//End added by Faizal
+	
   psco->algorithm          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->euler_method_radio)) ? EULER_METHOD : RUNGE_KUTTA;
+  psco->clocking           = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->four_phase_clocking_radio)) ? FOUR_PHASE_CLOCKING : CONT_CLOCKING; //Added by Faizal for cont. clocking
   psco->randomize_cells    = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkRandomizeCells)) ;
   psco->animate_simulation = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkAnimate)) ;
   }

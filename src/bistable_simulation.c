@@ -45,7 +45,7 @@
 //This variable is used by multiple source files
 // Added by Marco March 3 : last four arguments (phase shifts)
 
-bistable_OP bistable_options = {12800, FALSE, 1e-3, 65, 12.9, 9.8e-22, 3.8e-23, 0.0, 2.0, 100, 11.5, TRUE,0,0,0,0} ;
+bistable_OP bistable_options = {12800, FALSE, 1e-3, 200, 1, 9.43e-19, 1.41e-20, 0.0, 2.0, 100, 1.15, TRUE,0,0,0,0} ;
 
 
 #ifdef GTK_GUI
@@ -181,17 +181,18 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
     sim_data->clock_data[i].data = g_malloc0 (sizeof (double) * sim_data->number_samples);
      
 //Added by Marco : phase shift included in (-PI/2, +P/2) with steps of (1/200)PI
+//Edited by Konrad: above is incorrect changed jitter to actual phase shift phase shift = jitter/180*PI
     if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
       for (j = 0; j < sim_data->number_samples; j++)
         {
-	      sim_data->clock_data[i].data[j] = clock_prefactor * cos (((double)(1 << design->bus_layout->inputs->icUsed)) * (double)j * four_pi_over_number_samples - (double)((jitter_phases[i]) / 100.0) * PI / 2 - PI * i / 2) + clock_shift ;
+	      sim_data->clock_data[i].data[j] = clock_prefactor * cos (((double)(1 << design->bus_layout->inputs->icUsed)) * (double)j * four_pi_over_number_samples - (double)((jitter_phases[i]) / 180.0) * PI - PI * i / 2) + clock_shift ;
 	      sim_data->clock_data[i].data[j] = CLAMP (sim_data->clock_data[i].data[j], options->clock_low, options->clock_high) ;
 	      }
     else
   //if (SIMULATION_TYPE == VECTOR_TABLE)
 	    for (j = 0; j < sim_data->number_samples; j++)
 	      {
-	      sim_data->clock_data[i].data[j] = clock_prefactor * cos (((double)pvt->vectors->icUsed) * (double)j * two_pi_over_number_samples - (double)((jitter_phases[i]) / 100.0) * PI / 2 -  PI * i / 2) + clock_shift ;
+	      sim_data->clock_data[i].data[j] = clock_prefactor * cos (((double)pvt->vectors->icUsed) * (double)j * two_pi_over_number_samples - (double)((jitter_phases[i]) / 180.0) * PI -  PI * i / 2) + clock_shift ;
 	      sim_data->clock_data[i].data[j] = CLAMP (sim_data->clock_data[i].data[j], options->clock_low, options->clock_high) ;
         }
     }
@@ -406,7 +407,7 @@ static inline void bistable_refresh_all_Ek (int number_of_cell_layers, int *numb
       // select all neighbours within the provided radius //
       cell_model->number_of_neighbours = icNeighbours =
         select_cells_in_radius (sorted_cells, sorted_cells[i][j], options->radius_of_effect, i, number_of_cell_layers, number_of_cells_in_layer,
-          ((bistable_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer), NULL);
+          ((bistable_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer));
 
       if (icNeighbours > 0)
         {
@@ -491,9 +492,9 @@ void bistable_options_dump (bistable_OP *bistable_options, FILE *pfile)
 	fprintf (stderr, "bistable_options->layer_separation          = %e [nm]\n", bistable_options->layer_separation) ;
 	fprintf (stderr, "bistable_options->randomize_cells           = %s\n",      bistable_options->randomize_cells ? "TRUE" : "FALSE") ;
 // Added by Marco
-	fprintf (stderr, "bistable_options->jitter_phase_0            = %d %% of PI/2\n",      bistable_options->jitter_phase_0) ;
- 	fprintf (stderr, "bistable_options->jitter_phase_1            = %d %% of PI/2\n",      bistable_options->jitter_phase_1) ;
- 	fprintf (stderr, "bistable_options->jitter_phase_2            = %d %% of PI/2\n",      bistable_options->jitter_phase_2) ;
- 	fprintf (stderr, "bistable_options->jitter_phase_3            = %d %% of PI/2\n",      bistable_options->jitter_phase_3) ;
+	fprintf (stderr, "bistable_options->jitter_phase_0            = %f degrees\n",      bistable_options->jitter_phase_0) ;
+ 	fprintf (stderr, "bistable_options->jitter_phase_1            = %f degrees\n",      bistable_options->jitter_phase_1) ;
+ 	fprintf (stderr, "bistable_options->jitter_phase_2            = %f degrees\n",      bistable_options->jitter_phase_2) ;
+ 	fprintf (stderr, "bistable_options->jitter_phase_3            = %f degrees\n",      bistable_options->jitter_phase_3) ;
 // End added by Marco
   }

@@ -62,11 +62,17 @@ typedef struct
 	gboolean randomize_cells;
 	gboolean animate_simulation;
 	// Added by Marco
-	int jitter_phase_0; 
-	int jitter_phase_1;
-	int jitter_phase_2;
-	int jitter_phase_3;
+	float jitter_phase_0; 
+	float jitter_phase_1;
+	float jitter_phase_2;
+	float jitter_phase_3;
 	// End added by Marco
+	// Added by Faizal
+        float wave_number_kx;
+	float wave_number_ky;
+	int clocking;
+        // End added by Faizal
+
   } coherence_OP;
 
 void coherence_options_dump (coherence_OP *coherence_options, FILE *pfile) ;

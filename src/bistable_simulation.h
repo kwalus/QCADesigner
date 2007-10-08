@@ -52,10 +52,10 @@ typedef struct
 	double layer_separation;
 	gboolean randomize_cells;
 	// Added by Marco March 2
-	int jitter_phase_0; 
-	int jitter_phase_1;
-	int jitter_phase_2;
-	int jitter_phase_3;
+	float jitter_phase_0; 
+	float jitter_phase_1;
+	float jitter_phase_2;
+	float jitter_phase_3;
 	// End added by Marco March 2
 	} bistable_OP;
 

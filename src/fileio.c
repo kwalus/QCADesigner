@@ -835,22 +835,32 @@ static coherence_OP *open_coherence_options_file_fp (FILE *pfile)
     else
     if (!strncmp (pszLine, "animate_simulation", sizeof ("animate_simulation") - 1))
       coherence_options->animate_simulation = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
-// Added by Marco 
- else
+    else
     if (!strncmp (pszLine, "jitter_phase_0", sizeof ("jitter_phase_0") - 1))
-      coherence_options->jitter_phase_0 = atoi (pszValue);
- else
+      coherence_options->jitter_phase_0 = g_ascii_strtod (pszValue, NULL);
+    else
     if (!strncmp (pszLine, "jitter_phase_1", sizeof ("jitter_phase_1") - 1))
-      coherence_options->jitter_phase_1 = atoi (pszValue);
- else
+      coherence_options->jitter_phase_1 = g_ascii_strtod (pszValue, NULL);
+    else
     if (!strncmp (pszLine, "jitter_phase_2", sizeof ("jitter_phase_2") - 1))
-      coherence_options->jitter_phase_2 = atoi (pszValue);
- else
+      coherence_options->jitter_phase_2 = g_ascii_strtod (pszValue, NULL);
+    else
     if (!strncmp (pszLine, "jitter_phase_3", sizeof ("jitter_phase_3") - 1))
-      coherence_options->jitter_phase_3 = atoi (pszValue); 
+      coherence_options->jitter_phase_3 = g_ascii_strtod (pszValue, NULL); 
+     else
+    
+//Added by Faizal for cont. clocking
 
-// End Added by Marco 
+    if (!strncmp (pszLine, "wave_number_kx", sizeof ("wave_number_kx") - 1))
+      coherence_options->wave_number_kx = g_ascii_strtod (pszValue, NULL); 
+     else
+    if (!strncmp (pszLine, "wave_number_ky", sizeof ("wave_number_ky") - 1))
+      coherence_options->wave_number_ky = g_ascii_strtod (pszValue, NULL);
+     else
+    if (!strncmp (pszLine, "clocking", sizeof ("clocking") - 1))
+      coherence_options->clocking = atoi (pszValue) ;
 
+//End added by Faizal    
 
     g_free (pszLine) ;
     g_free (ReadLine (pfile, '\0', FALSE)) ;

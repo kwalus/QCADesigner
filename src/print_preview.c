@@ -138,9 +138,6 @@ void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFuncti
   ppo->pszPrintString = CreateUserFName ("previewXXXXXX") ;
 #ifdef WIN32
   mktemp (ppo->pszPrintString) ;
-  psz = g_strdup_printf ("%s.ps", ppo->pszPrintString) ;
-  g_free (ppo->pszPrintString) ;
-  ppo->pszPrintString = psz ;
   pfile = fopen (ppo->pszPrintString, "w") ;
   fd = (NULL == pfile ? -1 : -2) ;
   if (NULL != pfile) fclose (pfile) ;
@@ -152,15 +149,6 @@ void do_print_preview (print_OP *ppo, GtkWindow *parent, void *data, PrintFuncti
   ppo->pszPrintString = g_strdup_printf ("%s", szBuf) ;
 #else
   fd = mkstemp (ppo->pszPrintString) ;
-  if (-1 != fd) 
-    {
-    close (fd) ;
-    unlink (ppo->pszPrintString) ;
-    }
-  psz = g_strdup_printf ("%s.ps", ppo->pszPrintString) ;
-  g_free (ppo->pszPrintString) ;
-  ppo->pszPrintString = psz ;
-  fd = open (ppo->pszPrintString, O_CREAT | O_WRONLY) ;
 #endif /* WIN32 */
 
   if (-1 == fd)

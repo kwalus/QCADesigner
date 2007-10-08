@@ -126,13 +126,13 @@ void get_bistable_properties_from_user (GtkWindow *parent, bistable_OP *pbo)
 
 //Added by Marco March 06
 
-  g_snprintf (sz, 16, "%d", pbo->jitter_phase_0) ;
+  g_snprintf (sz, 16, "%f", pbo->jitter_phase_0) ;
   gtk_entry_set_text (GTK_ENTRY (bistable_properties.jitter_phase_0_entry), sz) ;
-  g_snprintf (sz, 16, "%d", pbo->jitter_phase_1) ;
+  g_snprintf (sz, 16, "%f", pbo->jitter_phase_1) ;
   gtk_entry_set_text (GTK_ENTRY (bistable_properties.jitter_phase_1_entry), sz) ;
-  g_snprintf (sz, 16, "%d", pbo->jitter_phase_2);
+  g_snprintf (sz, 16, "%f", pbo->jitter_phase_2);
   gtk_entry_set_text (GTK_ENTRY (bistable_properties.jitter_phase_2_entry), sz) ;
-  g_snprintf (sz, 16, "%d", pbo->jitter_phase_3);
+  g_snprintf (sz, 16, "%f", pbo->jitter_phase_3);
   gtk_entry_set_text (GTK_ENTRY (bistable_properties.jitter_phase_3_entry), sz) ;
   
 //End added by Marco March 06
@@ -151,10 +151,10 @@ void get_bistable_properties_from_user (GtkWindow *parent, bistable_OP *pbo)
     pbo->clock_amplitude_factor =    atof (gtk_entry_get_text (GTK_ENTRY (bistable_properties.clock_amplitude_factor_entry))) ;
     pbo->layer_separation =          atof (gtk_entry_get_text (GTK_ENTRY (bistable_properties.layer_separation_entry))) ;
 //Added by Marco March 06
-    pbo->jitter_phase_0= atoi (gtk_entry_get_text (GTK_ENTRY (bistable_properties.jitter_phase_0_entry))) ;
-    pbo->jitter_phase_1= atoi (gtk_entry_get_text (GTK_ENTRY (bistable_properties.jitter_phase_1_entry))) ;
-    pbo->jitter_phase_2= atoi (gtk_entry_get_text (GTK_ENTRY (bistable_properties.jitter_phase_2_entry))) ;
-    pbo->jitter_phase_3= atoi (gtk_entry_get_text (GTK_ENTRY (bistable_properties.jitter_phase_3_entry))) ;
+    pbo->jitter_phase_0 =            atof (gtk_entry_get_text (GTK_ENTRY (bistable_properties.jitter_phase_0_entry))) ;
+    pbo->jitter_phase_1 =            atof (gtk_entry_get_text (GTK_ENTRY (bistable_properties.jitter_phase_1_entry))) ;
+    pbo->jitter_phase_2 =            atof (gtk_entry_get_text (GTK_ENTRY (bistable_properties.jitter_phase_2_entry))) ;
+    pbo->jitter_phase_3 =            atof (gtk_entry_get_text (GTK_ENTRY (bistable_properties.jitter_phase_3_entry))) ;
 //End added by Marco March 06
     pbo->animate_simulation =        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (bistable_properties.chkAnimate)) ;
     pbo->randomize_cells =           gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (bistable_properties.chkRandomizeCells)) ;
@@ -383,7 +383,7 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_0_entry), TRUE) ;
   
-  lbl = gtk_label_new (_("% of π/2"));
+  lbl = gtk_label_new (_("degrees"));
   gtk_widget_show (lbl);
   gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 10, 11,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -406,7 +406,7 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_1_entry), TRUE) ;
   
-  lbl = gtk_label_new (_("% of π/2"));
+  lbl = gtk_label_new (_("degrees"));
   gtk_widget_show (lbl);
   gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 11, 12,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -429,7 +429,7 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_2_entry), TRUE) ;
   
-  lbl = gtk_label_new (_("% of π/2"));
+  lbl = gtk_label_new (_("degrees"));
   gtk_widget_show (lbl);
   gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 12, 13,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -452,7 +452,7 @@ static void create_bistable_properties_dialog (bistable_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_3_entry), TRUE) ;
 
-  lbl = gtk_label_new (_("% of π/2"));
+  lbl = gtk_label_new (_("degrees"));
   gtk_widget_show (lbl);
   gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 13, 14,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),

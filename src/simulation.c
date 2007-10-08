@@ -36,20 +36,12 @@
 #include "bistable_simulation.h"
 #include "three_state_coherence.h"
 #include "vector_table.h"
-#include "exp_array.h"
 
 extern coherence_OP coherence_options ;
 extern bistable_OP bistable_options ;
 extern ts_coherence_OP ts_coherence_options ;
 
 gboolean STOP_SIMULATION = FALSE;
-
-typedef struct
-  {
-  QCADCell *cell ;
-  int idxLayer ;
-  double distance ;
-  } NeighbourData ;
 
 // -- this is the main simulation procedure -- //
 simulation_data *run_simulation (int sim_engine, int sim_type, DESIGN *design, VectorTable *pvt)
@@ -68,15 +60,6 @@ simulation_data *run_simulation (int sim_engine, int sim_type, DESIGN *design, V
   return NULL ;
   }//run_simualtion
 
-static int compare_neighbour_data_distances (gconstpointer p1, gconstpointer p2)
-  {
-  double d1 = ((NeighbourData *)p1)->distance, 
-         d2 = ((NeighbourData *)p2)->distance ;
-
-  return ((d1 < d2) ? -1 :
-          (d1 > d2) ?  1 : 0) ;
-  }
-
 //-------------------------------------------------------------------//
 //!Finds all cells within a specified radius and sets the selected cells array//
 int select_cells_in_radius(QCADCell ***sorted_cells,
@@ -87,63 +70,8 @@ int select_cells_in_radius(QCADCell ***sorted_cells,
   int *number_of_cells_in_layer,
   double layer_separation,
   QCADCell ***p_selected_cells,
-  int **p_neighbour_layer,
-  double **p_distance)
+  int **p_neighbour_layer)
   {
-  int number_of_selected_cells, idxCell, idxLayer ;
-  double distance_calculation1, distance_calculation2, distance_calculation3, distance ;
-  EXP_ARRAY *ar_neighbours = NULL ;
-  NeighbourData nd = {NULL} ;
-
-  for (idxLayer = 0 ; idxLayer < number_of_cell_layers ; idxLayer++)
-    for (idxCell = 0 ; idxCell < number_of_cells_in_layer[idxLayer] ; idxCell++)
-      {
-      distance_calculation1 = QCAD_DESIGN_OBJECT (sorted_cells[idxLayer][idxCell])->x - QCAD_DESIGN_OBJECT (cell)->x ;
-      distance_calculation2 = QCAD_DESIGN_OBJECT (sorted_cells[idxLayer][idxCell])->y - QCAD_DESIGN_OBJECT (cell)->y ;
-      distance_calculation3 = (double)(the_cells_layer - idxLayer) * layer_separation ;
-      if ((distance = 
-        sqrt (distance_calculation1 * distance_calculation1 + 
-              distance_calculation2 * distance_calculation2 + 
-              distance_calculation3 * distance_calculation3)) < world_radius)
-        {
-        if (NULL == ar_neighbours)
-          ar_neighbours = exp_array_new (sizeof (NeighbourData), 1) ;
-        nd.cell = sorted_cells[idxLayer][idxCell] ;
-        nd.idxLayer = idxLayer ;
-        nd.distance = distance ;
-        exp_array_1d_insert_val_sorted (ar_neighbours, &nd, compare_neighbour_data_distances, TRUE) ;
-        }
-      }
-
-  if (NULL == ar_neighbours) return 0 ;
-
-  if (NULL != p_selected_cells)
-    {
-    (*p_selected_cells) = g_malloc0 (ar_neighbours->icUsed * sizeof (QCADCell *)) ;
-    for (idxCell = ar_neighbours->icUsed - 1 ; idxCell > -1 ; idxCell--)
-      (*p_selected_cells)[idxCell] = exp_array_index_1d (ar_neighbours, NeighbourData, idxCell).cell ;
-    }
-
-  if (NULL != p_neighbour_layer)
-    {
-    (*p_neighbour_layer) = g_malloc0 (ar_neighbours->icUsed * sizeof (int)) ;
-    for (idxCell = ar_neighbours->icUsed - 1 ; idxCell > -1 ; idxCell--)
-      (*p_neighbour_layer)[idxCell] = exp_array_index_1d (ar_neighbours, NeighbourData, idxCell).idxLayer ;
-    }
-
-  if (NULL != p_distance)
-    {
-    (*p_distance) = g_malloc0 (ar_neighbours->icUsed * sizeof (double)) ;
-    for (idxCell = ar_neighbours->icUsed - 1 ; idxCell > -1 ; idxCell--)
-      (*p_distance)[idxCell] = exp_array_index_1d (ar_neighbours, NeighbourData, idxCell).distance ;
-    }
-
-  number_of_selected_cells = ar_neighbours->icUsed ;
-
-  exp_array_free (ar_neighbours) ;
-
-  return number_of_selected_cells ;
-/*
   int i,j,k;
   int number_of_selected_cells = 0 ;
 
@@ -195,7 +123,7 @@ int select_cells_in_radius(QCADCell ***sorted_cells,
           }
         }
     }
-*/
+
   return number_of_selected_cells;
   } //select_cells_in_radius
 

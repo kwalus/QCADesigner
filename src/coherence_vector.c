@@ -655,7 +655,7 @@ static inline double calculate_clock_value_cc (QCADCell *cell, unsigned long int
   if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
     {
     clock = optimization_options.clock_prefactor *
-      cos (((double)(1 << total_number_of_inputs)) * (double)sample * optimization_options.four_pi_over_number_samples - sqrt(((options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x) * (options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x)) + ((options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y) * (options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y))) ) + optimization_options.clock_shift + options->clock_shift;
+      cos (((double)(1 << total_number_of_inputs)) * (double)sample * optimization_options.four_pi_over_number_samples - options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x - options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y) + optimization_options.clock_shift + options->clock_shift;
 	  
     // Saturate the clock at the clock high and low values
     clock = CLAMP (clock, options->clock_low, options->clock_high) ;
@@ -664,7 +664,7 @@ static inline double calculate_clock_value_cc (QCADCell *cell, unsigned long int
   if (SIMULATION_TYPE == VECTOR_TABLE)
     {
     clock = optimization_options.clock_prefactor *
-      cos (((double)pvt->vectors->icUsed) * (double)sample * optimization_options.two_pi_over_number_samples - sqrt(((options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x) * (options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x)) + ((options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y) * (options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y)))) + optimization_options.clock_shift + options->clock_shift;
+      cos (((double)pvt->vectors->icUsed) * (double)sample * optimization_options.two_pi_over_number_samples - options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x - options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y) + optimization_options.clock_shift + options->clock_shift;
 
     // Saturate the clock at the clock high and low values
     clock = CLAMP (clock, options->clock_low, options->clock_high) ;

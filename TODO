@@ -2,6 +2,7 @@
 
 [X] Set up CVS on schroedinger - almost there
     I think it now works. Not quite. Think it needs 2770 on dirs.
+    Yep. Looks like. Lessee if I can overwrite nix's modifications.
 
 [ ] One selection renderer per layer => compositing
 

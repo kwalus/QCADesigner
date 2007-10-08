@@ -1,7 +1,7 @@
 ////////////// QCADesigner TODO /////////////////
 
 [X] Set up CVS on schroedinger - almost there
-    I think it now works.
+    I think it now works. Not quite. Think it needs 2770 on dirs.
 
 [ ] One selection renderer per layer => compositing
 

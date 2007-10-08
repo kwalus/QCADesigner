@@ -1,5 +1,7 @@
 ////////////// QCADesigner TODO /////////////////
 
+[ ] Set up CVS on schroedinger
+
 [ ] One selection renderer per layer => compositing
 
 [ ] two apps: 

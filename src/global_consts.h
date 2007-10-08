@@ -89,8 +89,8 @@
 
 //Added by Faizal for cont. clocking
 //!Coherence Clocking Schemes
-#define FOUR_PHASE_CLOCKING 1
-#define CONT_CLOCKING 2
+#define FOUR_PHASE_CLOCKING 0
+#define CONT_CLOCKING 1
 //End added by Faizal
 
 //!Clocking Schemes

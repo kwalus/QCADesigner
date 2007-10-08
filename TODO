@@ -1,6 +1,7 @@
 ////////////// QCADesigner TODO /////////////////
 
-[ ] Set up CVS on schroedinger - almost there
+[X] Set up CVS on schroedinger - almost there
+    I think it now works.
 
 [ ] One selection renderer per layer => compositing
 

@@ -802,8 +802,8 @@ void coherence_options_dump (coherence_OP *coherence_options, FILE *pfile)
 	fprintf (stderr, "coherence_options->jitter_phase_3            = %f degrees\n",      coherence_options->jitter_phase_3) ;
 // End added by Marco
 //Added by Faizal
-	fprintf (stderr, "coherence_options->wave_number_kx            = %lf [1/m]\n",      coherence_options->wave_number_kx) ;
-	fprintf (stderr, "coherence_options->wave_number_ky            = %lf [1/m]\n",      coherence_options->wave_number_ky) ;
+	fprintf (stderr, "coherence_options->wave_number_kx            = %lf [1/nm]\n",      coherence_options->wave_number_kx) ;
+	fprintf (stderr, "coherence_options->wave_number_ky            = %lf [1/nm]\n",      coherence_options->wave_number_ky) ;
 	fprintf (stderr, "coherence_options->clocking                  = %d\n",             coherence_options->clocking) ;
 //End added by Faizal	
   }

@@ -125,6 +125,7 @@ int main (int argc, char **argv)
     "exit on failure ?               : %s\n"
     "failure output file name prefix : %s\n"
     "initial honeycombs to ignore    : %d\n"
+    "trailing honeycombs to ignore   : %d\n"
     "displace input cells also?      : %d\n"
     "displace output cells also?     : %d\n"
     ),
@@ -132,7 +133,7 @@ int main (int argc, char **argv)
     cmdline_args.pszSimOptsFName,         cmdline_args.pszFName,         cmdline_args.pszReferenceSimOutputFName, 
     cmdline_args.number_of_sims,          cmdline_args.dTolerance,       cmdline_args.dThreshLower, 
     cmdline_args.dThreshUpper,            cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
-    cmdline_args.pszFailureFNamePrefix,   cmdline_args.circuit_delay, cmdline_args.bDisplaceInputs ? "TRUE" : "FALSE", 
+    cmdline_args.pszFailureFNamePrefix,   cmdline_args.circuit_delay, cmdline_args.ignore_from_end, cmdline_args.bDisplaceInputs ? "TRUE" : "FALSE", 
 cmdline_args.bDisplaceOutputs ? "TRUE" : "FALSE") ;
 
 #ifdef GTK_GUI
@@ -556,8 +557,8 @@ static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, in
         break ;
       }
 	 
-    flush_fprintf (stderr, "Nix = %d vs. hcdRef->arHCs->icUsed = %d\n", Nix, hcdRef->arHCs->icUsed) ;
-    return (Nix == hcdRef->arHCs->icUsed) ? 1 : 0 ;
+    flush_fprintf (stderr, "Nix = %d vs. hcdRef->arHCs->icUsed = %d\n", Nix, hcdRef->arHCs->icUsed - ignore_from_end) ;
+    return (Nix == hcdRef->arHCs->icUsed - ignore_from_end) ? 1 : 0 ;
     }
 
   else

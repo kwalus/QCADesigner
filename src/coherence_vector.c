@@ -37,7 +37,7 @@
 #include "custom_widgets.h"
 #include "global_consts.h"
 #ifdef GTK_GUI
-  #include "callback_helpers.h"
+#include "callback_helpers.h"
 #endif /* def GTK_GUI */
 #include "intl.h"
 
@@ -427,6 +427,8 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
 
   simulation_inproc_data_free (&number_of_cell_layers, &number_of_cells_in_layer, &sorted_cells) ;
 
+  g_free(energy);
+
   // Restore the input flag for the inactive inputs
   if (VECTOR_TABLE == SIMULATION_TYPE)
     for (i = 0 ; i < pvt->inputs->icUsed ; i++)
@@ -619,11 +621,12 @@ static inline double calculate_clock_value (unsigned int clock_num, unsigned lon
                           options->jitter_phase_2, options->jitter_phase_3} ;
 
 //Added by Marco: phase shift included in (-PI/2, +P/2) with steps of (1/200)PI
+//Edited by Konrad; Above is wrong, changed jitter to be actual phase shift shift = jitter/180*PI
 
   if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
     {
     clock = optimization_options.clock_prefactor *
-      cos (((double)(1 << total_number_of_inputs)) * (double)sample * optimization_options.four_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 180.0) * PI   - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
+      cos (((double)(1 << total_number_of_inputs)) * (double)sample * optimization_options.four_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 180.0) * PI  - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
 
     // Saturate the clock at the clock high and low values
     clock = CLAMP (clock, options->clock_low, options->clock_high) ;
@@ -632,8 +635,7 @@ static inline double calculate_clock_value (unsigned int clock_num, unsigned lon
   if (SIMULATION_TYPE == VECTOR_TABLE)
     {
     clock = optimization_options.clock_prefactor *
-      cos (((double)pvt->vectors->icUsed) * (double)sample * optimization_options.two_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 180.0) * PI   - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + 
-options->clock_shift;
+      cos (((double)pvt->vectors->icUsed) * (double)sample * optimization_options.two_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 180.0) * PI  - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
 
     // Saturate the clock at the clock high and low values
     clock = CLAMP (clock, options->clock_low, options->clock_high) ;
@@ -647,10 +649,6 @@ options->clock_shift;
 static inline double calculate_clock_value_cc (QCADCell *cell, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt) //Added by Faizal for cont. clocking
   {
   double clock = 0;
-  int jitter_phases[4] = {options->jitter_phase_0, options->jitter_phase_1,
-                          options->jitter_phase_2, options->jitter_phase_3} ;
-
-//Added by Marco: phase shift included in (-PI/2, +P/2) with steps of (1/200)PI
 
   if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
     {
@@ -670,9 +668,8 @@ static inline double calculate_clock_value_cc (QCADCell *cell, unsigned long int
     clock = CLAMP (clock, options->clock_low, options->clock_high) ;
     }
     
-//End added by Marco
   return clock;
-  }// calculate_clock_value
+  }// calculate_clock_value_cc
 
 
 //-------------------------------------------------------------------//
@@ -799,10 +796,10 @@ void coherence_options_dump (coherence_OP *coherence_options, FILE *pfile)
 	fprintf (stderr, "coherence_options->randomize_cells           = %s\n",      coherence_options->randomize_cells ? "TRUE" : "FALSE") ;
 	fprintf (stderr, "coherence_options->animate_simulation        = %s\n",      coherence_options->animate_simulation ? "TRUE" : "FALSE") ;
 // Added by Marco
-	fprintf (stderr, "coherence_options->jitter_phase_0            = %lf\n",      coherence_options->jitter_phase_0) ;
-	fprintf (stderr, "coherence_options->jitter_phase_1            = %lf\n",      coherence_options->jitter_phase_1) ;
-	fprintf (stderr, "coherence_options->jitter_phase_2            = %lf\n",      coherence_options->jitter_phase_2) ;
-	fprintf (stderr, "coherence_options->jitter_phase_3            = %lf\n",      coherence_options->jitter_phase_3) ;
+	fprintf (stderr, "coherence_options->jitter_phase_0            = %f degrees\n",      coherence_options->jitter_phase_0) ;
+	fprintf (stderr, "coherence_options->jitter_phase_1            = %f degrees\n",      coherence_options->jitter_phase_1) ;
+	fprintf (stderr, "coherence_options->jitter_phase_2            = %f degrees\n",      coherence_options->jitter_phase_2) ;
+	fprintf (stderr, "coherence_options->jitter_phase_3            = %f degrees\n",      coherence_options->jitter_phase_3) ;
 // End added by Marco
 //Added by Faizal
 	fprintf (stderr, "coherence_options->wave_number_kx            = %lf [1/m]\n",      coherence_options->wave_number_kx) ;

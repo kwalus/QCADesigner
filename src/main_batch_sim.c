@@ -64,12 +64,13 @@ typedef struct
   char *pszFName ;
   char *pszVTFName ;
   int circuit_delay ;
+  int ignore_from_end ;
   } CMDLINE_ARGS ;
 
 static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean 
 bDisplaceOutputs) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
-static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, int delay) ;
+static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, int delay, int ignore_from_end) ;
 static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args) ;
 
 int main (int argc, char **argv)
@@ -103,7 +104,8 @@ int main (int argc, char **argv)
     .pszReferenceSimOutputFName = NULL,
     .pszFName                   = NULL,
     .pszVTFName                 = NULL,
-    .circuit_delay              = 0
+    .circuit_delay              = 0,
+    .ignore_from_end            = 0,
     } ;
 
   preamble (&argc, &argv) ;
@@ -267,8 +269,8 @@ cmdline_args.bDisplaceOutputs ? "TRUE" : "FALSE") ;
             hcdOut = exp_array_index_1d (out_hcs, HONEYCOMB_DATA *, Nix1) ;
 
             single_success =
-              determine_success (hcdRef, hcdOut, cmdline_args.circuit_delay) ;
-	        
+              determine_success (hcdRef, hcdOut, cmdline_args.circuit_delay, cmdline_args.ignore_from_end) ;
+
             flush_fprintf (stderr, _("This run[%d] bus[%d] was %s\n"), Nix, Nix1, 0 == single_success ? _("unsuccessful") : _("successful")) ;
 			flush_fprintf (stderr, _("hcdOut->arHCs->icUsed equals %d\n"),hcdOut->arHCs->icUsed);
 			}
@@ -406,20 +408,20 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
               : BISTABLE /* default */ ;
       }
     else
-    if (!(strcmp (argv[Nix], _("-v")) && strcmp (argv[Nix], _("--vector-table"))))
-      {
-      if (++Nix < argc)
-        {
-        cmdline_args->pszVTFName = argv[Nix] ;
-        icParms++ ;
-        }
-      }
-    else
     if (!(strcmp (argv[Nix], _("-f")) && strcmp (argv[Nix], _("--file"))))
       {
       if (++Nix < argc)
         {
         cmdline_args->pszFName = argv[Nix] ;
+        icParms++ ;
+        }
+      }
+    else
+    if (!(strcmp (argv[Nix], _("-i")) && strcmp (argv[Nix], _("--ignore-trailing"))))
+      {
+      if (++Nix < argc)
+        {
+        cmdline_args->ignore_from_end = atoi (argv[Nix]);
         icParms++ ;
         }
       }
@@ -457,6 +459,12 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
         }
       }
     else
+    if (!(strcmp (argv[Nix], _("-s")) && strcmp (argv[Nix], _("--save"))))
+      {
+      if (++Nix < argc)
+        cmdline_args->pszFailureFNamePrefix = argv[Nix] ;
+      }
+    else
     if (!(strcmp (argv[Nix], _("-t")) && strcmp (argv[Nix], _("--tolerance"))))
       {
       if (++Nix < argc)
@@ -472,6 +480,15 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
         cmdline_args->dThreshUpper = g_ascii_strtod (argv[Nix], NULL) ;
       }
     else
+    if (!(strcmp (argv[Nix], _("-v")) && strcmp (argv[Nix], _("--vector-table"))))
+      {
+      if (++Nix < argc)
+        {
+        cmdline_args->pszVTFName = argv[Nix] ;
+        icParms++ ;
+        }
+      }
+    else
     if (!(strcmp (argv[Nix], _("-x")) && strcmp (argv[Nix], _("--exit"))))
       cmdline_args->bExitOnFailure = TRUE ;
     else
@@ -481,11 +498,8 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
     if (!(strcmp (argv[Nix], _("-O")) && strcmp (argv[Nix], _("--displace-out"))))
       cmdline_args->bDisplaceOutputs = TRUE ;
     else
-    if (!(strcmp (argv[Nix], _("-s")) && strcmp (argv[Nix], _("--save"))))
-      {
-      if (++Nix < argc)
-        cmdline_args->pszFailureFNamePrefix = argv[Nix] ;
-      }
+    if (!(strcmp (argv[Nix], _("-x")) && strcmp (argv[Nix], _("--exit"))))
+      cmdline_args->bExitOnFailure = TRUE ;
     }
 
   if (icParms < 5 || bDie)
@@ -494,27 +508,28 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
     _("Usage: batch_sim options...\n"
       "\n"
       "Options are:\n"
-      "  -a  --average      samples       Optional: Number of samples to use for running average. Default is 1.\n"
-      "  -d  --delay        honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
-      "  -e  --engine       engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
-      "  -f  --file         file          Required: The circuit file.\n"
-      "  -l  --lower        polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
-      "  -n  --number       number        Required: Number of simulations to perform.\n"
-      "  -o  --options      file          Required: Simulation engine options file.\n"
-      "  -r  --results      file          Required: Simulation results file to compare generated results to.\n"
-      "  -t  --tolerance    tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
-      "  -u  --upper        polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n"
-      "  -v  --vector-table file          Optional: Vector table file to use.\n"
-      "  -x  --exit                       Optional: Turn on exit-on-first-failure.\n"
-      "  -s  --save         file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
-      "                                             and the circuit to file_prefix.qca.\n"
-      "  -I  --displace-in                Optional: include the inputs in the displacements.\n"
-      "  -O  --displace-out               Optional: include the outputs in the displacements.\n")) ;
+      "  -a  --average         samples       Optional: Number of samples to use for running average. Default is 1.\n"
+      "  -d  --delay           honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
+      "  -e  --engine          engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
+      "  -f  --file            file          Required: The circuit file.\n"
+      "  -i  --ignore-trailing honeycombs    Optional: Ignore this many honeycombs at the end.\n"
+      "  -l  --lower           polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"
+      "  -n  --number          number        Required: Number of simulations to perform.\n"
+      "  -o  --options         file          Required: Simulation engine options file.\n"
+      "  -r  --results         file          Required: Simulation results file to compare generated results to.\n"
+      "  -t  --tolerance       tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
+      "  -u  --upper           polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n"
+      "  -v  --vector-table    file          Optional: Vector table file to use.\n"
+      "  -x  --exit                          Optional: Turn on exit-on-first-failure.\n"
+      "    -s  --save            file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
+      "                                                  and the circuit to file_prefix.qca.\n"
+      "  -I  --displace-in                   Optional: include the inputs in the displacements.\n"
+      "  -O  --displace-out                  Optional: include the outputs in the displacements.\n")) ;
     exit (1) ;
     }
   }
 
-static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, int delay)
+static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, int delay, int ignore_from_end)
   {
   int Nix ;
   int idxRef = 0 ;
@@ -529,7 +544,7 @@ static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, in
   // If both honeycomb arrays have the same number of honeycombs, compare the values
   if (hcdRef->arHCs->icUsed == hcdOut->arHCs->icUsed)
     {
-    for (Nix = delay ; Nix < hcdRef->arHCs->icUsed ; Nix++)
+    for (Nix = delay ; Nix < hcdRef->arHCs->icUsed - ignore_from_end ; Nix++)
       {
       hcRef = &exp_array_index_1d (hcdRef->arHCs, HONEYCOMB, Nix) ;
       hcOut = &exp_array_index_1d (hcdOut->arHCs, HONEYCOMB, Nix) ;
@@ -572,7 +587,7 @@ static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, in
     // This output honeycomb may be contained withing the next input honeycomb
     if (hcOut->idxBeg > hcRef->idxEnd)
       {
-      if (++idxRef == hcdRef->arHCs->icUsed) return 0 ;
+      if (++idxRef == hcdRef->arHCs->icUsed - ignore_from_end) return 0 ;
       hcRef = &exp_array_index_1d (hcdRef->arHCs, HONEYCOMB, idxRef) ;
       }
 

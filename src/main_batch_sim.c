@@ -563,7 +563,7 @@ static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, in
 
   else
     {
-	for (Nix = delay ; Nix < (hcdOut->arHCs->icUsed)-1 ; Nix++)
+	for (Nix = delay ; Nix < (hcdOut->arHCs->icUsed) ; Nix++)
       {
       hcRef = &exp_array_index_1d (hcdRef->arHCs, HONEYCOMB, Nix) ;
       hcOut = &exp_array_index_1d (hcdOut->arHCs, HONEYCOMB, Nix) ;
@@ -575,8 +575,8 @@ static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, in
         break ;
       }
 	 
-    flush_fprintf (stderr, "Nix = %d vs. hcdRef->arHCs->icUsed = %d\n", Nix, hcdRef->arHCs->icUsed) ;
-    return (Nix == hcdRef->arHCs->icUsed) ? 1 : 0 ;
+    flush_fprintf (stderr, "Nix = %d vs. hcdRef->arHCs->icUsed = %d\n", Nix, hcdRef->arHCs->icUsed - ignore_from_end) ;
+    return (Nix == hcdRef->arHCs->icUsed - ignore_from_end) ? 1 : 0 ;
     }
 
   hcRef = &exp_array_index_1d (hcdRef->arHCs, HONEYCOMB, 0) ;

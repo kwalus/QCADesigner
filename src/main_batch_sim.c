@@ -65,10 +65,10 @@ typedef struct
   char *pszVTFName ;
   int circuit_delay ;
   int ignore_from_end ;
+  int n_to_displace ;
   } CMDLINE_ARGS ;
 
-static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean 
-bDisplaceOutputs) ;
+static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
 static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, int delay, int ignore_from_end) ;
 static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args) ;
@@ -104,8 +104,9 @@ int main (int argc, char **argv)
     .pszReferenceSimOutputFName = NULL,
     .pszFName                   = NULL,
     .pszVTFName                 = NULL,
-    .circuit_delay              = 0,
-    .ignore_from_end            = 0,
+    .circuit_delay              =  0,
+    .ignore_from_end            =  0,
+    .n_to_displace              = -1,
     } ;
 
   preamble (&argc, &argv) ;
@@ -236,7 +237,7 @@ cmdline_args.bDisplaceOutputs ? "TRUE" : "FALSE") ;
         pvt = NULL ;
         }
       if (cmdline_args.dTolerance != 0.0)
-        randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs) ;
+        randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs, cmdline_args.n_to_displace) ;
 
       if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, (NULL == pvt ? EXHAUSTIVE_VERIFICATION : VECTOR_TABLE), working_design, pvt)))
         {
@@ -345,25 +346,70 @@ static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_L
   return output_hcs ;
   }
 
-static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean 
-bDisplaceOutputs)
+static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace)
   {
+  int Nix, idx;
   double dRadius = -1.0, dAngle = 0.0 ;
   double dx = 0.0, dy = 0.0 ;
   GList *llItr = NULL, *llItrObj = NULL ;
   QCADLayer *layer = NULL ;
+  gint *ar = NULL, n_cells = 0;
 
   if (NULL == rnd || NULL == design) return ;
 
+  if (n_to_displace > 0)
+    {
+    for (llItr = design->lstLayers ; llItr != NULL ; llItr = llItr->next)
+      if (LAYER_TYPE_CELLS == (layer = QCAD_LAYER (llItr->data))->type)
+        for (llItrObj = layer->lstObjs ; llItrObj != NULL ; llItrObj = llItrObj->next)
+          if (NULL != llItrObj->data)
+            n_cells++;
+
+    ar = g_malloc0(n_cells * sizeof(int));
+    for (Nix = 0 ; Nix < n_to_displace ; Nix++)
+      {
+      idx = g_rand_int_range(rnd, 0, n_cells);
+      if(!ar[idx])
+        ar[idx] = 1;
+      else
+        {
+        if (g_rand_int_range(rnd, 0, 1))
+          {
+          for (; idx > -1; idx--)
+            if (!ar[idx])
+              ar[idx] = 1;
+          }
+        else
+          {
+          for (; idx < n_cells ; idx++)
+            if (!ar[idx])
+              ar[idx] = 1;
+          if (idx == n_cells)
+            idx = -1;
+          }
+        }
+
+      if (-1 == idx)
+        {
+        g_warning("randomize_design_cells: Couldn't find an index to set\n");
+        break;
+        }
+      }
+    }
+
+  idx = 0;
   for (llItr = design->lstLayers ; llItr != NULL ; llItr = llItr->next)
     if (LAYER_TYPE_CELLS == (layer = QCAD_LAYER (llItr->data))->type)
       for (llItrObj = layer->lstObjs ; llItrObj != NULL ; llItrObj = llItrObj->next)
         if (NULL != llItrObj->data)
           {
+          if (ar)
+            if (idx < n_cells)
+              if (!ar[idx])
+                continue;
 
 	  if(QCAD_CELL_INPUT == QCAD_CELL(llItrObj->data)->cell_function && !bDisplaceInputs)continue;
-          if(QCAD_CELL_OUTPUT == QCAD_CELL(llItrObj->data)->cell_function && 
-!bDisplaceOutputs)continue;
+          if(QCAD_CELL_OUTPUT == QCAD_CELL(llItrObj->data)->cell_function && !bDisplaceOutputs)continue;
           
 	  dRadius = g_rand_double_range (rnd, dMinRadius, dMaxRadius) ;
           dAngle = g_rand_double_range (rnd, 0, 2.0 * PI) ;
@@ -372,6 +418,7 @@ bDisplaceOutputs)
           dy = dRadius * sin (dAngle) ;
 
           qcad_design_object_move (QCAD_DESIGN_OBJECT (llItrObj->data), dx, dy) ;
+          idx++;
           }
   }
 
@@ -386,6 +433,12 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
 
   for (Nix = 0 ; Nix < argc ; Nix++)
     {
+    if (!(strcmp (argv[Nix], _("-N")) && strcmp (argv[Nix], _("--n-to-displace"))))
+      {
+      if (++Nix < argc)
+        cmdline_args->n_to_displace = atoi (argv[Nix]) ;
+      }
+    else
     if (!(strcmp (argv[Nix], _("-a")) && strcmp (argv[Nix], _("--average"))))
       {
       if (++Nix < argc)
@@ -509,6 +562,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
     _("Usage: batch_sim options...\n"
       "\n"
       "Options are:\n"
+      "  -D  --n-to-displace   number        Optional: Number of cells to displace. Default is -1, meaning \"displace all cells\".\n"
       "  -a  --average         samples       Optional: Number of samples to use for running average. Default is 1.\n"
       "  -d  --delay           honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
       "  -e  --engine          engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"

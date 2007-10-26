@@ -238,10 +238,14 @@ gboolean VectorTable_save (VectorTable *pvt)
 VTL_RESULT VectorTable_load (VectorTable *pvt)
   {
   int icInputs = 0, icVectors = 0, Nix ;
-  FILE *pfile = fopen (pvt->pszFName, "r") ;
+  FILE *pfile = NULL ;
   VTL_RESULT ret = VTL_OK ;
   EXP_ARRAY *vector = NULL ;
 
+  if (NULL == pvt)
+    return VTL_FILE_FAILED;
+
+  pfile = fopen (pvt->pszFName, "r") ;
   if (NULL == pfile) return VTL_FILE_FAILED ; 
   if (!CheckMagic (pfile)) return VTL_MAGIC_FAILED ;
 

@@ -129,13 +129,14 @@ int main (int argc, char **argv)
     "trailing honeycombs to ignore   : %d\n"
     "displace input cells also?      : %d\n"
     "displace output cells also?     : %d\n"
+    "number of cells to displace     : %d\n"
     ),
     COHERENCE_VECTOR == cmdline_args.sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
     cmdline_args.pszSimOptsFName,         cmdline_args.pszFName,         cmdline_args.pszReferenceSimOutputFName, 
     cmdline_args.number_of_sims,          cmdline_args.dTolerance,       cmdline_args.dThreshLower, 
     cmdline_args.dThreshUpper,            cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
     cmdline_args.pszFailureFNamePrefix,   cmdline_args.circuit_delay, cmdline_args.ignore_from_end, cmdline_args.bDisplaceInputs ? "TRUE" : "FALSE", 
-cmdline_args.bDisplaceOutputs ? "TRUE" : "FALSE") ;
+    cmdline_args.bDisplaceOutputs ? "TRUE" : "FALSE", cmdline_args.n_to_displace) ;
 
 #ifdef GTK_GUI
   gtk_init (&argc, &argv) ;
@@ -433,7 +434,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
 
   for (Nix = 0 ; Nix < argc ; Nix++)
     {
-    if (!(strcmp (argv[Nix], _("-N")) && strcmp (argv[Nix], _("--n-to-displace"))))
+    if (!(strcmp (argv[Nix], _("-D")) && strcmp (argv[Nix], _("--n-to-displace"))))
       {
       if (++Nix < argc)
         cmdline_args->n_to_displace = atoi (argv[Nix]) ;

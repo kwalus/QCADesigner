@@ -383,7 +383,7 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
               ar[idx] = 1;
               break;
               }
-          }
+          
 
         if (-1 == idx)
           {
@@ -398,6 +398,31 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
             idx = -1;
           }
         }
+      
+	else
+        {
+	 idx = idx_start;
+	 for (; idx < n_cells ; idx++)
+	   if (!ar[idx])
+	    {
+	    ar[idx] = 1;
+	    break;
+            }
+         if (idx == n_cells)
+	   idx = -1;
+	 
+	if (-1 == idx)
+	{
+	idx_start = idx;
+	for (; idx > -1; idx--)
+	  if (!ar[idx])
+	   {
+	   ar[idx] = 1;
+	   break;
+           }
+        }
+      }
+      
 
       if (-1 == idx)
         {
@@ -406,7 +431,7 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
         }
       }
     }
-
+  }
   idx = 0;
   for (llItr = design->lstLayers ; llItr != NULL ; llItr = llItr->next)
     if (LAYER_TYPE_CELLS == (layer = QCAD_LAYER (llItr->data))->type)
@@ -415,9 +440,10 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
           {
           if (ar)
             if (idx < n_cells)
-              if (!ar[idx])
+              if (!ar[idx]) {
+ 		idx++;
                 continue;
-
+	      }
 	  if(QCAD_CELL_INPUT == QCAD_CELL(llItrObj->data)->cell_function && !bDisplaceInputs)continue;
           if(QCAD_CELL_OUTPUT == QCAD_CELL(llItrObj->data)->cell_function && !bDisplaceOutputs)continue;
           

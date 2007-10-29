@@ -378,13 +378,19 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
           {
           for (; idx > -1; idx--)
             if (!ar[idx])
+              {
               ar[idx] = 1;
+              break;
+              }
           }
         else
           {
           for (; idx < n_cells ; idx++)
             if (!ar[idx])
+              {
               ar[idx] = 1;
+              break;
+              }
           if (idx == n_cells)
             idx = -1;
           }

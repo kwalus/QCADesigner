@@ -349,7 +349,7 @@ static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_L
 
 static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace)
   {
-  int Nix, idx;
+  int Nix, idx, idx_start;
   double dRadius = -1.0, dAngle = 0.0 ;
   double dx = 0.0, dy = 0.0 ;
   GList *llItr = NULL, *llItrObj = NULL ;
@@ -374,6 +374,7 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
         ar[idx] = 1;
       else
         {
+        idx_start = idx;
         if (g_rand_int_range(rnd, 0, 1))
           {
           for (; idx > -1; idx--)
@@ -383,8 +384,10 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
               break;
               }
           }
-        else
+
+        if (-1 == idx)
           {
+          idx = idx_start;
           for (; idx < n_cells ; idx++)
             if (!ar[idx])
               {

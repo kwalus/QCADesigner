@@ -408,12 +408,12 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
 	    ar[idx] = 1;
 	    break;
             }
-         if (idx == n_cells)
+	   if (idx == n_cells)
 	   idx = -1;
 	 
 	if (-1 == idx)
 	{
-	idx_start = idx;
+	idx = idx_start;
 	for (; idx > -1; idx--)
 	  if (!ar[idx])
 	   {

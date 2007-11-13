@@ -52,9 +52,11 @@ typedef struct
   gboolean bExitOnFailure ;
   gboolean bDisplaceInputs ;
   gboolean bDisplaceOutputs ;
+  gboolean bNormalDisp ;
   int number_of_sims ;
   int sim_engine ;
   double dTolerance ;
+  double dVariance ;
   double dThreshLower ;
   double dThreshUpper ;
   int icAverageSamples ;
@@ -68,7 +70,7 @@ typedef struct
   int n_to_displace ;
   } CMDLINE_ARGS ;
 
-static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace) ;
+static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace, double dVariance, gboolean Dist) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
 static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, int delay, int ignore_from_end) ;
 static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args) ;
@@ -107,6 +109,8 @@ int main (int argc, char **argv)
     .circuit_delay              =  0,
     .ignore_from_end            =  0,
     .n_to_displace              = -1,
+    .bNormalDisp		= FALSE,
+    .dVariance			=  1.0,
     } ;
 
   preamble (&argc, &argv) ;
@@ -119,7 +123,9 @@ int main (int argc, char **argv)
     "Circuit file                    : %s\n"
     "Reference simulation output file: %s\n"
     "number of simulations           : %d\n"
+    "uniform distribution ?	     : %s\n"
     "tolerance                       : %lf\n"
+    "variance			     : %lf\n"
     "lower polarization threshold    : %lf\n"
     "upper polarization threshold    : %lf\n"
     "samples for running average     : %d\n"
@@ -133,8 +139,8 @@ int main (int argc, char **argv)
     ),
     COHERENCE_VECTOR == cmdline_args.sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
     cmdline_args.pszSimOptsFName,         cmdline_args.pszFName,         cmdline_args.pszReferenceSimOutputFName, 
-    cmdline_args.number_of_sims,          cmdline_args.dTolerance,       cmdline_args.dThreshLower, 
-    cmdline_args.dThreshUpper,            cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
+    cmdline_args.number_of_sims,          cmdline_args.bNormalDisp ? "TRUE" : "FALSE",  cmdline_args.dTolerance,  cmdline_args.dVariance,     
+    cmdline_args.dThreshLower,            cmdline_args.dThreshUpper,     cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
     cmdline_args.pszFailureFNamePrefix,   cmdline_args.circuit_delay, cmdline_args.ignore_from_end, cmdline_args.bDisplaceInputs ? "TRUE" : "FALSE", 
     cmdline_args.bDisplaceOutputs ? "TRUE" : "FALSE", cmdline_args.n_to_displace) ;
 
@@ -237,10 +243,16 @@ int main (int argc, char **argv)
         VectorTable_free (pvt) ;
         pvt = NULL ;
         }
-      if (cmdline_args.dTolerance != 0.0)
-        randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs, cmdline_args.n_to_displace) ;
-
-      if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, (NULL == pvt ? EXHAUSTIVE_VERIFICATION : VECTOR_TABLE), working_design, pvt)))
+      //if (cmdline_args.dTolerance != 0.0)
+        if (cmdline_args.bNormalDisp)
+          {
+           randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs, cmdline_args.n_to_displace, cmdline_args.dVariance, TRUE) ;
+          }	
+        else
+          {
+           randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs, cmdline_args.n_to_displace, cmdline_args.dVariance, FALSE) ;
+          }
+        if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, (NULL == pvt ? EXHAUSTIVE_VERIFICATION : VECTOR_TABLE), working_design, pvt)))
         {
         out_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT, cmdline_args.dThreshLower, cmdline_args.dThreshUpper, cmdline_args.icAverageSamples) ;
         // Print out the results for comparison
@@ -347,14 +359,20 @@ static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_L
   return output_hcs ;
   }
 
-static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace)
+static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace, double dVariance, gboolean Dist)
   {
-  int Nix, idx, idx_start;
+  int Nix, idx, idx_start ;
+  float u1x, u2x, u1y, u2y;
   double dRadius = -1.0, dAngle = 0.0 ;
-  double dx = 0.0, dy = 0.0 ;
+  float dx = 0.0, dy = 0.0, zx = 0.0, zy = 0.0 ;
   GList *llItr = NULL, *llItrObj = NULL ;
   QCADLayer *layer = NULL ;
   gint *ar = NULL, n_cells = 0;
+  
+  double var = dVariance;  
+  
+  srand ( (unsigned)time(0) );
+ 
 
   if (NULL == rnd || NULL == design) return ;
 
@@ -450,8 +468,25 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
 	  dRadius = g_rand_double_range (rnd, dMinRadius, dMaxRadius) ;
           dAngle = g_rand_double_range (rnd, 0, 2.0 * PI) ;
 
-          dx = dRadius * cos (dAngle) ;
-          dy = dRadius * sin (dAngle) ;
+
+	  if (Dist)
+	    {	
+	     dx = dRadius * cos (dAngle) ;
+             dy = dRadius * sin (dAngle) ;
+	    }
+          else
+            {
+  	     u1x = (double)rand()/(double)RAND_MAX;
+  	     u2x = (double)rand()/(double)RAND_MAX;
+  	     u1y = (double)rand()/(double)RAND_MAX;
+             u2y = (double)rand()/(double)RAND_MAX;
+
+             zx = sqrt(-2.0*log(u1x))*cos(2*PI*u2x);
+             zy = sqrt(-2.0*log(u1y))*cos(2*PI*u2y);
+
+             dx = var*zx;
+	     dy = var*zy;
+            }
 
           qcad_design_object_move (QCAD_DESIGN_OBJECT (llItrObj->data), dx, dy) ;
           idx++;
@@ -560,9 +595,16 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
       if (++Nix < argc)
         {
         cmdline_args->dTolerance = g_ascii_strtod (argv[Nix], NULL) ;
-        icParms++ ;
         }
       }
+    else
+    if (!(strcmp (argv[Nix], _("-V")) && strcmp(argv[Nix], _("--variance"))))	
+      {
+      if (++Nix < argc)
+	{
+	cmdline_args->dVariance = g_ascii_strtod (argv[Nix], NULL) ;
+        }
+    }
     else
     if (!(strcmp (argv[Nix], _("-u")) && strcmp (argv[Nix], _("--upper"))))
       {
@@ -588,17 +630,19 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
     if (!(strcmp (argv[Nix], _("-O")) && strcmp (argv[Nix], _("--displace-out"))))
       cmdline_args->bDisplaceOutputs = TRUE ;
     else
-    if (!(strcmp (argv[Nix], _("-x")) && strcmp (argv[Nix], _("--exit"))))
-      cmdline_args->bExitOnFailure = TRUE ;
+    if (!(strcmp (argv[Nix], _("-U")) && strcmp (argv[Nix], _("--distribution"))))
+      cmdline_args->bNormalDisp = TRUE ;
     }
 
-  if (icParms < 5 || bDie)
+  if (icParms < 4 || bDie)
     {
     printf (
     _("Usage: batch_sim options...\n"
       "\n"
       "Options are:\n"
       "  -D  --n-to-displace   number        Optional: Number of cells to displace. Default is -1, meaning \"displace all cells\".\n"
+      "  -U  --distribution    		     Optional: Displace Cells uniformly. Default is Normal displacement.\n"
+      "  -V  --variance        number	     Optional: Variance for normal distribution. Default is 1.\n"
       "  -a  --average         samples       Optional: Number of samples to use for running average. Default is 1.\n"
       "  -d  --delay           honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
       "  -e  --engine          engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
@@ -608,11 +652,11 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
       "  -n  --number          number        Required: Number of simulations to perform.\n"
       "  -o  --options         file          Required: Simulation engine options file.\n"
       "  -r  --results         file          Required: Simulation results file to compare generated results to.\n"
-      "  -t  --tolerance       tolerance     Required: Radial tolerance. Non-negative floating point value.\n"
+      "  -t  --tolerance       tolerance     Optional: Radial tolerance. Non-negative floating point value. Default is 0.\n"
       "  -u  --upper           polarization  Optional: Upper polarization threshold. Between -1.00 and 1.00. Default is 0.5.\n"
       "  -v  --vector-table    file          Optional: Vector table file to use.\n"
       "  -x  --exit                          Optional: Turn on exit-on-first-failure.\n"
-      "    -s  --save            file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
+      "  -s  --save            file_prefix   Optional: Save failing simulation output to file_prefix.sim_output\n"
       "                                                  and the circuit to file_prefix.qca.\n"
       "  -I  --displace-in                   Optional: include the inputs in the displacements.\n"
       "  -O  --displace-out                  Optional: include the outputs in the displacements.\n")) ;

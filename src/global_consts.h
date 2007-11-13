@@ -142,6 +142,9 @@
 #define OVER_HBAR                  ((double)(9.48252355168675613949607578855e33))
 #define PRECISION 1e-5
 
+// Normalized random number
+#define RAND_UNIFORME (double)rand()/(double)RAND_MAX
+
 // Maximum length of a file system path
 #ifdef MAX_PATH
   // The Win32 headers have a similar variable already defined, so let's use it

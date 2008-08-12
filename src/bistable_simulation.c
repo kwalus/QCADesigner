@@ -122,6 +122,10 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
       current_cell_model->neighbours = NULL;
       current_cell_model->Ek = NULL;
 
+      // -- Set all cell polarizations to 0 at the start of the simulation -- //
+      // -- All cells that are in non latched clocking zones will be unaffected -- //
+      current_cell_model->polarization = -1;
+   
       // -- set polarization in cell model for fixed cells since they are set with actual dot charges by the user -- //
       if(QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function)
        current_cell_model->polarization = qcad_cell_calculate_polarization(sorted_cells[i][j]);

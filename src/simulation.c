@@ -34,12 +34,14 @@
 #include "simulation.h"
 #include "coherence_vector.h"
 #include "bistable_simulation.h"
+#include "semi_coherent.h"
 #include "three_state_coherence.h"
 #include "vector_table.h"
 
 extern coherence_OP coherence_options ;
 extern bistable_OP bistable_options ;
 extern ts_coherence_OP ts_coherence_options ;
+extern semi_coherent_OP semi_coherent_options ;
 
 gboolean STOP_SIMULATION = FALSE;
 
@@ -56,6 +58,9 @@ simulation_data *run_simulation (int sim_engine, int sim_type, DESIGN *design, V
 			
     case TS_COHERENCE_VECTOR:
       return run_ts_coherence_simulation(sim_type, design, &ts_coherence_options, pvt);
+	  
+	case SEMI_COHERENT:
+      return run_semi_coherent_simulation(sim_type, design, &semi_coherent_options, pvt);
     }
   return NULL ;
   }//run_simualtion

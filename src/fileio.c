@@ -55,6 +55,7 @@ static void unserialize_trace (FILE *pfile, struct TRACEDATA *trace, int icSampl
 static void unserialize_trace_data (FILE *pfile, struct TRACEDATA *trace, int icSamples) ;
 static coherence_OP *open_coherence_options_file_fp (FILE *fp) ;
 static bistable_OP *open_bistable_options_file_fp (FILE *fp) ;
+static semi_coherent_OP *open_semi_coherent_options_file_fp (FILE *fp) ;
 static void build_io_tables (simulation_data *sim_data, BUS_LAYOUT *bus_layout) ;
 
 static double qcadesigner_version = 2.0 ;
@@ -963,6 +964,100 @@ static bistable_OP *open_bistable_options_file_fp (FILE *pfile)
 
   return bistable_options ;
   }
+
+semi_coherent_OP *open_semi_coherent_options_file (char *pszFName)
+  {
+  semi_coherent_OP *semi_coherent_options = NULL ;
+  FILE *fp = NULL ;
+
+  if (NULL == (fp = file_open_and_buffer (pszFName)))
+    return NULL ;
+
+  semi_coherent_options = open_semi_coherent_options_file_fp (fp) ;
+
+  file_close_and_unbuffer (fp) ;
+
+  return semi_coherent_options ;
+  }
+
+static semi_coherent_OP *open_semi_coherent_options_file_fp (FILE *pfile)
+  {
+  semi_coherent_OP *semi_coherent_options = NULL ;
+  char *pszLine = NULL, *pszValue = NULL ;
+
+  if (!SkipPast (pfile, '\0', "[SEMI_COHERENT_OPTIONS]", NULL))
+    return NULL ;
+
+  semi_coherent_options = g_malloc0 (sizeof (semi_coherent_OP)) ;
+
+  while (TRUE)
+    {
+    if (NULL == (pszLine = ReadLine (pfile, '\0', TRUE))) break ;
+
+    if (!strncmp (pszLine, "[#SEMI_COHERENT_OPTIONS]", sizeof ("[#SEMI_COHERENT_OPTIONS]") - 1))
+      {
+      g_free (pszLine) ;
+      break ;
+      }
+
+    tokenize_line (pszLine, strlen (pszLine), &pszValue, '=') ;
+
+    if (!strncmp (pszLine, "number_of_samples", sizeof ("number_of_samples") - 1))
+      semi_coherent_options->number_of_samples = atoi (pszValue) ;
+    else
+    if (!strncmp (pszLine, "animate_simulation", sizeof ("animate_simulation") - 1))
+      semi_coherent_options->animate_simulation = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
+    else
+    if (!strncmp (pszLine, "convergence_tolerance", sizeof ("convergence_tolerance") - 1))
+      semi_coherent_options->convergence_tolerance = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "radius_of_effect", sizeof ("radius_of_effect") - 1))
+      semi_coherent_options->radius_of_effect = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "epsilonR", sizeof ("epsilonR") - 1))
+      semi_coherent_options->epsilonR = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "clock_high", sizeof ("clock_high") - 1))
+      semi_coherent_options->clock_high = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "clock_low", sizeof ("clock_low") - 1))
+      semi_coherent_options->clock_low = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "clock_shift", sizeof ("clock_shift") - 1))
+      semi_coherent_options->clock_shift = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "clock_amplitude_factor", sizeof ("clock_amplitude_factor") - 1))
+      semi_coherent_options->clock_amplitude_factor = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "max_iterations_per_sample", sizeof ("max_iterations_per_sample") - 1))
+      semi_coherent_options->max_iterations_per_sample = atoi (pszValue) ;
+    else
+    if (!strncmp (pszLine, "layer_separation", sizeof ("layer_separation") - 1))
+      semi_coherent_options->layer_separation = g_ascii_strtod (pszValue, NULL) ;
+// Added by Marco March 2
+ else
+    if (!strncmp (pszLine, "jitter_phase_0", sizeof ("jitter_phase_0") - 1))
+      semi_coherent_options->jitter_phase_0 = atoi (pszValue);
+ else
+    if (!strncmp (pszLine, "jitter_phase_1", sizeof ("jitter_phase_1") - 1))
+      semi_coherent_options->jitter_phase_1 = atoi (pszValue);
+ else
+    if (!strncmp (pszLine, "jitter_phase_2", sizeof ("jitter_phase_2") - 1))
+      semi_coherent_options->jitter_phase_2 = atoi (pszValue);
+ else
+    if (!strncmp (pszLine, "jitter_phase_3", sizeof ("jitter_phase_3") - 1))
+      semi_coherent_options->jitter_phase_3 = atoi (pszValue); 
+
+// End Added by Marco March 2
+
+    g_free (pszLine) ;
+    g_free (ReadLine (pfile, '\0', FALSE)) ;
+    }
+
+  return semi_coherent_options ;
+  }
+
+
 
 // Best effort trace unserialization - in the worst case, it'll be a flatline.
 static void unserialize_trace (FILE *pfile, struct TRACEDATA *trace, int icSamples)

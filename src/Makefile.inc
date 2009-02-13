@@ -52,11 +52,13 @@ SIMULATION_FILES = \
 	simulation.c                            simulation.h \
 	bistable_simulation.c                   bistable_simulation.h \
 	coherence_vector.c                      coherence_vector.h \
+	semi_coherent.c                   semi_coherent.h \
 	three_state_coherence.c			            three_state_coherence.h \
 	matrixlib_3x3.c													matrixlib_3x3.h
 
 SIMULATION_UI_FILES = \
 	bistable_properties_dialog.c            bistable_properties_dialog.h \
+	semi_coherent_properties_dialog.c       semi_coherent_properties_dialog.h \
 	coherence_vector_properties_dialog.c    coherence_vector_properties_dialog.h \
 	ts_coherence_vector_properties_dialog.c	ts_coherence_vector_properties_dialog.h
 

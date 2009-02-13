@@ -72,7 +72,7 @@ typedef struct
   int n_to_displace ;
   } CMDLINE_ARGS ;
 
-static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace) ;
+static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace, double dVariance, gboolean Dist) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
 static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, int delay, int ignore_from_end) ;
 static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args) ;
@@ -113,7 +113,7 @@ int main (int argc, char **argv)
     .n_to_displace              = -1,
     .bNormalDisp		= FALSE,
     .dVariance			=  1.0,
-    }
+    };
 
   preamble (&argc, &argv) ;
 

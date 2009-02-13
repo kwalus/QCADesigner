@@ -78,6 +78,7 @@
 #define SCQCA 3
 #define COHERENCE_VECTOR 4
 #define TS_COHERENCE_VECTOR 5
+#define SEMI_COHERENT 6
 
 //!Simulation Types
 #define EXHAUSTIVE_VERIFICATION 0

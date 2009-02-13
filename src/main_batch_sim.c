@@ -42,10 +42,12 @@
 #include "coherence_vector.h"
 #include "graph_dialog_widget_data.h"
 #include "bistable_simulation.h"
+#include "semi_coherent.h"
 #include "preamble.h"
 
 extern bistable_OP bistable_options ;
 extern coherence_OP coherence_options ;
+extern semi_coherent_OP semi_coherent_options ;
 
 typedef struct
   {
@@ -70,7 +72,7 @@ typedef struct
   int n_to_displace ;
   } CMDLINE_ARGS ;
 
-static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace, double dVariance, gboolean Dist) ;
+static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadius, double dMaxRadius, gboolean bDisplaceInputs, gboolean bDisplaceOutputs, int n_to_displace) ;
 static EXP_ARRAY *create_honeycombs_from_buses (simulation_data *sim_data, BUS_LAYOUT *bus_layout, int bus_function, double dThreshLower, double dThreshUpper, int icAverageSamples) ;
 static int determine_success (HONEYCOMB_DATA *hcdRef, HONEYCOMB_DATA *hcdOut, int delay, int ignore_from_end) ;
 static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args) ;
@@ -111,7 +113,7 @@ int main (int argc, char **argv)
     .n_to_displace              = -1,
     .bNormalDisp		= FALSE,
     .dVariance			=  1.0,
-    } ;
+    }
 
   preamble (&argc, &argv) ;
 
@@ -137,7 +139,8 @@ int main (int argc, char **argv)
     "displace output cells also?     : %d\n"
     "number of cells to displace     : %d\n"
     ),
-    COHERENCE_VECTOR == cmdline_args.sim_engine ? "COHERENCE_VECTOR" : "BISTABLE",
+    COHERENCE_VECTOR == cmdline_args.sim_engine ? "COHERENCE_VECTOR" : 
+	BISTABLE == cmdline_args.sim_engine ? "BISTABLE" : "SEMI_COHERENT",
     cmdline_args.pszSimOptsFName,         cmdline_args.pszFName,         cmdline_args.pszReferenceSimOutputFName, 
     cmdline_args.number_of_sims,          cmdline_args.bNormalDisp ? "TRUE" : "FALSE",  cmdline_args.dTolerance,  cmdline_args.dVariance,     
     cmdline_args.dThreshLower,            cmdline_args.dThreshUpper,     cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
@@ -214,6 +217,20 @@ int main (int argc, char **argv)
     coherence_options_dump (co, stderr) ;
     memcpy (&coherence_options, co, sizeof (coherence_OP)) ;
     }
+  else
+  if (SEMI_COHERENT == cmdline_args.sim_engine)
+    {
+    semi_coherent_OP *sco = NULL ;
+
+    if (NULL == (sco = open_semi_coherent_options_file (cmdline_args.pszSimOptsFName)))
+      {
+      flush_fprintf (stderr, _("Failed to open simulation options file !\n")) ;
+      return 5 ;
+      }
+    semi_coherent_options_dump (sco, stderr) ;
+    memcpy (&semi_coherent_options, sco, sizeof (semi_coherent_OP)) ;
+    }
+
 
   printf (_("Running %d %s with a radial tolerance of %lf\n"), cmdline_args.number_of_sims, 
     1 == cmdline_args.number_of_sims ? _("simulation") : _("simulations"), cmdline_args.dTolerance) ;
@@ -243,7 +260,6 @@ int main (int argc, char **argv)
         VectorTable_free (pvt) ;
         pvt = NULL ;
         }
-      //if (cmdline_args.dTolerance != 0.0)
         if (cmdline_args.bNormalDisp)
           {
            randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs, cmdline_args.n_to_displace, cmdline_args.dVariance, TRUE) ;
@@ -373,7 +389,6 @@ static void randomize_design_cells (GRand *rnd, DESIGN *design, double dMinRadiu
   
   srand ( (unsigned)time(0) );
  
-
   if (NULL == rnd || NULL == design) return ;
 
   if (n_to_displace > 0)
@@ -530,7 +545,9 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
             ? BISTABLE
             : !strcmp (argv[Nix], "COHERENCE_VECTOR")
               ? COHERENCE_VECTOR
-              : BISTABLE /* default */ ;
+			  : !strcmp (argv[Nix], "SEMI_COHERENT")
+				? SEMI_COHERENT
+				: BISTABLE /* default */ ;
       }
     else
     if (!(strcmp (argv[Nix], _("-f")) && strcmp (argv[Nix], _("--file"))))
@@ -645,7 +662,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
       "  -V  --variance        number	     Optional: Variance for normal distribution. Default is 1.\n"
       "  -a  --average         samples       Optional: Number of samples to use for running average. Default is 1.\n"
       "  -d  --delay           honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
-      "  -e  --engine          engine        Optional: The simulation engine. One of BISTABLE (default) or COHERENCE_VECTOR.\n"
+      "  -e  --engine          engine        Optional: The simulation engine. One of BISTABLE (default), COHERENCE_VECTOR or SEMI_COHERENT.\n"
       "  -f  --file            file          Required: The circuit file.\n"
       "  -i  --ignore-trailing honeycombs    Optional: Ignore this many honeycombs at the end.\n"
       "  -l  --lower           polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"

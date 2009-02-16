@@ -58,6 +58,8 @@ typedef struct
 	float jitter_phase_3;
 	// End added by Marco March 2
 	gboolean color_group;
+	gboolean manual_group;
+	gboolean auto_group;
 	} semi_coherent_OP;
 
 simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *design, semi_coherent_OP *options, VectorTable *pvt);

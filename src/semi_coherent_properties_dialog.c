@@ -61,6 +61,8 @@ typedef struct
   GtkWidget *layer_separation_entry;
   GtkWidget *chkAnimate;
   GtkWidget *chkClrCells;
+  GtkWidget *chkManSetCells;
+  GtkWidget *chkAutoSetCells;
   GtkWidget *dialog_action_area1;
   GtkWidget *hbox2;
   GtkWidget *semi_coherent_properties_ok_button;
@@ -97,6 +99,12 @@ void get_semi_coherent_properties_from_user (GtkWindow *parent, semi_coherent_OP
 	  
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (semi_coherent_properties.chkClrCells),
 	pbo->color_group) ;
+	
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (semi_coherent_properties.chkManSetCells),
+	pbo->manual_group) ;	  
+	 
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (semi_coherent_properties.chkAutoSetCells),
+	pbo->auto_group) ;	
 	  
   g_snprintf (sz, 16, "%f", pbo->convergence_tolerance) ;
   gtk_entry_set_text (GTK_ENTRY (semi_coherent_properties.convergence_tolerance_entry), sz) ;
@@ -159,6 +167,8 @@ void get_semi_coherent_properties_from_user (GtkWindow *parent, semi_coherent_OP
 //End added by Marco March 06
     pbo->animate_simulation =        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (semi_coherent_properties.chkAnimate)) ;
 	pbo->color_group =			     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (semi_coherent_properties.chkClrCells)) ;
+	pbo->manual_group =			     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (semi_coherent_properties.chkManSetCells)) ;
+	pbo->auto_group =			     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (semi_coherent_properties.chkAutoSetCells)) ;	
 	pbo->threshold =				 atof (gtk_entry_get_text (GTK_ENTRY (semi_coherent_properties.threshold_entry))) ;
     }
 
@@ -493,9 +503,21 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 	  
+  dialog->chkManSetCells = gtk_check_button_new_with_label (_("Manually Group Cells")) ;
+  gtk_widget_show (dialog->chkManSetCells) ;
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkManSetCells, 0, 2, 16, 17,
+					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);	 
+	  
+  dialog->chkAutoSetCells = gtk_check_button_new_with_label (_("Automatically Group Cells")) ;
+  gtk_widget_show (dialog->chkAutoSetCells) ;
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAutoSetCells, 0, 2, 17, 18,
+					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);	 	  
+	  
   dialog->chkClrCells = gtk_check_button_new_with_label (_("Color Grouped Cells")) ;
   gtk_widget_show (dialog->chkClrCells) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkClrCells, 0, 2, 16, 17,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkClrCells, 0, 2, 18, 19,
 					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
 					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);	  
 

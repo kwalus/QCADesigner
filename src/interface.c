@@ -689,6 +689,18 @@ void create_main_window (main_W *main_window)
     gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
     g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_NORMAL) ;
 
+	mnuiSep = gtk_menu_item_new () ;
+	gtk_widget_show (mnuiSep) ;
+	gtk_container_add (GTK_CONTAINER (mnu), mnuiSep) ;
+	  
+	mnui = gtk_image_menu_item_new_with_label (_("Cluster")) ;
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
+	img = gtk_image_new_from_stock (QCAD_STOCK_CELL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
+	gtk_widget_show (mnui) ;
+	gtk_widget_show (img) ;
+	gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
+	g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_CLUSTER) ;  
+	  
     mnuiSep = gtk_menu_item_new () ;
     gtk_widget_show (mnuiSep) ;
     gtk_container_add (GTK_CONTAINER (mnu), mnuiSep) ;
@@ -700,6 +712,7 @@ void create_main_window (main_W *main_window)
     gtk_widget_show (img) ;
     gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
     g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_VERTICAL) ;
+	  
 
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
     GTK_TOOL_ITEM (main_window->toggle_alt_display_button = toolbar_item = 

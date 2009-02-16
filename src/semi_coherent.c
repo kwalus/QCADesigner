@@ -51,7 +51,7 @@
 //This variable is used by multiple source files
 // Added by Marco March 3 : last four arguments (phase shifts)
 
-semi_coherent_OP semi_coherent_options = {12800, FALSE, 1e-3, 200, 1, 9.43e-19, 1.41e-20, 0.0, 2.0, 100, 1.15, 3, 0,0,0,0, TRUE} ;
+semi_coherent_OP semi_coherent_options = {12800, FALSE, 1e-3, 200, 1, 9.43e-19, 1.41e-20, 0.0, 2.0, 100, 1.15, 3, 0,0,0,0, TRUE, FALSE, TRUE} ;
 
 
 #ifdef GTK_GUI
@@ -126,7 +126,6 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	if (0 == clrClockBU[3].pixel)
 		gdk_colormap_alloc_color (clrmap, &clrClockBU[3], FALSE, TRUE) ;
 #endif /* def GTK_GUI */
-	
 	
 	int i, j, k, l, total_cells = 0 ;
 	int icLayers, icCellsInLayer;
@@ -353,47 +352,82 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 			Hg[h_iter1][h_iter2] = -1;
 		}
 	}
-			
-	for (Nix1 = 0 ; Nix1 < number_of_cells_in_layer[0] ; Nix1++)
-	{
-		cell = sorted_cells[0][Nix1] ;
-		
-		if (!((QCAD_CELL_INPUT == cell->cell_function)||
-			  (QCAD_CELL_FIXED == cell->cell_function)))
+	
+	if (options->manual_group) {
+		for (Nix1 = 0 ; Nix1 < number_of_cells_in_layer[0] ; Nix1++)
 		{
+			cell = sorted_cells[0][Nix1] ;
 			
-			current_cell_model = ((semi_coherent_model *)cell->cell_model) ;
-			
-			if (QCAD_CELL_NORMAL == cell->cell_function) {
-				H_group_color[num_elements] = clrClockBU[cell->cell_options.clock];
-			}
-			else {
-				H_group_color[num_elements] = clrYellowBU;
-			}
-			
-			Ek0 = get_max(current_cell_model->Ek, current_cell_model->number_of_neighbours);
-			thresh = Ek0/thresh_den;
-			Ek_sum = 0;       
-			
-			for (q = 0; q < current_cell_model->number_of_neighbours; q++) {
-				Ek_sum += fabs(current_cell_model->Ek[q]);
-			}
-			if (Ek_sum > (2*Ek0 + thresh)) {
-				H_group_cell[num_elements] = Nix1;
-				if (options->color_group) {
-					memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &clrGroup, sizeof (GdkColor)) ;
+			if (!((QCAD_CELL_INPUT == cell->cell_function)||
+				  (QCAD_CELL_FIXED == cell->cell_function)))
+			{
+				
+				if (QCAD_CELL_MODE_CLUSTER == cell->cell_options.mode) {
+					H_group_cell[num_elements] = Nix1;
+					
+					if (QCAD_CELL_NORMAL == cell->cell_function) {
+						H_group_color[num_elements] = clrClockBU[cell->cell_options.clock];
+					}
+					else {
+						H_group_color[num_elements] = clrYellowBU;
+					}		
+					
+					if (!(options->color_group)) {
+						cell->cell_options.mode = QCAD_CELL_MODE_NORMAL;
+						memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &H_group_color[num_elements], sizeof (GdkColor)) ;
+					}
+					num_elements++;
 				}
-				else {
-					memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &H_group_color[num_elements], sizeof (GdkColor)) ;
-				}
-				num_elements++;
-			}
-			else {
-					memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &H_group_color[num_elements], sizeof (GdkColor)) ;
 			}
 		}
 	}
 	
+	if (options->auto_group) {
+		for (Nix1 = 0 ; Nix1 < number_of_cells_in_layer[0] ; Nix1++)
+		{
+			cell = sorted_cells[0][Nix1] ;
+			
+			if (!((QCAD_CELL_INPUT == cell->cell_function)||
+				  (QCAD_CELL_FIXED == cell->cell_function)))
+			{
+				
+				current_cell_model = ((semi_coherent_model *)cell->cell_model) ;
+				
+				cmp = search_array(H_group_cell, Nix1, num_elements);
+				if (cmp == -1) {
+					
+					if (QCAD_CELL_NORMAL == cell->cell_function) {
+						H_group_color[num_elements] = clrClockBU[cell->cell_options.clock];
+					}
+					else {
+						H_group_color[num_elements] = clrYellowBU;
+					}
+					
+					
+					Ek0 = get_max(current_cell_model->Ek, current_cell_model->number_of_neighbours);
+					thresh = Ek0/thresh_den;
+					Ek_sum = 0;       
+					
+					for (q = 0; q < current_cell_model->number_of_neighbours; q++) {
+						Ek_sum += fabs(current_cell_model->Ek[q]);
+					}
+					if (Ek_sum > (2*Ek0 + thresh)) {
+						H_group_cell[num_elements] = Nix1;
+						qcad_cell_set_mode (cell, QCAD_CELL_MODE_CLUSTER) ;
+						if (options->color_group) {
+							cell->cell_options.mode = QCAD_CELL_MODE_CLUSTER;
+							memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &clrGroup, sizeof (GdkColor)) ;
+						}
+						num_elements++;
+					}
+					else {
+						cell->cell_options.mode = QCAD_CELL_MODE_NORMAL;
+						memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &H_group_color[num_elements], sizeof (GdkColor)) ;
+					}
+				}
+			}
+		}
+	}
 #ifdef DESIGNER
 	redraw_async(NULL);
 	gdk_flush () ;
@@ -1068,6 +1102,16 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 			j = sim_data->number_samples ;
     }//for number of samples
 	
+	for (fb1 = 0; fb1 < num_elements; fb1++) {
+		cell = sorted_cells[0][H_group_cell[fb1]];
+		qcad_cell_set_mode (cell, QCAD_CELL_MODE_NORMAL);
+	}
+
+#ifdef DESIGNER
+	redraw_async(NULL);
+	gdk_flush () ;
+#endif /* def DESIGNER */
+	
 	// Free the neigbours and Ek array introduced by this simulation//
 	for (k = 0; k < number_of_cell_layers; k++)
     {
@@ -1080,11 +1124,12 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
     }
 	
 	simulation_inproc_data_free (&number_of_cell_layers, &number_of_cells_in_layer, &sorted_cells) ;
-	
+
 	free_linked_list(headz, Hg, num_normal, 0);
 	free_linked_list(headx, Hg, num_normal, 1);
 	free_linked_list(headp, Hg, num_normal, 1);
 
+	free(H_group_cell); 
 	
 	// Restore the input flag for the inactive inputs
 	if (VECTOR_TABLE == SIMULATION_TYPE)

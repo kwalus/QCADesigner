@@ -68,7 +68,8 @@ enum _QCADCellMode
   {
   QCAD_CELL_MODE_NORMAL,
   QCAD_CELL_MODE_CROSSOVER,
-  QCAD_CELL_MODE_VERTICAL
+  QCAD_CELL_MODE_VERTICAL,
+  QCAD_CELL_MODE_CLUSTER
   } ;
 
 enum _QCADCellFunction
@@ -165,6 +166,7 @@ double qcad_cell_calculate_polarization (QCADCell *cell) ;
 void qcad_cell_set_polarization (QCADCell *cell, double dPolarization) ;
 void qcad_cell_set_clock (QCADCell *cell, int iClock) ;
 void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function) ;
+void qcad_cell_set_mode (QCADCell *cell, QCADCellMode mode)	;
 void qcad_cell_set_label (QCADCell *cell, char *pszLabel) ;
 //void qcad_cell_set_host_name (QCADCell *cell, char *pszHostName) ;
 void qcad_cell_rotate_dots (QCADCell *cell, double angle) ;

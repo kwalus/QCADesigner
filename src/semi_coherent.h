@@ -51,6 +51,7 @@ typedef struct
 	int max_iterations_per_sample;
 	double layer_separation;
 	double threshold;
+	double Mzz_threshold;
 	// Added by Marco March 2
 	float jitter_phase_0; 
 	float jitter_phase_1;

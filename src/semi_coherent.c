@@ -51,7 +51,7 @@
 //This variable is used by multiple source files
 // Added by Marco March 3 : last four arguments (phase shifts)
 
-semi_coherent_OP semi_coherent_options = {12800, FALSE, 1e-3, 200, 1, 9.43e-19, 1.41e-20, 0.0, 2.0, 100, 1.15, 3, 0,0,0,0, TRUE, FALSE, TRUE} ;
+semi_coherent_OP semi_coherent_options = {12800, FALSE, 1e-3, 200, 1, 9.43e-19, 1.41e-20, 0.0, 2.0, 100, 1.15, 3, 0.25,0,0,0,0, TRUE, FALSE, TRUE} ;
 
 
 #ifdef GTK_GUI
@@ -94,6 +94,7 @@ static inline double** matrix_mult(double **Mat1, double **Mat2, int dim1x, int 
 static inline void matrix_mult_by_const(double **Mat1, double constant, int dimx, int dimy, double **Mat0);
 static inline void matrix_add(double **Mat1, double **Mat2, int dimx, int dimy, double **Mat0);
 static inline void matrix_copy(double **Mat1, int dimx, int dimy, double **Mat0);
+static inline double expectation (double **psi, double **Mat, int dim1x, int dim1y, int dim2x, int dim2y);
 static inline void kron (double **MatA, double **MatB, int dimAx, int dimAy, int dimBx, int dimBy, double **Mat0);
 static inline double get_max(double *array, int num_elements);
 static inline double find_min(double *array, int num_elements);
@@ -151,6 +152,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	int num_inputs = 0; 
 	int num_fixed_cells = 0;
 	int num_normal = 0;
+	int num_corr = 0;
 	// -- these used to be inside run_semi_coherent_iteration -- //
 	int q, iteration = 0;
 	int stable = FALSE;
@@ -158,6 +160,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	double new_polarization;
 	double tolerance = ((semi_coherent_OP *)options)->convergence_tolerance;
 	double polarization_math;
+	double Kzz, lz1, lz2, Mzz;
 	double EkP;
 	double Ek0;
 	double Ek_sum;
@@ -168,9 +171,6 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	double **A = NULL;
 	double **pauli_z = NULL;
 	double **pauli_x = NULL;
-	double **MatOut1 = NULL;
-	double **MatOut2 = NULL;
-	double **transA = NULL;
 	double **H_init = NULL;
 	double **H_init_x = NULL;
 	double **H_init_p = NULL;
@@ -185,6 +185,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	GdkColor *H_group_color = NULL;
 	int **Hg = NULL;
 	int *Hg_used = NULL;
+	int *Corr = NULL;
 	doublereal *HT = NULL;
 	doublereal *DUMMY = NULL;
 	doublereal *VR = NULL;
@@ -340,6 +341,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	H_group_cell = (int*)malloc(num_normal*sizeof(int));
 	H_group_color = (GdkColor*)malloc(num_normal*sizeof(GdkColor));
 	Hg_used = (int*)malloc(num_normal*sizeof(int));
+	Corr = (int*)malloc(num_normal*sizeof(int));
 	Hg = (int**)malloc(num_normal*sizeof(int*));
 	for (i = 0; i < num_normal; i++) {
 		Hg[i] = (int*)malloc(num_normal*sizeof(int));
@@ -527,15 +529,17 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	struct cluster *new;
 	struct cluster *current;
 	struct cluster *headz;
+	struct cluster *headzz;
 	struct cluster *headx;
 	struct cluster *headp;
-	headz = NULL;
-	headx = NULL;
-	headp = NULL;
+	headz  = NULL;
+	headzz = NULL;
+	headx  = NULL;
+	headp  = NULL;
 	
 	h_row = search_matrix_col(Hg, -1, 0, num_normal);
 	
-	for (row_iter = 0; row_iter < h_row; row_iter++) {
+	for (row_iter = 0; row_iter < h_row; row_iter++) {		
 		h_col = search_matrix_row(Hg,-1,row_iter,num_normal);
 		
 		dim = pow(2,h_col);
@@ -581,6 +585,29 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 						init_size = init_size*size;
 					}
 				} //end k_iter
+				
+				if (headzz == NULL) {
+					new = (struct cluster*)malloc(sizeof(struct cluster));
+					new->next = headzz;
+					headzz = new;
+				}
+				else {
+					current = headzz;
+					while (current->next != NULL) {
+						current = current->next;
+					}
+					new = (struct cluster*)malloc(sizeof(struct cluster));
+					current->next = new;
+					new->next = NULL;
+				}
+				
+				new->Mat = (double**)malloc(dim*sizeof(double*));
+				for (fb1 = 0; fb1 < dim; fb1++) {
+					new->Mat[fb1] = (double*)malloc(dim*sizeof(double));
+				}
+				
+				matrix_copy(H_init, (int)dim, (int)dim, new->Mat);
+				
 				
 				matrix_mult_by_const(H_init, -0.5*semi_coherent_determine_Ek (sorted_cells[0][Hg[row_iter][k_iter1]], sorted_cells[0][Hg[row_iter][k_iter2]], 0, options), init_size, init_size, H_init);	
 				matrix_add(Hz, H_init, init_size, init_size, Hz);
@@ -711,7 +738,6 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	} //end row_iter
 	
 	
-	
 	// -- get and print the total initialization time -- //
 	if((end_time = time (NULL)) < 0)
 		fprintf(stderr, "Could not get end time\n");
@@ -758,6 +784,8 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 					sim_data->trace[i].data[j] = exp_array_index_2d (pvt->vectors, gboolean, (j * pvt->vectors->icUsed) / sim_data->number_samples, i) ? 1 : -1 ;
 		
 		int index = 0;
+		int indexz = 0;
+		int index_prev = 0;
 		num_mats_prev = 0;
 		h_row = search_matrix_col(Hg, -1, 0, num_normal);
 		
@@ -864,6 +892,31 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 					printf("Something screwed up...\n");
 				}
 				
+				for (fb1 = 0; fb1 < h_col-1; fb1++) {
+					for (fb2 = fb1+1; fb2 < h_col; fb2++) {
+						new = search_linked_list(headzz, index_prev+indexz);
+						Kzz = expectation(A, new->Mat, c3, (int)dim, (int)dim, (int)dim);
+						new = search_linked_list(headp, index+fb1);
+						lz1 = expectation(A, new->Mat, c3, (int)dim, (int)dim, (int)dim);
+						new = search_linked_list(headp, index+fb2);
+						lz2 = expectation(A, new->Mat, c3, (int)dim, (int)dim, (int)dim);
+						Mzz = Kzz - lz1*lz2;
+						if (Mzz > options->Mzz_threshold) {
+							cmp = search_array(Corr, Hg[row_iter][fb1], num_corr);
+							if (cmp == -1) {
+								Corr[num_corr] = Hg[row_iter][fb1];
+								num_corr++;
+							}
+							cmp = search_array(Corr, Hg[row_iter][fb2], num_corr);
+							if (cmp == -1) {
+								Corr[num_corr] = Hg[row_iter][fb2];
+								num_corr++;
+							}
+						}
+						indexz++;
+					}
+				}
+				
 				for (col_iter = 0; col_iter < h_col; col_iter++) {
 					cell = sorted_cells[0][Hg[row_iter][col_iter]] ;
 					current_cell_model = ((semi_coherent_model *)cell->cell_model) ;
@@ -871,24 +924,11 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 					
 					new = search_linked_list(headp, index+col_iter);
 					
-					MatOut1 = matrix_mult(A,new->Mat,c3,(int)dim,(int)dim,(int)dim);
-					transA = transpose(A,c3,(int)dim);
-					MatOut2 = matrix_mult(MatOut1,transA,c3,(int)dim,(int)dim,c3);
+					new_polarization = -expectation(A, new->Mat, c3, (int)dim, (int)dim, (int)dim);
 					
-					new_polarization = -MatOut2[0][0];
+										
 					// -- set the polarization of this cell -- //
 					current_cell_model->polarization = new_polarization;
-					
-					free(MatOut1[0]); MatOut1[0] = NULL;
-					free(MatOut2[0]); MatOut2[0] = NULL;
-					for (fb1 = 0; fb1 < (int)dim; fb1++) {
-						free(transA[fb1]); transA[fb1] = NULL;
-					} //end free memory (fb1)
-					
-					free(MatOut1); MatOut1 = NULL;
-					free(MatOut2); MatOut2 = NULL;
-					free(transA); transA = NULL;
-			
 					
 					// If any cells polarization has changed beyond this threshold
 					// then the entire circuit is assumed to have not converged.
@@ -905,6 +945,8 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 				
 				free(A[0]); A[0] = NULL;
 				free(A); A = NULL;
+				
+				indexz = 0;
 				
 			} //!WHILE STABLE
 			
@@ -923,6 +965,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 			free(H_init_p_temp); H_init_p_temp = NULL;
 			
 			num_mats_prev = num_mats;
+			index_prev = index_prev + ((h_col-1)*h_col)/2;
 			
 		}//FOR EACH ROW IN Hg (row_iter)
 		
@@ -1030,33 +1073,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 									new_polarization = -1;
 								}
 								else {
-									MatOut1 = matrix_mult(A,pauli_z,c3,size,size,size);
-									transA = transpose(A,c3,size);
-									MatOut2 = matrix_mult(MatOut1,transA,c3,size,size,c3);
-									
-									
-									if (MatOut2[0][0] > 1) {
-										new_polarization = -1;
-									}
-									else {
-										if (MatOut2[0][0] < -1) {
-											new_polarization = 1;
-										}
-										else {    
-											new_polarization = -MatOut2[0][0];
-										}
-									}
-									
-									
-									free(MatOut1[0]); MatOut1[0] = NULL;
-									free(MatOut2[0]); MatOut2[0] = NULL;
-									for (fb1 = 0; fb1 < size; fb1++) {
-										free(transA[fb1]); transA[fb1] = NULL;
-									}
-									
-									free(MatOut1); MatOut1 = NULL;
-									free(MatOut2); MatOut2 = NULL;
-									free(transA); transA = NULL;
+									new_polarization = -expectation(A,pauli_z,c3,size,size,size);
 								}
 							}
 							
@@ -1104,9 +1121,12 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	
 	for (fb1 = 0; fb1 < num_elements; fb1++) {
 		cell = sorted_cells[0][H_group_cell[fb1]];
-		qcad_cell_set_mode (cell, QCAD_CELL_MODE_NORMAL);
+		cmp = search_array(Corr, H_group_cell[fb1], num_corr);
+		if (cmp == -1) {
+			qcad_cell_set_mode (cell, QCAD_CELL_MODE_NORMAL);
+		}
 	}
-
+	
 #ifdef DESIGNER
 	redraw_async(NULL);
 	gdk_flush () ;
@@ -1128,8 +1148,17 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	free_linked_list(headz, Hg, num_normal, 0);
 	free_linked_list(headx, Hg, num_normal, 1);
 	free_linked_list(headp, Hg, num_normal, 1);
+	free_linked_list(headzz, Hg, num_normal, 2);
 
 	free(H_group_cell); 
+	free(H_group_color);
+	free(Hg_used);
+	free(Corr);
+	
+	for (fb1 = 0; fb1 < num_normal; fb1++) {
+		free(Hg[fb1]);
+	}
+	free(Hg);
 	
 	// Restore the input flag for the inactive inputs
 	if (VECTOR_TABLE == SIMULATION_TYPE)
@@ -1329,6 +1358,38 @@ static inline double** transpose (double **Mat_in, int dimX, int dimY)
     return Mat_out;
 }//transpose
 
+static inline double expectation (double **psi, double **Mat, int dim1x, int dim1y, int dim2x, int dim2y)
+{
+	
+	int i;
+	double **Mat1 = NULL;
+	double **transMat = NULL;
+	double **Mat2 = NULL;
+	double output;
+	
+	Mat1 = matrix_mult(psi, Mat, dim1x, dim1y, dim2x, dim2y);
+	transMat = transpose(psi, dim1x, dim1y);
+	Mat2 = matrix_mult(Mat1, transMat, dim1x, dim2y, dim1y, dim1x);
+	
+	output = Mat2[0][0];
+	
+	for (i = 0; i < dim1x; i++) {
+		free(Mat1[i]);
+	}
+
+	for (i = 0; i < dim1y; i++) {
+		free(transMat[i]);
+	}
+	
+	free(Mat2[0]);
+	
+	free(Mat1);
+	free(Mat2);
+	free(transMat);
+	
+	return output;
+}
+	
 static inline void kron (double **MatA, double **MatB, int dimAx, int dimAy, int dimBx, int dimBy, double **Mat0)
 {
 	
@@ -1351,7 +1412,6 @@ static inline void kron (double **MatA, double **MatB, int dimAx, int dimAy, int
 			for( k = 0; k < dimBx; k++)
 				for( l = 0; l < dimBy; l++) {
 					TEMP[dimBx*i+k][dimBy*j+l] =  MatA[i][j] * MatB[k][l];
-					//printf("Mat0[%d][%d] = %f\n", dimBx*i+k, dimBy*j+l, Mat0[dimBx*i+k][dimBy*j+l]);
 				}
 	
 	for (m = 0; m < dimAx*dimBx; m++) {
@@ -1454,11 +1514,11 @@ static inline void free_linked_list(struct cluster *head, int **Hg, int num_elem
 	cur_ptr = head;
 	
 	int i, j, k;
-	int rows, cols;
+	int rows, cols, mats;
 	double dim;
 	rows = search_matrix_col(Hg, -1, 0, num_elements);
 	
-	if (!option) {
+	if (option==0) {
 		for (i = 0; i < rows; i++) {
 			cols = search_matrix_row(Hg, -1, i, num_elements);
 			dim = pow(2,cols);
@@ -1474,19 +1534,37 @@ static inline void free_linked_list(struct cluster *head, int **Hg, int num_elem
 		}
 	}
 	else {
-		for (i = 0; i < rows; i++) {
-			cols = search_matrix_row(Hg, -1, i, num_elements);
-			dim = pow(2,cols);
-			for (j = 0; j < cols; j++) {
-				next_ptr = cur_ptr->next;
-				for (k = 0; k < dim; k++) {
-					free(cur_ptr->Mat[k]);
+		if (option==1) {
+			for (i = 0; i < rows; i++) {
+				cols = search_matrix_row(Hg, -1, i, num_elements);
+				dim = pow(2,cols);
+				for (j = 0; j < cols; j++) {
+					next_ptr = cur_ptr->next;
+					for (k = 0; k < dim; k++) {
+						free(cur_ptr->Mat[k]);
+					}
+					free(cur_ptr->Mat);
+					free(cur_ptr);
+					cur_ptr = next_ptr;
 				}
-				free(cur_ptr->Mat);
-				free(cur_ptr);
-				cur_ptr = next_ptr;
 			}
 		}
+		else {
+			for (i = 0; i < rows; i++) {
+				cols = search_matrix_row(Hg, -1, i, num_elements);
+				mats = (cols*(cols-1))/2;
+				for (j = 0; j < mats; j++) {
+					dim = pow(2,cols);
+					next_ptr = cur_ptr->next;
+					for (k = 0; k < dim; k++) {
+						free(cur_ptr->Mat[k]);
+					}
+					free(cur_ptr->Mat);
+					free(cur_ptr);
+					cur_ptr = next_ptr;
+				}
+			}
+		}		
 	}
 }
 	

@@ -68,6 +68,7 @@ typedef struct
   GtkWidget *semi_coherent_properties_ok_button;
   GtkWidget *semi_coherent_properties_cancel_button;
   GtkWidget *threshold_entry;
+  GtkWidget *Mzz_threshold_entry;
 //Added by Marco March 06
   GtkWidget *jitter_phase_0_entry;
   GtkWidget *jitter_phase_1_entry;
@@ -132,6 +133,9 @@ void get_semi_coherent_properties_from_user (GtkWindow *parent, semi_coherent_OP
 	  
   g_snprintf (sz, 16, "%f", pbo->threshold) ;
   gtk_entry_set_text (GTK_ENTRY (semi_coherent_properties.threshold_entry), sz) ;
+	  
+  g_snprintf (sz, 16, "%f", pbo->Mzz_threshold) ;
+  gtk_entry_set_text (GTK_ENTRY (semi_coherent_properties.Mzz_threshold_entry), sz) ;	  
 
 //Added by Marco March 06
 
@@ -170,6 +174,7 @@ void get_semi_coherent_properties_from_user (GtkWindow *parent, semi_coherent_OP
 	pbo->manual_group =			     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (semi_coherent_properties.chkManSetCells)) ;
 	pbo->auto_group =			     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (semi_coherent_properties.chkAutoSetCells)) ;	
 	pbo->threshold =				 atof (gtk_entry_get_text (GTK_ENTRY (semi_coherent_properties.threshold_entry))) ;
+	pbo->Mzz_threshold =			 atof (gtk_entry_get_text (GTK_ENTRY (semi_coherent_properties.Mzz_threshold_entry))) ;
     }
 
   gtk_widget_hide (semi_coherent_properties.semi_coherent_properties_dialog) ;
@@ -248,10 +253,25 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
   gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);	  
+	  
+  dialog->label3 = gtk_label_new (_("Correlation Threshold:"));
+  gtk_widget_show (dialog->label3);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->label3, 0, 1, 3, 4,
+					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (dialog->label3), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (dialog->label3), 1, 0.5);
+  
+  dialog->Mzz_threshold_entry = gtk_entry_new ();
+  gtk_widget_show (dialog->Mzz_threshold_entry);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->Mzz_threshold_entry, 1, 2, 3, 4,
+					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_entry_set_activates_default (GTK_ENTRY (dialog->Mzz_threshold_entry), TRUE) ;	  
 
   dialog->label4 = gtk_label_new (_("Radius of Effect:"));
   gtk_widget_show (dialog->label4);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->label4, 0, 1, 3, 4,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->label4, 0, 1, 4, 5,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (dialog->label4), GTK_JUSTIFY_RIGHT);
@@ -259,14 +279,14 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->radius_of_effect_entry = gtk_entry_new ();
   gtk_widget_show (dialog->radius_of_effect_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->radius_of_effect_entry, 1, 2, 3, 4,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->radius_of_effect_entry, 1, 2, 4, 5,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->radius_of_effect_entry), TRUE) ;
 
   lbl = gtk_label_new ("nm");
   gtk_widget_show (lbl);
-  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 3, 4,
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 4, 5,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
@@ -274,7 +294,7 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->label5 = gtk_label_new (_("Relative Permittivity:"));
   gtk_widget_show (dialog->label5);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->label5, 0, 1, 4, 5,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->label5, 0, 1, 5, 6,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (dialog->label5), GTK_JUSTIFY_RIGHT);
@@ -282,14 +302,14 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->epsilonR_entry = gtk_entry_new ();
   gtk_widget_show (dialog->epsilonR_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->epsilonR_entry, 1, 2, 4, 5,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->epsilonR_entry, 1, 2, 5, 6,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->epsilonR_entry), TRUE) ;
 
   dialog->label6 = gtk_label_new (_("Clock High:"));
   gtk_widget_show (dialog->label6);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->label6, 0, 1, 5, 6,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->label6, 0, 1, 6, 7,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (dialog->label6), GTK_JUSTIFY_RIGHT);
@@ -297,26 +317,10 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->clock_high_entry = gtk_entry_new ();
   gtk_widget_show (dialog->clock_high_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->clock_high_entry, 1, 2, 5, 6,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->clock_high_entry, 1, 2, 6, 7,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->clock_high_entry), TRUE) ;
-
-  lbl = gtk_label_new ("J");
-  gtk_widget_show (lbl);
-  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 5, 6,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
-  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
-
-  dialog->label6 = gtk_label_new (_("Clock Low:"));
-  gtk_widget_show (dialog->label6);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->label6, 0, 1, 6, 7,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_label_set_justify (GTK_LABEL (dialog->label6), GTK_JUSTIFY_RIGHT);
-  gtk_misc_set_alignment (GTK_MISC (dialog->label6), 1, 0.5);
 
   lbl = gtk_label_new ("J");
   gtk_widget_show (lbl);
@@ -326,14 +330,7 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
   gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
 
-  dialog->clock_low_entry = gtk_entry_new ();
-  gtk_widget_show (dialog->clock_low_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->clock_low_entry, 1, 2, 6, 7,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_entry_set_activates_default (GTK_ENTRY (dialog->clock_low_entry), TRUE) ;
-
-  dialog->label6 = gtk_label_new (_("Clock Shift:"));
+  dialog->label6 = gtk_label_new (_("Clock Low:"));
   gtk_widget_show (dialog->label6);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->label6, 0, 1, 7, 8,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -341,14 +338,22 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
   gtk_label_set_justify (GTK_LABEL (dialog->label6), GTK_JUSTIFY_RIGHT);
   gtk_misc_set_alignment (GTK_MISC (dialog->label6), 1, 0.5);
 
-  dialog->clock_shift_entry = gtk_entry_new ();
-  gtk_widget_show (dialog->clock_shift_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->clock_shift_entry, 1, 2, 7, 8,
+  lbl = gtk_label_new ("J");
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 7, 8,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_entry_set_activates_default (GTK_ENTRY (dialog->clock_shift_entry), TRUE) ;
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
 
-  dialog->label6 = gtk_label_new (_("Clock Amplitude Factor:"));
+  dialog->clock_low_entry = gtk_entry_new ();
+  gtk_widget_show (dialog->clock_low_entry);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->clock_low_entry, 1, 2, 7, 8,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_entry_set_activates_default (GTK_ENTRY (dialog->clock_low_entry), TRUE) ;
+
+  dialog->label6 = gtk_label_new (_("Clock Shift:"));
   gtk_widget_show (dialog->label6);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->label6, 0, 1, 8, 9,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -356,14 +361,14 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
   gtk_label_set_justify (GTK_LABEL (dialog->label6), GTK_JUSTIFY_RIGHT);
   gtk_misc_set_alignment (GTK_MISC (dialog->label6), 1, 0.5);
 
-  dialog->clock_amplitude_factor_entry = gtk_entry_new ();
-  gtk_widget_show (dialog->clock_amplitude_factor_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->clock_amplitude_factor_entry, 1, 2, 8, 9,
+  dialog->clock_shift_entry = gtk_entry_new ();
+  gtk_widget_show (dialog->clock_shift_entry);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->clock_shift_entry, 1, 2, 8, 9,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_entry_set_activates_default (GTK_ENTRY (dialog->clock_amplitude_factor_entry), TRUE) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (dialog->clock_shift_entry), TRUE) ;
 
-  dialog->label6 = gtk_label_new (_("Layer Separation:"));
+  dialog->label6 = gtk_label_new (_("Clock Amplitude Factor:"));
   gtk_widget_show (dialog->label6);
   gtk_table_attach (GTK_TABLE (dialog->table), dialog->label6, 0, 1, 9, 10,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
@@ -371,16 +376,31 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
   gtk_label_set_justify (GTK_LABEL (dialog->label6), GTK_JUSTIFY_RIGHT);
   gtk_misc_set_alignment (GTK_MISC (dialog->label6), 1, 0.5);
 
+  dialog->clock_amplitude_factor_entry = gtk_entry_new ();
+  gtk_widget_show (dialog->clock_amplitude_factor_entry);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->clock_amplitude_factor_entry, 1, 2, 9, 10,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_entry_set_activates_default (GTK_ENTRY (dialog->clock_amplitude_factor_entry), TRUE) ;
+
+  dialog->label6 = gtk_label_new (_("Layer Separation:"));
+  gtk_widget_show (dialog->label6);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->label6, 0, 1, 10, 11,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (dialog->label6), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (dialog->label6), 1, 0.5);
+
   dialog->layer_separation_entry = gtk_entry_new ();
   gtk_widget_show (dialog->layer_separation_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->layer_separation_entry, 1, 2, 9, 10,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->layer_separation_entry, 1, 2, 10, 11,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->layer_separation_entry), TRUE) ;
 
   lbl = gtk_label_new ("nm");
   gtk_widget_show (lbl);
-  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 9, 10,
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 10, 11,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
@@ -388,7 +408,7 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->lblMaxIter = gtk_label_new (_("Maximum Iterations Per Sample:"));
   gtk_widget_show (dialog->lblMaxIter);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lblMaxIter, 0, 1, 10, 11,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lblMaxIter, 0, 1, 11, 12,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (dialog->lblMaxIter), GTK_JUSTIFY_RIGHT);
@@ -396,7 +416,7 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->max_iterations_per_sample_entry = gtk_entry_new ();
   gtk_widget_show (dialog->max_iterations_per_sample_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->max_iterations_per_sample_entry, 1, 2, 10, 11,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->max_iterations_per_sample_entry, 1, 2, 11, 12,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->max_iterations_per_sample_entry), TRUE) ;
@@ -405,7 +425,7 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->lbljitph0 = gtk_label_new (_("Phase Shift Clock 0:"));
   gtk_widget_show (dialog->lbljitph0);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph0, 0, 1, 11, 12,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph0, 0, 1, 12, 13,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (dialog->lbljitph0), GTK_JUSTIFY_RIGHT);
@@ -413,33 +433,10 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->jitter_phase_0_entry = gtk_entry_new ();
   gtk_widget_show (dialog->jitter_phase_0_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->jitter_phase_0_entry, 1, 2, 11, 12,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->jitter_phase_0_entry, 1, 2, 12, 13,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_0_entry), TRUE) ;
-  
-  lbl = gtk_label_new (_("degrees"));
-  gtk_widget_show (lbl);
-  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 11, 12,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
-  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
-
-  dialog->lbljitph1 = gtk_label_new (_("Phase Shift Clock 1:"));
-  gtk_widget_show (dialog->lbljitph1);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph1, 0, 1, 12, 13,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_label_set_justify (GTK_LABEL (dialog->lbljitph1), GTK_JUSTIFY_RIGHT);
-  gtk_misc_set_alignment (GTK_MISC (dialog->lbljitph1), 1, 0.5);
-
-  dialog->jitter_phase_1_entry = gtk_entry_new ();
-  gtk_widget_show (dialog->jitter_phase_1_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->jitter_phase_1_entry, 1, 2, 12, 13,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_1_entry), TRUE) ;
   
   lbl = gtk_label_new (_("degrees"));
   gtk_widget_show (lbl);
@@ -449,20 +446,20 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
   gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
 
-  dialog->lbljitph2 = gtk_label_new (_("Phase Shift Clock 2:"));
-  gtk_widget_show (dialog->lbljitph2);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph2, 0, 1, 13, 14,
+  dialog->lbljitph1 = gtk_label_new (_("Phase Shift Clock 1:"));
+  gtk_widget_show (dialog->lbljitph1);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph1, 0, 1, 13, 14,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_label_set_justify (GTK_LABEL (dialog->lbljitph2), GTK_JUSTIFY_RIGHT);
-  gtk_misc_set_alignment (GTK_MISC (dialog->lbljitph2), 1, 0.5);
+  gtk_label_set_justify (GTK_LABEL (dialog->lbljitph1), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (dialog->lbljitph1), 1, 0.5);
 
-  dialog->jitter_phase_2_entry = gtk_entry_new ();
-  gtk_widget_show (dialog->jitter_phase_2_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->jitter_phase_2_entry, 1, 2, 13, 14,
+  dialog->jitter_phase_1_entry = gtk_entry_new ();
+  gtk_widget_show (dialog->jitter_phase_1_entry);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->jitter_phase_1_entry, 1, 2, 13, 14,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
-  gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_2_entry), TRUE) ;
+  gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_1_entry), TRUE) ;
   
   lbl = gtk_label_new (_("degrees"));
   gtk_widget_show (lbl);
@@ -472,9 +469,32 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
   gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
 
+  dialog->lbljitph2 = gtk_label_new (_("Phase Shift Clock 2:"));
+  gtk_widget_show (dialog->lbljitph2);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph2, 0, 1, 14, 15,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (dialog->lbljitph2), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (dialog->lbljitph2), 1, 0.5);
+
+  dialog->jitter_phase_2_entry = gtk_entry_new ();
+  gtk_widget_show (dialog->jitter_phase_2_entry);
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->jitter_phase_2_entry, 1, 2, 14, 15,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_2_entry), TRUE) ;
+  
+  lbl = gtk_label_new (_("degrees"));
+  gtk_widget_show (lbl);
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 14, 15,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+  gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
+  gtk_misc_set_alignment (GTK_MISC (lbl), 0.0, 0.5);
+
   dialog->lbljitph3 = gtk_label_new (_("Phase Shift Clock 3:"));
   gtk_widget_show (dialog->lbljitph3);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph3, 0, 1, 14, 15,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->lbljitph3, 0, 1, 15, 16,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (dialog->lbljitph3), GTK_JUSTIFY_RIGHT);
@@ -482,14 +502,14 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->jitter_phase_3_entry = gtk_entry_new ();
   gtk_widget_show (dialog->jitter_phase_3_entry);
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->jitter_phase_3_entry, 1, 2, 14, 15,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->jitter_phase_3_entry, 1, 2, 15, 16,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_entry_set_activates_default (GTK_ENTRY (dialog->jitter_phase_3_entry), TRUE) ;
 
   lbl = gtk_label_new (_("degrees"));
   gtk_widget_show (lbl);
-  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 14, 15,
+  gtk_table_attach (GTK_TABLE (dialog->table), lbl, 2, 3, 15, 16,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
   gtk_label_set_justify (GTK_LABEL (lbl), GTK_JUSTIFY_RIGHT);
@@ -499,25 +519,25 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
 
   dialog->chkAnimate = gtk_check_button_new_with_label (_("Animate")) ;
   gtk_widget_show (dialog->chkAnimate) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 15, 16,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 16, 17,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 	  
   dialog->chkManSetCells = gtk_check_button_new_with_label (_("Manually Group Cells")) ;
   gtk_widget_show (dialog->chkManSetCells) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkManSetCells, 0, 2, 16, 17,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkManSetCells, 0, 2, 17, 18,
 					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
 					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);	 
 	  
   dialog->chkAutoSetCells = gtk_check_button_new_with_label (_("Automatically Group Cells")) ;
   gtk_widget_show (dialog->chkAutoSetCells) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAutoSetCells, 0, 2, 17, 18,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAutoSetCells, 0, 2, 18, 19,
 					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
 					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);	 	  
 	  
   dialog->chkClrCells = gtk_check_button_new_with_label (_("Color Grouped Cells")) ;
   gtk_widget_show (dialog->chkClrCells) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkClrCells, 0, 2, 18, 19,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkClrCells, 0, 2, 19, 20,
 					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
 					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);	  
 

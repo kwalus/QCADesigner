@@ -1242,7 +1242,10 @@ msgstr ""
 msgid "_Help"
 msgstr "A_iuto"
 
-msgid "_Hide All But The Selected Layer"
+msgid "_Layers"
+msgstr ""
+
+msgid "_Show Only Selected Layer"
 msgstr "_Nascondi tutto tranne il strato selezionato"
 
 msgid "_Import Block..."

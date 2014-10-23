@@ -105,7 +105,7 @@ DESIGN *design_new (QCADSubstrate **psubs)
 
   layer = qcad_layer_new (LAYER_TYPE_SUBSTRATE, QCAD_LAYER_STATUS_VISIBLE, _("Substrate")) ;
   design_layer_add (design, layer) ;
-  qcad_do_container_add (QCAD_DO_CONTAINER (layer), QCAD_DESIGN_OBJECT ((*psubs) = QCAD_SUBSTRATE (qcad_substrate_new (0.0, 0.0, 6000.0, 3000.0, 20.0)))) ;
+  qcad_do_container_add (QCAD_DO_CONTAINER (layer), QCAD_DESIGN_OBJECT ((*psubs) = QCAD_SUBSTRATE (qcad_substrate_new (0.0, 0.0, 6000.0, 3000.0, 1.0)))) ;
   g_object_unref (G_OBJECT (*psubs)) ;
 
   cell_layer =

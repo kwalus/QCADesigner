@@ -84,6 +84,7 @@
 #include "objects/QCADRectangleElectrode.h"
 #include "objects/QCADClockingLayer.h"
 #include "objects/QCADPropertyUIGroup.h"
+#include "objects/QCADLayersCombo.h"
 
 #define DBG_CB(s)
 #define DBG_CB_HERE(s)
@@ -120,7 +121,7 @@ static project_OP project_options =
   {0, 0x0000, 0xffff, 0xffff},   // clrCyan
   {0, 0xffff, 0xffff, 0xffff},   // clrWhite
 //!Current simulation engine.
-  BISTABLE,                 // SIMULATION_ENGINE
+  COHERENCE_VECTOR,                 // SIMULATION_ENGINE
 //!Maximum random response function shift.
   0.0,                      // max_response_shift
 //!Probability that a design cell will be affected by the random response function shift.
@@ -161,7 +162,10 @@ static gboolean drop_single_object_with_undo_cb (QCADDesignObject *obj) ;
 static void rotate_single_cell_cb (DESIGN *design, QCADDesignObject *obj, gpointer data) ;
 static void set_current_design (DESIGN *new_design, QCADSubstrate *subs) ;
 static void snap_source_is_gone (gpointer data, QCADSubstrate *subs) ;
+#if (0)
+/* Not quite ready to remove this function, despite it being unused */
 static void layer_status_change (GtkWidget *widget, gpointer data) ;
+#endif /* (0) */
 static void cell_function_changed (QCADCell *cell, GParamSpec *pspec, gpointer data) ;
 static void move_selection_to_pointer (QCADDesignObject *anchor) ;
 static void place_popup_menu (GtkMenu *menu, int *x, int *y, gboolean *push_in, gpointer data) ;
@@ -307,7 +311,46 @@ gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer 
 
 void on_hide_layers_menu_item_activate (GtkWidget *widget, gpointer data)
   {
-  g_print ("I should be hiding all layers except the current one\n") ;
+  void *layer = project_options.design
+    ? project_options.design->lstCurrentLayer
+      ? project_options.design->lstCurrentLayer->data
+      : NULL
+    : NULL;
+
+  if (layer)
+    qcad_layers_combo_show_layer_exclusively(QCAD_LAYERS_COMBO(main_window.layers_combo), QCAD_LAYER(layer));
+  }
+
+void on_show_prev_layer_menu_item_activate (GtkWidget *widget, gpointer data)
+  {
+  void *layer = project_options.design 
+    ? project_options.design->lstCurrentLayer
+      ? project_options.design->lstCurrentLayer->prev
+        ? project_options.design->lstCurrentLayer->prev->data
+        : project_options.design->lstLastLayer
+          ? project_options.design->lstLastLayer->data
+          : NULL
+      : NULL
+    : NULL;
+
+  if (layer)
+    qcad_layers_combo_show_layer_exclusively(QCAD_LAYERS_COMBO(main_window.layers_combo), QCAD_LAYER(layer));
+  }
+
+void on_show_next_layer_menu_item_activate (GtkWidget *widget, gpointer data)
+  {
+  void *layer = project_options.design 
+    ? project_options.design->lstCurrentLayer
+      ? project_options.design->lstCurrentLayer->next
+        ? project_options.design->lstCurrentLayer->next->data
+        : project_options.design->lstLayers
+          ? project_options.design->lstLayers->data
+          : NULL
+      : NULL
+    : NULL;
+
+  if (layer)
+    qcad_layers_combo_show_layer_exclusively(QCAD_LAYERS_COMBO(main_window.layers_combo), QCAD_LAYER(layer));
   }
 
 void layers_combo_notify_layer (GtkWidget *widget, GParamSpec *param_spec, gpointer data)
@@ -1349,7 +1392,8 @@ void rotate_selection_menu_item_activate (GtkWidget *widget, gpointer user_data)
     move_selection_to_pointer (obj) ;
     }
   }
-
+#if (0)
+/* Not quite ready to remove this function, despite it being unused */
 static void layer_status_change (GtkWidget *widget, gpointer data)
   {
   GtkWidget
@@ -1474,7 +1518,7 @@ static void layer_status_change (GtkWidget *widget, gpointer data)
 
   DBG_LAYER (fprintf (stderr, "layer_status_change:Exiting\n")) ;
   }
-
+#endif /* (0) */
 void action_button_clicked (GtkWidget *widget, gpointer data)
   {
   static int action = ACTION_LAST_ACTION ;

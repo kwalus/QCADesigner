@@ -75,6 +75,8 @@ void reorder_layers_button_clicked (GtkWidget *widget, gpointer user_data) ;
 void action_button_clicked (GtkWidget *widget, gpointer data) ;
 void bus_layout_button_clicked (GtkWidget *widget, gpointer data) ;
 void on_hide_layers_menu_item_activate (GtkWidget *widget, gpointer data) ;
+void on_show_prev_layer_menu_item_activate (GtkWidget *widget, gpointer data) ;
+void on_show_next_layer_menu_item_activate (GtkWidget *widget, gpointer data) ;
 void type_for_new_layer_chosen (GtkWidget *widget, gpointer data) ;
 void cell_display_mode_chosen (GtkWidget *widget, gpointer data) ;
 void mirror_selection_direction_chosen (GtkWidget *widget, gpointer data) ;

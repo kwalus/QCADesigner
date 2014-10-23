@@ -43,11 +43,15 @@
 #include "graph_dialog_widget_data.h"
 #include "bistable_simulation.h"
 #include "semi_coherent.h"
+#include "ts_field_clock.h"
 #include "preamble.h"
 
 extern bistable_OP bistable_options ;
 extern coherence_OP coherence_options ;
+#ifdef HAVE_FORTRAN
 extern semi_coherent_OP semi_coherent_options ;
+extern ts_fc_OP ts_fc_options ;
+#endif /* HAVE_FORTRAN */
 
 typedef struct
   {
@@ -98,7 +102,7 @@ int main (int argc, char **argv)
     .bDisplaceInputs            = FALSE,
     .bDisplaceOutputs           = FALSE,
     .number_of_sims             =  1,
-    .sim_engine                 = BISTABLE,
+    .sim_engine                 = COHERENCE_VECTOR,
     .dTolerance                 =  0.0,
     .dThreshLower               = -0.5,
     .dThreshUpper               =  0.5,
@@ -139,8 +143,7 @@ int main (int argc, char **argv)
     "displace output cells also?     : %d\n"
     "number of cells to displace     : %d\n"
     ),
-    COHERENCE_VECTOR == cmdline_args.sim_engine ? "COHERENCE_VECTOR" : 
-	BISTABLE == cmdline_args.sim_engine ? "BISTABLE" : "SEMI_COHERENT",
+    SIM_ENGINE_TO_STRING(cmdline_args.sim_engine),
     cmdline_args.pszSimOptsFName,         cmdline_args.pszFName,         cmdline_args.pszReferenceSimOutputFName, 
     cmdline_args.number_of_sims,          cmdline_args.bNormalDisp ? "TRUE" : "FALSE",  cmdline_args.dTolerance,  cmdline_args.dVariance,     
     cmdline_args.dThreshLower,            cmdline_args.dThreshUpper,     cmdline_args.icAverageSamples, cmdline_args.bExitOnFailure ? "TRUE" : "FALSE",
@@ -204,6 +207,7 @@ int main (int argc, char **argv)
     bistable_options_dump (bo, stderr) ;
     memcpy (&bistable_options, bo, sizeof (bistable_OP)) ;
     }
+
   else
   if (COHERENCE_VECTOR == cmdline_args.sim_engine)
     {
@@ -217,6 +221,8 @@ int main (int argc, char **argv)
     coherence_options_dump (co, stderr) ;
     memcpy (&coherence_options, co, sizeof (coherence_OP)) ;
     }
+
+#ifdef HAVE_FORTRAN
   else
   if (SEMI_COHERENT == cmdline_args.sim_engine)
     {
@@ -230,7 +236,21 @@ int main (int argc, char **argv)
     semi_coherent_options_dump (sco, stderr) ;
     memcpy (&semi_coherent_options, sco, sizeof (semi_coherent_OP)) ;
     }
+	  
+  else
+  if (TS_FIELD_CLOCK == cmdline_args.sim_engine)
+    {
+    ts_fc_OP *sco = NULL ;
 
+    if (NULL == (sco = open_ts_fc_options_file (cmdline_args.pszSimOptsFName)))
+      {
+      flush_fprintf (stderr, _("Failed to open simulation options file !\n")) ;
+      return 5 ;
+      }
+    ts_fc_options_dump (sco, stderr) ;
+    memcpy (&ts_fc_options, sco, sizeof (ts_fc_OP)) ;
+    }  
+#endif /* HAVE_FORTRAN */
 
   printf (_("Running %d %s with a radial tolerance of %lf\n"), cmdline_args.number_of_sims, 
     1 == cmdline_args.number_of_sims ? _("simulation") : _("simulations"), cmdline_args.dTolerance) ;
@@ -260,14 +280,16 @@ int main (int argc, char **argv)
         VectorTable_free (pvt) ;
         pvt = NULL ;
         }
-        if (cmdline_args.bNormalDisp)
-          {
-           randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs, cmdline_args.n_to_displace, cmdline_args.dVariance, TRUE) ;
-          }	
-        else
-          {
-           randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs, cmdline_args.n_to_displace, cmdline_args.dVariance, FALSE) ;
-          }
+		  if (cmdline_args.n_to_displace != 0) {  
+			  if (cmdline_args.bNormalDisp)
+			  {
+				  randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs, cmdline_args.n_to_displace, cmdline_args.dVariance, TRUE) ;
+			  }	
+			  else
+			  {
+				  randomize_design_cells (rnd, working_design, 0.0, cmdline_args.dTolerance, cmdline_args.bDisplaceInputs, cmdline_args.bDisplaceOutputs, cmdline_args.n_to_displace, cmdline_args.dVariance, FALSE) ;
+			  }
+		  }
         if (NULL != (sim_data = run_simulation (cmdline_args.sim_engine, (NULL == pvt ? EXHAUSTIVE_VERIFICATION : VECTOR_TABLE), working_design, pvt)))
         {
         out_hcs = create_honeycombs_from_buses (sim_data, working_design->bus_layout, QCAD_CELL_OUTPUT, cmdline_args.dThreshLower, cmdline_args.dThreshUpper, cmdline_args.icAverageSamples) ;
@@ -515,7 +537,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
   int Nix ;
 
   // defaults
-  cmdline_args->sim_engine = BISTABLE ;
+  cmdline_args->sim_engine = COHERENCE_VECTOR ;
 
   for (Nix = 0 ; Nix < argc ; Nix++)
     {
@@ -540,14 +562,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
     if (!(strcmp (argv[Nix], _("-e")) && strcmp (argv[Nix], _("--engine"))))
       {
       if (++Nix < argc)
-        cmdline_args->sim_engine =
-          !strcmp (argv[Nix], "BISTABLE")
-            ? BISTABLE
-            : !strcmp (argv[Nix], "COHERENCE_VECTOR")
-              ? COHERENCE_VECTOR
-			  : !strcmp (argv[Nix], "SEMI_COHERENT")
-				? SEMI_COHERENT
-				: BISTABLE /* default */ ;
+        cmdline_args->sim_engine = SIM_ENGINE_FROM_STRING(argv[Nix]);
       }
     else
     if (!(strcmp (argv[Nix], _("-f")) && strcmp (argv[Nix], _("--file"))))
@@ -662,7 +677,7 @@ static void parse_cmdline (int argc, char **argv, CMDLINE_ARGS *cmdline_args)
       "  -V  --variance        number	     Optional: Variance for normal distribution. Default is 1.\n"
       "  -a  --average         samples       Optional: Number of samples to use for running average. Default is 1.\n"
       "  -d  --delay           honeycombs    Optional: Number of initial honeycombs to ignore because of circuit delay. Default is 0.\n"
-      "  -e  --engine          engine        Optional: The simulation engine. One of BISTABLE (default), COHERENCE_VECTOR or SEMI_COHERENT.\n"
+      "  -e  --engine          engine        Optional: The simulation engine. One of COHERENCE_VECTOR (DEFAULT), BISTABLE, SEMI_COHERENT or TS_FIELD_CLOCK.\n"
       "  -f  --file            file          Required: The circuit file.\n"
       "  -i  --ignore-trailing honeycombs    Optional: Ignore this many honeycombs at the end.\n"
       "  -l  --lower           polarization  Optional: Lower polarization threshold. Between -1.00 and 1.00. Default is -0.5.\n"

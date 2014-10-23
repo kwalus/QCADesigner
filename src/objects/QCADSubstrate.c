@@ -144,7 +144,7 @@ static void qcad_substrate_class_init (QCADStretchyObjectClass *klass, gpointer 
   }
 
 static void qcad_substrate_instance_init (QCADStretchyObject *object, gpointer data)
-  {QCAD_SUBSTRATE (object)->grid_spacing = 20.0000 /* nm */ ;}
+  {QCAD_SUBSTRATE (object)->grid_spacing = 1.0000 /* nm */ ;}
 
 static void qcad_substrate_instance_finalize (GObject *object)
   {G_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_SUBSTRATE)))->finalize (object) ;}

@@ -70,8 +70,9 @@ void create_main_window (main_W *main_window)
     *simulation_menu                 = NULL, *simulation_menu_menu      = NULL, *simulation_type_setup_menu_item   = NULL,
     *start_simulation_menu_item      = NULL, *status_bar                = NULL, *stop_simulation_menu_item         = NULL,
     *table1                          = NULL, *tools_menu                = NULL, *tools_menu_menu                   = NULL,
-    *view_menu                       = NULL, *hide_layers_menu_item     = NULL, *mnu                               = NULL,
-    *show_scrollbars_menu_item       = NULL, *copy_menu_item            = NULL,
+    *layers_menu                     = NULL, *layers_menu_menu          = NULL, *show_prev_layer_menu_item         = NULL,
+    *view_menu                       = NULL, *hide_layers_menu_item     = NULL, *show_next_layer_menu_item         = NULL,
+    *show_scrollbars_menu_item       = NULL, *copy_menu_item            = NULL, *mnu                               = NULL,
 #ifdef STDIO_FILEIO
     *open_menu_item                  = NULL, *save_menu_item            = NULL, *save_as_menu_item                 = NULL,
     *recent_files_menu_item          = NULL, *import_block_menu_item    = NULL, *create_block_menu_item            = NULL,
@@ -507,10 +508,29 @@ void create_main_window (main_W *main_window)
   gtk_widget_show (clock_increment_menu_item);
   gtk_container_add (GTK_CONTAINER (tools_menu_menu), clock_increment_menu_item);
 
-  // create and add the clock increment menu item to the tools menu //
-  hide_layers_menu_item = gtk_menu_item_new_with_mnemonic (_("_Hide All But The Selected Layer"));
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////// LAYERS MENU //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // create and add the tools menu //
+  layers_menu = gtk_menu_item_new_with_mnemonic (_("_Layers"));
+  gtk_widget_show (layers_menu);
+  gtk_container_add (GTK_CONTAINER (main_menubar), layers_menu);
+
+  layers_menu_menu = gtk_menu_new ();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (layers_menu), layers_menu_menu);
+
+  hide_layers_menu_item = gtk_menu_item_new_with_mnemonic (_("_Show Only Selected Layer"));
   gtk_widget_show (hide_layers_menu_item);
-  gtk_container_add (GTK_CONTAINER (tools_menu_menu), hide_layers_menu_item);
+  gtk_container_add (GTK_CONTAINER (layers_menu_menu), hide_layers_menu_item);
+
+  show_prev_layer_menu_item = gtk_menu_item_new_with_mnemonic (_("_Show Only Previous Layer"));
+  gtk_widget_show (show_prev_layer_menu_item);
+  gtk_container_add (GTK_CONTAINER (layers_menu_menu), show_prev_layer_menu_item);
+
+  show_next_layer_menu_item = gtk_menu_item_new_with_mnemonic (_("_Show Only Next Layer"));
+  gtk_widget_show (show_next_layer_menu_item);
+  gtk_container_add (GTK_CONTAINER (layers_menu_menu), show_next_layer_menu_item);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// SIMULATION MENU //////////////////////////////////////////////
@@ -689,9 +709,9 @@ void create_main_window (main_W *main_window)
     gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
     g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_NORMAL) ;
 
-	mnuiSep = gtk_menu_item_new () ;
-	gtk_widget_show (mnuiSep) ;
-	gtk_container_add (GTK_CONTAINER (mnu), mnuiSep) ;
+    mnuiSep = gtk_menu_item_new () ;
+    gtk_widget_show (mnuiSep) ;
+    gtk_container_add (GTK_CONTAINER (mnu), mnuiSep) ;
 	  
     mnui = gtk_image_menu_item_new_with_label (_("Vertical")) ;
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
@@ -701,17 +721,17 @@ void create_main_window (main_W *main_window)
     gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
     g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_VERTICAL) ;
 	  
-	  mnuiSep = gtk_menu_item_new () ;
-	  gtk_widget_show (mnuiSep) ;
-	  gtk_container_add (GTK_CONTAINER (mnu), mnuiSep) ;  
+    mnuiSep = gtk_menu_item_new () ;
+    gtk_widget_show (mnuiSep) ;
+    gtk_container_add (GTK_CONTAINER (mnu), mnuiSep) ;  
 	  
-	mnui = gtk_image_menu_item_new_with_label (_("Cluster")) ;
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
-	img = gtk_image_new_from_stock (QCAD_STOCK_CELL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
-	gtk_widget_show (mnui) ;
-	gtk_widget_show (img) ;
-	gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
-	g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_CLUSTER) ;    
+    mnui = gtk_image_menu_item_new_with_label (_("Cluster")) ;
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (mnui),
+    img = gtk_image_new_from_stock (QCAD_STOCK_CELL, QCAD_ICON_SIZE_SIDE_TOOLBAR)) ;
+    gtk_widget_show (mnui) ;
+    gtk_widget_show (img) ;
+    gtk_container_add (GTK_CONTAINER (mnu), mnui) ;
+    g_signal_connect (G_OBJECT (mnui), "activate", (GCallback)cell_display_mode_chosen, (gpointer)QCAD_CELL_MODE_CLUSTER) ;    
 	  
 
   gtk_toolbar_insert (GTK_TOOLBAR (main_window->toolbar),
@@ -937,7 +957,9 @@ void create_main_window (main_W *main_window)
   gtk_widget_add_accelerator (start_simulation_menu_item,        "activate", GTK_ACCEL_GROUP (accel_group), GDK_m,      GDK_CONTROL_MASK,                  GTK_ACCEL_VISIBLE);
   gtk_widget_add_accelerator (stop_simulation_menu_item,         "activate", GTK_ACCEL_GROUP (accel_group), GDK_t,      GDK_CONTROL_MASK,                  GTK_ACCEL_VISIBLE);
   gtk_widget_add_accelerator (contents_menu_item,                "activate", GTK_ACCEL_GROUP (accel_group), GDK_F1,     0,                                 GTK_ACCEL_VISIBLE);
-  gtk_widget_add_accelerator (hide_layers_menu_item,             "activate", GTK_ACCEL_GROUP (accel_group), GDK_h,      GDK_CONTROL_MASK,                  GTK_ACCEL_VISIBLE);
+  gtk_widget_add_accelerator (hide_layers_menu_item,             "activate", GTK_ACCEL_GROUP (accel_group), GDK_h,      GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+  gtk_widget_add_accelerator (show_prev_layer_menu_item,         "activate", GTK_ACCEL_GROUP (accel_group), GDK_p,      GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+  gtk_widget_add_accelerator (show_next_layer_menu_item,         "activate", GTK_ACCEL_GROUP (accel_group), GDK_n,      GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Connect the callback signals to each of the buttons and menu items in the menus  ////
@@ -961,6 +983,8 @@ void create_main_window (main_W *main_window)
 #endif /* def UNDO_REDO */
   g_signal_connect (G_OBJECT (copy_menu_item),                                 "activate", (GCallback)on_copy_cell_button_clicked,                   NULL);
   g_signal_connect (G_OBJECT (hide_layers_menu_item),                          "activate", (GCallback)on_hide_layers_menu_item_activate,             NULL);
+  g_signal_connect (G_OBJECT (show_prev_layer_menu_item),                      "activate", (GCallback)on_show_prev_layer_menu_item_activate,         NULL);
+  g_signal_connect (G_OBJECT (show_next_layer_menu_item),                      "activate", (GCallback)on_show_next_layer_menu_item_activate,         NULL);
   g_signal_connect (G_OBJECT (print_menu_item),                                "activate", (GCallback)on_print_menu_item_activate,                   NULL);
   g_signal_connect (G_OBJECT (delete_menu_item),                               "activate", (GCallback)on_delete_menu_item_activate,                  NULL);
   g_signal_connect (G_OBJECT (layer_properties_menu_item),                     "activate", (GCallback)layer_properties_button_clicked,               NULL);

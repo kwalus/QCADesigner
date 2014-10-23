@@ -25,6 +25,8 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
+#ifdef HAVE_FORTRAN
+
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
@@ -545,3 +547,5 @@ static void create_semi_coherent_properties_dialog (semi_coherent_properties_D *
   gtk_dialog_add_button (GTK_DIALOG (dialog->semi_coherent_properties_dialog), GTK_STOCK_OK, GTK_RESPONSE_OK) ;
   gtk_dialog_set_default_response (GTK_DIALOG (dialog->semi_coherent_properties_dialog), GTK_RESPONSE_OK) ;
   }
+
+#endif /* HAVE_FORTRAN */

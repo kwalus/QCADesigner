@@ -43,6 +43,9 @@
 #include "../fileio_helpers.h"
 #include "QCADRectangleElectrode.h"
 #include "mouse_handlers.h"
+#include "QCADClockingLayer.h"
+#include "../simulation.h"
+#include "../ts_field_clock.h"
 
 #ifdef DESIGNER
 extern DropFunction drop_function ;
@@ -80,7 +83,9 @@ static gboolean button_pressed (GtkWidget *widget, GdkEventButton *event, gpoint
 #endif /* def GTK_GUI */
 static void copy (QCADObject *src, QCADObject *dst) ;
 static void move (QCADDesignObject *obj, double dxDelta, double dyDelta) ;
-static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
+//static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
+double get_potential (double x, double y, double z, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin)  ;
+void ts_fc_determine_potential (double *Grid, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin, double t, QCADLayer *clocking_layer, ts_fc_OP *options) ;
 static double get_area (QCADElectrode *electrode) ;
 static double get_long_side (QCADElectrode *electrode) ;
 static double get_short_side (QCADElectrode *electrode) ;
@@ -91,6 +96,15 @@ static void precompute (QCADElectrode *electrode) ;
 static QCADObject *class_get_default_object () ;
 static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour) ;
 static const char *PostScript_preamble () ;
+double *compare_arr(double *A, double *B, int length);
+static inline int search_array(double *A, double cmp, int num_elements );
+static inline void array_copy(double *Arr1, double *Arr0, int length);
+void *create_grid(int N_x, int N_y, int N_z);
+static inline double search_min_max(double *A, int min_or_max, int num_elements );
+static inline double interpolate(double *Grid, double x1, double y1, double z1, double x2, double y2, double z2, int Nx, int Ny, int Nz, double dx, double dy, double dz);
+
+double *pot_grid = NULL;
+int Nx, Ny, Nz;
 
 GType qcad_rectangle_electrode_get_type ()
   {
@@ -156,7 +170,7 @@ static void qcad_rectangle_electrode_class_init (GObjectClass *klass, gpointer d
   QCAD_DESIGN_OBJECT_CLASS (klass)->serialize                  = serialize ;
   QCAD_DESIGN_OBJECT_CLASS (klass)->unserialize                = unserialize ;
 
-  QCAD_ELECTRODE_CLASS (klass)->get_potential     = get_potential ;
+  //QCAD_ELECTRODE_CLASS (klass)->get_potential     = get_potential ;
   QCAD_ELECTRODE_CLASS (klass)->get_area          = get_area ;
 	QCAD_ELECTRODE_CLASS (klass)->get_long_side     = get_long_side ;
 	QCAD_ELECTRODE_CLASS (klass)->get_short_side    = get_short_side ;
@@ -230,10 +244,8 @@ static EXTREME_POTENTIALS extreme_potential (QCADElectrode *electrode, double z)
   double p_over_two_pi_f = (electrode->electrode_options.phase / (TWO_PI * electrode->electrode_options.frequency)) ;
   double one_over_four_f = (1.0 / (4.0 * electrode->electrode_options.frequency)) ;
   // This assumes a sin function
-  ret.max = get_potential (electrode, QCAD_DESIGN_OBJECT (electrode)->x, QCAD_DESIGN_OBJECT (electrode)->y, z, 
-    p_over_two_pi_f + one_over_four_f) ;
-  ret.min = get_potential (electrode, QCAD_DESIGN_OBJECT (electrode)->x, QCAD_DESIGN_OBJECT (electrode)->y, z, 
-    p_over_two_pi_f - one_over_four_f) ;
+  ret.min = electrode->electrode_options.min_clock;
+  ret.max = electrode->electrode_options.max_clock;
 
   return ret ;
   }
@@ -540,7 +552,7 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
   return potential ;
   }
 */
-
+/*
 static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t)
   {
   QCADRectangleElectrode *rc_electrode = QCAD_RECTANGLE_ELECTRODE (electrode) ;
@@ -570,6 +582,24 @@ static double get_potential (QCADElectrode *electrode, double x, double y, doubl
 
   return ((rho * potential) / (FOUR_PI * electrode->precompute_params.permittivity)) ;
   }
+*/
+double get_potential (double x, double y, double z, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin) 
+  {
+	  double x1, y1, z1, x2, y2, z2;
+	  double over_dx = 1/dx;
+	  double over_dy = 1/dy;
+	  double over_dz = 1/dz;
+	  
+	  x1 = (x-xmin)*over_dx;
+	  x2 = (x1-floor(x1))*dx;
+	  y1 = (y-ymin)*over_dy;
+	  y2 = (y1-floor(y1))*dy;
+	  z1 = z*over_dz;
+	  z2 = (z1-floor(z1))*dz;
+	  
+	  return interpolate(pot_grid,x1,y1,z1,x2,y2,z2,Nx,Ny,Nz,dx,dy,dz);
+	  
+  }
 
 static double get_area (QCADElectrode *electrode)
   {
@@ -597,7 +627,247 @@ static double get_short_side (QCADElectrode *electrode)
 		short_side = rc_electrode->cxWorld;
 	return short_side * 1e-9;
 	}	
+
+void ts_fc_determine_potential (double *Grid, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin, double t, QCADLayer *clocking_layer, ts_fc_OP *options)
+{
+	int i;
+	int j;
+	int k;
+	int w;
+	double dx2, dy2; 
+	double dz2;
+	int cmp;
+	int iter, iter_count;
+	double er_elec, er_cell;
+	double *er_array;
+	double dist_to_ground;
+	double cell_layer;
+	GList *llItr = NULL;
+	QCADRectangleElectrode *rc_electrode;
+	QCADElectrode *electrode;
 	
+	llItr = clocking_layer->lstObjs;			
+	electrode = (QCADElectrode *)(llItr->data);
+	er_elec = electrode->electrode_options.relative_permittivity;
+	er_cell = options->epsilonR;
+	
+	cell_layer = options->cell_elevation;
+	
+	er_array = (double*)malloc(Nz*sizeof(double));
+	for (i = 0; i < Nz; i++) {
+		if (i*dz < cell_layer) {
+			er_array[i] = er_elec;
+		}
+		else {
+			er_array[i] = er_cell;
+		}
+	}
+	
+	
+	int elec_flag = 0;
+	
+	double thresh = options->convergence_tolerance;
+	//double thresh = 1e-3;
+	
+	int loc_x1, loc_x2, loc_y1, loc_y2, loc_z;
+	
+	dx2 = dx*dx;
+	dy2 = dy*dy;
+	dz2 = dz*dz;	
+	
+	double one_over_dx2 = 1/dx2;
+	double one_over_dy2 = 1/dy2;
+	double one_over_dz2 = 1/dz2;
+	
+	double *Grid_old;
+	double *Grid_temp;
+	double *Diff;
+	
+	Grid_old = (double*)malloc(Nx*Ny*Nz*sizeof(double));
+	array_copy(Grid,Grid_old,Nx*Ny*Nz);
+	
+	iter = 1;
+	iter_count = 0;
+	while (iter) {		
+		iter_count = iter_count+1;
+		w = 0;
+		for (i = 0; i < Nx; i++) {
+			for (j = 0; j < Ny; j++) {
+				for (k = 0; k < Nz; k++) {
+					if (k == 0) {
+						for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
+							if (!elec_flag) {
+								if(llItr->data != NULL){
+									rc_electrode = (QCADRectangleElectrode *)(llItr->data);
+									if ( (xmin+dx*i >= rc_electrode->precompute_params.pt[0].xWorld) && (xmin+dx*i <= rc_electrode->precompute_params.pt[1].xWorld) ) {
+										if ( (ymin+dy*j >= rc_electrode->precompute_params.pt[0].yWorld) && (ymin+dy*j <= rc_electrode->precompute_params.pt[2].yWorld) ) {
+											Grid[w] = qcad_electrode_get_voltage ((QCADElectrode *)rc_electrode, t);
+											elec_flag = 1;
+										}
+									}
+								}
+							}
+						}
+					}
+					if (elec_flag == 0) {
+						loc_x1 = (i == 0) ? 0 : (i-1)*Ny*Nz; 
+						loc_x2 = (i == Nx-1) ? (Nx-1)*Ny*Nz : (i+1)*Ny*Nz;
+						loc_y1 = (i == 0) ? 0 : (j-1)*Nz; 
+						loc_y2 = (i == Ny-1) ? (Ny-1)*Nz : (j+1)*Nz;
+						loc_z = (k == 0) ? k : k-1;
+						
+						if (k == Nz-1) {
+							Grid[w] = 0;
+						}
+						else {
+							Grid[w] = (er_array[k]*one_over_dx2*(Grid[loc_x1 + j*Nz + k] + Grid[loc_x2 + j*Nz + k]) + er_array[k]*one_over_dy2*(Grid[i*Ny*Nz + loc_y1 + k] + Grid[i*Ny*Nz + loc_y2 + k]) + one_over_dz2*(er_array[k]*Grid[i*Ny*Nz + j*Nz + k+1] + (2*er_array[k-1]-er_array[k])*Grid[i*Ny*Nz + j*Nz + loc_z]))/(2*er_array[k]*(one_over_dx2 + one_over_dy2) + 2*er_array[k-1]*one_over_dz2);
+						}
+					}
+					w=w+1;
+					elec_flag = 0;
+				}
+			}
+		}
+		
+		Diff = compare_arr(Grid, Grid_old, Nx*Ny*Nz);
+		cmp = search_array(Diff, thresh, Nx*Ny*Nz);
+		
+		if (cmp == -1) {
+			iter = 0;
+		}
+		else {
+			array_copy(Grid,Grid_old,Nx*Ny*Nz);
+		}
+		free(Diff);
+}
+//printf("It took %d iterations to converge @ time %e\n", iter_count, t);
+free(Grid_old);
+free(er_array);
+array_copy(Grid,pot_grid,Nx*Ny*Nz);
+}// ts_fc_determine_potential
+
+double *compare_arr(double *A, double *B, int length)
+{
+	int i;
+	double *Out = NULL;
+	
+	Out = (double*)malloc(length*sizeof(double));
+	
+	for (i = 0; i < length; i++) {
+		Out[i] = A[i] - B[i];
+	}
+	return Out;
+}
+
+static inline int search_array(double *A, double cmp, int num_elements )
+{
+	
+	int i;
+	for (i = 0; i<num_elements; i++) {
+		if (fabs(A[i]) > cmp) {
+			return i;
+		}
+	}
+	return -1;	
+}
+
+static inline void array_copy(double *Arr1, double *Arr0, int length)
+{
+	
+	int i = 0;
+	
+	for(i = 0; i < length; i++) {
+		Arr0[i] = Arr1[i];
+	}
+	
+}
+
+void *create_grid(int N_x, int N_y, int N_z)
+{
+	int i;
+	pot_grid = (double*)malloc(N_x*N_y*N_z*sizeof(double));
+	for (i = 0; i < N_x*N_y*N_z; i++) {
+		pot_grid[i] = 0;
+	}
+	Nx = N_x;
+	Ny = N_y;
+	Nz = N_z;
+}
+
+static inline double search_min_max(double *A, int min_or_max, int num_elements )
+{
+	
+	int i;
+	double cmp;
+	if (min_or_max == 0) {
+		cmp = 1000;
+		for (i = 0; i<num_elements; i++) {
+			if (A[i] < cmp) {
+				cmp = A[i];
+			}
+		}
+	}
+	else {
+		cmp = -1000;
+		for (i = 0; i<num_elements; i++) {
+			if (A[i] > cmp) {
+				cmp = A[i];
+			}
+		}
+	}
+	return cmp;	
+}
+
+
+static inline double interpolate(double *Grid, double x1, double y1, double z1, double x2, double y2, double z2, int Nx, int Ny, int Nz, double dx, double dy, double dz)
+{	
+	
+	double i1, i2, j1, j2, w1, w2;
+	int loc1, loc2;
+	double pot1, pot2;
+	double over_dx = 1/dx;
+	double over_dy = 1/dy;
+	double over_dz = 1/dy;
+	
+	loc1 = floor(x1)*Ny*Nz + floor(y1)*Nz + floor(z1);
+	loc2 = floor(x1)*Ny*Nz + floor(y1)*Nz + ceil(z1);
+	
+	pot1 = Grid[loc1];
+	pot2 = Grid[loc2];
+	
+	i1 = (pot1*(dz-z2) + pot2*z2)*over_dz;
+	
+	loc1 = floor(x1)*Ny*Nz + ceil(y1)*Nz + floor(z1);
+	loc2 = floor(x1)*Ny*Nz + ceil(y1)*Nz + ceil(z1);
+	
+	pot1 = Grid[loc1];
+	pot2 = Grid[loc2];
+	
+	i2 = (pot1*(dz-z2) + pot2*z2)*over_dz;
+	
+	loc1 = ceil(x1)*Ny*Nz + floor(y1)*Nz + floor(z1);
+	loc2 = ceil(x1)*Ny*Nz + floor(y1)*Nz + ceil(z1);
+	
+	pot1 = Grid[loc1];
+	pot2 = Grid[loc2];
+	
+	j1 = (pot1*(dz-z2) + pot2*z2)*over_dz;
+	
+	loc1 = ceil(x1)*Ny*Nz + ceil(y1)*Nz + floor(z1);
+	loc2 = ceil(x1)*Ny*Nz + ceil(y1)*Nz + ceil(z1);
+	
+	pot1 = Grid[loc1];
+	pot2 = Grid[loc2];
+	
+	j2 = (pot1*(dz-z2) + pot2*z2)*over_dz;
+	
+	w1 = (i1*(dy-y2) + i2*y2)*over_dy;
+	w2 = (j1*(dy-y2) + j2*y2)*over_dy;
+	
+	return (w1*(dx-x2) + w2*x2)*over_dx;	
+	
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void precompute (QCADElectrode *electrode)

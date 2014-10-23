@@ -28,6 +28,8 @@
 #ifndef _SEMI_COHERENT_SIMULATION_H_
 #define _SEMI_COHERENT_SIMULATION_H_
 
+#ifdef HAVE_FORTRAN
+
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -65,5 +67,7 @@ typedef struct
 
 simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *design, semi_coherent_OP *options, VectorTable *pvt);
 void semi_coherent_options_dump (semi_coherent_OP *semi_coherent_options, FILE *pfile) ;
+
+#endif /* HAVE_FORTRAN */
 
 #endif /* _SEMI_COHERENT_SIMULATION_H_ */

@@ -1277,7 +1277,10 @@ msgstr "_Fichier"
 msgid "_Help"
 msgstr "_Aide"
 
-msgid "_Hide All But The Selected Layer"
+msgid "_Layers"
+msgstr ""
+
+msgid "_Show Only Selected Layer"
 msgstr ""
 
 msgid "_Import Block..."

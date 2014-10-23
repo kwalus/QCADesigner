@@ -36,7 +36,7 @@
 static EXP_ARRAY *transformation_stack = NULL ;
 
 static int subs_top_x = 100, subs_top_y = 100 ;
-static double scale = 1 ; // pixels / nm
+static double scale = 10 ; // pixels / nm
 static int cxClientArea = 0, cyClientArea = 0 ;
 static double aspect_ratio ; // cxClient / cyClient
 
@@ -154,7 +154,7 @@ void zoom_in ()
   }
 
 void reset_zoom ()
-  {scale = 1.0 ;}
+  {scale = 10.0 ;}
 
 //!Zooms to the provided window dimensions.
 void zoom_window (int top_x, int top_y, int bot_x, int bot_y)
@@ -273,7 +273,7 @@ int world_rectangle_subtract (WorldRectangle *rc1, WorldRectangle *rc2, WorldRec
   {
   int Nix, idx = 0 ;
   int icRects = 0 ;
-  double coords[4][4] ;
+  double coords[4][4] = {{ 0.0 }} ;
   double xt1, yt1, xb1, yb1, xt2, yt2, xb2, yb2 ;
   gboolean bPIR0 = FALSE, bPIR1 = FALSE, bPIR2 = FALSE, bPIR3 = FALSE ;
   WorldRectangle subtrahend = {0} ;

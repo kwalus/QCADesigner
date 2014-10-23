@@ -40,6 +40,9 @@
 #include "../intl.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
+#ifdef DESIGNER
+#include "../callback_helpers.h"
+#endif /* DESIGNER */
 #include "QCADCell.h"
 #include "QCADDOContainer.h"
 //#ifdef GTK_GUI
@@ -57,8 +60,8 @@
  *
  * Implementation of the QCA cell. Every cell is assumed to have 4 dots, located either inside the cell's
  * corners, or inside the midpoints of the cell's edges. Cells can serve 4 different functions
- * (%QCAD_CELL_NORMAL, %QCAD_CELL_INPUT, %QCAD_CELL_OUTPUT, %QCAD_CELL_FIXED) and 3 different appearances
- * (%QCAD_CELL_MODE_NORMAL, %QCAD_CELL_MODE_CROSSOVER, %QCAD_CELL_MODE_VERTICAL).
+ * (%QCAD_CELL_NORMAL, %QCAD_CELL_INPUT, %QCAD_CELL_OUTPUT, %QCAD_CELL_FIXED) and 4 different appearances
+ * (%QCAD_CELL_MODE_NORMAL, %QCAD_CELL_MODE_CROSSOVER, %QCAD_CELL_MODE_VERTICAL, %QCAD_CELL_MODE_CLUSTER).
  *
  */
 
@@ -267,7 +270,8 @@ GType qcad_cell_mode_get_type ()
 			{QCAD_CELL_MODE_NORMAL,    "QCAD_CELL_MODE_NORMAL",    NULL},
 			{QCAD_CELL_MODE_CROSSOVER, "QCAD_CELL_MODE_CROSSOVER", NULL},
 			{QCAD_CELL_MODE_VERTICAL,  "QCAD_CELL_MODE_VERTICAL",  NULL},
-			{QCAD_CELL_MODE_CLUSTER,   "QCAD_CELL_MODE_CLUSTER",   NULL}
+			{QCAD_CELL_MODE_CLUSTER,   "QCAD_CELL_MODE_CLUSTER",   NULL},
+            {0, NULL, NULL}
 		} ;
 		
 		values[0].value_nick = _("Normal") ;
@@ -430,10 +434,8 @@ static void qcad_cell_set_property (GObject *object, guint property_id, const GV
 			break ;
 			
 		case QCAD_CELL_PROPERTY_MODE:
-			qcad_cell_set_mode (cell, g_value_get_enum (value)) ;
-			/*cell->cell_options.mode = g_value_get_enum (value) ;
+			cell->cell_options.mode = g_value_get_enum (value) ;
 			g_object_notify (object, "mode") ;
-			*/					
 			DBG_VAL (fprintf (stderr, "qcad_cell_set_property:Setting cell mode to %s\n",
 							  g_enum_get_value (g_type_class_peek (QCAD_TYPE_CELL_MODE), g_value_get_enum (value))->value_name)) ;
 			break ;
@@ -1525,14 +1527,14 @@ void qcad_cell_set_function (QCADCell *cell, QCADCellFunction function)
 		g_object_notify (G_OBJECT (cell), "function") ;
 }
 
-
 void qcad_cell_set_mode (QCADCell *cell, QCADCellMode mode)
 {
 	QCADCellMode old_mode = cell->cell_options.mode ;
 	QCADCellFunction function = cell->cell_function ;
 	
 	cell->cell_options.mode = mode ;
-	if (QCAD_CELL_MODE_CLUSTER == function)
+	
+    if (QCAD_CELL_MODE_CLUSTER == mode)
     {
 		memcpy (&(QCAD_DESIGN_OBJECT (cell)->clr), &clrCluster, sizeof (GdkColor)) ;
     }
@@ -1591,9 +1593,10 @@ void qcad_cell_scale (QCADCell *cell, double dScale, double dxOrigin, double dyO
 	obj->x = obj->bounding_box.xWorld + obj->bounding_box.cxWorld / 2.0 ;
 	obj->y = obj->bounding_box.yWorld + obj->bounding_box.cyWorld / 2.0 ;
 	
-	if (NULL != cell->label)
+	if (NULL != cell->label) {
 		qcad_design_object_move (QCAD_DESIGN_OBJECT (cell->label), obj->bounding_box.xWorld - xOld, obj->bounding_box.yWorld - yOld) ;
-	
+	}
+		
 	cell->cell_options.cxCell = obj->bounding_box.cxWorld ;
 	g_object_notify (G_OBJECT (obj), "width") ;
 	cell->cell_options.cyCell = obj->bounding_box.cyWorld ;

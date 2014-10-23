@@ -31,9 +31,13 @@
 #ifndef _SEMI_COHERENT_PROPERTIES_DIALOG_H_
 #define _SEMI_COHERENT_PROPERTIES_DIALOG_H_
 
+#ifdef HAVE_FORTRAN
+
 #include <gtk/gtk.h>
 #include "semi_coherent.h"
 
 void get_semi_coherent_properties_from_user (GtkWindow *parent, semi_coherent_OP *pbo) ;
+
+#endif /* HAVE_FORTRAN */
 
 #endif /* _SEMI_COHERENT_PROPERTIES_DIALOG_H_ */

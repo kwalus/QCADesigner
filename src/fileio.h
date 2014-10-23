@@ -33,6 +33,7 @@
 #include "coherence_vector.h"
 #include "bistable_simulation.h"
 #include "semi_coherent.h"
+#include "ts_field_clock.h"
 #include "simulation.h"
 
 // -- Prototypes -- //
@@ -43,7 +44,10 @@ SIMULATION_OUTPUT *open_simulation_output_file (char *pszFName) ;
 SIMULATION_OUTPUT *open_simulation_output_file_fp (FILE *fp) ;
 coherence_OP *open_coherence_options_file (char *pszFName) ;
 bistable_OP *open_bistable_options_file (char *pszFName) ;
+#ifdef HAVE_FORTRAN
 semi_coherent_OP *open_semi_coherent_options_file (char *pszFName) ;
+ts_fc_OP *open_ts_fc_options_file (char *pszFName) ;
+#endif /* HAVE_FORTRAN */
 simulation_data *simulation_data_unserialize (FILE *fp) ;
 gboolean create_file (gchar *file_name, DESIGN *design) ;
 void create_file_fp (FILE *pfile, DESIGN *design) ;

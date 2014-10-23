@@ -1298,8 +1298,11 @@ msgstr "_Fişier"
 msgid "_Help"
 msgstr "_Ajutor"
 
-msgid "_Hide All But The Selected Layer"
-msgstr ""
+msgid "_Layers"
+msgstr "_Straturi"
+
+msgid "_Show Only Selected Layer"
+msgstr "Arată numai _stratul selecţionat"
 
 msgid "_Import Block..."
 msgstr ""

@@ -343,10 +343,42 @@ static gboolean tree_view_button_release (GtkWidget *widget, GdkEventButton *eve
 static gboolean deactivate_layer (QCADLayersCombo *layers_combo, QCADLayer *layer, gboolean bHide, gpointer data) 
   {return FALSE ;}
 
+static void toggle_layer(GObject *layers_combo, GtkWidget *tv, DESIGN *design, QCADLayer *layer, gboolean visible_toggle, GtkTreeModel *model, GtkTreeIter *itr)
+  {
+  gboolean may_deactivate_layer = FALSE ;
+
+  g_signal_emit (layers_combo, layers_combo_signals[QCAD_LAYERS_COMBO_SIGNAL_DEACTIVATE_LAYER], 0, layer, visible_toggle, &may_deactivate_layer) ;
+  if (!may_deactivate_layer) return ;
+
+  if (visible_toggle)
+    {
+    if (QCAD_LAYER_STATUS_HIDDEN == layer->status)
+      {
+      gboolean bWasActive = FALSE ;
+
+      gtk_tree_model_get (model, itr, LAYERS_COMBO_MODEL_COLUMN_WAS_ACTIVE, &bWasActive, -1) ;
+
+      layer->status = bWasActive ? QCAD_LAYER_STATUS_ACTIVE : QCAD_LAYER_STATUS_VISIBLE ;
+      }
+    else
+    if (design_multiple_visible_layers_p (design))
+      {
+      gtk_list_store_set (GTK_LIST_STORE (model), itr, LAYERS_COMBO_MODEL_COLUMN_WAS_ACTIVE, (QCAD_LAYER_STATUS_ACTIVE == layer->status), -1) ;
+      layer->status = QCAD_LAYER_STATUS_HIDDEN ;
+      }
+    }
+  else
+    layer->status = 
+      QCAD_LAYER_STATUS_ACTIVE == layer->status ? QCAD_LAYER_STATUS_VISIBLE : QCAD_LAYER_STATUS_ACTIVE ;
+
+  gtk_widget_queue_draw (tv) ;
+
+  g_object_notify (G_OBJECT (layers_combo), "layer") ;
+  }
+
 static void layer_list_state_toggled (GtkCellRenderer *cr, char *pszPath, gpointer data)
   {
   QCADLayer *layer = NULL ;
-  gboolean may_deactivate_layer = FALSE ;
   QCADLayersComboPrivate *private = QCAD_LAYERS_COMBO_GET_PRIVATE (data) ;
   GtkTreeIter itr ;
   gboolean bVisibleCR = (private->crVisible == cr) ;
@@ -356,33 +388,7 @@ static void layer_list_state_toggled (GtkCellRenderer *cr, char *pszPath, gpoint
   gtk_tree_model_get (private->model, &itr, LAYER_MODEL_COLUMN_LAYER, &layer, -1) ;
   if (NULL == layer) return ;
 
-  g_signal_emit (data, layers_combo_signals[QCAD_LAYERS_COMBO_SIGNAL_DEACTIVATE_LAYER], 0, layer, bVisibleCR, &may_deactivate_layer) ;
-  if (!may_deactivate_layer) return ;
-
-  if (bVisibleCR)
-    {
-    if (QCAD_LAYER_STATUS_HIDDEN == layer->status)
-      {
-      gboolean bWasActive = FALSE ;
-
-      gtk_tree_model_get (private->model, &itr, LAYERS_COMBO_MODEL_COLUMN_WAS_ACTIVE, &bWasActive, -1) ;
-
-      layer->status = bWasActive ? QCAD_LAYER_STATUS_ACTIVE : QCAD_LAYER_STATUS_VISIBLE ;
-      }
-    else
-    if (design_multiple_visible_layers_p (private->design))
-      {
-      gtk_list_store_set (GTK_LIST_STORE (private->model), &itr, LAYERS_COMBO_MODEL_COLUMN_WAS_ACTIVE, (QCAD_LAYER_STATUS_ACTIVE == layer->status), -1) ;
-      layer->status = QCAD_LAYER_STATUS_HIDDEN ;
-      }
-    }
-  else
-    layer->status = 
-      QCAD_LAYER_STATUS_ACTIVE == layer->status ? QCAD_LAYER_STATUS_VISIBLE : QCAD_LAYER_STATUS_ACTIVE ;
-
-  gtk_widget_queue_draw (private->tv) ;
-
-  g_object_notify (G_OBJECT (data), "layer") ;
+  toggle_layer(G_OBJECT(data), private->tv, private->design, layer, bVisibleCR, private->model, &itr);
   }
 
 static gboolean layer_list_model_current_layer_p (GtkTreeModel *tm, GtkTreeIter *itr, gpointer data)
@@ -500,4 +506,41 @@ void g_cclosure_user_marshal_BOOLEAN__OBJECT_BOOLEAN (GClosure     *closure,
                        data2);
 
   g_value_set_boolean (return_value, v_return);
+  }
+
+void qcad_layers_combo_show_layer_exclusively (QCADLayersCombo *layers_combo, QCADLayer *layer)
+  {
+  gboolean found_layer = FALSE;
+  QCADLayer *model_layer;
+  GtkTreeIter itr;
+  QCADLayersComboPrivate *private = QCAD_LAYERS_COMBO_GET_PRIVATE (layers_combo) ;
+
+  if (gtk_tree_model_get_iter_first (private->model, &itr))
+    do 
+      {
+      gtk_tree_model_get (private->model, &itr, LAYER_MODEL_COLUMN_LAYER, &model_layer, -1);
+      if (model_layer == layer)
+        {
+        found_layer = TRUE;
+        if (layer->status == QCAD_LAYER_STATUS_HIDDEN)
+          toggle_layer (G_OBJECT(layers_combo), private->tv, private->design, layer, TRUE, private->model, &itr);
+        break;
+        }
+      } while (gtk_tree_model_iter_next(private->model, &itr));
+
+  if (found_layer)
+    {
+    gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(private->tv)), &itr);
+
+    if (gtk_tree_model_get_iter_first(private->model, &itr))
+      do 
+        {
+        gtk_tree_model_get (private->model, &itr, LAYER_MODEL_COLUMN_LAYER, &model_layer, -1);
+        if (model_layer != layer)
+          {
+          if (model_layer->status != QCAD_LAYER_STATUS_HIDDEN)
+            toggle_layer(G_OBJECT(layers_combo), private->tv, private->design, model_layer, TRUE, private->model, &itr);
+          }
+        } while (gtk_tree_model_iter_next(private->model, &itr));
+    }
   }

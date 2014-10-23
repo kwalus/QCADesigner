@@ -84,7 +84,7 @@ struct _QCADElectrodeClass
   /* public */
   QCADDesignObjectClass parent_class ;
 
-  double (*get_potential) (QCADElectrode *electrode, double x, double y, double z, double t) ;
+  //double (*get_potential) (double x, double y, double z, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin) ;
   double (*get_voltage) (QCADElectrode *electrode, double t) ;
   double (*get_area) (QCADElectrode *electrode) ;
 	double (*get_long_side) (QCADElectrode *electrode) ;
@@ -95,7 +95,7 @@ struct _QCADElectrodeClass
 
 GType qcad_electrode_get_type () ;
 
-double qcad_electrode_get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
+double qcad_electrode_get_potential (double x, double y, double z, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin) ;
 double qcad_electrode_get_voltage (QCADElectrode *electrode, double t) ;
 double qcad_electrode_get_area (QCADElectrode *electrode) ;
 double qcad_electrode_get_long_side (QCADElectrode *electrode) ;

@@ -40,7 +40,7 @@ GParamSpec *qcad_param_spec_type_list (const char *name, const char *nick, const
 
   va_start (va, first_type_in_list) ;
   while (0 != (next_type = va_arg (va, GType)))
-    g_list_prepend (pspec->type_list, (gpointer)next_type) ;
+    pspec->type_list = g_list_prepend (pspec->type_list, (gpointer)next_type) ;
   va_end (va) ;
 
   return G_PARAM_SPEC (pspec) ;
@@ -64,14 +64,17 @@ static gboolean value_validate (GParamSpec *pspec, GValue *value)
   QCADParamSpecTypeList *param_spec_type_list = QCAD_PARAM_SPEC_TYPE_LIST (pspec) ;
   GType val ;
 
-  if (NULL == param_spec_type_list->type_list) return FALSE ;
-
   val = g_value_get_uint (value) ;
+
+  if (val == param_spec_type_list->default_type)
+    return FALSE;
+
   for (llItr = param_spec_type_list->type_list ; llItr != NULL ; llItr = llItr->next)
     if (val == ((GType)(llItr->data)))
-      return TRUE ;
+      return FALSE ;
 
-  return FALSE ;
+  g_value_set_uint(value, param_spec_type_list->default_type);
+  return TRUE ;
   }
 
 static gint values_cmp (GParamSpec *pspec, const GValue *value1, const GValue *value2)

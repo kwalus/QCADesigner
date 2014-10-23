@@ -40,6 +40,7 @@
 #include "coherence_vector.h"
 #include "bistable_simulation.h"
 #include "semi_coherent.h"
+#include "ts_field_clock.h"
 #include "recent_files.h"
 #include "vector_table.h"
 #include "qcadstock.h"

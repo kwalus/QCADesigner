@@ -25,14 +25,16 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
+#ifdef HAVE_FORTRAN
+
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "../CLAPACK/SRC/blaswrap.h"
-#include "../CLAPACK/SRC/f2c.h"
-#include "../CLAPACK/SRC/clapack.h"
+#include <blaswrap.h>
+#include <f2c.h>
+#include <clapack.h>
 #include <glib-object.h>
 
 #ifdef GTK_GUI
@@ -338,19 +340,19 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	// for each layer ...
 	int num_elements = 0;
 	
-	H_group_cell = (int*)malloc(num_normal*sizeof(int));
-	H_group_color = (GdkColor*)malloc(num_normal*sizeof(GdkColor));
-	Hg_used = (int*)malloc(num_normal*sizeof(int));
-	Corr = (int*)malloc(num_normal*sizeof(int));
-	Hg = (int**)malloc(num_normal*sizeof(int*));
-	for (i = 0; i < num_normal; i++) {
-		Hg[i] = (int*)malloc(num_normal*sizeof(int));
+	H_group_cell = (int*)malloc((num_normal+1)*sizeof(int));
+	H_group_color = (GdkColor*)malloc((num_normal+1)*sizeof(GdkColor));
+	Hg_used = (int*)malloc((num_normal+1)*sizeof(int));
+	Corr = (int*)malloc((num_normal+1)*sizeof(int));
+	Hg = (int**)malloc((num_normal+1)*sizeof(int*));
+	for (i = 0; i <= num_normal; i++) {
+		Hg[i] = (int*)malloc((num_normal+1)*sizeof(int));
 	}
 	
-	for (h_iter1 = 0; h_iter1 < num_normal; h_iter1++) {
+	for (h_iter1 = 0; h_iter1 <= num_normal; h_iter1++) {
 		H_group_cell[h_iter1] = -1;
 		Hg_used[h_iter1] = -1;
-		for (h_iter2 = 0; h_iter2 < num_normal; h_iter2++) {
+		for (h_iter2 = 0; h_iter2 <= num_normal; h_iter2++) {
 			Hg[h_iter1][h_iter2] = -1;
 		}
 	}
@@ -434,7 +436,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	redraw_async(NULL);
 	gdk_flush () ;
 #endif /* def DESIGNER */
-	
+
 	k_iter = 0;
 	cmp = 0;
 	int done = 0;
@@ -443,8 +445,8 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 
 	if (H_group_cell[0] != -1) {
 		
-		for (h_iter1 = 0; h_iter1 < num_normal; h_iter1++) {
-			for (h_iter2 = 0; h_iter2 < num_normal; h_iter2++) {
+		for (h_iter1 = 0; h_iter1 <= num_normal; h_iter1++) {
+			for (h_iter2 = 0; h_iter2 <= num_normal; h_iter2++) {
 				if (Hg[h_iter1][h_iter2] == -1) {
 					if (h_iter2 == 0) {
 						while (cmp != -1) {
@@ -474,7 +476,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 							if (cmp == -1) {
 								Ek_temp = semi_coherent_determine_Ek (cell, sorted_cells[0][H_group_cell[k_iter1]], 0, options);
 								if (fabs(Ek0/Ek_temp) < 5) {
-									used = search_matrix_row(Hg, -1, h_iter1, num_normal);
+									used = search_matrix_row(Hg, -1, h_iter1, num_normal+1);
 									Hg[h_iter1][used] = H_group_cell[k_iter1];
 									cmp = search_array(Hg_used, -1, num_elements);
 									Hg_used[cmp] = H_group_cell[k_iter1];
@@ -493,7 +495,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 							if (cmp == -1) {
 								Ek_temp = semi_coherent_determine_Ek (cell, sorted_cells[0][H_group_cell[k_iter1]], 0, options);
 								if (fabs(Ek0/Ek_temp) < 5) {
-									used = search_matrix_row(Hg, -1, h_iter1, num_normal);
+									used = search_matrix_row(Hg, -1, h_iter1, num_normal+1);
 									Hg[h_iter1][used] = H_group_cell[k_iter1];
 									cmp = search_array(Hg_used, -1, num_elements);
 									Hg_used[cmp] = H_group_cell[k_iter1];							
@@ -537,10 +539,10 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	headx  = NULL;
 	headp  = NULL;
 	
-	h_row = search_matrix_col(Hg, -1, 0, num_normal);
+	h_row = search_matrix_col(Hg, -1, 0, num_normal+1);
 	
 	for (row_iter = 0; row_iter < h_row; row_iter++) {		
-		h_col = search_matrix_row(Hg,-1,row_iter,num_normal);
+		h_col = search_matrix_row(Hg,-1,row_iter,num_normal+1);
 		
 		dim = pow(2,h_col);
 		Hz = (double**)malloc(dim*sizeof(double*));
@@ -747,6 +749,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	command_history_message(_("Starting Simulation\n"));
 	
 	set_progress_bar_fraction (0.0) ;
+
 	
 	// perform the iterations over all samples //
 	for (j = 0; j < sim_data->number_samples ; j++)
@@ -787,11 +790,11 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 		int indexz = 0;
 		int index_prev = 0;
 		num_mats_prev = 0;
-		h_row = search_matrix_col(Hg, -1, 0, num_normal);
+		h_row = search_matrix_col(Hg, -1, 0, num_normal+1);
 		
 		
 		for (row_iter = 0; row_iter < h_row; row_iter++) {
-			h_col = search_matrix_row(Hg,-1,row_iter,num_normal);
+			h_col = search_matrix_row(Hg,-1,row_iter,num_normal+1);
 			num_mats = h_col;
 			
 			dim = pow(2,h_col);
@@ -831,7 +834,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 				{
 					cell = sorted_cells[0][fb1] ;
 					current_cell_model = ((semi_coherent_model *)cell->cell_model) ;
-					cmp = search_matrix_row(Hg,fb1, row_iter, num_normal);
+					cmp = search_matrix_row(Hg,fb1, row_iter, num_normal+1);
 					if (cmp == -1) {
 						matrix_mult_by_const(H_init_p_temp, 0.5*semi_coherent_determine_Ek (sorted_cells[0][Hg[row_iter][col_iter]], sorted_cells[0][fb1], 0, options), (int)dim, (int)dim, H_init_p_temp);					
 						matrix_mult_by_const(H_init_p_temp, current_cell_model->polarization,(int)dim, (int)dim, H_init_p_temp);
@@ -891,7 +894,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 				else {
 					printf("Something screwed up...\n");
 				}
-				
+								
 				for (fb1 = 0; fb1 < h_col-1; fb1++) {
 					for (fb2 = fb1+1; fb2 < h_col; fb2++) {
 						new = search_linked_list(headzz, index_prev+indexz);
@@ -925,8 +928,8 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 					new = search_linked_list(headp, index+col_iter);
 					
 					new_polarization = -expectation(A, new->Mat, c3, (int)dim, (int)dim, (int)dim);
-					
-										
+						
+					 
 					// -- set the polarization of this cell -- //
 					current_cell_model->polarization = new_polarization;
 					
@@ -998,9 +1001,10 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 							polarization_math = 0;
 							EkP = 0;
 							
-							for (q = 0; q < current_cell_model->number_of_neighbours; q++)
+							for (q = 0; q < current_cell_model->number_of_neighbours; q++) {
 								EkP += (current_cell_model->Ek[q] * ((semi_coherent_model *)current_cell_model->neighbours[q]->cell_model)->polarization) ;
-							
+							}
+								
 							H = (double**)malloc(size*sizeof(double*));
 							for (h_iter1 = 0; h_iter1 < size; h_iter1++) {
 								H[h_iter1] = (double*)malloc(size*sizeof(double));
@@ -1049,19 +1053,18 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 								if (br[0] < br[1]) {
 									A[0][0] = VR[0];
 									A[0][1] = VR[1];
+									//printf("%e\n", br[0]);
 								}
 								else {
 									A[0][0] = VR[2];
 									A[0][1] = VR[3];
+									//printf("%e\n", br[1]);
 								}
 							}
 							else {
 								fprintf(stderr, "Something screwed up...\n");
 							}
-							
-							
-							
-							
+													
 							EkP /= (2.0 * sim_data->clock_data[cell->cell_options.clock].data[j]);
 							
 							// -- calculate the new cell polarization -- //
@@ -1077,6 +1080,7 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 								}
 							}
 							
+							 
 							// -- set the polarization of this cell -- //
 							current_cell_model->polarization = new_polarization;
 							
@@ -1103,7 +1107,28 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 					}
 				}
 			}
+			
 		}//WHILE !STABLE
+		
+		for (icLayers = 0; icLayers < number_of_cell_layers; icLayers++)
+		{
+			for (icCellsInLayer = 0 ; icCellsInLayer < number_of_cells_in_layer[icLayers] ; icCellsInLayer++)
+			{
+				if (icCellsInLayer == 0) {
+					printf("\n");
+				}
+				cell = sorted_cells[icLayers][icCellsInLayer] ;
+				current_cell_model = ((semi_coherent_model *)cell->cell_model) ;
+				if (((QCAD_CELL_INPUT == cell->cell_function)||
+						  (QCAD_CELL_FIXED == cell->cell_function)))
+					{
+						continue;
+					}
+				printf("%f\t",current_cell_model->polarization);
+			}
+		}
+				
+			
 		
 		if (VECTOR_TABLE == SIMULATION_TYPE)
 			for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
@@ -1145,17 +1170,17 @@ simulation_data *run_semi_coherent_simulation (int SIMULATION_TYPE, DESIGN *desi
 	
 	simulation_inproc_data_free (&number_of_cell_layers, &number_of_cells_in_layer, &sorted_cells) ;
 
-	free_linked_list(headz, Hg, num_normal, 0);
-	free_linked_list(headx, Hg, num_normal, 1);
-	free_linked_list(headp, Hg, num_normal, 1);
-	free_linked_list(headzz, Hg, num_normal, 2);
+	free_linked_list(headz, Hg, num_normal+1, 0);
+	free_linked_list(headx, Hg, num_normal+1, 1);
+	free_linked_list(headp, Hg, num_normal+1, 1);
+	free_linked_list(headzz, Hg, num_normal+1, 2);
 
 	free(H_group_cell); 
 	free(H_group_color);
 	free(Hg_used);
 	free(Corr);
 	
-	for (fb1 = 0; fb1 < num_normal; fb1++) {
+	for (fb1 = 0; fb1 < num_normal+1; fb1++) {
 		free(Hg[fb1]);
 	}
 	free(Hg);
@@ -1399,13 +1424,12 @@ static inline void kron (double **MatA, double **MatB, int dimAx, int dimAy, int
 	int l = 0;
 	int m, n;
 	
+	
 	double **TEMP;
 	TEMP = (double**)malloc(dimAx*dimBx*sizeof(double*));
 	for (m = 0; m < dimAx*dimBx; m++) {
 		TEMP[m] = (double*)malloc(dimAy*dimBy*sizeof(double));
 	}
-	
-	
 	
 	for(i = 0; i < dimAx; i++)
 		for( j = 0; j < dimAy; j++)
@@ -1590,3 +1614,5 @@ void semi_coherent_options_dump (semi_coherent_OP *semi_coherent_options, FILE *
  	fprintf (stderr, "semi_coherent_options->jitter_phase_3            = %f degrees\n",      semi_coherent_options->jitter_phase_3) ;
 	// End added by Marco
 }
+
+#endif /* HAVE_FORTRAN */

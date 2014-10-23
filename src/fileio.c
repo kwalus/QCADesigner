@@ -55,7 +55,10 @@ static void unserialize_trace (FILE *pfile, struct TRACEDATA *trace, int icSampl
 static void unserialize_trace_data (FILE *pfile, struct TRACEDATA *trace, int icSamples) ;
 static coherence_OP *open_coherence_options_file_fp (FILE *fp) ;
 static bistable_OP *open_bistable_options_file_fp (FILE *fp) ;
+#ifdef HAVE_FORTRAN
 static semi_coherent_OP *open_semi_coherent_options_file_fp (FILE *fp) ;
+static ts_fc_OP *open_ts_fc_options_file_fp (FILE *fp) ;
+#endif /* HAVE_FORTRAN */
 static void build_io_tables (simulation_data *sim_data, BUS_LAYOUT *bus_layout) ;
 
 static double qcadesigner_version = 2.0 ;
@@ -828,11 +831,16 @@ static coherence_OP *open_coherence_options_file_fp (FILE *pfile)
     if (!strncmp (pszLine, "layer_separation", sizeof ("layer_separation") - 1))
       coherence_options->layer_separation = g_ascii_strtod (pszValue, NULL) ;
     else
+		/*
     if (!strncmp (pszLine, "algorithm", sizeof ("algorithm") - 1))
       coherence_options->algorithm = atoi (pszValue) ;
     else
-    if (!strncmp (pszLine, "randomize_cells", sizeof ("randomize_cells") - 1))
-      coherence_options->randomize_cells = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
+		 */
+    if (!strncmp (pszLine, "adaptive_step", sizeof ("adaptive_step") - 1))
+        coherence_options->adaptive_step = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
+    else    
+    if (!strncmp (pszLine, "include_correlations", sizeof ("include_correlations") - 1))
+      coherence_options->include_correlations = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
     else
     if (!strncmp (pszLine, "animate_simulation", sizeof ("animate_simulation") - 1))
       coherence_options->animate_simulation = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
@@ -858,6 +866,12 @@ static coherence_OP *open_coherence_options_file_fp (FILE *pfile)
     if (!strncmp (pszLine, "wave_number_ky", sizeof ("wave_number_ky") - 1))
       coherence_options->wave_number_ky = g_ascii_strtod (pszValue, NULL);
      else
+	if (!strncmp (pszLine, "num_iterations", sizeof ("num_iterations") - 1))
+	  coherence_options->num_iterations = g_ascii_strtod (pszValue, NULL);
+	 else	 
+	if (!strncmp (pszLine, "error_thresh", sizeof ("error_thresh") - 1))
+	  coherence_options->error_thresh = g_ascii_strtod (pszValue, NULL) ;
+	 else
     if (!strncmp (pszLine, "clocking", sizeof ("clocking") - 1))
       coherence_options->clocking = atoi (pszValue) ;
 
@@ -965,6 +979,7 @@ static bistable_OP *open_bistable_options_file_fp (FILE *pfile)
   return bistable_options ;
   }
 
+#ifdef HAVE_FORTRAN
 semi_coherent_OP *open_semi_coherent_options_file (char *pszFName)
   {
   semi_coherent_OP *semi_coherent_options = NULL ;
@@ -1057,7 +1072,123 @@ static semi_coherent_OP *open_semi_coherent_options_file_fp (FILE *pfile)
   return semi_coherent_options ;
   }
 
+ts_fc_OP *open_ts_fc_options_file (char *pszFName)
+{
+       ts_fc_OP *ts_fc_options = NULL ;
+       FILE *fp = NULL ;
+       
+       if (NULL == (fp = file_open_and_buffer (pszFName)))
+               return NULL ;
+       
+       ts_fc_options = open_ts_fc_options_file_fp (fp) ;
+       
+       file_close_and_unbuffer (fp) ;
+       
+       return ts_fc_options ;
+}
 
+static ts_fc_OP *open_ts_fc_options_file_fp (FILE *pfile)
+{
+  ts_fc_OP *ts_fc_options = NULL ;
+  char *pszLine = NULL, *pszValue = NULL ;
+
+  if (!SkipPast (pfile, '\0', "[TS_FC_OPTIONS]", NULL))
+         return NULL ;
+
+  ts_fc_options = g_malloc0 (sizeof (ts_fc_OP)) ;
+
+  while (TRUE)
+    {
+    if (NULL == (pszLine = ReadLine (pfile, '\0', TRUE))) break ;
+
+    if (!strncmp (pszLine, "[#TS_FC_OPTIONS]", sizeof ("[#TS_FC_OPTIONS]") - 1))
+      {
+      g_free (pszLine) ;
+      break ;
+      }
+
+    tokenize_line (pszLine, strlen (pszLine), &pszValue, '=') ;
+
+	if (!strncmp (pszLine, "temperature", sizeof ("temperature") - 1))
+	  ts_fc_options->time_step = g_ascii_strtod (pszValue, NULL) ;
+	else	
+    if (!strncmp (pszLine, "time_step", sizeof ("time_step") - 1))
+      ts_fc_options->time_step = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "animate_simulation", sizeof ("animate_simulation") - 1))
+      ts_fc_options->animate_simulation = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
+    else
+	if (!strncmp (pszLine, "randomize_cells", sizeof ("randomize_cells") - 1))
+		ts_fc_options->randomize_cells = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
+	else
+	if (!strncmp (pszLine, "temp_model", sizeof ("temp_model") - 1))
+	  ts_fc_options->temp_model = !strncmp (pszValue, "TRUE", sizeof ("TRUE") - 1) ? TRUE : FALSE ;
+	else			
+    if (!strncmp (pszLine, "duration", sizeof ("duration") - 1))
+      ts_fc_options->duration = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "radius_of_effect", sizeof ("radius_of_effect") - 1))
+      ts_fc_options->radius_of_effect = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "epsilonR", sizeof ("epsilonR") - 1))
+      ts_fc_options->epsilonR = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "clock_high", sizeof ("clock_high") - 1))
+      ts_fc_options->clock_high = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "clock_low", sizeof ("clock_low") - 1))
+      ts_fc_options->clock_low = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "clock_shift", sizeof ("clock_shift") - 1))
+      ts_fc_options->clock_shift = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "Emax", sizeof ("Emax") - 1))
+      ts_fc_options->Emax = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "gamma", sizeof ("gamma") - 1))
+      ts_fc_options->gamma = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "layer_separation", sizeof ("layer_separation") - 1))
+      ts_fc_options->layer_separation = g_ascii_strtod (pszValue, NULL) ;
+    else
+    if (!strncmp (pszLine, "cell_elevation", sizeof ("cell_elevation") - 1))
+      ts_fc_options->cell_elevation = g_ascii_strtod (pszValue, NULL);
+    else
+    if (!strncmp (pszLine, "cell_height", sizeof ("cell_height") - 1))
+      ts_fc_options->cell_height = g_ascii_strtod (pszValue, NULL);
+    else
+    if (!strncmp (pszLine, "counter_ion", sizeof ("counter_ion") - 1))
+      ts_fc_options->counter_ion = g_ascii_strtod (pszValue, NULL);
+    else
+    if (!strncmp (pszLine, "dx", sizeof ("dx") - 1))
+      ts_fc_options->dx = g_ascii_strtod (pszValue, NULL); 
+    else
+    if (!strncmp (pszLine, "dy", sizeof ("dy") - 1))
+      ts_fc_options->dy = g_ascii_strtod (pszValue, NULL); 
+    else
+    if (!strncmp (pszLine, "dz", sizeof ("dz") - 1))
+      ts_fc_options->dz = g_ascii_strtod (pszValue, NULL);
+	else
+	if (!strncmp (pszLine, "lambda_x", sizeof ("lambda_x") - 1))
+	  ts_fc_options->lambda_x = g_ascii_strtod (pszValue, NULL);
+    else
+	if (!strncmp (pszLine, "lambda_y", sizeof ("lambda_y") - 1))
+		ts_fc_options->lambda_y = g_ascii_strtod (pszValue, NULL);
+	else
+    if (!strncmp (pszLine, "clocking", sizeof ("clocking") - 1))
+      ts_fc_options->clocking_scheme = atoi (pszValue) ;
+    else
+    if (!strncmp (pszLine, "convergence_tolerance", sizeof ("convergence_tolerance") - 1))
+      ts_fc_options->convergence_tolerance = g_ascii_strtod (pszValue, NULL) ;
+
+
+    g_free (pszLine) ;
+    g_free (ReadLine (pfile, '\0', FALSE)) ;
+    }
+
+  return ts_fc_options ;
+}
+#endif /* HAVE_FORTRAN */
 
 // Best effort trace unserialization - in the worst case, it'll be a flatline.
 static void unserialize_trace (FILE *pfile, struct TRACEDATA *trace, int icSamples)

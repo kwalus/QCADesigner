@@ -53,7 +53,7 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
 static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) ;
 static void serialize (QCADDesignObject *obj, FILE *fp) ;
 static gboolean unserialize (QCADDesignObject *obj, FILE *fp) ;
-static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t) ;
+static double get_elec_potential (double x, double y, double z, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin) ;
 static double get_voltage (QCADElectrode *electrode, double t) ;
 static double get_area (QCADElectrode *electrode) ;
 static double get_long_side (QCADElectrode *electrode) ;
@@ -143,7 +143,7 @@ static void qcad_electrode_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS(klass)->serialize   = serialize ;
 
   QCAD_ELECTRODE_CLASS (klass)->get_voltage       = get_voltage ;
-  QCAD_ELECTRODE_CLASS (klass)->get_potential     = get_potential ;
+ // QCAD_ELECTRODE_CLASS (klass)->get_potential     = get_potential ;
   QCAD_ELECTRODE_CLASS (klass)->get_area          = get_area ;
 	QCAD_ELECTRODE_CLASS (klass)->get_long_side     = get_long_side ;
 	QCAD_ELECTRODE_CLASS (klass)->get_short_side    = get_short_side ;
@@ -210,8 +210,8 @@ static void qcad_electrode_instance_finalize (GObject *object)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-double qcad_electrode_get_potential (QCADElectrode *electrode, double x, double y, double z, double t)
-  {return QCAD_ELECTRODE_GET_CLASS (electrode)->get_potential (electrode, x, y, z, t) ;}
+double qcad_electrode_get_potential (double x, double y, double z, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin)
+  {return get_elec_potential (x, y, z, Nx, Ny, Nz, dx, dy, dz, xmin, ymin) ;}
 
 double qcad_electrode_get_voltage (QCADElectrode *electrode, double t)
   {return QCAD_ELECTRODE_GET_CLASS (electrode)->get_voltage (electrode, t) ;}
@@ -381,9 +381,9 @@ static void serialize (QCADDesignObject *obj, FILE *fp)
   fprintf (fp, "electrode_options.dc_offset=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.dc_offset)) ;
   fprintf (fp, "electrode_options.min_clock=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.min_clock)) ;
   fprintf (fp, "electrode_options.max_clock=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.max_clock)) ;
-  fprintf (fp, "relative_permittivity=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.relative_permittivity)) ;
-  fprintf (fp, "z_to_ground=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.z_to_ground)) ;
-	fprintf (fp, "thickness=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.thickness)) ;
+  fprintf (fp, "electrode_options.relative_permittivity=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.relative_permittivity)) ;
+  fprintf (fp, "electrode_options.z_to_ground=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.z_to_ground)) ;
+	fprintf (fp, "electrode_options.thickness=%s\n", g_ascii_dtostr (pszDouble, G_ASCII_DTOSTR_BUF_SIZE, electrode->electrode_options.thickness)) ;
   fprintf (fp, "[#TYPE:" QCAD_TYPE_STRING_ELECTRODE "]\n") ;
   }
 
@@ -422,16 +422,12 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
       else
       if (!strcmp (pszLine, "electrode_options.relative_permittivity"))
         electrode->electrode_options.relative_permittivity = g_ascii_strtod (pszValue, NULL) ;
-      else
       if (!strcmp (pszLine, "electrode_options.z_to_ground"))
         electrode->electrode_options.z_to_ground = g_ascii_strtod (pszValue, NULL) ;
-      else
-			if (!strcmp (pszLine, "electrode_options.thickness"))
+      if (!strcmp (pszLine, "electrode_options.thickness"))
         electrode->electrode_options.thickness = g_ascii_strtod (pszValue, NULL) ;
-      else
       if (!strcmp (pszLine, "electrode_options.clock_function"))
         electrode->electrode_options.clock_function = (strcmp (pszValue, "sin") ? NULL : sin) ;
-      else
       if (!strcmp (pszLine, "electrode_options.amplitude"))
         electrode->electrode_options.amplitude = strtod (pszValue, NULL) ;
       if (!strcmp (pszLine, "electrode_options.frequency"))
@@ -460,8 +456,8 @@ static gboolean unserialize (QCADDesignObject *obj, FILE *fp)
     return FALSE ;
   }
 
-static double get_potential (QCADElectrode *electrode, double x, double y, double z, double t)
-  {return 0 ;}
+static double get_elec_potential (double x, double y, double z, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin) 
+  {return 0;}
 
 static double get_voltage (QCADElectrode *electrode, double t)
   {

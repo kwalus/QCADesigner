@@ -78,7 +78,35 @@
 #define SCQCA 3
 #define COHERENCE_VECTOR 4
 #define TS_COHERENCE_VECTOR 5
+
+#ifndef HAVE_FORTRAN
+#define SIM_ENGINE_TO_STRING(eng) \
+  (BISTABLE         == (eng) ? "BISTABLE" : \
+   COHERENCE_VECTOR == (eng) ? "COHERENCE_VECTOR" : \
+                               "TS_COHERENCE_VECTOR")
+
+#define SIM_ENGINE_FROM_STRING(eng) \
+  (!strcmp((eng), "BISTABLE")         ? BISTABLE : \
+   !strcmp((eng), "COHERENCE_VECTOR") ? COHERENCE_VECTOR : \
+                                        TS_COHERENCE_VECTOR)
+#else /* HAVE_FORTRAN */
 #define SEMI_COHERENT 6
+#define TS_FIELD_CLOCK 7
+
+#define SIM_ENGINE_TO_STRING(eng) \
+  (BISTABLE            == (eng) ? "BISTABLE" : \
+   COHERENCE_VECTOR    == (eng) ? "COHERENCE_VECTOR" : \
+   TS_COHERENCE_VECTOR == (eng) ? "TS_COHERENCE_VECTOR" : \
+   SEMI_COHERENT       == (eng) ? "SEMI_COHERENT" : \
+                                  "TS_FIELD_CLOCK")
+
+#define SIM_ENGINE_FROM_STRING(eng) \
+  (!strcmp((eng), "BISTABLE")            ? BISTABLE : \
+   !strcmp((eng), "COHERENCE_VECTOR")    ? COHERENCE_VECTOR : \
+   !strcmp((eng), "TS_COHERENCE_VECTOR") ? TS_COHERENCE_VECTOR : \
+   !strcmp((eng), "SEMI_COHERENT")       ? SEMI_COHERENT : \
+                                           TS_FIELD_CLOCK)
+#endif /* HAVE_FORTRAN */
 
 //!Simulation Types
 #define EXHAUSTIVE_VERIFICATION 0

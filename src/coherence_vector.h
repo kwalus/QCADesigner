@@ -58,8 +58,9 @@ typedef struct
 	double radius_of_effect;
 	double epsilonR;
 	double layer_separation;
-	int algorithm;
-	gboolean randomize_cells;
+	//int algorithm;
+      gboolean adaptive_step;
+	gboolean include_correlations;
 	gboolean animate_simulation;
 	// Added by Marco
 	float jitter_phase_0; 
@@ -70,6 +71,8 @@ typedef struct
 	// Added by Faizal
         float wave_number_kx;
 	float wave_number_ky;
+	  int num_iterations;
+	  double error_thresh;
 	int clocking;
         // End added by Faizal
 

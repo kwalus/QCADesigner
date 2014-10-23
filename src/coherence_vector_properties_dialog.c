@@ -56,9 +56,12 @@ typedef struct
   GtkWidget *radius_of_effect_entry;
   GtkWidget *epsilonR_entry;
 	GtkWidget *layer_separation_entry;
+	  /*
 	GtkWidget *euler_method_radio;
 	GtkWidget *runge_kutta_radio;
-	GtkWidget *chkRandomizeCells;
+	   */
+    GtkWidget *chkStepSize;  
+	GtkWidget *chkCorrelations;
 	GtkWidget *chkAnimate;
   GtkWidget *dialog_action_area1;
   GtkWidget *hbox2;
@@ -74,9 +77,11 @@ typedef struct
 //Added by Faizal
   GtkWidget *wave_number_kx_entry;
   GtkWidget *wave_number_ky_entry;
+	  GtkWidget *num_iterations;
   GtkWidget *cont_clocking_radio;
   GtkWidget *four_phase_clocking_radio;
   GSList    *clock_radio_group;
+	  GtkWidget *error_thresh_entry;
 //End added by Faizal
   } coherence_properties_D;
 
@@ -123,7 +128,7 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   dialog->dialog_vbox1 = GTK_DIALOG (dialog->coherence_properties_dialog)->vbox;
   gtk_widget_show (dialog->dialog_vbox1);
 
-  dialog->table = gtk_table_new (18, 3, FALSE);
+  dialog->table = gtk_table_new (19, 3, FALSE);
   gtk_widget_show (dialog->table);
   gtk_container_set_border_width (GTK_CONTAINER (dialog->table), 2);
   gtk_box_pack_start (GTK_BOX (dialog->dialog_vbox1), dialog->table, TRUE, TRUE, 0);
@@ -139,17 +144,21 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   create_coherence_properties_line (dialog->table,  9, &(label), &(dialog->radius_of_effect_entry),       &lblunits, _("Radius of Effect:"),       "nm", TRUE) ;
   create_coherence_properties_line (dialog->table, 10, &(label), &(dialog->epsilonR_entry),               NULL,      _("Relative Permittivity:"),  NULL, TRUE) ;
   create_coherence_properties_line (dialog->table, 11, &(label), &(dialog->layer_separation_entry),       &lblunits, _("Layer Separation:"),       "nm", TRUE) ;
+  create_coherence_properties_line (dialog->table, 12, &(label), &(dialog->error_thresh_entry),           &lblunits, _("Tolerance:"),              NULL, TRUE) ;
 //Added by Marco
-  create_coherence_properties_line (dialog->table, 12, &(label), &(dialog->jitter_phase_0_entry),         &lblunits, _("Phase Shift Clock 0:"), _("degrees"), TRUE) ;
-  create_coherence_properties_line (dialog->table, 13, &(label), &(dialog->jitter_phase_1_entry),         &lblunits, _("Phase Shift Clock 1:"), _("degrees"), TRUE) ;
-  create_coherence_properties_line (dialog->table, 14, &(label), &(dialog->jitter_phase_2_entry),         &lblunits, _("Phase Shift Clock 2:"), _("degrees"), TRUE) ;
-  create_coherence_properties_line (dialog->table, 15, &(label), &(dialog->jitter_phase_3_entry),         &lblunits, _("Phase Shift Clock 3:"), _("degrees"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 13, &(label), &(dialog->jitter_phase_0_entry),         &lblunits, _("Phase Shift Clock 0:"), _("degrees"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 14, &(label), &(dialog->jitter_phase_1_entry),         &lblunits, _("Phase Shift Clock 1:"), _("degrees"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 15, &(label), &(dialog->jitter_phase_2_entry),         &lblunits, _("Phase Shift Clock 2:"), _("degrees"), TRUE) ;
+  create_coherence_properties_line (dialog->table, 16, &(label), &(dialog->jitter_phase_3_entry),         &lblunits, _("Phase Shift Clock 3:"), _("degrees"), TRUE) ;
 //End added by Marco
 //Added by Faizal
-  create_coherence_properties_line (dialog->table, 16, &(label), &(dialog->wave_number_kx_entry),         &lblunits, _("Wave Number, kx:"), "1/nm", TRUE) ;
-  create_coherence_properties_line (dialog->table, 17, &(label), &(dialog->wave_number_ky_entry),         &lblunits, _("Wave Number, ky:"), "1/nm", TRUE) ;
+  create_coherence_properties_line (dialog->table, 17, &(label), &(dialog->wave_number_kx_entry),         &lblunits, _("Wave Number, kx:"), "1/nm", TRUE) ;
+  create_coherence_properties_line (dialog->table, 18, &(label), &(dialog->wave_number_ky_entry),         &lblunits, _("Wave Number, ky:"), "1/nm", TRUE) ;
+  create_coherence_properties_line (dialog->table, 19, &(label), &(dialog->num_iterations),				  &lblunits, _("Number of Iterations:"), NULL, TRUE) ;
 //End added by Faizal
 
+	  
+	  /*
   frm = gtk_frame_new (_("Algorithm")) ;
   gtk_widget_show (frm) ;
   gtk_table_attach (GTK_TABLE (dialog->table), frm, 0, 3, 18, 19, GTK_EXPAND | GTK_FILL, GTK_FILL, 2, 2) ;
@@ -176,6 +185,7 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 2, 2);
 
+	   */
 //Added by Faizal for cont. clocking
                     
   frm = gtk_frame_new (_("Clocking")) ;
@@ -183,7 +193,7 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
   gtk_table_attach (GTK_TABLE (dialog->table), frm, 0, 3, 20, 21, GTK_EXPAND | GTK_FILL, GTK_FILL, 2, 2) ;
   gtk_container_set_border_width (GTK_CONTAINER (frm), 2) ;
 
-  tblAlgo = gtk_table_new (2, 1, FALSE) ;
+  tblAlgo = gtk_table_new (2, 3, FALSE) ;
   gtk_widget_show (tblAlgo) ;
   gtk_container_add (GTK_CONTAINER (frm), tblAlgo) ;
   gtk_container_set_border_width (GTK_CONTAINER (tblAlgo), 2) ;
@@ -206,18 +216,49 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
 
 //End added by Faizal
 
+	  frm = gtk_frame_new (_("ODE Parameters")) ;
+	  gtk_widget_show (frm) ;
+	  gtk_table_attach (GTK_TABLE (dialog->table), frm, 0, 3, 21, 24, GTK_EXPAND | GTK_FILL, GTK_FILL, 2, 2) ;
+	  gtk_container_set_border_width (GTK_CONTAINER (frm), 2) ;
+	  
+	  tblAlgo = gtk_table_new (2, 3, FALSE) ;
+	  gtk_widget_show (tblAlgo) ;
+	  gtk_container_add (GTK_CONTAINER (frm), tblAlgo) ;
+	  gtk_container_set_border_width (GTK_CONTAINER (tblAlgo), 2) ;
+	  
+	  // Use Adaptive Step Size ?
+	  dialog->chkStepSize = gtk_check_button_new_with_label (_("Use Adaptive Step Size")) ;
+	  gtk_widget_show (dialog->chkStepSize) ;
+	  gtk_table_attach (GTK_TABLE (tblAlgo), dialog->chkStepSize, 0, 1, 0, 1,
+						(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+						(GtkAttachOptions) (GTK_FILL), 2, 2);
+	  // Include Correlations ?
+	  dialog->chkCorrelations = gtk_check_button_new_with_label (_("Include Correlations")) ;
+	  gtk_widget_show (dialog->chkCorrelations) ;
+	  gtk_table_attach (GTK_TABLE (tblAlgo), dialog->chkCorrelations, 0, 1, 1, 2,
+						(GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+						(GtkAttachOptions) (GTK_FILL), 2, 2);  
+	   
+	  
+/*
+dialog->chkStepSize = gtk_check_button_new_with_label (_("Use Adaptive Step Size")) ;
+gtk_widget_show (dialog->chkStepSize) ;
+gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkStepSize, 0, 2, 21, 22,
+                  (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                  (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
-  // Randomize Cells ?
-  dialog->chkRandomizeCells = gtk_check_button_new_with_label (_("Randomize Simulation Order")) ;
-  gtk_widget_show (dialog->chkRandomizeCells) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkRandomizeCells, 0, 2, 22, 23,
+  
+  dialog->chkCorrelations = gtk_check_button_new_with_label (_("Include Correlations")) ;
+  gtk_widget_show (dialog->chkCorrelations) ;
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkCorrelations, 0, 2, 23, 24,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
+					(GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
+ */
   // Animate ?
   dialog->chkAnimate = gtk_check_button_new_with_label (_("Animate")) ;
   gtk_widget_show (dialog->chkAnimate) ;
-  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 23, 24,
+  gtk_table_attach (GTK_TABLE (dialog->table), dialog->chkAnimate, 0, 2, 24, 25,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 2, 2);
 
@@ -242,7 +283,9 @@ static void create_coherence_properties_dialog (coherence_properties_D *dialog)
 //Added by Faizal
   g_signal_connect (G_OBJECT (dialog->wave_number_kx_entry),            "changed", (GCallback)properties_changed, dialog) ;
   g_signal_connect (G_OBJECT (dialog->wave_number_ky_entry),            "changed", (GCallback)properties_changed, dialog) ;
-//End added by Faizal  
+  g_signal_connect (G_OBJECT (dialog->num_iterations),					"changed", (GCallback)properties_changed, dialog) ;	  
+//End added by Faizal
+  g_signal_connect (G_OBJECT (dialog->error_thresh_entry),                      "changed", (GCallback)properties_changed, dialog) ;
   gtk_dialog_add_button (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL) ;
   gtk_dialog_add_button (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_STOCK_OK,     GTK_RESPONSE_OK) ;
   gtk_dialog_set_default_response (GTK_DIALOG (dialog->coherence_properties_dialog), GTK_RESPONSE_OK) ;
@@ -306,7 +349,9 @@ static void coherence_OP_to_dialog (coherence_OP *psco, coherence_properties_D *
   g_snprintf (sz, 16, "%e", psco->duration) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->duration_entry), sz) ;
 
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->chkRandomizeCells), psco->randomize_cells) ;
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->chkStepSize), psco->adaptive_step) ;    
+      
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->chkCorrelations), psco->include_correlations) ;
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->chkAnimate), psco->animate_simulation) ;
 
@@ -350,14 +395,21 @@ static void coherence_OP_to_dialog (coherence_OP *psco, coherence_properties_D *
   
   g_snprintf (sz, 16, "%lf", psco->wave_number_ky) ;
   gtk_entry_set_text (GTK_ENTRY (dialog->wave_number_ky_entry), sz) ;
+	  
+  g_snprintf (sz, 16, "%ld", psco->num_iterations) ;
+  gtk_entry_set_text (GTK_ENTRY (dialog->num_iterations), sz) ;	  
 //End added by Faizal
 
+	  g_snprintf (sz, 16, "%f", psco->error_thresh) ;
+	  gtk_entry_set_text (GTK_ENTRY (dialog->error_thresh_entry), sz) ;
+	  
+	  /*
   if (EULER_METHOD == psco->algorithm)
   	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->euler_method_radio), TRUE);
   else
   if (RUNGE_KUTTA == psco->algorithm)
   	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(dialog->runge_kutta_radio), TRUE);
-
+*/
 //Added by Faizal for cont. clocking
 
   if (CONT_CLOCKING == psco->clocking)
@@ -391,10 +443,14 @@ static void dialog_to_coherence_OP (coherence_OP *psco, coherence_properties_D *
 //Added by Faizal
   psco->wave_number_kx       = atof (gtk_entry_get_text (GTK_ENTRY (dialog->wave_number_kx_entry))) ;
   psco->wave_number_ky       = atof (gtk_entry_get_text (GTK_ENTRY (dialog->wave_number_ky_entry))) ;
+  psco->num_iterations       = atoi (gtk_entry_get_text (GTK_ENTRY (dialog->num_iterations))) ;
+  psco->error_thresh			 = atof (gtk_entry_get_text (GTK_ENTRY (dialog->error_thresh_entry))) ;
 //End added by Faizal
-	
+	/*
   psco->algorithm          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->euler_method_radio)) ? EULER_METHOD : RUNGE_KUTTA;
+	 */
   psco->clocking           = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->four_phase_clocking_radio)) ? FOUR_PHASE_CLOCKING : CONT_CLOCKING; //Added by Faizal for cont. clocking
-  psco->randomize_cells    = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkRandomizeCells)) ;
+  psco->adaptive_step    = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkStepSize)) ;
+  psco->include_correlations    = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkCorrelations)) ;
   psco->animate_simulation = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->chkAnimate)) ;
   }

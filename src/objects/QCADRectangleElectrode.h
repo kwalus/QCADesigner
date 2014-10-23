@@ -73,6 +73,7 @@ struct _QCADRectangleElectrodeClass
   } ;
 
 GType qcad_rectangle_electrode_get_type () ;
+double get_potential (double x, double y, double z, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin) ;
 
 #define QCAD_TYPE_STRING_RECTANGLE_ELECTRODE "QCADRectangleElectrode"
 #define QCAD_TYPE_RECTANGLE_ELECTRODE (qcad_rectangle_electrode_get_type ())

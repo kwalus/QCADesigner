@@ -33,6 +33,7 @@
 
 #include "objects/QCADCell.h"
 #include "objects/QCADElectrode.h"
+#include "objects/QCADRectangleElectrode.h"
 #include "matrixlib_3x3.h"
 #include "simulation.h"
 #include "three_state_coherence.h"
@@ -52,10 +53,8 @@
 // Calculates the temperature ratio
 #define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
 
-// percentage of the total neutralizing charge that is located in the active dots
-#define CHARGE_DIST 0.0
 //!Options for the coherence simulation engine
-ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 80, 1.0, 0.639, 6.66, 1.2625, EULER_METHOD, ELECTRODE_CLOCKING, TRUE, TRUE} ;
+ts_coherence_OP ts_coherence_options = {1, 1e-15, 1e-16, 7e-11, 1e-3, 3.96e-20, 2.3e-19, -2.3e-19, 0.0, 2.0, 80, 1.0, 0.639, 7.0, 2.0, 0.0, 1,1,1,EULER_METHOD, ELECTRODE_CLOCKING, TRUE, TRUE} ;
 
 typedef struct
   {
@@ -98,7 +97,7 @@ static ts_coherence_optimizations optimization_options;
 void ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * cell2, int neighbour, int layer_separation, ts_coherence_OP *options);
 void ts_calculate_self_energies(QCADCell *cell, ts_coherence_OP *options);
 static void ts_coherence_refresh_all_potentials (int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, ts_coherence_OP *options);
-static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8], QCADLayer *clocking_layer);
+static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8], QCADLayer *clocking_layer, double *Grid, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin);
 static inline double calculate_clock_value (unsigned int clock_num, unsigned long int sample, unsigned long int number_samples, int total_number_of_inputs, const ts_coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
 double ts_determine_distance(QCADCell *cell1, QCADCell *cell2, int dot_cell_1, int dot_cell_2, double z1, double z2, double cell_height);
 static int compareCoherenceQCells (const void *p1, const void *p2) ;
@@ -145,12 +144,29 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 	complex densityMatrixSS[3][3];
 	complex minusOverKBT;
 	double potential[6]={1,1,1,1,1,1};
-  static double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
-  static double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
-	static double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
+	   double CHARGE_DIST = options->chi;
+	  
+ double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+ double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+ double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
 	double total_charge[3] = {0,0,0};
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
 	
+	 
+	  double dx = options->dx;
+	  double dy = options->dy;
+	  double dz = options->dz;
+	  
+	  int h_iter1, h_iter2, cmp, fb1, fb2; 
+	  int xmin, xmax, ymin, ymax, Nx, Ny, Nz;
+	  double loc, x1, y1, z1;
+	  QCADCell *cell;
+	  double *Grid = NULL;
+	  int xd, yd;
+	  double zd;
+	  
+	  
+	  
 	// variables required for generating the structure constants
 	complex structureC = {0,-0.25};
 	complex tempMatrix1[3][3];
@@ -243,7 +259,7 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 			
 	// array of energy values for each simulation sample //
 	// later used to determine power flow P = dE/dt
-  energy = malloc(number_samples*sizeof(double));
+  energy = malloc(sizeof(double));
   
   // if the number of samples is larger then the number of recorded samples then change the
   // time step to ensure only number_recorded_samples is used //
@@ -428,6 +444,66 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 //		for (llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next)
 //      if (NULL != llItr->data)
 //        g_object_set (G_OBJECT (llItr->data), "relative-permittivity", options->epsilonR, NULL) ;
+		
+		xmin = 1000;
+		xmax = -1000;
+		ymin = 1000;
+		ymax = -1000;
+		
+		for (i = 0; i < number_of_cell_layers; i++) {
+			for (j = 0; j < number_of_cells_in_layer[i]; j++)
+			{
+				cell = sorted_cells[i][j] ;
+				if (cell->cell_dots[3].x < xmin)
+					xmin = cell->cell_dots[3].x;
+				if (cell->cell_dots[1].x > xmax)
+					xmax = cell->cell_dots[1].x;
+				if (cell->cell_dots[0].y < ymin)
+					ymin = cell->cell_dots[0].y;
+				if (cell->cell_dots[2].y > ymax)
+					ymax = cell->cell_dots[2].y;
+			}
+		}
+		
+		QCADRectangleElectrode *rc_electrode;
+		
+		for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
+			if(llItr->data != NULL){
+				rc_electrode = (QCADRectangleElectrode *)(llItr->data);
+				if ( rc_electrode->precompute_params.pt[0].xWorld < xmin )
+					xmin = rc_electrode->precompute_params.pt[0].xWorld;
+				if ( rc_electrode->precompute_params.pt[1].xWorld > xmax )
+					xmax = rc_electrode->precompute_params.pt[1].xWorld;
+				if ( rc_electrode->precompute_params.pt[0].yWorld < ymin )
+					ymin = rc_electrode->precompute_params.pt[0].yWorld;
+				if ( rc_electrode->precompute_params.pt[2].yWorld > ymax )
+					ymax = rc_electrode->precompute_params.pt[2].yWorld;
+			}
+		}
+		
+		xmin = xmin-1;
+		xmax = xmax+1;
+		ymin = ymin-1;
+		ymax = ymax+1;
+		
+		//printf("xmin = %d, xmax = %d, ymin = %d, ymax = %d\n", xmin, xmax, ymin, ymax);
+		
+		Nx = ceil((xmax-xmin)/dx)+1;
+		Ny = ceil((ymax-ymin)/dy)+1;
+		
+		llItr = clocking_layer->lstObjs;			
+		QCADElectrode *electrode = (QCADElectrode *)(llItr->data);
+		Nz = ceil((electrode->precompute_params.two_z_to_ground)/(2*dz))+1;
+		
+		//double init_voltage = qcad_electrode_get_voltage (electrode, 2E-12);
+		Grid = (double*)malloc(Nx*Ny*Nz*sizeof(double));
+		for (i = 0; i < Nx*Ny*Nz; i++) {
+			Grid[i] = 0;
+		}
+		get_grid_param(Nx,Ny,Nz,dx,dy,dz,xmin,ymin); 
+		create_grid(Nx,Ny,Nz);
+		
+		
 		}else{
 			command_history_message ("Simulation will use the zone clocking scheme.\n");
 		}
@@ -484,16 +560,33 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 					
 				//get energy values depending on the user clocking scheme choice
 				if(options->clocking_scheme == ELECTRODE_CLOCKING){
-						
+					int t = 0;	
 					//gather the potentials from all the clocking electrodes
-					for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
-						if(llItr->data != NULL){
-							potential[0] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0.0);
-							potential[1] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[1].x, sorted_cells[i][j]->cell_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0.0);
-							potential[2] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[2].x, sorted_cells[i][j]->cell_dots[2].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0.0);
-							potential[3] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[3].x, sorted_cells[i][j]->cell_dots[3].y, options->cell_elevation+fabs((double)i*options->layer_separation), 0.0);
-							potential[4] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].y, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0.0);
-							potential[5] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].y, options->cell_elevation+fabs((double)i*options->layer_separation) - options->cell_height, 0.0);
+					ts_fc_determine_potential (Grid, Nx, Ny, Nz, dx, dy, dz, xmin, ymin, t, clocking_layer, options);	
+					for (k = 0; k < 6; k++) {
+						if (k < 4) {
+							xd = sorted_cells[fb1][fb2]->cell_dots[k].x;
+							yd = sorted_cells[fb1][fb2]->cell_dots[k].y;
+							zd = options->cell_elevation+options->cell_height;
+							
+							x1 = (((xd-xmin)/dx - floor((xd-xmin)/dx)) >= dx) ? ceil((xd-xmin)/dx) : floor((xd-xmin)/dx);
+							y1 = (((yd-ymin)/dy - floor((yd-ymin)/dy)) >= dy) ? ceil((yd-ymin)/dy) : floor((yd-ymin)/dy);
+							z1 = ((zd/dz) - floor(zd/dz) >= dz) ? ceil(zd/dz) : floor(zd/dz);
+							
+							loc = x1*Ny*(Nz-1) + y1*(Nz-1) + z1;
+							potential[k] = Grid[(int)loc];
+						}
+						else {
+							xd = ((ts_coherence_model *)sorted_cells[fb1][fb2]->cell_model)->extra_dots[k-4].x;
+							yd = ((ts_coherence_model *)sorted_cells[fb1][fb2]->cell_model)->extra_dots[k-4].y;
+							zd = options->cell_elevation;
+							
+							x1 = (((xd-xmin)/dx - floor((xd-xmin)/dx)) >= dx) ? ceil((xd-xmin)/dx) : floor((xd-xmin)/dx);
+							y1 = (((yd-ymin)/dy - floor((yd-ymin)/dy)) >= dy) ? ceil((yd-ymin)/dy) : floor((yd-ymin)/dy);
+							z1 = ((zd/dz) - floor(zd/dz) >= dz) ? ceil(zd/dz) : floor(zd/dz);
+							
+							loc = x1*Ny*(Nz-1) + y1*(Nz-1) + z1;
+							potential[k] = Grid[(int)loc];
 						}
 					}
 				
@@ -653,12 +746,9 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
           }
 
     // -- run the iteration with the given clock value -- //
-    run_ts_coherence_iteration (j, number_of_cell_layers, number_of_cells_in_layer, sorted_cells, total_number_of_inputs, number_samples, options, sim_data, SIMULATION_TYPE, pvt, energy, generator, structureConst, clocking_layer);
+	run_ts_coherence_iteration (j, number_of_cell_layers, number_of_cells_in_layer, sorted_cells, total_number_of_inputs, number_samples, options, sim_data, SIMULATION_TYPE, pvt, energy, generator, structureConst, clocking_layer, Grid, Nx, Ny, Nz, dx, dy, dz, xmin, ymin);
 
-	// -- Calculate Power -- //
-	if(j>=1)
-		//printf("%e\n",(energy[j]-energy[j-1])/options->time_step);
-		average_power+=(energy[j]-energy[j-1])/options->time_step;
+	
     // -- Set the cell polarizations to the lambda_z value -- //
     for (k = 0; k < number_of_cell_layers; k++)
       for (l = 0; l < number_of_cells_in_layer[k]; l++)
@@ -731,9 +821,9 @@ simulation_data *run_ts_coherence_simulation (int SIMULATION_TYPE, DESIGN *desig
 
 // -- completes one simulation iteration performs the approximations until the entire design has stabalized -- //
 
-static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8], QCADLayer *clocking_layer)
+static void run_ts_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const ts_coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, complex generator[8][3][3], double structureConst[8][8][8], QCADLayer *clocking_layer, double *Grid, int Nx, int Ny, int Nz, double dx, double dy, double dz, int xmin, int ymin)
   {
-  unsigned int i,j,q, row, col, Nix, Nix1;
+  unsigned int i,j,k,q, row, col, Nix, Nix1;
 	double t = 0;
   unsigned int num_neighbours;
 	double overRootThree = 1.0 / sqrt(3);
@@ -752,18 +842,26 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 	double two_over_hbar = 2.0 * OVER_HBAR;
 	GList *llItr = NULL;
 	double potential[6]={0,0,0,0,0,0};
+	double CHARGE_DIST = options->chi;
   //static double chargePlus[6]	= {THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
   //static double chargeMinus[6] = {-TWO_THIRDS_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE};
 	//static double chargeNull[6]  = {THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, THIRD_QCHARGE, -TWO_THIRDS_QCHARGE, -TWO_THIRDS_QCHARGE};
-  static double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
-  static double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
-	static double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
+  double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+  double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+  double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
 	
 	double energyPlus = 0, energyMinus = 0, energyNull = 0;
 	double cellenergyPlus = 0, cellenergyMinus = 0, cellenergyNull = 0;
 	double elevation = 0;
 	static double energyNullMin = 0, energyNullMax = 0;
 
+
+	  double loc, x1, y1, z1;
+	  QCADCell *cell;
+	  
+	  int xd, yd;
+	  double zd;
+	  
 	//fill in the complex constants
 	minusOverKBT.re = -1.0 / (kB * options->T);
 	minusOverKBT.im = 0;
@@ -841,7 +939,8 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 			if(options->clocking_scheme == ELECTRODE_CLOCKING){
 						
 			//gather the potentials from all the clocking electrodes
-			for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
+			/*
+				for(llItr = clocking_layer->lstObjs; llItr != NULL; llItr = llItr->next){
 				if(llItr->data != NULL){
 					//printf("ElectrodeNULL =%e\n",qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[0].y, elevation - options->cell_height, t)*(-TWO_THIRDS_QCHARGE));
 					potential[0] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	sorted_cells[i][j]->cell_dots[0].x, sorted_cells[i][j]->cell_dots[0].y, elevation, t);
@@ -852,7 +951,36 @@ static void run_ts_coherence_iteration (int sample_number, int number_of_cell_la
 					potential[5] += qcad_electrode_get_potential((QCADElectrode *)(llItr->data),	((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].x, ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[1].y, elevation - options->cell_height, t);
 				}
 			}
-			
+			*/
+			ts_fc_determine_potential (Grid, Nx, Ny, Nz, dx, dy, dz, xmin, ymin, t, clocking_layer, options);	
+				for (k = 0; k < 6; k++) {
+					if (k < 4) {
+						xd = sorted_cells[i][j]->cell_dots[k].x;
+						yd = sorted_cells[i][j]->cell_dots[k].y;
+						zd = options->cell_elevation+options->cell_height;
+						
+						x1 = (((xd-xmin)/dx - floor((xd-xmin)/dx)) >= dx) ? ceil((xd-xmin)/dx) : floor((xd-xmin)/dx);
+						y1 = (((yd-ymin)/dy - floor((yd-ymin)/dy)) >= dy) ? ceil((yd-ymin)/dy) : floor((yd-ymin)/dy);
+						z1 = ((zd/dz) - floor(zd/dz) >= dz) ? ceil(zd/dz) : floor(zd/dz);
+						
+						loc = x1*Ny*(Nz-1) + y1*(Nz-1) + z1;
+						potential[k] = Grid[(int)loc];
+					}
+					else {
+						xd = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[k-4].x;
+						yd = ((ts_coherence_model *)sorted_cells[i][j]->cell_model)->extra_dots[k-4].y;
+						zd = options->cell_elevation;
+						
+						x1 = (((xd-xmin)/dx - floor((xd-xmin)/dx)) >= dx) ? ceil((xd-xmin)/dx) : floor((xd-xmin)/dx);
+						y1 = (((yd-ymin)/dy - floor((yd-ymin)/dy)) >= dy) ? ceil((yd-ymin)/dy) : floor((yd-ymin)/dy);
+						z1 = ((zd/dz) - floor(zd/dz) >= dz) ? ceil(zd/dz) : floor(zd/dz);
+						
+						loc = x1*Ny*(Nz-1) + y1*(Nz-1) + z1;
+						potential[k] = Grid[(int)loc];
+					}
+				}
+				
+				
 			//printf("%e %e %e %e %e %e\n", potential[0], potential[1], potential[2], potential[3], potential[4], potential[5]);		
 			//printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");	
 				energyPlus = potential[0] * chargePlus[0] + potential[1] * chargePlus[1] + potential[2] * chargePlus[2] + potential[3] * chargePlus[3] + potential[4] * chargePlus[4] + potential[5] * chargePlus[5];
@@ -1046,10 +1174,12 @@ void ts_calculate_self_energies(QCADCell *cell, ts_coherence_OP *options){
 	int i,j;
 	double distance;
 	double Constant = 1 / (4 * PI * EPSILON * options->epsilonR * 1e-9);
+	
+	double CHARGE_DIST = options->chi;
 	// these variables apply only to the six dot cells!!
-  static double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
-  static double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
-	static double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
+   double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+   double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+   double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
 
 	g_assert(cell != NULL);
 	
@@ -1086,11 +1216,12 @@ void ts_coherence_determine_potentials (QCADCell * cell1, QCADCell * cell2, int 
   double distance = 0;
 	//1e-9 in following is to convert from nm to meters in the final result
   double Constant = 1 / (4 * PI * EPSILON * options->epsilonR * 1e-9);
-	
+	  
+	  double CHARGE_DIST = options->chi;
 	// these variables apply only to the six dot cells!!
-  static double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
-  static double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
-	static double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
+   double chargePlus[6]	 = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+   double chargeMinus[6] = {CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0 - QCHARGE, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE};
+	 double chargeNull[6]  = {CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, CHARGE_DIST * QCHARGE / 2.0, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE, (1.0 - CHARGE_DIST) * QCHARGE - QCHARGE};
 	
   g_assert (cell1 != NULL);
   g_assert (cell2 != NULL);

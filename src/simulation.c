@@ -36,13 +36,16 @@
 #include "bistable_simulation.h"
 #include "semi_coherent.h"
 #include "three_state_coherence.h"
+#include "ts_field_clock.h"
 #include "vector_table.h"
 
 extern coherence_OP coherence_options ;
 extern bistable_OP bistable_options ;
 extern ts_coherence_OP ts_coherence_options ;
+#ifdef HAVE_FORTRAN
 extern semi_coherent_OP semi_coherent_options ;
-
+extern ts_fc_OP ts_fc_options;
+#endif /* HAVE_FORTRAN */
 gboolean STOP_SIMULATION = FALSE;
 
 // -- this is the main simulation procedure -- //
@@ -58,9 +61,14 @@ simulation_data *run_simulation (int sim_engine, int sim_type, DESIGN *design, V
 			
     case TS_COHERENCE_VECTOR:
       return run_ts_coherence_simulation(sim_type, design, &ts_coherence_options, pvt);
-	  
-	case SEMI_COHERENT:
+
+#ifdef HAVE_FORTRAN
+    case SEMI_COHERENT:
       return run_semi_coherent_simulation(sim_type, design, &semi_coherent_options, pvt);
+
+    case TS_FIELD_CLOCK:
+      return run_ts_fc_simulation(sim_type, design, &ts_fc_options, pvt);	
+#endif /* HAVE_FORTRAN */
     }
   return NULL ;
   }//run_simualtion
@@ -98,7 +106,7 @@ int select_cells_in_radius(QCADCell ***sorted_cells,
     //printf("there were %d neighours\n", number_of_selected_cells);
 
     (*p_selected_cells) = g_malloc0 (sizeof (QCADCell *) * number_of_selected_cells);
-    (*p_neighbour_layer) = g_malloc0 (sizeof (int) * number_of_selected_cells);
+    (*p_neighbour_layer) = g_malloc0 (sizeof (int) * number_of_selected_cells);	
 
     // catch any memory allocation errors //
     if ((*p_selected_cells) == NULL)
@@ -131,6 +139,77 @@ int select_cells_in_radius(QCADCell ***sorted_cells,
 
   return number_of_selected_cells;
   } //select_cells_in_radius
+
+//!Finds all cells within a specified radius and sets the selected cells array//
+int select_cells_in_radius_cv(QCADCell ***sorted_cells,
+						   QCADCell *cell,
+						   double world_radius,
+						   int the_cells_layer,
+						   int number_of_cell_layers,
+						   int *number_of_cells_in_layer,
+						   double layer_separation,
+						   QCADCell ***p_selected_cells,
+						   int **p_neighbour_layer,
+						   int **p_neighbour_index)
+{
+	int i,j,k;
+	int number_of_selected_cells = 0 ;
+	
+	g_assert (cell != NULL);
+	
+	for(i = 0; i < number_of_cell_layers; i++)
+		for(j = 0; j < number_of_cells_in_layer[i]; j++)
+			if (sorted_cells[i][j] != cell)
+				if (sqrt ((QCAD_DESIGN_OBJECT (sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT (cell)->x) *
+						  (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT (cell)->x) +
+						  (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT (cell)->y) *
+						  (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT (cell)->y) +
+						  ((double) ABS (the_cells_layer-i) * layer_separation) *
+						  ((double) ABS (the_cells_layer-i) * layer_separation)) < world_radius)
+					number_of_selected_cells++;
+	
+	if (number_of_selected_cells > 0 && !(NULL == p_selected_cells || NULL == p_neighbour_layer))
+    {
+		//printf("there were %d neighours\n", number_of_selected_cells);
+		
+		(*p_selected_cells) = g_malloc0 (sizeof (QCADCell *) * number_of_selected_cells);
+		(*p_neighbour_layer) = g_malloc0 (sizeof (int) * number_of_selected_cells);
+		(*p_neighbour_index) = g_malloc0 (sizeof (int) * number_of_selected_cells);	
+		
+		// catch any memory allocation errors //
+		if ((*p_selected_cells) == NULL)
+		{
+			fprintf (stderr, "memory allocation error in select_cells_in_radius();\n");
+			exit (1);
+		}
+		
+		k = 0;
+		for(i = 0; i < number_of_cell_layers; i++)
+			for(j = 0; j < number_of_cells_in_layer[i]; j++)
+			{
+				if (sorted_cells[i][j] != cell)
+				{
+					if (sqrt ((QCAD_DESIGN_OBJECT (sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT (cell)->x) *
+							  (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->x - QCAD_DESIGN_OBJECT (cell)->x) +
+							  (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT (cell)->y) *
+							  (QCAD_DESIGN_OBJECT (sorted_cells[i][j])->y - QCAD_DESIGN_OBJECT (cell)->y) +
+							  ((double) ABS (the_cells_layer-i) * layer_separation) *
+							  ((double) ABS (the_cells_layer-i) * layer_separation)) < world_radius)
+					{
+						//if(sorted_cells[i][j] == NULL)printf("sorted cells appear to have null member\n");
+						(*p_selected_cells)[k] = sorted_cells[i][j];
+						(*p_neighbour_layer)[k] = i;
+						(*p_neighbour_index)[k] = j;
+						k++;
+					}
+				}
+			}
+    }
+	
+	return number_of_selected_cells;
+} //select_cells_in_radius_cv
+
+
 
 //-------------------------------------------------------------------//
 

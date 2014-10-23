@@ -210,6 +210,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
   // randomize the order in which the cells are simulated //
   //if (options->randomize_cells)
   // for each layer ...
+	  /*
   for (Nix = 0 ; Nix < number_of_cell_layers ; Nix++)
     // ...perform as many swaps as there are cells therein
     for (Nix1 = 0 ; Nix1 < number_of_cells_in_layer[Nix] ; Nix1++)
@@ -221,7 +222,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
       sorted_cells[Nix][idxCell1] = sorted_cells[Nix][idxCell2] ;
       sorted_cells[Nix][idxCell2] = swap ;
       }
-
+*/
   // -- get and print the total initialization time -- //
   if((end_time = time (NULL)) < 0)
      fprintf(stderr, "Could not get end time\n");
@@ -289,12 +290,13 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
     // -- iterate until the entire design has stabalized -- //
     iteration = 0;
     stable = FALSE;
+		double Ek_sum;
     while (!stable && iteration < max_iterations_per_sample)
       {
       iteration++;
       // -- assume that the circuit is stable -- //
       stable = TRUE;
-
+		  
       for (icLayers = 0; icLayers < number_of_cell_layers; icLayers++)
         {
         for (icCellsInLayer = 0 ; icCellsInLayer < number_of_cells_in_layer[icLayers] ; icCellsInLayer++)
@@ -307,10 +309,11 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
             current_cell_model = ((bistable_model *)cell->cell_model) ;
             old_polarization = current_cell_model->polarization;
             polarization_math = 0;
-
-            for (q = 0; q < current_cell_model->number_of_neighbours; q++)
-              polarization_math += (current_cell_model->Ek[q] * ((bistable_model *)current_cell_model->neighbours[q]->cell_model)->polarization) ;
-
+			Ek_sum = 0;
+				
+			for (q = 0; q < current_cell_model->number_of_neighbours; q++)
+              polarization_math += (current_cell_model->Ek[q] * ((bistable_model *)current_cell_model->neighbours[q]->cell_model)->polarization) ;	
+				
             // math = math / 2 * gamma
             polarization_math /= (2.0 * sim_data->clock_data[cell->cell_options.clock].data[j]);
 
@@ -333,7 +336,8 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
           }
         }
       }//WHILE !STABLE
-
+	
+		
     if (VECTOR_TABLE == SIMULATION_TYPE)
       for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
         if (!exp_array_index_1d (pvt->inputs, VT_INPUT, i).active_flag)

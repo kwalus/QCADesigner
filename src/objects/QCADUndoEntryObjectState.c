@@ -179,7 +179,7 @@ static void qcad_undo_entry_object_state_set_instance (QCADUndoEntryObjectState 
     undo_entry->parameters_delta = exp_array_free (undo_entry->parameters_delta) ;
   else
     {
-    int icProperties = 0 ;
+    guint icProperties = 0 ;
     GParamSpec **class_properties = NULL ;
 
     class_properties = g_object_class_list_properties (G_OBJECT_GET_CLASS (instance), &icProperties) ;

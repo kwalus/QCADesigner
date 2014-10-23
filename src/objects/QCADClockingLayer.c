@@ -37,9 +37,10 @@
 #include "../intl.h"
 #include "../fileio_helpers.h"
 #include "QCADElectrode.h"
+#include "QCADRectangleElectrode.h"
 #include "../global_consts.h"
 #include "../custom_widgets.h"
-
+#include "../ts_field_clock.h"
 enum
   {
   QCAD_CLOCKING_LAYER_PROPERTY_FIRST = 1,
@@ -91,6 +92,11 @@ static QCADObject *class_get_default_object () ;
 
 static void qcad_clocking_layer_calculate_extreme_potentials (QCADClockingLayer *clocking_layer) ;
 static void qcad_clocking_layer_set_tile_size (QCADClockingLayer *clocking_layer, guint new_tile_size) ;
+void get_grid_param(int N_x, int N_y, int N_z, double d_x, double d_y, double d_z, int x_min, int y_min);
+
+int Nx, Ny, Nz;
+double dx, dy, dz;
+int xmin, ymin;
 
 GType qcad_clocking_layer_get_type ()
   {
@@ -358,6 +364,7 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   GdkGC *gc = NULL ;
   double potential ;
   GList *llItr = NULL ;
+  double x, y;
 
   QCAD_DESIGN_OBJECT_CLASS (g_type_class_peek (g_type_parent (QCAD_TYPE_CLOCKING_LAYER)))->draw (obj, dst, rop, rcClip) ;
 
@@ -369,38 +376,35 @@ static void draw (QCADDesignObject *obj, GdkDrawable *dst, GdkFunction rop, GdkR
   if (NULL != layer->lstObjs && clocking_layer->bDrawPotential)
     {
     GdkPixbuf *pb = NULL ;
-
     pb = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, clocking_layer->tile_size, clocking_layer->tile_size) ;
-    for (Nix = rcClip->x / clocking_layer->tile_size ; Nix * clocking_layer->tile_size < rcClip->x + rcClip->width ; Nix++)
-      for (Nix1 = rcClip->y / clocking_layer->tile_size ; Nix1 * clocking_layer->tile_size < rcClip->y + rcClip->height ; Nix1++)
-        {
-        potential = 0 ;
-        for (llItr = layer->lstObjs ; llItr != NULL ; llItr = llItr->next)
-          if (NULL != llItr->data)
-            if (QCAD_IS_ELECTRODE (llItr->data))
-              potential += 
-                qcad_electrode_get_potential (QCAD_ELECTRODE (llItr->data), 
-                  real_to_world_x (Nix * clocking_layer->tile_size + (clocking_layer->tile_size >> 1)), 
-                  real_to_world_y (Nix1 * clocking_layer->tile_size + (clocking_layer->tile_size >> 1)), 
-                  clocking_layer->z_to_draw, clocking_layer->time_coord) ;
-
+	
+		for (Nix = 0; Nix < Nx; Nix++) {
+			x = xmin+dx*Nix;
+			for (Nix1 = 0; Nix1 < Ny; Nix1++) {
+				y = ymin+dy*Nix1;
+				potential = get_potential (x, y, clocking_layer->z_to_draw, Nx, Ny, Nz, dx, dy, dz, xmin, ymin)  ;
+								
+/*
+				 
         if (fabs (potential) < clocking_layer->dExtremePotential / 100.0)
           {
-//          fprintf (stderr, "Potential too small - breaking out\n") ;
-          continue ;
+          fprintf (stderr, "Potential too small - breaking out\n") ;
+//          continue ;
           }
-
+*/
         gdk_pixbuf_fill (pb,
           ((potential > 0) ? 0xFF000000 : 0x0000FF00) | (((int)((fabs (potential) / clocking_layer->dExtremePotential) * 128.0)) & 0xFF)) ;
 //        fprintf (stderr, "opacity = %lf/%lf * 255\n", potential, clocking_layer->dExtremePotential) ;
-
-        gdk_draw_pixbuf (dst, gc, pb, 0, 0, Nix * clocking_layer->tile_size, Nix1 * clocking_layer->tile_size, clocking_layer->tile_size, clocking_layer->tile_size, GDK_RGB_DITHER_NONE, 0, 0) ;
-
+				
+        gdk_draw_pixbuf (dst, gc, pb, 0, 0, Nix * clocking_layer->tile_size,  Nix1 * clocking_layer->tile_size, clocking_layer->tile_size, clocking_layer->tile_size, GDK_RGB_DITHER_NONE, 0, 0) ;
+		//gdk_draw_pixbuf (dst, gc, pb, 0, 0, Nix * clocking_layer->tile_size, Nix1 * clocking_layer->tile_size, clocking_layer->tile_size, clocking_layer->tile_size, GDK_RGB_DITHER_NONE, 0, 0) ;
+				
 //        gdk_draw_rectangle (dst, gc, TRUE, 
 //          Nix * clocking_layer->tile_size + (clocking_layer->tile_size >> 1) - 2,
 //          Nix1 * clocking_layer->tile_size + (clocking_layer->tile_size >> 1) - 2,
 //          5, 5) ;
-        }
+			}
+		}
     g_object_unref (pb) ;
     }
 
@@ -450,3 +454,15 @@ static void qcad_clocking_layer_set_tile_size (QCADClockingLayer *clocking_layer
     g_object_notify (G_OBJECT (clocking_layer), "tile-size") ;
     }
   }
+
+void get_grid_param(int N_x, int N_y, int N_z, double d_x, double d_y, double d_z, int x_min, int y_min) 
+{
+	Nx = N_x;
+	Ny = N_y;
+	Nz = N_z;
+	dx = d_x;
+	dy = d_y;
+	dz = d_z;
+	xmin = x_min;
+	ymin = y_min;
+}

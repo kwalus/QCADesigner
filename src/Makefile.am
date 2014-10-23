@@ -14,7 +14,8 @@ include Makefile.inc
 QCADesigner_DEFINES = -DPROPERTY_UIS -DSTDIO_FILEIO -DUNDO_REDO -DGTK_GUI -DDESIGNER
 
 # This variable is only used in Windoze
-QCADesigner_LIBS =	-lgtk-win32-2.0 \
+QCADesigner_LIBS =	\
+			-lgtk-win32-2.0 \
 			-latk-1.0 \
 			-lpango-1.0 \
 			-lglib-2.0 \
@@ -22,30 +23,33 @@ QCADesigner_LIBS =	-lgtk-win32-2.0 \
 			-lgdk-win32-2.0 \
 			-lgobject-2.0 \
 			-lintl \
-			-lgdk_pixbuf-2.0
+			-lgdk_pixbuf-2.0 \
+			$(NULL)
 
 QCADesigner_CFLAGS = \
 	$(QCADesigner_DEFINES) \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	@GTK_CFLAGS@ \
-	@GTHREAD_CFLAGS@
+	$(GTK_CFLAGS) \
+	$(GTHREAD_CFLAGS) \
+	$(FORTRAN_CFLAGS) \
+	$(NULL)
 
 QCADesigner_SOURCES = \
-  $(CORE_FILES) \
-  $(OBJECT_FILES) \
-  $(SIMULATION_FILES) \
-  $(STDIO_FILEIO_FILES) \
+	$(CORE_FILES) \
+	$(OBJECT_FILES) \
+	$(SIMULATION_FILES) \
+	$(STDIO_FILEIO_FILES) \
 \
 	preamble.c                              preamble.h \
 	support.c                               support.h \
 \
-  $(GRAPH_DIALOG_FILES) \
-  $(PROPERTY_UI_FILES) \
-  $(UNDO_REDO_FILES) \
-  $(GTK_WORKAROUND_FILES) \
-  $(SIMULATION_UI_FILES) \
-  $(VECTOR_TABLE_DIALOG_FILES) \
+	$(GRAPH_DIALOG_FILES) \
+	$(PROPERTY_UI_FILES) \
+	$(UNDO_REDO_FILES) \
+	$(GTK_WORKAROUND_FILES) \
+	$(SIMULATION_UI_FILES) \
+	$(VECTOR_TABLE_DIALOG_FILES) \
 \
 	interface.c                             interface.h \
 	callbacks.c                             callbacks.h \
@@ -98,17 +102,21 @@ QCADesigner_SOURCES = \
 
 QCADesigner_LDADD = \
 	-lm \
-	@GTK_LIBS@ \
+	$(GTK_LIBS) \
 	$(INTLLIBS) \
-	@GTHREAD_LIBS@ 
+	$(GTHREAD_LIBS) \
+	$(FORTRAN_LIBS) \
+	$(NULL)
 
 # libqcadesigner_a_SOURCES = $(QCADesigner_SOURCES)
 #################### batch_sim ######################
 
 # This variable is only used in Windoze
-batch_sim_LIBS =	-lglib-2.0 \
+batch_sim_LIBS = \
+			-lglib-2.0 \
 			-lgobject-2.0 \
-			-lintl
+			-lintl \
+			$(NULL)
 
 batch_sim_DEFINES = -DSTDIO_FILEIO
 
@@ -116,8 +124,10 @@ batch_sim_CFLAGS = \
 	$(batch_sim_DEFINES) \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	@GLIB_CFLAGS@ \
-	@GOBJECT_CFLAGS@
+	$(FORTRAN_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GOBJECT_CFLAGS) \
+	$(NULL)
 
 batch_sim_SOURCES = \
 	$(CORE_FILES) \
@@ -134,14 +144,17 @@ batch_sim_SOURCES = \
 
 batch_sim_LDADD = \
 	-lm \
-	@GLIB_LIBS@ \
-	@GOBJECT_LIBS@
+	$(FORTRAN_LIBS) \
+	$(GLIB_LIBS) \
+	$(GOBJECT_LIBS) \
+	$(NULL)
 
 #################### graph_dialog ###################
 graph_dialog_DEFINES = -DSTDIO_FILEIO -DGTK_GUI
 
 # This variable is only used in Windoze
-graph_dialog_LIBS =	-lgtk-win32-2.0 \
+graph_dialog_LIBS =	\
+			-lgtk-win32-2.0 \
 			-latk-1.0 \
 			-lpango-1.0 \
 			-lglib-2.0 \
@@ -149,23 +162,25 @@ graph_dialog_LIBS =	-lgtk-win32-2.0 \
 			-lgdk-win32-2.0 \
 			-lgobject-2.0 \
 			-lintl \
-			-lgdk_pixbuf-2.0
+			-lgdk_pixbuf-2.0 \
+			$(NULL)
 
 graph_dialog_CFLAGS = \
 	$(graph_dialog_DEFINES) \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	@GTK_CFLAGS@ \
-	@GTHREAD_CFLAGS@
+	$(GTK_CFLAGS) \
+	$(GTHREAD_CFLAGS) \
+	$(NULL)
 
 graph_dialog_SOURCES = \
 	preamble.c                              preamble.h \
 	support.c                               support.h \
 \
-  $(CORE_FILES) \
-  $(OBJECT_FILES) \
-  $(GRAPH_DIALOG_FILES) \
-  $(STDIO_FILEIO_FILES) \
+	$(CORE_FILES) \
+	$(OBJECT_FILES) \
+	$(GRAPH_DIALOG_FILES) \
+	$(STDIO_FILEIO_FILES) \
 \
 	simulation_data.c                       simulation_data.h \
 	graph_dialog_widget_data.c              graph_dialog_widget_data.h \
@@ -186,14 +201,16 @@ graph_dialog_SOURCES = \
 
 graph_dialog_LDADD = \
 	-lm \
-	@GTK_LIBS@ \
+	$(GTK_LIBS) \
 	$(INTLLIBS) \
-	@GTHREAD_LIBS@ 
+	$(GTHREAD_LIBS) \
+	$(NULL)
 
 #################### combo_test #####################
 combo_test_DEFINES = -DSTDIO_FILEIO -DGTK_GUI
 
-combo_test_LIBS =	-lgtk-win32-2.0 \
+combo_test_LIBS = \
+			-lgtk-win32-2.0 \
 			-latk-1.0 \
 			-lpango-1.0 \
 			-lglib-2.0 \
@@ -202,12 +219,14 @@ combo_test_LIBS =	-lgtk-win32-2.0 \
 			-lgobject-2.0 \
 			-lintl \
 			-lgdk_pixbuf-2.0
+
 combo_test_CFLAGS = \
 	$(combo_test_DEFINES) \
  	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
  	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
- 	@GTK_CFLAGS@ \
- 	@GTHREAD_CFLAGS@
+ 	$(GTK_CFLAGS) \
+ 	$(GTHREAD_CFLAGS) \
+	$(NULL)
 
 combo_test_SOURCES = \
 	objects/QCADFlexiCombo.c       objects/QCADFlexiCombo.h \
@@ -224,9 +243,10 @@ combo_test_SOURCES = \
 
 combo_test_LDADD = \
  	-lm \
- 	@GTK_LIBS@ \
+ 	$(GTK_LIBS) \
  	$(INTLLIBS) \
- 	@GTHREAD_LIBS@ 
+ 	$(GTHREAD_LIBS) \
+	$(NULL)
 
 #################### libgtkdocfiles.a #####################
 
@@ -235,15 +255,11 @@ libgtkdocfiles_a_SOURCES = \
 	objects/QCADRadioButton.c      objects/QCADRadioButton.h \
 	objects/QCADRadioToolButton.c  objects/QCADRadioToolButton.h \
 	objects/QCADToggleToolButton.c objects/QCADToggleToolButton.h \
-	objects/QCADCellRendererText.c objects/QCADCellRendererText.h
+	objects/QCADCellRendererText.c objects/QCADCellRendererText.h \
+	$(NULL)
 
 libgtkdocfiles_a_CFLAGS = \
-	@GTK_CFLAGS@ \
-	@GTHREAD_CFLAGS@ \
-	-DGTK_GUI -DUNDO_REDO -DDESIGNER -DFILEIO_STDIO -DPROPERTY_UIS -DGTK_DOC
-
-# libgtkdocfiles_a_LIBADD = \
-#  	-lm \
-#  	@GTK_LIBS@ \
-#  	$(INTLLIBS) \
-#  	@GTHREAD_LIBS@ 
+	-DGTK_GUI -DUNDO_REDO -DDESIGNER -DFILEIO_STDIO -DPROPERTY_UIS -DGTK_DOC \
+	$(GTK_CFLAGS) \
+	$(GTHREAD_CFLAGS) \
+	$(NULL)

@@ -32,6 +32,8 @@ GType qcad_layers_combo_get_type () ;
 #define QCAD_LAYERS_COMBO_CLASS(class)      (G_TYPE_CHECK_CLASS_CAST    ((class),  QCAD_TYPE_LAYERS_COMBO, QCADLayersComboClass))
 #define QCAD_IS_LAYERS_COMBO_CLASS(class)   (G_TYPE_CHECK_CLASS_TYPE    ((class),  QCAD_TYPE_LAYERS_COMBO))
 
+void qcad_layers_combo_show_layer_exclusively (QCADLayersCombo *layers_combo, QCADLayer *layer) ;
+
 #ifdef __cplusplus
 }
 #endif /* def __cplusplus */

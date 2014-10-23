@@ -51,6 +51,7 @@ typedef struct
 	double relaxation;
 	double time_step;
 	double duration;
+	double convergence_tolerance;
 	double gamma;
 	double clock_high;
 	double clock_low;
@@ -61,11 +62,16 @@ typedef struct
 	double layer_separation;
 	double cell_elevation;
 	double cell_height;
+	  double chi;
+	  double dx;
+	  double dy;
+	  double dz;
 	int algorithm;
 	int clocking_scheme;
 	gboolean randomize_cells;
 	gboolean animate_simulation;
   } ts_coherence_OP;
+
 
 void ts_coherence_options_dump (ts_coherence_OP *ts_coherence_options, FILE *pfile) ;
 simulation_data *run_ts_coherence_simulation(int SIMULATION_TYPE, DESIGN *design, ts_coherence_OP *options, VectorTable *pvt);

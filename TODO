@@ -1,5 +1,11 @@
 ////////////// QCADesigner TODO /////////////////
 
+[ ] Document Fortran lib configure switches (what file are they looking for ?)
+[ ] Rotation in batch_sim
+[ ] Arbitrary clocks
+[ ] Magnetic QCA
+[ ] Pause simulation (== g_idle_add)
+
 [X] Set up CVS on schroedinger - almost there
     I think it now works. Not quite. Think it needs 2770 on dirs.
     Yep. Looks like. Lessee if I can overwrite nix's modifications.
@@ -53,7 +59,7 @@
 
 [X] Created QCADObject for "default object" as well as property UI hints.
 
-[ ] Molecular QCA simulation engine (three state coherence vector).
+[X] Molecular QCA simulation engine (three state coherence vector).
 
 [ ] Handle halos properly.
 

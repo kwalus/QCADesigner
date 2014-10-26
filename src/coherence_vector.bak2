@@ -1,0 +1,1128 @@
+//////////////////////////////////////////////////////////
+// QCADesigner                                          //
+// Copyright 2002 Konrad Walus                          //
+// All Rights Reserved                                  //
+// Author: Konrad Walus                                 //
+// Email: qcadesigner@gmail.com                         //
+// WEB: http://qcadesigner.ca/                          //
+//////////////////////////////////////////////////////////
+//******************************************************//
+//*********** PLEASE DO NOT REFORMAT THIS CODE *********//
+//******************************************************//
+// If your editor wraps long lines disable it or don't  //
+// save the core files that way. Any independent files  //
+// you generate format as you wish.                     //
+//////////////////////////////////////////////////////////
+// Please use complete names in variables and fucntions //
+// This will reduce ramp up time for new people trying  //
+// to contribute to the project.                        //
+//////////////////////////////////////////////////////////
+// Contents:                                            //
+//                                                      //
+// The coherence vector time-dependent simulation       //
+// engine.                                              //
+//                                                      //
+//////////////////////////////////////////////////////////
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+#include "objects/QCADCell.h"
+#include "simulation.h"
+#include "coherence_vector.h"
+#include "custom_widgets.h"
+#include "global_consts.h"
+#ifdef GTK_GUI
+#include "callback_helpers.h"
+#endif /* def GTK_GUI */
+#include "intl.h"
+
+// Calculates the magnitude of the 3D energy vector
+#define magnitude_energy_vector(P,G) (hypot(2*(G), (P)) * over_hbar)
+//(sqrt((4.0*(G)*(G) + (P)*(P))*over_hbar_sqr))
+// Calculates the temperature ratio
+#define temp_ratio(P,G,T) (hypot((G),(P)*0.5)/((T) * kB))
+
+//!Options for the coherence simulation engine
+//Added by Marco default values for phase shift (0,0,0,0)
+//Added by Faizal: wave_numbers (defaults kx=0, ky=0)
+coherence_OP coherence_options = {1, 1.11e-15, 1.11e-19, 1.11e-12, 9.43e-19, 1.41e-20, 0.0, 2.0, 200, 1, 1.15, EULER_METHOD, FALSE, FALSE,0,0,0,0,0,0,FOUR_PHASE_CLOCKING} ;
+
+typedef struct
+  {
+  int number_of_neighbours;
+  QCADCell **neighbours;
+  int *neighbour_layer;
+  double *Ek;
+  double lambda_x;
+  double lambda_y;
+  double lambda_z;
+  double lambda_x_old;
+  double lambda_y_old;
+  double lambda_z_old;
+  double kx7;
+  double ky7;
+  double kz7;
+  double *kxz7;
+  double *kzz7;
+  } coherence_model;
+
+#ifdef GTK_GUI
+extern int STOP_SIMULATION;
+#else
+static int STOP_SIMULATION = 0 ;
+#endif /* def GTK_GUI */
+
+// some often used variables that can be precalculated
+typedef struct
+  {
+  double clock_prefactor;
+  double clock_shift;
+  double four_pi_over_number_samples;
+  double two_pi_over_number_samples;
+  double hbar_over_kBT;
+  } coherence_optimizations;
+
+// instance of the optimization options;
+static coherence_optimizations optimization_options;
+
+static double coherence_determine_Ek (QCADCell *cell1, QCADCell *cell2, int layer_separation, coherence_OP *options);
+static void coherence_refresh_all_Ek (int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, coherence_OP *options);
+
+static void run_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, double **Kxz, double **Kzz, double **a, double *b, double *c, int num_cells);
+
+static inline double calculate_clock_value (unsigned int clock_num, double sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
+static inline double calculate_clock_value_cc (QCADCell *cell, double sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt);
+static inline double lambda_ss_x (double t, double PEk, double Gamma, const coherence_OP *options);
+static inline double lambda_ss_y (double t, double PEk, double Gamma, const coherence_OP *options);
+static inline double lambda_ss_z (double t, double PEk, double Gamma, const coherence_OP *options);
+static inline double get_max(double *array, int num_elements);
+static inline void matrix_copy(double **Mat1, int dimx, int dimy, double **Mat0);
+static void lambda_next (QCADCell ***sorted_cells, double t, double PEk, double Ekc, double Ekd, double lambda_x, double lambda_y, double lambda_z, double **Kxz, double **Kzz, double EkKxz, double *EkKzz, double **a, double *b, double *c, int cell_number, int cell_layer, int num_cells, double *Ek_array, const coherence_OP *options, unsigned long int number_samples, int total_number_of_inputs, int SIMULATION_TYPE, VectorTable *pvtdouble, double **Kxz_next, double **Kzz_next, double Ek0);  
+//static void lambda_next (QCADCell *cell, double t, double PEk, double Ekc, double Ekd, double lambda_x, double lambda_y, double lambda_z, double Kxz, double **a, double *b, double *c, const coherence_OP *options, unsigned long int number_samples, int total_number_of_inputs, int SIMULATION_TYPE, VectorTable *pvtdouble, double *lambda_x_next, double *lambda_y_next, double *lambda_z_next);
+//static void Kab_next (QCADCell *cell, double t, double Ekc, double Ekd, double lambda_x, double lambda_y, double lambda_z, double Kxz, double Kzz, double lambda_yj, double lambda_zj, double EkKzz, double **a, double *b, double *c, const coherence_OP *options, unsigned long int number_samples, int total_number_of_inputs, int SIMULATION_TYPE, VectorTable *pvtdouble, double Kxz_new, double Kzz_new);
+/*
+static inline double lambda_x_next (double PEk, double lambda_x, double lambda_y, double *b, double **a, const coherence_OP *options);
+static inline double lambda_y_next (double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options);
+static inline double lambda_z_next (double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options);
+*/
+static inline double slope_x (double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options);
+static inline double slope_y (double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options);
+static inline double slope_z (double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options);
+static int compareCoherenceQCells (const void *p1, const void *p2) ;
+
+//-------------------------------------------------------------------//
+// -- this is the main simulation procedure -- //
+//-------------------------------------------------------------------//
+simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, coherence_OP *options, VectorTable *pvt)
+  {
+  int i,j, k, l, q, number_of_cell_layers, *number_of_cells_in_layer;
+  QCADCell ***sorted_cells = NULL ;
+  int total_number_of_inputs = design->bus_layout->inputs->icUsed;
+  unsigned long int number_samples;
+  //number of points to record in simulation results //
+  //simulations can have millions of points and there is no need to plot them all //
+  unsigned long int number_recorded_samples = 3000;
+  unsigned long int record_interval;
+  double PEk = 0;
+  double Eks = 0;
+  gboolean stable;
+  double old_lambda_x;
+  double old_lambda_y;
+  double old_lambda_z;
+  double *energy;
+  double average_power=0;
+  time_t start_time, end_time;
+  simulation_data *sim_data = NULL ;
+  // for randomization
+  int Nix, Nix1, idxCell1, idxCell2 ;
+  QCADCell *swap = NULL ;
+  BUS_LAYOUT_ITER bli ;
+  double dPolarization = 2.0 ;
+  int idxMasterBitOrder = -1.0 ;
+	  double **Kxz = NULL;
+	  double **Kzz = NULL;
+	  double **a = NULL;
+	  //double *b4 = NULL;
+	  double *b = NULL;
+	  double *c = NULL;
+  int num_cells = 0;	
+	  
+	  
+  STOP_SIMULATION = FALSE;
+
+  // -- get the starting time for the simulation -- //
+  if ((start_time = time (NULL)) < 0)
+    fprintf (stderr, "Could not get start time\n");
+
+  // determine the number of samples from the user options //
+  number_samples = (unsigned long int)(ceil (options->duration/options->time_step));
+
+  energy = 0;
+
+  // if the number of samples is larger then the number of recorded samples then change the
+  // time step to ensure only number_recorded_samples is used //
+  if (number_recorded_samples >= number_samples)
+    {
+    number_recorded_samples = number_samples;
+    record_interval = 1;
+    }
+  else
+    record_interval = (unsigned long int)ceil ((double)(number_samples - 1) / (double)(number_recorded_samples));
+
+  //fill in some of the optimizations
+  optimization_options.clock_prefactor = (options->clock_high - options->clock_low) * options->clock_amplitude_factor;
+  optimization_options.clock_shift = (options->clock_high + options->clock_low) * 0.5;
+  optimization_options.four_pi_over_number_samples = FOUR_PI / (double)number_samples;
+  optimization_options.two_pi_over_number_samples = TWO_PI / (double)number_samples;
+  optimization_options.hbar_over_kBT = hbar / (kB * options->T);
+
+  // -- spit out some messages for possible debugging -- //
+  command_history_message ("About to start the coherence vector simulation with %d samples\n", number_samples);
+  command_history_message ("%d samples will be recorded for graphing.\n", number_recorded_samples);
+  set_progress_bar_visible (TRUE) ;
+  set_progress_bar_label ("Coherence vector simulation:") ;
+  set_progress_bar_fraction (0.0) ;
+
+  // Fill in the cell arrays necessary for conducting the simulation
+  simulation_inproc_data_new (design, &number_of_cell_layers, &number_of_cells_in_layer, &sorted_cells) ;
+
+  // determine which cells are inputs and which are outputs //
+  for(i = 0; i < number_of_cell_layers; i++)
+    for(j = 0; j < number_of_cells_in_layer[i]; j++)
+      {
+	  num_cells = num_cells+1;
+      // attach the model parameters to each of the simulation cells //
+      sorted_cells[i][j]->cell_model = g_malloc0 (sizeof(coherence_model));
+		  		  
+      // -- Clear the model pointers so they are not dangling -- //
+      ((coherence_model *)sorted_cells[i][j]->cell_model)->neighbours = NULL;
+      ((coherence_model *)sorted_cells[i][j]->cell_model)->Ek = NULL;
+	  ((coherence_model *)sorted_cells[i][j]->cell_model)->kxz7 = NULL;
+	  ((coherence_model *)sorted_cells[i][j]->cell_model)->kzz7 = NULL;
+	  
+      }
+
+  // if we are performing a vector table simulation we consider only the activated inputs //
+  if (VECTOR_TABLE == SIMULATION_TYPE)
+    for (total_number_of_inputs = 0, Nix = 0 ; Nix < pvt->inputs->icUsed ; Nix++)
+      {
+      if (exp_array_index_1d (pvt->inputs, VT_INPUT, Nix).active_flag)
+        total_number_of_inputs++ ;
+      else
+        // Kill the input flag for inactive inputs, so they may be correctly simulated
+        exp_array_index_1d (pvt->inputs, VT_INPUT, Nix).input->cell_function = QCAD_CELL_NORMAL ;
+      }
+
+  // write message to the command history window //
+  command_history_message ("Simulation found %d inputs %d outputs\n", total_number_of_inputs, design->bus_layout->outputs->icUsed) ;
+
+  // -- Allocate memory to hold the simulation data -- //
+  sim_data = g_malloc0 (sizeof(simulation_data)) ;
+
+  // -- Initialize the simualtion data structure -- //
+  sim_data->number_of_traces = design->bus_layout->inputs->icUsed + design->bus_layout->outputs->icUsed;
+
+  // set the number of simulation samples to be the desired number of recorded samples //
+  sim_data->number_samples = number_recorded_samples;
+
+  // allocate the memory for each trace //
+  sim_data->trace = g_malloc0 (sizeof (struct TRACEDATA) * sim_data->number_of_traces);
+
+  // create and initialize the inputs into the sim data structure //
+  for (i = 0; i < design->bus_layout->inputs->icUsed; i++)
+    {
+    sim_data->trace[i].data_labels = g_strdup (qcad_cell_get_label (exp_array_index_1d (design->bus_layout->inputs, BUS_LAYOUT_CELL, i).cell));
+    sim_data->trace[i].drawtrace = TRUE;
+    sim_data->trace[i].trace_function = QCAD_CELL_INPUT;
+    sim_data->trace[i].data = g_malloc0 (sim_data->number_samples * sizeof (double));
+    }
+
+  // create and initialize the outputs into the sim data structure //
+  for (i = 0; i < design->bus_layout->outputs->icUsed; i++)
+    {
+    sim_data->trace[i + total_number_of_inputs].data_labels = g_strdup (qcad_cell_get_label (exp_array_index_1d (design->bus_layout->outputs, BUS_LAYOUT_CELL, i).cell));
+    sim_data->trace[i + total_number_of_inputs].drawtrace = TRUE;
+    sim_data->trace[i + total_number_of_inputs].trace_function = QCAD_CELL_OUTPUT;
+    sim_data->trace[i + total_number_of_inputs].data = g_malloc0 (sim_data->number_samples * sizeof (double));
+    }
+
+//  if (options->clocking == four_phase_clocking) {
+  // create and initialize the clock data //
+  sim_data->clock_data = g_malloc0 (sizeof (struct TRACEDATA) * 4);
+
+  for (i = 0; i < 4; i++)
+    {
+    sim_data->clock_data[i].data_labels = g_strdup_printf ("CLOCK %d", i);
+    sim_data->clock_data[i].drawtrace = 1;
+    sim_data->clock_data[i].trace_function = QCAD_CELL_FIXED;
+    if (NULL == (sim_data->clock_data[i].data = g_malloc0 (sim_data->number_samples * sizeof (double))))
+      printf("Could not allocate memory for clock data\n");
+
+    // fill in the clock data for the simulation results //
+    for (j = 0; j<sim_data->number_samples; j++)
+      //printf("j=%d, j*record_interval = %d\n",j,j*record_interval);
+      sim_data->clock_data[i].data[j] = calculate_clock_value(i, j * record_interval, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvt);
+ //   }
+  }
+  // -- refresh all the kink energies and neighbours-- //
+  coherence_refresh_all_Ek (number_of_cell_layers, number_of_cells_in_layer, sorted_cells, options);
+  Kxz = (double**)malloc(num_cells*sizeof(double*));
+  Kzz = (double**)malloc(num_cells*sizeof(double*));
+
+  for (i = 0; i < num_cells; i++) {
+		  Kxz[i] = (double*)malloc(num_cells*sizeof(double));
+		  Kzz[i] = (double*)malloc(num_cells*sizeof(double));
+	  }
+  
+	  
+  // -- sort the cells with respect to the neighbour count -- //
+  // -- this is done so that majority gates are evalulated last -- //
+  // -- to ensure that all the signals have arrived first -- //
+  // -- kept getting wrong answers without this -- //
+
+  // The following line causes a segfault when the design consists of a single cell
+//  printf("The Ek to the first cells neighbour is %e [eV]\n",((coherence_model *)sorted_cells[0][0]->cell_model)->Ek[0]/1.602e-19);
+
+  // randomize the cells in the design as to minimize any numerical problems associated //
+  // with having cells simulated in some predefined order: //
+  // for each layer ...
+if (options->randomize_cells)  
+for (Nix = 0 ; Nix < number_of_cell_layers ; Nix++)
+    // ...perform as many swaps as there are cells therein
+    for (Nix1 = 0 ; Nix1 < number_of_cells_in_layer[Nix] ; Nix1++)
+      {
+      idxCell1 = rand () % number_of_cells_in_layer[Nix] ;
+      idxCell2 = rand () % number_of_cells_in_layer[Nix] ;
+
+      swap = sorted_cells[Nix][idxCell1] ;
+      sorted_cells[Nix][idxCell1] = sorted_cells[Nix][idxCell2] ;
+      sorted_cells[Nix][idxCell2] = swap ;
+      }
+
+	  
+  //initialize Butcher Tableau
+	  a = (double**)malloc(7*sizeof(double*));
+	  //b4 = (double*)malloc(7*sizeof(double));
+	  b = (double*)malloc(7*sizeof(double));
+	  c = (double*)malloc(7*sizeof(double));
+	  
+	  for (i = 0; i < 7; i++) {
+		  a[i] = (double*)malloc(6*sizeof(double));
+	  }
+	  
+	  for (i = 0; i < 7; i++) {
+		  for (j = 0; j < 6; j++) {
+			  a[i][j] = 0;
+		  }
+	  }
+	  
+	  a[1][0] = 0.2;
+	  a[2][0] = 0.075;
+	  a[2][1] = 0.225;
+	  a[3][0] = 44.0/45.0;
+	  a[3][1] = -56.0/15.0;
+	  a[3][2] = 32.0/9.0;
+	  a[4][0] = 19372.0/6561.0;
+	  a[4][1] = -25360.0/2187.0;
+	  a[4][2] = 64448.0/6561.0;
+	  a[4][3] = -212.0/729.0;
+	  a[5][0] = 9017.0/3168.0;
+	  a[5][1] = -355.0/33.0;
+	  a[5][2] = 46732.0/5247.0;
+	  a[5][3] = 49.0/176.0;
+	  a[5][4] = -5103.0/18656.0;
+	  a[6][0] = 35.0/384.0;
+	  a[6][1] = 0;
+	  a[6][2] = 500.0/1113.0;
+	  a[6][3] = 125.0/192.0;
+	  a[6][4] = -2187.0/6784.0;
+	  a[6][5] = 11.0/84.0; 
+	  
+	  /*
+	  b4[0] = 5179.0/57600.0;
+	  b4[1] = 0;
+	  b4[2] = 7571.0/16695.0;
+	  b4[3] = 393.0/640.0;
+	  b4[4] = -92097.0/339200.0;
+	  b4[5] = 187.0/2100.0;
+	  b4[6] = 1.0/40.0;
+	  */
+	   
+	  b[0] = 35.0/384.0;
+	  b[1] = 0;
+	  b[2] = 500.0/1113.0;
+	  b[3] = 125.0/192.0;
+	  b[4] = -2187.0/6784.0;
+	  b[5] = 11.0/84.0;
+	  b[6] = 0;
+	  
+	  c[0] = 0;
+	  c[1] = 0.2;
+	  c[2] = 0.3;
+	  c[3] = 0.8;
+	  c[4] = 8.0/9.0;
+	  c[5] = 1;
+	  c[6] = 1;
+	  
+	  //End initialize Butcher Tableau
+	  
+	  
+	  
+  if (EXHAUSTIVE_VERIFICATION == SIMULATION_TYPE)
+    for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
+      qcad_cell_set_polarization (exp_array_index_1d (design->bus_layout->inputs, BUS_LAYOUT_CELL, i).cell, 
+        sim_data->trace[i].data[0] = -1) ;
+  else
+//  if (VECTOR_TABLE == SIMULATION_TYPE)
+    for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
+      if (exp_array_index_1d (pvt->inputs, VT_INPUT, i).active_flag)
+        qcad_cell_set_polarization (exp_array_index_1d (pvt->inputs, VT_INPUT, i).input,
+          sim_data->trace[i].data[0] = exp_array_index_2d (pvt->vectors, gboolean, 0, i) ? 1 : -1) ;
+
+  // Converge the steady state coherence vector for each cell so that the simulation starts without any transients //
+  stable = FALSE;
+  k = 0;
+  while (!stable)
+    {
+    stable = TRUE;
+
+    for (i = 0; i < number_of_cell_layers; i++)
+      for (j = 0; j < number_of_cells_in_layer[i]; j++)
+        {
+        if (((QCAD_CELL_INPUT == sorted_cells[i][j]->cell_function)||
+             (QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function)))
+          {
+          continue;
+          }
+
+        PEk = 0;
+        // Calculate the sum of neighboring polarizations * the kink energy between them//
+			for (q = 0; q < ((coherence_model *)sorted_cells[i][j]->cell_model)->number_of_neighbours; q++)
+				PEk += (qcad_cell_calculate_polarization (((coherence_model *)sorted_cells[i][j]->cell_model)->neighbours[q])) * ((coherence_model *)sorted_cells[i][j]->cell_model)->Ek[q];
+				
+			
+        old_lambda_x = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x;
+        old_lambda_y = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y;
+        old_lambda_z = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z;
+
+        ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x = lambda_ss_x(0, PEk, sim_data->clock_data[sorted_cells[i][j]->cell_options.clock].data[0], options);
+        ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y = lambda_ss_y(0, PEk, sim_data->clock_data[sorted_cells[i][j]->cell_options.clock].data[0], options);
+        ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z = lambda_ss_z(0, PEk, sim_data->clock_data[sorted_cells[i][j]->cell_options.clock].data[0], options);
+
+		((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x_old = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x; 	
+		((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y_old = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y;
+		((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z_old = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z;		
+				
+			
+        qcad_cell_set_polarization(sorted_cells[i][j], ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z);
+
+        // if the lambda values are different by more then the tolerance then they have not converged //
+        stable =
+          !(fabs (((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x - old_lambda_x) > 1e-7 ||
+            fabs (((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y - old_lambda_y) > 1e-7 ||
+            fabs (((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z - old_lambda_z) > 1e-7) ;
+        }
+    k++;
+    }
+
+	  for (i = 0; i < number_of_cell_layers; i++)
+		  for (j = 0; j < number_of_cells_in_layer[i]; j++)
+		  {
+			  if (((QCAD_CELL_INPUT == sorted_cells[i][j]->cell_function)||
+				   (QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function))) {
+				  Kxz[j][k] = 0;
+				  Kzz[j][k] = 0;
+				  continue;
+			  } 
+			  ((coherence_model *)sorted_cells[i][j]->cell_model)->kxz7 = (double*)malloc(num_cells*sizeof(double));
+			  ((coherence_model *)sorted_cells[i][j]->cell_model)->kzz7 = (double*)malloc(num_cells*sizeof(double));
+			  ((coherence_model *)sorted_cells[i][j]->cell_model)->kx7 = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x;
+			  ((coherence_model *)sorted_cells[i][j]->cell_model)->ky7 = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y;
+			  ((coherence_model *)sorted_cells[i][j]->cell_model)->kz7 = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z;
+			  for (k = 0; k < number_of_cells_in_layer[i]; k++)
+				  {
+					if (j == k) {
+						  Kxz[j][k] = 0;
+						  Kzz[j][k] = 0;
+						  ((coherence_model *)sorted_cells[i][j]->cell_model)->kxz7[k] = 0;
+						  ((coherence_model *)sorted_cells[i][j]->cell_model)->kzz7[k] = 0;
+						  continue;
+					  }
+					  
+					  if (((QCAD_CELL_INPUT == sorted_cells[i][k]->cell_function)||
+						   (QCAD_CELL_FIXED == sorted_cells[i][k]->cell_function)))
+					  {
+						  Kxz[j][k] = 0;
+						  Kzz[j][k] = 0;
+						  ((coherence_model *)sorted_cells[i][j]->cell_model)->kxz7[k] = 0;
+						  ((coherence_model *)sorted_cells[i][j]->cell_model)->kzz7[k] = 0;
+						  continue;
+					  }
+					  Kxz[j][k] = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x * ((coherence_model *)sorted_cells[i][k]->cell_model)->lambda_z; 
+					  Kzz[j][k] = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z * ((coherence_model *)sorted_cells[i][k]->cell_model)->lambda_z; 
+					  ((coherence_model *)sorted_cells[i][j]->cell_model)->kxz7[k] = Kxz[j][k];
+					  ((coherence_model *)sorted_cells[i][j]->cell_model)->kzz7[k] = Kzz[j][k];
+				  }
+		  }
+			  
+  command_history_message ("It took %d iterations to converge the initial steady state polarization\n", k);
+
+	  // perform the iterations over all samples //
+	  for (j = 0; j < number_samples; j++)
+	  {
+		  
+		  if (j > 1.3e6) {
+			  options->animate_simulation = TRUE;
+		  }
+		  
+		  if (0 == j % 10000 || j == number_samples - 1)
+		  {
+			  // Update the progress bar
+			  set_progress_bar_fraction ((float) j / (float) number_samples) ;
+			  // redraw the design if the user wants it to appear animated or if this is the last sample //
+#ifdef DESIGNER
+			  if(options->animate_simulation || j == number_samples - 1)
+			  {
+				  redraw_async(NULL);
+				  gdk_flush () ;
+			  }
+#endif /* def DESIGNER */
+		  }
+		  // -- for each of the inputs -- //
+		  
+		  if (EXHAUSTIVE_VERIFICATION == SIMULATION_TYPE)
+			  for (idxMasterBitOrder = 0, design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i), idxMasterBitOrder++)
+			  {
+				  qcad_cell_set_polarization (exp_array_index_1d (design->bus_layout->inputs, BUS_LAYOUT_CELL, i).cell,
+											  dPolarization = (-sin (((double) (1 << idxMasterBitOrder)) * (double) j * optimization_options.four_pi_over_number_samples)) > 0 ? 1 : -1) ;
+				  if (0 == j % record_interval)
+					  sim_data->trace[i].data[j/record_interval] = dPolarization ;
+			  }
+		  else
+			  //    if (VECTOR_TABLE == SIMULATION_TYPE)
+			  for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
+				  if (exp_array_index_1d (pvt->inputs, VT_INPUT, i).active_flag)
+				  {
+					  qcad_cell_set_polarization (exp_array_index_1d (pvt->inputs, VT_INPUT, i).input,
+												  dPolarization = exp_array_index_2d (pvt->vectors, gboolean, (j*pvt->vectors->icUsed) / number_samples, i) ? 1 : -1) ;
+					  if (0 == j % record_interval)
+						  sim_data->trace[i].data[j/record_interval] = dPolarization ;
+				  }
+		  
+    run_coherence_iteration (j, number_of_cell_layers, number_of_cells_in_layer, sorted_cells, total_number_of_inputs, number_samples, options, sim_data, SIMULATION_TYPE, pvt, energy, Kxz, Kzz, a, b, c, num_cells);
+	
+		  
+		 /* 
+		  if (0 == j % 1000) {
+			 printf("%d %f %f\n", j, ((coherence_model *)sorted_cells[0][0]->cell_model)->lambda_x * ((coherence_model *)sorted_cells[0][1]->cell_model)->lambda_z, Kxz[0][1]);
+		 }
+		  */
+		  
+    // -- Set the cell polarizations to the lambda_z value -- //
+    for (k = 0; k < number_of_cell_layers; k++)
+      for (l = 0; l < number_of_cells_in_layer[k]; l++)
+        {
+        // don't simulate the input and fixed cells //
+        if (((QCAD_CELL_INPUT == sorted_cells[k][l]->cell_function) ||
+             (QCAD_CELL_FIXED == sorted_cells[k][l]->cell_function)))
+          continue;
+			
+			
+        if (fabs (((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z) > 1.0)
+          {
+			  ((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z = (((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z)/fabs (((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z);
+		  }
+			
+			((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_x_old = ((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_x;
+			((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_y_old = ((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_y;
+			((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z_old = ((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z;	
+			
+		  /*	  
+          command_history_message ("I had to abort the simulation at iteration %d because the polarization = %e was diverging.\nPossible cause is the time step is too large.\nAlternatively, you can decrease the relaxation time to reduce oscillations.\n",j, ((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z);
+          command_history_message ("time step was set to %e\n", options->time_step);
+          return sim_data;
+          }
+		   */
+        qcad_cell_set_polarization (sorted_cells[k][l], -((coherence_model *)sorted_cells[k][l]->cell_model)->lambda_z);
+        }
+
+    // -- collect all the output data from the simulation -- //
+    if (0 == j % record_interval)
+      for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_OUTPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
+        sim_data->trace[total_number_of_inputs + i].data[j/record_interval] =
+          qcad_cell_calculate_polarization (exp_array_index_1d (design->bus_layout->outputs, BUS_LAYOUT_CELL, i).cell) ;
+
+  if (TRUE == STOP_SIMULATION) return sim_data;
+
+  }//for number of samples
+
+  // Free the neigbours and Ek array introduced by this simulation//
+  for (k = 0; k < number_of_cell_layers; k++)
+    for (l = 0; l < number_of_cells_in_layer[k]; l++)
+      {
+      g_free (((coherence_model *)sorted_cells[k][l]->cell_model)->neighbours);
+      g_free (((coherence_model *)sorted_cells[k][l]->cell_model)->neighbour_layer);
+      g_free (((coherence_model *)sorted_cells[k][l]->cell_model)->Ek);
+      }
+
+  simulation_inproc_data_free (&number_of_cell_layers, &number_of_cells_in_layer, &sorted_cells) ;
+
+  g_free(energy);
+
+  // Restore the input flag for the inactive inputs
+  if (VECTOR_TABLE == SIMULATION_TYPE)
+    for (i = 0 ; i < pvt->inputs->icUsed ; i++)
+      exp_array_index_1d (pvt->inputs, BUS_LAYOUT_CELL, i).cell->cell_function = QCAD_CELL_INPUT ;
+
+  // -- get and print the total simulation time -- //
+  if ((end_time = time (NULL)) < 0)
+    fprintf (stderr, "Could not get end time\n");
+
+  command_history_message (_("Total simulation time: %g s\n"), (double)(end_time - start_time));
+  set_progress_bar_visible (FALSE) ;
+  return sim_data;
+  }//run_coherence
+
+// -- completes one simulation iteration performs the approximations until the entire design has stabalized -- //
+static void run_coherence_iteration (int sample_number, int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, int total_number_of_inputs, unsigned long int number_samples, const coherence_OP *options, simulation_data *sim_data, int SIMULATION_TYPE, VectorTable *pvt, double *energy, double **Kxz, double **Kzz, double **a, double *b, double *c, int num_cells)
+  {
+	  unsigned int i,j,k,m,q;
+	  double lambda_x_new;
+	  double lambda_y_new;
+	  double lambda_z_new;
+	  double lambda_x;
+	  double lambda_y;
+	  double lambda_z;
+	  double t;
+	  double PEk, Ek_temp1, Ek_temp2;
+	  double Ekc, Ekd, EkKxz;
+	  unsigned int num_neighbours;
+	  double *Ek_array = NULL;
+	  double *EkKzz = NULL;
+	  double **Kxz_copy = NULL;
+	  double **Kzz_copy = NULL;
+	  double Ek0;
+	  
+	  t = sample_number*options->time_step;
+	  
+	  EkKzz = (double*)malloc(num_cells*sizeof(double));
+	  Ek_array = (double*)malloc(num_cells*sizeof(double));
+	  
+	  Kxz_copy = (double**)malloc(num_cells*sizeof(double*));
+	  Kzz_copy = (double**)malloc(num_cells*sizeof(double*));
+	  
+	  for (i = 0; i < num_cells; i++) {
+		  Kxz_copy[i] = (double*)malloc(num_cells*sizeof(double));
+		  Kzz_copy[i] = (double*)malloc(num_cells*sizeof(double));
+	  }
+	  
+	  energy=0;
+	  // loop through all the cells in the design //
+	  for (i = 0 ; i < number_of_cell_layers ; i++) {
+		  for (j = 0 ; j < number_of_cells_in_layer[i] ; j++)
+		  {
+			  // don't simulate the input and fixed cells //
+			  if (((QCAD_CELL_INPUT == sorted_cells[i][j]->cell_function) ||
+				   (QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function))) 
+				  continue;
+			  
+			  
+			  lambda_x = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_x;
+			  lambda_y = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_y;
+			  lambda_z = ((coherence_model *)sorted_cells[i][j]->cell_model)->lambda_z;	 	  
+			  
+			  PEk = 0;
+			  Ekc = 0;
+			  Ekd = 0;
+			  EkKxz = 0;
+			  /*
+			   // Calculate the sum of neighboring polarizations //
+			   num_neighbours = ((coherence_model *)sorted_cells[i][j]->cell_model)->number_of_neighbours;
+			   for (q = 0 ; q < num_neighbours ; q++) {
+			   PEk += (qcad_cell_calculate_polarization (((coherence_model *)sorted_cells[i][j]->cell_model)->neighbours[q]))*((coherence_model *)sorted_cells[i][j]->cell_model)->Ek[q];
+			   if (((QCAD_CELL_INPUT == sorted_cells[i][j]->cell_function) ||
+			   (QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function))) {
+			   Ekd += (qcad_cell_calculate_polarization (((coherence_model *)sorted_cells[i][j]->cell_model)->neighbours[q]))*((coherence_model *)sorted_cells[i][j]->cell_model)->Ek[q];
+			   }
+			   else {
+			   Ekc += ((coherence_model *)sorted_cells[i][j]->cell_model)->Ek[q];
+			   }
+			   }
+			   */	
+			  for (q = 0; q < number_of_cells_in_layer[i]; q++) {
+				  if (((QCAD_CELL_INPUT == sorted_cells[i][q]->cell_function) ||
+					   (QCAD_CELL_FIXED == sorted_cells[i][q]->cell_function))) {
+					  Ekd += (qcad_cell_calculate_polarization (((coherence_model *)sorted_cells[i][q])))*coherence_determine_Ek(sorted_cells[i][j], sorted_cells[i][q], 0, options);
+				  }
+			  }
+			  
+			  
+			  for (k = 0 ; k < number_of_cells_in_layer[i] ; k++) {
+				  if (k == j) {
+					  Ek_array[k] = 0;
+					  EkKzz[k] = 0;
+					  continue;
+				  }
+				  Ek_temp1 = coherence_determine_Ek(sorted_cells[i][j], sorted_cells[i][k], 0, options);
+				  Ek_array[k] = Ek_temp1;
+				  PEk += (qcad_cell_calculate_polarization (((coherence_model *)sorted_cells[i][k])))*Ek_temp1;
+				  if (((QCAD_CELL_INPUT == sorted_cells[i][k]->cell_function) ||
+					   (QCAD_CELL_FIXED == sorted_cells[i][k]->cell_function))) {
+					  EkKzz[k] = 0;
+					  continue;
+				  }
+				  else {
+					  EkKxz += Kxz[j][k] * Ek_temp1;
+					  Ekc += Ek_temp1;
+				  }
+				  
+				  EkKzz[k] = 0;
+				  for (m = 0; m < number_of_cells_in_layer[i]; m++) {
+					  if ((m == k) || (m == j)) {
+						  continue;
+					  }
+					  if (((QCAD_CELL_INPUT == sorted_cells[i][m]->cell_function) ||
+						   (QCAD_CELL_FIXED == sorted_cells[i][m]->cell_function))) {
+						  continue;
+					  }
+					  EkKzz[k] += Kzz[k][m] * coherence_determine_Ek(sorted_cells[i][j], sorted_cells[i][m], 0, options);
+				  }
+			  }
+			  
+			  Ek0 = get_max(Ek_array, num_cells);
+			  lambda_next (sorted_cells, t, PEk, Ekc, Ekd, lambda_x, lambda_y, lambda_z, Kxz, Kzz, EkKxz, EkKzz, a, b, c, j, i, num_cells, Ek_array, options, number_samples, total_number_of_inputs, SIMULATION_TYPE, pvt, Kxz_copy, Kzz_copy, Ek0);		  
+			  
+		  }
+	  }
+	  
+	  matrix_copy(Kxz_copy, num_cells, num_cells, Kxz);
+	  matrix_copy(Kzz_copy, num_cells, num_cells, Kzz);
+	  
+	  for (q = 0; q < num_cells; q++) {
+		  free(Kxz_copy[q]); Kxz_copy[q] = NULL;
+		  free(Kzz_copy[q]); Kxz_copy[q] = NULL;
+	  }
+	  
+	  free(Kxz_copy); Kxz_copy = NULL;
+	  free(Kzz_copy); Kzz_copy = NULL;
+	  free(Ek_array); Ek_array = NULL;
+	  free(EkKzz); EkKzz = NULL;
+}//run_iteration
+
+//-------------------------------------------------------------------//
+// -- refreshes the array of Ek values for each cell in the design this is done to speed up the simulation
+// since we can assume no design changes durring the simulation we can precompute all the Ek values then
+// use them as necessary throughout the simulation -- //
+static void coherence_refresh_all_Ek (int number_of_cell_layers, int *number_of_cells_in_layer, QCADCell ***sorted_cells, coherence_OP *options)
+  {
+  int icNeighbours = 0 ;
+  coherence_model *cell_model = NULL ;
+  int i,j,k;
+
+  // calculate the Ek for each cell //
+  for(i = 0 ; i < number_of_cell_layers ; i++)
+    for(j = 0 ; j < number_of_cells_in_layer[i] ; j++)
+      {
+      // free up memory from previous simulations //
+      g_free ((cell_model = (coherence_model *)sorted_cells[i][j]->cell_model)->neighbours);
+      g_free (cell_model->Ek);
+      g_free (cell_model->neighbour_layer);
+      cell_model->neighbours = NULL;
+      cell_model->neighbour_layer = NULL;
+      cell_model->Ek = NULL;
+
+      // select all neighbours within the provided radius //
+      cell_model->number_of_neighbours = icNeighbours =
+        select_cells_in_radius(sorted_cells, sorted_cells[i][j], ((coherence_OP *)options)->radius_of_effect, i, number_of_cell_layers, number_of_cells_in_layer,
+             ((coherence_OP *)options)->layer_separation, &(cell_model->neighbours), (int **)&(cell_model->neighbour_layer));
+
+      //printf("number of neighbors = %d\n", icNeighbours);
+
+      if (icNeighbours > 0)
+        {
+        cell_model->Ek = g_malloc0 (sizeof (double) * icNeighbours);
+
+        // ensure no memory allocation error has ocurred //
+        if (((coherence_model *)sorted_cells[i][j]->cell_model)->neighbours == NULL ||
+            ((coherence_model *)sorted_cells[i][j]->cell_model)->Ek == NULL)
+          //printf ("memory allocation error in refresh_all_Ek()\n");
+          exit (1);
+
+        for (k = 0; k < icNeighbours; k++)
+          //if(cell_model->neighbours[k]==NULL)printf("Null neighbour prior to passing into determine Ek for k = %d\n", k);
+          // set the Ek of this cell and its neighbour //
+          cell_model->Ek[k] = coherence_determine_Ek (sorted_cells[i][j], cell_model->neighbours[k], ABS(i-cell_model->neighbour_layer[k]), options);
+          //printf("Ek = %e\n", cell_model->Ek[k]/1.602e-19);
+        }
+      }
+  }//refresh_all_Ek
+
+//-------------------------------------------------------------------//
+// Determines the Kink energy of one cell with respect to another this is defined as the energy of those
+// cells having opposite polarization minus the energy of those two cells having the same polarization -- //
+static double coherence_determine_Ek (QCADCell * cell1, QCADCell * cell2, int layer_separation, coherence_OP *options)
+  {
+  int k;
+  int j;
+
+  double distance = 0;
+  double Constant = 1 / (4 * PI * EPSILON * options->epsilonR);
+
+  double charge1[4] = { -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE };
+  double charge2[4] = {  HALF_QCHARGE, -HALF_QCHARGE,  HALF_QCHARGE, -HALF_QCHARGE };
+
+  double EnergyDiff = 0;
+  double EnergySame = 0;
+
+  g_assert (cell1 != NULL);
+  g_assert (cell2 != NULL);
+  g_assert (cell1 != cell2);
+
+  for (k = 0; k < cell1->number_of_dots; k++)
+    for (j = 0; j < cell2->number_of_dots; j++)
+      {
+      // determine the distance between the dots //
+      // printf("layer seperation = %d\n", layer_seperation);
+      distance = determine_distance (cell1, cell2, k, j, (double)layer_separation * ((coherence_OP *)options)->layer_separation);
+      g_assert (distance != 0);
+
+      EnergyDiff += Constant * (charge1[k] * charge2[j]) / (distance*1e-9);
+      EnergySame += Constant * (charge1[k] * charge1[j]) / (distance*1e-9);
+      }//for other dots
+
+  //printf("Ek = %e\n", (EnergyDiff - EnergySame)/ 1.602e-19);
+
+  return EnergyDiff - EnergySame;
+  }// coherence_determine_Ek
+
+//-------------------------------------------------------------------//
+//-------------------------------------------------------------------//
+// Calculates the clock data at a particular sample
+static inline double calculate_clock_value (unsigned int clock_num, double sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt)
+  {
+  double clock = 0;
+  int jitter_phases[4] = {options->jitter_phase_0, options->jitter_phase_1,
+                          options->jitter_phase_2, options->jitter_phase_3} ;
+
+//Added by Marco: phase shift included in (-PI/2, +P/2) with steps of (1/200)PI
+//Edited by Konrad; Above is wrong, changed jitter to be actual phase shift shift = jitter/180*PI
+
+  if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
+    {
+    clock = optimization_options.clock_prefactor *
+      cos (((double)(1 << total_number_of_inputs)) * sample * optimization_options.four_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 180.0) * PI  - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
+
+    // Saturate the clock at the clock high and low values
+    clock = CLAMP (clock, options->clock_low, options->clock_high) ;
+    }
+  else
+  if (SIMULATION_TYPE == VECTOR_TABLE)
+    {
+    clock = optimization_options.clock_prefactor *
+      cos (((double)pvt->vectors->icUsed) * sample * optimization_options.two_pi_over_number_samples - (double)((jitter_phases[clock_num]) / 180.0) * PI  - PI * (double)clock_num * 0.5) + optimization_options.clock_shift + options->clock_shift;
+
+    // Saturate the clock at the clock high and low values
+    clock = CLAMP (clock, options->clock_low, options->clock_high) ;
+    }
+    
+//End added by Marco
+  return clock;
+  }// calculate_clock_value
+
+
+static inline double calculate_clock_value_cc (QCADCell *cell, double sample, unsigned long int number_samples, int total_number_of_inputs, const coherence_OP *options, int SIMULATION_TYPE, VectorTable *pvt) //Added by Faizal for cont. clocking
+  {
+  double clock = 0;
+
+  if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
+    {
+    clock = optimization_options.clock_prefactor *
+      cos (((double)(1 << total_number_of_inputs)) * sample * optimization_options.four_pi_over_number_samples - options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x - options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y) + optimization_options.clock_shift + options->clock_shift;
+	  
+    // Saturate the clock at the clock high and low values
+    clock = CLAMP (clock, options->clock_low, options->clock_high) ;
+    }
+  else
+  if (SIMULATION_TYPE == VECTOR_TABLE)
+    {
+    clock = optimization_options.clock_prefactor *
+      cos (((double)pvt->vectors->icUsed) * sample * optimization_options.two_pi_over_number_samples - options->wave_number_kx * QCAD_DESIGN_OBJECT (cell)->x - options->wave_number_ky * QCAD_DESIGN_OBJECT (cell)->y) + optimization_options.clock_shift + options->clock_shift;
+
+    // Saturate the clock at the clock high and low values
+    clock = CLAMP (clock, options->clock_low, options->clock_high) ;
+    }
+    
+  return clock;
+  }// calculate_clock_value_cc
+
+
+//-------------------------------------------------------------------//
+
+// Next value of lambda x with choice of algorithm
+static void lambda_next (QCADCell ***sorted_cells, double t, double PEk, double Ekc, double Ekd, double lambda_x, double lambda_y, double lambda_z, double **Kxz, double **Kzz, double EkKxz, double *EkKzz, double **a, double *b, double *c, int current_cell, int cell_layer, int num_cells, double *Ek_array, const coherence_OP *options, unsigned long int number_samples, int total_number_of_inputs, int SIMULATION_TYPE, VectorTable *pvtdouble, double **Kxz_next, double **Kzz_next, double Ek0)  
+{
+	int i, j, m;
+	double clock_value;
+	double temp_t, sample_number;
+	double temp_kx, temp_ky, temp_kz, temp_lambdax, temp_lambday, temp_lambdaz, temp_kxz;
+	double *temp_kxz_arr = NULL;
+	double *temp_kzz_arr = NULL;
+	double *temp_lambdaxz = NULL;
+	double *temp_lambdazz = NULL;	
+	double *kx = NULL;
+	double *ky = NULL;
+	double *kz = NULL;
+	double **kxz = NULL;
+	double **kzz = NULL;
+	temp_kxz_arr = (double*)malloc(num_cells*sizeof(double));
+	temp_kzz_arr = (double*)malloc(num_cells*sizeof(double));
+	temp_lambdaxz = (double*)malloc(num_cells*sizeof(double));
+	temp_lambdazz = (double*)malloc(num_cells*sizeof(double));
+	kx = (double*)malloc(7*sizeof(double));
+	ky = (double*)malloc(7*sizeof(double));  
+	kz = (double*)malloc(7*sizeof(double));
+	kxz = (double**)malloc(7*sizeof(double));
+	kzz = (double**)malloc(7*sizeof(double));
+	
+	double kBT = kB*options->T;
+	double Pol = qcad_cell_calculate_polarization (((coherence_model *)sorted_cells[cell_layer][3]));
+	double lssz, lsszz;
+	
+	sample_number = t/options->time_step;
+	
+	if(FOUR_PHASE_CLOCKING == options->clocking){
+		clock_value = calculate_clock_value((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvtdouble); 
+	}
+	else {  
+		clock_value = calculate_clock_value_cc((coherence_model *)sorted_cells[cell_layer][current_cell], sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvtdouble);
+	}		
+		
+	
+	for (i = 0; i < 7; i++) {
+		kxz[i] = (double*)malloc(num_cells*sizeof(double));
+		kzz[i] = (double*)malloc(num_cells*sizeof(double));
+	}
+	
+	kx[0] = ((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->kx7;
+	ky[0] = ((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->ky7;
+	kz[0] = ((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->kz7;
+	
+	for (i = 0; i < num_cells; i++) {
+		kxz[0][i] = ((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->kxz7[i];
+		kzz[0][i] = ((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->kzz7[i];
+	}
+	
+	for (i = 1; i < 7; i++) {
+		temp_kx = 0;
+		temp_ky = 0;
+		temp_kz = 0;
+		temp_kxz = 0;
+		for (j = 0; j < i; j++) {
+			temp_kx += a[i][j]*kx[j];
+			temp_ky += a[i][j]*ky[j];
+			temp_kz += a[i][j]*kz[j];
+		}
+		for (m = 0; m < num_cells; m++) {
+			temp_kxz_arr[m] = 0;
+			temp_kzz_arr[m] = 0;
+			for (j = 0; j < i; j++) {
+				temp_kxz_arr[m] += a[i][j]*kxz[j][m];
+				temp_kzz_arr[m] += a[i][j]*kzz[j][m];
+			}
+			temp_kxz += Ek_array[m]*temp_kxz_arr[m];
+		}
+		temp_t = t + c[i]*options->time_step;
+		sample_number = temp_t/options->time_step;
+		
+		if(FOUR_PHASE_CLOCKING == options->clocking){
+			clock_value = calculate_clock_value((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_options.clock, sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvtdouble); 
+		}
+		else {  
+			clock_value = calculate_clock_value_cc((coherence_model *)sorted_cells[cell_layer][current_cell], sample_number, number_samples, total_number_of_inputs, options, SIMULATION_TYPE, pvtdouble);
+		}		
+		
+		kx[i] = -over_hbar*PEk*(lambda_y + options->time_step*temp_ky);
+		ky[i] = over_hbar*(Ekd*(lambda_x + options->time_step*temp_kx) + 2*clock_value*(lambda_z + options->time_step*temp_kz) - EkKxz - options->time_step*temp_kxz);
+		kz[i] = -over_hbar*2*clock_value*(lambda_y + options->time_step*temp_ky);
+		for (m = 0; m < num_cells; m++) {
+			if (((QCAD_CELL_INPUT == sorted_cells[cell_layer][m]->cell_function) ||
+				 (QCAD_CELL_FIXED == sorted_cells[cell_layer][m]->cell_function))) {
+				kxz[i][m] = 0;
+				kzz[i][m] = 0;
+				continue;
+			}
+			if (m == current_cell) {
+				kxz[i][m] = 0;
+				kzz[i][m] = 0;
+				continue;
+			}
+			kxz[i][m] = over_hbar*((-Ekd*(((coherence_model *)sorted_cells[cell_layer][m]->cell_model)->lambda_z_old) + Ek_array[m] + EkKzz[m])*(lambda_y + options->time_step*temp_ky) - 2*clock_value*(((coherence_model *)sorted_cells[cell_layer][m]->cell_model)->lambda_y_old)*(lambda_x + options->time_step*temp_kx));
+			kzz[i][m] = -over_hbar*(2*clock_value*((((coherence_model *)sorted_cells[cell_layer][m]->cell_model)->lambda_z_old)*(lambda_y + options->time_step*temp_ky) + (((coherence_model *)sorted_cells[cell_layer][m]->cell_model)->lambda_y_old)*(lambda_z + options->time_step*temp_kz)));
+		}
+	}
+	
+	
+	temp_lambdax = 0;
+	temp_lambday = 0;
+	temp_lambdaz = 0;
+	 
+	
+	for (i = 0; i < 7; i++) {
+				
+		temp_lambdax += b[i]*kx[i];
+		temp_lambday += b[i]*ky[i];
+		temp_lambdaz += b[i]*kz[i];
+	}
+	
+	for (m = 0; m < num_cells; m++) {		
+		((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->kxz7[m] = kxz[6][m];
+		((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->kzz7[m] = kzz[6][m];
+		if (((QCAD_CELL_INPUT == sorted_cells[cell_layer][m]->cell_function) ||
+			 (QCAD_CELL_FIXED == sorted_cells[cell_layer][m]->cell_function))) {
+			Kxz_next[current_cell][m] = 0;
+			Kzz_next[current_cell][m] = 0;
+			continue;
+		}
+		if (m == current_cell) {
+			Kxz_next[current_cell][m] = 0;
+			Kzz_next[current_cell][m] = 0;
+			continue;
+		}
+		temp_lambdaxz[m] = 0;
+		temp_lambdazz[m] = 0;
+		for (i = 0; i < 7; i++) {			
+			temp_lambdaxz[m] += b[i]*kxz[i][m];
+			temp_lambdazz[m] += b[i]*kzz[i][m];
+		}
+		
+		Kxz_next[current_cell][m] = Kxz[current_cell][m] + options->time_step*(temp_lambdaxz[m]);
+		Kzz_next[current_cell][m] = Kzz[current_cell][m] + options->time_step*(temp_lambdazz[m]);
+		
+	}
+	
+	
+	((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->lambda_x = lambda_x + options->time_step*(temp_lambdax);
+	((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->lambda_y = lambda_y + options->time_step*(temp_lambday);
+	((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->lambda_z = lambda_z + options->time_step*(temp_lambdaz);
+	
+	((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->kx7 = kx[6];
+	((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->ky7 = ky[6];
+	((coherence_model *)sorted_cells[cell_layer][current_cell]->cell_model)->kz7 = kz[6];
+
+	
+	free(kx); kx = NULL;
+	free(ky); ky = NULL;
+	free(kz); kz = NULL;
+	free(temp_lambdaxz); temp_lambdaxz = NULL;
+	free(temp_lambdazz); temp_lambdazz = NULL;
+	free(temp_kxz_arr); temp_kxz_arr = NULL;
+	free(temp_kzz_arr); temp_kzz_arr = NULL;
+	
+	for (m = 0; m < 7; m++) {
+		free(kxz[m]); kxz[m] = NULL;
+		free(kzz[m]); kzz[m] = NULL;
+	}
+	
+	free(kxz); kxz = NULL;
+	free(kzz); kzz = NULL;	
+	
+	
+  }
+
+static inline double get_max(double *array, int num_elements) {
+	
+	int i;
+	double max = -32000;
+	
+	for (i = 0; i < num_elements; i++) {
+        if (array[i] > max) {
+			max = array[i];
+        }
+	}
+	
+	return max;
+}
+
+static inline void matrix_copy(double **Mat1, int dimx, int dimy, double **Mat0)
+{
+	
+	int i = 0;
+	int j = 0;
+	for(i = 0; i < dimx; i++)
+		for( j = 0; j < dimy; j++) {
+			Mat0[i][j] =  Mat1[i][j];
+		}		
+}
+
+static inline double slope_x (double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options)
+  {
+  double mag = magnitude_energy_vector (PEk, Gamma);
+  return ((2.0 * Gamma * over_hbar / mag * tanh (optimization_options.hbar_over_kBT * mag * 0.5) - lambda_x) / options->relaxation - (PEk * lambda_y * over_hbar));
+  }
+
+static inline double slope_y (double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options)
+  {return (options->relaxation * (PEk * lambda_x + 2.0 * Gamma * lambda_z) - hbar * lambda_y) / (options->relaxation * hbar);}
+
+static inline double slope_z (double t, double PEk, double Gamma, double lambda_x, double lambda_y, double lambda_z, const coherence_OP *options)
+  {
+  double mag = magnitude_energy_vector (PEk, Gamma);
+  return (-PEk * tanh (optimization_options.hbar_over_kBT * mag * 0.5) - mag * (2.0 * Gamma * options->relaxation * lambda_y + hbar * lambda_z)) / (options->relaxation * hbar * mag);
+  }
+
+//-------------------------------------------------------------------------------------------------------------------------//
+
+// Steady-State Coherence Vector X component
+static inline double lambda_ss_x(double t, double PEk, double Gamma, const coherence_OP *options)
+  {return 2.0 * Gamma * over_hbar / magnitude_energy_vector(PEk, Gamma) * tanh (temp_ratio (PEk, Gamma, options->T));}
+
+// Steady-State Coherence Vector y component
+static inline double lambda_ss_y (double t, double PEk, double Gamma, const coherence_OP *options)
+  {return 0.0;}
+
+// Steady-State Coherence Vector Z component
+static inline double lambda_ss_z(double t, double PEk, double Gamma, const coherence_OP *options)
+  {return - PEk * over_hbar / magnitude_energy_vector (PEk, Gamma) * tanh (temp_ratio (PEk, Gamma, options->T));}
+
+static int compareCoherenceQCells (const void *p1, const void *p2)
+  {
+  return
+    ((coherence_model *)((*((QCADCell **)(p1)))->cell_model))->number_of_neighbours >
+    ((coherence_model *)((*((QCADCell **)(p2)))->cell_model))->number_of_neighbours ?  1 :
+    ((coherence_model *)((*((QCADCell **)(p1)))->cell_model))->number_of_neighbours <
+    ((coherence_model *)((*((QCADCell **)(p2)))->cell_model))->number_of_neighbours ? -1 : 0 ;
+  }//compareSortStructs
+
+void coherence_options_dump (coherence_OP *coherence_options, FILE *pfile)
+  {
+  fprintf (stderr, "coherence_options_dump:\n") ;
+	fprintf (stderr, "coherence_options->T                         = %e [K]\n",  coherence_options->T) ;
+	fprintf (stderr, "coherence_options->relaxation                = %e [s]\n",  coherence_options->relaxation) ;
+	fprintf (stderr, "coherence_options->time_step                 = %e [s]\n",  coherence_options->time_step) ;
+	fprintf (stderr, "coherence_options->duration                  = %e [s]\n",  coherence_options->duration) ;
+	fprintf (stderr, "coherence_options->clock_high                = %e [J]\n",  coherence_options->clock_high) ;
+	fprintf (stderr, "coherence_options->clock_low                 = %e [J]\n",  coherence_options->clock_low) ;
+	fprintf (stderr, "coherence_options->clock_shift               = %e [J]\n",  coherence_options->clock_shift) ;
+	fprintf (stderr, "coherence_options->clock_amplitude_factor    = %e\n",      coherence_options->clock_amplitude_factor) ;
+	fprintf (stderr, "coherence_options->radius_of_effect          = %e [nm]\n", coherence_options->radius_of_effect) ;
+	fprintf (stderr, "coherence_options->epsilonR                  = %e\n",      coherence_options->epsilonR) ;
+	fprintf (stderr, "coherence_options->layer_separation          = %e [nm]\n", coherence_options->layer_separation) ;
+	fprintf (stderr, "coherence_options->algorithm                 = %d\n",      coherence_options->algorithm) ;
+	fprintf (stderr, "coherence_options->randomize_cells           = %s\n",      coherence_options->randomize_cells ? "TRUE" : "FALSE") ;
+	fprintf (stderr, "coherence_options->animate_simulation        = %s\n",      coherence_options->animate_simulation ? "TRUE" : "FALSE") ;
+// Added by Marco
+	fprintf (stderr, "coherence_options->jitter_phase_0            = %f degrees\n",      coherence_options->jitter_phase_0) ;
+	fprintf (stderr, "coherence_options->jitter_phase_1            = %f degrees\n",      coherence_options->jitter_phase_1) ;
+	fprintf (stderr, "coherence_options->jitter_phase_2            = %f degrees\n",      coherence_options->jitter_phase_2) ;
+	fprintf (stderr, "coherence_options->jitter_phase_3            = %f degrees\n",      coherence_options->jitter_phase_3) ;
+// End added by Marco
+//Added by Faizal
+	fprintf (stderr, "coherence_options->wave_number_kx            = %lf [1/nm]\n",      coherence_options->wave_number_kx) ;
+	fprintf (stderr, "coherence_options->wave_number_ky            = %lf [1/nm]\n",      coherence_options->wave_number_ky) ;
+	fprintf (stderr, "coherence_options->clocking                  = %d\n",             coherence_options->clocking) ;
+//End added by Faizal	
+  }

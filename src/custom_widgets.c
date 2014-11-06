@@ -520,25 +520,8 @@ void set_ruler_scale (GtkRuler *ruler, double dLower, double dUpper)
   return ;
   }
 #else
-  double dRange = dUpper - dLower ;
-  int iPowerOfTen = ceil (log10 (dRange)), Nix = 0, iPowerOfDivisor = 0 ;
-  double dScale = pow (10, iPowerOfTen) ;
-
-  if (dRange < dScale / 2)
-    {
-    dScale /= 2 ;
-    iPowerOfDivisor = 1 ;
-    }
-
-  for (Nix = 9 ; Nix > -1 ; Nix--)
-    {
-    ruler->metric->ruler_scale[Nix] = floor (dScale / ((double)(1 << iPowerOfDivisor))) ;
-    iPowerOfDivisor++ ;
-    iPowerOfDivisor %= NUMBER_OF_RULER_SUBDIVISIONS ;
-    if (0 == iPowerOfDivisor)
-      dScale = pow (10, floor (log10 (dScale / NUMBER_OF_RULER_SUBDIVISIONS))) ;
-    }
-  }
+  gtk_ruler_set_range(ruler, dLower, dUpper, 0., 10.);
+}
 #endif /* WIN32 => Don't set_ruler_scale */
 
 void set_window_icon (GtkWindow *window, char *pszBaseName)

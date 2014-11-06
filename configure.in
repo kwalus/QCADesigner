@@ -238,7 +238,7 @@ AC_SUBST(VERSION)
 AC_SUBST(prefix)
 AC_SUBST(packagesrcdir)
 
-GTK_DOC_CHECK(1.4)
+dnl GTK_DOC_CHECK(1.4)
 
 AC_OUTPUT([
 Makefile

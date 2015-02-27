@@ -149,6 +149,10 @@ static inline void simulated_annealing(QCADCell ***sorted_cells, double **Ek_mat
 static inline int get_path(double **Ek_matrix, int *order, double Ek_max, double Ek_min, int num_cells, int driver, int *num_seen, int *center_ind, int *center_nn, int index, int sflag);
 static inline void get_order(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells);
 
+// new generalized methods for initialising coherence simulation
+static inline void expand_source(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int source, int *pending_drivers, int *outputs, int *off_shoots);
+static inline void cell_is_maj(QCADCell *cell, double **Ek_matrix, int num_cells);
+
 static inline int search_matrix_row(double **A, double cmp, int row, int num_elements);
 static inline int find_matrix_row(double **A, double cmp, int row, int num_elements, int select);
 static inline int search_array(double *A, double cmp, int num_elements );
@@ -2061,6 +2065,17 @@ static inline int get_path(double **Ek_matrix, int *order, double Ek_max, double
     }
 	
     return index;
+}
+
+
+
+// new generalized methods for initialising coherence simulation
+static inline void expand_source(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int source, int *pending_drivers, int *outputs, int *off_shoots)
+{
+}
+
+static inline void cell_is_maj(QCADCell *cell, double **Ek_matrix, int num_cells)
+{
 }
 
 

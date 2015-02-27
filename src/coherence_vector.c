@@ -146,12 +146,12 @@ static int compareCoherenceQCells (const void *p1, const void *p2) ;
 static inline void get_steadystate (int *number_of_cells_in_layer, QCADCell ***sorted_cells, double **Ek_matrix, int total_number_of_inputs, const coherence_OP *options);
 static inline void find_path (double **Ek_matrix, int driver, double Ek_max, double Ek_min, int num_cells, int distance, QCADCell ***sorted_cells, int *num_seen);
 static inline void simulated_annealing(QCADCell ***sorted_cells, double **Ek_matrix, int iterations, int num_cells, double *ss_polarizations, const coherence_OP *options, int *order); 
-static inline int get_path(double **Ek_matrix, int *order, double Ek_max, double Ek_min, int num_cells, int driver, int *num_seen, int *center_ind, int *center_nn, int index, int sflag);
+//static inline int get_path(double **Ek_matrix, int *order, double Ek_max, double Ek_min, int num_cells, int driver, int *num_seen, int *center_ind, int *center_nn, int index, int sflag);
 static inline void get_order(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells);
 
 // new generalized methods for initialising coherence simulation
-static inline void expand_source(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int source, int *pending_drivers, int *outputs, int *off_shoots);
-static inline void cell_is_maj(QCADCell *cell, double **Ek_matrix, int num_cells);
+static inline void expand_source(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int source, int *pending_drivers, int *outputs, int *off_shoots, int *gate_visits);
+static inline int cell_is_maj(int cell_ind, double **Ek_matrix, int num_cells, double Ek_abs);
 
 static inline int search_matrix_row(double **A, double cmp, int row, int num_elements);
 static inline int find_matrix_row(double **A, double cmp, int row, int num_elements, int select);
@@ -649,6 +649,16 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
 	  
 	  get_order(sorted_cells, Ek_matrix, order, num_cells);
 	  
+	  command_history_message("\nInducing process termination...");
+	  return sim_data;
+	  
+	  for(i = 0; i < num_cells; i++){
+		  if(order[i] < 0){
+			  command_history_message("\nCell ordering failed");
+			  return sim_data;
+		  }
+	  }
+		  
       //get_steadystate (number_of_cells_in_layer[0], sorted_cells, Ek_matrix, total_number_of_inputs, options);
       simulated_annealing(sorted_cells, Ek_matrix, num_iterations, num_cells, ss_polarizatons, options, order);
 	
@@ -1904,178 +1914,283 @@ static inline void get_steadystate (int *number_of_cells_in_layer, QCADCell ***s
     free(num_seen); num_seen = NULL;
 }
 
-static inline void get_order(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells) {
-    
-	//Figures out an optimized order for assigning polarizations (helpful when making an initial guess in the simulated annealing algorithm)
-	
-    int i, j, k, m;
-    int num_drivers = 0;
-    double Ek_max, Ek_min;
-    int *num_seen = NULL;
-    int *driver_ind = NULL;
-	int *center_ind = NULL;
-	int *center_nn = NULL;
-    int driver;
-	int check, temp;
-    	
-    num_seen = (int*)malloc(num_cells*sizeof(int));
-    driver_ind = (int*)malloc(num_cells*sizeof(int));
-    center_ind = (int*)malloc(num_cells*sizeof(int));
-    center_nn = (int*)malloc(num_cells*sizeof(int));
-	
-    Ek_max = get_max(Ek_matrix,num_cells);
-    Ek_min = get_min(Ek_matrix,num_cells);
-    Ek_min = (Ek_min >= 0) ? -Ek_max : Ek_min;
-    
-    for (i = 0; i < num_cells; i++) {
-		order[i] = -1;
-        driver_ind[i] = -1;
-        num_seen[i] = -1;
-		center_ind[i] = -1;
-		center_nn[i] = -1;
-        if (((QCAD_CELL_INPUT == sorted_cells[0][i]->cell_function) ||
-             (QCAD_CELL_FIXED == sorted_cells[0][i]->cell_function))) {
-            driver_ind[num_drivers] = i;	//keep track of the drivers, since those will be the starting points
-            num_drivers += 1;
-        }
-    }
-	
-    j = 0;
-    k = 0;
-    
-    while (j < num_drivers) {
-        
-        driver = driver_ind[j];
-        num_seen[driver] = 1;
-        order[k] = driver;
-		k++;
-        
-        k = get_path(Ek_matrix, order, Ek_max, Ek_min, num_cells, driver, num_seen, center_ind, center_nn, k, 0); //starting with the drivers, find a path from those drivers to the outputs
-		j++;
-    }
-	
-	if (search_array_int(num_seen,-1,num_cells) != -1) {			//if we still have cells that haven't been accounted for, look for fanouts or MG who haven't seen all inputs yet
-		num_drivers = search_array_int(center_ind,-1,num_cells);
-		for (i = 0; i < num_drivers; i++) {		//start with fanouts first (i.e., cells which only have a single seen neihgbour)
-			check = 0;							//quickly puts fanouts first, and MGs second
-			if (center_nn[i] == 1) {
-				continue;
-			}
-			else {
-				for (j = i+1; j < num_drivers; j++) {
-					if (center_nn[j] == 1) {
-						temp = center_ind[j];
-						center_ind[j] = center_ind[i];
-						center_ind[i] = temp;
-						check = 1;
-						break;
-					}
-				}
-				if (check) {
-					break;
-				}
-			}
-		}
-		
-		j = 0;
-		
-		while (j < num_drivers) {
-			driver = center_ind[j];
-			num_seen[driver] = 1;
-			order[k] = driver;
-			k++;
-			
-			k = get_path(Ek_matrix, order, Ek_max, Ek_min, num_cells, driver, num_seen, center_ind, center_nn, k, 1);	//get the path from these cells to the outputs
-			num_drivers = search_array_int(center_ind,-1,num_cells);	//update the number of fanouts/MGs as we go along
-			j++;
-		}
-	}
-	
-	
-	free(driver_ind); driver_ind = NULL;
-	free(num_seen); num_seen = NULL;
-	free(center_ind); center_ind = NULL;
-	free(center_nn); center_nn = NULL;
+//~ static inline void get_order(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells) {
+    //~ 
+	//~ //Figures out an optimized order for assigning polarizations (helpful when making an initial guess in the simulated annealing algorithm)
+	//~ 
+    //~ int i, j, k, m;
+    //~ int num_drivers = 0;
+    //~ double Ek_max, Ek_min;
+    //~ int *num_seen = NULL;
+    //~ int *driver_ind = NULL;
+	//~ int *center_ind = NULL;
+	//~ int *center_nn = NULL;
+    //~ int driver;
+	//~ int check, temp;
+    	//~ 
+    //~ num_seen = (int*)malloc(num_cells*sizeof(int));
+    //~ driver_ind = (int*)malloc(num_cells*sizeof(int));
+    //~ center_ind = (int*)malloc(num_cells*sizeof(int));
+    //~ center_nn = (int*)malloc(num_cells*sizeof(int));
+	//~ 
+    //~ Ek_max = get_max(Ek_matrix,num_cells);
+    //~ Ek_min = get_min(Ek_matrix,num_cells);
+    //~ Ek_min = (Ek_min >= 0) ? -Ek_max : Ek_min;
+    //~ 
+    //~ for (i = 0; i < num_cells; i++) {
+		//~ order[i] = -1;
+        //~ driver_ind[i] = -1;
+        //~ num_seen[i] = -1;
+		//~ center_ind[i] = -1;
+		//~ center_nn[i] = -1;
+        //~ if (((QCAD_CELL_INPUT == sorted_cells[0][i]->cell_function) ||
+             //~ (QCAD_CELL_FIXED == sorted_cells[0][i]->cell_function))) {
+            //~ driver_ind[num_drivers] = i;	//keep track of the drivers, since those will be the starting points
+            //~ num_drivers += 1;
+        //~ }
+    //~ }
+	//~ 
+    //~ j = 0;
+    //~ k = 0;
+    //~ 
+    //~ while (j < num_drivers) {
+        //~ 
+        //~ driver = driver_ind[j];
+        //~ num_seen[driver] = 1;
+        //~ order[k] = driver;
+		//~ k++;
+        //~ 
+        //~ k = get_path(Ek_matrix, order, Ek_max, Ek_min, num_cells, driver, num_seen, center_ind, center_nn, k, 0); //starting with the drivers, find a path from those drivers to the outputs
+		//~ j++;
+    //~ }
+	//~ 
+	//~ if (search_array_int(num_seen,-1,num_cells) != -1) {			//if we still have cells that haven't been accounted for, look for fanouts or MG who haven't seen all inputs yet
+		//~ num_drivers = search_array_int(center_ind,-1,num_cells);
+		//~ for (i = 0; i < num_drivers; i++) {		//start with fanouts first (i.e., cells which only have a single seen neihgbour)
+			//~ check = 0;							//quickly puts fanouts first, and MGs second
+			//~ if (center_nn[i] == 1) {
+				//~ continue;
+			//~ }
+			//~ else {
+				//~ for (j = i+1; j < num_drivers; j++) {
+					//~ if (center_nn[j] == 1) {
+						//~ temp = center_ind[j];
+						//~ center_ind[j] = center_ind[i];
+						//~ center_ind[i] = temp;
+						//~ check = 1;
+						//~ break;
+					//~ }
+				//~ }
+				//~ if (check) {
+					//~ break;
+				//~ }
+			//~ }
+		//~ }
+		//~ 
+		//~ j = 0;
+		//~ 
+		//~ while (j < num_drivers) {
+			//~ driver = center_ind[j];
+			//~ num_seen[driver] = 1;
+			//~ order[k] = driver;
+			//~ k++;
+			//~ 
+			//~ k = get_path(Ek_matrix, order, Ek_max, Ek_min, num_cells, driver, num_seen, center_ind, center_nn, k, 1);	//get the path from these cells to the outputs
+			//~ num_drivers = search_array_int(center_ind,-1,num_cells);	//update the number of fanouts/MGs as we go along
+			//~ j++;
+		//~ }
+	//~ }
+	//~ 
+	//~ 
+	//~ free(driver_ind); driver_ind = NULL;
+	//~ free(num_seen); num_seen = NULL;
+	//~ free(center_ind); center_ind = NULL;
+	//~ free(center_nn); center_nn = NULL;
+//~ 
+//~ }
 
-}
-
-static inline int get_path(double **Ek_matrix, int *order, double Ek_max, double Ek_min, int num_cells, int driver, int *num_seen, int *center_ind, int *center_nn, int index, int sflag) {
-    
-	//find the path from a driver to an output
-	
-    int i;
-    double Ek;
-    int num_neighbours, neigh_ind;
-    int center_driver;
-	int seen = 0;
-	int xflag = 1;
-	
-    Ek = Ek_max;
-	
-    num_neighbours = search_matrix_row(Ek_matrix,Ek,driver,num_cells);			//if the driver only has one neighbour, and it's been seen, then either we're at an output, or an inverter
-	
-    if (num_neighbours == 1) {
-        neigh_ind = find_matrix_row(Ek_matrix,Ek,driver,num_cells,0);
-        if (num_seen[neigh_ind] == 1) {											//if it's an inverter, then we want to continue the path through the diagonal cell
-            if (search_matrix_row(Ek_matrix,Ek_min,driver,num_cells) > 0) {
-                Ek = Ek_min;
-            }
-        }
-    }
-    
-	if (!sflag) {						//if the driver has 4 neighbours, dont move on until 3 of it's neighbours have been seen
-		if (num_neighbours == 4) {
-			center_driver = search_array_int(center_ind,driver,num_cells);
-			for (i = 0; i < num_neighbours; i++) {
-				neigh_ind = find_matrix_row(Ek_matrix,Ek,driver,num_cells,i);
-				if (num_seen[neigh_ind] != -1) {
-					seen += 1;
-				}
-			}
-			if (seen >= 3) {
-				center_ind[center_driver] = -1;
-				xflag = 1;		
-			}
-			else {
-				center_driver = (center_driver == -1) ? search_array_int(center_ind,-1,num_cells) : center_driver;		//if 3 neighbours haven't been seen, then keep track of this cell for later
-				center_ind[center_driver] = driver;
-				center_nn[center_driver] = seen;
-				num_seen[driver] = -1;
-				xflag = 0;
-				index--;
-			}
-		}
-	}
-
-	if (xflag) {
-        for (i = 0; i < num_neighbours; i++) {							
-            neigh_ind = find_matrix_row(Ek_matrix,Ek,driver,num_cells,i);		//for each unseen neighbour, find paths through those cells
-            if (num_seen[neigh_ind] == 1) {
-                continue;
-            }
-            else {
-                num_seen[neigh_ind] = 1;
-                order[index] = neigh_ind;
-                index++;
-                
-				fflush(stdout); //avoids a seg fault....
-                index = get_path(Ek_matrix, order, Ek_max, Ek_min, num_cells, neigh_ind, num_seen, center_ind, center_nn, index, 0);
-            }
-        }
-    }
-	
-    return index;
-}
+//~ static inline int get_path(double **Ek_matrix, int *order, double Ek_max, double Ek_min, int num_cells, int driver, int *num_seen, int *center_ind, int *center_nn, int index, int sflag) {
+    //~ 
+	//~ //find the path from a driver to an output
+	//~ 
+    //~ int i;
+    //~ double Ek;
+    //~ int num_neighbours, neigh_ind;
+    //~ int center_driver;
+	//~ int seen = 0;
+	//~ int xflag = 1;
+	//~ 
+    //~ Ek = Ek_max;
+	//~ 
+    //~ num_neighbours = search_matrix_row(Ek_matrix,Ek,driver,num_cells);			//if the driver only has one neighbour, and it's been seen, then either we're at an output, or an inverter
+	//~ 
+    //~ if (num_neighbours == 1) {
+        //~ neigh_ind = find_matrix_row(Ek_matrix,Ek,driver,num_cells,0);
+        //~ if (num_seen[neigh_ind] == 1) {											//if it's an inverter, then we want to continue the path through the diagonal cell
+            //~ if (search_matrix_row(Ek_matrix,Ek_min,driver,num_cells) > 0) {
+                //~ Ek = Ek_min;
+            //~ }
+        //~ }
+    //~ }
+    //~ 
+	//~ if (!sflag) {						//if the driver has 4 neighbours, dont move on until 3 of it's neighbours have been seen
+		//~ if (num_neighbours == 4) {
+			//~ center_driver = search_array_int(center_ind,driver,num_cells);
+			//~ for (i = 0; i < num_neighbours; i++) {
+				//~ neigh_ind = find_matrix_row(Ek_matrix,Ek,driver,num_cells,i);
+				//~ if (num_seen[neigh_ind] != -1) {
+					//~ seen += 1;
+				//~ }
+			//~ }
+			//~ if (seen >= 3) {
+				//~ center_ind[center_driver] = -1;
+				//~ xflag = 1;		
+			//~ }
+			//~ else {
+				//~ center_driver = (center_driver == -1) ? search_array_int(center_ind,-1,num_cells) : center_driver;		//if 3 neighbours haven't been seen, then keep track of this cell for later
+				//~ center_ind[center_driver] = driver;
+				//~ center_nn[center_driver] = seen;
+				//~ num_seen[driver] = -1;
+				//~ xflag = 0;
+				//~ index--;
+			//~ }
+		//~ }
+	//~ }
+//~ 
+	//~ if (xflag) {
+        //~ for (i = 0; i < num_neighbours; i++) {							
+            //~ neigh_ind = find_matrix_row(Ek_matrix,Ek,driver,num_cells,i);		//for each unseen neighbour, find paths through those cells
+            //~ if (num_seen[neigh_ind] == 1) {
+                //~ continue;
+            //~ }
+            //~ else {
+                //~ num_seen[neigh_ind] = 1;
+                //~ order[index] = neigh_ind;
+                //~ index++;
+                //~ 
+				//~ fflush(stdout); //avoids a seg fault....
+                //~ index = get_path(Ek_matrix, order, Ek_max, Ek_min, num_cells, neigh_ind, num_seen, center_ind, center_nn, index, 0);
+            //~ }
+        //~ }
+    //~ }
+	//~ 
+    //~ return index;
+//~ }
 
 
 
 // new generalized methods for initialising coherence simulation
-static inline void expand_source(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int source, int *pending_drivers, int *outputs, int *off_shoots)
+
+static inline void get_order(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells)
 {
+	// define parameters
+	
+	int i, j;
+	int *sources;
+	int *gate_visits;
+	int *gate_index;
+	int *driver_index;
+	
+	int num_gates = 0;
+	int num_sources = 0;
+	int num_drivers = 0;
+	int num_pending_drivers = 0;
+	
+	double Ek_max, Ek_min, Ek_abs;
+	
+	// initialize parameters
+	
+	sources = (int*)malloc(num_cells*sizeof(int));
+	gate_visits = (int*)malloc(num_cells*sizeof(int));
+	gate_index = (int*)malloc(num_cells*sizeof(int));
+	driver_index = (int*)malloc(num_cells*sizeof(int));
+	
+	Ek_max = get_max(Ek_matrix, num_cells);
+	Ek_min = get_min(Ek_matrix, num_cells);
+	Ek_abs = max(Ek_max, fabs(Ek_min));	// scaling value
+	
+	// set default values and get list of drivers and majority gates
+	for(i = 0; i < num_cells; i++){
+		order[i] = -1;
+		sources[i] = -1;
+		gate_visits[i] = -1;
+		gate_index[i] = -1;
+		driver_index[i] = -1;
+		if ((sorted_cells[0][i]->cell_function == QCAD_CELL_INPUT) || (sorted_cells[0][i]->cell_function == QCAD_CELL_FIXED)){
+			driver_index[num_drivers++] = i;
+		}
+		else if (cell_is_maj(i, Ek_matrix, num_cells, Ek_abs)) {
+			gate_index[num_gates++] = i;
+		}
+	}
+	
+	// echo drivers and gates for testing
+	command_history_message("\nDetected drivers cell:\n");
+	for(i = 0; i < num_drivers; i++){
+		command_history_message("%d, ", driver_index[i]);
+	}
+	command_history_message("\nDetected Majority gates:\n");
+	for(i = 0; i < num_gates; i++){
+		command_history_message("%d, ", gate_index[i]);
+	}
+	
+	// free up allocated memory and handle dangling pointers
+	
+	free(sources); sources=NULL;
+	free(gate_visits); gate_visits=NULL;
+	free(gate_index); gate_index=NULL;
+	free(driver_index); driver_index=NULL;
+	
 }
 
-static inline void cell_is_maj(QCADCell *cell, double **Ek_matrix, int num_cells)
+static inline void expand_source(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int source,
+int *pending_drivers, int *outputs, int *off_shoots, int *gate_visits)
 {
+	// define parameters
+	
+	
+}
+
+static inline int cell_is_maj(int cell_ind, double **Ek_matrix, int num_cells, double Ek_abs)
+{
+	// define parameters
+	int i;
+	int count = 0; 
+	
+	double Ek_large = 0;
+	double Ek_thresh = 0.1;	// portionof Ek_abs needed for largest interaction
+	double toll = .5;	// allowable deviation
+	
+	// a majority gate conditions:
+	//	- must have >= 4 of its largest interaction
+	//	- largest interaction must be above a threshold magnitude
+	
+	// determine largest magnitude interaction
+	for(i = 0; i < num_cells; i++){
+		if (fabs(Ek_matrix[cell_ind][i]) > fabs(Ek_large)){
+			Ek_large = Ek_matrix[cell_ind][i];
+		}
+	}
+	
+	// check Ek threshold
+	if (fabs(Ek_large) < Ek_thresh*Ek_abs ){
+		return 0;
+	}
+	
+	// count number of kink energies near Ek_large
+	for(i = 0; i < num_cells; i++){
+		if (fabs(Ek_matrix[cell_ind][i]-Ek_large) < fabs(toll*Ek_large)){
+			count++;
+		}
+	}
+	
+	// check for sufficiently many interactions
+	if (count >= 4){
+		return 1;
+	}
+	else{
+		return 0;
+	}
 }
 
 

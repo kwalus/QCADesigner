@@ -649,33 +649,30 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
 	  
 	  get_order(sorted_cells, Ek_matrix, order, num_cells);
 	  
-	  
-	  //~ // echo Ek
-	  //~ command_history_message("\n\n");
-	  //~ for(i = 0; i< num_cells; i++){
-		  //~ command_history_message("\n");
-		  //~ for(j = 0; j < num_cells; j++){
-			  //~ command_history_message("%.2e  ", Ek_matrix[i][j]);
+	  //~ // echo order
+	  //~ command_history_message("Cell order:\n");
+	  //~ 
+	  //~ for(i = 0; i < num_cells; i++){
+		  //~ command_history_message("%d, ", order[i]);
+		  //~ if(order[i] < 0){
+			  //~ command_history_message("\nCell ordering failed");
+			  //~ return sim_data;
 		  //~ }
 	  //~ }
-	  
-	  // echo order
-	  command_history_message("Cell order:\n");
-	  
-	  for(i = 0; i < num_cells; i++){
-		  command_history_message("%d, ", order[i]);
-		  if(order[i] < 0){
-			  command_history_message("\nCell ordering failed");
-			  return sim_data;
-		  }
-	  }
-	  
-	  command_history_message("\nInducing process termination...");
-	  return sim_data;
 		  
+      command_history_message("Running simulated annealing...\n");
       //get_steadystate (number_of_cells_in_layer[0], sorted_cells, Ek_matrix, total_number_of_inputs, options);
       simulated_annealing(sorted_cells, Ek_matrix, num_iterations, num_cells, ss_polarizatons, options, order);
+      
+      //~ command_history_message("Steady state solution: \n");
+      //~ for(i = 0; i < num_cells; i++){
+		  //~ command_history_message("P[%d] : %.3f\n", i, ss_polarizatons[i]);
+	  //~ }
+	  //~ command_history_message("\n\n");
+      //~ command_history_message("\nInducing process termination...");
+      //~ return sim_data;
 	
+	  
 		  
       j = 0;
 	  int driver_count = 1;
@@ -1498,59 +1495,104 @@ static inline void simulated_annealing(QCADCell ***sorted_cells, double **Ek_mat
 			Ek_matrix_temp[i][j] = Ek_matrix[i][j];
 		}
 	}
+	// NEW VERSION OF OUTPUT INITIALISATION: jake 2015-02-28
 	
-    //set matrix of outputs to zero, except inital set of outputs
-    for (i = 0; i < iterations; i++) {
-        for (j = 0; j < num_cells; j++) {
-            if (i == 0) {	
+	// set matrix of outputs to zero except driver/fixed cells
+	for(i = 0; i < iterations; i++){
+		for(j = 0; j < num_cells; j++){
+			if(i ==0){
 				if (((QCAD_CELL_INPUT == sorted_cells[0][order[j]]->cell_function) || (QCAD_CELL_FIXED == sorted_cells[0][order[j]]->cell_function))) { //assign driver polarizations to the driver cells
-					outputs[i][order[j]] = qcad_cell_calculate_polarization (sorted_cells[0][order[j]]);
-					ss_polarizations[order[j]] = outputs[i][order[j]];
-				}
-				else {
-					num_neighbours = search_matrix_row(Ek_matrix,Ek_max,order[j],num_cells);	//guess the polarization of cells with 4 neighbours by looking at the polarization of majority of its neighbours
-					if (num_neighbours == 4) {
-						driver_pol = 0;
-						for (k = 0; k < num_neighbours; k++) {
-							neighbour = find_matrix_row(Ek_matrix,Ek_max,order[j],num_cells,k);
-							driver_pol += outputs[i][neighbour];
-						}
-						outputs[i][order[j]] = (driver_pol < 0) ? -1.0 : 1.0;
-						ss_polarizations[order[j]] = outputs[i][order[j]];
+					driver_pol = qcad_cell_calculate_polarization (sorted_cells[0][order[j]]);
+					//command_history_message("Setting cell %d to %.2f\n", order[j], driver_pol);
+					outputs[0][order[j]] = driver_pol;
 					}
-					else {	//otherwise, if less than 4 neighbours, make initial guess the same polarization of it's nearest neighbour (which has already been assigned a polarization)
-						k = j-1;
-						while (k >= 0) {
-							if ((fabs(Ek_matrix[order[k]][order[j]] - Ek_max) < fabs(1e-3*Ek_max)))  {
-								outputs[i][order[j]] = outputs[i][order[k]]*((Ek_matrix_temp[order[j]][order[k]]+Ek_matrix_temp[order[k]][order[j]])/(fabs(Ek_matrix_temp[order[j]][order[k]]+Ek_matrix_temp[order[k]][order[j]])));
-								ss_polarizations[order[j]] = outputs[i][order[j]];
-								k = -5;
-							}
-							else {
-								k--;
-							}
-						}
-						if (k != -5) {	//if we couldnt' find a neighbour who has already been assigned a polarization, check for diagonal neighbours
-							k = j-1;
-							while (k >= 0) {
-								if ((fabs(Ek_matrix[order[k]][order[j]] - Ek_min) < fabs(1e-3*Ek_min)))  {
-									outputs[i][order[j]] = outputs[i][order[k]]*((Ek_matrix_temp[order[j]][order[k]]+Ek_matrix_temp[order[k]][order[j]])/(fabs(Ek_matrix_temp[order[j]][order[k]]+Ek_matrix_temp[order[k]][order[j]])));
-									ss_polarizations[order[j]] = outputs[i][order[j]];
-									k = -5;
-								}
-								else {
-									k--;
-								}
-							}
-						}
-					}
+				else{
+					outputs[0][order[j]] = 0;
 				}
+				ss_polarizations[order[j]] = outputs[0][order[j]];
 			}
-			else {
-				outputs[i][order[j]] = 0;
+			else{
+				outputs[i][j] = 0;
 			}
 		}
 	}
+	
+	// set first iteration to logical guess
+	for(i = 0; i < num_cells; i++){
+		
+		// check if already assigned a polarization
+		// NOTE THIS WILL NOT TRIGGER FOR ZERO POL FIXED CELLS
+		if(fabs(outputs[0][order[i]]) > 0){
+			continue;
+		}
+		
+		// determine effective driver polarization
+		driver_pol = 0.;
+		
+		num_neighbours = ((coherence_model *)sorted_cells[0][order[i]]->cell_model)->number_of_neighbours;
+		for(j = 0; j < num_neighbours; j++){
+			neighbour = ((coherence_model *)sorted_cells[0][order[i]]->cell_model)->neighbour_index[j];
+			driver_pol += outputs[0][neighbour] * Ek_matrix[order[i]][neighbour];
+		}
+		
+		// set output value
+		outputs[0][order[i]] = (driver_pol < 0) ? -1.0 : 1.0;
+		ss_polarizations[order[i]] = outputs[0][order[i]];
+	}
+	
+	// OLD VERSION OF OUTPUT INITIALISATION
+    //~ //set matrix of outputs to zero, except initial set of outputs
+    //~ for (i = 0; i < iterations; i++) {
+        //~ for (j = 0; j < num_cells; j++) {
+            //~ if (i == 0) {	
+				//~ if (((QCAD_CELL_INPUT == sorted_cells[0][order[j]]->cell_function) || (QCAD_CELL_FIXED == sorted_cells[0][order[j]]->cell_function))) { //assign driver polarizations to the driver cells
+					//~ outputs[i][order[j]] = qcad_cell_calculate_polarization (sorted_cells[0][order[j]]);
+					//~ ss_polarizations[order[j]] = outputs[i][order[j]];
+				//~ }
+				//~ else {
+					//~ num_neighbours = search_matrix_row(Ek_matrix,Ek_max,order[j],num_cells);	//guess the polarization of cells with 4 neighbours by looking at the polarization of majority of its neighbours
+					//~ if (num_neighbours == 4) {
+						//~ driver_pol = 0;
+						//~ for (k = 0; k < num_neighbours; k++) {
+							//~ neighbour = find_matrix_row(Ek_matrix,Ek_max,order[j],num_cells,k);
+							//~ driver_pol += outputs[i][neighbour];
+						//~ }
+						//~ outputs[i][order[j]] = (driver_pol < 0) ? -1.0 : 1.0;
+						//~ ss_polarizations[order[j]] = outputs[i][order[j]];
+					//~ }
+					//~ else {	//otherwise, if less than 4 neighbours, make initial guess the same polarization of it's nearest neighbour (which has already been assigned a polarization)
+						//~ k = j-1;
+						//~ while (k >= 0) {
+							//~ if ((fabs(Ek_matrix[order[k]][order[j]] - Ek_max) < fabs(1e-3*Ek_max)))  {
+								//~ outputs[i][order[j]] = outputs[i][order[k]]*((Ek_matrix_temp[order[j]][order[k]]+Ek_matrix_temp[order[k]][order[j]])/(fabs(Ek_matrix_temp[order[j]][order[k]]+Ek_matrix_temp[order[k]][order[j]])));
+								//~ ss_polarizations[order[j]] = outputs[i][order[j]];
+								//~ k = -5;
+							//~ }
+							//~ else {
+								//~ k--;
+							//~ }
+						//~ }
+						//~ if (k != -5) {	//if we couldnt' find a neighbour who has already been assigned a polarization, check for diagonal neighbours
+							//~ k = j-1;
+							//~ while (k >= 0) {
+								//~ if ((fabs(Ek_matrix[order[k]][order[j]] - Ek_min) < fabs(1e-3*Ek_min)))  {
+									//~ outputs[i][order[j]] = outputs[i][order[k]]*((Ek_matrix_temp[order[j]][order[k]]+Ek_matrix_temp[order[k]][order[j]])/(fabs(Ek_matrix_temp[order[j]][order[k]]+Ek_matrix_temp[order[k]][order[j]])));
+									//~ ss_polarizations[order[j]] = outputs[i][order[j]];
+									//~ k = -5;
+								//~ }
+								//~ else {
+									//~ k--;
+								//~ }
+							//~ }
+						//~ }
+					//~ }
+				//~ }
+			//~ }
+			//~ else {
+				//~ outputs[i][order[j]] = 0;
+			//~ }
+		//~ }
+	//~ }
 
 	
     //calculate energy of initial outputs

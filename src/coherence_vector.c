@@ -62,7 +62,7 @@
 //!Options for the coherence simulation engine
 //Added by Marco default values for phase shift (0,0,0,0)
 //Added by Faizal: wave_numbers (defaults kx=0, ky=0)
-coherence_OP coherence_options = {300, 1.11e-15, 1.11e-16, 1.11e-12,4.716e-19,4.716e-21, 0.0, 2.0, 1.5, 1, 1.15, TRUE, TRUE, FALSE, 0,0,0,0,0,0,10000,0.001,FOUR_PHASE_CLOCKING} ;
+coherence_OP coherence_options = {300, 1.11e-15, 1.11e-16, 1.11e-12,4.716e-19,4.716e-21, 0.0, 2.0, 2.5, 1, 1.15, TRUE, TRUE, FALSE, 0,0,0,0,0,0,10000,0.001,FOUR_PHASE_CLOCKING} ;
 
 typedef struct
   {
@@ -150,7 +150,7 @@ static inline void simulated_annealing(QCADCell ***sorted_cells, double **Ek_mat
 static inline void get_order(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells);
 
 // new generalized methods for initialising coherence simulation
-static inline void expand_source(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int source, int *pending_drivers, int *outputs, int *off_shoots, int *gate_visits);
+static inline void expand_sources(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int *sources, int num_sources, int *pending_gate_index, int *num_pending_gates, int *gate_visits, int *counted, int *num_counted, double Ek_abs);
 static inline int cell_is_maj(int cell_ind, double **Ek_matrix, int num_cells, double Ek_abs);
 
 static inline int search_matrix_row(double **A, double cmp, int row, int num_elements);
@@ -649,15 +649,29 @@ simulation_data *run_coherence_simulation (int SIMULATION_TYPE, DESIGN *design, 
 	  
 	  get_order(sorted_cells, Ek_matrix, order, num_cells);
 	  
-	  command_history_message("\nInducing process termination...");
-	  return sim_data;
+	  
+	  //~ // echo Ek
+	  //~ command_history_message("\n\n");
+	  //~ for(i = 0; i< num_cells; i++){
+		  //~ command_history_message("\n");
+		  //~ for(j = 0; j < num_cells; j++){
+			  //~ command_history_message("%.2e  ", Ek_matrix[i][j]);
+		  //~ }
+	  //~ }
+	  
+	  // echo order
+	  command_history_message("Cell order:\n");
 	  
 	  for(i = 0; i < num_cells; i++){
+		  command_history_message("%d, ", order[i]);
 		  if(order[i] < 0){
 			  command_history_message("\nCell ordering failed");
 			  return sim_data;
 		  }
 	  }
+	  
+	  command_history_message("\nInducing process termination...");
+	  return sim_data;
 		  
       //get_steadystate (number_of_cells_in_layer[0], sorted_cells, Ek_matrix, total_number_of_inputs, options);
       simulated_annealing(sorted_cells, Ek_matrix, num_iterations, num_cells, ss_polarizatons, options, order);
@@ -2080,30 +2094,38 @@ static inline void get_steadystate (int *number_of_cells_in_layer, QCADCell ***s
 
 
 // new generalized methods for initialising coherence simulation
+// Added by Jake: 2015-02-27
 
 static inline void get_order(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells)
 {
 	// define parameters
 	
 	int i, j;
-	int *sources;
-	int *gate_visits;
-	int *gate_index;
-	int *driver_index;
+	int *sources;	// active list of sources to be expanded
+	int *counted;	// non zero if a cell hsa been counted
+	int *gate_visits;	// number of times a gate has been reached
+	int *gate_index;	// indices of majority gate centers
+	int *driver_index;	// indices of driver and fixed cells
+	int *pending_gate_index;	// indices of gates waiting for more inputs to be reached
 	
-	int num_gates = 0;
-	int num_sources = 0;
-	int num_drivers = 0;
-	int num_pending_drivers = 0;
+	int num_counted = 0;	// number of cells counted
+	int num_pending_gates = 0;	// number of pending gates
+	int num_sources = 0;	// number of current sources
+	int num_gates = 0;	// number of majority gates
+	int num_drivers = 0;	// number of drivers
 	
 	double Ek_max, Ek_min, Ek_abs;
+	
+	int max_gate_visits = 0;
 	
 	// initialize parameters
 	
 	sources = (int*)malloc(num_cells*sizeof(int));
+	counted = (int*)malloc(num_cells*sizeof(int));
 	gate_visits = (int*)malloc(num_cells*sizeof(int));
 	gate_index = (int*)malloc(num_cells*sizeof(int));
 	driver_index = (int*)malloc(num_cells*sizeof(int));
+	pending_gate_index = (int*)malloc(num_cells*sizeof(int));
 	
 	Ek_max = get_max(Ek_matrix, num_cells);
 	Ek_min = get_min(Ek_matrix, num_cells);
@@ -2113,42 +2135,240 @@ static inline void get_order(QCADCell ***sorted_cells, double **Ek_matrix, int *
 	for(i = 0; i < num_cells; i++){
 		order[i] = -1;
 		sources[i] = -1;
+		counted[i] = -1;
 		gate_visits[i] = -1;
 		gate_index[i] = -1;
 		driver_index[i] = -1;
+		pending_gate_index[i] = -1;
 		if ((sorted_cells[0][i]->cell_function == QCAD_CELL_INPUT) || (sorted_cells[0][i]->cell_function == QCAD_CELL_FIXED)){
 			driver_index[num_drivers++] = i;
 		}
-		else if (cell_is_maj(i, Ek_matrix, num_cells, Ek_abs)) {
-			gate_index[num_gates++] = i;
+		else if (cell_is_maj(i, Ek_matrix, num_cells, Ek_abs) > 0) {
+			gate_index[num_gates] = i;
+			gate_visits[i] = 0;	// gate_visits[i] < 0 if not a gate
 		}
 	}
 	
-	// echo drivers and gates for testing
-	command_history_message("\nDetected drivers cell:\n");
-	for(i = 0; i < num_drivers; i++){
-		command_history_message("%d, ", driver_index[i]);
+	// set sources
+	num_sources = num_drivers;
+	for(i = 0; i < num_sources; i++){
+		sources[i] = driver_index[i];
 	}
-	command_history_message("\nDetected Majority gates:\n");
-	for(i = 0; i < num_gates; i++){
-		command_history_message("%d, ", gate_index[i]);
+
+	// primary loop
+	while (num_sources>0){
+
+		expand_sources(sorted_cells, Ek_matrix, order, num_cells, sources, num_sources, pending_gate_index, &num_pending_gates, gate_visits, counted, &num_counted, Ek_abs);
+		
+		num_sources = 0;
+		
+		for(i = 0; i < num_pending_gates; i++){
+			j = pending_gate_index[i];
+			pending_gate_index[i]=-1;
+			if(gate_visits[j] >= 3){
+				sources[num_sources++] = j;
+			}
+			else{
+				pending_gate_index[i-num_sources] = j;
+			}
+		}
+		num_pending_gates -= num_sources;
+		
+		// if no more sources but pending gates remaining
+		if(num_sources == 0 && num_pending_gates > 0){
+			// add one of the highest visited majority gates to sources
+			max_gate_visits = 0;
+			num_pending_gates--;
+			// store last gate and reset array value
+			sources[0] = pending_gate_index[num_pending_gates];
+			pending_gate_index[num_pending_gates] = -1;
+			for(i = 0; i < num_pending_gates; i++){
+				if( gate_visits[pending_gate_index[i]] > max_gate_visits){
+					j = pending_gate_index[i];
+					pending_gate_index[i] = sources[0];
+					sources[0] = j;
+					max_gate_visits = gate_visits[j];
+				}
+			}
+			num_sources = 1;
+		}
+		
+	}
+	
+	// account for remaining cells
+	for(i = 0; i < num_cells; i++){
+		if (num_counted > num_cells){
+			// something has gone wrong
+			command_history_message("Overcounted cells somehow");
+			order[0] = -1;	// will trigger exit flag in simulation
+		}
+		if (counted[i] <= 0){
+			order[num_counted++] = i;
+		}
 	}
 	
 	// free up allocated memory and handle dangling pointers
 	
 	free(sources); sources=NULL;
 	free(gate_visits); gate_visits=NULL;
+	free(counted); counted=NULL;
 	free(gate_index); gate_index=NULL;
 	free(driver_index); driver_index=NULL;
+	free(pending_gate_index); pending_gate_index=NULL;
 	
 }
 
-static inline void expand_source(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int source,
-int *pending_drivers, int *outputs, int *off_shoots, int *gate_visits)
+static inline void expand_sources(QCADCell ***sorted_cells, double **Ek_matrix, int *order, int num_cells, int *sources, int num_sources,
+int *pending_gate_index, int *num_pending_gates, int *gate_visits, int *counted, int *num_counted, double Ek_abs)
 {
 	// define parameters
+	int i, j, k;
+	int num_mid_cells = 0;
+	int num_strong_cells = 0;
+	int num_neigh = 0;
+	int num_new_act_cells = 0;
+	int total_act_cells = 0;
+	int *neigh_ind;
+	
+	int **active_cells;
+	int *new_active_cells;
+	int *num_act_cells;
+	int *mid_cells;
+	int *strong_cells;
+	
+	// initialise parameters
+	neigh_ind = NULL;
+	
+	active_cells = (int **)malloc(num_sources*sizeof(int *));
+	for(i = 0; i < num_sources; i++){
+		active_cells[i] = (int *)malloc(num_cells*sizeof(int));
+	}
+	new_active_cells = (int*)malloc(num_sources*sizeof(int));
+	num_act_cells = (int*)malloc(num_sources*sizeof(int));
+	mid_cells = (int*)malloc(num_cells*sizeof(int));
+	strong_cells = (int*)malloc(num_cells*sizeof(int));
+	
+	// set up active_cells
+	for(i = 0; i < num_sources; i++){
+		counted[sources[i]] = 1;
+		order[*num_counted] = sources[i];
+		*num_counted += 1;
+		active_cells[i][0] = sources[i];
+		for(j = 1; j < num_cells; j++){
+			active_cells[i][j] = -1;
+		}
+		num_act_cells[i] = 1;
+		total_act_cells++;
+	}
+	
+	// clean up mid and strong cell lists
+	for(i =0 ; i < num_cells; i++){
+		mid_cells[i] = -1;
+		strong_cells[i] = -1;
+	}
+	
+	while(total_act_cells > 0){
+		total_act_cells = 0;
+		// for each active cell in each source tree
+		for(i = 0; i < num_sources; i++){
+			for(j = 0; j < num_act_cells[i]; j++){
+				
+				// get cell parameters
+				num_neigh = ((coherence_model *)sorted_cells[0][active_cells[i][j]]->cell_model)->number_of_neighbours;
+				neigh_ind = ((coherence_model *)sorted_cells[0][active_cells[i][j]]->cell_model)->neighbour_index;
+				// separate neighbours into strong and mid strength Ek
+				for(k = 0; k < num_neigh; k++){
+					// check if visited
+					if(counted[neigh_ind[k]] > 0){
+						continue;
+					}
+					// strong
+					if(fabs(Ek_matrix[active_cells[i][j]][neigh_ind[k]]) > .5*Ek_abs){
+						strong_cells[num_strong_cells++] = neigh_ind[k];
+					}
+					// mid
+					else if(fabs(Ek_matrix[active_cells[i][j]][neigh_ind[k]]) > .02*Ek_abs){
+						mid_cells[num_mid_cells++] = neigh_ind[k];
+					}
+				}
+				// strong cells
+				if(num_strong_cells > 0){
+					for(k = 0; k < num_strong_cells; k++){
+						// check if a MAJ gate
+						if(gate_visits[strong_cells[k]] >= 0){
+							// unvisited gate?
+							if(gate_visits[strong_cells[k]] == 0){
+								pending_gate_index[*num_pending_gates] = strong_cells[k];
+								*num_pending_gates += 1;
+							}
+							gate_visits[strong_cells[k]]++;
+						}
+						else{
+							new_active_cells[num_new_act_cells++] = strong_cells[k];
+							// set new active cell as counted (avoid using cell multiple times)
+							order[*num_counted] = strong_cells[k];
+							counted[strong_cells[k]] = 1;
+							*num_counted += 1;
+						}
+					}
+				}
+				// make mid_strength cells active only if no strong cells
+				else if(num_mid_cells > 0){
+					for(k = 0; k < num_mid_cells; k++){
+						// check if a MAJ gate
+						if(gate_visits[mid_cells[k]] >= 0){
+							// unvisited gate?
+							if(gate_visits[mid_cells[k]] == 0){
+								pending_gate_index[*num_pending_gates] = mid_cells[k];
+								*num_pending_gates += 1;
+							}
+							gate_visits[mid_cells[k]]++;
+						}
+						else{
+							new_active_cells[num_new_act_cells++] = mid_cells[k];
+							// set new active cell as counted (avoid using cell multiple times)
+							order[*num_counted] = mid_cells[k];
+							counted[mid_cells[k]] = 1;
+							*num_counted += 1;
+						}
+					}
+				}
+				
+				// reset strong and mid cell lists
+				for(k = 0; k < num_strong_cells; k++){
+					strong_cells[k] = -1;
+				}
+				for(k = 0; k < num_mid_cells; k++){
+					mid_cells[k] = -1;
+				}
+				
+				num_strong_cells = 0;
+				num_mid_cells = 0;
+				
+				active_cells[i][j] = -1;
+			}		
+			
+			// update active cells
+			num_act_cells[i] = num_new_act_cells;
+			for(j = 0; j < num_new_act_cells; j++){
+				active_cells[i][j] = new_active_cells[j];
+				new_active_cells[j] = -1;
+			}
+			num_new_act_cells = 0;
+			total_act_cells += num_act_cells[i];
+		}
+	}
 	
 	
+	// free allocated memory
+	for(i = 0; i < num_sources; i++){
+		free(active_cells[i]); active_cells[i] = NULL;
+	}
+	free(active_cells); active_cells = NULL;
+	free(num_act_cells); num_act_cells = NULL;
+	free(new_active_cells); new_active_cells = NULL;
+	free(mid_cells); mid_cells = NULL;
+	free(strong_cells); strong_cells = NULL;
 }
 
 static inline int cell_is_maj(int cell_ind, double **Ek_matrix, int num_cells, double Ek_abs)

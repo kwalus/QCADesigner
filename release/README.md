@@ -5,7 +5,7 @@ Precompiled binaries for QCADesigner 2.0.3
 File    | Link
 ------- | --------
 Changes | [Change Log](./TODO)
-Manual  | [Interactive Manual](../docs/manual/index.html)
+Manual  | [Interactive Manual](https://htmlpreview.github.io/?https://github.com/kwalus/QCADesigner/blob/master/docs/manual/index.html)
 
 ### Sources
 

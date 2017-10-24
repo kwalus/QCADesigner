@@ -1,0 +1,87 @@
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    <title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo_gradient.png" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+<!--
+This is the table with the tree of documents
+-->
+<table border="0" bgcolor="#224262" cellspacing="1">
+<tr><td>
+<table border="0" bgcolor="#ffffff">
+<tr><td>
+	<table border="0" cellspacing="1">
+		<tr><td colspan="2"><a href="index.html">Home</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="installation.html">Installation</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="hacking.html">Hacking</a></td><tr>
+		<tr><td colspan="2">User&nbsp;Interface</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="moving_around.html">Moving&nbsp;Around</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="adding_objects.html">Adding&nbsp;Objects</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="manipulating_objects.html">Manipulating&nbsp;Objects</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="object_properties.html">Object&nbsp;Properties</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="managing_layers.html">Managing&nbsp;Layers</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="clocking.html">Clocking</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="print_dialog.html">Printing</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="create_import_block.html">Create/Import&nbsp;Block</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="bus_layout.html">Bus&nbsp;Layout</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="hot_keys.html">Keyboard&nbsp;Shortcuts</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Type</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="exhaustive_verification.html">Exhaustive&nbsp;Verification</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="vector_table.html">Vector&nbsp;Table</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Engines</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="coherence_vector_engine.html">Coherence&nbsp;Vector</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="bistable_simulation_engine.html">Bistable</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Results</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="graph_dialog.html">Graph&nbsp;Dialog</a></td><tr>
+	</table>
+</td></tr>
+</table>
+</td></tr>
+</table>
+<!--
+End of tree
+-->
+</td>
+<td align="left" valign="top">
+<table border="0" cellspacing="0" cellpadding="10"><tr><td>
+<h1>QCA<em>Designer</em> Documentation</h1>
+<h2>Bus Layout</h2>
+As layouts become more complex, you may wish to group inputs and outputs
+logically into buses. A bus is simply a named collection of inputs or of 
+outputs. Once your design contains inputs and/or outputs, you can group them
+into buses using the bus layout dialog. You can invoke this dialog by choosing
+"Main Menu:Tools&rarr;Bus Layout...", or by clicking <img src="images/bus_layout_button.png" alt="Bus" align="absmiddle">
+on the layers toolbar.</p>
+<p><center><img src="images/bus_layout_dialog.png" alt="Bus layout dialog"></center></p>
+<p>To create, for example, an input bus, select several inputs listed on the left,
+   and click "Create Bus". You can hold down <b>Ctrl</b> or <b>Shift</b> to select
+   multiple inputs.</p>
+<p>Using the buttons on the right, you can raise the significance of cells
+   within a bus, and you can modify the order the buses are stored in. This
+   is the order the simulation results will be displayed in. Inputs and outputs
+   not grouped into buses remain at the end of the list.</p>
+</td>
+</td></tr></table>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+<font size="-3">
+<!--#config timefmt="%Y-%m-%d %T" -->
+<!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" -->
+<!--#echo var="LastModifiedMsg" -->
+</font>
+</body></html>

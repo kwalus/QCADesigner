@@ -1,0 +1,219 @@
+<html>
+<head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    <title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo_gradient.png" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+<!--
+This is the table with the tree of documents
+-->
+<table border="0" bgcolor="#224262" cellspacing="1">
+<tr><td>
+<table border="0" bgcolor="#ffffff">
+<tr><td>
+	<table border="0" cellspacing="1">
+		<tr><td colspan="2"><a href="index.html">Home</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="installation.html">Installation</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="hacking.html">Hacking</a></td><tr>
+		<tr><td colspan="2">User&nbsp;Interface</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="moving_around.html">Moving&nbsp;Around</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="adding_objects.html">Adding&nbsp;Objects</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="manipulating_objects.html">Manipulating&nbsp;Objects</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="object_properties.html">Object&nbsp;Properties</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="managing_layers.html">Managing&nbsp;Layers</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="clocking.html">Clocking</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="print_dialog.html">Printing</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="create_import_block.html">Create/Import&nbsp;Block</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="bus_layout.html">Bus&nbsp;Layout</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="hot_keys.html">Keyboard&nbsp;Shortcuts</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Type</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="exhaustive_verification.html">Exhaustive&nbsp;Verification</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="vector_table.html">Vector&nbsp;Table</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Engines</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="coherence_vector_engine.html">Coherence&nbsp;Vector</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="bistable_simulation_engine.html">Bistable</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Results</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="graph_dialog.html">Graph&nbsp;Dialog</a></td><tr>
+	</table>
+</td></tr>
+</table>
+</td></tr>
+</table>
+<!--
+End of tree
+-->
+</td>
+<td align="left" valign="top">
+<table border="0" cellspacing="0" cellpadding="10"><tr><td>
+<h1>QCA<em>Designer</em> Documentation</h1>
+<p>
+<h2>Hacking <b>QCA<i>Designer</i></b></h2>
+Follow these instructions to get a working QCADesigner development environment on 
+<a href="#UNIX">UNIX-like Systems</a>, <a href="#Windoze">Windows</a>, and <a href="#OSX">Apple OS X</a>.
+</p><p>
+QCADesigner depends on GTK+ version 2.4 or later.
+</p>
+<a name="UNIX"><h2>UNIX-like Systems</h2>
+<ol>
+<li>
+Aside from the usual utilities, you must have <tt>gcc</tt>, <tt>make</tt>, <tt>ed</tt>, <tt>automake</tt>, <tt>autoconf</tt>, <tt>aclocal</tt>, and <tt>pkgconfig</tt> installed.
+</li>
+<li>
+You must have the GTK+ development package. To check whether you have it, run<br>
+<tt>pkg-config --modversion gtk+-2.0</tt><br>
+This should return the version of GTK+ currently installed.
+</li>
+<li>
+Download the source code from the <a href="http://qcadesigner.ca/download.html">download</a> page.<br>
+Note: You should always modify the latest CVS source code, rather than a <b>QCA<i>Designer</i></b> release source tarball. So, check the project out of CVS, following the instructions at the top of the <a href="http://qcadesigner.ca/download.html">download</a> page.
+</li>
+<li>Change to the root directory of the source tree<br>
+<tt>cd QCADesigner</tt><br>
+and run<br>
+<tt>./autogen.sh</tt><br>
+<tt>./configure --prefix=${HOME}/sw --enable-maintainer-mode</tt><br>
+This will configure the build system telling it to install <b>QCA<i>Designer</i></b> into your home directory under <tt>sw/</tt>. If you want to build the gtk-doc API reference, run<br>
+<tt>./configure --prefix=${HOME}/sw --enable-maintainer-mode --enable-gtk-doc</tt><br>
+See<br>
+<tt>./configure --help</tt><br>
+for more information.
+Now, run<br>
+<tt>make</tt><br>
+If you have enabled gtk-doc, don't be surprised if <tt>make</tt> initially fails. Run it again.
+Now, you must install <b>QCA<i>Designer</i></b> into your home directory, because, even if you end up running it from the <tt>src/</tt> subdirectory, it will expect to find some files at their installed location - for example, the internationalization <tt>.mo</tt> files generated in <tt>po/</tt>, as well as this user manual. To install, run<br>
+<tt>make install</tt>
+</li>
+</ol>
+
+<a name="Windoze"><h2>Windows</h2>
+The Windows development environment consists mostly of <tt>cygwin</tt> and <tt>mingw</tt>.
+<ol>
+<li>
+Follow the instructions at <a href="http://gaim-extprefs.sourceforge.net/bef.shtml">this page</a>. This page will have you install all necessary cygwin packages to compile <a href="http://gaim.sourceforge.net/">gaim</a>. Since <b>QCA<i>Designer</i></b> is built the same way, it is a good idea for you to actually build gaim.
+</li>
+<li>
+When the build environment fetcher script completes, it instructs you to close the cygwin window and open it again. Do that. In the new window, change to the gaim source root directory and run<br>
+<tt>make -f Makefile.mingw</tt><br>
+<tt>make -f Makefile.mingw install</tt><br>
+<tt>make -f Makefile.mingw installers</tt><br>
+</li>
+<li>
+Install <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> if you want to create <b>QCA<i>Designer</i></b> self-extracting installers. After you install Inno Setup, add the path to its <tt>ISCC.exe</tt> executable to your cygwin <tt>PATH</tt> variable:
+<ol>
+<li>
+Edit the file <tt>${HOME}/.bash_profile</tt>
+</li>
+<li>
+Append the following line:<br>
+<tt>export PATH="${PATH}:/cygdrive/c/Program Files/Inno Setup 5/"</tt><br>
+In the above command, replace <tt>/cygdrive/c/Program Files/Inno Setup 5/</tt> with the path to Inno Setup's <tt>ISCC.exe</tt>. Note that <tt>/cygdrive/c</tt> is equivalent to Windows' <tt>C:</tt>. You can refer to all drive letters from cygwin by using the form <tt>/cygdrive/&lt;driveletter&gt;</tt>.
+</li>
+<li>
+Save and exit. Then, in the terminal, type<br>
+<tt>source ~/.bash_profile</tt><br>
+To make sure <tt>ISCC.exe</tt> is now in your <tt>PATH</tt>, type<br>
+<tt>iscc</tt><br>
+This should produce <tt>ISCC.exe</tt>'s help message.
+</li>
+</ol>
+</li>
+<li>
+Run the cygwin setup program again, and install the <tt>ed</tt> package.
+</li>
+<li>
+Grab <b>QCA<i>Designer</i></b> from CVS as described on the <a href="http://qcadesigner.ca/download.html">download</a> page. Then,<br>
+<tt>cd QCADesigner</tt><br>
+Now you must copy gaim's GTK+ Runtime Environment into the <b>QCA<i>Designer</i></b> top-level source directory. The GTK+ Runtime Environment is a file of the form <tt>gtk-runtime-*.exe</tt> usually placed into <tt>${HOME}/gtk_installer</tt> by the gaim build environment shell script. Thus,<br>
+<tt>cp ${HOME}/gtk_installer/gtk-runtime-*.exe .</tt><br>
+Now, you must edit the top-level <tt>Makefile.mingw</tt> and correctly set the variable <tt>GTK_PREFIX</tt> to the <tt>win32-dev/gtk_2_0</tt> directory. <tt>win32-dev</tt> should reside in your cygwin home directory. Save the top-level <tt>Makefile.mingw</tt> and return to the cygwin terminal. Build <b>QCA<i>Designer</i></b>'s self-extracting installers with<br>
+<tt>make -f Makefile.mingw installers</tt><br>
+You should build the installers to ensure that the installation process is successful from beginning to end. At the end of the build process, the installers will be in <tt>Output/</tt>.
+</li>
+<li>
+You can now run QCADesigner from the <tt>src/</tt> subdirectory:<br>
+<tt>cd src</tt><br>
+<tt>./QCADesigner &amp;</tt>
+</li>
+<li>
+Now you're ready to hack: From the <tt>src/</tt> subdirectory, you can edit the various source files, after which you must run<br>
+<tt>make</tt><br>
+<tt>./QCADesigner &amp;</tt><br>
+in order to see the effects of the source code changes you have made.
+</li>
+</ol>
+
+<a name="OSX"><h2>Apple OS X</h2>
+Apple OS X is similar to <a href="#UNIX">UNIX-like Systems</a>, however, there are significant differences.
+<ol>
+<li>
+First you will have to install the OS X development utilities, X11, and <a href="http://fink.sourceforge.net/">Fink</a>. Fink is a package management system that will allow you to install a great number of UNIX packages onto OS X.
+</li>
+<li>
+After installing Fink and before installing any packages you must edit <tt>/sw/etc/fink.conf</tt> and append
+<tt>unstable/main unstable/crypto</tt> to the line that begins with "<tt>Trees:</tt>"
+</li>
+<li>
+Now, you must run<br>
+<tt>
+fink selfupdate<br>
+fink update-all</tt><br>
+Each one of these commands will take a long time, so go have some food.
+</li>
+<li>
+Next, you must install the following packages within Fink:
+<ul>
+<li><tt>gtk+2</tt>, <tt>gtk+2-dev</tt>, <tt>gtk+2-shlibs</tt> (GTK+, including development files)</li>
+<li><tt>libgettext3-dev</tt> (Makes internationalization work properly)</li>
+</ul>
+</li>
+<li>
+Append<br>
+<tt>
+. /sw/bin/init.sh<br>
+<br>
+export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/sw/lib/pkgconfig<br>
+export CFLAGS="${CFLAGS}"' -I/sw/include'<br>
+export LDFLAGS="${LDFLAGS}"' -L /sw/lib'<br>
+<br>
+# Uncomment the followings if you would like to debug QCADesigner<br>
+# export CFLAGS="${CFLAGS}"' -g -O0'<br>
+# export CFLAGS="${CFLAGS}"' -DG_DISABLE_DEPRECATED'<br>
+# export CFLAGS="${CFLAGS}"' -DGTK_DISABLE_DEPRECATED'<br>
+# export CFLAGS="${CFLAGS}"' -DGDK_PIXBUF_DISABLE_DEPRECATED'<br>
+<br>
+export CXXFLAGS="${CFLAGS}"<br>
+export CPPFLAGS="${CFLAGS}"</tt><br>
+to the file <tt>.bash_profile</tt> located in your home directory.
+<p>
+Now, for best results, kill the terminal you were using and start a new one. Alternatively, you can<br>
+<tt>. ~/.bash_profile</tt>
+</li>
+<li>
+At this point you can follow the instructions for <a href="#UNIX">UNIX-like Systems</a>.
+</li>
+</ol>
+
+</td></tr></table>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+<font size="-3">
+<!--#config timefmt="%Y-%m-%d %T" -->
+<!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" -->
+<!--#echo var="LastModifiedMsg" -->
+</font>
+</body></html>

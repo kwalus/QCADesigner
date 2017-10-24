@@ -18,7 +18,6 @@ compile
 config.guess
 config.sub
 depcomp
-docs/manual/
 graph_dialog.desktop
 gtk-doc.make
 install-sh

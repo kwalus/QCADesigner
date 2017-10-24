@@ -1,0 +1,106 @@
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+    	<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    	<title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo_gradient.png" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+<!--
+This is the table with the tree of documents
+-->
+<table border="0" bgcolor="#224262" cellspacing="1">
+<tr><td>
+<table border="0" bgcolor="#ffffff">
+<tr><td>
+	<table border="0" cellspacing="1">
+		<tr><td colspan="2"><a href="index.html">Home</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="installation.html">Installation</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="hacking.html">Hacking</a></td><tr>
+		<tr><td colspan="2">User&nbsp;Interface</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="moving_around.html">Moving&nbsp;Around</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="adding_objects.html">Adding&nbsp;Objects</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="manipulating_objects.html">Manipulating&nbsp;Objects</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="object_properties.html">Object&nbsp;Properties</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="managing_layers.html">Managing&nbsp;Layers</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="clocking.html">Clocking</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="print_dialog.html">Printing</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="create_import_block.html">Create/Import&nbsp;Block</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="bus_layout.html">Bus&nbsp;Layout</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="hot_keys.html">Keyboard&nbsp;Shortcuts</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Type</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="exhaustive_verification.html">Exhaustive&nbsp;Verification</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="vector_table.html">Vector&nbsp;Table</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Engines</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="coherence_vector_engine.html">Coherence&nbsp;Vector</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="bistable_simulation_engine.html">Bistable</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Results</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="graph_dialog.html">Graph&nbsp;Dialog</a></td><tr>
+	</table>
+</td></tr>
+</table>
+</td></tr>
+</table>
+<!--
+End of tree
+-->
+</td>
+<td align="left" valign="top">
+<table border="0" cellspacing="0" cellpadding="10"><tr><td>
+<h1>QCA<em>Designer</em> Documentation</h1>
+
+<p>Most <strong>QCA<em>Designer</em></strong> objects have associated properties. To modify
+   them, double-click on the object.</p>
+<hr>
+<h2>Cell Functions</h2>
+      <p>The function of a cell can be changed by double-clicking on the cell. 
+        This will bring up the cell function dialog as shown below: 
+      <p><center><img src="images/cell_functions_dialog.png" alt="Cell function dialog"></center></p>
+<h3>Normal Cell</h3>
+      <p>A normal cell has no special function other then to exist and switch 
+        according to the influence of neighboring cells. 
+      <h3>Fixed Polarization</h3>
+      <p>A fixed polarization cell will remain at the chosen polarization during 
+        the simulation regardless of the effect of neighboring cells or the clock.
+      <h3>Input Cell</h3>
+<p>Input cells will have a polarization that is determined by the simulation engine. The input values will be set according to the Simulation Type. You can simulate all possible input combinations by choosing the <a href="exhaustive_verification.html">Exhaustive Verification</a> or select input vectors manually using a <a href="vector_table.html">Vector Table</a>.
+
+<h3>Output Cell</h3>
+      <p>Output cells act just like normal cells in that they are directly affected 
+        by their neighbors. The polarization of the output cells is recorded throughout 
+        the simulation and plotted in the <a href="graph_dialog.html">graph dialog</a> 
+        when the simulation is complete. 
+      <h3>Clock</h3>
+      <p>This allows you to change the <a href="clocking.html">clock</a> for the 
+        selected cell.
+<hr>
+<h2>Substrate properties</h2>
+<p>The grid spacing a substrate maintains can be changed by double-clicking on the substrate and
+   specifying the desired grid spacing in its property dialog:</p>
+   <p><center><img src="images/substrate_properties_dialog.png" alt="Substrate properties dialog"></center></p>
+<hr>
+<h2>Label properties</h2>
+<p>The text of a label can be modified by double-clicking on it and typing it into its property dialog:</p>
+   <p><center><img src="images/label_properties_dialog.png" alt="Label properties dialog"></center></p>
+</td></tr></table>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+<font size="-3">
+<!--#config timefmt="%Y-%m-%d %T" -->
+<!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" -->
+<!--#echo var="LastModifiedMsg" -->
+</font>
+</body></html>

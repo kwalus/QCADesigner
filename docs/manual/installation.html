@@ -1,0 +1,153 @@
+<html>
+<head>
+	<link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon">
+    <title>QCADesigner - Documentation</title>
+</head>
+<body bgcolor="#ffffff" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+<a name="top">
+<table border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td colspan="2" align="left" valign="middle">
+<img src="images/qcadlogo_gradient.png" alt="QCADesigner <:>"><br>
+</td>
+</tr>
+<tr>
+<td align="center" valign="top" bgcolor="#cad6e2" width="0%">
+<!--
+This is the table with the tree of documents
+-->
+<table border="0" bgcolor="#224262" cellspacing="1">
+<tr><td>
+<table border="0" bgcolor="#ffffff">
+<tr><td>
+	<table border="0" cellspacing="1">
+		<tr><td colspan="2"><a href="index.html">Home</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="installation.html">Installation</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="hacking.html">Hacking</a></td><tr>
+		<tr><td colspan="2">User&nbsp;Interface</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="moving_around.html">Moving&nbsp;Around</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="adding_objects.html">Adding&nbsp;Objects</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="manipulating_objects.html">Manipulating&nbsp;Objects</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="object_properties.html">Object&nbsp;Properties</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="managing_layers.html">Managing&nbsp;Layers</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="clocking.html">Clocking</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="print_dialog.html">Printing</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="create_import_block.html">Create/Import&nbsp;Block</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="bus_layout.html">Bus&nbsp;Layout</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="hot_keys.html">Keyboard&nbsp;Shortcuts</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Type</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="exhaustive_verification.html">Exhaustive&nbsp;Verification</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="vector_table.html">Vector&nbsp;Table</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Engines</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="coherence_vector_engine.html">Coherence&nbsp;Vector</a></td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="bistable_simulation_engine.html">Bistable</a></td><tr>
+		<tr><td colspan="2">Simulation&nbsp;Results</td><tr>
+		<tr><td><img src="images/tree-null.png" alt="&nbsp;"></td><td><a href="graph_dialog.html">Graph&nbsp;Dialog</a></td><tr>
+	</table>
+</td></tr>
+</table>
+</td></tr>
+</table>
+<!--
+End of tree
+-->
+</td>
+<td align="left" valign="top">
+<table border="0" cellspacing="0" cellpadding="10"><tr><td>
+<h1>QCA<em>Designer</em> Documentation</h1>
+
+<h2>Installation</h2>
+These instructions should guide you through the installation procedure.
+
+<h3>Under Microsoft Windows</h3>
+
+
+<p>To run <strong>QCA<em>Designer</em></strong> under Microsoft Windows download the <strong>QCA<em>Designer</em></strong> self-extracting executable from the <a href="http://www.qcadesigner.ca/download.html"> download page</a>. <strong>QCA<em>Designer</em></strong> requires a package called GTK+ to run. To this end, there are two versions of the <strong>QCA<em>Designer</em></strong> Windows package on the download page. The larger one includes GTK+ and will prompt you to install it, if it doesn't find it on your computer.
+<p>
+If you would like to install GTK+ separately, download it from <a href="http://gaim.sourceforge.net/win32/index.php#wingtk">Gaim</a>, and download the smaller of the two <strong>QCA<em>Designer</em></strong> packages from the <a href="http://www.qcadesigner.ca/download.html"> download page</a>.
+
+<h3>RPM Based Systems</h3>
+<p>Note: you will require the root password. 
+
+      <p>Download the RPM version of <strong>QCA<em>Designer</em></strong> for your 
+        particular architecture from the <a href="http://www.qcadesigner.ca/download.html">download 
+        page</a>. Login as root and go to the directory where the downloaded RPM 
+        is located. To install the RPM type: 
+      <p><i>rpm -Uhv QCADesigner-[version you downloaded]-1.<arch>.rpm</i> 
+
+      <p>That should be all you need. Now run <strong>QCA<em>Designer</em></strong> 
+        with the command 
+      <p><i>QCADesigner</i>
+
+<p>If for any reason the binary RPMs fail to install on your system, you can produce your own binary RPMs from the source RPM available on the <a href="http://www.qcadesigner.ca/download.html">download page</a>.  First, download the source RPM (QCADesigner-&lt;version&gt;-1.src.rpm).  Then, as root, type
+
+<p><i>rpmbuild --rebuild QCADesigner-&lt;version&gt;-1.src.rpm</i>
+
+<p>This will create binary RPMs under /usr/src/redhat/RPMS.  Look for them there.  Their file names will be of the form QCADesigner-&lt;version&gt;-1.&lt;arch&gt;.rpm.
+
+
+<a name="source">
+<h3>From Source</h3>
+<p>Download the source from the <a href="http://www.qcadesigner.ca/download.html">download page</a>. Extract the package to a known directory by typing
+
+<p><i>tar -xzvf QCADesigner-[version you downloaded]-src.tar.gz</i> &larr; For tar.gz sources.
+<p><i>tar -xjvf QCADesigner-[version you downloaded]-src.tar.bz2</i> &larr; For tar.bz2 sources.
+
+<p>Switch to the new directory:
+
+<p><i>cd QCADesigner-[version you downloaded]</i>
+
+<p>Prepare the program for compiling by typing 
+
+<p><i>./autogen.sh</i>
+
+<p>Next, you have to run the <i>configure</i> script to customize the compilation process for
+   your system. The <i>configure</i> script provides many options. The most commonly used one
+   is <i>--prefix=[directory]</i>, where <i>directory</i> is the directory where you would
+   like to install <strong>QCA<em>Designer</em></strong>. Once installed, the
+   <strong>QCA<em>Designer</em></strong> program will be at <i>directory/bin/QCADesigner</i>.
+   For example:</p>
+
+<p><i> ./configure --prefix=/home/your_account/your_install_location</i>
+
+<p>Type <i>./configure --help</i> for a complete list of <i>configure</i> options.
+
+<p>Compile the program with
+
+<p><i>make</i>
+
+<p>Install the program with 
+
+<p><i>make install</i>
+
+      <p>Run <strong>QCA<em>Designer</em></strong> with 
+      <p><i>QCADesigner &amp;</i>
+
+<p>Voila!
+
+<h3>Under Mac OS X</h3>
+      <strong>QCA<em>Designer</em></strong> will run under Mac OS X, however, you will 
+      require several other packages to do this. Basically, these packages will 
+      allow you to run Unix applications on your Mac. First you will need to install 
+      <a href="http://fink.sourceforge.net">Fink</a>. When, within Fink, you choose the packages 
+      you would like installed, make sure to include the package GTK+. You will also require the <a href="http://www.apple.com/macosx/features/x11/">X11 
+      server</a>. Once you have these packages you should be able to download 
+      and install <strong>QCA<em>Designer</em></strong><a href="#source"> from 
+      source</a>. Sorry that this is not a step-by-step guide, but fink is constantly 
+      evolving, so I could end up leading you down the wrong path. You should 
+      read the installation instructions carefully on the Fink site.
+</td></tr></table>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<hr>
+<a href="#top">Top of the page</a>
+<p></td></tr></table>
+<font size="-3">
+<!--#config timefmt="%Y-%m-%d %T" -->
+<!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" -->
+<!--#echo var="LastModifiedMsg" -->
+</font>
+</body></html>

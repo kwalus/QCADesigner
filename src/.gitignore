@@ -1,0 +1,5 @@
+Makefile
+Makefile.in
+*.qca
+*.o
+QCADesigner

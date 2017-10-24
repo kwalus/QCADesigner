@@ -173,6 +173,8 @@ void qcad_cell_rotate_dots (QCADCell *cell, double angle) ;
 const char *qcad_cell_get_label (QCADCell *cell) ;
 void qcad_cell_scale (QCADCell *cell, double dScale, double dxOrigin, double dyOrigin) ;
 
+void qcad_cell_echo(QCADCell *cell);
+
 #ifdef __cplusplus
 }
 #endif

@@ -44,7 +44,7 @@
 #define XTOP_LABEL_OFFSET 2
 #define YTOP_LABEL_OFFSET 2
 
-#define CYFONT 10 /* nanometers */
+#define CYFONT 1 /* nanometers */
 
 static void qcad_label_class_init (GObjectClass *klass, gpointer data) ;
 static void qcad_label_instance_init (GObject *object, gpointer data) ;
@@ -139,7 +139,7 @@ static void qcad_label_class_init (GObjectClass *klass, gpointer data)
   QCAD_DESIGN_OBJECT_CLASS (klass)->PostScript_instance = PostScript_instance ;
 
   g_object_class_install_property (klass, QCAD_LABEL_PROPERTY_TEXT,
-    g_param_spec_string ("text", _("Text"), _("Label text"), 
+    g_param_spec_string ("text", _("Text"), _("Label text"),
       "", G_PARAM_READABLE | G_PARAM_WRITABLE)) ;
   }
 
@@ -387,12 +387,12 @@ static char *PostScript_instance (QCADDesignObject *obj, gboolean bColour)
     }
 
   return g_strdup_printf ("%s nmx %s nmy %s nm %s nm %s %s %s (%s) QCADLabel",
-    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld), 
-    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld), 
-    g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld), 
-    g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld), 
-    g_ascii_dtostr (doubles[4], G_ASCII_DTOSTR_BUF_SIZE, r), 
-    g_ascii_dtostr (doubles[5], G_ASCII_DTOSTR_BUF_SIZE, g), 
+    g_ascii_dtostr (doubles[0], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.xWorld),
+    g_ascii_dtostr (doubles[1], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.yWorld),
+    g_ascii_dtostr (doubles[2], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cxWorld),
+    g_ascii_dtostr (doubles[3], G_ASCII_DTOSTR_BUF_SIZE, obj->bounding_box.cyWorld),
+    g_ascii_dtostr (doubles[4], G_ASCII_DTOSTR_BUF_SIZE, r),
+    g_ascii_dtostr (doubles[5], G_ASCII_DTOSTR_BUF_SIZE, g),
     g_ascii_dtostr (doubles[6], G_ASCII_DTOSTR_BUF_SIZE, b), lbl->psz) ;
   }
 

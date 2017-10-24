@@ -98,7 +98,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
   double polarization_math;
   bistable_model *current_cell_model = NULL ;
   QCADCell *cell;
-  int jitter_phases[4] = {options->jitter_phase_0, options->jitter_phase_1, 
+  int jitter_phases[4] = {options->jitter_phase_0, options->jitter_phase_1,
                              options->jitter_phase_2, options->jitter_phase_3} ;
 
   STOP_SIMULATION = FALSE;
@@ -125,7 +125,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
       // -- Set all cell polarizations to 0 at the start of the simulation -- //
       // -- All cells that are in non latched clocking zones will be unaffected -- //
       current_cell_model->polarization = -1;
-   
+
       // -- set polarization in cell model for fixed cells since they are set with actual dot charges by the user -- //
       if(QCAD_CELL_FIXED == sorted_cells[i][j]->cell_function)
        current_cell_model->polarization = qcad_cell_calculate_polarization(sorted_cells[i][j]);
@@ -183,7 +183,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
     sim_data->clock_data[i].trace_function = QCAD_CELL_FIXED; // Abusing the notation here
 
     sim_data->clock_data[i].data = g_malloc0 (sizeof (double) * sim_data->number_samples);
-     
+
 //Added by Marco : phase shift included in (-PI/2, +P/2) with steps of (1/200)PI
 //Edited by Konrad: above is incorrect changed jitter to actual phase shift phase shift = jitter/180*PI
     if (SIMULATION_TYPE == EXHAUSTIVE_VERIFICATION)
@@ -296,7 +296,7 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
       iteration++;
       // -- assume that the circuit is stable -- //
       stable = TRUE;
-		  
+
       for (icLayers = 0; icLayers < number_of_cell_layers; icLayers++)
         {
         for (icCellsInLayer = 0 ; icCellsInLayer < number_of_cells_in_layer[icLayers] ; icCellsInLayer++)
@@ -310,10 +310,10 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
             old_polarization = current_cell_model->polarization;
             polarization_math = 0;
 			Ek_sum = 0;
-				
+
 			for (q = 0; q < current_cell_model->number_of_neighbours; q++)
-              polarization_math += (current_cell_model->Ek[q] * ((bistable_model *)current_cell_model->neighbours[q]->cell_model)->polarization) ;	
-				
+              polarization_math += (current_cell_model->Ek[q] * ((bistable_model *)current_cell_model->neighbours[q]->cell_model)->polarization) ;
+
             // math = math / 2 * gamma
             polarization_math /= (2.0 * sim_data->clock_data[cell->cell_options.clock].data[j]);
 
@@ -336,8 +336,8 @@ simulation_data *run_bistable_simulation (int SIMULATION_TYPE, DESIGN *design, b
           }
         }
       }//WHILE !STABLE
-	
-		
+
+
     if (VECTOR_TABLE == SIMULATION_TYPE)
       for (design_bus_layout_iter_first (design->bus_layout, &bli, QCAD_CELL_INPUT, &i) ; i > -1 ; design_bus_layout_iter_next (&bli, &i))
         if (!exp_array_index_1d (pvt->inputs, VT_INPUT, i).active_flag)
@@ -429,7 +429,7 @@ static inline void bistable_refresh_all_Ek (int number_of_cell_layers, int *numb
         for (k = 0; k < icNeighbours; k++)
           //if(cell_model->neighbours[k]==NULL)printf("Null neighbour prior to passing into determine Ek for k = %d\n", k);
           // set the Ek of this cell and its neighbour //
-          
+
           cell_model->Ek[k] = bistable_determine_Ek (sorted_cells[i][j], cell_model->neighbours[k], ABS (i - cell_model->neighbour_layer[k]), options);
         }
       }
@@ -472,6 +472,10 @@ static inline double bistable_determine_Ek (QCADCell *cell1, QCADCell *cell2, in
       {
       // determine the distance between the dots //
       distance = 1e-9 * determine_distance (cell1, cell2, k, j, vertical_separation);
+      if(distance==0){
+        qcad_cell_echo(cell1);
+        qcad_cell_echo(cell2);
+      }
       g_assert (distance != 0);
 
       EnergyDiff += diff_polarization[k][j] / distance;

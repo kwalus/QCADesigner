@@ -12,7 +12,7 @@ Source | [QCADesigner-2.0.3-1.src.rpm](./QCADesigner-2.0.3-src.tar.gz)
 
 ### Binaries
 
-System | Arch | File |
+System | Arch | File | -
 ----- | ----- | ------ | -----
 Linux | PowerPC | [QCADesigner-2.0.3-1.ppc.rpm](./QCADesigner-2.0.3-1.ppc.rpm) | [QCADesigner-debuginfo-2.0.3-1.ppc.rpm](./QCADesigner-debuginfo-2.0.3-1.ppc.rpm)
 Linux | i386 | [QCADesigner-2.0.3-1.i386.rpm](./QCADesigner-2.0.3-1.i386.rpm) | [QCADesigner-debuginfo-2.0.3-1.i386.rpm](./QCADesigner-debuginfo-2.0.3-1.i386.rpm)

@@ -2,6 +2,11 @@ Precompiled binaries for QCADesigner 2.0.3
 
 ## Version 2.0.3
 
+File    | Link
+------- | --------
+Changes | [Change Log](./TODO)
+Manual  | [Interactive Manual](../docs/manual/index.html)
+
 ### Sources
 
 Type | File

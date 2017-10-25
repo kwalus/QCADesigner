@@ -1,0 +1,1093 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>generic_utils</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-graph-dialog-callbacks.html" title="graph_dialog_callbacks">
+<link rel="next" href="QCADesigner-bistable-simulation.html" title="bistable_simulation">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-graph-dialog-callbacks.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-bistable-simulation.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4770742" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4825973" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-generic-utils"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4770742"></a><span class="refentrytitle">generic_utils</span>
+</h2>
+<p>generic_utils &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+#define     <a href="QCADesigner-generic-utils.html#MAX-SLOPE-DIFF:CAPS">MAX_SLOPE_DIFF</a>
+            <a href="QCADesigner-generic-utils.html#INT-IN-LIST-PARAMS:CAPS">INT_IN_LIST_PARAMS</a>;
+void        (<a href="QCADesigner-generic-utils.html#PropertyConnectFunction">*PropertyConnectFunction</a>)      (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-generic-utils.html#fit-rect-inside-rect">fit_rect_inside_rect</a>            (double dWidth,
+                                             double dHeight,
+                                             double *px,
+                                             double *py,
+                                             double *pdRectWidth,
+                                             double *pdRectHeight);
+char*       <a href="QCADesigner-generic-utils.html#strdup-convert-to-base">strdup_convert_to_base</a>          (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint64"
+>guint64</a> value,
+                                             int base);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-generic-utils.html#LineSegmentCanBeSkipped">LineSegmentCanBeSkipped</a>         (double dx0,
+                                             double dy0,
+                                             double dx1,
+                                             double dy1,
+                                             double dx2,
+                                             double dy2,
+                                             double dMaxSlopeDiff);
+void        <a href="QCADesigner-generic-utils.html#RunCmdLineAsync">RunCmdLineAsync</a>                 (char *pszCmdLine,
+                                             char *pszTmpFName);
+void        <a href="QCADesigner-generic-utils.html#wait-for-async-cmdlines">wait_for_async_cmdlines</a>         ();
+char*       <a href="QCADesigner-generic-utils.html#get-enum-string-from-value">get_enum_string_from_value</a>      (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> enum_type,
+                                             int value);
+int         <a href="QCADesigner-generic-utils.html#get-enum-value-from-string">get_enum_value_from_string</a>      (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> enum_type,
+                                             char *psz);
+double      <a href="QCADesigner-generic-utils.html#spread-seq">spread_seq</a>                      (int idx);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-generic-utils.html#connect-object-properties">connect_object_properties</a>       (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *src,
+                                             char *pszSrc,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *dst,
+                                             char *pszDst,
+                                             <a href="QCADesigner-generic-utils.html#PropertyConnectFunction">PropertyConnectFunction</a> fn_forward,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data_forward,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_forward,
+                                             <a href="QCADesigner-generic-utils.html#PropertyConnectFunction">PropertyConnectFunction</a> fn_reverse,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data_reverse,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_reverse);
+void        <a href="QCADesigner-generic-utils.html#disconnect-object-properties">disconnect_object_properties</a>    (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *src,
+                                             char *pszSrc,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *dst,
+                                             char *pszDst,
+                                             <a href="QCADesigner-generic-utils.html#PropertyConnectFunction">PropertyConnectFunction</a> fn_forward,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data_forward,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_forward,
+                                             <a href="QCADesigner-generic-utils.html#PropertyConnectFunction">PropertyConnectFunction</a> fn_reverse,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data_reverse,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_reverse);
+void        <a href="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN:CAPS">CONNECT_OBJECT_PROPERTIES_ASSIGN</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-INT-IN-LIST-P:CAPS">CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-INVERT-BOOLEAN:CAPS">CONNECT_OBJECT_PROPERTIES_ASSIGN_INVERT_BOOLEAN</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-INT-FROM-BOOLEAN-DATA:CAPS">CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-INT-OFFSET:CAPS">CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-ENUM-FROM-IDX:CAPS">CONNECT_OBJECT_PROPERTIES_ASSIGN_ENUM_FROM_IDX</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-IDX-FROM-ENUM:CAPS">CONNECT_OBJECT_PROPERTIES_ASSIGN_IDX_FROM_ENUM</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4825973"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4825989"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4825999"></a><h3>
+<a name="MAX-SLOPE-DIFF:CAPS"></a>MAX_SLOPE_DIFF</h3>
+<a class="indexterm" name="id4826012"></a><pre class="programlisting">#define MAX_SLOPE_DIFF 0.1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4826027"></a><h3>
+<a name="INT-IN-LIST-PARAMS:CAPS"></a>INT_IN_LIST_PARAMS</h3>
+<a class="indexterm" name="id4826039"></a><pre class="programlisting">typedef struct {
+  int icInts ;
+  int *ints ;
+} INT_IN_LIST_PARAMS;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4826056"></a><h3>
+<a name="PropertyConnectFunction"></a>PropertyConnectFunction ()</h3>
+<a class="indexterm" name="id4826067"></a><pre class="programlisting">void        (*PropertyConnectFunction)      (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4826154"></a><h3>
+<a name="fit-rect-inside-rect"></a>fit_rect_inside_rect ()</h3>
+<a class="indexterm" name="id4826165"></a><pre class="programlisting">void        fit_rect_inside_rect            (double dWidth,
+                                             double dHeight,
+                                             double *px,
+                                             double *py,
+                                             double *pdRectWidth,
+                                             double *pdRectHeight);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dWidth</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dHeight</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>px</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>py</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pdRectWidth</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pdRectHeight</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4833827"></a><h3>
+<a name="strdup-convert-to-base"></a>strdup_convert_to_base ()</h3>
+<a class="indexterm" name="id4833838"></a><pre class="programlisting">char*       strdup_convert_to_base          (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint64"
+>guint64</a> value,
+                                             int base);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>value</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>base</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4833906"></a><h3>
+<a name="LineSegmentCanBeSkipped"></a>LineSegmentCanBeSkipped ()</h3>
+<a class="indexterm" name="id4833916"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    LineSegmentCanBeSkipped         (double dx0,
+                                             double dy0,
+                                             double dx1,
+                                             double dy1,
+                                             double dx2,
+                                             double dy2,
+                                             double dMaxSlopeDiff);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dx0</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dy0</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dx1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dy1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dx2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dy2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dMaxSlopeDiff</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4834078"></a><h3>
+<a name="RunCmdLineAsync"></a>RunCmdLineAsync ()</h3>
+<a class="indexterm" name="id4834089"></a><pre class="programlisting">void        RunCmdLineAsync                 (char *pszCmdLine,
+                                             char *pszTmpFName);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszCmdLine</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszTmpFName</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4834148"></a><h3>
+<a name="wait-for-async-cmdlines"></a>wait_for_async_cmdlines ()</h3>
+<a class="indexterm" name="id4834158"></a><pre class="programlisting">void        wait_for_async_cmdlines         ();</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4834176"></a><h3>
+<a name="get-enum-string-from-value"></a>get_enum_string_from_value ()</h3>
+<a class="indexterm" name="id4834186"></a><pre class="programlisting">char*       get_enum_string_from_value      (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> enum_type,
+                                             int value);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>enum_type</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>value</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4834254"></a><h3>
+<a name="get-enum-value-from-string"></a>get_enum_value_from_string ()</h3>
+<a class="indexterm" name="id4834265"></a><pre class="programlisting">int         get_enum_value_from_string      (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> enum_type,
+                                             char *psz);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>enum_type</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>psz</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4834333"></a><h3>
+<a name="spread-seq"></a>spread_seq ()</h3>
+<a class="indexterm" name="id4834343"></a><pre class="programlisting">double      spread_seq                      (int idx);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>idx</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4834393"></a><h3>
+<a name="connect-object-properties"></a>connect_object_properties ()</h3>
+<a class="indexterm" name="id4834403"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    connect_object_properties       (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *src,
+                                             char *pszSrc,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *dst,
+                                             char *pszDst,
+                                             <a href="QCADesigner-generic-utils.html#PropertyConnectFunction">PropertyConnectFunction</a> fn_forward,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data_forward,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_forward,
+                                             <a href="QCADesigner-generic-utils.html#PropertyConnectFunction">PropertyConnectFunction</a> fn_reverse,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data_reverse,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_reverse);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszSrc</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszDst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fn_forward</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data_forward</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>destroy_forward</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fn_reverse</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data_reverse</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>destroy_reverse</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4834623"></a><h3>
+<a name="disconnect-object-properties"></a>disconnect_object_properties ()</h3>
+<a class="indexterm" name="id4834634"></a><pre class="programlisting">void        disconnect_object_properties    (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *src,
+                                             char *pszSrc,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *dst,
+                                             char *pszDst,
+                                             <a href="QCADesigner-generic-utils.html#PropertyConnectFunction">PropertyConnectFunction</a> fn_forward,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data_forward,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_forward,
+                                             <a href="QCADesigner-generic-utils.html#PropertyConnectFunction">PropertyConnectFunction</a> fn_reverse,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data_reverse,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_reverse);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszSrc</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszDst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fn_forward</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data_forward</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>destroy_forward</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fn_reverse</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data_reverse</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>destroy_reverse</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4834844"></a><h3>
+<a name="CONNECT-OBJECT-PROPERTIES-ASSIGN:CAPS"></a>CONNECT_OBJECT_PROPERTIES_ASSIGN ()</h3>
+<a class="indexterm" name="id4834856"></a><pre class="programlisting">void        CONNECT_OBJECT_PROPERTIES_ASSIGN
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4834935"></a><h3>
+<a name="CONNECT-OBJECT-PROPERTIES-ASSIGN-INT-IN-LIST-P:CAPS"></a>CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P ()</h3>
+<a class="indexterm" name="id4834949"></a><pre class="programlisting">void        CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4835029"></a><h3>
+<a name="CONNECT-OBJECT-PROPERTIES-ASSIGN-INVERT-BOOLEAN:CAPS"></a>CONNECT_OBJECT_PROPERTIES_ASSIGN_INVERT_BOOLEAN ()</h3>
+<a class="indexterm" name="id4835042"></a><pre class="programlisting">void        CONNECT_OBJECT_PROPERTIES_ASSIGN_INVERT_BOOLEAN
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4835123"></a><h3>
+<a name="CONNECT-OBJECT-PROPERTIES-ASSIGN-INT-FROM-BOOLEAN-DATA:CAPS"></a>CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA ()</h3>
+<a class="indexterm" name="id4835136"></a><pre class="programlisting">void        CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4835217"></a><h3>
+<a name="CONNECT-OBJECT-PROPERTIES-ASSIGN-INT-OFFSET:CAPS"></a>CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET ()</h3>
+<a class="indexterm" name="id4835230"></a><pre class="programlisting">void        CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4835310"></a><h3>
+<a name="CONNECT-OBJECT-PROPERTIES-ASSIGN-ENUM-FROM-IDX:CAPS"></a>CONNECT_OBJECT_PROPERTIES_ASSIGN_ENUM_FROM_IDX ()</h3>
+<a class="indexterm" name="id4835323"></a><pre class="programlisting">void        CONNECT_OBJECT_PROPERTIES_ASSIGN_ENUM_FROM_IDX
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4835403"></a><h3>
+<a name="CONNECT-OBJECT-PROPERTIES-ASSIGN-IDX-FROM-ENUM:CAPS"></a>CONNECT_OBJECT_PROPERTIES_ASSIGN_IDX_FROM_ENUM ()</h3>
+<a class="indexterm" name="id4835416"></a><pre class="programlisting">void        CONNECT_OBJECT_PROPERTIES_ASSIGN_IDX_FROM_ENUM
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_src,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *val_dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_src</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>val_dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

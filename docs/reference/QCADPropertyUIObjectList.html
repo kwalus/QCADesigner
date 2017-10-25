@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADPropertyUIObjectList</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="prev" href="QCADPropertyUIText.html" title="QCADPropertyUIText">
+<link rel="next" href="QCADPropertyUIBoolean.html" title="QCADPropertyUIBoolean">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADPropertyUIText.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADPropertyUIs.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADPropertyUIBoolean.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4789017" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4786144" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4768142" class="shortcut">Object Hierarchy</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADPropertyUIObjectList"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4789017"></a><span class="refentrytitle">QCADPropertyUIObjectList</span>
+</h2>
+<p>QCADPropertyUIObjectList &#8212; Property UI for a param of type <a href="QCADesigner-QCADParamSpecObjectList.html#QCADParamSpecObjectList"><span class="type">QCADParamSpecObjectList</span></a></p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADPropertyUIObjectList.html#QCADPropertyUIObjectList-struct">QCADPropertyUIObjectList</a>;
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4768142"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="QCADPropertyUI.html" title="QCADPropertyUI">QCADPropertyUI</a>
+         +----<a href="QCADPropertyUISingle.html" title="QCADPropertyUISingle">QCADPropertyUISingle</a>
+               +----QCADPropertyUIObjectList
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4786144"></a><h2>Description</h2>
+<p>
+Parameters of type <a href="QCADesigner-QCADParamSpecObjectList.html#QCADParamSpecObjectList"><span class="type">QCADParamSpecObjectList</span></a> return a <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+><span class="type">GList</span></a> of <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a> items. This property UI
+creates a <a href="QCADPropertyUIGroup.html" title="QCADPropertyUIGroup"><span class="type">QCADPropertyUIGroup</span></a> for each object in the list and assembles them all into two widgets:
+A <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeView.html"
+><span class="type">GtkTreeView</span></a> with the friendly names of the object classes in the <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+><span class="type">GList</span></a> on the left, and a <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkVBox.html"
+><span class="type">GtkVBox</span></a>
+with each object's <a href="QCADPropertyUIGroup.html" title="QCADPropertyUIGroup"><span class="type">QCADPropertyUIGroup</span></a>. Only the <a href="QCADPropertyUIGroup.html" title="QCADPropertyUIGroup"><span class="type">QCADPropertyUIGroup</span></a> for the currently hilighted
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeView.html"
+><span class="type">GtkTreeView</span></a> item is displayed.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4816199"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4816210"></a><h3>
+<a name="QCADPropertyUIObjectList-struct"></a>QCADPropertyUIObjectList</h3>
+<a class="indexterm" name="id4816221"></a><pre class="programlisting">typedef struct _QCADPropertyUIObjectList QCADPropertyUIObjectList;</pre>
+<p>
+
+</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADRadioButton</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="prev" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="next" href="QCADComboBox.html" title="QCADComboBox">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADWorkaroundWidgets.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADWorkaroundWidgets.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADComboBox.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4764093" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4820044" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4816309" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4820023" class="shortcut">Implemented Interfaces</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADRadioButton"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4764093"></a><span class="refentrytitle">QCADRadioButton</span>
+</h2>
+<p>QCADRadioButton &#8212; QCADesigner workaround class for <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioButton.html"
+><span class="type">GtkRadioButton</span></a>.</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADRadioButton.html#QCADRadioButton-struct">QCADRadioButton</a>;
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4816309"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----GInitiallyUnowned
+         +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkObject.html"
+>GtkObject</a>
+               +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>
+                     +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkContainer.html"
+>GtkContainer</a>
+                           +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkBin.html"
+>GtkBin</a>
+                                 +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkButton.html"
+>GtkButton</a>
+                                       +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkToggleButton.html"
+>GtkToggleButton</a>
+                                             +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkCheckButton.html"
+>GtkCheckButton</a>
+                                                   +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioButton.html"
+>GtkRadioButton</a>
+                                                         +----QCADRadioButton
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4820023"></a><h2>Implemented Interfaces</h2>
+<p>
+QCADRadioButton implements
+ AtkImplementorIface.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4820044"></a><h2>Description</h2>
+<p>
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioButton.html"
+><span class="type">GtkRadioButton</span></a> widgets in versions of GTK &lt;= 2.8.0 did not emit the "notify::active" signal when
+their active state was changed. A <a href="QCADRadioButton.html" title="QCADRadioButton"><span class="type">QCADRadioButton</span></a> will emit such a signal by connecting to <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioButton.html"
+><span class="type">GtkRadioButton</span></a>'s
+"toggled" signal, and emitting its "notify::active" signal:
+</p>
+<div class="informalexample"><pre class="programlisting">
+static void instance_init (GObject *obj)
+  {g_signal_connect (obj, "toggled", (GCallback)g_object_notify, "active") ;}
+</pre></div>
+<p>
+</p>
+<p>
+For versions of GTK &gt; 2.8.0 detected at compile time, the definition of this widget evaluates to
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioButton.html"
+><span class="type">GtkRadioButton</span></a> and none of the <a href="QCADRadioButton.html" title="QCADRadioButton"><span class="type">QCADRadioButton</span></a> code gets compiled.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4820116"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4820126"></a><h3>
+<a name="QCADRadioButton-struct"></a>QCADRadioButton</h3>
+<a class="indexterm" name="id4817892"></a><pre class="programlisting">typedef struct _QCADRadioButton QCADRadioButton;</pre>
+<p>
+
+</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

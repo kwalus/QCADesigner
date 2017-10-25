@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>support</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-fileio-helpers.html" title="fileio_helpers">
+<link rel="next" href="QCADesigner-graph-dialog-interface.html" title="graph_dialog_interface">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-fileio-helpers.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-graph-dialog-interface.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4781926" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4849573" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-support"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4781926"></a><span class="refentrytitle">support</span>
+</h2>
+<p>support &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>*  <a href="QCADesigner-support.html#lookup-widget">lookup_widget</a>                   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *widget_name);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a>*      <a href="QCADesigner-support.html#find-pixmap-file">find_pixmap_file</a>                (const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *filename);
+void        <a href="QCADesigner-support.html#add-pixmap-directory">add_pixmap_directory</a>            (const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *directory);
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>*  <a href="QCADesigner-support.html#create-pixmap">create_pixmap</a>                   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *filename);
+void        <a href="QCADesigner-support.html#add-stock-icon">add_stock_icon</a>                  (const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *filename,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *stock_id);
+<a
+href="http://developer.gnome.org/doc/API/2.0/gdk-pixbuf/gdk-pixbuf-gdk-pixbuf.html#GdkPixbuf"
+>GdkPixbuf</a>*  <a href="QCADesigner-support.html#create-pixbuf">create_pixbuf</a>                   (const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *filename);
+void        <a href="QCADesigner-support.html#glade-set-atk-action-description">glade_set_atk_action_description</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/atk/AtkAction.html"
+>AtkAction</a> *action,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *action_name,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *description);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4849573"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4849589"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4849599"></a><h3>
+<a name="lookup-widget"></a>lookup_widget ()</h3>
+<a class="indexterm" name="id4849611"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>*  lookup_widget                   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *widget_name);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget_name</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4849686"></a><h3>
+<a name="find-pixmap-file"></a>find_pixmap_file ()</h3>
+<a class="indexterm" name="id4849698"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a>*      find_pixmap_file                (const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *filename);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>filename</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4849756"></a><h3>
+<a name="add-pixmap-directory"></a>add_pixmap_directory ()</h3>
+<a class="indexterm" name="id4849767"></a><pre class="programlisting">void        add_pixmap_directory            (const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *directory);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>directory</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4849812"></a><h3>
+<a name="create-pixmap"></a>create_pixmap ()</h3>
+<a class="indexterm" name="id4849823"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>*  create_pixmap                   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *filename);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>filename</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4849899"></a><h3>
+<a name="add-stock-icon"></a>add_stock_icon ()</h3>
+<a class="indexterm" name="id4849910"></a><pre class="programlisting">void        add_stock_icon                  (const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *filename,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *stock_id);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>filename</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>stock_id</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4849976"></a><h3>
+<a name="create-pixbuf"></a>create_pixbuf ()</h3>
+<a class="indexterm" name="id4849988"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/gdk-pixbuf/gdk-pixbuf-gdk-pixbuf.html#GdkPixbuf"
+>GdkPixbuf</a>*  create_pixbuf                   (const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *filename);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>filename</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4847415"></a><h3>
+<a name="glade-set-atk-action-description"></a>glade_set_atk_action_description ()</h3>
+<a class="indexterm" name="id4847426"></a><pre class="programlisting">void        glade_set_atk_action_description
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/atk/AtkAction.html"
+>AtkAction</a> *action,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *action_name,
+                                             const <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *description);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>action</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>action_name</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>description</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

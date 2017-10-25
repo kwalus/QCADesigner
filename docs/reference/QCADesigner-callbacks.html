@@ -1,0 +1,2407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>callbacks</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-scale-dialog.html" title="scale_dialog">
+<link rel="next" href="QCADesigner-fileio-helpers.html" title="fileio_helpers">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-scale-dialog.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-fileio-helpers.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4774576" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4854393" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-callbacks"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4774576"></a><span class="refentrytitle">callbacks</span>
+</h2>
+<p>callbacks &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+void        <a href="QCADesigner-callbacks.html#popup-menu-button-clicked">popup_menu_button_clicked</a>       (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#remove-layer-button-clicked">remove_layer_button_clicked</a>     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#layer-properties-button-clicked">layer_properties_button_clicked</a> (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#main-window-show">main_window_show</a>                (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#on-cell-properties-menu-item-activate">on_cell_properties_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-snap-to-grid-menu-item-activate">on_snap_to_grid_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-show-grid-menu-item-activate">on_show_grid_menu_item_activate</a> (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-clock-select-menu-item-activate">on_clock_select_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-clock-increment-menu-item-activate">on_clock_increment_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-simulation-type-setup-menu-item-activate">on_simulation_type_setup_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-simulation-engine-setup-menu-item-activate">on_simulation_engine_setup_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-random-fault-setup-menu-item-activate">on_random_fault_setup_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-reset-zoom-menu-item-activate">on_reset_zoom_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-zoom-in-menu-item-activate">on_zoom_in_menu_item_activate</a>   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-zoom-out-menu-item-activate">on_zoom_out_menu_item_activate</a>  (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-zoom-die-menu-item-activate">on_zoom_die_menu_item_activate</a>  (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-zoom-extents-menu-item-activate">on_zoom_extents_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-zoom-layer-menu-item-activate">on_zoom_layer_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-print-menu-item-activate">on_print_menu_item_activate</a>     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-undo-menu-item-activate">on_undo_menu_item_activate</a>      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-redo-menu-item-activate">on_redo_menu_item_activate</a>      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-copy-cell-button-clicked">on_copy_cell_button_clicked</a>     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkButton.html"
+>GtkButton</a> *button,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-delete-menu-item-activate">on_delete_menu_item_activate</a>    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-start-simulation-menu-item-activate">on_start_simulation_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-stop-simulation-menu-item-activate">on_stop_simulation_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-show-simulation-results-menu-item-activate">on_show_simulation_results_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-contents-menu-item-activate">on_contents_menu_item_activate</a>  (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-about-menu-item-activate">on_about_menu_item_activate</a>     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#file-operations">file_operations</a>                 (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-preview-menu-item-activate">on_preview_menu_item_activate</a>   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-load-output-from-file-menu-item-activate">on_load_output_from_file_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-save-output-to-file-menu-item-activate">on_save_output_to_file_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-callbacks.html#autosave-timer-event">autosave_timer_event</a>            (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#rotate-selection-menu-item-activate">rotate_selection_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-scale-menu-item-activate">on_scale_menu_item_activate</a>     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#on-translate-selection-button-clicked">on_translate_selection_button_clicked</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#reorder-layers-button-clicked">reorder_layers_button_clicked</a>   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+void        <a href="QCADesigner-callbacks.html#action-button-clicked">action_button_clicked</a>           (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#bus-layout-button-clicked">bus_layout_button_clicked</a>       (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#on-hide-layers-menu-item-activate">on_hide_layers_menu_item_activate</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#type-for-new-layer-chosen">type_for_new_layer_chosen</a>       (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#cell-display-mode-chosen">cell_display_mode_chosen</a>        (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#mirror-selection-direction-chosen">mirror_selection_direction_chosen</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#scrollbar-adjust-bounds">scrollbar_adjust_bounds</a>         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRange.html"
+>GtkRange</a> *range,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> value,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#qcad-cell-default-clock-changed">qcad_cell_default_clock_changed</a> (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *default_cell,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-GParamSpec.html#GParamSpec"
+>GParamSpec</a> *pspec,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-callbacks.html#layers-combo-deactivate-layer">layers_combo_deactivate_layer</a>   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bHide,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-callbacks.html#layers-combo-notify-layer">layers_combo_notify_layer</a>       (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-GParamSpec.html#GParamSpec"
+>GParamSpec</a> *param_spec,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-callbacks.html#drawing-area-motion-notify">drawing_area_motion_notify</a>      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventMotion"
+>GdkEventMotion</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-callbacks.html#drawing-area-button-pressed">drawing_area_button_pressed</a>     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventButton"
+>GdkEventButton</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-callbacks.html#drawing-area-button-released">drawing_area_button_released</a>    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventButton"
+>GdkEventButton</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-callbacks.html#configure-event">configure_event</a>                 (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventConfigure"
+>GdkEventConfigure</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-callbacks.html#scroll-event">scroll_event</a>                    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventScroll"
+>GdkEventScroll</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-callbacks.html#expose-event">expose_event</a>                    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventExpose"
+>GdkEventExpose</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-callbacks.html#on-quit-menu-item-activate">on_quit_menu_item_activate</a>      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *main_window,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4854393"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4854407"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4854416"></a><h3>
+<a name="popup-menu-button-clicked"></a>popup_menu_button_clicked ()</h3>
+<a class="indexterm" name="id4854427"></a><pre class="programlisting">void        popup_menu_button_clicked       (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4854487"></a><h3>
+<a name="remove-layer-button-clicked"></a>remove_layer_button_clicked ()</h3>
+<a class="indexterm" name="id4854498"></a><pre class="programlisting">void        remove_layer_button_clicked     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4854557"></a><h3>
+<a name="layer-properties-button-clicked"></a>layer_properties_button_clicked ()</h3>
+<a class="indexterm" name="id4854570"></a><pre class="programlisting">void        layer_properties_button_clicked (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4854630"></a><h3>
+<a name="main-window-show"></a>main_window_show ()</h3>
+<a class="indexterm" name="id4854640"></a><pre class="programlisting">void        main_window_show                (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4854700"></a><h3>
+<a name="on-cell-properties-menu-item-activate"></a>on_cell_properties_menu_item_activate ()</h3>
+<a class="indexterm" name="id4854712"></a><pre class="programlisting">void        on_cell_properties_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4854774"></a><h3>
+<a name="on-snap-to-grid-menu-item-activate"></a>on_snap_to_grid_menu_item_activate ()</h3>
+<a class="indexterm" name="id4854787"></a><pre class="programlisting">void        on_snap_to_grid_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4854847"></a><h3>
+<a name="on-show-grid-menu-item-activate"></a>on_show_grid_menu_item_activate ()</h3>
+<a class="indexterm" name="id4854859"></a><pre class="programlisting">void        on_show_grid_menu_item_activate (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4854920"></a><h3>
+<a name="on-clock-select-menu-item-activate"></a>on_clock_select_menu_item_activate ()</h3>
+<a class="indexterm" name="id4854933"></a><pre class="programlisting">void        on_clock_select_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4854993"></a><h3>
+<a name="on-clock-increment-menu-item-activate"></a>on_clock_increment_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855006"></a><pre class="programlisting">void        on_clock_increment_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855067"></a><h3>
+<a name="on-simulation-type-setup-menu-item-activate"></a>on_simulation_type_setup_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855081"></a><pre class="programlisting">void        on_simulation_type_setup_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855141"></a><h3>
+<a name="on-simulation-engine-setup-menu-item-activate"></a>on_simulation_engine_setup_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855154"></a><pre class="programlisting">void        on_simulation_engine_setup_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855216"></a><h3>
+<a name="on-random-fault-setup-menu-item-activate"></a>on_random_fault_setup_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855228"></a><pre class="programlisting">void        on_random_fault_setup_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855290"></a><h3>
+<a name="on-reset-zoom-menu-item-activate"></a>on_reset_zoom_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855302"></a><pre class="programlisting">void        on_reset_zoom_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855363"></a><h3>
+<a name="on-zoom-in-menu-item-activate"></a>on_zoom_in_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855375"></a><pre class="programlisting">void        on_zoom_in_menu_item_activate   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855435"></a><h3>
+<a name="on-zoom-out-menu-item-activate"></a>on_zoom_out_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855448"></a><pre class="programlisting">void        on_zoom_out_menu_item_activate  (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855508"></a><h3>
+<a name="on-zoom-die-menu-item-activate"></a>on_zoom_die_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855520"></a><pre class="programlisting">void        on_zoom_die_menu_item_activate  (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855580"></a><h3>
+<a name="on-zoom-extents-menu-item-activate"></a>on_zoom_extents_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855594"></a><pre class="programlisting">void        on_zoom_extents_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855654"></a><h3>
+<a name="on-zoom-layer-menu-item-activate"></a>on_zoom_layer_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855666"></a><pre class="programlisting">void        on_zoom_layer_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855727"></a><h3>
+<a name="on-print-menu-item-activate"></a>on_print_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855738"></a><pre class="programlisting">void        on_print_menu_item_activate     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855798"></a><h3>
+<a name="on-undo-menu-item-activate"></a>on_undo_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855809"></a><pre class="programlisting">void        on_undo_menu_item_activate      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855868"></a><h3>
+<a name="on-redo-menu-item-activate"></a>on_redo_menu_item_activate ()</h3>
+<a class="indexterm" name="id4855879"></a><pre class="programlisting">void        on_redo_menu_item_activate      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4855939"></a><h3>
+<a name="on-copy-cell-button-clicked"></a>on_copy_cell_button_clicked ()</h3>
+<a class="indexterm" name="id4855950"></a><pre class="programlisting">void        on_copy_cell_button_clicked     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkButton.html"
+>GtkButton</a> *button,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>button</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856009"></a><h3>
+<a name="on-delete-menu-item-activate"></a>on_delete_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856022"></a><pre class="programlisting">void        on_delete_menu_item_activate    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856082"></a><h3>
+<a name="on-start-simulation-menu-item-activate"></a>on_start_simulation_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856095"></a><pre class="programlisting">void        on_start_simulation_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856156"></a><h3>
+<a name="on-stop-simulation-menu-item-activate"></a>on_stop_simulation_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856169"></a><pre class="programlisting">void        on_stop_simulation_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856230"></a><h3>
+<a name="on-show-simulation-results-menu-item-activate"></a>on_show_simulation_results_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856243"></a><pre class="programlisting">void        on_show_simulation_results_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856304"></a><h3>
+<a name="on-contents-menu-item-activate"></a>on_contents_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856317"></a><pre class="programlisting">void        on_contents_menu_item_activate  (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856377"></a><h3>
+<a name="on-about-menu-item-activate"></a>on_about_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856388"></a><pre class="programlisting">void        on_about_menu_item_activate     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856447"></a><h3>
+<a name="file-operations"></a>file_operations ()</h3>
+<a class="indexterm" name="id4856458"></a><pre class="programlisting">void        file_operations                 (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856517"></a><h3>
+<a name="on-preview-menu-item-activate"></a>on_preview_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856530"></a><pre class="programlisting">void        on_preview_menu_item_activate   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856592"></a><h3>
+<a name="on-load-output-from-file-menu-item-activate"></a>on_load_output_from_file_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856608"></a><pre class="programlisting">void        on_load_output_from_file_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856675"></a><h3>
+<a name="on-save-output-to-file-menu-item-activate"></a>on_save_output_to_file_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856691"></a><pre class="programlisting">void        on_save_output_to_file_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856759"></a><h3>
+<a name="autosave-timer-event"></a>autosave_timer_event ()</h3>
+<a class="indexterm" name="id4856772"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    autosave_timer_event            (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856829"></a><h3>
+<a name="rotate-selection-menu-item-activate"></a>rotate_selection_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856844"></a><pre class="programlisting">void        rotate_selection_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856912"></a><h3>
+<a name="on-scale-menu-item-activate"></a>on_scale_menu_item_activate ()</h3>
+<a class="indexterm" name="id4856926"></a><pre class="programlisting">void        on_scale_menu_item_activate     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkMenuItem.html"
+>GtkMenuItem</a> *menuitem,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>menuitem</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4856993"></a><h3>
+<a name="on-translate-selection-button-clicked"></a>on_translate_selection_button_clicked ()</h3>
+<a class="indexterm" name="id4857008"></a><pre class="programlisting">void        on_translate_selection_button_clicked
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857076"></a><h3>
+<a name="reorder-layers-button-clicked"></a>reorder_layers_button_clicked ()</h3>
+<a class="indexterm" name="id4857090"></a><pre class="programlisting">void        reorder_layers_button_clicked   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857157"></a><h3>
+<a name="action-button-clicked"></a>action_button_clicked ()</h3>
+<a class="indexterm" name="id4857171"></a><pre class="programlisting">void        action_button_clicked           (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857238"></a><h3>
+<a name="bus-layout-button-clicked"></a>bus_layout_button_clicked ()</h3>
+<a class="indexterm" name="id4857253"></a><pre class="programlisting">void        bus_layout_button_clicked       (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857319"></a><h3>
+<a name="on-hide-layers-menu-item-activate"></a>on_hide_layers_menu_item_activate ()</h3>
+<a class="indexterm" name="id4857334"></a><pre class="programlisting">void        on_hide_layers_menu_item_activate
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857402"></a><h3>
+<a name="type-for-new-layer-chosen"></a>type_for_new_layer_chosen ()</h3>
+<a class="indexterm" name="id4857416"></a><pre class="programlisting">void        type_for_new_layer_chosen       (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857483"></a><h3>
+<a name="cell-display-mode-chosen"></a>cell_display_mode_chosen ()</h3>
+<a class="indexterm" name="id4857497"></a><pre class="programlisting">void        cell_display_mode_chosen        (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857564"></a><h3>
+<a name="mirror-selection-direction-chosen"></a>mirror_selection_direction_chosen ()</h3>
+<a class="indexterm" name="id4857579"></a><pre class="programlisting">void        mirror_selection_direction_chosen
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857646"></a><h3>
+<a name="scrollbar-adjust-bounds"></a>scrollbar_adjust_bounds ()</h3>
+<a class="indexterm" name="id4857660"></a><pre class="programlisting">void        scrollbar_adjust_bounds         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRange.html"
+>GtkRange</a> *range,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> value,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>range</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>value</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857748"></a><h3>
+<a name="qcad-cell-default-clock-changed"></a>qcad_cell_default_clock_changed ()</h3>
+<a class="indexterm" name="id4857762"></a><pre class="programlisting">void        qcad_cell_default_clock_changed (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *default_cell,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-GParamSpec.html#GParamSpec"
+>GParamSpec</a> *pspec,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>default_cell</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pspec</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857851"></a><h3>
+<a name="layers-combo-deactivate-layer"></a>layers_combo_deactivate_layer ()</h3>
+<a class="indexterm" name="id4857865"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    layers_combo_deactivate_layer   (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bHide,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bHide</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4857985"></a><h3>
+<a name="layers-combo-notify-layer"></a>layers_combo_notify_layer ()</h3>
+<a class="indexterm" name="id4858000"></a><pre class="programlisting">void        layers_combo_notify_layer       (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-GParamSpec.html#GParamSpec"
+>GParamSpec</a> *param_spec,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>param_spec</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4858087"></a><h3>
+<a name="drawing-area-motion-notify"></a>drawing_area_motion_notify ()</h3>
+<a class="indexterm" name="id4858101"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    drawing_area_motion_notify      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventMotion"
+>GdkEventMotion</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>event</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4858200"></a><h3>
+<a name="drawing-area-button-pressed"></a>drawing_area_button_pressed ()</h3>
+<a class="indexterm" name="id4858215"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    drawing_area_button_pressed     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventButton"
+>GdkEventButton</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>event</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4858313"></a><h3>
+<a name="drawing-area-button-released"></a>drawing_area_button_released ()</h3>
+<a class="indexterm" name="id4858328"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    drawing_area_button_released    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventButton"
+>GdkEventButton</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>event</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4858427"></a><h3>
+<a name="configure-event"></a>configure_event ()</h3>
+<a class="indexterm" name="id4858440"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    configure_event                 (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventConfigure"
+>GdkEventConfigure</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>event</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4858539"></a><h3>
+<a name="scroll-event"></a>scroll_event ()</h3>
+<a class="indexterm" name="id4858553"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    scroll_event                    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventScroll"
+>GdkEventScroll</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>event</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4858652"></a><h3>
+<a name="expose-event"></a>expose_event ()</h3>
+<a class="indexterm" name="id4858665"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    expose_event                    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventExpose"
+>GdkEventExpose</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>event</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4858764"></a><h3>
+<a name="on-quit-menu-item-activate"></a>on_quit_menu_item_activate ()</h3>
+<a class="indexterm" name="id4858779"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    on_quit_menu_item_activate      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *main_window,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>main_window</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

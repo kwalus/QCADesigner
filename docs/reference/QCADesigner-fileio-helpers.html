@@ -1,0 +1,575 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>fileio_helpers</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-callbacks.html" title="callbacks">
+<link rel="next" href="QCADesigner-support.html" title="support">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-callbacks.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-support.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4820245" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4840284" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-fileio-helpers"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4820245"></a><span class="refentrytitle">fileio_helpers</span>
+</h2>
+<p>fileio_helpers &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+FILE*       <a href="QCADesigner-fileio-helpers.html#file-open-and-buffer">file_open_and_buffer</a>            (char *pszFName);
+void        <a href="QCADesigner-fileio-helpers.html#file-close-and-unbuffer">file_close_and_unbuffer</a>         (FILE *pfile);
+char*       <a href="QCADesigner-fileio-helpers.html#ReadLine">ReadLine</a>                        (FILE *pfile,
+                                             char cComment,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bPeek);
+char*       <a href="QCADesigner-fileio-helpers.html#ReadPast">ReadPast</a>                        (FILE *pfile,
+                                             char *pattern,
+                                             char cComment);
+char*       <a href="QCADesigner-fileio-helpers.html#base-name">base_name</a>                       (char *pszFile);
+char*       <a href="QCADesigner-fileio-helpers.html#CreateUserFName">CreateUserFName</a>                 (char *pszBaseName);
+void        <a href="QCADesigner-fileio-helpers.html#tokenize-line">tokenize_line</a>                   (char *pszLine,
+                                             int length,
+                                             char **pszValue,
+                                             char delim);
+void        <a href="QCADesigner-fileio-helpers.html#tokenize-line-type">tokenize_line_type</a>              (char *pszLine,
+                                             int length,
+                                             char **pszValue,
+                                             char delim);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-fileio-helpers.html#SkipPast">SkipPast</a>                        (FILE *pfile,
+                                             char cComment,
+                                             ...);
+int         <a href="QCADesigner-fileio-helpers.html#file-age-compare">file_age_compare</a>                (char *pszFName1,
+                                             char *pszFName2);
+char*       <a href="QCADesigner-fileio-helpers.html#absolute-path">absolute_path</a>                   (char *pszFName);
+char*       <a href="QCADesigner-fileio-helpers.html#next-space-separated-value">next_space_separated_value</a>      (char **ppsz);
+double      <a href="QCADesigner-fileio-helpers.html#get-file-percent">get_file_percent</a>                (FILE *pfile);
+int         <a href="QCADesigner-fileio-helpers.html#flush-fprintf">flush_fprintf</a>                   (FILE *pfile,
+                                             char *pszFmt,
+                                             ...);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4840284"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4840299"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4840310"></a><h3>
+<a name="file-open-and-buffer"></a>file_open_and_buffer ()</h3>
+<a class="indexterm" name="id4840321"></a><pre class="programlisting">FILE*       file_open_and_buffer            (char *pszFName);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFName</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850069"></a><h3>
+<a name="file-close-and-unbuffer"></a>file_close_and_unbuffer ()</h3>
+<a class="indexterm" name="id4850080"></a><pre class="programlisting">void        file_close_and_unbuffer         (FILE *pfile);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850124"></a><h3>
+<a name="ReadLine"></a>ReadLine ()</h3>
+<a class="indexterm" name="id4850136"></a><pre class="programlisting">char*       ReadLine                        (FILE *pfile,
+                                             char cComment,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bPeek);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cComment</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bPeek</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850234"></a><h3>
+<a name="ReadPast"></a>ReadPast ()</h3>
+<a class="indexterm" name="id4850246"></a><pre class="programlisting">char*       ReadPast                        (FILE *pfile,
+                                             char *pattern,
+                                             char cComment);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pattern</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cComment</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4846383"></a><h3>
+<a name="base-name"></a>base_name ()</h3>
+<a class="indexterm" name="id4846395"></a><pre class="programlisting">char*       base_name                       (char *pszFile);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4846450"></a><h3>
+<a name="CreateUserFName"></a>CreateUserFName ()</h3>
+<a class="indexterm" name="id4846461"></a><pre class="programlisting">char*       CreateUserFName                 (char *pszBaseName);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszBaseName</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4846516"></a><h3>
+<a name="tokenize-line"></a>tokenize_line ()</h3>
+<a class="indexterm" name="id4846527"></a><pre class="programlisting">void        tokenize_line                   (char *pszLine,
+                                             int length,
+                                             char **pszValue,
+                                             char delim);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszLine</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>length</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszValue</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>delim</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4847725"></a><h3>
+<a name="tokenize-line-type"></a>tokenize_line_type ()</h3>
+<a class="indexterm" name="id4847736"></a><pre class="programlisting">void        tokenize_line_type              (char *pszLine,
+                                             int length,
+                                             char **pszValue,
+                                             char delim);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszLine</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>length</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszValue</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>delim</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4847844"></a><h3>
+<a name="SkipPast"></a>SkipPast ()</h3>
+<a class="indexterm" name="id4847856"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    SkipPast                        (FILE *pfile,
+                                             char cComment,
+                                             ...);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cComment</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4847947"></a><h3>
+<a name="file-age-compare"></a>file_age_compare ()</h3>
+<a class="indexterm" name="id4847958"></a><pre class="programlisting">int         file_age_compare                (char *pszFName1,
+                                             char *pszFName2);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFName1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFName2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4848034"></a><h3>
+<a name="absolute-path"></a>absolute_path ()</h3>
+<a class="indexterm" name="id4848045"></a><pre class="programlisting">char*       absolute_path                   (char *pszFName);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFName</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4848100"></a><h3>
+<a name="next-space-separated-value"></a>next_space_separated_value ()</h3>
+<a class="indexterm" name="id4848111"></a><pre class="programlisting">char*       next_space_separated_value      (char **ppsz);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>ppsz</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4848166"></a><h3>
+<a name="get-file-percent"></a>get_file_percent ()</h3>
+<a class="indexterm" name="id4848177"></a><pre class="programlisting">double      get_file_percent                (FILE *pfile);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4848232"></a><h3>
+<a name="flush-fprintf"></a>flush_fprintf ()</h3>
+<a class="indexterm" name="id4848243"></a><pre class="programlisting">int         flush_fprintf                   (FILE *pfile,
+                                             char *pszFmt,
+                                             ...);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFmt</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

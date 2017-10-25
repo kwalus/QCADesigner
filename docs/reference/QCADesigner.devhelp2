@@ -1,0 +1,830 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE book PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "">
+<book xmlns="http://www.devhelp.net/book" title="QCADesigner Reference Manual" link="index.html" author="" name="QCADesigner" version="2">
+  <chapters>
+    <sub name="Design Objects" link="QCADObjects.html">
+      <sub name="QCADObject" link="QCADObject.html"/>
+      <sub name="QCADDesignObject" link="QCADDesignObject.html"/>
+      <sub name="QCADCell" link="QCADCell.html"/>
+      <sub name="QCADLayer" link="QCADLayer.html"/>
+      <sub name="QCADClockingLayer" link="QCADClockingLayer.html"/>
+      <sub name="QCADElectrode" link="QCADElectrode.html"/>
+      <sub name="QCADRectangleElectrode" link="QCADRectangleElectrode.html"/>
+      <sub name="QCADStretchyObject" link="QCADStretchyObject.html"/>
+      <sub name="QCADLabel" link="QCADLabel.html"/>
+      <sub name="QCADRuler" link="QCADRuler.html"/>
+      <sub name="QCADSubstrate" link="QCADSubstrate.html"/>
+      <sub name="QCADCompoundDO" link="QCADCompoundDO.html"/>
+      <sub name="QCADDOContainer" link="QCADDOContainer.html"/>
+    </sub>
+    <sub name="Property UIs" link="QCADPropertyUIs.html">
+      <sub name="QCADParamSpecObjectList" link="QCADesigner-QCADParamSpecObjectList.html"/>
+      <sub name="QCADParamSpecTypeList" link="QCADesigner-QCADParamSpecTypeList.html"/>
+      <sub name="QCADPropertyUI" link="QCADPropertyUI.html"/>
+      <sub name="QCADPropertyUISingle" link="QCADPropertyUISingle.html"/>
+      <sub name="QCADPropertyUINumeric" link="QCADPropertyUINumeric.html"/>
+      <sub name="QCADPropertyUIInt" link="QCADPropertyUIInt.html"/>
+      <sub name="QCADPropertyUIDouble" link="QCADPropertyUIDouble.html"/>
+      <sub name="QCADPropertyUIText" link="QCADPropertyUIText.html"/>
+      <sub name="QCADPropertyUIObjectList" link="QCADPropertyUIObjectList.html"/>
+      <sub name="QCADPropertyUIBoolean" link="QCADPropertyUIBoolean.html"/>
+      <sub name="QCADPropertyUIEnum" link="QCADPropertyUIEnum.html"/>
+      <sub name="QCADPropertyUIGroup" link="QCADPropertyUIGroup.html"/>
+    </sub>
+    <sub name="GTK+ Widgets" link="QCADWidgets.html">
+      <sub name="QCADPrintDialog" link="QCADPrintDialog.html"/>
+      <sub name="QCADFlexiCombo" link="QCADFlexiCombo.html"/>
+      <sub name="QCADLayersCombo" link="QCADLayersCombo.html"/>
+      <sub name="QCADCellRendererLayerList" link="QCADCellRendererLayerList.html"/>
+      <sub name="QCADCellRendererVT" link="QCADCellRendererVT.html"/>
+    </sub>
+    <sub name="GTK+ Workaround Widgets" link="QCADWorkaroundWidgets.html">
+      <sub name="QCADRadioButton" link="QCADRadioButton.html"/>
+      <sub name="QCADComboBox" link="QCADComboBox.html"/>
+      <sub name="QCADCellRendererText" link="QCADCellRendererText.html"/>
+      <sub name="QCADRadioToolButton" link="QCADRadioToolButton.html"/>
+      <sub name="QCADToggleToolButton" link="QCADToggleToolButton.html"/>
+    </sub>
+    <sub name="Undo/Redo" link="QCADUndoRedo.html">
+      <sub name="QCADUndoEntry" link="QCADUndoEntry.html"/>
+      <sub name="QCADUndoEntryObjectState" link="QCADUndoEntryObjectState.html"/>
+      <sub name="QCADUndoEntryGroup" link="QCADUndoEntryGroup.html"/>
+      <sub name="selection_undo" link="QCADesigner-selection-undo.html"/>
+    </sub>
+    <sub name="interface" link="QCADesigner-interface.html"/>
+    <sub name="graph_dialog_callbacks" link="QCADesigner-graph-dialog-callbacks.html"/>
+    <sub name="generic_utils" link="QCADesigner-generic-utils.html"/>
+    <sub name="bistable_simulation" link="QCADesigner-bistable-simulation.html"/>
+    <sub name="drag_rect" link="QCADesigner-drag-rect.html"/>
+    <sub name="print_util" link="QCADesigner-print-util.html"/>
+    <sub name="print_preview" link="QCADesigner-print-preview.html"/>
+    <sub name="translate_selection_dialog" link="QCADesigner-translate-selection-dialog.html"/>
+    <sub name="exp_pixmap" link="QCADesigner-exp-pixmap.html"/>
+    <sub name="graph_dialog_data" link="QCADesigner-graph-dialog-data.html"/>
+    <sub name="file_selection_window" link="QCADesigner-file-selection-window.html"/>
+    <sub name="vector_table_options_dialog_interface" link="QCADesigner-vector-table-options-dialog-interface.html"/>
+    <sub name="print_properties_dialog_callbacks" link="QCADesigner-print-properties-dialog-callbacks.html"/>
+    <sub name="coherence_vector" link="QCADesigner-coherence-vector.html"/>
+    <sub name="recent_files" link="QCADesigner-recent-files.html"/>
+    <sub name="layer_order_dialog" link="QCADesigner-layer-order-dialog.html"/>
+    <sub name="fileio" link="QCADesigner-fileio.html"/>
+    <sub name="exp_array" link="QCADesigner-exp-array.html"/>
+    <sub name="print_graph_properties_dialog" link="QCADesigner-print-graph-properties-dialog.html"/>
+    <sub name="simulation" link="QCADesigner-simulation.html"/>
+    <sub name="simulation_data" link="QCADesigner-simulation-data.html"/>
+    <sub name="sim_type_setup_dialog" link="QCADesigner-sim-type-setup-dialog.html"/>
+    <sub name="custom_widgets" link="QCADesigner-custom-widgets.html"/>
+    <sub name="ts_coherence_vector_properties_dialog" link="QCADesigner-ts-coherence-vector-properties-dialog.html"/>
+    <sub name="preamble" link="QCADesigner-preamble.html"/>
+    <sub name="scale_dialog" link="QCADesigner-scale-dialog.html"/>
+    <sub name="callbacks" link="QCADesigner-callbacks.html"/>
+    <sub name="fileio_helpers" link="QCADesigner-fileio-helpers.html"/>
+    <sub name="support" link="QCADesigner-support.html"/>
+    <sub name="graph_dialog_interface" link="QCADesigner-graph-dialog-interface.html"/>
+    <sub name="hsl2rgb" link="QCADesigner-hsl2rgb.html"/>
+    <sub name="about" link="QCADesigner-about.html"/>
+    <sub name="selection_renderer" link="QCADesigner-selection-renderer.html"/>
+    <sub name="callback_helpers" link="QCADesigner-callback-helpers.html"/>
+    <sub name="vector_table_options_dialog" link="QCADesigner-vector-table-options-dialog.html"/>
+    <sub name="waveform_interpretation_dialog" link="QCADesigner-waveform-interpretation-dialog.html"/>
+    <sub name="vector_table_options_dialog_callbacks" link="QCADesigner-vector-table-options-dialog-callbacks.html"/>
+    <sub name="global_consts" link="QCADesigner-global-consts.html"/>
+    <sub name="design" link="QCADesigner-design.html"/>
+    <sub name="print_properties_dialog" link="QCADesigner-print-properties-dialog.html"/>
+    <sub name="matrixlib_3x3" link="QCADesigner-matrixlib-3x3.html"/>
+    <sub name="print_properties_dialog_interface" link="QCADesigner-print-properties-dialog-interface.html"/>
+    <sub name="three_state_coherence" link="QCADesigner-three-state-coherence.html"/>
+    <sub name="vector_table_options_dialog_callback_helpers" link="QCADesigner-vector-table-options-dialog-callback-helpers.html"/>
+    <sub name="coherence_vector_properties_dialog" link="QCADesigner-coherence-vector-properties-dialog.html"/>
+    <sub name="layer_mapping_dialog" link="QCADesigner-layer-mapping-dialog.html"/>
+    <sub name="bus_layout_dialog" link="QCADesigner-bus-layout-dialog.html"/>
+    <sub name="qcadstock" link="QCADesigner-qcadstock.html"/>
+    <sub name="sim_engine_setup_dialog" link="QCADesigner-sim-engine-setup-dialog.html"/>
+    <sub name="print" link="QCADesigner-print.html"/>
+    <sub name="graph_dialog" link="QCADesigner-graph-dialog.html"/>
+    <sub name="bistable_properties_dialog" link="QCADesigner-bistable-properties-dialog.html"/>
+    <sub name="rotate" link="QCADesigner-rotate.html"/>
+    <sub name="select" link="QCADesigner-select.html"/>
+    <sub name="array" link="QCADesigner-array.html"/>
+    <sub name="object_helpers" link="QCADesigner-object-helpers.html"/>
+    <sub name="mouse_handlers" link="QCADesigner-mouse-handlers.html"/>
+  </chapters>
+  <functions>
+    <keyword type="struct" name="QCADObject" link="QCADObject.html#QCADObject-struct"/>
+    <keyword type="function" name="qcad_object_new_from_object ()" link="QCADObject.html#qcad-object-new-from-object"/>
+    <keyword type="function" name="qcad_object_get_default ()" link="QCADObject.html#qcad-object-get-default"/>
+    <keyword type="function" name="qcad_object_set_default ()" link="QCADObject.html#qcad-object-set-default"/>
+    <keyword type="function" name="qcad_object_connect_signal_to_default_object ()" link="QCADObject.html#qcad-object-connect-signal-to-default-object"/>
+    <keyword type="function" name="qcad_object_create_property_ui_for_default_object ()" link="QCADObject.html#qcad-object-create-property-ui-for-default-object"/>
+    <keyword type="function" name="qcad_object_class_install_ui_behaviour ()" link="QCADObject.html#qcad-object-class-install-ui-behaviour"/>
+    <keyword type="function" name="qcad_object_class_install_ui_properties ()" link="QCADObject.html#qcad-object-class-install-ui-properties"/>
+    <keyword type="" name="The &quot;set-default&quot; signal" link="QCADObject.html#QCADObject-set-default"/>
+    <keyword type="" name="The &quot;unset-default&quot; signal" link="QCADObject.html#QCADObject-unset-default"/>
+    <keyword type="struct" name="QCADDesignObject" link="QCADDesignObject.html#QCADDesignObject-struct"/>
+    <keyword type="function" name="qcad_design_object_serialize ()" link="QCADDesignObject.html#qcad-design-object-serialize"/>
+    <keyword type="function" name="qcad_design_object_new_from_stream ()" link="QCADDesignObject.html#qcad-design-object-new-from-stream"/>
+    <keyword type="function" name="qcad_design_object_move ()" link="QCADDesignObject.html#qcad-design-object-move"/>
+    <keyword type="function" name="qcad_design_object_move_to ()" link="QCADDesignObject.html#qcad-design-object-move-to"/>
+    <keyword type="function" name="qcad_design_object_get_bounds_box ()" link="QCADDesignObject.html#qcad-design-object-get-bounds-box"/>
+    <keyword type="function" name="qcad_design_object_set_selected ()" link="QCADDesignObject.html#qcad-design-object-set-selected"/>
+    <keyword type="function" name="qcad_design_object_overlaps ()" link="QCADDesignObject.html#qcad-design-object-overlaps"/>
+    <keyword type="function" name="qcad_design_object_select_test ()" link="QCADDesignObject.html#qcad-design-object-select-test"/>
+    <keyword type="function" name="qcad_design_object_hit_test ()" link="QCADDesignObject.html#qcad-design-object-hit-test"/>
+    <keyword type="function" name="qcad_design_object_draw ()" link="QCADDesignObject.html#qcad-design-object-draw"/>
+    <keyword type="function" name="qcad_design_object_class_get_PostScript_preamble ()" link="QCADDesignObject.html#qcad-design-object-class-get-PostScript-preamble"/>
+    <keyword type="function" name="qcad_design_object_get_PostScript_instance ()" link="QCADDesignObject.html#qcad-design-object-get-PostScript-instance"/>
+    <keyword type="function" name="qcad_design_object_add_types ()" link="QCADDesignObject.html#qcad-design-object-add-types"/>
+    <keyword type="function" name="qcad_design_object_transform ()" link="QCADDesignObject.html#qcad-design-object-transform"/>
+    <keyword type="" name="The &quot;selected&quot; signal" link="QCADDesignObject.html#QCADDesignObject-selected"/>
+    <keyword type="macro" name="CLOCK_INC()" link="QCADCell.html#CLOCK-INC:CAPS"/>
+    <keyword type="macro" name="CLOCK_DEC()" link="QCADCell.html#CLOCK-DEC:CAPS"/>
+    <keyword type="struct" name="QCADCell" link="QCADCell.html#QCADCell-struct"/>
+    <keyword type="function" name="qcad_cell_drexp_array ()" link="QCADCell.html#qcad-cell-drexp-array"/>
+    <keyword type="function" name="qcad_cell_create_array ()" link="QCADCell.html#qcad-cell-create-array"/>
+    <keyword type="function" name="qcad_cell_calculate_polarization ()" link="QCADCell.html#qcad-cell-calculate-polarization"/>
+    <keyword type="function" name="qcad_cell_set_polarization ()" link="QCADCell.html#qcad-cell-set-polarization"/>
+    <keyword type="function" name="qcad_cell_set_clock ()" link="QCADCell.html#qcad-cell-set-clock"/>
+    <keyword type="function" name="qcad_cell_set_function ()" link="QCADCell.html#qcad-cell-set-function"/>
+    <keyword type="function" name="qcad_cell_set_label ()" link="QCADCell.html#qcad-cell-set-label"/>
+    <keyword type="function" name="qcad_cell_rotate_dots ()" link="QCADCell.html#qcad-cell-rotate-dots"/>
+    <keyword type="function" name="qcad_cell_get_label ()" link="QCADCell.html#qcad-cell-get-label"/>
+    <keyword type="function" name="qcad_cell_scale ()" link="QCADCell.html#qcad-cell-scale"/>
+    <keyword type="" name="The &quot;clock&quot; property" link="QCADCell.html#QCADCell--clock"/>
+    <keyword type="" name="The &quot;dot-diameter&quot; property" link="QCADCell.html#QCADCell--dot-diameter"/>
+    <keyword type="" name="The &quot;function&quot; property" link="QCADCell.html#QCADCell--function"/>
+    <keyword type="" name="The &quot;height&quot; property" link="QCADCell.html#QCADCell--height"/>
+    <keyword type="" name="The &quot;label&quot; property" link="QCADCell.html#QCADCell--label"/>
+    <keyword type="" name="The &quot;mode&quot; property" link="QCADCell.html#QCADCell--mode"/>
+    <keyword type="" name="The &quot;polarization&quot; property" link="QCADCell.html#QCADCell--polarization"/>
+    <keyword type="" name="The &quot;width&quot; property" link="QCADCell.html#QCADCell--width"/>
+    <keyword type="struct" name="QCADLayer" link="QCADLayer.html#QCADLayer-struct"/>
+    <keyword type="macro" name="QCAD_LAYER_DRAW_SELECTION" link="QCADLayer.html#QCAD-LAYER-DRAW-SELECTION:CAPS"/>
+    <keyword type="macro" name="QCAD_LAYER_DRAW_NON_SELECTION" link="QCADLayer.html#QCAD-LAYER-DRAW-NON-SELECTION:CAPS"/>
+    <keyword type="macro" name="QCAD_LAYER_DRAW_EVERYTHING" link="QCADLayer.html#QCAD-LAYER-DRAW-EVERYTHING:CAPS"/>
+    <keyword type="macro" name="QCAD_LAYER_ADD_DRAW_FLAGS()" link="QCADLayer.html#QCAD-LAYER-ADD-DRAW-FLAGS:CAPS"/>
+    <keyword type="macro" name="QCAD_LAYER_RMV_DRAW_FLAGS()" link="QCADLayer.html#QCAD-LAYER-RMV-DRAW-FLAGS:CAPS"/>
+    <keyword type="macro" name="QCAD_LAYER_SET_DRAW_FLAGS()" link="QCADLayer.html#QCAD-LAYER-SET-DRAW-FLAGS:CAPS"/>
+    <keyword type="function" name="qcad_layer_new ()" link="QCADLayer.html#qcad-layer-new"/>
+    <keyword type="function" name="qcad_layer_object_containment_rules ()" link="QCADLayer.html#qcad-layer-object-containment-rules"/>
+    <keyword type="function" name="qcad_layer_from_object ()" link="QCADLayer.html#qcad-layer-from-object"/>
+    <keyword type="function" name="qcad_layer_selection_drop ()" link="QCADLayer.html#qcad-layer-selection-drop"/>
+    <keyword type="function" name="qcad_layer_selection_subtract_window ()" link="QCADLayer.html#qcad-layer-selection-subtract-window"/>
+    <keyword type="function" name="qcad_layer_selection_release ()" link="QCADLayer.html#qcad-layer-selection-release"/>
+    <keyword type="function" name="qcad_layer_selection_serialize ()" link="QCADLayer.html#qcad-layer-selection-serialize"/>
+    <keyword type="function" name="qcad_layer_selection_create_from_selection ()" link="QCADLayer.html#qcad-layer-selection-create-from-selection"/>
+    <keyword type="function" name="qcad_layer_selection_get_object_array ()" link="QCADLayer.html#qcad-layer-selection-get-object-array"/>
+    <keyword type="function" name="qcad_layer_get_extents ()" link="QCADLayer.html#qcad-layer-get-extents"/>
+    <keyword type="function" name="qcad_layer_dump ()" link="QCADLayer.html#qcad-layer-dump"/>
+    <keyword type="function" name="qcad_layer_objects_foreach ()" link="QCADLayer.html#qcad-layer-objects-foreach"/>
+    <keyword type="function" name="qcad_layer_default_properties_apply ()" link="QCADLayer.html#qcad-layer-default-properties-apply"/>
+    <keyword type="" name="The &quot;default-objects&quot; property" link="QCADLayer.html#QCADLayer--default-objects"/>
+    <keyword type="" name="The &quot;description&quot; property" link="QCADLayer.html#QCADLayer--description"/>
+    <keyword type="struct" name="QCADClockingLayer" link="QCADClockingLayer.html#QCADClockingLayer-struct"/>
+    <keyword type="" name="The &quot;show-potential&quot; property" link="QCADClockingLayer.html#QCADClockingLayer--show-potential"/>
+    <keyword type="" name="The &quot;tile-size&quot; property" link="QCADClockingLayer.html#QCADClockingLayer--tile-size"/>
+    <keyword type="" name="The &quot;time-coord&quot; property" link="QCADClockingLayer.html#QCADClockingLayer--time-coord"/>
+    <keyword type="" name="The &quot;z-showing&quot; property" link="QCADClockingLayer.html#QCADClockingLayer--z-showing"/>
+    <keyword type="function" name="ClockFunction ()" link="QCADElectrode.html#ClockFunction"/>
+    <keyword type="struct" name="QCADElectrode" link="QCADElectrode.html#QCADElectrode-struct"/>
+    <keyword type="function" name="qcad_electrode_get_potential ()" link="QCADElectrode.html#qcad-electrode-get-potential"/>
+    <keyword type="function" name="qcad_electrode_get_voltage ()" link="QCADElectrode.html#qcad-electrode-get-voltage"/>
+    <keyword type="function" name="qcad_electrode_get_area ()" link="QCADElectrode.html#qcad-electrode-get-area"/>
+    <keyword type="function" name="qcad_electrode_get_long_side ()" link="QCADElectrode.html#qcad-electrode-get-long-side"/>
+    <keyword type="function" name="qcad_electrode_get_short_side ()" link="QCADElectrode.html#qcad-electrode-get-short-side"/>
+    <keyword type="function" name="qcad_electrode_get_extreme_potential ()" link="QCADElectrode.html#qcad-electrode-get-extreme-potential"/>
+    <keyword type="" name="The &quot;amplitude&quot; property" link="QCADElectrode.html#QCADElectrode--amplitude"/>
+    <keyword type="" name="The &quot;dc-offset&quot; property" link="QCADElectrode.html#QCADElectrode--dc-offset"/>
+    <keyword type="" name="The &quot;frequency&quot; property" link="QCADElectrode.html#QCADElectrode--frequency"/>
+    <keyword type="" name="The &quot;max-clock&quot; property" link="QCADElectrode.html#QCADElectrode--max-clock"/>
+    <keyword type="" name="The &quot;min-clock&quot; property" link="QCADElectrode.html#QCADElectrode--min-clock"/>
+    <keyword type="" name="The &quot;phase&quot; property" link="QCADElectrode.html#QCADElectrode--phase"/>
+    <keyword type="" name="The &quot;relative-permittivity&quot; property" link="QCADElectrode.html#QCADElectrode--relative-permittivity"/>
+    <keyword type="" name="The &quot;thickness&quot; property" link="QCADElectrode.html#QCADElectrode--thickness"/>
+    <keyword type="" name="The &quot;z-to-ground&quot; property" link="QCADElectrode.html#QCADElectrode--z-to-ground"/>
+    <keyword type="struct" name="QCADRectangleElectrodePrecompute" link="QCADRectangleElectrode.html#QCADRectangleElectrodePrecompute"/>
+    <keyword type="struct" name="QCADRectangleElectrode" link="QCADRectangleElectrode.html#QCADRectangleElectrode-struct"/>
+    <keyword type="" name="The &quot;angle&quot; property" link="QCADRectangleElectrode.html#QCADRectangleElectrode--angle"/>
+    <keyword type="" name="The &quot;height&quot; property" link="QCADRectangleElectrode.html#QCADRectangleElectrode--height"/>
+    <keyword type="" name="The &quot;width&quot; property" link="QCADRectangleElectrode.html#QCADRectangleElectrode--width"/>
+    <keyword type="" name="The &quot;x-dots&quot; property" link="QCADRectangleElectrode.html#QCADRectangleElectrode--x-dots"/>
+    <keyword type="" name="The &quot;y-dots&quot; property" link="QCADRectangleElectrode.html#QCADRectangleElectrode--y-dots"/>
+    <keyword type="struct" name="QCADStretchyObject" link="QCADStretchyObject.html#QCADStretchyObject-struct"/>
+    <keyword type="struct" name="QCADLabel" link="QCADLabel.html#QCADLabel-struct"/>
+    <keyword type="function" name="qcad_label_new ()" link="QCADLabel.html#qcad-label-new"/>
+    <keyword type="function" name="qcad_label_shrinkwrap ()" link="QCADLabel.html#qcad-label-shrinkwrap"/>
+    <keyword type="function" name="qcad_label_set_text ()" link="QCADLabel.html#qcad-label-set-text"/>
+    <keyword type="function" name="qcad_label_vset_text ()" link="QCADLabel.html#qcad-label-vset-text"/>
+    <keyword type="" name="The &quot;text&quot; property" link="QCADLabel.html#QCADLabel--text"/>
+    <keyword type="struct" name="QCADRuler" link="QCADRuler.html#QCADRuler-struct"/>
+    <keyword type="function" name="qcad_ruler_new ()" link="QCADRuler.html#qcad-ruler-new"/>
+    <keyword type="struct" name="QCADSubstrate" link="QCADSubstrate.html#QCADSubstrate-struct"/>
+    <keyword type="function" name="qcad_substrate_new ()" link="QCADSubstrate.html#qcad-substrate-new"/>
+    <keyword type="function" name="qcad_substrate_snap_point ()" link="QCADSubstrate.html#qcad-substrate-snap-point"/>
+    <keyword type="" name="The &quot;spacing&quot; property" link="QCADSubstrate.html#QCADSubstrate--spacing"/>
+    <keyword type="struct" name="QCADCompoundDO" link="QCADCompoundDO.html#QCADCompoundDO-struct"/>
+    <keyword type="function" name="qcad_compound_do_first ()" link="QCADCompoundDO.html#qcad-compound-do-first"/>
+    <keyword type="function" name="qcad_compound_do_next ()" link="QCADCompoundDO.html#qcad-compound-do-next"/>
+    <keyword type="function" name="qcad_compound_do_last ()" link="QCADCompoundDO.html#qcad-compound-do-last"/>
+    <keyword type="" name="The &quot;added&quot; signal" link="QCADCompoundDO.html#QCADCompoundDO-added"/>
+    <keyword type="" name="The &quot;removed&quot; signal" link="QCADCompoundDO.html#QCADCompoundDO-removed"/>
+    <keyword type="struct" name="QCADDOContainer" link="QCADDOContainer.html#QCADDOContainer-struct"/>
+    <keyword type="function" name="qcad_do_container_add ()" link="QCADDOContainer.html#qcad-do-container-add"/>
+    <keyword type="function" name="qcad_do_container_remove ()" link="QCADDOContainer.html#qcad-do-container-remove"/>
+    <keyword type="struct" name="QCADParamSpecObjectList" link="QCADesigner-QCADParamSpecObjectList.html#QCADParamSpecObjectList"/>
+    <keyword type="macro" name="QCAD_PARAM_SPEC_OBJECT_LIST()" link="QCADesigner-QCADParamSpecObjectList.html#QCAD-PARAM-SPEC-OBJECT-LIST:CAPS"/>
+    <keyword type="function" name="qcad_param_spec_object_list ()" link="QCADesigner-QCADParamSpecObjectList.html#qcad-param-spec-object-list"/>
+    <keyword type="struct" name="QCADParamSpecTypeList" link="QCADesigner-QCADParamSpecTypeList.html#QCADParamSpecTypeList"/>
+    <keyword type="function" name="qcad_param_spec_type_list ()" link="QCADesigner-QCADParamSpecTypeList.html#qcad-param-spec-type-list"/>
+    <keyword type="struct" name="QCADPropertyUI" link="QCADPropertyUI.html#QCADPropertyUI-struct"/>
+    <keyword type="struct" name="QCADPropertyUIBehaviour" link="QCADPropertyUI.html#QCADPropertyUIBehaviour"/>
+    <keyword type="struct" name="QCADPropertyUIProperty" link="QCADPropertyUI.html#QCADPropertyUIProperty"/>
+    <keyword type="function" name="qcad_property_ui_new ()" link="QCADPropertyUI.html#qcad-property-ui-new"/>
+    <keyword type="function" name="qcad_property_ui_set_instance ()" link="QCADPropertyUI.html#qcad-property-ui-set-instance"/>
+    <keyword type="function" name="qcad_property_ui_get_cx_widgets ()" link="QCADPropertyUI.html#qcad-property-ui-get-cx-widgets"/>
+    <keyword type="function" name="qcad_property_ui_get_cy_widgets ()" link="QCADPropertyUI.html#qcad-property-ui-get-cy-widgets"/>
+    <keyword type="function" name="qcad_property_ui_get_widget ()" link="QCADPropertyUI.html#qcad-property-ui-get-widget"/>
+    <keyword type="" name="The &quot;sensitive&quot; property" link="QCADPropertyUI.html#QCADPropertyUI--sensitive"/>
+    <keyword type="" name="The &quot;visible&quot; property" link="QCADPropertyUI.html#QCADPropertyUI--visible"/>
+    <keyword type="struct" name="QCADPropertyUISingle" link="QCADPropertyUISingle.html#QCADPropertyUISingle-struct"/>
+    <keyword type="function" name="qcad_property_ui_single_newv ()" link="QCADPropertyUISingle.html#qcad-property-ui-single-newv"/>
+    <keyword type="" name="The &quot;show-label&quot; property" link="QCADPropertyUISingle.html#QCADPropertyUISingle--show-label"/>
+    <keyword type="" name="The &quot;tooltip&quot; property" link="QCADPropertyUISingle.html#QCADPropertyUISingle--tooltip"/>
+    <keyword type="struct" name="QCADPropertyUINumeric" link="QCADPropertyUINumeric.html#QCADPropertyUINumeric-struct"/>
+    <keyword type="" name="The &quot;units&quot; property" link="QCADPropertyUINumeric.html#QCADPropertyUINumeric--units"/>
+    <keyword type="struct" name="QCADPropertyUIInt" link="QCADPropertyUIInt.html#QCADPropertyUIInt-struct"/>
+    <keyword type="" name="The &quot;render-as&quot; property" link="QCADPropertyUIInt.html#QCADPropertyUIInt--render-as"/>
+    <keyword type="struct" name="QCADPropertyUIDouble" link="QCADPropertyUIDouble.html#QCADPropertyUIDouble-struct"/>
+    <keyword type="" name="The &quot;digits&quot; property" link="QCADPropertyUIDouble.html#QCADPropertyUIDouble--digits"/>
+    <keyword type="" name="The &quot;step-increment&quot; property" link="QCADPropertyUIDouble.html#QCADPropertyUIDouble--step-increment"/>
+    <keyword type="struct" name="QCADPropertyUIText" link="QCADPropertyUIText.html#QCADPropertyUIText-struct"/>
+    <keyword type="struct" name="QCADPropertyUIObjectList" link="QCADPropertyUIObjectList.html#QCADPropertyUIObjectList-struct"/>
+    <keyword type="struct" name="QCADPropertyUIBoolean" link="QCADPropertyUIBoolean.html#QCADPropertyUIBoolean-struct"/>
+    <keyword type="" name="The &quot;render-as&quot; property" link="QCADPropertyUIBoolean.html#QCADPropertyUIBoolean--render-as"/>
+    <keyword type="" name="The &quot;stock-down&quot; property" link="QCADPropertyUIBoolean.html#QCADPropertyUIBoolean--stock-down"/>
+    <keyword type="" name="The &quot;stock-up&quot; property" link="QCADPropertyUIBoolean.html#QCADPropertyUIBoolean--stock-up"/>
+    <keyword type="struct" name="QCADPropertyUIEnum" link="QCADPropertyUIEnum.html#QCADPropertyUIEnum-struct"/>
+    <keyword type="" name="The &quot;render-as&quot; property" link="QCADPropertyUIEnum.html#QCADPropertyUIEnum--render-as"/>
+    <keyword type="struct" name="QCADPropertyUIGroup" link="QCADPropertyUIGroup.html#QCADPropertyUIGroup-struct"/>
+    <keyword type="function" name="qcad_property_ui_group_newv ()" link="QCADPropertyUIGroup.html#qcad-property-ui-group-newv"/>
+    <keyword type="" name="The &quot;render-as&quot; property" link="QCADPropertyUIGroup.html#QCADPropertyUIGroup--render-as"/>
+    <keyword type="" name="The &quot;title&quot; property" link="QCADPropertyUIGroup.html#QCADPropertyUIGroup--title"/>
+    <keyword type="struct" name="QCADPrintDialog" link="QCADPrintDialog.html#QCADPrintDialog-struct"/>
+    <keyword type="function" name="qcad_print_dialog_new ()" link="QCADPrintDialog.html#qcad-print-dialog-new"/>
+    <keyword type="function" name="qcad_print_dialog_add_page ()" link="QCADPrintDialog.html#qcad-print-dialog-add-page"/>
+    <keyword type="function" name="qcad_print_dialog_get_options ()" link="QCADPrintDialog.html#qcad-print-dialog-get-options"/>
+    <keyword type="function" name="qcad_print_dialog_to_current_units ()" link="QCADPrintDialog.html#qcad-print-dialog-to-current-units"/>
+    <keyword type="function" name="qcad_print_dialog_from_current_units ()" link="QCADPrintDialog.html#qcad-print-dialog-from-current-units"/>
+    <keyword type="function" name="qcad_print_dialog_get_units_short_string ()" link="QCADPrintDialog.html#qcad-print-dialog-get-units-short-string"/>
+    <keyword type="" name="The &quot;changed&quot; signal" link="QCADPrintDialog.html#QCADPrintDialog-changed"/>
+    <keyword type="" name="The &quot;preview&quot; signal" link="QCADPrintDialog.html#QCADPrintDialog-preview"/>
+    <keyword type="" name="The &quot;units-changed&quot; signal" link="QCADPrintDialog.html#QCADPrintDialog-units-changed"/>
+    <keyword type="struct" name="QCADFlexiCombo" link="QCADFlexiCombo.html#QCADFlexiCombo-struct"/>
+    <keyword type="function" name="qcad_flexi_combo_show_popup ()" link="QCADFlexiCombo.html#qcad-flexi-combo-show-popup"/>
+    <keyword type="" name="The &quot;popup-widget&quot; property" link="QCADFlexiCombo.html#QCADFlexiCombo--popup-widget"/>
+    <keyword type="struct" name="QCADLayersCombo" link="QCADLayersCombo.html#QCADLayersCombo-struct"/>
+    <keyword type="" name="The &quot;design&quot; property" link="QCADLayersCombo.html#QCADLayersCombo--design"/>
+    <keyword type="" name="The &quot;layer&quot; property" link="QCADLayersCombo.html#QCADLayersCombo--layer"/>
+    <keyword type="" name="The &quot;deactivate-layer&quot; signal" link="QCADLayersCombo.html#QCADLayersCombo-deactivate-layer"/>
+    <keyword type="struct" name="QCADCellRendererLayerList" link="QCADCellRendererLayerList.html#QCADCellRendererLayerList-struct"/>
+    <keyword type="function" name="qcad_cell_renderer_layer_list_new ()" link="QCADCellRendererLayerList.html#qcad-cell-renderer-layer-list-new"/>
+    <keyword type="" name="The &quot;design&quot; property" link="QCADCellRendererLayerList.html#QCADCellRendererLayerList--design"/>
+    <keyword type="" name="The &quot;layer&quot; property" link="QCADCellRendererLayerList.html#QCADCellRendererLayerList--layer"/>
+    <keyword type="" name="The &quot;template&quot; property" link="QCADCellRendererLayerList.html#QCADCellRendererLayerList--template"/>
+    <keyword type="" name="The &quot;layer-changed&quot; signal" link="QCADCellRendererLayerList.html#QCADCellRendererLayerList-layer-changed"/>
+    <keyword type="struct" name="QCADCellRendererVT" link="QCADCellRendererVT.html#QCADCellRendererVT-struct"/>
+    <keyword type="function" name="qcad_cell_renderer_vt_new ()" link="QCADCellRendererVT.html#qcad-cell-renderer-vt-new"/>
+    <keyword type="" name="The &quot;active&quot; property" link="QCADCellRendererVT.html#QCADCellRendererVT--active"/>
+    <keyword type="" name="The &quot;active-column&quot; property" link="QCADCellRendererVT.html#QCADCellRendererVT--active-column"/>
+    <keyword type="" name="The &quot;row-type&quot; property" link="QCADCellRendererVT.html#QCADCellRendererVT--row-type"/>
+    <keyword type="" name="The &quot;toggled&quot; signal" link="QCADCellRendererVT.html#QCADCellRendererVT-toggled"/>
+    <keyword type="struct" name="QCADRadioButton" link="QCADRadioButton.html#QCADRadioButton-struct"/>
+    <keyword type="struct" name="QCADComboBox" link="QCADComboBox.html#QCADComboBox-struct"/>
+    <keyword type="struct" name="QCADCellRendererText" link="QCADCellRendererText.html#QCADCellRendererText-struct"/>
+    <keyword type="" name="The &quot;sensitive&quot; property" link="QCADCellRendererText.html#QCADCellRendererText--sensitive"/>
+    <keyword type="" name="The &quot;workaround-editing-started&quot; signal" link="QCADCellRendererText.html#QCADCellRendererText-workaround-editing-started"/>
+    <keyword type="struct" name="QCADRadioToolButton" link="QCADRadioToolButton.html#QCADRadioToolButton-struct"/>
+    <keyword type="" name="The &quot;workaround-active&quot; property" link="QCADRadioToolButton.html#QCADRadioToolButton--workaround-active"/>
+    <keyword type="struct" name="QCADToggleToolButton" link="QCADToggleToolButton.html#QCADToggleToolButton-struct"/>
+    <keyword type="" name="The &quot;workaround-active&quot; property" link="QCADToggleToolButton.html#QCADToggleToolButton--workaround-active"/>
+    <keyword type="struct" name="QCADUndoEntry" link="QCADUndoEntry.html#QCADUndoEntry-struct"/>
+    <keyword type="function" name="qcad_undo_entry_new ()" link="QCADUndoEntry.html#qcad-undo-entry-new"/>
+    <keyword type="function" name="qcad_undo_entry_new_with_callbacks ()" link="QCADUndoEntry.html#qcad-undo-entry-new-with-callbacks"/>
+    <keyword type="function" name="qcad_undo_entry_signal_connect ()" link="QCADUndoEntry.html#qcad-undo-entry-signal-connect"/>
+    <keyword type="function" name="qcad_undo_entry_fire ()" link="QCADUndoEntry.html#qcad-undo-entry-fire"/>
+    <keyword type="" name="The &quot;apply&quot; signal" link="QCADUndoEntry.html#QCADUndoEntry-apply"/>
+    <keyword type="struct" name="QCADUndoEntryObjectState" link="QCADUndoEntryObjectState.html#QCADUndoEntryObjectState-struct"/>
+    <keyword type="function" name="qcad_undo_entry_object_state_get_changed ()" link="QCADUndoEntryObjectState.html#qcad-undo-entry-object-state-get-changed"/>
+    <keyword type="" name="The &quot;frozen&quot; property" link="QCADUndoEntryObjectState.html#QCADUndoEntryObjectState--frozen"/>
+    <keyword type="" name="The &quot;instance&quot; property" link="QCADUndoEntryObjectState.html#QCADUndoEntryObjectState--instance"/>
+    <keyword type="struct" name="QCADUndoEntryGroup" link="QCADUndoEntryGroup.html#QCADUndoEntryGroup-struct"/>
+    <keyword type="function" name="qcad_undo_entry_group_new ()" link="QCADUndoEntryGroup.html#qcad-undo-entry-group-new"/>
+    <keyword type="function" name="qcad_undo_entry_group_get_default ()" link="QCADUndoEntryGroup.html#qcad-undo-entry-group-get-default"/>
+    <keyword type="function" name="qcad_undo_entry_group_close ()" link="QCADUndoEntryGroup.html#qcad-undo-entry-group-close"/>
+    <keyword type="function" name="qcad_undo_entry_group_push ()" link="QCADUndoEntryGroup.html#qcad-undo-entry-group-push"/>
+    <keyword type="function" name="qcad_undo_entry_group_push_group ()" link="QCADUndoEntryGroup.html#qcad-undo-entry-group-push-group"/>
+    <keyword type="function" name="qcad_undo_entry_group_undo ()" link="QCADUndoEntryGroup.html#qcad-undo-entry-group-undo"/>
+    <keyword type="function" name="qcad_undo_entry_group_redo ()" link="QCADUndoEntryGroup.html#qcad-undo-entry-group-redo"/>
+    <keyword type="function" name="qcad_undo_entry_group_dump ()" link="QCADUndoEntryGroup.html#qcad-undo-entry-group-dump"/>
+    <keyword type="" name="The &quot;state-changed&quot; signal" link="QCADUndoEntryGroup.html#QCADUndoEntryGroup-state-changed"/>
+    <keyword type="function" name="push_undo_selection_move ()" link="QCADesigner-selection-undo.html#push-undo-selection-move"/>
+    <keyword type="function" name="push_undo_selection_transform ()" link="QCADesigner-selection-undo.html#push-undo-selection-transform"/>
+    <keyword type="function" name="push_undo_selection_altered ()" link="QCADesigner-selection-undo.html#push-undo-selection-altered"/>
+    <keyword type="function" name="push_undo_selection_existence ()" link="QCADesigner-selection-undo.html#push-undo-selection-existence"/>
+    <keyword type="function" name="push_undo_selection_clock ()" link="QCADesigner-selection-undo.html#push-undo-selection-clock"/>
+    <keyword type="function" name="push_undo_selection_state ()" link="QCADesigner-selection-undo.html#push-undo-selection-state"/>
+    <keyword type="function" name="track_undo_object_update ()" link="QCADesigner-selection-undo.html#track-undo-object-update"/>
+    <keyword type="macro" name="MAIN_WND_BASE_TITLE" link="QCADesigner-interface.html#MAIN-WND-BASE-TITLE:CAPS"/>
+    <keyword type="function" name="create_main_window ()" link="QCADesigner-interface.html#create-main-window"/>
+    <keyword type="function" name="gd_actOpen_activate ()" link="QCADesigner-graph-dialog-callbacks.html#gd-actOpen-activate"/>
+    <keyword type="function" name="gd_actSave_activate ()" link="QCADesigner-graph-dialog-callbacks.html#gd-actSave-activate"/>
+    <keyword type="function" name="gd_actPreview_activate ()" link="QCADesigner-graph-dialog-callbacks.html#gd-actPreview-activate"/>
+    <keyword type="function" name="gd_actClose_activate ()" link="QCADesigner-graph-dialog-callbacks.html#gd-actClose-activate"/>
+    <keyword type="function" name="gd_actPrint_activate ()" link="QCADesigner-graph-dialog-callbacks.html#gd-actPrint-activate"/>
+    <keyword type="function" name="gd_actThresh_activate ()" link="QCADesigner-graph-dialog-callbacks.html#gd-actThresh-activate"/>
+    <keyword type="function" name="gd_hscroll_adj_value_changed ()" link="QCADesigner-graph-dialog-callbacks.html#gd-hscroll-adj-value-changed"/>
+    <keyword type="function" name="gd_set_bus_expanded ()" link="QCADesigner-graph-dialog-callbacks.html#gd-set-bus-expanded"/>
+    <keyword type="function" name="gd_model_visible_toggled ()" link="QCADesigner-graph-dialog-callbacks.html#gd-model-visible-toggled"/>
+    <keyword type="function" name="gd_actShowBase_activate ()" link="QCADesigner-graph-dialog-callbacks.html#gd-actShowBase-activate"/>
+    <keyword type="function" name="gd_actZoom100_activate ()" link="QCADesigner-graph-dialog-callbacks.html#gd-actZoom100-activate"/>
+    <keyword type="function" name="gd_graph_widget_size_allocate ()" link="QCADesigner-graph-dialog-callbacks.html#gd-graph-widget-size-allocate"/>
+    <keyword type="function" name="gd_waveform_expose ()" link="QCADesigner-graph-dialog-callbacks.html#gd-waveform-expose"/>
+    <keyword type="function" name="gd_honeycomb_expose ()" link="QCADesigner-graph-dialog-callbacks.html#gd-honeycomb-expose"/>
+    <keyword type="function" name="gd_viewport_scroll ()" link="QCADesigner-graph-dialog-callbacks.html#gd-viewport-scroll"/>
+    <keyword type="function" name="gd_graph_widget_button_press ()" link="QCADesigner-graph-dialog-callbacks.html#gd-graph-widget-button-press"/>
+    <keyword type="function" name="gd_graph_widget_motion_notify ()" link="QCADesigner-graph-dialog-callbacks.html#gd-graph-widget-motion-notify"/>
+    <keyword type="function" name="gd_graph_widget_button_release ()" link="QCADesigner-graph-dialog-callbacks.html#gd-graph-widget-button-release"/>
+    <keyword type="function" name="gd_graph_widget_enter_notify ()" link="QCADesigner-graph-dialog-callbacks.html#gd-graph-widget-enter-notify"/>
+    <keyword type="function" name="gd_graph_widget_leave_notify ()" link="QCADesigner-graph-dialog-callbacks.html#gd-graph-widget-leave-notify"/>
+    <keyword type="macro" name="MAX_SLOPE_DIFF" link="QCADesigner-generic-utils.html#MAX-SLOPE-DIFF:CAPS"/>
+    <keyword type="struct" name="INT_IN_LIST_PARAMS" link="QCADesigner-generic-utils.html#INT-IN-LIST-PARAMS:CAPS"/>
+    <keyword type="function" name="PropertyConnectFunction ()" link="QCADesigner-generic-utils.html#PropertyConnectFunction"/>
+    <keyword type="function" name="fit_rect_inside_rect ()" link="QCADesigner-generic-utils.html#fit-rect-inside-rect"/>
+    <keyword type="function" name="strdup_convert_to_base ()" link="QCADesigner-generic-utils.html#strdup-convert-to-base"/>
+    <keyword type="function" name="LineSegmentCanBeSkipped ()" link="QCADesigner-generic-utils.html#LineSegmentCanBeSkipped"/>
+    <keyword type="function" name="RunCmdLineAsync ()" link="QCADesigner-generic-utils.html#RunCmdLineAsync"/>
+    <keyword type="function" name="wait_for_async_cmdlines ()" link="QCADesigner-generic-utils.html#wait-for-async-cmdlines"/>
+    <keyword type="function" name="get_enum_string_from_value ()" link="QCADesigner-generic-utils.html#get-enum-string-from-value"/>
+    <keyword type="function" name="get_enum_value_from_string ()" link="QCADesigner-generic-utils.html#get-enum-value-from-string"/>
+    <keyword type="function" name="spread_seq ()" link="QCADesigner-generic-utils.html#spread-seq"/>
+    <keyword type="function" name="connect_object_properties ()" link="QCADesigner-generic-utils.html#connect-object-properties"/>
+    <keyword type="function" name="disconnect_object_properties ()" link="QCADesigner-generic-utils.html#disconnect-object-properties"/>
+    <keyword type="function" name="CONNECT_OBJECT_PROPERTIES_ASSIGN ()" link="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN:CAPS"/>
+    <keyword type="function" name="CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_IN_LIST_P ()" link="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-INT-IN-LIST-P:CAPS"/>
+    <keyword type="function" name="CONNECT_OBJECT_PROPERTIES_ASSIGN_INVERT_BOOLEAN ()" link="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-INVERT-BOOLEAN:CAPS"/>
+    <keyword type="function" name="CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_FROM_BOOLEAN_DATA ()" link="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-INT-FROM-BOOLEAN-DATA:CAPS"/>
+    <keyword type="function" name="CONNECT_OBJECT_PROPERTIES_ASSIGN_INT_OFFSET ()" link="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-INT-OFFSET:CAPS"/>
+    <keyword type="function" name="CONNECT_OBJECT_PROPERTIES_ASSIGN_ENUM_FROM_IDX ()" link="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-ENUM-FROM-IDX:CAPS"/>
+    <keyword type="function" name="CONNECT_OBJECT_PROPERTIES_ASSIGN_IDX_FROM_ENUM ()" link="QCADesigner-generic-utils.html#CONNECT-OBJECT-PROPERTIES-ASSIGN-IDX-FROM-ENUM:CAPS"/>
+    <keyword type="function" name="run_bistable_simulation ()" link="QCADesigner-bistable-simulation.html#run-bistable-simulation"/>
+    <keyword type="function" name="bistable_options_dump ()" link="QCADesigner-bistable-simulation.html#bistable-options-dump"/>
+    <keyword type="function" name="drag_rect_new ()" link="QCADesigner-drag-rect.html#drag-rect-new"/>
+    <keyword type="function" name="drag_rect_move ()" link="QCADesigner-drag-rect.html#drag-rect-move"/>
+    <keyword type="function" name="drag_rect_free ()" link="QCADesigner-drag-rect.html#drag-rect-free"/>
+    <keyword type="macro" name="PS_RED" link="QCADesigner-print-util.html#PS-RED:CAPS"/>
+    <keyword type="macro" name="PS_ORANGE" link="QCADesigner-print-util.html#PS-ORANGE:CAPS"/>
+    <keyword type="macro" name="PS_YELLOW" link="QCADesigner-print-util.html#PS-YELLOW:CAPS"/>
+    <keyword type="macro" name="PS_GREEN" link="QCADesigner-print-util.html#PS-GREEN:CAPS"/>
+    <keyword type="macro" name="PS_BLUE" link="QCADesigner-print-util.html#PS-BLUE:CAPS"/>
+    <keyword type="macro" name="PS_BLACK" link="QCADesigner-print-util.html#PS-BLACK:CAPS"/>
+    <keyword type="macro" name="PS_WHITE" link="QCADesigner-print-util.html#PS-WHITE:CAPS"/>
+    <keyword type="macro" name="PS_HCFILL" link="QCADesigner-print-util.html#PS-HCFILL:CAPS"/>
+    <keyword type="macro" name="PS_TEXT_PLACEMENT_PREAMBLE" link="QCADesigner-print-util.html#PS-TEXT-PLACEMENT-PREAMBLE:CAPS"/>
+    <keyword type="function" name="OpenPrintStream ()" link="QCADesigner-print-util.html#OpenPrintStream"/>
+    <keyword type="function" name="PrintMagic ()" link="QCADesigner-print-util.html#PrintMagic"/>
+    <keyword type="function" name="PrintTrailer ()" link="QCADesigner-print-util.html#PrintTrailer"/>
+    <keyword type="function" name="ClosePrintStream ()" link="QCADesigner-print-util.html#ClosePrintStream"/>
+    <keyword type="function" name="do_print_preview ()" link="QCADesigner-print-preview.html#do-print-preview"/>
+    <keyword type="function" name="get_translation_from_user ()" link="QCADesigner-translate-selection-dialog.html#get-translation-from-user"/>
+    <keyword type="struct" name="EXP_PIXMAP" link="QCADesigner-exp-pixmap.html#EXP-PIXMAP:CAPS"/>
+    <keyword type="function" name="exp_pixmap_new ()" link="QCADesigner-exp-pixmap.html#exp-pixmap-new"/>
+    <keyword type="function" name="exp_pixmap_cond_new ()" link="QCADesigner-exp-pixmap.html#exp-pixmap-cond-new"/>
+    <keyword type="function" name="exp_pixmap_resize ()" link="QCADesigner-exp-pixmap.html#exp-pixmap-resize"/>
+    <keyword type="function" name="exp_pixmap_clean ()" link="QCADesigner-exp-pixmap.html#exp-pixmap-clean"/>
+    <keyword type="function" name="exp_pixmap_free ()" link="QCADesigner-exp-pixmap.html#exp-pixmap-free"/>
+    <keyword type="function" name="graph_dialog_data_new ()" link="QCADesigner-graph-dialog-data.html#graph-dialog-data-new"/>
+    <keyword type="function" name="graph_dialog_data_free ()" link="QCADesigner-graph-dialog-data.html#graph-dialog-data-free"/>
+    <keyword type="function" name="set_file_selection_file_name ()" link="QCADesigner-file-selection-window.html#set-file-selection-file-name"/>
+    <keyword type="function" name="get_file_name_from_user ()" link="QCADesigner-file-selection-window.html#get-file-name-from-user"/>
+    <keyword type="function" name="get_external_app ()" link="QCADesigner-file-selection-window.html#get-external-app"/>
+    <keyword type="function" name="create_vector_table_options_dialog ()" link="QCADesigner-vector-table-options-dialog-interface.html#create-vector-table-options-dialog"/>
+    <keyword type="function" name="on_tbtnPrintOrder_toggled ()" link="QCADesigner-print-properties-dialog-callbacks.html#on-tbtnPrintOrder-toggled"/>
+    <keyword type="function" name="on_tbtnCenter_toggled ()" link="QCADesigner-print-properties-dialog-callbacks.html#on-tbtnCenter-toggled"/>
+    <keyword type="function" name="toggle_scale_mode ()" link="QCADesigner-print-properties-dialog-callbacks.html#toggle-scale-mode"/>
+    <keyword type="function" name="validate_value_change ()" link="QCADesigner-print-properties-dialog-callbacks.html#validate-value-change"/>
+    <keyword type="function" name="chkPrintedObj_toggled ()" link="QCADesigner-print-properties-dialog-callbacks.html#chkPrintedObj-toggled"/>
+    <keyword type="function" name="user_wants_print_preview ()" link="QCADesigner-print-properties-dialog-callbacks.html#user-wants-print-preview"/>
+    <keyword type="function" name="units_changed ()" link="QCADesigner-print-properties-dialog-callbacks.html#units-changed"/>
+    <keyword type="macro" name="hbar" link="QCADesigner-coherence-vector.html#hbar"/>
+    <keyword type="macro" name="over_hbar" link="QCADesigner-coherence-vector.html#over-hbar"/>
+    <keyword type="macro" name="hbar_sqr" link="QCADesigner-coherence-vector.html#hbar-sqr"/>
+    <keyword type="macro" name="over_hbar_sqr" link="QCADesigner-coherence-vector.html#over-hbar-sqr"/>
+    <keyword type="macro" name="kB" link="QCADesigner-coherence-vector.html#kB"/>
+    <keyword type="macro" name="over_kB" link="QCADesigner-coherence-vector.html#over-kB"/>
+    <keyword type="macro" name="E" link="QCADesigner-coherence-vector.html#E:CAPS"/>
+    <keyword type="function" name="coherence_options_dump ()" link="QCADesigner-coherence-vector.html#coherence-options-dump"/>
+    <keyword type="function" name="run_coherence_simulation ()" link="QCADesigner-coherence-vector.html#run-coherence-simulation"/>
+    <keyword type="function" name="fill_recent_files_menu ()" link="QCADesigner-recent-files.html#fill-recent-files-menu"/>
+    <keyword type="function" name="add_to_recent_files ()" link="QCADesigner-recent-files.html#add-to-recent-files"/>
+    <keyword type="function" name="remove_recent_file ()" link="QCADesigner-recent-files.html#remove-recent-file"/>
+    <keyword type="function" name="get_layer_order_from_user ()" link="QCADesigner-layer-order-dialog.html#get-layer-order-from-user"/>
+    <keyword type="function" name="open_project_file ()" link="QCADesigner-fileio.html#open-project-file"/>
+    <keyword type="function" name="open_project_file_fp ()" link="QCADesigner-fileio.html#open-project-file-fp"/>
+    <keyword type="function" name="check_project_file_magic_fp ()" link="QCADesigner-fileio.html#check-project-file-magic-fp"/>
+    <keyword type="function" name="open_simulation_output_file ()" link="QCADesigner-fileio.html#open-simulation-output-file"/>
+    <keyword type="function" name="open_simulation_output_file_fp ()" link="QCADesigner-fileio.html#open-simulation-output-file-fp"/>
+    <keyword type="function" name="open_coherence_options_file ()" link="QCADesigner-fileio.html#open-coherence-options-file"/>
+    <keyword type="function" name="open_bistable_options_file ()" link="QCADesigner-fileio.html#open-bistable-options-file"/>
+    <keyword type="function" name="simulation_data_unserialize ()" link="QCADesigner-fileio.html#simulation-data-unserialize"/>
+    <keyword type="function" name="create_file ()" link="QCADesigner-fileio.html#create-file"/>
+    <keyword type="function" name="create_file_fp ()" link="QCADesigner-fileio.html#create-file-fp"/>
+    <keyword type="function" name="create_simulation_output_file ()" link="QCADesigner-fileio.html#create-simulation-output-file"/>
+    <keyword type="function" name="create_simulation_output_file_fp ()" link="QCADesigner-fileio.html#create-simulation-output-file-fp"/>
+    <keyword type="function" name="simulation_data_serialize ()" link="QCADesigner-fileio.html#simulation-data-serialize"/>
+    <keyword type="function" name="export_block ()" link="QCADesigner-fileio.html#export-block"/>
+    <keyword type="function" name="export_block_fp ()" link="QCADesigner-fileio.html#export-block-fp"/>
+    <keyword type="struct" name="EXP_ARRAY" link="QCADesigner-exp-array.html#EXP-ARRAY:CAPS"/>
+    <keyword type="function" name="exp_array_new ()" link="QCADesigner-exp-array.html#exp-array-new"/>
+    <keyword type="function" name="exp_array_copy ()" link="QCADesigner-exp-array.html#exp-array-copy"/>
+    <keyword type="function" name="exp_array_free ()" link="QCADesigner-exp-array.html#exp-array-free"/>
+    <keyword type="function" name="exp_array_insert_vals ()" link="QCADesigner-exp-array.html#exp-array-insert-vals"/>
+    <keyword type="function" name="exp_array_remove_vals ()" link="QCADesigner-exp-array.html#exp-array-remove-vals"/>
+    <keyword type="function" name="exp_array_dump ()" link="QCADesigner-exp-array.html#exp-array-dump"/>
+    <keyword type="function" name="print_hex_bytes ()" link="QCADesigner-exp-array.html#print-hex-bytes"/>
+    <keyword type="function" name="exp_array_crc32 ()" link="QCADesigner-exp-array.html#exp-array-crc32"/>
+    <keyword type="function" name="exp_array_1d_insert_val_sorted ()" link="QCADesigner-exp-array.html#exp-array-1d-insert-val-sorted"/>
+    <keyword type="function" name="exp_array_1d_find ()" link="QCADesigner-exp-array.html#exp-array-1d-find"/>
+    <keyword type="function" name="compare_ints ()" link="QCADesigner-exp-array.html#compare-ints"/>
+    <keyword type="macro" name="exp_array_1d_insert_vals()" link="QCADesigner-exp-array.html#exp-array-1d-insert-vals"/>
+    <keyword type="macro" name="exp_array_index_1d()" link="QCADesigner-exp-array.html#exp-array-index-1d"/>
+    <keyword type="macro" name="exp_array_index_2d()" link="QCADesigner-exp-array.html#exp-array-index-2d"/>
+    <keyword type="function" name="get_print_graph_properties_from_user ()" link="QCADesigner-print-graph-properties-dialog.html#get-print-graph-properties-from-user"/>
+    <keyword type="function" name="init_print_graph_options ()" link="QCADesigner-print-graph-properties-dialog.html#init-print-graph-options"/>
+    <keyword type="function" name="run_simulation ()" link="QCADesigner-simulation.html#run-simulation"/>
+    <keyword type="function" name="select_cells_in_radius ()" link="QCADesigner-simulation.html#select-cells-in-radius"/>
+    <keyword type="function" name="determine_distance ()" link="QCADesigner-simulation.html#determine-distance"/>
+    <keyword type="function" name="simulation_inproc_data_new ()" link="QCADesigner-simulation.html#simulation-inproc-data-new"/>
+    <keyword type="function" name="simulation_inproc_data_free ()" link="QCADesigner-simulation.html#simulation-inproc-data-free"/>
+    <keyword type="struct" name="struct TRACEDATA" link="QCADesigner-simulation-data.html#TRACEDATA:CAPS"/>
+    <keyword type="function" name="tracedata_get_min_max ()" link="QCADesigner-simulation-data.html#tracedata-get-min-max"/>
+    <keyword type="function" name="simulation_data_destroy ()" link="QCADesigner-simulation-data.html#simulation-data-destroy"/>
+    <keyword type="function" name="get_sim_type_from_user ()" link="QCADesigner-sim-type-setup-dialog.html#get-sim-type-from-user"/>
+    <keyword type="macro" name="GTK_WIDGET_SET_VISIBLE()" link="QCADesigner-custom-widgets.html#GTK-WIDGET-SET-VISIBLE:CAPS"/>
+    <keyword type="function" name="create_pixmap_button ()" link="QCADesigner-custom-widgets.html#create-pixmap-button"/>
+    <keyword type="function" name="create_two_pixmap_toggle_button ()" link="QCADesigner-custom-widgets.html#create-two-pixmap-toggle-button"/>
+    <keyword type="function" name="pixmap_button_toggle_pixmap ()" link="QCADesigner-custom-widgets.html#pixmap-button-toggle-pixmap"/>
+    <keyword type="function" name="gtk_button_new_with_stock_image ()" link="QCADesigner-custom-widgets.html#gtk-button-new-with-stock-image"/>
+    <keyword type="function" name="get_ts_coherence_properties_from_user ()" link="QCADesigner-ts-coherence-vector-properties-dialog.html#get-ts-coherence-properties-from-user"/>
+    <keyword type="macro" name="QCAD_NO_CONSOLE" link="QCADesigner-preamble.html#QCAD-NO-CONSOLE:CAPS"/>
+    <keyword type="function" name="gtk_preamble ()" link="QCADesigner-preamble.html#gtk-preamble"/>
+    <keyword type="function" name="preamble ()" link="QCADesigner-preamble.html#preamble"/>
+    <keyword type="function" name="get_scale_from_user ()" link="QCADesigner-scale-dialog.html#get-scale-from-user"/>
+    <keyword type="function" name="popup_menu_button_clicked ()" link="QCADesigner-callbacks.html#popup-menu-button-clicked"/>
+    <keyword type="function" name="remove_layer_button_clicked ()" link="QCADesigner-callbacks.html#remove-layer-button-clicked"/>
+    <keyword type="function" name="layer_properties_button_clicked ()" link="QCADesigner-callbacks.html#layer-properties-button-clicked"/>
+    <keyword type="function" name="main_window_show ()" link="QCADesigner-callbacks.html#main-window-show"/>
+    <keyword type="function" name="on_cell_properties_menu_item_activate ()" link="QCADesigner-callbacks.html#on-cell-properties-menu-item-activate"/>
+    <keyword type="function" name="on_snap_to_grid_menu_item_activate ()" link="QCADesigner-callbacks.html#on-snap-to-grid-menu-item-activate"/>
+    <keyword type="function" name="on_show_grid_menu_item_activate ()" link="QCADesigner-callbacks.html#on-show-grid-menu-item-activate"/>
+    <keyword type="function" name="on_clock_select_menu_item_activate ()" link="QCADesigner-callbacks.html#on-clock-select-menu-item-activate"/>
+    <keyword type="function" name="on_clock_increment_menu_item_activate ()" link="QCADesigner-callbacks.html#on-clock-increment-menu-item-activate"/>
+    <keyword type="function" name="on_simulation_type_setup_menu_item_activate ()" link="QCADesigner-callbacks.html#on-simulation-type-setup-menu-item-activate"/>
+    <keyword type="function" name="on_simulation_engine_setup_menu_item_activate ()" link="QCADesigner-callbacks.html#on-simulation-engine-setup-menu-item-activate"/>
+    <keyword type="function" name="on_random_fault_setup_menu_item_activate ()" link="QCADesigner-callbacks.html#on-random-fault-setup-menu-item-activate"/>
+    <keyword type="function" name="on_reset_zoom_menu_item_activate ()" link="QCADesigner-callbacks.html#on-reset-zoom-menu-item-activate"/>
+    <keyword type="function" name="on_zoom_in_menu_item_activate ()" link="QCADesigner-callbacks.html#on-zoom-in-menu-item-activate"/>
+    <keyword type="function" name="on_zoom_out_menu_item_activate ()" link="QCADesigner-callbacks.html#on-zoom-out-menu-item-activate"/>
+    <keyword type="function" name="on_zoom_die_menu_item_activate ()" link="QCADesigner-callbacks.html#on-zoom-die-menu-item-activate"/>
+    <keyword type="function" name="on_zoom_extents_menu_item_activate ()" link="QCADesigner-callbacks.html#on-zoom-extents-menu-item-activate"/>
+    <keyword type="function" name="on_zoom_layer_menu_item_activate ()" link="QCADesigner-callbacks.html#on-zoom-layer-menu-item-activate"/>
+    <keyword type="function" name="on_print_menu_item_activate ()" link="QCADesigner-callbacks.html#on-print-menu-item-activate"/>
+    <keyword type="function" name="on_undo_menu_item_activate ()" link="QCADesigner-callbacks.html#on-undo-menu-item-activate"/>
+    <keyword type="function" name="on_redo_menu_item_activate ()" link="QCADesigner-callbacks.html#on-redo-menu-item-activate"/>
+    <keyword type="function" name="on_copy_cell_button_clicked ()" link="QCADesigner-callbacks.html#on-copy-cell-button-clicked"/>
+    <keyword type="function" name="on_delete_menu_item_activate ()" link="QCADesigner-callbacks.html#on-delete-menu-item-activate"/>
+    <keyword type="function" name="on_start_simulation_menu_item_activate ()" link="QCADesigner-callbacks.html#on-start-simulation-menu-item-activate"/>
+    <keyword type="function" name="on_stop_simulation_menu_item_activate ()" link="QCADesigner-callbacks.html#on-stop-simulation-menu-item-activate"/>
+    <keyword type="function" name="on_show_simulation_results_menu_item_activate ()" link="QCADesigner-callbacks.html#on-show-simulation-results-menu-item-activate"/>
+    <keyword type="function" name="on_contents_menu_item_activate ()" link="QCADesigner-callbacks.html#on-contents-menu-item-activate"/>
+    <keyword type="function" name="on_about_menu_item_activate ()" link="QCADesigner-callbacks.html#on-about-menu-item-activate"/>
+    <keyword type="function" name="file_operations ()" link="QCADesigner-callbacks.html#file-operations"/>
+    <keyword type="function" name="on_preview_menu_item_activate ()" link="QCADesigner-callbacks.html#on-preview-menu-item-activate"/>
+    <keyword type="function" name="on_load_output_from_file_menu_item_activate ()" link="QCADesigner-callbacks.html#on-load-output-from-file-menu-item-activate"/>
+    <keyword type="function" name="on_save_output_to_file_menu_item_activate ()" link="QCADesigner-callbacks.html#on-save-output-to-file-menu-item-activate"/>
+    <keyword type="function" name="autosave_timer_event ()" link="QCADesigner-callbacks.html#autosave-timer-event"/>
+    <keyword type="function" name="rotate_selection_menu_item_activate ()" link="QCADesigner-callbacks.html#rotate-selection-menu-item-activate"/>
+    <keyword type="function" name="on_scale_menu_item_activate ()" link="QCADesigner-callbacks.html#on-scale-menu-item-activate"/>
+    <keyword type="function" name="on_translate_selection_button_clicked ()" link="QCADesigner-callbacks.html#on-translate-selection-button-clicked"/>
+    <keyword type="function" name="reorder_layers_button_clicked ()" link="QCADesigner-callbacks.html#reorder-layers-button-clicked"/>
+    <keyword type="function" name="action_button_clicked ()" link="QCADesigner-callbacks.html#action-button-clicked"/>
+    <keyword type="function" name="bus_layout_button_clicked ()" link="QCADesigner-callbacks.html#bus-layout-button-clicked"/>
+    <keyword type="function" name="on_hide_layers_menu_item_activate ()" link="QCADesigner-callbacks.html#on-hide-layers-menu-item-activate"/>
+    <keyword type="function" name="type_for_new_layer_chosen ()" link="QCADesigner-callbacks.html#type-for-new-layer-chosen"/>
+    <keyword type="function" name="cell_display_mode_chosen ()" link="QCADesigner-callbacks.html#cell-display-mode-chosen"/>
+    <keyword type="function" name="mirror_selection_direction_chosen ()" link="QCADesigner-callbacks.html#mirror-selection-direction-chosen"/>
+    <keyword type="function" name="scrollbar_adjust_bounds ()" link="QCADesigner-callbacks.html#scrollbar-adjust-bounds"/>
+    <keyword type="function" name="qcad_cell_default_clock_changed ()" link="QCADesigner-callbacks.html#qcad-cell-default-clock-changed"/>
+    <keyword type="function" name="layers_combo_deactivate_layer ()" link="QCADesigner-callbacks.html#layers-combo-deactivate-layer"/>
+    <keyword type="function" name="layers_combo_notify_layer ()" link="QCADesigner-callbacks.html#layers-combo-notify-layer"/>
+    <keyword type="function" name="drawing_area_motion_notify ()" link="QCADesigner-callbacks.html#drawing-area-motion-notify"/>
+    <keyword type="function" name="drawing_area_button_pressed ()" link="QCADesigner-callbacks.html#drawing-area-button-pressed"/>
+    <keyword type="function" name="drawing_area_button_released ()" link="QCADesigner-callbacks.html#drawing-area-button-released"/>
+    <keyword type="function" name="configure_event ()" link="QCADesigner-callbacks.html#configure-event"/>
+    <keyword type="function" name="scroll_event ()" link="QCADesigner-callbacks.html#scroll-event"/>
+    <keyword type="function" name="expose_event ()" link="QCADesigner-callbacks.html#expose-event"/>
+    <keyword type="function" name="on_quit_menu_item_activate ()" link="QCADesigner-callbacks.html#on-quit-menu-item-activate"/>
+    <keyword type="function" name="file_open_and_buffer ()" link="QCADesigner-fileio-helpers.html#file-open-and-buffer"/>
+    <keyword type="function" name="file_close_and_unbuffer ()" link="QCADesigner-fileio-helpers.html#file-close-and-unbuffer"/>
+    <keyword type="function" name="ReadLine ()" link="QCADesigner-fileio-helpers.html#ReadLine"/>
+    <keyword type="function" name="ReadPast ()" link="QCADesigner-fileio-helpers.html#ReadPast"/>
+    <keyword type="function" name="base_name ()" link="QCADesigner-fileio-helpers.html#base-name"/>
+    <keyword type="function" name="CreateUserFName ()" link="QCADesigner-fileio-helpers.html#CreateUserFName"/>
+    <keyword type="function" name="tokenize_line ()" link="QCADesigner-fileio-helpers.html#tokenize-line"/>
+    <keyword type="function" name="tokenize_line_type ()" link="QCADesigner-fileio-helpers.html#tokenize-line-type"/>
+    <keyword type="function" name="SkipPast ()" link="QCADesigner-fileio-helpers.html#SkipPast"/>
+    <keyword type="function" name="file_age_compare ()" link="QCADesigner-fileio-helpers.html#file-age-compare"/>
+    <keyword type="function" name="absolute_path ()" link="QCADesigner-fileio-helpers.html#absolute-path"/>
+    <keyword type="function" name="next_space_separated_value ()" link="QCADesigner-fileio-helpers.html#next-space-separated-value"/>
+    <keyword type="function" name="get_file_percent ()" link="QCADesigner-fileio-helpers.html#get-file-percent"/>
+    <keyword type="function" name="flush_fprintf ()" link="QCADesigner-fileio-helpers.html#flush-fprintf"/>
+    <keyword type="function" name="lookup_widget ()" link="QCADesigner-support.html#lookup-widget"/>
+    <keyword type="function" name="find_pixmap_file ()" link="QCADesigner-support.html#find-pixmap-file"/>
+    <keyword type="function" name="add_pixmap_directory ()" link="QCADesigner-support.html#add-pixmap-directory"/>
+    <keyword type="function" name="create_pixmap ()" link="QCADesigner-support.html#create-pixmap"/>
+    <keyword type="function" name="add_stock_icon ()" link="QCADesigner-support.html#add-stock-icon"/>
+    <keyword type="function" name="create_pixbuf ()" link="QCADesigner-support.html#create-pixbuf"/>
+    <keyword type="function" name="glade_set_atk_action_description ()" link="QCADesigner-support.html#glade-set-atk-action-description"/>
+    <keyword type="macro" name="TRACE_TABLE_MIN_X" link="QCADesigner-graph-dialog-interface.html#TRACE-TABLE-MIN-X:CAPS"/>
+    <keyword type="macro" name="TRACE_TABLE_MIN_Y" link="QCADesigner-graph-dialog-interface.html#TRACE-TABLE-MIN-Y:CAPS"/>
+    <keyword type="macro" name="TRACE_MIN_CX" link="QCADesigner-graph-dialog-interface.html#TRACE-MIN-CX:CAPS"/>
+    <keyword type="macro" name="TRACE_MIN_CY" link="QCADesigner-graph-dialog-interface.html#TRACE-MIN-CY:CAPS"/>
+    <keyword type="function" name="create_graph_dialog ()" link="QCADesigner-graph-dialog-interface.html#create-graph-dialog"/>
+    <keyword type="function" name="create_graph_widgets ()" link="QCADesigner-graph-dialog-interface.html#create-graph-widgets"/>
+    <keyword type="function" name="attach_graph_widgets ()" link="QCADesigner-graph-dialog-interface.html#attach-graph-widgets"/>
+    <keyword type="function" name="HSLToRGB ()" link="QCADesigner-hsl2rgb.html#HSLToRGB"/>
+    <keyword type="function" name="RGBToHSL ()" link="QCADesigner-hsl2rgb.html#RGBToHSL"/>
+    <keyword type="function" name="show_about_dialog ()" link="QCADesigner-about.html#show-about-dialog"/>
+    <keyword type="function" name="selection_renderer_new ()" link="QCADesigner-selection-renderer.html#selection-renderer-new"/>
+    <keyword type="function" name="selection_renderer_free ()" link="QCADesigner-selection-renderer.html#selection-renderer-free"/>
+    <keyword type="function" name="selection_renderer_update ()" link="QCADesigner-selection-renderer.html#selection-renderer-update"/>
+    <keyword type="function" name="selection_renderer_draw ()" link="QCADesigner-selection-renderer.html#selection-renderer-draw"/>
+    <keyword type="function" name="selection_renderer_move ()" link="QCADesigner-selection-renderer.html#selection-renderer-move"/>
+    <keyword type="function" name="pan_design ()" link="QCADesigner-callback-helpers.html#pan-design"/>
+    <keyword type="function" name="redraw_async ()" link="QCADesigner-callback-helpers.html#redraw-async"/>
+    <keyword type="function" name="reflect_zoom ()" link="QCADesigner-callback-helpers.html#reflect-zoom"/>
+    <keyword type="function" name="redraw_sync ()" link="QCADesigner-callback-helpers.html#redraw-sync"/>
+    <keyword type="function" name="object_get_properties ()" link="QCADesigner-callback-helpers.html#object-get-properties"/>
+    <keyword type="function" name="get_vector_table_options_from_user ()" link="QCADesigner-vector-table-options-dialog.html#get-vector-table-options-from-user"/>
+    <keyword type="function" name="get_honeycomb_thresholds_from_user ()" link="QCADesigner-waveform-interpretation-dialog.html#get-honeycomb-thresholds-from-user"/>
+    <keyword type="function" name="vtod_dialog_show ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-dialog-show"/>
+    <keyword type="function" name="vtod_actOpen_activate ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actOpen-activate"/>
+    <keyword type="function" name="vtod_actSave_activate ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actSave-activate"/>
+    <keyword type="function" name="vtod_actAdd_activate ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actAdd-activate"/>
+    <keyword type="function" name="vtod_actInsert_activate ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actInsert-activate"/>
+    <keyword type="function" name="vtod_actDelete_activate ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actDelete-activate"/>
+    <keyword type="function" name="vtod_actClose_activate ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actClose-activate"/>
+    <keyword type="function" name="vtod_actSimType_changed ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actSimType-changed"/>
+    <keyword type="function" name="vtod_treeview_size_allocate ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-treeview-size-allocate"/>
+    <keyword type="function" name="vtod_hadj_value_changed ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-hadj-value-changed"/>
+    <keyword type="function" name="vtod_treeview_focus ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-treeview-focus"/>
+    <keyword type="function" name="vtod_active_flag_data_func ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-active-flag-data-func"/>
+    <keyword type="function" name="vtod_active_flag_toggled ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-active-flag-toggled"/>
+    <keyword type="function" name="vector_actions_notify_sensitive ()" link="QCADesigner-vector-table-options-dialog-callbacks.html#vector-actions-notify-sensitive"/>
+    <keyword type="macro" name="FILEOP_NO_ACTION" link="QCADesigner-global-consts.html#FILEOP-NO-ACTION:CAPS"/>
+    <keyword type="macro" name="FILEOP_OPEN" link="QCADesigner-global-consts.html#FILEOP-OPEN:CAPS"/>
+    <keyword type="macro" name="FILEOP_SAVE_AS" link="QCADesigner-global-consts.html#FILEOP-SAVE-AS:CAPS"/>
+    <keyword type="macro" name="FILEOP_EXPORT" link="QCADesigner-global-consts.html#FILEOP-EXPORT:CAPS"/>
+    <keyword type="macro" name="FILEOP_IMPORT" link="QCADesigner-global-consts.html#FILEOP-IMPORT:CAPS"/>
+    <keyword type="macro" name="FILEOP_OPEN_RECENT" link="QCADesigner-global-consts.html#FILEOP-OPEN-RECENT:CAPS"/>
+    <keyword type="macro" name="FILEOP_SAVE" link="QCADesigner-global-consts.html#FILEOP-SAVE:CAPS"/>
+    <keyword type="macro" name="FILEOP_CMDLINE" link="QCADesigner-global-consts.html#FILEOP-CMDLINE:CAPS"/>
+    <keyword type="macro" name="FILEOP_AUTOSAVE" link="QCADesigner-global-consts.html#FILEOP-AUTOSAVE:CAPS"/>
+    <keyword type="macro" name="FILEOP_AUTOLOAD" link="QCADesigner-global-consts.html#FILEOP-AUTOLOAD:CAPS"/>
+    <keyword type="macro" name="FILEOP_NEW" link="QCADesigner-global-consts.html#FILEOP-NEW:CAPS"/>
+    <keyword type="macro" name="FILEOP_CLOSE" link="QCADesigner-global-consts.html#FILEOP-CLOSE:CAPS"/>
+    <keyword type="macro" name="PRINTED_OBJECTS_DIE" link="QCADesigner-global-consts.html#PRINTED-OBJECTS-DIE:CAPS"/>
+    <keyword type="macro" name="PRINTED_OBJECTS_CELLS" link="QCADesigner-global-consts.html#PRINTED-OBJECTS-CELLS:CAPS"/>
+    <keyword type="macro" name="PRINTED_OBJECTS_COLOURS" link="QCADesigner-global-consts.html#PRINTED-OBJECTS-COLOURS:CAPS"/>
+    <keyword type="macro" name="GREEN" link="QCADesigner-global-consts.html#GREEN:CAPS"/>
+    <keyword type="macro" name="GREEN1" link="QCADesigner-global-consts.html#GREEN1:CAPS"/>
+    <keyword type="macro" name="GREEN2" link="QCADesigner-global-consts.html#GREEN2:CAPS"/>
+    <keyword type="macro" name="GREEN3" link="QCADesigner-global-consts.html#GREEN3:CAPS"/>
+    <keyword type="macro" name="RED" link="QCADesigner-global-consts.html#RED:CAPS"/>
+    <keyword type="macro" name="BLUE" link="QCADesigner-global-consts.html#BLUE:CAPS"/>
+    <keyword type="macro" name="YELLOW" link="QCADesigner-global-consts.html#YELLOW:CAPS"/>
+    <keyword type="macro" name="WHITE" link="QCADesigner-global-consts.html#WHITE:CAPS"/>
+    <keyword type="macro" name="ORANGE" link="QCADesigner-global-consts.html#ORANGE:CAPS"/>
+    <keyword type="macro" name="BLACK" link="QCADesigner-global-consts.html#BLACK:CAPS"/>
+    <keyword type="macro" name="HONEYCOMB_BACKGROUND" link="QCADesigner-global-consts.html#HONEYCOMB-BACKGROUND:CAPS"/>
+    <keyword type="macro" name="BISTABLE" link="QCADesigner-global-consts.html#BISTABLE:CAPS"/>
+    <keyword type="macro" name="DIGITAL_SIM" link="QCADesigner-global-consts.html#DIGITAL-SIM:CAPS"/>
+    <keyword type="macro" name="SCQCA" link="QCADesigner-global-consts.html#SCQCA:CAPS"/>
+    <keyword type="macro" name="COHERENCE_VECTOR" link="QCADesigner-global-consts.html#COHERENCE-VECTOR:CAPS"/>
+    <keyword type="macro" name="TS_COHERENCE_VECTOR" link="QCADesigner-global-consts.html#TS-COHERENCE-VECTOR:CAPS"/>
+    <keyword type="macro" name="EXHAUSTIVE_VERIFICATION" link="QCADesigner-global-consts.html#EXHAUSTIVE-VERIFICATION:CAPS"/>
+    <keyword type="macro" name="VECTOR_TABLE" link="QCADesigner-global-consts.html#VECTOR-TABLE:CAPS"/>
+    <keyword type="macro" name="RUNGE_KUTTA" link="QCADesigner-global-consts.html#RUNGE-KUTTA:CAPS"/>
+    <keyword type="macro" name="EULER_METHOD" link="QCADesigner-global-consts.html#EULER-METHOD:CAPS"/>
+    <keyword type="macro" name="ZONE_CLOCKING" link="QCADesigner-global-consts.html#ZONE-CLOCKING:CAPS"/>
+    <keyword type="macro" name="ELECTRODE_CLOCKING" link="QCADesigner-global-consts.html#ELECTRODE-CLOCKING:CAPS"/>
+    <keyword type="macro" name="QCHARGE_SQUAR_OVER_FOUR" link="QCADesigner-global-consts.html#QCHARGE-SQUAR-OVER-FOUR:CAPS"/>
+    <keyword type="macro" name="QCHARGE" link="QCADesigner-global-consts.html#QCHARGE:CAPS"/>
+    <keyword type="macro" name="HALF_QCHARGE" link="QCADesigner-global-consts.html#HALF-QCHARGE:CAPS"/>
+    <keyword type="macro" name="OVER_QCHARGE" link="QCADesigner-global-consts.html#OVER-QCHARGE:CAPS"/>
+    <keyword type="macro" name="THIRD_QCHARGE" link="QCADesigner-global-consts.html#THIRD-QCHARGE:CAPS"/>
+    <keyword type="macro" name="TWO_THIRDS_QCHARGE" link="QCADesigner-global-consts.html#TWO-THIRDS-QCHARGE:CAPS"/>
+    <keyword type="macro" name="TWO_FIFTHS_QCHARGE" link="QCADesigner-global-consts.html#TWO-FIFTHS-QCHARGE:CAPS"/>
+    <keyword type="macro" name="ONE_FIFTHS_QCHARGE" link="QCADesigner-global-consts.html#ONE-FIFTHS-QCHARGE:CAPS"/>
+    <keyword type="macro" name="THREE_FIFTHS_QCHARGE" link="QCADesigner-global-consts.html#THREE-FIFTHS-QCHARGE:CAPS"/>
+    <keyword type="macro" name="FOUR_FIFTHS_QCHARGE" link="QCADesigner-global-consts.html#FOUR-FIFTHS-QCHARGE:CAPS"/>
+    <keyword type="macro" name="ONE_OVER_FOUR_HALF_QCHARGE" link="QCADesigner-global-consts.html#ONE-OVER-FOUR-HALF-QCHARGE:CAPS"/>
+    <keyword type="macro" name="EPSILON" link="QCADesigner-global-consts.html#EPSILON:CAPS"/>
+    <keyword type="macro" name="PI" link="QCADesigner-global-consts.html#PI:CAPS"/>
+    <keyword type="macro" name="TWO_PI" link="QCADesigner-global-consts.html#TWO-PI:CAPS"/>
+    <keyword type="macro" name="FOUR_PI" link="QCADesigner-global-consts.html#FOUR-PI:CAPS"/>
+    <keyword type="macro" name="FOUR_PI_EPSILON" link="QCADesigner-global-consts.html#FOUR-PI-EPSILON:CAPS"/>
+    <keyword type="macro" name="HBAR" link="QCADesigner-global-consts.html#HBAR:CAPS"/>
+    <keyword type="macro" name="OVER_HBAR" link="QCADesigner-global-consts.html#OVER-HBAR:CAPS"/>
+    <keyword type="macro" name="PRECISION" link="QCADesigner-global-consts.html#PRECISION:CAPS"/>
+    <keyword type="macro" name="PATH_LENGTH" link="QCADesigner-global-consts.html#PATH-LENGTH:CAPS"/>
+    <keyword type="macro" name="QCAD_GDKFONT" link="QCADesigner-global-consts.html#QCAD-GDKFONT:CAPS"/>
+    <keyword type="macro" name="PS_FONT" link="QCADesigner-global-consts.html#PS-FONT:CAPS"/>
+    <keyword type="macro" name="PAN_STEP" link="QCADesigner-global-consts.html#PAN-STEP:CAPS"/>
+    <keyword type="struct" name="BUS" link="QCADesigner-design.html#BUS:CAPS"/>
+    <keyword type="struct" name="BUS_LAYOUT_CELL" link="QCADesigner-design.html#BUS-LAYOUT-CELL:CAPS"/>
+    <keyword type="struct" name="BUS_LAYOUT" link="QCADesigner-design.html#BUS-LAYOUT:CAPS"/>
+    <keyword type="struct" name="DESIGN" link="QCADesigner-design.html#DESIGN:CAPS"/>
+    <keyword type="struct" name="BUS_LAYOUT_ITER" link="QCADesigner-design.html#BUS-LAYOUT-ITER:CAPS"/>
+    <keyword type="function" name="DesignObjectCallback ()" link="QCADesigner-design.html#DesignObjectCallback"/>
+    <keyword type="macro" name="ROW_TYPE_CELL_INPUT" link="QCADesigner-design.html#ROW-TYPE-CELL-INPUT:CAPS"/>
+    <keyword type="macro" name="ROW_TYPE_CELL_OUTPUT" link="QCADesigner-design.html#ROW-TYPE-CELL-OUTPUT:CAPS"/>
+    <keyword type="macro" name="ROW_TYPE_BUS_INPUT" link="QCADesigner-design.html#ROW-TYPE-BUS-INPUT:CAPS"/>
+    <keyword type="macro" name="ROW_TYPE_BUS_OUTPUT" link="QCADesigner-design.html#ROW-TYPE-BUS-OUTPUT:CAPS"/>
+    <keyword type="macro" name="ROW_TYPE_CLOCK" link="QCADesigner-design.html#ROW-TYPE-CLOCK:CAPS"/>
+    <keyword type="macro" name="ROW_TYPE_BUS" link="QCADesigner-design.html#ROW-TYPE-BUS:CAPS"/>
+    <keyword type="macro" name="ROW_TYPE_CELL" link="QCADesigner-design.html#ROW-TYPE-CELL:CAPS"/>
+    <keyword type="macro" name="ROW_TYPE_INPUT" link="QCADesigner-design.html#ROW-TYPE-INPUT:CAPS"/>
+    <keyword type="macro" name="ROW_TYPE_OUTPUT" link="QCADesigner-design.html#ROW-TYPE-OUTPUT:CAPS"/>
+    <keyword type="macro" name="ROW_TYPE_ANY" link="QCADesigner-design.html#ROW-TYPE-ANY:CAPS"/>
+    <keyword type="function" name="design_serialize ()" link="QCADesigner-design.html#design-serialize"/>
+    <keyword type="function" name="design_new ()" link="QCADesigner-design.html#design-new"/>
+    <keyword type="function" name="design_copy ()" link="QCADesigner-design.html#design-copy"/>
+    <keyword type="function" name="design_draw ()" link="QCADesigner-design.html#design-draw"/>
+    <keyword type="function" name="design_bus_layout_tree_store_new ()" link="QCADesigner-design.html#design-bus-layout-tree-store-new"/>
+    <keyword type="function" name="design_layer_list_store_new ()" link="QCADesigner-design.html#design-layer-list-store-new"/>
+    <keyword type="function" name="design_destroy ()" link="QCADesigner-design.html#design-destroy"/>
+    <keyword type="function" name="design_hit_test ()" link="QCADesigner-design.html#design-hit-test"/>
+    <keyword type="function" name="design_get_extents ()" link="QCADesigner-design.html#design-get-extents"/>
+    <keyword type="function" name="design_unserialize ()" link="QCADesigner-design.html#design-unserialize"/>
+    <keyword type="function" name="design_dump ()" link="QCADesigner-design.html#design-dump"/>
+    <keyword type="function" name="design_set_layer_order ()" link="QCADesigner-design.html#design-set-layer-order"/>
+    <keyword type="function" name="design_fix_legacy ()" link="QCADesigner-design.html#design-fix-legacy"/>
+    <keyword type="function" name="design_set_current_layer ()" link="QCADesigner-design.html#design-set-current-layer"/>
+    <keyword type="function" name="design_scale_cells ()" link="QCADesigner-design.html#design-scale-cells"/>
+    <keyword type="function" name="design_multiple_visible_layers_p ()" link="QCADesigner-design.html#design-multiple-visible-layers-p"/>
+    <keyword type="function" name="design_layer_remove ()" link="QCADesigner-design.html#design-layer-remove"/>
+    <keyword type="function" name="design_layer_add ()" link="QCADesigner-design.html#design-layer-add"/>
+    <keyword type="function" name="design_layer_object_containment_rules ()" link="QCADesigner-design.html#design-layer-object-containment-rules"/>
+    <keyword type="function" name="design_layer_dump ()" link="QCADesigner-design.html#design-layer-dump"/>
+    <keyword type="function" name="design_selection_create_from_selection ()" link="QCADesigner-design.html#design-selection-create-from-selection"/>
+    <keyword type="function" name="design_selection_release ()" link="QCADesigner-design.html#design-selection-release"/>
+    <keyword type="function" name="design_selection_subtract_window ()" link="QCADesigner-design.html#design-selection-subtract-window"/>
+    <keyword type="function" name="design_selection_create_from_window ()" link="QCADesigner-design.html#design-selection-create-from-window"/>
+    <keyword type="function" name="design_selection_add_window ()" link="QCADesigner-design.html#design-selection-add-window"/>
+    <keyword type="function" name="design_selection_get_object_array ()" link="QCADesigner-design.html#design-selection-get-object-array"/>
+    <keyword type="function" name="design_selection_serialize ()" link="QCADesigner-design.html#design-selection-serialize"/>
+    <keyword type="function" name="design_selection_move ()" link="QCADesigner-design.html#design-selection-move"/>
+    <keyword type="function" name="design_selection_drop ()" link="QCADesigner-design.html#design-selection-drop"/>
+    <keyword type="function" name="design_selection_destroy ()" link="QCADesigner-design.html#design-selection-destroy"/>
+    <keyword type="function" name="design_selection_hit_test ()" link="QCADesigner-design.html#design-selection-hit-test"/>
+    <keyword type="function" name="design_selection_objects_foreach ()" link="QCADesigner-design.html#design-selection-objects-foreach"/>
+    <keyword type="function" name="design_selection_get_type_list ()" link="QCADesigner-design.html#design-selection-get-type-list"/>
+    <keyword type="function" name="design_selection_get_anchor ()" link="QCADesigner-design.html#design-selection-get-anchor"/>
+    <keyword type="function" name="design_selection_transform ()" link="QCADesigner-design.html#design-selection-transform"/>
+    <keyword type="function" name="design_selection_object_array_add_weak_pointers ()" link="QCADesigner-design.html#design-selection-object-array-add-weak-pointers"/>
+    <keyword type="function" name="design_selection_object_array_free ()" link="QCADesigner-design.html#design-selection-object-array-free"/>
+    <keyword type="function" name="design_bus_layout_new ()" link="QCADesigner-design.html#design-bus-layout-new"/>
+    <keyword type="function" name="design_bus_layout_unserialize ()" link="QCADesigner-design.html#design-bus-layout-unserialize"/>
+    <keyword type="function" name="design_bus_layout_serialize ()" link="QCADesigner-design.html#design-bus-layout-serialize"/>
+    <keyword type="function" name="design_bus_layout_dump ()" link="QCADesigner-design.html#design-bus-layout-dump"/>
+    <keyword type="function" name="design_bus_layout_cell_list_dump ()" link="QCADesigner-design.html#design-bus-layout-cell-list-dump"/>
+    <keyword type="function" name="design_bus_layout_free ()" link="QCADesigner-design.html#design-bus-layout-free"/>
+    <keyword type="function" name="design_bus_layout_iter_first ()" link="QCADesigner-design.html#design-bus-layout-iter-first"/>
+    <keyword type="function" name="design_bus_layout_iter_next ()" link="QCADesigner-design.html#design-bus-layout-iter-next"/>
+    <keyword type="function" name="design_bus_layout_iter_this ()" link="QCADesigner-design.html#design-bus-layout-iter-this"/>
+    <keyword type="function" name="get_print_design_properties_from_user ()" link="QCADesigner-print-properties-dialog.html#get-print-design-properties-from-user"/>
+    <keyword type="function" name="init_print_design_options ()" link="QCADesigner-print-properties-dialog.html#init-print-design-options"/>
+    <keyword type="macro" name="IS_REAL_3X3()" link="QCADesigner-matrixlib-3x3.html#IS-REAL-3X3:CAPS"/>
+    <keyword type="function" name="create_print_design_properties_dialog ()" link="QCADesigner-print-properties-dialog-interface.html#create-print-design-properties-dialog"/>
+    <keyword type="macro" name="hbar" link="QCADesigner-three-state-coherence.html#hbar"/>
+    <keyword type="macro" name="over_hbar" link="QCADesigner-three-state-coherence.html#over-hbar"/>
+    <keyword type="macro" name="hbar_sqr" link="QCADesigner-three-state-coherence.html#hbar-sqr"/>
+    <keyword type="macro" name="over_hbar_sqr" link="QCADesigner-three-state-coherence.html#over-hbar-sqr"/>
+    <keyword type="macro" name="kB" link="QCADesigner-three-state-coherence.html#kB"/>
+    <keyword type="macro" name="over_kB" link="QCADesigner-three-state-coherence.html#over-kB"/>
+    <keyword type="macro" name="E" link="QCADesigner-three-state-coherence.html#E:CAPS"/>
+    <keyword type="function" name="ts_coherence_options_dump ()" link="QCADesigner-three-state-coherence.html#ts-coherence-options-dump"/>
+    <keyword type="function" name="run_ts_coherence_simulation ()" link="QCADesigner-three-state-coherence.html#run-ts-coherence-simulation"/>
+    <keyword type="macro" name="IDX_VECTOR_KEY" link="QCADesigner-vector-table-options-dialog-callback-helpers.html#IDX-VECTOR-KEY:CAPS"/>
+    <keyword type="function" name="vtod_reflect_number_of_vectors_changed ()" link="QCADesigner-vector-table-options-dialog-callback-helpers.html#vtod-reflect-number-of-vectors-changed"/>
+    <keyword type="function" name="get_coherence_properties_from_user ()" link="QCADesigner-coherence-vector-properties-dialog.html#get-coherence-properties-from-user"/>
+    <keyword type="function" name="get_layer_mapping_from_user ()" link="QCADesigner-layer-mapping-dialog.html#get-layer-mapping-from-user"/>
+    <keyword type="function" name="get_bus_layout_from_user ()" link="QCADesigner-bus-layout-dialog.html#get-bus-layout-from-user"/>
+    <keyword type="function" name="create_bus_layout_tree_view ()" link="QCADesigner-bus-layout-dialog.html#create-bus-layout-tree-view"/>
+    <keyword type="function" name="gtk_tree_model_iter_next_dfs ()" link="QCADesigner-bus-layout-dialog.html#gtk-tree-model-iter-next-dfs"/>
+    <keyword type="function" name="bus_layout_tree_model_dump ()" link="QCADesigner-bus-layout-dialog.html#bus-layout-tree-model-dump"/>
+    <keyword type="macro" name="QCAD_ICON_SIZE_SIDE_TOOLBAR" link="QCADesigner-qcadstock.html#QCAD-ICON-SIZE-SIDE-TOOLBAR:CAPS"/>
+    <keyword type="macro" name="QCAD_ICON_SIZE_TOP_TOOLBAR" link="QCADesigner-qcadstock.html#QCAD-ICON-SIZE-TOP-TOOLBAR:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_REORDER_LAYERS" link="QCADesigner-qcadstock.html#QCAD-STOCK-REORDER-LAYERS:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_CLOCK" link="QCADesigner-qcadstock.html#QCAD-STOCK-CLOCK:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_BUS" link="QCADesigner-qcadstock.html#QCAD-STOCK-BUS:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_BUS_INPUT" link="QCADesigner-qcadstock.html#QCAD-STOCK-BUS-INPUT:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_BUS_OUTPUT" link="QCADesigner-qcadstock.html#QCAD-STOCK-BUS-OUTPUT:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_CELL_INPUT" link="QCADesigner-qcadstock.html#QCAD-STOCK-CELL-INPUT:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_CELL_OUTPUT" link="QCADesigner-qcadstock.html#QCAD-STOCK-CELL-OUTPUT:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_CELL_LAYER" link="QCADesigner-qcadstock.html#QCAD-STOCK-CELL-LAYER:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_CLOCKING_LAYER" link="QCADesigner-qcadstock.html#QCAD-STOCK-CLOCKING-LAYER:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_SUBSTRATE_LAYER" link="QCADesigner-qcadstock.html#QCAD-STOCK-SUBSTRATE-LAYER:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_DRAWING_LAYER" link="QCADesigner-qcadstock.html#QCAD-STOCK-DRAWING-LAYER:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_DISTRIBUTION_LAYER" link="QCADesigner-qcadstock.html#QCAD-STOCK-DISTRIBUTION-LAYER:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_GRAPH_BIN" link="QCADesigner-qcadstock.html#QCAD-STOCK-GRAPH-BIN:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_GRAPH_DEC" link="QCADesigner-qcadstock.html#QCAD-STOCK-GRAPH-DEC:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_GRAPH_HEX" link="QCADesigner-qcadstock.html#QCAD-STOCK-GRAPH-HEX:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_ROTATE_SELECTION" link="QCADesigner-qcadstock.html#QCAD-STOCK-ROTATE-SELECTION:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_BLOCK_READ" link="QCADesigner-qcadstock.html#QCAD-STOCK-BLOCK-READ:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_BLOCK_WRITE" link="QCADesigner-qcadstock.html#QCAD-STOCK-BLOCK-WRITE:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_CELL" link="QCADesigner-qcadstock.html#QCAD-STOCK-CELL:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_ARRAY" link="QCADesigner-qcadstock.html#QCAD-STOCK-ARRAY:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_ROTATE_CELL" link="QCADesigner-qcadstock.html#QCAD-STOCK-ROTATE-CELL:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_SELECT" link="QCADesigner-qcadstock.html#QCAD-STOCK-SELECT:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_CELL_ALT_CROSSOVER" link="QCADesigner-qcadstock.html#QCAD-STOCK-CELL-ALT-CROSSOVER:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_CELL_ALT_VERTICAL" link="QCADesigner-qcadstock.html#QCAD-STOCK-CELL-ALT-VERTICAL:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_COPY" link="QCADesigner-qcadstock.html#QCAD-STOCK-COPY:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_TRANSLATE" link="QCADesigner-qcadstock.html#QCAD-STOCK-TRANSLATE:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_MIRROR_VERTICAL" link="QCADesigner-qcadstock.html#QCAD-STOCK-MIRROR-VERTICAL:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_MIRROR_HORIZONTAL" link="QCADesigner-qcadstock.html#QCAD-STOCK-MIRROR-HORIZONTAL:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_MEASURE" link="QCADesigner-qcadstock.html#QCAD-STOCK-MEASURE:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_LABEL" link="QCADesigner-qcadstock.html#QCAD-STOCK-LABEL:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_SUBSTRATE" link="QCADesigner-qcadstock.html#QCAD-STOCK-SUBSTRATE:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_INSERT_COL_BEFORE" link="QCADesigner-qcadstock.html#QCAD-STOCK-INSERT-COL-BEFORE:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_RECT_ELECTRODE" link="QCADesigner-qcadstock.html#QCAD-STOCK-RECT-ELECTRODE:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_SHOW_POTENTIAL" link="QCADesigner-qcadstock.html#QCAD-STOCK-SHOW-POTENTIAL:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_NO_SHOW_POTENTIAL" link="QCADesigner-qcadstock.html#QCAD-STOCK-NO-SHOW-POTENTIAL:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_EXHAUSTIVE_SIM" link="QCADesigner-qcadstock.html#QCAD-STOCK-EXHAUSTIVE-SIM:CAPS"/>
+    <keyword type="macro" name="QCAD_STOCK_VECTOR_TABLE_SIM" link="QCADesigner-qcadstock.html#QCAD-STOCK-VECTOR-TABLE-SIM:CAPS"/>
+    <keyword type="function" name="get_sim_engine_from_user ()" link="QCADesigner-sim-engine-setup-dialog.html#get-sim-engine-from-user"/>
+    <keyword type="macro" name="PS_TEXT_PLACEMENT_PREAMBLE" link="QCADesigner-print.html#PS-TEXT-PLACEMENT-PREAMBLE:CAPS"/>
+    <keyword type="macro" name="PRINT_LAYER_KEY" link="QCADesigner-print.html#PRINT-LAYER-KEY:CAPS"/>
+    <keyword type="struct" name="print_OP" link="QCADesigner-print.html#print-OP"/>
+    <keyword type="struct" name="print_design_OP" link="QCADesigner-print.html#print-design-OP"/>
+    <keyword type="struct" name="print_graph_OP" link="QCADesigner-print.html#print-graph-OP"/>
+    <keyword type="struct" name="PRINT_GRAPH_DATA" link="QCADesigner-print.html#PRINT-GRAPH-DATA:CAPS"/>
+    <keyword type="function" name="PrintFunction ()" link="QCADesigner-print.html#PrintFunction"/>
+    <keyword type="function" name="print_world ()" link="QCADesigner-print.html#print-world"/>
+    <keyword type="function" name="print_graphs ()" link="QCADesigner-print.html#print-graphs"/>
+    <keyword type="function" name="show_graph_dialog ()" link="QCADesigner-graph-dialog.html#show-graph-dialog"/>
+    <keyword type="function" name="apply_graph_dialog_data ()" link="QCADesigner-graph-dialog.html#apply-graph-dialog-data"/>
+    <keyword type="function" name="get_bistable_properties_from_user ()" link="QCADesigner-bistable-properties-dialog.html#get-bistable-properties-from-user"/>
+    <keyword type="function" name="button_pressed_ACTION_ROTATE ()" link="QCADesigner-rotate.html#button-pressed-ACTION-ROTATE"/>
+    <keyword type="function" name="button_pressed_ACTION_SELECT ()" link="QCADesigner-select.html#button-pressed-ACTION-SELECT"/>
+    <keyword type="function" name="motion_notify_ACTION_SELECT ()" link="QCADesigner-select.html#motion-notify-ACTION-SELECT"/>
+    <keyword type="function" name="button_released_ACTION_SELECT ()" link="QCADesigner-select.html#button-released-ACTION-SELECT"/>
+    <keyword type="function" name="ACTION_SELECT_sel_changed ()" link="QCADesigner-select.html#ACTION-SELECT-sel-changed"/>
+    <keyword type="function" name="button_pressed_ACTION_ARRAY ()" link="QCADesigner-array.html#button-pressed-ACTION-ARRAY"/>
+    <keyword type="function" name="motion_notify_ACTION_ARRAY ()" link="QCADesigner-array.html#motion-notify-ACTION-ARRAY"/>
+    <keyword type="function" name="button_released_ACTION_ARRAY ()" link="QCADesigner-array.html#button-released-ACTION-ARRAY"/>
+    <keyword type="macro" name="NINT()" link="QCADesigner-object-helpers.html#NINT:CAPS"/>
+    <keyword type="macro" name="PT_IN_RECT()" link="QCADesigner-object-helpers.html#PT-IN-RECT:CAPS"/>
+    <keyword type="macro" name="RECT_IN_RECT()" link="QCADesigner-object-helpers.html#RECT-IN-RECT:CAPS"/>
+    <keyword type="macro" name="RECT_INTERSECT_RECT()" link="QCADesigner-object-helpers.html#RECT-INTERSECT-RECT:CAPS"/>
+    <keyword type="macro" name="RECT_EQUALS_RECT()" link="QCADesigner-object-helpers.html#RECT-EQUALS-RECT:CAPS"/>
+    <keyword type="function" name="world_to_real_x ()" link="QCADesigner-object-helpers.html#world-to-real-x"/>
+    <keyword type="function" name="world_to_real_y ()" link="QCADesigner-object-helpers.html#world-to-real-y"/>
+    <keyword type="function" name="world_to_real_cx ()" link="QCADesigner-object-helpers.html#world-to-real-cx"/>
+    <keyword type="function" name="world_to_real_cy ()" link="QCADesigner-object-helpers.html#world-to-real-cy"/>
+    <keyword type="function" name="real_to_world_x ()" link="QCADesigner-object-helpers.html#real-to-world-x"/>
+    <keyword type="function" name="real_to_world_y ()" link="QCADesigner-object-helpers.html#real-to-world-y"/>
+    <keyword type="function" name="real_to_world_cx ()" link="QCADesigner-object-helpers.html#real-to-world-cx"/>
+    <keyword type="function" name="real_to_world_cy ()" link="QCADesigner-object-helpers.html#real-to-world-cy"/>
+    <keyword type="function" name="world_to_grid_pt ()" link="QCADesigner-object-helpers.html#world-to-grid-pt"/>
+    <keyword type="function" name="reset_zoom ()" link="QCADesigner-object-helpers.html#reset-zoom"/>
+    <keyword type="function" name="zoom_in ()" link="QCADesigner-object-helpers.html#zoom-in"/>
+    <keyword type="function" name="zoom_out ()" link="QCADesigner-object-helpers.html#zoom-out"/>
+    <keyword type="function" name="zoom_window ()" link="QCADesigner-object-helpers.html#zoom-window"/>
+    <keyword type="function" name="set_snap_source ()" link="QCADesigner-object-helpers.html#set-snap-source"/>
+    <keyword type="function" name="pan ()" link="QCADesigner-object-helpers.html#pan"/>
+    <keyword type="function" name="is_real_point_visible ()" link="QCADesigner-object-helpers.html#is-real-point-visible"/>
+    <keyword type="function" name="set_client_dimension ()" link="QCADesigner-object-helpers.html#set-client-dimension"/>
+    <keyword type="function" name="is_real_rect_visible ()" link="QCADesigner-object-helpers.html#is-real-rect-visible"/>
+    <keyword type="function" name="get_world_viewport ()" link="QCADesigner-object-helpers.html#get-world-viewport"/>
+    <keyword type="function" name="push_transformation ()" link="QCADesigner-object-helpers.html#push-transformation"/>
+    <keyword type="function" name="set_transformation ()" link="QCADesigner-object-helpers.html#set-transformation"/>
+    <keyword type="function" name="pop_transformation ()" link="QCADesigner-object-helpers.html#pop-transformation"/>
+    <keyword type="function" name="real_to_world_rect ()" link="QCADesigner-object-helpers.html#real-to-world-rect"/>
+    <keyword type="function" name="world_to_real_rect ()" link="QCADesigner-object-helpers.html#world-to-real-rect"/>
+    <keyword type="function" name="world_rectangle_union ()" link="QCADesigner-object-helpers.html#world-rectangle-union"/>
+    <keyword type="function" name="world_rectangle_intersect ()" link="QCADesigner-object-helpers.html#world-rectangle-intersect"/>
+    <keyword type="function" name="world_rectangle_subtract ()" link="QCADesigner-object-helpers.html#world-rectangle-subtract"/>
+    <keyword type="function" name="DropFunction ()" link="QCADesigner-mouse-handlers.html#DropFunction"/>
+    <keyword type="function" name="set_mouse_handlers ()" link="QCADesigner-mouse-handlers.html#set-mouse-handlers"/>
+  </functions>
+</book>

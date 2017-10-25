@@ -1,0 +1,572 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>fileio</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-layer-order-dialog.html" title="layer_order_dialog">
+<link rel="next" href="QCADesigner-exp-array.html" title="exp_array">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-layer-order-dialog.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-exp-array.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4783388" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4838700" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-fileio"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4783388"></a><span class="refentrytitle">fileio</span>
+</h2>
+<p>fileio &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-fileio.html#open-project-file">open_project_file</a>               (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *file_name,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> **pdesign);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-fileio.html#open-project-file-fp">open_project_file_fp</a>            (FILE *pfile,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> **pdesign);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-fileio.html#check-project-file-magic-fp">check_project_file_magic_fp</a>     (FILE *pfile,
+                                             double *pversion);
+SIMULATION_OUTPUT* <a href="QCADesigner-fileio.html#open-simulation-output-file">open_simulation_output_file</a>
+                                            (char *pszFName);
+SIMULATION_OUTPUT* <a href="QCADesigner-fileio.html#open-simulation-output-file-fp">open_simulation_output_file_fp</a>
+                                            (FILE *fp);
+coherence_OP* <a href="QCADesigner-fileio.html#open-coherence-options-file">open_coherence_options_file</a>   (char *pszFName);
+bistable_OP* <a href="QCADesigner-fileio.html#open-bistable-options-file">open_bistable_options_file</a>     (char *pszFName);
+simulation_data* <a href="QCADesigner-fileio.html#simulation-data-unserialize">simulation_data_unserialize</a>
+                                            (FILE *fp);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-fileio.html#create-file">create_file</a>                     (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *file_name,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+void        <a href="QCADesigner-fileio.html#create-file-fp">create_file_fp</a>                  (FILE *pfile,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+void        <a href="QCADesigner-fileio.html#create-simulation-output-file">create_simulation_output_file</a>   (char *pszFName,
+                                             SIMULATION_OUTPUT *sim_output);
+void        <a href="QCADesigner-fileio.html#create-simulation-output-file-fp">create_simulation_output_file_fp</a>
+                                            (FILE *pfile,
+                                             SIMULATION_OUTPUT *sim_output);
+void        <a href="QCADesigner-fileio.html#simulation-data-serialize">simulation_data_serialize</a>       (FILE *fp,
+                                             simulation_data *sim_data);
+void        <a href="QCADesigner-fileio.html#export-block">export_block</a>                    (char *pszFName,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+void        <a href="QCADesigner-fileio.html#export-block-fp">export_block_fp</a>                 (FILE *pfile,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4838700"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4838716"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4839114"></a><h3>
+<a name="open-project-file"></a>open_project_file ()</h3>
+<a class="indexterm" name="id4839127"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    open_project_file               (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *file_name,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> **pdesign);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>file_name</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pdesign</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4839203"></a><h3>
+<a name="open-project-file-fp"></a>open_project_file_fp ()</h3>
+<a class="indexterm" name="id4839214"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    open_project_file_fp            (FILE *pfile,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> **pdesign);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pdesign</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4839291"></a><h3>
+<a name="check-project-file-magic-fp"></a>check_project_file_magic_fp ()</h3>
+<a class="indexterm" name="id4839302"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    check_project_file_magic_fp     (FILE *pfile,
+                                             double *pversion);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pversion</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4836966"></a><h3>
+<a name="open-simulation-output-file"></a>open_simulation_output_file ()</h3>
+<a class="indexterm" name="id4836976"></a><pre class="programlisting">SIMULATION_OUTPUT* open_simulation_output_file
+                                            (char *pszFName);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFName</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4837033"></a><h3>
+<a name="open-simulation-output-file-fp"></a>open_simulation_output_file_fp ()</h3>
+<a class="indexterm" name="id4837044"></a><pre class="programlisting">SIMULATION_OUTPUT* open_simulation_output_file_fp
+                                            (FILE *fp);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fp</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4837100"></a><h3>
+<a name="open-coherence-options-file"></a>open_coherence_options_file ()</h3>
+<a class="indexterm" name="id4837112"></a><pre class="programlisting">coherence_OP* open_coherence_options_file   (char *pszFName);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFName</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4837167"></a><h3>
+<a name="open-bistable-options-file"></a>open_bistable_options_file ()</h3>
+<a class="indexterm" name="id4837179"></a><pre class="programlisting">bistable_OP* open_bistable_options_file     (char *pszFName);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFName</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4841947"></a><h3>
+<a name="simulation-data-unserialize"></a>simulation_data_unserialize ()</h3>
+<a class="indexterm" name="id4841958"></a><pre class="programlisting">simulation_data* simulation_data_unserialize
+                                            (FILE *fp);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fp</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4842008"></a><h3>
+<a name="create-file"></a>create_file ()</h3>
+<a class="indexterm" name="id4842019"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    create_file                     (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gchar"
+>gchar</a> *file_name,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>file_name</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4842087"></a><h3>
+<a name="create-file-fp"></a>create_file_fp ()</h3>
+<a class="indexterm" name="id4842098"></a><pre class="programlisting">void        create_file_fp                  (FILE *pfile,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4842156"></a><h3>
+<a name="create-simulation-output-file"></a>create_simulation_output_file ()</h3>
+<a class="indexterm" name="id4842167"></a><pre class="programlisting">void        create_simulation_output_file   (char *pszFName,
+                                             SIMULATION_OUTPUT *sim_output);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFName</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sim_output</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4842224"></a><h3>
+<a name="create-simulation-output-file-fp"></a>create_simulation_output_file_fp ()</h3>
+<a class="indexterm" name="id4842235"></a><pre class="programlisting">void        create_simulation_output_file_fp
+                                            (FILE *pfile,
+                                             SIMULATION_OUTPUT *sim_output);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sim_output</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4842295"></a><h3>
+<a name="simulation-data-serialize"></a>simulation_data_serialize ()</h3>
+<a class="indexterm" name="id4842305"></a><pre class="programlisting">void        simulation_data_serialize       (FILE *fp,
+                                             simulation_data *sim_data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fp</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sim_data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4842364"></a><h3>
+<a name="export-block"></a>export_block ()</h3>
+<a class="indexterm" name="id4842374"></a><pre class="programlisting">void        export_block                    (char *pszFName,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszFName</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4842433"></a><h3>
+<a name="export-block-fp"></a>export_block_fp ()</h3>
+<a class="indexterm" name="id4842443"></a><pre class="programlisting">void        export_block_fp                 (FILE *pfile,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

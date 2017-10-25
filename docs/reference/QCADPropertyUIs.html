@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Part&#160;II.&#160;Property UIs</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADDOContainer.html" title="QCADDOContainer">
+<link rel="next" href="QCADesigner-QCADParamSpecObjectList.html" title="QCADParamSpecObjectList">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="QCADDOContainer.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-QCADParamSpecObjectList.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="part" lang="en">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="QCADPropertyUIs"></a>Property UIs</h1></div></div></div>
+<div class="partintro" lang="en">
+<div></div>
+<p>
+<a href="QCADPropertyUI.html" title="QCADPropertyUI">QCADPropertyUI</a> is the base class for a set of widgets that will allow you
+to automatically generate user interfaces for manipulating any <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>'s
+properties. Using a property's <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-GParamSpec.html#GParamSpec"
+>GParamSpec</a>, the user interface constrains the
+user's input to values valid for the property.
+        </p>
+<p>
+To allow the user to manipulate the properties of any <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>, you can simply call
+</p>
+<div class="informalexample"><pre class="programlisting">
+void object_get_properties (gpointer instance, GtkWindow *parent_window)
+  {
+  GtkWidget *widget = NULL ;
+  QCADPropertyUI *pui = qcad_property_ui_new (G_OBJECT (instance), NULL, "render-as", GTK_TYPE_DIALOG, NULL) ;
+
+  if (NULL != (widget = qcad_property_ui_get_widget (pui, 0, 0, NULL)))
+    if (GTK_IS_DIALOG (widget))
+      {
+      gtk_window_set_transient_for (GTK_WINDOW (widget), parent_window) ;
+      gtk_dialog_run (GTK_DIALOG (widget)) ;
+      gtk_widget_hide (widget) ;
+      }
+  }
+</pre></div>
+<p>
+You can create a UI for a <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>'s single property with
+</p>
+<div class="informalexample"><pre class="programlisting">
+single_property_ui = qcad_property_ui_new (the_object, "property-name", NULL) ;
+</pre></div>
+<p>
+        </p>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

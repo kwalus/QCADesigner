@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>bus_layout_dialog</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-layer-mapping-dialog.html" title="layer_mapping_dialog">
+<link rel="next" href="QCADesigner-qcadstock.html" title="qcadstock">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-layer-mapping-dialog.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-qcadstock.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4781450" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4868340" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-bus-layout-dialog"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4781450"></a><span class="refentrytitle">bus_layout_dialog</span>
+</h2>
+<p>bus_layout_dialog &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+void        <a href="QCADesigner-bus-layout-dialog.html#get-bus-layout-from-user">get_bus_layout_from_user</a>        (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWindow.html"
+>GtkWindow</a> *parent,
+                                             <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout);
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>*  <a href="QCADesigner-bus-layout-dialog.html#create-bus-layout-tree-view">create_bus_layout_tree_view</a>     (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bColsVisible,
+                                             char *pszColumnTitle,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/gtk-Standard-Enumerations.html#GtkSelectionMode"
+>GtkSelectionMode</a> sel_mode);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-bus-layout-dialog.html#gtk-tree-model-iter-next-dfs">gtk_tree_model_iter_next_dfs</a>    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html"
+>GtkTreeModel</a> *model,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html#GtkTreeIter"
+>GtkTreeIter</a> *itr);
+void        <a href="QCADesigner-bus-layout-dialog.html#bus-layout-tree-model-dump">bus_layout_tree_model_dump</a>      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html"
+>GtkTreeModel</a> *model,
+                                             FILE *pfile);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4868340"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4868356"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4868366"></a><h3>
+<a name="get-bus-layout-from-user"></a>get_bus_layout_from_user ()</h3>
+<a class="indexterm" name="id4868377"></a><pre class="programlisting">void        get_bus_layout_from_user        (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWindow.html"
+>GtkWindow</a> *parent,
+                                             <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>parent</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bus_layout</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4868442"></a><h3>
+<a name="create-bus-layout-tree-view"></a>create_bus_layout_tree_view ()</h3>
+<a class="indexterm" name="id4868453"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>*  create_bus_layout_tree_view     (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bColsVisible,
+                                             char *pszColumnTitle,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/gtk-Standard-Enumerations.html#GtkSelectionMode"
+>GtkSelectionMode</a> sel_mode);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bColsVisible</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszColumnTitle</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sel_mode</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4868550"></a><h3>
+<a name="gtk-tree-model-iter-next-dfs"></a>gtk_tree_model_iter_next_dfs ()</h3>
+<a class="indexterm" name="id4868561"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    gtk_tree_model_iter_next_dfs    (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html"
+>GtkTreeModel</a> *model,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html#GtkTreeIter"
+>GtkTreeIter</a> *itr);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>model</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>itr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4868636"></a><h3>
+<a name="bus-layout-tree-model-dump"></a>bus_layout_tree_model_dump ()</h3>
+<a class="indexterm" name="id4868647"></a><pre class="programlisting">void        bus_layout_tree_model_dump      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html"
+>GtkTreeModel</a> *model,
+                                             FILE *pfile);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>model</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

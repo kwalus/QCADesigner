@@ -1,0 +1,551 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADObject</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="prev" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="next" href="QCADDesignObject.html" title="QCADDesignObject">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADObjects.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADObjects.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADDesignObject.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4783213" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4775281" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4733056" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4775214" class="shortcut">Signals</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADObject"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4783213"></a><span class="refentrytitle">QCADObject</span>
+</h2>
+<p>QCADObject &#8212; QCADesigner's extensions to <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a></p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADObject.html#QCADObject-struct">QCADObject</a>;
+<a href="QCADObject.html" title="QCADObject">QCADObject</a>* <a href="QCADObject.html#qcad-object-new-from-object">qcad_object_new_from_object</a>     (<a href="QCADObject.html" title="QCADObject">QCADObject</a> *src);
+<a href="QCADObject.html" title="QCADObject">QCADObject</a>* <a href="QCADObject.html#qcad-object-get-default">qcad_object_get_default</a>         (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> type);
+void        <a href="QCADObject.html#qcad-object-set-default">qcad_object_set_default</a>         (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> type,
+                                             <a href="QCADObject.html" title="QCADObject">QCADObject</a> *obj);
+void        <a href="QCADObject.html#qcad-object-connect-signal-to-default-object">qcad_object_connect_signal_to_default_object</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> type,
+                                             char *pszSignal,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Closures.html#GCallback"
+>GCallback</a> callback,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+<a href="QCADPropertyUI.html" title="QCADPropertyUI">QCADPropertyUI</a>* <a href="QCADObject.html#qcad-object-create-property-ui-for-default-object">qcad_object_create_property_ui_for_default_object</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> type,
+                                             char *property,
+                                             ...);
+void        <a href="QCADObject.html#qcad-object-class-install-ui-behaviour">qcad_object_class_install_ui_behaviour</a>
+                                            (QCADObjectClass *klass,
+                                             <a href="QCADPropertyUI.html#QCADPropertyUIBehaviour">QCADPropertyUIBehaviour</a> *behaviour,
+                                             int icBehaviour);
+void        <a href="QCADObject.html#qcad-object-class-install-ui-properties">qcad_object_class_install_ui_properties</a>
+                                            (QCADObjectClass *klass,
+                                             <a href="QCADPropertyUI.html#QCADPropertyUIProperty">QCADPropertyUIProperty</a> *properties,
+                                             int icProperties);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4733056"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----QCADObject
+         +----<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4775214"></a><h2>Signals</h2>
+<pre class="synopsis">
+
+"<a href="QCADObject.html#QCADObject-set-default">set-default</a>"
+            void        user_function      (<a href="QCADObject.html" title="QCADObject">QCADObject</a> *qcadobject,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>    user_data)       : Run first
+"<a href="QCADObject.html#QCADObject-unset-default">unset-default</a>"
+            void        user_function      (<a href="QCADObject.html" title="QCADObject">QCADObject</a> *qcadobject,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>    user_data)       : Run first
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4775281"></a><h2>Description</h2>
+<p>
+<a href="QCADObject.html" title="QCADObject"><span class="type">QCADObject</span></a> provides several additions to <span class="type">GObject:</span>
+</p>
+<div class="itemizedlist"><ul type="disc">
+<li><p>
+A consistent way of performing a deep copy of an object via <a href="QCADObject.html#qcad-object-new-from-object"><code class="function">qcad_object_new_from_object()</code></a>.
+</p></li>
+<li>
+<p>
+The concept of a default object. Each subclass of <a href="QCADObject.html" title="QCADObject"><span class="type">QCADObject</span></a> can have a default instance. This instance 
+can then serve as a template for new objects. For example:
+</p>
+<div class="informalexample"><pre class="programlisting">
+new_object = qcad_object_new_from_default (qcad_object_get_default (qcad_object_subtype)) ;
+</pre></div>
+<p>
+When an object becomes the default object, it emits the
+"<a href="QCADObject.html#QCADObject-set-default">set-default</a>" signal, and when another object becomes the 
+default, it emits the "<a href="QCADObject.html#QCADObject-unset-default">unset-default</a>" signal, and the new 
+default object emits the "<a href="QCADObject.html#QCADObject-unset-default">unset-default</a>" signal.
+</p>
+<p>
+As a convenience, <a href="QCADObject.html#qcad-object-connect-signal-to-default-object"><code class="function">qcad_object_connect_signal_to_default_object()</code></a> will connect a signal handler to the
+current default object, and will keep it connected to whatever object becomes default at a later time.
+</p>
+<p>
+As an additional convenience, <a href="QCADObject.html#qcad-object-create-property-ui-for-default-object"><code class="function">qcad_object_create_property_ui_for_default_object()</code></a> will create a property
+UI for one of the default object's properties, and will keep it pointing at the object currently set as
+default.
+</p>
+</li>
+<li>
+<p>
+Property UI property hints. When constructing a UI for a <a href="QCADObject.html" title="QCADObject"><span class="type">QCADObject</span></a> property, the UI itself might have some
+properties whose default values should be overridden. Assembling an array of <a href="QCADPropertyUI.html#QCADPropertyUIProperty"><span class="type">QCADPropertyUIProperty</span></a> 
+structures and passing the array to <a href="QCADObject.html#qcad-object-class-install-ui-properties"><code class="function">qcad_object_class_install_ui_properties()</code></a> at class initialization time 
+will cause UIs exposing the given property to have properties set as described in the array. For example:
+</p>
+<div class="informalexample"><pre class="programlisting">
+static QCADPropertyUIProperty properties[] =
+  {
+  {NULL,     "title",     {0, }},
+  {"width",  "units",     {0, }},
+  {"height", "units",     {0, }},
+  } ;
+ 
+// RectangleElectrode.title = "QCA Rectangular Electrode"
+g_value_set_string (g_value_init (&amp;(properties[0].ui_property_value), G_TYPE_STRING), _("QCA Rectangular Electrode")) ;
+// RectangleElectrode.width.units = "nm"
+g_value_set_string (g_value_init (&amp;(properties[1].ui_property_value), G_TYPE_STRING), "nm") ;
+// RectangleElectrode.height.units = "nm"
+g_value_set_string (g_value_init (&amp;(properties[2].ui_property_value), G_TYPE_STRING), "nm") ;
+ 
+qcad_object_class_install_ui_properties (QCAD_OBJECT_CLASS (klass), properties, G_N_ELEMENTS (properties)) ;
+</pre></div>
+<p>
+This will cause property UIs exposing an object's "width" property and "height" property to display
+a "nm" label as part of the property UI. Note that, when the first member of the structure is <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a>, the 
+second member refers to a property UI hint for the property UI group that will be created for objects of 
+this type.
+</p>
+</li>
+<li><p>
+Property UI behaviour. In addition to assigning values to certain property UI properties at class 
+initialization time, it is also possible to "connect" property UI properties to other property UI 
+properties, as well as property UI properties to properties of the instance treated by the property UIs. 
+This is accomplished using the <a href="QCADesigner-generic-utils.html#connect-object-properties"><code class="function">connect_object_properties()</code></a> function and the <a href="QCADPropertyUI.html#QCADPropertyUIBehaviour"><span class="type">QCADPropertyUIBehaviour</span></a> 
+structure.
+</p></li>
+</ul></div>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4710388"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4710399"></a><h3>
+<a name="QCADObject-struct"></a>QCADObject</h3>
+<a class="indexterm" name="id4710411"></a><pre class="programlisting">typedef struct _QCADObject QCADObject;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4710426"></a><h3>
+<a name="qcad-object-new-from-object"></a>qcad_object_new_from_object ()</h3>
+<a class="indexterm" name="id4710437"></a><pre class="programlisting"><a href="QCADObject.html" title="QCADObject">QCADObject</a>* qcad_object_new_from_object     (<a href="QCADObject.html" title="QCADObject">QCADObject</a> *src);</pre>
+<p>
+Creates a deep copy of <em class="parameter"><code>src</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>src</code></em>&#160;:</span></td>
+<td> Source <a href="QCADObject.html" title="QCADObject"><span class="type">QCADObject</span></a>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> a deep copy of <em class="parameter"><code>src</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4710515"></a><h3>
+<a name="qcad-object-get-default"></a>qcad_object_get_default ()</h3>
+<a class="indexterm" name="id4710527"></a><pre class="programlisting"><a href="QCADObject.html" title="QCADObject">QCADObject</a>* qcad_object_get_default         (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> type);</pre>
+<p>
+Retrieves the default object for <em class="parameter"><code>type</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>type</code></em>&#160;:</span></td>
+<td> Type to retrieve default object for.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The default object for <em class="parameter"><code>type</code></em>, or <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4710607"></a><h3>
+<a name="qcad-object-set-default"></a>qcad_object_set_default ()</h3>
+<a class="indexterm" name="id4710618"></a><pre class="programlisting">void        qcad_object_set_default         (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> type,
+                                             <a href="QCADObject.html" title="QCADObject">QCADObject</a> *obj);</pre>
+<p>
+Sets a new default object for <em class="parameter"><code>type</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>type</code></em>&#160;:</span></td>
+<td> Type to set default object for.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> New default object for <em class="parameter"><code>type</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4710700"></a><h3>
+<a name="qcad-object-connect-signal-to-default-object"></a>qcad_object_connect_signal_to_default_object ()</h3>
+<a class="indexterm" name="id4710714"></a><pre class="programlisting">void        qcad_object_connect_signal_to_default_object
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> type,
+                                             char *pszSignal,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Closures.html#GCallback"
+>GCallback</a> callback,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+Connects signal handler <em class="parameter"><code>callback</code></em> to signal <em class="parameter"><code>pszSignal</code></em> of the default object for <em class="parameter"><code>type</code></em>. When the default
+object changes, the handler is disconnected from the old default instance and connected to the new default
+instance.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>type</code></em>&#160;:</span></td>
+<td> The <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+><span class="type">GType</span></a> who's default object to connect to.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszSignal</code></em>&#160;:</span></td>
+<td> Name of the signal to connect to.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></td>
+<td> Callback function to connect.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td> Data to pass to <em class="parameter"><code>callback</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4798700"></a><h3>
+<a name="qcad-object-create-property-ui-for-default-object"></a>qcad_object_create_property_ui_for_default_object ()</h3>
+<a class="indexterm" name="id4798714"></a><pre class="programlisting"><a href="QCADPropertyUI.html" title="QCADPropertyUI">QCADPropertyUI</a>* qcad_object_create_property_ui_for_default_object
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+>GType</a> type,
+                                             char *property,
+                                             ...);</pre>
+<p>
+Creates a new property UI for the default object. When the default object changes,
+<a href="QCADPropertyUI.html#qcad-property-ui-set-instance"><code class="function">qcad_property_ui_set_instance()</code></a> with the new default object is automaticallly called on the returned 
+property UI.
+</p>
+<p>
+See also: <a href="QCADPropertyUI.html#qcad-property-ui-new"><code class="function">qcad_property_ui_new()</code></a>, <a href="QCADPropertyUI.html#qcad-property-ui-set-instance"><code class="function">qcad_property_ui_set_instance()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>type</code></em>&#160;:</span></td>
+<td> Type to create property UI for.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>property</code></em>&#160;:</span></td>
+<td> Instance property to create UI for, or <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to create "group" UI for default object.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a>-terminated property name - property value pairs.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> A new <a href="QCADPropertyUI.html" title="QCADPropertyUI"><span class="type">QCADPropertyUI</span></a> for <em class="parameter"><code>type</code></em>'s default object.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4798867"></a><h3>
+<a name="qcad-object-class-install-ui-behaviour"></a>qcad_object_class_install_ui_behaviour ()</h3>
+<a class="indexterm" name="id4798880"></a><pre class="programlisting">void        qcad_object_class_install_ui_behaviour
+                                            (QCADObjectClass *klass,
+                                             <a href="QCADPropertyUI.html#QCADPropertyUIBehaviour">QCADPropertyUIBehaviour</a> *behaviour,
+                                             int icBehaviour);</pre>
+<p>
+Installs an array of behaviours to be used by property UIs for instances of <em class="parameter"><code>klass</code></em>.
+</p>
+<p>
+See also: <a href="QCADPropertyUI.html#QCADPropertyUIBehaviour"><span class="type">QCADPropertyUIBehaviour</span></a></p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>klass</code></em>&#160;:</span></td>
+<td> <a href="QCADObject.html" title="QCADObject"><span class="type">QCADObject</span></a> subclass to install behaviour for.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>behaviour</code></em>&#160;:</span></td>
+<td> <a href="QCADPropertyUI.html#QCADPropertyUIBehaviour"><span class="type">QCADPropertyUIBehaviour</span></a> array to append.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icBehaviour</code></em>&#160;:</span></td>
+<td> Number of items in the <em class="parameter"><code>behaviour</code></em> array.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4798996"></a><h3>
+<a name="qcad-object-class-install-ui-properties"></a>qcad_object_class_install_ui_properties ()</h3>
+<a class="indexterm" name="id4799009"></a><pre class="programlisting">void        qcad_object_class_install_ui_properties
+                                            (QCADObjectClass *klass,
+                                             <a href="QCADPropertyUI.html#QCADPropertyUIProperty">QCADPropertyUIProperty</a> *properties,
+                                             int icProperties);</pre>
+<p>
+Installs an array of properties to be used by property UIs for instances of <em class="parameter"><code>klass</code></em>.
+</p>
+<p>
+See also: <a href="QCADPropertyUI.html#QCADPropertyUIProperty"><span class="type">QCADPropertyUIProperty</span></a></p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>klass</code></em>&#160;:</span></td>
+<td> <a href="QCADObject.html" title="QCADObject"><span class="type">QCADObject</span></a> subclass to install behaviour for.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>properties</code></em>&#160;:</span></td>
+<td> <a href="QCADPropertyUI.html#QCADPropertyUIProperty"><span class="type">QCADPropertyUIProperty</span></a> array to append.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icProperties</code></em>&#160;:</span></td>
+<td> Number of items in the <em class="parameter"><code>properties</code></em> array.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4799127"></a><h2>Signal Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4799137"></a><h3>
+<a name="QCADObject-set-default"></a>The "set-default" signal</h3>
+<a class="indexterm" name="id4799144"></a><pre class="programlisting">void        user_function                  (<a href="QCADObject.html" title="QCADObject">QCADObject</a> *qcadobject,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>    user_data)       : Run first</pre>
+<p>
+This signal is emitted after <em class="parameter"><code>qcadobject</code></em> has become the default object for its type.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>qcadobject</code></em>&#160;:</span></td>
+<td> The object that has become the default.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4799215"></a><h3>
+<a name="QCADObject-unset-default"></a>The "unset-default" signal</h3>
+<a class="indexterm" name="id4799222"></a><pre class="programlisting">void        user_function                  (<a href="QCADObject.html" title="QCADObject">QCADObject</a> *qcadobject,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>    user_data)       : Run first</pre>
+<p>
+This signal is emitted after <em class="parameter"><code>qcadobject</code></em> has ceased being the default object for its type.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>qcadobject</code></em>&#160;:</span></td>
+<td> The object that has become the default.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

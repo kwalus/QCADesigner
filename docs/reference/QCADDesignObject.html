@@ -1,0 +1,764 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADDesignObject</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="prev" href="QCADObject.html" title="QCADObject">
+<link rel="next" href="QCADCell.html" title="QCADCell">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADObject.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADObjects.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADCell.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4795236" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4787731" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4787633" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4787688" class="shortcut">Signals</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADDesignObject"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4795236"></a><span class="refentrytitle">QCADDesignObject</span>
+</h2>
+<p>QCADDesignObject &#8212; Common base class for all objects appearing in a design</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADDesignObject.html#QCADDesignObject-struct">QCADDesignObject</a>;
+void        <a href="QCADDesignObject.html#qcad-design-object-serialize">qcad_design_object_serialize</a>    (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             FILE *fp);
+<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* <a href="QCADDesignObject.html#qcad-design-object-new-from-stream">qcad_design_object_new_from_stream</a>
+                                            (FILE *fp);
+void        <a href="QCADDesignObject.html#qcad-design-object-move">qcad_design_object_move</a>         (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             double dxDelta,
+                                             double dyDelta);
+void        <a href="QCADDesignObject.html#qcad-design-object-move-to">qcad_design_object_move_to</a>      (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             double xWorld,
+                                             double yWorld);
+void        <a href="QCADDesignObject.html#qcad-design-object-get-bounds-box">qcad_design_object_get_bounds_box</a>
+                                            (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             WorldRectangle *rcWorld);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADDesignObject.html#qcad-design-object-set-selected">qcad_design_object_set_selected</a> (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bSelected);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADDesignObject.html#qcad-design-object-overlaps">qcad_design_object_overlaps</a>     (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj1,
+                                             <a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj2);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADDesignObject.html#qcad-design-object-select-test">qcad_design_object_select_test</a>  (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             WorldRectangle *rc,
+                                             QCADSelectionMethod method);
+<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* <a href="QCADDesignObject.html#qcad-design-object-hit-test">qcad_design_object_hit_test</a>
+                                            (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             int x,
+                                             int y);
+void        <a href="QCADDesignObject.html#qcad-design-object-draw">qcad_design_object_draw</a>         (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Drawing-Primitives.html#GdkDrawable"
+>GdkDrawable</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rcClip);
+const char* <a href="QCADDesignObject.html#qcad-design-object-class-get-PostScript-preamble">qcad_design_object_class_get_PostScript_preamble</a>
+                                            (QCADDesignObjectClass *klass);
+char*       <a href="QCADDesignObject.html#qcad-design-object-get-PostScript-instance">qcad_design_object_get_PostScript_instance</a>
+                                            (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bColour);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+>GList</a>*      <a href="QCADDesignObject.html#qcad-design-object-add-types">qcad_design_object_add_types</a>    (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+>GList</a> *lst);
+void        <a href="QCADDesignObject.html#qcad-design-object-transform">qcad_design_object_transform</a>    (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             double m11,
+                                             double m12,
+                                             double m21,
+                                             double m22);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4787633"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="QCADObject.html" title="QCADObject">QCADObject</a>
+         +----QCADDesignObject
+               +----<a href="QCADCell.html" title="QCADCell">QCADCell</a>
+               +----<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>
+               +----<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a>
+               +----<a href="QCADStretchyObject.html" title="QCADStretchyObject">QCADStretchyObject</a>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4787688"></a><h2>Signals</h2>
+<pre class="synopsis">
+
+"<a href="QCADDesignObject.html#QCADDesignObject-selected">selected</a>"  void        user_function      (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *qcaddesignobject,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>          user_data)             : Run first
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4787731"></a><h2>Description</h2>
+<p>
+<a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> is the common base class for all design objects. It defines the necessary virtual 
+functions for serialization, bounds calculation, selection, drawing, and transformation.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4787761"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4787772"></a><h3>
+<a name="QCADDesignObject-struct"></a>QCADDesignObject</h3>
+<a class="indexterm" name="id4787783"></a><pre class="programlisting">typedef struct _QCADDesignObject QCADDesignObject;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4787800"></a><h3>
+<a name="qcad-design-object-serialize"></a>qcad_design_object_serialize ()</h3>
+<a class="indexterm" name="id4787813"></a><pre class="programlisting">void        qcad_design_object_serialize    (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             FILE *fp);</pre>
+<p>
+Serializes <em class="parameter"><code>obj</code></em> as plain UTF-8 text to stream <em class="parameter"><code>fp</code></em>. The object can later be unserialized with
+<a href="QCADDesignObject.html#qcad-design-object-new-from-stream"><code class="function">qcad_design_object_new_from_stream()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to be serialized
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fp</code></em>&#160;:</span></td>
+<td> Stream to serialize it to
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4767369"></a><h3>
+<a name="qcad-design-object-new-from-stream"></a>qcad_design_object_new_from_stream ()</h3>
+<a class="indexterm" name="id4767383"></a><pre class="programlisting"><a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* qcad_design_object_new_from_stream
+                                            (FILE *fp);</pre>
+<p>
+Unserializes a <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> from a stream. The type of object returned depends on the type of object
+found in the stream.
+</p>
+<p>
+See also: <a href="QCADDesignObject.html#qcad-design-object-serialize"><code class="function">qcad_design_object_serialize()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fp</code></em>&#160;:</span></td>
+<td> Stream to read from
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> a <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a>, or <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if unsuccessful.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4767483"></a><h3>
+<a name="qcad-design-object-move"></a>qcad_design_object_move ()</h3>
+<a class="indexterm" name="id4767494"></a><pre class="programlisting">void        qcad_design_object_move         (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             double dxDelta,
+                                             double dyDelta);</pre>
+<p>
+move the specified <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> by a given x- and y-offset.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to be translated
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dxDelta</code></em>&#160;:</span></td>
+<td> amount in world coordinates of x-translation
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dyDelta</code></em>&#160;:</span></td>
+<td> amount in world coordinates of y-translation
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4801381"></a><h3>
+<a name="qcad-design-object-move-to"></a>qcad_design_object_move_to ()</h3>
+<a class="indexterm" name="id4801391"></a><pre class="programlisting">void        qcad_design_object_move_to      (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             double xWorld,
+                                             double yWorld);</pre>
+<p>
+move the specified <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to the given coordinates.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to be moved
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xWorld</code></em>&#160;:</span></td>
+<td> world x-coordinate to move it to
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yWorld</code></em>&#160;:</span></td>
+<td> world y-coordinate to move it to
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4801484"></a><h3>
+<a name="qcad-design-object-get-bounds-box"></a>qcad_design_object_get_bounds_box ()</h3>
+<a class="indexterm" name="id4801497"></a><pre class="programlisting">void        qcad_design_object_get_bounds_box
+                                            (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             WorldRectangle *rcWorld);</pre>
+<p>
+Fill out <em class="parameter"><code>rcWorld</code></em> with the bounding box of <em class="parameter"><code>obj</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> whose bounding box to calculate
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcWorld</code></em>&#160;:</span></td>
+<td> <span class="type">WorldRectangle</span> to fill out
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4801584"></a><h3>
+<a name="qcad-design-object-set-selected"></a>qcad_design_object_set_selected ()</h3>
+<a class="indexterm" name="id4801596"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    qcad_design_object_set_selected (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bSelected);</pre>
+<p>
+Set <em class="parameter"><code>obj</code></em> as selected if <em class="parameter"><code>bSelected</code></em> is <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a>. Set <em class="parameter"><code>obj</code></em> as deselected otherwise.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to (de)select
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bSelected</code></em>&#160;:</span></td>
+<td> Whether the object is to be (de)selected
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4801700"></a><h3>
+<a name="qcad-design-object-overlaps"></a>qcad_design_object_overlaps ()</h3>
+<a class="indexterm" name="id4801711"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    qcad_design_object_overlaps     (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj1,
+                                             <a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj2);</pre>
+<p>
+Determines whether two objects overlap by intersecting their bounding boxes.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj1</code></em>&#160;:</span></td>
+<td> A <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj2</code></em>&#160;:</span></td>
+<td> Another <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a>, if the two objects overlap.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4801806"></a><h3>
+<a name="qcad-design-object-select-test"></a>qcad_design_object_select_test ()</h3>
+<a class="indexterm" name="id4801819"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    qcad_design_object_select_test  (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             WorldRectangle *rc,
+                                             QCADSelectionMethod method);</pre>
+<p>
+Determine whether <em class="parameter"><code>obj</code></em> lies inside <em class="parameter"><code>rcWorld</code></em> according to <em class="parameter"><code>method</code></em>. <em class="parameter"><code>method</code></em> is one of
+<code class="literal">SELECTION_CONTAINMENT</code> or <code class="literal">SELECTION_INTERSECTION</code>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to examine
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rc</code></em>&#160;:</span></td>
+<td> <span class="type">WorldRectangle</span> to use for comparison
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>method</code></em>&#160;:</span></td>
+<td> <span class="type">QCADSelectionMethod</span> to use for comparison
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if <em class="parameter"><code>obj</code></em> lies inside <em class="parameter"><code>rcWorld</code></em> according to <em class="parameter"><code>method</code></em>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4801991"></a><h3>
+<a name="qcad-design-object-hit-test"></a>qcad_design_object_hit_test ()</h3>
+<a class="indexterm" name="id4802002"></a><pre class="programlisting"><a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* qcad_design_object_hit_test
+                                            (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             int x,
+                                             int y);</pre>
+<p>
+Determine whether (<em class="parameter"><code>x</code></em>,<em class="parameter"><code>y</code></em>) lies inside <em class="parameter"><code>obj</code></em> or any of its sub-objects.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to examine
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
+<td> x-coordinate in pixels to examine
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
+<td> y-coordinate in pixels to examine
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The object hit (which may or may not be <em class="parameter"><code>obj</code></em>), or <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if nothing was hit.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4802131"></a><h3>
+<a name="qcad-design-object-draw"></a>qcad_design_object_draw ()</h3>
+<a class="indexterm" name="id4802141"></a><pre class="programlisting">void        qcad_design_object_draw         (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Drawing-Primitives.html#GdkDrawable"
+>GdkDrawable</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rcClip);</pre>
+<p>
+Draws object <em class="parameter"><code>obj</code></em> onto surface <em class="parameter"><code>dst</code></em> using function <em class="parameter"><code>rop</code></em> and clipping rectangle <em class="parameter"><code>rcClip</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to draw
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td> Surface to draw it on
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rop</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+><span class="type">GdkFunction</span></a> to use
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcClip</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+><span class="type">GdkRectangle</span></a> to use for clipping
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4802281"></a><h3>
+<a name="qcad-design-object-class-get-PostScript-preamble"></a>qcad_design_object_class_get_PostScript_preamble ()</h3>
+<a class="indexterm" name="id4802294"></a><pre class="programlisting">const char* qcad_design_object_class_get_PostScript_preamble
+                                            (QCADDesignObjectClass *klass);</pre>
+<p>
+This function returns a string containing the definition of a PostScript function which renders a
+<a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> of this type into a PostScript stream. This function may make use of the PostScript
+functions defined in <a href="QCADesigner-print-util.html#PS-TEXT-PLACEMENT-PREAMBLE:CAPS"><code class="literal">PS_TEXT_PLACEMENT_PREAMBLE</code></a>, as well as <a href="QCADesigner-print-util.html#PrintMagic"><code class="function">PrintMagic()</code></a> and the per-page preamble.
+</p>
+<p>
+See also: <a href="QCADesigner-print.html#print-world"><code class="function">print_world()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>klass</code></em>&#160;:</span></td>
+<td> <span class="type">QCADDesignObjectClass</span> whose PostScript preamble to retrieve
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> the PostScript preamble for this class' <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+><span class="type">GType</span></a> as a string.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4802404"></a><h3>
+<a name="qcad-design-object-get-PostScript-instance"></a>qcad_design_object_get_PostScript_instance ()</h3>
+<a class="indexterm" name="id4802418"></a><pre class="programlisting">char*       qcad_design_object_get_PostScript_instance
+                                            (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bColour);</pre>
+<p>
+This function returns a string containing a PostScript function call to the function returned by 
+<code class="function">qcad_design_object_get_PostScript_preamble()</code> for this object type. The parameters to the function may be
+defined in terms of calls to the PostScript functions defined in <a href="QCADesigner-print-util.html#PS-TEXT-PLACEMENT-PREAMBLE:CAPS"><code class="literal">PS_TEXT_PLACEMENT_PREAMBLE</code></a>, as well as 
+<a href="QCADesigner-print-util.html#PrintMagic"><code class="function">PrintMagic()</code></a> and the per-page preamble.
+</p>
+<p>
+See also: <a href="QCADesigner-print.html#print-world"><code class="function">print_world()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to render as PostScript.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bColour</code></em>&#160;:</span></td>
+<td> Whether to render it in colour.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> the PostScript instance function call for this object as a string.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4802542"></a><h3>
+<a name="qcad-design-object-add-types"></a>qcad_design_object_add_types ()</h3>
+<a class="indexterm" name="id4802555"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+>GList</a>*      qcad_design_object_add_types    (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+>GList</a> *lst);</pre>
+<p>
+Add this object's <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+><span class="type">GType</span></a> to the linked list of unique types stored in <em class="parameter"><code>lst</code></em>, if not already present.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> whose type to add
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>lst</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+><span class="type">GList</span></a> of unique types (-&gt;data is a <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+><span class="type">GType</span></a>)
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> the new start of <em class="parameter"><code>lst</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4802665"></a><h3>
+<a name="qcad-design-object-transform"></a>qcad_design_object_transform ()</h3>
+<a class="indexterm" name="id4802677"></a><pre class="programlisting">void        qcad_design_object_transform    (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             double m11,
+                                             double m12,
+                                             double m21,
+                                             double m22);</pre>
+<p>
+Transform object <em class="parameter"><code>obj</code></em> according to world coordinate matrix ((m11,m12),(m21,m22)).</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td> <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to transform
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>m11</code></em>&#160;:</span></td>
+<td> 2x2 matrix entry
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>m12</code></em>&#160;:</span></td>
+<td> 2x2 matrix entry
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>m21</code></em>&#160;:</span></td>
+<td> 2x2 matrix entry
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>m22</code></em>&#160;:</span></td>
+<td> 2x2 matrix entry
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4802811"></a><h2>Signal Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4802820"></a><h3>
+<a name="QCADDesignObject-selected"></a>The "selected" signal</h3>
+<a class="indexterm" name="id4802827"></a><pre class="programlisting">void        user_function                  (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *qcaddesignobject,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>          user_data)             : Run first</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>qcaddesignobject</code></em>&#160;:</span></td>
+<td>the object which received the signal.
+
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

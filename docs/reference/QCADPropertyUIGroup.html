@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADPropertyUIGroup</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="prev" href="QCADPropertyUIEnum.html" title="QCADPropertyUIEnum">
+<link rel="next" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADPropertyUIEnum.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADPropertyUIs.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADWidgets.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4768940" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4817483" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4755948" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4772298" class="shortcut">Properties</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADPropertyUIGroup"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4768940"></a><span class="refentrytitle">QCADPropertyUIGroup</span>
+</h2>
+<p>QCADPropertyUIGroup &#8212; Property UI group.</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADPropertyUIGroup.html#QCADPropertyUIGroup-struct">QCADPropertyUIGroup</a>;
+<a href="QCADPropertyUI.html" title="QCADPropertyUI">QCADPropertyUI</a>* <a href="QCADPropertyUIGroup.html#qcad-property-ui-group-newv">qcad_property_ui_group_newv</a> (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *instance,
+                                             va_list va);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4755948"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="QCADPropertyUI.html" title="QCADPropertyUI">QCADPropertyUI</a>
+         +----QCADPropertyUIGroup
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4772298"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a href="QCADPropertyUIGroup.html#QCADPropertyUIGroup--render-as">render-as</a>"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>                 : Read / Write
+  "<a href="QCADPropertyUIGroup.html#QCADPropertyUIGroup--title">title</a>"                <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Standard-Parameter-and-Value-Types.html#gchararray"
+>gchararray</a>            : Read / Write
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4817483"></a><h2>Description</h2>
+<p>
+A propert UI group covers all the properties of a <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a> instance. It creates
+a list of <a href="QCADPropertyUISingle.html" title="QCADPropertyUISingle"><span class="type">QCADPropertyUISingle</span></a> objects, each covering one of the instance's properties. It then concatenates
+the 2D grid of widgets created by each "single" property UI vertically, into a larger 2D widget grid.
+</p>
+<p>
+In addition, if the instance happens to be of type <a href="QCADObject.html" title="QCADObject"><span class="type">QCADObject</span></a>, the property hints specific to the property
+UI group, rather than any of its components, are applied. The behaviour hints connecting the various "single"
+property UIs contained within the group are also applied.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4817534"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4817545"></a><h3>
+<a name="QCADPropertyUIGroup-struct"></a>QCADPropertyUIGroup</h3>
+<a class="indexterm" name="id4817556"></a><pre class="programlisting">typedef struct _QCADPropertyUIGroup QCADPropertyUIGroup;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4817573"></a><h3>
+<a name="qcad-property-ui-group-newv"></a>qcad_property_ui_group_newv ()</h3>
+<a class="indexterm" name="id4817584"></a><pre class="programlisting"><a href="QCADPropertyUI.html" title="QCADPropertyUI">QCADPropertyUI</a>* qcad_property_ui_group_newv (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a> *instance,
+                                             va_list va);</pre>
+<p>
+Creates a new property UI exposing the properties of <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a> instance <em class="parameter"><code>instance</code></em>.
+</p>
+<p>
+If <em class="parameter"><code>instance</code></em> happens to be of type <a href="QCADObject.html" title="QCADObject"><span class="type">QCADObject</span></a>, then this function looks up those <a href="QCADPropertyUI.html#QCADPropertyUIBehaviour"><span class="type">QCADPropertyUIBehaviour</span></a>
+entries which connect the new property UI's properties to <em class="parameter"><code>instance</code></em>'s properties and those that connect to 
+one another the properties of <a href="QCADPropertyUISingle.html" title="QCADPropertyUISingle"><span class="type">QCADPropertyUISingle</span></a> objects contained within the newly created
+<a href="QCADPropertyUIGroup.html" title="QCADPropertyUIGroup"><span class="type">QCADPropertyUIGroup</span></a> object and makes the appropriate connections.
+</p>
+<p>
+If <em class="parameter"><code>instance</code></em> happens to be of type <a href="QCADObject.html" title="QCADObject"><span class="type">QCADObject</span></a>, then this function looks up those <a href="QCADPropertyUI.html#QCADPropertyUIProperty"><span class="type">QCADPropertyUIProperty</span></a>
+entries which apply to the new property UI's properties and not to any of the properties for its contained
+<a href="QCADPropertyUISingle.html" title="QCADPropertyUISingle"><span class="type">QCADPropertyUISingle</span></a> objects and sets the values as prescribed in the matching <a href="QCADPropertyUI.html#QCADPropertyUIProperty"><span class="type">QCADPropertyUIProperty</span></a> 
+entries.
+</p>
+<p>
+See also: <a href="QCADPropertyUI.html#qcad-property-ui-new"><code class="function">qcad_property_ui_new()</code></a>, <a href="QCADPropertyUI.html#QCADPropertyUIBehaviour"><span class="type">QCADPropertyUIBehaviour</span></a>, <a href="QCADPropertyUI.html#QCADPropertyUIProperty"><span class="type">QCADPropertyUIProperty</span></a></p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>instance</code></em>&#160;:</span></td>
+<td> Instance to create the UI for.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>va</code></em>&#160;:</span></td>
+<td> <span class="type">va_list</span> of <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a>-terminated property name - property value pairs to set on the newly created UI.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> A newly created <a href="QCADPropertyUIGroup.html" title="QCADPropertyUIGroup"><span class="type">QCADPropertyUIGroup</span></a> for <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+><span class="type">GObject</span></a> instance <em class="parameter"><code>instance</code></em>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4813184"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4813194"></a><h3>
+<a name="QCADPropertyUIGroup--render-as"></a>The "<code class="literal">render-as</code>" property</h3>
+<a class="indexterm" name="id4813208"></a><pre class="programlisting">  "render-as"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>                 : Read / Write</pre>
+<p>
+This property UI can be rendered as either a <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkDialog.html"
+><span class="type">GtkDialog</span></a>, a <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkButton.html"
+><span class="type">GtkButton</span></a> that runs a <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkDialog.html"
+><span class="type">GtkDialog</span></a>, a
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkFrame.html"
+><span class="type">GtkFrame</span></a>, a <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkExpander.html"
+><span class="type">GtkExpander</span></a>, or a property UI - that is, a 2D grid of widgets accessible via
+<a href="QCADPropertyUI.html#qcad-property-ui-get-cx-widgets"><code class="function">qcad_property_ui_get_cx_widgets()</code></a>, <a href="QCADPropertyUI.html#qcad-property-ui-get-cy-widgets"><code class="function">qcad_property_ui_get_cy_widgets()</code></a>, and <a href="QCADPropertyUI.html#qcad-property-ui-get-widget"><code class="function">qcad_property_ui_get_widget()</code></a>.
+</p>
+<p>
+Valid values: <code class="literal">GTK_TYPE_DIALOG</code>, <code class="literal">GTK_TYPE_BUTTON</code>, <code class="literal">0</code>, <code class="literal">GTK_TYPE_FRAME</code>, <code class="literal">GTK_TYPE_EXPANDER</code></p>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4813994"></a><h3>
+<a name="QCADPropertyUIGroup--title"></a>The "<code class="literal">title</code>" property</h3>
+<a class="indexterm" name="id4814008"></a><pre class="programlisting">  "title"                <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Standard-Parameter-and-Value-Types.html#gchararray"
+>gchararray</a>            : Read / Write</pre>
+<p>UI Title.</p>
+<p>Default value: ""</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

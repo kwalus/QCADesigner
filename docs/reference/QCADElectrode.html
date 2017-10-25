@@ -1,0 +1,472 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADElectrode</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="prev" href="QCADClockingLayer.html" title="QCADClockingLayer">
+<link rel="next" href="QCADRectangleElectrode.html" title="QCADRectangleElectrode">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADClockingLayer.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADObjects.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADRectangleElectrode.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4800443" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4799606" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4805538" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4805580" class="shortcut">Properties</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADElectrode"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4800443"></a><span class="refentrytitle">QCADElectrode</span>
+</h2>
+<p>QCADElectrode &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+double      (<a href="QCADElectrode.html#ClockFunction">*ClockFunction</a>)                (double);
+            <a href="QCADElectrode.html#QCADElectrode-struct">QCADElectrode</a>;
+double      <a href="QCADElectrode.html#qcad-electrode-get-potential">qcad_electrode_get_potential</a>    (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode,
+                                             double x,
+                                             double y,
+                                             double z,
+                                             double t);
+double      <a href="QCADElectrode.html#qcad-electrode-get-voltage">qcad_electrode_get_voltage</a>      (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode,
+                                             double t);
+double      <a href="QCADElectrode.html#qcad-electrode-get-area">qcad_electrode_get_area</a>         (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode);
+double      <a href="QCADElectrode.html#qcad-electrode-get-long-side">qcad_electrode_get_long_side</a>    (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode);
+double      <a href="QCADElectrode.html#qcad-electrode-get-short-side">qcad_electrode_get_short_side</a>   (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode);
+EXTREME_POTENTIALS <a href="QCADElectrode.html#qcad-electrode-get-extreme-potential">qcad_electrode_get_extreme_potential</a>
+                                            (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode,
+                                             double z);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4805538"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="QCADObject.html" title="QCADObject">QCADObject</a>
+         +----<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>
+               +----QCADElectrode
+                     +----<a href="QCADRectangleElectrode.html" title="QCADRectangleElectrode">QCADRectangleElectrode</a>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4805580"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a href="QCADElectrode.html#QCADElectrode--amplitude">amplitude</a>"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADElectrode.html#QCADElectrode--dc-offset">dc-offset</a>"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADElectrode.html#QCADElectrode--frequency">frequency</a>"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADElectrode.html#QCADElectrode--max-clock">max-clock</a>"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADElectrode.html#QCADElectrode--min-clock">min-clock</a>"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADElectrode.html#QCADElectrode--phase">phase</a>"                <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADElectrode.html#QCADElectrode--relative-permittivity">relative-permittivity</a>" <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADElectrode.html#QCADElectrode--thickness">thickness</a>"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADElectrode.html#QCADElectrode--z-to-ground">z-to-ground</a>"          <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4799606"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4799622"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4799633"></a><h3>
+<a name="ClockFunction"></a>ClockFunction ()</h3>
+<a class="indexterm" name="id4799645"></a><pre class="programlisting">double      (*ClockFunction)                (double);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>Param1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4799701"></a><h3>
+<a name="QCADElectrode-struct"></a>QCADElectrode</h3>
+<a class="indexterm" name="id4799712"></a><pre class="programlisting">typedef struct _QCADElectrode QCADElectrode;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4799729"></a><h3>
+<a name="qcad-electrode-get-potential"></a>qcad_electrode_get_potential ()</h3>
+<a class="indexterm" name="id4799742"></a><pre class="programlisting">double      qcad_electrode_get_potential    (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode,
+                                             double x,
+                                             double y,
+                                             double z,
+                                             double t);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>electrode</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>z</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>t</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4799882"></a><h3>
+<a name="qcad-electrode-get-voltage"></a>qcad_electrode_get_voltage ()</h3>
+<a class="indexterm" name="id4799894"></a><pre class="programlisting">double      qcad_electrode_get_voltage      (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode,
+                                             double t);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>electrode</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>t</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4799971"></a><h3>
+<a name="qcad-electrode-get-area"></a>qcad_electrode_get_area ()</h3>
+<a class="indexterm" name="id4799982"></a><pre class="programlisting">double      qcad_electrode_get_area         (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>electrode</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4800038"></a><h3>
+<a name="qcad-electrode-get-long-side"></a>qcad_electrode_get_long_side ()</h3>
+<a class="indexterm" name="id4800051"></a><pre class="programlisting">double      qcad_electrode_get_long_side    (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>electrode</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4800107"></a><h3>
+<a name="qcad-electrode-get-short-side"></a>qcad_electrode_get_short_side ()</h3>
+<a class="indexterm" name="id4800120"></a><pre class="programlisting">double      qcad_electrode_get_short_side   (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>electrode</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808044"></a><h3>
+<a name="qcad-electrode-get-extreme-potential"></a>qcad_electrode_get_extreme_potential ()</h3>
+<a class="indexterm" name="id4808056"></a><pre class="programlisting">EXTREME_POTENTIALS qcad_electrode_get_extreme_potential
+                                            (<a href="QCADElectrode.html" title="QCADElectrode">QCADElectrode</a> *electrode,
+                                             double z);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>electrode</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>z</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4808127"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4808137"></a><h3>
+<a name="QCADElectrode--amplitude"></a>The "<code class="literal">amplitude</code>" property</h3>
+<a class="indexterm" name="id4808149"></a><pre class="programlisting">  "amplitude"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Clock amplitude.</p>
+<p>Default value: 1</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808172"></a><h3>
+<a name="QCADElectrode--dc-offset"></a>The "<code class="literal">dc-offset</code>" property</h3>
+<a class="indexterm" name="id4808184"></a><pre class="programlisting">  "dc-offset"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Clock DC offset.</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808207"></a><h3>
+<a name="QCADElectrode--frequency"></a>The "<code class="literal">frequency</code>" property</h3>
+<a class="indexterm" name="id4808220"></a><pre class="programlisting">  "frequency"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Clock frequency.</p>
+<p>Allowed values: &gt;= G_MINDOUBLE</p>
+<p>Default value: 1e+06</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808246"></a><h3>
+<a name="QCADElectrode--max-clock"></a>The "<code class="literal">max-clock</code>" property</h3>
+<a class="indexterm" name="id4808259"></a><pre class="programlisting">  "max-clock"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Maximum clock voltage.</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808281"></a><h3>
+<a name="QCADElectrode--min-clock"></a>The "<code class="literal">min-clock</code>" property</h3>
+<a class="indexterm" name="id4808294"></a><pre class="programlisting">  "min-clock"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Minimum clock voltage.</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808316"></a><h3>
+<a name="QCADElectrode--phase"></a>The "<code class="literal">phase</code>" property</h3>
+<a class="indexterm" name="id4808329"></a><pre class="programlisting">  "phase"                <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Clock phase.</p>
+<p>Allowed values: [0,360]</p>
+<p>Default value: 270</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808355"></a><h3>
+<a name="QCADElectrode--relative-permittivity"></a>The "<code class="literal">relative-permittivity</code>" property</h3>
+<a class="indexterm" name="id4808370"></a><pre class="programlisting">  "relative-permittivity" <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Relative permittivity of the environment between the electrode and the ground.</p>
+<p>Allowed values: &gt;= 1</p>
+<p>Default value: 1</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808398"></a><h3>
+<a name="QCADElectrode--thickness"></a>The "<code class="literal">thickness</code>" property</h3>
+<a class="indexterm" name="id4808410"></a><pre class="programlisting">  "thickness"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Electrode thickness in z direction.</p>
+<p>Allowed values: &gt;= 1</p>
+<p>Default value: 1</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808437"></a><h3>
+<a name="QCADElectrode--z-to-ground"></a>The "<code class="literal">z-to-ground</code>" property</h3>
+<a class="indexterm" name="id4808449"></a><pre class="programlisting">  "z-to-ground"          <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Distance from electrode to ground electrode.</p>
+<p>Allowed values: &gt;= 1</p>
+<p>Default value: 1</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

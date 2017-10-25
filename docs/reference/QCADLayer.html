@@ -1,0 +1,784 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADLayer</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="prev" href="QCADCell.html" title="QCADCell">
+<link rel="next" href="QCADClockingLayer.html" title="QCADClockingLayer">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADCell.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADObjects.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADClockingLayer.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4755929" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4803341" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4803228" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4803271" class="shortcut">Implemented Interfaces</a>
+                  &#160;|&#160;
+                  <a href="#id4803299" class="shortcut">Properties</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADLayer"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4755929"></a><span class="refentrytitle">QCADLayer</span>
+</h2>
+<p>QCADLayer &#8212; Layer containing QCADesigner design objects</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADLayer.html#QCADLayer-struct">QCADLayer</a>;
+#define     <a href="QCADLayer.html#QCAD-LAYER-DRAW-SELECTION:CAPS">QCAD_LAYER_DRAW_SELECTION</a>
+#define     <a href="QCADLayer.html#QCAD-LAYER-DRAW-NON-SELECTION:CAPS">QCAD_LAYER_DRAW_NON_SELECTION</a>
+#define     <a href="QCADLayer.html#QCAD-LAYER-DRAW-EVERYTHING:CAPS">QCAD_LAYER_DRAW_EVERYTHING</a>
+#define     <a href="QCADLayer.html#QCAD-LAYER-ADD-DRAW-FLAGS:CAPS">QCAD_LAYER_ADD_DRAW_FLAGS</a>       (layer,flags)
+#define     <a href="QCADLayer.html#QCAD-LAYER-RMV-DRAW-FLAGS:CAPS">QCAD_LAYER_RMV_DRAW_FLAGS</a>       (layer,flags)
+#define     <a href="QCADLayer.html#QCAD-LAYER-SET-DRAW-FLAGS:CAPS">QCAD_LAYER_SET_DRAW_FLAGS</a>       (layer,flags)
+<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>*  <a href="QCADLayer.html#qcad-layer-new">qcad_layer_new</a>                  (LayerType type,
+                                             LayerStatus status,
+                                             char *psz);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Hash-Tables.html#GHashTable"
+>GHashTable</a>* <a href="QCADLayer.html#qcad-layer-object-containment-rules">qcad_layer_object_containment_rules</a>
+                                            ();
+<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>*  <a href="QCADLayer.html#qcad-layer-from-object">qcad_layer_from_object</a>          (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADLayer.html#qcad-layer-selection-drop">qcad_layer_selection_drop</a>       (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADLayer.html#qcad-layer-selection-subtract-window">qcad_layer_selection_subtract_window</a>
+                                            (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             WorldRectangle *rcWorld,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *ar);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADLayer.html#qcad-layer-selection-release">qcad_layer_selection_release</a>    (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *ar);
+void        <a href="QCADLayer.html#qcad-layer-selection-serialize">qcad_layer_selection_serialize</a>  (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             FILE *pfile);
+void        <a href="QCADLayer.html#qcad-layer-selection-create-from-selection">qcad_layer_selection_create_from_selection</a>
+                                            (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADLayer.html#qcad-layer-selection-get-object-array">qcad_layer_selection_get_object_array</a>
+                                            (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *ar);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADLayer.html#qcad-layer-get-extents">qcad_layer_get_extents</a>          (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             WorldRectangle *extents,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bSelection);
+void        <a href="QCADLayer.html#qcad-layer-dump">qcad_layer_dump</a>                 (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             FILE *pfile);
+void        <a href="QCADLayer.html#qcad-layer-objects-foreach">qcad_layer_objects_foreach</a>      (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bSelObjects,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bDeepIter,
+                                             void (*iter_func) (QCADDesignObject *obj, gpointer data),
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADLayer.html#qcad-layer-default-properties-apply">qcad_layer_default_properties_apply</a>
+                                            (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4803228"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="QCADObject.html" title="QCADObject">QCADObject</a>
+         +----<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>
+               +----QCADLayer
+                     +----<a href="QCADClockingLayer.html" title="QCADClockingLayer">QCADClockingLayer</a>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4803271"></a><h2>Implemented Interfaces</h2>
+<p>
+QCADLayer implements
+ <a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> and  <a href="QCADDOContainer.html" title="QCADDOContainer">QCADDOContainer</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4803299"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a href="QCADLayer.html#QCADLayer--default-objects">default-objects</a>"      QCADObjectList        : Read
+  "<a href="QCADLayer.html#QCADLayer--description">description</a>"          <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Standard-Parameter-and-Value-Types.html#gchararray"
+>gchararray</a>            : Read / Write
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4803341"></a><h2>Description</h2>
+<p>
+</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4803360"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4803371"></a><h3>
+<a name="QCADLayer-struct"></a>QCADLayer</h3>
+<a class="indexterm" name="id4803384"></a><pre class="programlisting">typedef struct _QCADLayer QCADLayer;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4803399"></a><h3>
+<a name="QCAD-LAYER-DRAW-SELECTION:CAPS"></a>QCAD_LAYER_DRAW_SELECTION</h3>
+<a class="indexterm" name="id4803410"></a><pre class="programlisting">#define QCAD_LAYER_DRAW_SELECTION     1 &lt;&lt; 0
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4803426"></a><h3>
+<a name="QCAD-LAYER-DRAW-NON-SELECTION:CAPS"></a>QCAD_LAYER_DRAW_NON_SELECTION</h3>
+<a class="indexterm" name="id4803438"></a><pre class="programlisting">#define QCAD_LAYER_DRAW_NON_SELECTION 1 &lt;&lt; 1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4802897"></a><h3>
+<a name="QCAD-LAYER-DRAW-EVERYTHING:CAPS"></a>QCAD_LAYER_DRAW_EVERYTHING</h3>
+<a class="indexterm" name="id4802910"></a><pre class="programlisting">#define QCAD_LAYER_DRAW_EVERYTHING (QCAD_LAYER_DRAW_SELECTION | QCAD_LAYER_DRAW_NON_SELECTION)
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4802927"></a><h3>
+<a name="QCAD-LAYER-ADD-DRAW-FLAGS:CAPS"></a>QCAD_LAYER_ADD_DRAW_FLAGS()</h3>
+<a class="indexterm" name="id4802940"></a><pre class="programlisting">#define QCAD_LAYER_ADD_DRAW_FLAGS(layer,flags) ((QCAD_LAYER ((layer))-&gt;draw_flags) |= flags)
+</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>flags</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4802990"></a><h3>
+<a name="QCAD-LAYER-RMV-DRAW-FLAGS:CAPS"></a>QCAD_LAYER_RMV_DRAW_FLAGS()</h3>
+<a class="indexterm" name="id4803002"></a><pre class="programlisting">#define QCAD_LAYER_RMV_DRAW_FLAGS(layer,flags) ((QCAD_LAYER ((layer))-&gt;draw_flags) &amp;= ~flags)
+</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>flags</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4803052"></a><h3>
+<a name="QCAD-LAYER-SET-DRAW-FLAGS:CAPS"></a>QCAD_LAYER_SET_DRAW_FLAGS()</h3>
+<a class="indexterm" name="id4803065"></a><pre class="programlisting">#define QCAD_LAYER_SET_DRAW_FLAGS(layer,flags) ((QCAD_LAYER ((layer))-&gt;draw_flags) = flags)
+</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>flags</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4803115"></a><h3>
+<a name="qcad-layer-new"></a>qcad_layer_new ()</h3>
+<a class="indexterm" name="id4803127"></a><pre class="programlisting"><a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>*  qcad_layer_new                  (LayerType type,
+                                             LayerStatus status,
+                                             char *psz);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>type</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>status</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>psz</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806093"></a><h3>
+<a name="qcad-layer-object-containment-rules"></a>qcad_layer_object_containment_rules ()</h3>
+<a class="indexterm" name="id4806104"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Hash-Tables.html#GHashTable"
+>GHashTable</a>* qcad_layer_object_containment_rules
+                                            ();</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806138"></a><h3>
+<a name="qcad-layer-from-object"></a>qcad_layer_from_object ()</h3>
+<a class="indexterm" name="id4806148"></a><pre class="programlisting"><a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>*  qcad_layer_from_object          (<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806198"></a><h3>
+<a name="qcad-layer-selection-drop"></a>qcad_layer_selection_drop ()</h3>
+<a class="indexterm" name="id4806209"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    qcad_layer_selection_drop       (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806259"></a><h3>
+<a name="qcad-layer-selection-subtract-window"></a>qcad_layer_selection_subtract_window ()</h3>
+<a class="indexterm" name="id4806272"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  qcad_layer_selection_subtract_window
+                                            (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             WorldRectangle *rcWorld,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *ar);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rop</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcWorld</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>ar</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806399"></a><h3>
+<a name="qcad-layer-selection-release"></a>qcad_layer_selection_release ()</h3>
+<a class="indexterm" name="id4806412"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  qcad_layer_selection_release    (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *ar);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rop</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>ar</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806519"></a><h3>
+<a name="qcad-layer-selection-serialize"></a>qcad_layer_selection_serialize ()</h3>
+<a class="indexterm" name="id4806532"></a><pre class="programlisting">void        qcad_layer_selection_serialize  (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             FILE *pfile);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806592"></a><h3>
+<a name="qcad-layer-selection-create-from-selection"></a>qcad_layer_selection_create_from_selection ()</h3>
+<a class="indexterm" name="id4806606"></a><pre class="programlisting">void        qcad_layer_selection_create_from_selection
+                                            (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806647"></a><h3>
+<a name="qcad-layer-selection-get-object-array"></a>qcad_layer_selection_get_object_array ()</h3>
+<a class="indexterm" name="id4806660"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  qcad_layer_selection_get_object_array
+                                            (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *ar);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>ar</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806730"></a><h3>
+<a name="qcad-layer-get-extents"></a>qcad_layer_get_extents ()</h3>
+<a class="indexterm" name="id4806741"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    qcad_layer_get_extents          (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             WorldRectangle *extents,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bSelection);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>extents</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bSelection</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806829"></a><h3>
+<a name="qcad-layer-dump"></a>qcad_layer_dump ()</h3>
+<a class="indexterm" name="id4806839"></a><pre class="programlisting">void        qcad_layer_dump                 (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             FILE *pfile);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4806899"></a><h3>
+<a name="qcad-layer-objects-foreach"></a>qcad_layer_objects_foreach ()</h3>
+<a class="indexterm" name="id4806910"></a><pre class="programlisting">void        qcad_layer_objects_foreach      (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bSelObjects,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bDeepIter,
+                                             void (*iter_func) (QCADDesignObject *obj, gpointer data),
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bSelObjects</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bDeepIter</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>iter_func</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4807027"></a><h3>
+<a name="qcad-layer-default-properties-apply"></a>qcad_layer_default_properties_apply ()</h3>
+<a class="indexterm" name="id4807040"></a><pre class="programlisting">void        qcad_layer_default_properties_apply
+                                            (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4807082"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4807092"></a><h3>
+<a name="QCADLayer--default-objects"></a>The "<code class="literal">default-objects</code>" property</h3>
+<a class="indexterm" name="id4807104"></a><pre class="programlisting">  "default-objects"      QCADObjectList        : Read</pre>
+<p>List of default objects.</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4807123"></a><h3>
+<a name="QCADLayer--description"></a>The "<code class="literal">description</code>" property</h3>
+<a class="indexterm" name="id4807136"></a><pre class="programlisting">  "description"          <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Standard-Parameter-and-Value-Types.html#gchararray"
+>gchararray</a>            : Read / Write</pre>
+<p>Layer Description.</p>
+<p>Default value: ""</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

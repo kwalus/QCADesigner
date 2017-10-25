@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADLabel</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="prev" href="QCADStretchyObject.html" title="QCADStretchyObject">
+<link rel="next" href="QCADRuler.html" title="QCADRuler">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADStretchyObject.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADObjects.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADRuler.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4776174" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4807269" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4807197" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4807239" class="shortcut">Properties</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADLabel"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4776174"></a><span class="refentrytitle">QCADLabel</span>
+</h2>
+<p>QCADLabel &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADLabel.html#QCADLabel-struct">QCADLabel</a>;
+<a href="QCADLabel.html" title="QCADLabel">QCADLabel</a>*  <a href="QCADLabel.html#qcad-label-new">qcad_label_new</a>                  (char *psz,
+                                             ...);
+void        <a href="QCADLabel.html#qcad-label-shrinkwrap">qcad_label_shrinkwrap</a>           (<a href="QCADLabel.html" title="QCADLabel">QCADLabel</a> *lbl);
+void        <a href="QCADLabel.html#qcad-label-set-text">qcad_label_set_text</a>             (<a href="QCADLabel.html" title="QCADLabel">QCADLabel</a> *label,
+                                             char *psz,
+                                             ...);
+void        <a href="QCADLabel.html#qcad-label-vset-text">qcad_label_vset_text</a>            (<a href="QCADLabel.html" title="QCADLabel">QCADLabel</a> *label,
+                                             char *psz,
+                                             va_list va);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4807197"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="QCADObject.html" title="QCADObject">QCADObject</a>
+         +----<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>
+               +----<a href="QCADStretchyObject.html" title="QCADStretchyObject">QCADStretchyObject</a>
+                     +----QCADLabel
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4807239"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a href="QCADLabel.html#QCADLabel--text">text</a>"                 <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Standard-Parameter-and-Value-Types.html#gchararray"
+>gchararray</a>            : Read / Write
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4807269"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4807285"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4807296"></a><h3>
+<a name="QCADLabel-struct"></a>QCADLabel</h3>
+<a class="indexterm" name="id4765656"></a><pre class="programlisting">typedef struct _QCADLabel QCADLabel;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4765671"></a><h3>
+<a name="qcad-label-new"></a>qcad_label_new ()</h3>
+<a class="indexterm" name="id4765683"></a><pre class="programlisting"><a href="QCADLabel.html" title="QCADLabel">QCADLabel</a>*  qcad_label_new                  (char *psz,
+                                             ...);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>psz</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4765754"></a><h3>
+<a name="qcad-label-shrinkwrap"></a>qcad_label_shrinkwrap ()</h3>
+<a class="indexterm" name="id4765765"></a><pre class="programlisting">void        qcad_label_shrinkwrap           (<a href="QCADLabel.html" title="QCADLabel">QCADLabel</a> *lbl);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>lbl</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4765810"></a><h3>
+<a name="qcad-label-set-text"></a>qcad_label_set_text ()</h3>
+<a class="indexterm" name="id4765822"></a><pre class="programlisting">void        qcad_label_set_text             (<a href="QCADLabel.html" title="QCADLabel">QCADLabel</a> *label,
+                                             char *psz,
+                                             ...);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>label</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>psz</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4757576"></a><h3>
+<a name="qcad-label-vset-text"></a>qcad_label_vset_text ()</h3>
+<a class="indexterm" name="id4757586"></a><pre class="programlisting">void        qcad_label_vset_text            (<a href="QCADLabel.html" title="QCADLabel">QCADLabel</a> *label,
+                                             char *psz,
+                                             va_list va);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>label</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>psz</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>va</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4757674"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4757685"></a><h3>
+<a name="QCADLabel--text"></a>The "<code class="literal">text</code>" property</h3>
+<a class="indexterm" name="id4757700"></a><pre class="programlisting">  "text"                 <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Standard-Parameter-and-Value-Types.html#gchararray"
+>gchararray</a>            : Read / Write</pre>
+<p>Label text.</p>
+<p>Default value: ""</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

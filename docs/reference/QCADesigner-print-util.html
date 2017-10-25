@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>print_util</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-drag-rect.html" title="drag_rect">
+<link rel="next" href="QCADesigner-print-preview.html" title="print_preview">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-drag-rect.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-print-preview.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4766668" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4826835" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-print-util"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4766668"></a><span class="refentrytitle">print_util</span>
+</h2>
+<p>print_util &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+#define     <a href="QCADesigner-print-util.html#PS-RED:CAPS">PS_RED</a>
+#define     <a href="QCADesigner-print-util.html#PS-ORANGE:CAPS">PS_ORANGE</a>
+#define     <a href="QCADesigner-print-util.html#PS-YELLOW:CAPS">PS_YELLOW</a>
+#define     <a href="QCADesigner-print-util.html#PS-GREEN:CAPS">PS_GREEN</a>
+#define     <a href="QCADesigner-print-util.html#PS-BLUE:CAPS">PS_BLUE</a>
+#define     <a href="QCADesigner-print-util.html#PS-BLACK:CAPS">PS_BLACK</a>
+#define     <a href="QCADesigner-print-util.html#PS-WHITE:CAPS">PS_WHITE</a>
+#define     <a href="QCADesigner-print-util.html#PS-HCFILL:CAPS">PS_HCFILL</a>
+#define     <a href="QCADesigner-print-util.html#PS-TEXT-PLACEMENT-PREAMBLE:CAPS">PS_TEXT_PLACEMENT_PREAMBLE</a>
+FILE*       <a href="QCADesigner-print-util.html#OpenPrintStream">OpenPrintStream</a>                 (<a href="QCADesigner-print.html#print-OP">print_OP</a> *pPO);
+void        <a href="QCADesigner-print-util.html#PrintMagic">PrintMagic</a>                      (FILE *pfile,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bPortrait,
+                                             double dPaperCX,
+                                             double dPaperCY);
+void        <a href="QCADesigner-print-util.html#PrintTrailer">PrintTrailer</a>                    (FILE *pfile,
+                                             int icPages);
+void        <a href="QCADesigner-print-util.html#ClosePrintStream">ClosePrintStream</a>                (FILE *pfile,
+                                             <a href="QCADesigner-print.html#print-OP">print_OP</a> *pPO);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4826835"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4826850"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4826861"></a><h3>
+<a name="PS-RED:CAPS"></a>PS_RED</h3>
+<a class="indexterm" name="id4832268"></a><pre class="programlisting">#define PS_RED    "1.00 0.00 0.00"
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4832283"></a><h3>
+<a name="PS-ORANGE:CAPS"></a>PS_ORANGE</h3>
+<a class="indexterm" name="id4832296"></a><pre class="programlisting">#define PS_ORANGE "0.83 0.44 0.00"
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4832311"></a><h3>
+<a name="PS-YELLOW:CAPS"></a>PS_YELLOW</h3>
+<a class="indexterm" name="id4832323"></a><pre class="programlisting">#define PS_YELLOW "0.66 0.66 0.00"
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4832338"></a><h3>
+<a name="PS-GREEN:CAPS"></a>PS_GREEN</h3>
+<a class="indexterm" name="id4832351"></a><pre class="programlisting">#define PS_GREEN  "0.00 0.50 0.00"
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4832366"></a><h3>
+<a name="PS-BLUE:CAPS"></a>PS_BLUE</h3>
+<a class="indexterm" name="id4832379"></a><pre class="programlisting">#define PS_BLUE   "0.21 0.39 0.70"
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4832394"></a><h3>
+<a name="PS-BLACK:CAPS"></a>PS_BLACK</h3>
+<a class="indexterm" name="id4832406"></a><pre class="programlisting">#define PS_BLACK  "0.00 0.00 0.00"
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4832421"></a><h3>
+<a name="PS-WHITE:CAPS"></a>PS_WHITE</h3>
+<a class="indexterm" name="id4829448"></a><pre class="programlisting">#define PS_WHITE  "1.00 1.00 1.00"
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4829463"></a><h3>
+<a name="PS-HCFILL:CAPS"></a>PS_HCFILL</h3>
+<a class="indexterm" name="id4829476"></a><pre class="programlisting">#define PS_HCFILL "0.90 0.90 0.90"
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4829491"></a><h3>
+<a name="PS-TEXT-PLACEMENT-PREAMBLE:CAPS"></a>PS_TEXT_PLACEMENT_PREAMBLE</h3>
+<a class="indexterm" name="id4829502"></a><pre class="programlisting">#define     PS_TEXT_PLACEMENT_PREAMBLE</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4829517"></a><h3>
+<a name="OpenPrintStream"></a>OpenPrintStream ()</h3>
+<a class="indexterm" name="id4829530"></a><pre class="programlisting">FILE*       OpenPrintStream                 (<a href="QCADesigner-print.html#print-OP">print_OP</a> *pPO);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pPO</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4829585"></a><h3>
+<a name="PrintMagic"></a>PrintMagic ()</h3>
+<a class="indexterm" name="id4829598"></a><pre class="programlisting">void        PrintMagic                      (FILE *pfile,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bPortrait,
+                                             double dPaperCX,
+                                             double dPaperCY);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bPortrait</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dPaperCX</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dPaperCY</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4829993"></a><h3>
+<a name="PrintTrailer"></a>PrintTrailer ()</h3>
+<a class="indexterm" name="id4830005"></a><pre class="programlisting">void        PrintTrailer                    (FILE *pfile,
+                                             int icPages);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icPages</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4830071"></a><h3>
+<a name="ClosePrintStream"></a>ClosePrintStream ()</h3>
+<a class="indexterm" name="id4830084"></a><pre class="programlisting">void        ClosePrintStream                (FILE *pfile,
+                                             <a href="QCADesigner-print.html#print-OP">print_OP</a> *pPO);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pPO</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADPropertyUIEnum</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="prev" href="QCADPropertyUIBoolean.html" title="QCADPropertyUIBoolean">
+<link rel="next" href="QCADPropertyUIGroup.html" title="QCADPropertyUIGroup">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADPropertyUIBoolean.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADPropertyUIs.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADPropertyUIGroup.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4814324" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4779932" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4814368" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4814401" class="shortcut">Properties</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADPropertyUIEnum"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4814324"></a><span class="refentrytitle">QCADPropertyUIEnum</span>
+</h2>
+<p>QCADPropertyUIEnum &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADPropertyUIEnum.html#QCADPropertyUIEnum-struct">QCADPropertyUIEnum</a>;
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4814368"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="QCADPropertyUI.html" title="QCADPropertyUI">QCADPropertyUI</a>
+         +----<a href="QCADPropertyUISingle.html" title="QCADPropertyUISingle">QCADPropertyUISingle</a>
+               +----QCADPropertyUIEnum
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4814401"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a href="QCADPropertyUIEnum.html#QCADPropertyUIEnum--render-as">render-as</a>"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>                 : Read / Write
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4779932"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4772012"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4761674"></a><h3>
+<a name="QCADPropertyUIEnum-struct"></a>QCADPropertyUIEnum</h3>
+<a class="indexterm" name="id4800224"></a><pre class="programlisting">typedef struct _QCADPropertyUIEnum QCADPropertyUIEnum;</pre>
+<p>
+
+</p>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4801116"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4771922"></a><h3>
+<a name="QCADPropertyUIEnum--render-as"></a>The "<code class="literal">render-as</code>" property</h3>
+<a class="indexterm" name="id4790431"></a><pre class="programlisting">  "render-as"            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>                 : Read / Write</pre>
+<p>
+This widget can be rendered as either a <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkComboBox.html"
+><span class="type">GtkComboBox</span></a> (default), or as a set of <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioButton.html"
+><span class="type">GtkRadioButton</span></a> widgets 
+inside a <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkFrame.html"
+><span class="type">GtkFrame</span></a>.
+</p>
+<p>
+Valid values: <code class="literal">GTK_TYPE_COMBO_BOX</code>, <code class="literal">GTK_TYPE_RADIO_BUTTON</code></p>
+<p>
+
+</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

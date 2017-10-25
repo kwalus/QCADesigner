@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>selection_renderer</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-about.html" title="about">
+<link rel="next" href="QCADesigner-callback-helpers.html" title="callback_helpers">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-about.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-callback-helpers.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4777176" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4850922" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-selection-renderer"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4777176"></a><span class="refentrytitle">selection_renderer</span>
+</h2>
+<p>selection_renderer &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+SELECTION_RENDERER* <a href="QCADesigner-selection-renderer.html#selection-renderer-new">selection_renderer_new</a>  (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *dst);
+SELECTION_RENDERER* <a href="QCADesigner-selection-renderer.html#selection-renderer-free">selection_renderer_free</a> (SELECTION_RENDERER *sr);
+void        <a href="QCADesigner-selection-renderer.html#selection-renderer-update">selection_renderer_update</a>       (SELECTION_RENDERER *sr,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+void        <a href="QCADesigner-selection-renderer.html#selection-renderer-draw">selection_renderer_draw</a>         (SELECTION_RENDERER *sr,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop);
+void        <a href="QCADesigner-selection-renderer.html#selection-renderer-move">selection_renderer_move</a>         (SELECTION_RENDERER *sr,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             double dcxDiff,
+                                             double dcyDiff);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4850922"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4850938"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4850949"></a><h3>
+<a name="selection-renderer-new"></a>selection_renderer_new ()</h3>
+<a class="indexterm" name="id4850960"></a><pre class="programlisting">SELECTION_RENDERER* selection_renderer_new  (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *dst);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4853792"></a><h3>
+<a name="selection-renderer-free"></a>selection_renderer_free ()</h3>
+<a class="indexterm" name="id4853803"></a><pre class="programlisting">SELECTION_RENDERER* selection_renderer_free (SELECTION_RENDERER *sr);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4853857"></a><h3>
+<a name="selection-renderer-update"></a>selection_renderer_update ()</h3>
+<a class="indexterm" name="id4853868"></a><pre class="programlisting">void        selection_renderer_update       (SELECTION_RENDERER *sr,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850292"></a><h3>
+<a name="selection-renderer-draw"></a>selection_renderer_draw ()</h3>
+<a class="indexterm" name="id4850303"></a><pre class="programlisting">void        selection_renderer_draw         (SELECTION_RENDERER *sr,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rop</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850410"></a><h3>
+<a name="selection-renderer-move"></a>selection_renderer_move ()</h3>
+<a class="indexterm" name="id4850421"></a><pre class="programlisting">void        selection_renderer_move         (SELECTION_RENDERER *sr,
+                                             <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             double dcxDiff,
+                                             double dcyDiff);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dcxDiff</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dcyDiff</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

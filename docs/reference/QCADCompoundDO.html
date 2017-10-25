@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADCompoundDO</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="prev" href="QCADSubstrate.html" title="QCADSubstrate">
+<link rel="next" href="QCADDOContainer.html" title="QCADDOContainer">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADSubstrate.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADObjects.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADDOContainer.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4788474" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4808719" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4785927" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4808574" class="shortcut">Known Derived Interfaces</a>
+                  &#160;|&#160;
+                  <a href="#id4808595" class="shortcut">Known Implementations</a>
+                  &#160;|&#160;
+                  <a href="#id4808629" class="shortcut">Signals</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADCompoundDO"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4788474"></a><span class="refentrytitle">QCADCompoundDO</span>
+</h2>
+<p>QCADCompoundDO &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADCompoundDO.html#QCADCompoundDO-struct">QCADCompoundDO</a>;
+<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* <a href="QCADCompoundDO.html#qcad-compound-do-first">qcad_compound_do_first</a>    (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *container);
+<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* <a href="QCADCompoundDO.html#qcad-compound-do-next">qcad_compound_do_next</a>     (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *container);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADCompoundDO.html#qcad-compound-do-last">qcad_compound_do_last</a>           (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *container);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4785927"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  GInterface
+   +----QCADCompoundDO
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4808574"></a><h2>Known Derived Interfaces</h2>
+<p>
+QCADCompoundDO is required by
+ <a href="QCADDOContainer.html" title="QCADDOContainer">QCADDOContainer</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4808595"></a><h2>Known Implementations</h2>
+<p>
+QCADCompoundDO is implemented by
+ <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>,  <a href="QCADClockingLayer.html" title="QCADClockingLayer">QCADClockingLayer</a> and  <a href="QCADCell.html" title="QCADCell">QCADCell</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4808629"></a><h2>Signals</h2>
+<pre class="synopsis">
+
+"<a href="QCADCompoundDO.html#QCADCompoundDO-added">added</a>"     void        user_function      (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *qcadcompounddo,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>        *arg1,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>        user_data)           : Run first
+"<a href="QCADCompoundDO.html#QCADCompoundDO-removed">removed</a>"   void        user_function      (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *qcadcompounddo,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>        *arg1,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>        user_data)           : Run first
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4808719"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4808735"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4808746"></a><h3>
+<a name="QCADCompoundDO-struct"></a>QCADCompoundDO</h3>
+<a class="indexterm" name="id4808757"></a><pre class="programlisting">typedef struct _QCADCompoundDO QCADCompoundDO;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808774"></a><h3>
+<a name="qcad-compound-do-first"></a>qcad_compound_do_first ()</h3>
+<a class="indexterm" name="id4808785"></a><pre class="programlisting"><a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* qcad_compound_do_first    (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *container);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>container</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4808841"></a><h3>
+<a name="qcad-compound-do-next"></a>qcad_compound_do_next ()</h3>
+<a class="indexterm" name="id4808852"></a><pre class="programlisting"><a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* qcad_compound_do_next     (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *container);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>container</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4765122"></a><h3>
+<a name="qcad-compound-do-last"></a>qcad_compound_do_last ()</h3>
+<a class="indexterm" name="id4765134"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    qcad_compound_do_last           (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *container);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>container</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4765191"></a><h2>Signal Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4765202"></a><h3>
+<a name="QCADCompoundDO-added"></a>The "added" signal</h3>
+<a class="indexterm" name="id4765210"></a><pre class="programlisting">void        user_function                  (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *qcadcompounddo,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>        *arg1,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>        user_data)           : Run first</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>qcadcompounddo</code></em>&#160;:</span></td>
+<td>the object which received the signal.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>arg1</code></em>&#160;:</span></td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4765296"></a><h3>
+<a name="QCADCompoundDO-removed"></a>The "removed" signal</h3>
+<a class="indexterm" name="id4765304"></a><pre class="programlisting">void        user_function                  (<a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a> *qcadcompounddo,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>        *arg1,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>        user_data)           : Run first</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>qcadcompounddo</code></em>&#160;:</span></td>
+<td>the object which received the signal.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>arg1</code></em>&#160;:</span></td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

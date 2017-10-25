@@ -1,0 +1,2107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>design</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-global-consts.html" title="global_consts">
+<link rel="next" href="QCADesigner-print-properties-dialog.html" title="print_properties_dialog">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-global-consts.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-print-properties-dialog.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4775682" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4870928" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-design"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4775682"></a><span class="refentrytitle">design</span>
+</h2>
+<p>design &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADesigner-design.html#BUS:CAPS">BUS</a>;
+            <a href="QCADesigner-design.html#BUS-LAYOUT-CELL:CAPS">BUS_LAYOUT_CELL</a>;
+            <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a>;
+            <a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a>;
+            <a href="QCADesigner-design.html#BUS-LAYOUT-ITER:CAPS">BUS_LAYOUT_ITER</a>;
+void        (<a href="QCADesigner-design.html#DesignObjectCallback">*DesignObjectCallback</a>)         (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+#define     <a href="QCADesigner-design.html#ROW-TYPE-CELL-INPUT:CAPS">ROW_TYPE_CELL_INPUT</a>
+#define     <a href="QCADesigner-design.html#ROW-TYPE-CELL-OUTPUT:CAPS">ROW_TYPE_CELL_OUTPUT</a>
+#define     <a href="QCADesigner-design.html#ROW-TYPE-BUS-INPUT:CAPS">ROW_TYPE_BUS_INPUT</a>
+#define     <a href="QCADesigner-design.html#ROW-TYPE-BUS-OUTPUT:CAPS">ROW_TYPE_BUS_OUTPUT</a>
+#define     <a href="QCADesigner-design.html#ROW-TYPE-CLOCK:CAPS">ROW_TYPE_CLOCK</a>
+#define     <a href="QCADesigner-design.html#ROW-TYPE-BUS:CAPS">ROW_TYPE_BUS</a>
+#define     <a href="QCADesigner-design.html#ROW-TYPE-CELL:CAPS">ROW_TYPE_CELL</a>
+#define     <a href="QCADesigner-design.html#ROW-TYPE-INPUT:CAPS">ROW_TYPE_INPUT</a>
+#define     <a href="QCADesigner-design.html#ROW-TYPE-OUTPUT:CAPS">ROW_TYPE_OUTPUT</a>
+#define     <a href="QCADesigner-design.html#ROW-TYPE-ANY:CAPS">ROW_TYPE_ANY</a>
+void        <a href="QCADesigner-design.html#design-serialize">design_serialize</a>                (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             FILE *pfile);
+<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a>*     <a href="QCADesigner-design.html#design-new">design_new</a>                      (<a href="QCADSubstrate.html" title="QCADSubstrate">QCADSubstrate</a> **psubs);
+<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a>*     <a href="QCADesigner-design.html#design-copy">design_copy</a>                     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+void        <a href="QCADesigner-design.html#design-draw">design_draw</a>                     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Drawing-Primitives.html#GdkDrawable"
+>GdkDrawable</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rcClip,
+                                             int flags);
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeStore.html"
+>GtkTreeStore</a>* <a href="QCADesigner-design.html#design-bus-layout-tree-store-new">design_bus_layout_tree_store_new</a>
+                                            (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout,
+                                             int row_types,
+                                             int icExtraColumns,
+                                             ...);
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkListStore.html"
+>GtkListStore</a>* <a href="QCADesigner-design.html#design-layer-list-store-new">design_layer_list_store_new</a>   (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             int icExtraColumns,
+                                             ...);
+<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a>*     <a href="QCADesigner-design.html#design-destroy">design_destroy</a>                  (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* <a href="QCADesigner-design.html#design-hit-test">design_hit_test</a>           (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             int x,
+                                             int y);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-design.html#design-get-extents">design_get_extents</a>              (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             WorldRectangle *extents,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bSelection);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-design.html#design-unserialize">design_unserialize</a>              (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> **pdesign,
+                                             FILE *pfile);
+void        <a href="QCADesigner-design.html#design-dump">design_dump</a>                     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             FILE *pfile);
+void        <a href="QCADesigner-design.html#design-set-layer-order">design_set_layer_order</a>          (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+>GList</a> *llLayerOrder);
+void        <a href="QCADesigner-design.html#design-fix-legacy">design_fix_legacy</a>               (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+void        <a href="QCADesigner-design.html#design-set-current-layer">design_set_current_layer</a>        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-design.html#design-scale-cells">design_scale_cells</a>              (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             double scale);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-design.html#design-multiple-visible-layers-p">design_multiple_visible_layers_p</a>
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>*  <a href="QCADesigner-design.html#design-layer-remove">design_layer_remove</a>             (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);
+void        <a href="QCADesigner-design.html#design-layer-add">design_layer_add</a>                (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Hash-Tables.html#GHashTable"
+>GHashTable</a>* <a href="QCADesigner-design.html#design-layer-object-containment-rules">design_layer_object_containment_rules</a>
+                                            ();
+void        <a href="QCADesigner-design.html#design-layer-dump">design_layer_dump</a>               (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             FILE *pfile);
+<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* <a href="QCADesigner-design.html#design-selection-create-from-selection">design_selection_create_from_selection</a>
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *window,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-design.html#design-selection-release">design_selection_release</a>        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Drawing-Primitives.html#GdkDrawable"
+>GdkDrawable</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-design.html#design-selection-subtract-window">design_selection_subtract_window</a>
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             WorldRectangle *rcWorld);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-design.html#design-selection-create-from-window">design_selection_create_from_window</a>
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             WorldRectangle *rcWorld);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-design.html#design-selection-add-window">design_selection_add_window</a>     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             WorldRectangle *rcWorld);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-design.html#design-selection-get-object-array">design_selection_get_object_array</a>
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+void        <a href="QCADesigner-design.html#design-selection-serialize">design_selection_serialize</a>      (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             FILE *pfile);
+void        <a href="QCADesigner-design.html#design-selection-move">design_selection_move</a>           (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             double dxWorld,
+                                             double dyWorld);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-design.html#design-selection-drop">design_selection_drop</a>           (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-design.html#design-selection-destroy">design_selection_destroy</a>        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* <a href="QCADesigner-design.html#design-selection-hit-test">design_selection_hit_test</a> (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             int x,
+                                             int y);
+void        <a href="QCADesigner-design.html#design-selection-objects-foreach">design_selection_objects_foreach</a>
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADesigner-design.html#DesignObjectCallback">DesignObjectCallback</a> cb,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+>GList</a>*      <a href="QCADesigner-design.html#design-selection-get-type-list">design_selection_get_type_list</a>  (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* <a href="QCADesigner-design.html#design-selection-get-anchor">design_selection_get_anchor</a>
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);
+<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* <a href="QCADesigner-design.html#design-selection-transform">design_selection_transform</a>
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             double m11,
+                                             double m12,
+                                             double m21,
+                                             double m22);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-design.html#design-selection-object-array-add-weak-pointers">design_selection_object_array_add_weak_pointers</a>
+                                            (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *obj_array);
+void        <a href="QCADesigner-design.html#design-selection-object-array-free">design_selection_object_array_free</a>
+                                            (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *ar);
+<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a>* <a href="QCADesigner-design.html#design-bus-layout-new">design_bus_layout_new</a>           ();
+<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a>* <a href="QCADesigner-design.html#design-bus-layout-unserialize">design_bus_layout_unserialize</a>   (FILE *pfile);
+void        <a href="QCADesigner-design.html#design-bus-layout-serialize">design_bus_layout_serialize</a>     (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout,
+                                             FILE *pfile);
+void        <a href="QCADesigner-design.html#design-bus-layout-dump">design_bus_layout_dump</a>          (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout,
+                                             FILE *pfile);
+void        <a href="QCADesigner-design.html#design-bus-layout-cell-list-dump">design_bus_layout_cell_list_dump</a>
+                                            (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *cell_list,
+                                             char *pszVarName,
+                                             FILE *pfile);
+<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a>* <a href="QCADesigner-design.html#design-bus-layout-free">design_bus_layout_free</a>          (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout);
+<a href="QCADCell.html" title="QCADCell">QCADCell</a>*   <a href="QCADesigner-design.html#design-bus-layout-iter-first">design_bus_layout_iter_first</a>    (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout,
+                                             <a href="QCADesigner-design.html#BUS-LAYOUT-ITER:CAPS">BUS_LAYOUT_ITER</a> *bus_layout_iter,
+                                             QCADCellFunction cell_function,
+                                             int *pidxMaster);
+<a href="QCADCell.html" title="QCADCell">QCADCell</a>*   <a href="QCADesigner-design.html#design-bus-layout-iter-next">design_bus_layout_iter_next</a>     (<a href="QCADesigner-design.html#BUS-LAYOUT-ITER:CAPS">BUS_LAYOUT_ITER</a> *bus_layout_iter,
+                                             int *pidxMaster);
+<a href="QCADCell.html" title="QCADCell">QCADCell</a>*   <a href="QCADesigner-design.html#design-bus-layout-iter-this">design_bus_layout_iter_this</a>     (<a href="QCADesigner-design.html#BUS-LAYOUT-ITER:CAPS">BUS_LAYOUT_ITER</a> *bus_layout_iter,
+                                             int *pidxMaster);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4870928"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4870942"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4870951"></a><h3>
+<a name="BUS:CAPS"></a>BUS</h3>
+<a class="indexterm" name="id4870962"></a><pre class="programlisting">typedef struct {
+  char *pszName ;
+  QCADCellFunction bus_function ;
+  EXP_ARRAY *cell_indices ;
+} BUS;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4870977"></a><h3>
+<a name="BUS-LAYOUT-CELL:CAPS"></a>BUS_LAYOUT_CELL</h3>
+<a class="indexterm" name="id4870988"></a><pre class="programlisting">typedef struct {
+  QCADCell *cell ;
+  gboolean bIsInBus ;
+} BUS_LAYOUT_CELL;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871003"></a><h3>
+<a name="BUS-LAYOUT:CAPS"></a>BUS_LAYOUT</h3>
+<a class="indexterm" name="id4871013"></a><pre class="programlisting">typedef struct {
+  EXP_ARRAY *inputs ;
+  EXP_ARRAY *outputs ;
+  EXP_ARRAY *buses ;
+} BUS_LAYOUT;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871028"></a><h3>
+<a name="DESIGN:CAPS"></a>DESIGN</h3>
+<a class="indexterm" name="id4871039"></a><pre class="programlisting">typedef struct {
+  GList *lstLayers ;
+  GList *lstLastLayer ;
+  GList *lstCurrentLayer ;
+  GList *lstClockingLayer ;
+  BUS_LAYOUT *bus_layout ;
+} DESIGN;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871055"></a><h3>
+<a name="BUS-LAYOUT-ITER:CAPS"></a>BUS_LAYOUT_ITER</h3>
+<a class="indexterm" name="id4871066"></a><pre class="programlisting">typedef struct {
+  BUS_LAYOUT *bus_layout ;
+  QCADCellFunction cell_function ;
+  EXP_ARRAY *cell_list ;
+  EXP_ARRAY *buses ;
+  int idxBus ;
+  int idxBusCell ;
+  int idxCell ;
+} BUS_LAYOUT_ITER;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871082"></a><h3>
+<a name="DesignObjectCallback"></a>DesignObjectCallback ()</h3>
+<a class="indexterm" name="id4871093"></a><pre class="programlisting">void        (*DesignObjectCallback)         (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871170"></a><h3>
+<a name="ROW-TYPE-CELL-INPUT:CAPS"></a>ROW_TYPE_CELL_INPUT</h3>
+<a class="indexterm" name="id4871181"></a><pre class="programlisting">#define ROW_TYPE_CELL_INPUT  1 &lt;&lt; 0
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871194"></a><h3>
+<a name="ROW-TYPE-CELL-OUTPUT:CAPS"></a>ROW_TYPE_CELL_OUTPUT</h3>
+<a class="indexterm" name="id4871205"></a><pre class="programlisting">#define ROW_TYPE_CELL_OUTPUT 1 &lt;&lt; 1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871218"></a><h3>
+<a name="ROW-TYPE-BUS-INPUT:CAPS"></a>ROW_TYPE_BUS_INPUT</h3>
+<a class="indexterm" name="id4871229"></a><pre class="programlisting">#define ROW_TYPE_BUS_INPUT   1 &lt;&lt; 2
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871242"></a><h3>
+<a name="ROW-TYPE-BUS-OUTPUT:CAPS"></a>ROW_TYPE_BUS_OUTPUT</h3>
+<a class="indexterm" name="id4871253"></a><pre class="programlisting">#define ROW_TYPE_BUS_OUTPUT  1 &lt;&lt; 3
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871266"></a><h3>
+<a name="ROW-TYPE-CLOCK:CAPS"></a>ROW_TYPE_CLOCK</h3>
+<a class="indexterm" name="id4871277"></a><pre class="programlisting">#define ROW_TYPE_CLOCK       1 &lt;&lt; 4
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871290"></a><h3>
+<a name="ROW-TYPE-BUS:CAPS"></a>ROW_TYPE_BUS</h3>
+<a class="indexterm" name="id4871301"></a><pre class="programlisting">#define ROW_TYPE_BUS     (ROW_TYPE_BUS_INPUT | ROW_TYPE_BUS_OUTPUT)
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871316"></a><h3>
+<a name="ROW-TYPE-CELL:CAPS"></a>ROW_TYPE_CELL</h3>
+<a class="indexterm" name="id4871326"></a><pre class="programlisting">#define ROW_TYPE_CELL   (ROW_TYPE_CELL_INPUT | ROW_TYPE_CELL_OUTPUT)
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871341"></a><h3>
+<a name="ROW-TYPE-INPUT:CAPS"></a>ROW_TYPE_INPUT</h3>
+<a class="indexterm" name="id4871352"></a><pre class="programlisting">#define ROW_TYPE_INPUT   (ROW_TYPE_BUS_INPUT | ROW_TYPE_CELL_INPUT)
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871366"></a><h3>
+<a name="ROW-TYPE-OUTPUT:CAPS"></a>ROW_TYPE_OUTPUT</h3>
+<a class="indexterm" name="id4871377"></a><pre class="programlisting">#define ROW_TYPE_OUTPUT (ROW_TYPE_BUS_OUTPUT | ROW_TYPE_CELL_OUTPUT)
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871392"></a><h3>
+<a name="ROW-TYPE-ANY:CAPS"></a>ROW_TYPE_ANY</h3>
+<a class="indexterm" name="id4871402"></a><pre class="programlisting">#define ROW_TYPE_ANY         (ROW_TYPE_INPUT | ROW_TYPE_OUTPUT | ROW_TYPE_CLOCK)
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871417"></a><h3>
+<a name="design-serialize"></a>design_serialize ()</h3>
+<a class="indexterm" name="id4871428"></a><pre class="programlisting">void        design_serialize                (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             FILE *pfile);</pre>
+<p>
+Serializes <em class="parameter"><code>design</code></em> as plain UTF-8 text to stream <em class="parameter"><code>pfile</code></em>. The design can later be unserialized with
+<a href="QCADesigner-design.html#design-unserialize"><code class="function">design_unserialize()</code></a>. See also: <a href="QCADesigner-design.html#design-bus-layout-serialize"><code class="function">design_bus_layout_serialize()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design to serialize
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td> Stream to write it to
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871518"></a><h3>
+<a name="design-new"></a>design_new ()</h3>
+<a class="indexterm" name="id4871529"></a><pre class="programlisting"><a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a>*     design_new                      (<a href="QCADSubstrate.html" title="QCADSubstrate">QCADSubstrate</a> **psubs);</pre>
+<p>
+Create a new design.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>psubs</code></em>&#160;:</span></td>
+<td> Pointer to fill out with new design's substrate object
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> A new design, to be destroyed by <a href="QCADesigner-design.html#design-destroy"><code class="function">design_destroy()</code></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871591"></a><h3>
+<a name="design-copy"></a>design_copy ()</h3>
+<a class="indexterm" name="id4871602"></a><pre class="programlisting"><a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a>*     design_copy                     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+Creates a deep copy of an existing design.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design to copy
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> A copy of <em class="parameter"><code>design</code></em>, to be destroyed by <a href="QCADesigner-design.html#design-destroy"><code class="function">design_destroy()</code></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871669"></a><h3>
+<a name="design-draw"></a>design_draw ()</h3>
+<a class="indexterm" name="id4871680"></a><pre class="programlisting">void        design_draw                     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Drawing-Primitives.html#GdkDrawable"
+>GdkDrawable</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rcClip,
+                                             int flags);</pre>
+<p>
+Draws <em class="parameter"><code>design</code></em> onto surface <em class="parameter"><code>dst</code></em> using function <em class="parameter"><code>rop</code></em> and clipping rectangle <em class="parameter"><code>rcClip</code></em>.
+<em class="parameter"><code>flags</code></em> is a bitfield consisting of <a href="QCADLayer.html#QCAD-LAYER-DRAW-SELECTION:CAPS"><code class="literal">QCAD_LAYER_DRAW_SELECTION</code></a> and/or <a href="QCADLayer.html#QCAD-LAYER-DRAW-NON-SELECTION:CAPS"><code class="literal">QCAD_LAYER_DRAW_NON_SELECTION</code></a></p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design to draw
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td> Surface to draw it on
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rop</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+><span class="type">GdkFunction</span></a> to use
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcClip</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+><span class="type">GdkRectangle</span></a> to use for clipping
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>flags</code></em>&#160;:</span></td>
+<td> A bit-field indicating which objects to draw
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4871855"></a><h3>
+<a name="design-bus-layout-tree-store-new"></a>design_bus_layout_tree_store_new ()</h3>
+<a class="indexterm" name="id4871868"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeStore.html"
+>GtkTreeStore</a>* design_bus_layout_tree_store_new
+                                            (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout,
+                                             int row_types,
+                                             int icExtraColumns,
+                                             ...);</pre>
+<p>
+Creates a new <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeStore.html"
+><span class="type">GtkTreeStore</span></a> containing the buses and ungrouped cells in <em class="parameter"><code>design</code></em>. 
+<em class="parameter"><code>row_types</code></em> is a bit-field of <a href="QCADesigner-design.html#ROW-TYPE-CELL-INPUT:CAPS"><code class="literal">ROW_TYPE_CELL_INPUT</code></a>, <a href="QCADesigner-design.html#ROW-TYPE-CELL-OUTPUT:CAPS"><code class="literal">ROW_TYPE_CELL_OUTPUT</code></a>, <a href="QCADesigner-design.html#ROW-TYPE-BUS-INPUT:CAPS"><code class="literal">ROW_TYPE_BUS_INPUT</code></a>, <a href="QCADesigner-design.html#ROW-TYPE-BUS-OUTPUT:CAPS"><code class="literal">ROW_TYPE_BUS_OUTPUT</code></a>,
+and/or <a href="QCADesigner-design.html#ROW-TYPE-CLOCK:CAPS"><code class="literal">ROW_TYPE_CLOCK</code></a>. The tree store has <code class="literal">BUS_LAYOUT_MODEL_COLUMN_LAST</code> + <em class="parameter"><code>icExtraColumns</code></em> columns.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bus_layout</code></em>&#160;:</span></td>
+<td> <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS"><span class="type">BUS_LAYOUT</span></a> to create the <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeStore.html"
+><span class="type">GtkTreeStore</span></a> for
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>row_types</code></em>&#160;:</span></td>
+<td> Flag indicating which row types to include
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icExtraColumns</code></em>&#160;:</span></td>
+<td> number of extra columns
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+><span class="type">GType</span></a> of each extra column to add
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The newly created <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeStore.html"
+><span class="type">GtkTreeStore</span></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872074"></a><h3>
+<a name="design-layer-list-store-new"></a>design_layer_list_store_new ()</h3>
+<a class="indexterm" name="id4872086"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkListStore.html"
+>GtkListStore</a>* design_layer_list_store_new   (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             int icExtraColumns,
+                                             ...);</pre>
+<p>
+Creates a new <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkListStore.html"
+><span class="type">GtkListStore</span></a> containing the layers in <em class="parameter"><code>design</code></em>. The list store has
+<code class="literal">LAYER_MODEL_COLUMN_LAST</code> + <em class="parameter"><code>icExtraColumns</code></em> columns.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design to create the <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkListStore.html"
+><span class="type">GtkListStore</span></a> for
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icExtraColumns</code></em>&#160;:</span></td>
+<td> number of extra columns
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Type-Information.html#GType"
+><span class="type">GType</span></a> of each extra column to add
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The newly created <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkListStore.html"
+><span class="type">GtkListStore</span></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872217"></a><h3>
+<a name="design-destroy"></a>design_destroy ()</h3>
+<a class="indexterm" name="id4872227"></a><pre class="programlisting"><a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a>*     design_destroy                  (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+Destroys a design.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design to destroy
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> NULL
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872280"></a><h3>
+<a name="design-hit-test"></a>design_hit_test ()</h3>
+<a class="indexterm" name="id4872291"></a><pre class="programlisting"><a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* design_hit_test           (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             int x,
+                                             int y);</pre>
+<p>
+Find the <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> at the given (<em class="parameter"><code>x</code></em>,<em class="parameter"><code>y</code></em>) point in pixels.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design to hit-test
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
+<td> x-coordinate in pixels
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
+<td> y-coordinate in pixels
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> found, or NULL.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872405"></a><h3>
+<a name="design-get-extents"></a>design_get_extents ()</h3>
+<a class="indexterm" name="id4872415"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    design_get_extents              (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             WorldRectangle *extents,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bSelection);</pre>
+<p>
+Calculates the bounding box around <em class="parameter"><code>design</code></em> and fills out <em class="parameter"><code>extents</code></em> with the results.
+Zeroes out <em class="parameter"><code>extents</code></em> if the design is empty.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design whose extents is to be calculated
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>extents</code></em>&#160;:</span></td>
+<td> <span class="type">WorldRectangle</span> to fill out
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bSelection</code></em>&#160;:</span></td>
+<td> Whether to restrict calculation to selected objects
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if <em class="parameter"><code>extents</code></em> was filled out.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872545"></a><h3>
+<a name="design-unserialize"></a>design_unserialize ()</h3>
+<a class="indexterm" name="id4872555"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    design_unserialize              (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> **pdesign,
+                                             FILE *pfile);</pre>
+<p>
+Unserializes a <a href="QCADesigner-design.html#DESIGN:CAPS"><span class="type">DESIGN</span></a> from a stream and fills out <em class="parameter"><code>pdesign</code></em> with a pointer to it.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pdesign</code></em>&#160;:</span></td>
+<td> Pointer to fill out with a pointer to the new design.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td> Stream to read from
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> TRUE if the design was successfully loaded.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872642"></a><h3>
+<a name="design-dump"></a>design_dump ()</h3>
+<a class="indexterm" name="id4872652"></a><pre class="programlisting">void        design_dump                     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             FILE *pfile);</pre>
+<p>
+"Dump" a design to a stream. This prints information useful for debugging code that uses <em class="parameter"><code>design</code></em> to stream
+<em class="parameter"><code>pfile</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> The design to dump
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td> The stream to dump it to.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872733"></a><h3>
+<a name="design-set-layer-order"></a>design_set_layer_order ()</h3>
+<a class="indexterm" name="id4872747"></a><pre class="programlisting">void        design_set_layer_order          (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+>GList</a> *llLayerOrder);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>llLayerOrder</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872814"></a><h3>
+<a name="design-fix-legacy"></a>design_fix_legacy ()</h3>
+<a class="indexterm" name="id4872828"></a><pre class="programlisting">void        design_fix_legacy               (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872874"></a><h3>
+<a name="design-set-current-layer"></a>design_set_current_layer ()</h3>
+<a class="indexterm" name="id4872887"></a><pre class="programlisting">void        design_set_current_layer        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4872954"></a><h3>
+<a name="design-scale-cells"></a>design_scale_cells ()</h3>
+<a class="indexterm" name="id4872968"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    design_scale_cells              (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             double scale);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>scale</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4873045"></a><h3>
+<a name="design-multiple-visible-layers-p"></a>design_multiple_visible_layers_p ()</h3>
+<a class="indexterm" name="id4873059"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    design_multiple_visible_layers_p
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+Checks whether a design has multiple visible layers.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design to check
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the design has more than one visible layer.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4873132"></a><h3>
+<a name="design-layer-remove"></a>design_layer_remove ()</h3>
+<a class="indexterm" name="id4873146"></a><pre class="programlisting"><a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>*  design_layer_remove             (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);</pre>
+<p>
+Removes <em class="parameter"><code>layer</code></em> from <em class="parameter"><code>design</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design to affect
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td> Layer to remove
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The new current layer.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4873239"></a><h3>
+<a name="design-layer-add"></a>design_layer_add ()</h3>
+<a class="indexterm" name="id4873252"></a><pre class="programlisting">void        design_layer_add                (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer);</pre>
+<p>
+Adds a layer to a design. The layer becomes the top-most layer in the design.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Destination design
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td> Layer to add
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4873325"></a><h3>
+<a name="design-layer-object-containment-rules"></a>design_layer_object_containment_rules ()</h3>
+<a class="indexterm" name="id4873339"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Hash-Tables.html#GHashTable"
+>GHashTable</a>* design_layer_object_containment_rules
+                                            ();</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4873377"></a><h3>
+<a name="design-layer-dump"></a>design_layer_dump ()</h3>
+<a class="indexterm" name="id4873391"></a><pre class="programlisting">void        design_layer_dump               (<a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> *layer,
+                                             FILE *pfile);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4873457"></a><h3>
+<a name="design-selection-create-from-selection"></a>design_selection_create_from_selection ()</h3>
+<a class="indexterm" name="id4873472"></a><pre class="programlisting"><a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* design_selection_create_from_selection
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *window,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop);</pre>
+<p>
+Copies a selection: drops the old selection and replaces it with a copy of itself.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design wherein to copy the selection
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>window</code></em>&#160;:</span></td>
+<td> Surface whereupon to draw the old selection
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rop</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+><span class="type">GdkFunction</span></a> to use when drawing the old selection
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The new selection anchor <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a>.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4873594"></a><h3>
+<a name="design-selection-release"></a>design_selection_release ()</h3>
+<a class="indexterm" name="id4873607"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  design_selection_release        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Drawing-Primitives.html#GdkDrawable"
+>GdkDrawable</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop);</pre>
+<p>
+Drop the <em class="parameter"><code>design</code></em>'s selection.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design whose selection is to be dropped
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td> Surface whereupon to draw the dropped objects
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rop</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+><span class="type">GdkFunction</span></a> to use when drawing the dropped objects
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS"><span class="type">EXP_ARRAY</span></a> containing pointers to the dropped objects. These pointers become <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if the objects
+they refer to are destroyed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4873743"></a><h3>
+<a name="design-selection-subtract-window"></a>design_selection_subtract_window ()</h3>
+<a class="indexterm" name="id4873757"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  design_selection_subtract_window
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             WorldRectangle *rcWorld);</pre>
+<p>
+Drop the objects inside <em class="parameter"><code>rcWorld</code></em> from the <em class="parameter"><code>design</code></em>'s selection.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design whose selection is to be reduced
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td> Surface whereupon to draw the dropped objects
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rop</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+><span class="type">GdkFunction</span></a> to use when drawing the dropped objects
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcWorld</code></em>&#160;:</span></td>
+<td> <span class="type">WorldRectangle</span> to subtract
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS"><span class="type">EXP_ARRAY</span></a> containing pointers to the dropped objects. These pointers become <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if the objects
+they refer to are destroyed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4873929"></a><h3>
+<a name="design-selection-create-from-window"></a>design_selection_create_from_window ()</h3>
+<a class="indexterm" name="id4873944"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  design_selection_create_from_window
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             WorldRectangle *rcWorld);</pre>
+<p>
+Creates an <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS"><span class="type">EXP_ARRAY</span></a> of <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> pointers each of which becomes <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a>,
+should the object be destroyed. This is done via <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#g-object-add-weak-pointer"
+><code class="function">g_object_add_weak_pointer()</code></a>.
+The objects inside <em class="parameter"><code>rcWorld</code></em> are selected and added to the array.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design wherein to create the selection.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcWorld</code></em>&#160;:</span></td>
+<td> Rectangle in world coordinates wherein to look for unselected objects.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The array.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874070"></a><h3>
+<a name="design-selection-add-window"></a>design_selection_add_window ()</h3>
+<a class="indexterm" name="id4874084"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  design_selection_add_window     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             WorldRectangle *rcWorld);</pre>
+<p>
+Creates an <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS"><span class="type">EXP_ARRAY</span></a> of <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> pointers each of which becomes <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a>,
+should the object be destroyed. This is done via <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#g-object-add-weak-pointer"
+><code class="function">g_object_add_weak_pointer()</code></a>.
+The objects inside <em class="parameter"><code>rcWorld</code></em> are selected and added to the array.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design wherein to create augment selection.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcWorld</code></em>&#160;:</span></td>
+<td> Rectangle in world coordinates wherein to look for non-selected objects.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The array.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874209"></a><h3>
+<a name="design-selection-get-object-array"></a>design_selection_get_object_array ()</h3>
+<a class="indexterm" name="id4874224"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  design_selection_get_object_array
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+Creates an <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS"><span class="type">EXP_ARRAY</span></a> of <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> pointers each of which becomes <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a>,
+should the object be destroyed. This is done via <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#g-object-add-weak-pointer"
+><code class="function">g_object_add_weak_pointer()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> Design whose selection is to be rendered as an object array
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The array.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874321"></a><h3>
+<a name="design-selection-serialize"></a>design_selection_serialize ()</h3>
+<a class="indexterm" name="id4874335"></a><pre class="programlisting">void        design_selection_serialize      (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             FILE *pfile);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874402"></a><h3>
+<a name="design-selection-move"></a>design_selection_move ()</h3>
+<a class="indexterm" name="id4874415"></a><pre class="programlisting">void        design_selection_move           (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             double dxWorld,
+                                             double dyWorld);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dxWorld</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dyWorld</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874503"></a><h3>
+<a name="design-selection-drop"></a>design_selection_drop ()</h3>
+<a class="indexterm" name="id4874517"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    design_selection_drop           (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874574"></a><h3>
+<a name="design-selection-destroy"></a>design_selection_destroy ()</h3>
+<a class="indexterm" name="id4874588"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  design_selection_destroy        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874644"></a><h3>
+<a name="design-selection-hit-test"></a>design_selection_hit_test ()</h3>
+<a class="indexterm" name="id4874659"></a><pre class="programlisting"><a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* design_selection_hit_test (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             int x,
+                                             int y);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874757"></a><h3>
+<a name="design-selection-objects-foreach"></a>design_selection_objects_foreach ()</h3>
+<a class="indexterm" name="id4874772"></a><pre class="programlisting">void        design_selection_objects_foreach
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             <a href="QCADesigner-design.html#DesignObjectCallback">DesignObjectCallback</a> cb,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cb</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874861"></a><h3>
+<a name="design-selection-get-type-list"></a>design_selection_get_type_list ()</h3>
+<a class="indexterm" name="id4874875"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GList"
+>GList</a>*      design_selection_get_type_list  (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4874932"></a><h3>
+<a name="design-selection-get-anchor"></a>design_selection_get_anchor ()</h3>
+<a class="indexterm" name="id4874947"></a><pre class="programlisting"><a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* design_selection_get_anchor
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design);</pre>
+<p>
+Retrieves the selection anchor for a design. This is a <a href="QCADDesignObject.html" title="QCADDesignObject"><span class="type">QCADDesignObject</span></a> to be used as a reference when the
+selection is moved.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> The <a href="QCADesigner-design.html#DESIGN:CAPS"><span class="type">DESIGN</span></a> containing the selection whose anchor is to be retrieved.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The selection anchor.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875024"></a><h3>
+<a name="design-selection-transform"></a>design_selection_transform ()</h3>
+<a class="indexterm" name="id4875039"></a><pre class="programlisting"><a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>* design_selection_transform
+                                            (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             double m11,
+                                             double m12,
+                                             double m21,
+                                             double m22);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>m11</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>m12</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>m21</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>m22</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875180"></a><h3>
+<a name="design-selection-object-array-add-weak-pointers"></a>design_selection_object_array_add_weak_pointers ()</h3>
+<a class="indexterm" name="id4875195"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  design_selection_object_array_add_weak_pointers
+                                            (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *obj_array);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj_array</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875253"></a><h3>
+<a name="design-selection-object-array-free"></a>design_selection_object_array_free ()</h3>
+<a class="indexterm" name="id4875268"></a><pre class="programlisting">void        design_selection_object_array_free
+                                            (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *ar);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>ar</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875315"></a><h3>
+<a name="design-bus-layout-new"></a>design_bus_layout_new ()</h3>
+<a class="indexterm" name="id4875328"></a><pre class="programlisting"><a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a>* design_bus_layout_new           ();</pre>
+<p>
+Creates a new, empty <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS"><span class="type">BUS_LAYOUT</span></a></p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The new, empty <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS"><span class="type">BUS_LAYOUT</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875382"></a><h3>
+<a name="design-bus-layout-unserialize"></a>design_bus_layout_unserialize ()</h3>
+<a class="indexterm" name="id4875396"></a><pre class="programlisting"><a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a>* design_bus_layout_unserialize   (FILE *pfile);</pre>
+<p>
+Unserializes a <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS"><span class="type">BUS_LAYOUT</span></a> from a stream. See <a href="QCADesigner-design.html#design-bus-layout-serialize"><code class="function">design_bus_layout_serialize()</code></a> for caveats.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td> Stream to read from
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> The new bus layout, or NULL, if it failed to unserialize
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875476"></a><h3>
+<a name="design-bus-layout-serialize"></a>design_bus_layout_serialize ()</h3>
+<a class="indexterm" name="id4875490"></a><pre class="programlisting">void        design_bus_layout_serialize     (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout,
+                                             FILE *pfile);</pre>
+<p>
+Serializes <em class="parameter"><code>bus_layout</code></em> as plain UTF-8 text to stream <em class="parameter"><code>pfile</code></em>. This function is used by <a href="QCADesigner-design.html#design-serialize"><code class="function">design_serialize()</code></a> and 
+by <a href="QCADesigner-fileio.html#create-simulation-output-file"><code class="function">create_simulation_output_file()</code></a>. The bus layout can later be unserialized with <a href="QCADesigner-design.html#design-bus-layout-unserialize"><code class="function">design_bus_layout_unserialize()</code></a>.
+</p>
+<p>
+Note: The master input and output arrays are not serialized. Only the buses are serialized. The input and output
+arrays have to be reconstructed before the unserialized bus layout can be used.
+</p>
+<p>
+Unserialize buses with <a href="QCADesigner-design.html#design-bus-layout-unserialize"><code class="function">design_bus_layout_unserialize()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bus_layout</code></em>&#160;:</span></td>
+<td> <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS"><span class="type">BUS_LAYOUT</span></a> to serialize
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td> Stream to write it to
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875632"></a><h3>
+<a name="design-bus-layout-dump"></a>design_bus_layout_dump ()</h3>
+<a class="indexterm" name="id4875646"></a><pre class="programlisting">void        design_bus_layout_dump          (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout,
+                                             FILE *pfile);</pre>
+<p>
+"Dump" a bus layout to a stream. This prints information useful for debugging code that uses <em class="parameter"><code>bus_layout</code></em> to stream
+<em class="parameter"><code>pfile</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bus_layout</code></em>&#160;:</span></td>
+<td> The <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS"><span class="type">BUS_LAYOUT</span></a> to dump.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td> The stream to dump it to.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875738"></a><h3>
+<a name="design-bus-layout-cell-list-dump"></a>design_bus_layout_cell_list_dump ()</h3>
+<a class="indexterm" name="id4875752"></a><pre class="programlisting">void        design_bus_layout_cell_list_dump
+                                            (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *cell_list,
+                                             char *pszVarName,
+                                             FILE *pfile);</pre>
+<p>
+"Dump" a bus layout's master cell list to a stream. This function is used mostly by <a href="QCADesigner-design.html#design-bus-layout-dump"><code class="function">design_bus_layout_dump()</code></a>.
+It prints information useful for debugging code that uses a bus layout's master cell list to stream <em class="parameter"><code>pfile</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell_list</code></em>&#160;:</span></td>
+<td> The master cell list.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszVarName</code></em>&#160;:</span></td>
+<td> The variable name inside the <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS"><span class="type">BUS_LAYOUT</span></a> the cell list corresponds to.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td> The stream to dump it to.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875872"></a><h3>
+<a name="design-bus-layout-free"></a>design_bus_layout_free ()</h3>
+<a class="indexterm" name="id4875886"></a><pre class="programlisting"><a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a>* design_bus_layout_free          (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout);</pre>
+<p>
+Destroys the <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS"><span class="type">BUS_LAYOUT</span></a> <em class="parameter"><code>bus_layout</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bus_layout</code></em>&#160;:</span></td>
+<td> <a href="QCADesigner-design.html#BUS-LAYOUT:CAPS"><span class="type">BUS_LAYOUT</span></a> to destroy.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> NULL
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4875968"></a><h3>
+<a name="design-bus-layout-iter-first"></a>design_bus_layout_iter_first ()</h3>
+<a class="indexterm" name="id4875982"></a><pre class="programlisting"><a href="QCADCell.html" title="QCADCell">QCADCell</a>*   design_bus_layout_iter_first    (<a href="QCADesigner-design.html#BUS-LAYOUT:CAPS">BUS_LAYOUT</a> *bus_layout,
+                                             <a href="QCADesigner-design.html#BUS-LAYOUT-ITER:CAPS">BUS_LAYOUT_ITER</a> *bus_layout_iter,
+                                             QCADCellFunction cell_function,
+                                             int *pidxMaster);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bus_layout</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bus_layout_iter</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell_function</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pidxMaster</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4876103"></a><h3>
+<a name="design-bus-layout-iter-next"></a>design_bus_layout_iter_next ()</h3>
+<a class="indexterm" name="id4876118"></a><pre class="programlisting"><a href="QCADCell.html" title="QCADCell">QCADCell</a>*   design_bus_layout_iter_next     (<a href="QCADesigner-design.html#BUS-LAYOUT-ITER:CAPS">BUS_LAYOUT_ITER</a> *bus_layout_iter,
+                                             int *pidxMaster);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bus_layout_iter</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pidxMaster</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4876196"></a><h3>
+<a name="design-bus-layout-iter-this"></a>design_bus_layout_iter_this ()</h3>
+<a class="indexterm" name="id4876210"></a><pre class="programlisting"><a href="QCADCell.html" title="QCADCell">QCADCell</a>*   design_bus_layout_iter_this     (<a href="QCADesigner-design.html#BUS-LAYOUT-ITER:CAPS">BUS_LAYOUT_ITER</a> *bus_layout_iter,
+                                             int *pidxMaster);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bus_layout_iter</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pidxMaster</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

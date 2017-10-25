@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADUndoEntryGroup</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="prev" href="QCADUndoEntryObjectState.html" title="QCADUndoEntryObjectState">
+<link rel="next" href="QCADesigner-selection-undo.html" title="selection_undo">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADUndoEntryObjectState.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADUndoRedo.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-selection-undo.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4795994" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4821471" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4821824" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4821854" class="shortcut">Signals</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADUndoEntryGroup"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4795994"></a><span class="refentrytitle">QCADUndoEntryGroup</span>
+</h2>
+<p>QCADUndoEntryGroup &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADUndoEntryGroup.html#QCADUndoEntryGroup-struct">QCADUndoEntryGroup</a>;
+<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a>* <a href="QCADUndoEntryGroup.html#qcad-undo-entry-group-new">qcad_undo_entry_group_new</a>
+                                            ();
+<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a>* <a href="QCADUndoEntryGroup.html#qcad-undo-entry-group-get-default">qcad_undo_entry_group_get_default</a>
+                                            ();
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADUndoEntryGroup.html#qcad-undo-entry-group-close">qcad_undo_entry_group_close</a>     (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *undo_entry_group);
+void        <a href="QCADUndoEntryGroup.html#qcad-undo-entry-group-push">qcad_undo_entry_group_push</a>      (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *undo_entry_group,
+                                             <a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *undo_entry);
+void        <a href="QCADUndoEntryGroup.html#qcad-undo-entry-group-push-group">qcad_undo_entry_group_push_group</a>
+                                            (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *undo_entry_group,
+                                             <a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *undo_entry_group_child);
+QCADUndoState <a href="QCADUndoEntryGroup.html#qcad-undo-entry-group-undo">qcad_undo_entry_group_undo</a>    (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *entry_group);
+QCADUndoState <a href="QCADUndoEntryGroup.html#qcad-undo-entry-group-redo">qcad_undo_entry_group_redo</a>    (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *entry_group);
+void        <a href="QCADUndoEntryGroup.html#qcad-undo-entry-group-dump">qcad_undo_entry_group_dump</a>      (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *entry_group,
+                                             FILE *pfile,
+                                             int icIndent);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4821824"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a>
+         +----QCADUndoEntryGroup
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4821854"></a><h2>Signals</h2>
+<pre class="synopsis">
+
+"<a href="QCADUndoEntryGroup.html#QCADUndoEntryGroup-state-changed">state-changed</a>"
+            void        user_function      (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *qcadundoentrygroup,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>               arg1,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>            user_data)               : Run first
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4821471"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4821486"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4821497"></a><h3>
+<a name="QCADUndoEntryGroup-struct"></a>QCADUndoEntryGroup</h3>
+<a class="indexterm" name="id4821509"></a><pre class="programlisting">typedef struct _QCADUndoEntryGroup QCADUndoEntryGroup;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4821525"></a><h3>
+<a name="qcad-undo-entry-group-new"></a>qcad_undo_entry_group_new ()</h3>
+<a class="indexterm" name="id4821536"></a><pre class="programlisting"><a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a>* qcad_undo_entry_group_new
+                                            ();</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4821573"></a><h3>
+<a name="qcad-undo-entry-group-get-default"></a>qcad_undo_entry_group_get_default ()</h3>
+<a class="indexterm" name="id4821584"></a><pre class="programlisting"><a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a>* qcad_undo_entry_group_get_default
+                                            ();</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4825146"></a><h3>
+<a name="qcad-undo-entry-group-close"></a>qcad_undo_entry_group_close ()</h3>
+<a class="indexterm" name="id4825157"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    qcad_undo_entry_group_close     (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *undo_entry_group);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>undo_entry_group</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4825213"></a><h3>
+<a name="qcad-undo-entry-group-push"></a>qcad_undo_entry_group_push ()</h3>
+<a class="indexterm" name="id4825224"></a><pre class="programlisting">void        qcad_undo_entry_group_push      (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *undo_entry_group,
+                                             <a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *undo_entry);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>undo_entry_group</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>undo_entry</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4825290"></a><h3>
+<a name="qcad-undo-entry-group-push-group"></a>qcad_undo_entry_group_push_group ()</h3>
+<a class="indexterm" name="id4825302"></a><pre class="programlisting">void        qcad_undo_entry_group_push_group
+                                            (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *undo_entry_group,
+                                             <a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *undo_entry_group_child);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>undo_entry_group</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>undo_entry_group_child</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4825369"></a><h3>
+<a name="qcad-undo-entry-group-undo"></a>qcad_undo_entry_group_undo ()</h3>
+<a class="indexterm" name="id4820415"></a><pre class="programlisting">QCADUndoState qcad_undo_entry_group_undo    (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *entry_group);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>entry_group</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4820471"></a><h3>
+<a name="qcad-undo-entry-group-redo"></a>qcad_undo_entry_group_redo ()</h3>
+<a class="indexterm" name="id4820482"></a><pre class="programlisting">QCADUndoState qcad_undo_entry_group_redo    (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *entry_group);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>entry_group</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4820538"></a><h3>
+<a name="qcad-undo-entry-group-dump"></a>qcad_undo_entry_group_dump ()</h3>
+<a class="indexterm" name="id4820549"></a><pre class="programlisting">void        qcad_undo_entry_group_dump      (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *entry_group,
+                                             FILE *pfile,
+                                             int icIndent);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>entry_group</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icIndent</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4820638"></a><h2>Signal Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4820649"></a><h3>
+<a name="QCADUndoEntryGroup-state-changed"></a>The "state-changed" signal</h3>
+<a class="indexterm" name="id4820656"></a><pre class="programlisting">void        user_function                  (<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a> *qcadundoentrygroup,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>               arg1,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>            user_data)               : Run first</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>qcadundoentrygroup</code></em>&#160;:</span></td>
+<td>the object which received the signal.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>arg1</code></em>&#160;:</span></td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

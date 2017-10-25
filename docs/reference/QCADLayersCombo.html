@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADLayersCombo</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="prev" href="QCADFlexiCombo.html" title="QCADFlexiCombo">
+<link rel="next" href="QCADCellRendererLayerList.html" title="QCADCellRendererLayerList">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADFlexiCombo.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADWidgets.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADCellRendererLayerList.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4779788" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4817358" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4791432" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4818452" class="shortcut">Implemented Interfaces</a>
+                  &#160;|&#160;
+                  <a href="#id4818486" class="shortcut">Properties</a>
+                  &#160;|&#160;
+                  <a href="#id4817303" class="shortcut">Signals</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADLayersCombo"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4779788"></a><span class="refentrytitle">QCADLayersCombo</span>
+</h2>
+<p>QCADLayersCombo &#8212; QCADesigner layers combo box</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADLayersCombo.html#QCADLayersCombo-struct">QCADLayersCombo</a>;
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4791432"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----GInitiallyUnowned
+         +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkObject.html"
+>GtkObject</a>
+               +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>
+                     +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkContainer.html"
+>GtkContainer</a>
+                           +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkBin.html"
+>GtkBin</a>
+                                 +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkComboBox.html"
+>GtkComboBox</a>
+                                       +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkComboBoxEntry.html"
+>GtkComboBoxEntry</a>
+                                             +----<a href="QCADFlexiCombo.html" title="QCADFlexiCombo">QCADFlexiCombo</a>
+                                                   +----QCADLayersCombo
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4818452"></a><h2>Implemented Interfaces</h2>
+<p>
+QCADLayersCombo implements
+ AtkImplementorIface,  <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkCellLayout.html"
+>GtkCellLayout</a> and  <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkCellEditable.html"
+>GtkCellEditable</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4818486"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a href="QCADLayersCombo.html#QCADLayersCombo--design">design</a>"               <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>              : Read / Write
+  "<a href="QCADLayersCombo.html#QCADLayersCombo--layer">layer</a>"                <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>             : Read / Write
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4817303"></a><h2>Signals</h2>
+<pre class="synopsis">
+
+"<a href="QCADLayersCombo.html#QCADLayersCombo-deactivate-layer">deactivate-layer</a>"
+            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    user_function      (<a href="QCADLayersCombo.html" title="QCADLayersCombo">QCADLayersCombo</a> *layers_combo,
+                                            <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>       *layer,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>         bHide,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>         user_data)         : Run last
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4817358"></a><h2>Description</h2>
+<p>
+The layers combo takes a design and renders it as a list of layers in a dropdown. It maintains the design's
+current layer in its "layer" property and provides checkboxes for (de)activating and hiding/showing a layer.
+When either of those checkboxes is deactivated, the "deactivate-layer" signal is emitted and the layer is
+only deactivated/hidden if those signals return <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a>.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4817393"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4817404"></a><h3>
+<a name="QCADLayersCombo-struct"></a>QCADLayersCombo</h3>
+<a class="indexterm" name="id4817416"></a><pre class="programlisting">typedef struct _QCADLayersCombo QCADLayersCombo;</pre>
+<p>
+
+</p>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4818269"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4818279"></a><h3>
+<a name="QCADLayersCombo--design"></a>The "<code class="literal">design</code>" property</h3>
+<a class="indexterm" name="id4818293"></a><pre class="programlisting">  "design"               <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>              : Read / Write</pre>
+<p>Design whose layers to reflect.</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4818314"></a><h3>
+<a name="QCADLayersCombo--layer"></a>The "<code class="literal">layer</code>" property</h3>
+<a class="indexterm" name="id4818328"></a><pre class="programlisting">  "layer"                <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>             : Read / Write</pre>
+<p>Current layer.</p>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4818350"></a><h2>Signal Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4818361"></a><h3>
+<a name="QCADLayersCombo-deactivate-layer"></a>The "deactivate-layer" signal</h3>
+<a class="indexterm" name="id4818368"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    user_function                  (<a href="QCADLayersCombo.html" title="QCADLayersCombo">QCADLayersCombo</a> *layers_combo,
+                                            <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a>       *layer,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>         bHide,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>         user_data)         : Run last</pre>
+<p>
+This signal is emitted when the user clears the "active" or "visible" checkbox, indicating that the
+selected layer is to be deactivated, and possibly hidden. Returning <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> in this signal handler indicates
+that the layer has, in fact, been deactivated/hidden.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layers_combo</code></em>&#160;:</span></td>
+<td> The object that received the signal
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>layer</code></em>&#160;:</span></td>
+<td> The layer to be deactivated
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bHide</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the layer is also to be hidden
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a> if the layer may be deactivated/hidden
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADDOContainer</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="prev" href="QCADCompoundDO.html" title="QCADCompoundDO">
+<link rel="next" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADCompoundDO.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADObjects.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADPropertyUIs.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4810335" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4785990" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4763005" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#" class="shortcut"></a>
+                  &#160;|&#160;
+                  <a href="#id4768578" class="shortcut">Known Implementations</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADDOContainer"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4810335"></a><span class="refentrytitle">QCADDOContainer</span>
+</h2>
+<p>QCADDOContainer &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADDOContainer.html#QCADDOContainer-struct">QCADDOContainer</a>;
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADDOContainer.html#qcad-do-container-add">qcad_do_container_add</a>           (<a href="QCADDOContainer.html" title="QCADDOContainer">QCADDOContainer</a> *container,
+                                             <a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADDOContainer.html#qcad-do-container-remove">qcad_do_container_remove</a>        (<a href="QCADDOContainer.html" title="QCADDOContainer">QCADDOContainer</a> *container,
+                                             <a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4763005"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  GInterface
+   +----QCADDOContainer
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4774278"></a><h2>Prerequisites</h2>
+<p>
+QCADDOContainer requires
+ <a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4768578"></a><h2>Known Implementations</h2>
+<p>
+QCADDOContainer is implemented by
+ <a href="QCADLayer.html" title="QCADLayer">QCADLayer</a> and  <a href="QCADClockingLayer.html" title="QCADClockingLayer">QCADClockingLayer</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4785990"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4765362"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4765373"></a><h3>
+<a name="QCADDOContainer-struct"></a>QCADDOContainer</h3>
+<a class="indexterm" name="id4765384"></a><pre class="programlisting">typedef struct _QCADDOContainer QCADDOContainer;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4765401"></a><h3>
+<a name="qcad-do-container-add"></a>qcad_do_container_add ()</h3>
+<a class="indexterm" name="id4765412"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    qcad_do_container_add           (<a href="QCADDOContainer.html" title="QCADDOContainer">QCADDOContainer</a> *container,
+                                             <a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>container</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4809128"></a><h3>
+<a name="qcad-do-container-remove"></a>qcad_do_container_remove ()</h3>
+<a class="indexterm" name="id4809139"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    qcad_do_container_remove        (<a href="QCADDOContainer.html" title="QCADDOContainer">QCADDOContainer</a> *container,
+                                             <a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a> *obj);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>container</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>obj</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

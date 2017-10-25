@@ -1,0 +1,681 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>exp_array</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-fileio.html" title="fileio">
+<link rel="next" href="QCADesigner-print-graph-properties-dialog.html" title="print_graph_properties_dialog">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-fileio.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-print-graph-properties-dialog.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4787080" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4839098" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-exp-array"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4787080"></a><span class="refentrytitle">exp_array</span>
+</h2>
+<p>exp_array &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>;
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-exp-array.html#exp-array-new">exp_array_new</a>                   (int cbElementSize,
+                                             int icDimensions);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-exp-array.html#exp-array-copy">exp_array_copy</a>                  (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADesigner-exp-array.html#exp-array-free">exp_array_free</a>                  (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array);
+void        <a href="QCADesigner-exp-array.html#exp-array-insert-vals">exp_array_insert_vals</a>           (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             void *data,
+                                             int icElements,
+                                             int iDimension,
+                                             ...);
+void        <a href="QCADesigner-exp-array.html#exp-array-remove-vals">exp_array_remove_vals</a>           (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             int icDimPairs,
+                                             ...);
+void        <a href="QCADesigner-exp-array.html#exp-array-dump">exp_array_dump</a>                  (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             FILE *pfile,
+                                             int icIndent);
+void        <a href="QCADesigner-exp-array.html#print-hex-bytes">print_hex_bytes</a>                 (char *bytes,
+                                             int icBytes,
+                                             int icInitBytes,
+                                             int icCols,
+                                             FILE *pfile,
+                                             int icIndent);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>       <a href="QCADesigner-exp-array.html#exp-array-crc32">exp_array_crc32</a>                 (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array);
+int         <a href="QCADesigner-exp-array.html#exp-array-1d-insert-val-sorted">exp_array_1d_insert_val_sorted</a>  (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             void *data,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GCompareFunc"
+>GCompareFunc</a> fn,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bAllowDupes);
+int         <a href="QCADesigner-exp-array.html#exp-array-1d-find">exp_array_1d_find</a>               (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             void *element,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GCompareFunc"
+>GCompareFunc</a> fn,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bClosest);
+int         <a href="QCADesigner-exp-array.html#compare-ints">compare_ints</a>                    (void *p1,
+                                             void *p2);
+#define     <a href="QCADesigner-exp-array.html#exp-array-1d-insert-vals">exp_array_1d_insert_vals</a>        (a,d,c,i)
+#define     <a href="QCADesigner-exp-array.html#exp-array-index-1d">exp_array_index_1d</a>              (a,t,i)
+#define     <a href="QCADesigner-exp-array.html#exp-array-index-2d">exp_array_index_2d</a>              (a,t,r,c)
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4839098"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4841260"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4841270"></a><h3>
+<a name="EXP-ARRAY:CAPS"></a>EXP_ARRAY</h3>
+<a class="indexterm" name="id4841283"></a><pre class="programlisting">typedef struct {
+  void *data ;
+  int icUsed ;
+  int icAvail ;
+  int cbSize ;
+  int icDimensions ;
+} EXP_ARRAY;
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4841300"></a><h3>
+<a name="exp-array-new"></a>exp_array_new ()</h3>
+<a class="indexterm" name="id4841312"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  exp_array_new                   (int cbElementSize,
+                                             int icDimensions);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cbElementSize</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icDimensions</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4841390"></a><h3>
+<a name="exp-array-copy"></a>exp_array_copy ()</h3>
+<a class="indexterm" name="id4841402"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  exp_array_copy                  (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>exp_array</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4841458"></a><h3>
+<a name="exp-array-free"></a>exp_array_free ()</h3>
+<a class="indexterm" name="id4841471"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  exp_array_free                  (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>exp_array</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4835991"></a><h3>
+<a name="exp-array-insert-vals"></a>exp_array_insert_vals ()</h3>
+<a class="indexterm" name="id4836001"></a><pre class="programlisting">void        exp_array_insert_vals           (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             void *data,
+                                             int icElements,
+                                             int iDimension,
+                                             ...);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>exp_array</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icElements</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>iDimension</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4836124"></a><h3>
+<a name="exp-array-remove-vals"></a>exp_array_remove_vals ()</h3>
+<a class="indexterm" name="id4836136"></a><pre class="programlisting">void        exp_array_remove_vals           (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             int icDimPairs,
+                                             ...);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>exp_array</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icDimPairs</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>...</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4836217"></a><h3>
+<a name="exp-array-dump"></a>exp_array_dump ()</h3>
+<a class="indexterm" name="id4836229"></a><pre class="programlisting">void        exp_array_dump                  (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             FILE *pfile,
+                                             int icIndent);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>exp_array</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icIndent</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4843883"></a><h3>
+<a name="print-hex-bytes"></a>print_hex_bytes ()</h3>
+<a class="indexterm" name="id4843893"></a><pre class="programlisting">void        print_hex_bytes                 (char *bytes,
+                                             int icBytes,
+                                             int icInitBytes,
+                                             int icCols,
+                                             FILE *pfile,
+                                             int icIndent);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bytes</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icBytes</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icInitBytes</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icCols</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pfile</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>icIndent</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4844028"></a><h3>
+<a name="exp-array-crc32"></a>exp_array_crc32 ()</h3>
+<a class="indexterm" name="id4844038"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>       exp_array_crc32                 (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>exp_array</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4844087"></a><h3>
+<a name="exp-array-1d-insert-val-sorted"></a>exp_array_1d_insert_val_sorted ()</h3>
+<a class="indexterm" name="id4844098"></a><pre class="programlisting">int         exp_array_1d_insert_val_sorted  (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             void *data,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GCompareFunc"
+>GCompareFunc</a> fn,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bAllowDupes);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>exp_array</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fn</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bAllowDupes</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4844204"></a><h3>
+<a name="exp-array-1d-find"></a>exp_array_1d_find ()</h3>
+<a class="indexterm" name="id4844214"></a><pre class="programlisting">int         exp_array_1d_find               (<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *exp_array,
+                                             void *element,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Doubly-Linked-Lists.html#GCompareFunc"
+>GCompareFunc</a> fn,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bClosest);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>exp_array</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>element</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>fn</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bClosest</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4844320"></a><h3>
+<a name="compare-ints"></a>compare_ints ()</h3>
+<a class="indexterm" name="id4844331"></a><pre class="programlisting">int         compare_ints                    (void *p1,
+                                             void *p2);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>p1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>p2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4844399"></a><h3>
+<a name="exp-array-1d-insert-vals"></a>exp_array_1d_insert_vals()</h3>
+<a class="indexterm" name="id4844409"></a><pre class="programlisting">#define exp_array_1d_insert_vals(a,d,c,i) (exp_array_insert_vals ((a),(d),(c),1,(i),TRUE))
+</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>a</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>d</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>c</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>i</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4844479"></a><h3>
+<a name="exp-array-index-1d"></a>exp_array_index_1d()</h3>
+<a class="indexterm" name="id4844490"></a><pre class="programlisting">#define exp_array_index_1d(a,t,i) (((t*) (a)-&gt;data) [((-1 == (i)) ? (((a)-&gt;icUsed) - 1) : (i))])
+</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>a</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>t</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>i</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4844547"></a><h3>
+<a name="exp-array-index-2d"></a>exp_array_index_2d()</h3>
+<a class="indexterm" name="id4844557"></a><pre class="programlisting">#define exp_array_index_2d(a,t,r,c) (((t*) (exp_array_index_1d((a),EXP_ARRAY *,(r)))-&gt;data) [((-1 == (c)) ? (((exp_array_index_1d((a),EXP_ARRAY *,(r)))-&gt;icUsed) - 1) : (c))])
+</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>a</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>t</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>r</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>c</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

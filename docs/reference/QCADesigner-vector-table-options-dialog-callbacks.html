@@ -1,0 +1,709 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>vector_table_options_dialog_callbacks</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-waveform-interpretation-dialog.html" title="waveform_interpretation_dialog">
+<link rel="next" href="QCADesigner-global-consts.html" title="global_consts">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-waveform-interpretation-dialog.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-global-consts.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4798213" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4851726" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-vector-table-options-dialog-callbacks"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4798213"></a><span class="refentrytitle">vector_table_options_dialog_callbacks</span>
+</h2>
+<p>vector_table_options_dialog_callbacks &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-dialog-show">vtod_dialog_show</a>                (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actOpen-activate">vtod_actOpen_activate</a>           (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actSave-activate">vtod_actSave_activate</a>           (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actAdd-activate">vtod_actAdd_activate</a>            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actInsert-activate">vtod_actInsert_activate</a>         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actDelete-activate">vtod_actDelete_activate</a>         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actClose-activate">vtod_actClose_activate</a>          (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-actSimType-changed">vtod_actSimType_changed</a>         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioAction.html"
+>GtkRadioAction</a> *radio_action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioAction.html"
+>GtkRadioAction</a> *current_action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-treeview-size-allocate">vtod_treeview_size_allocate</a>     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html#GtkAllocation"
+>GtkAllocation</a> *allocation,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-hadj-value-changed">vtod_hadj_value_changed</a>         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAdjustment.html"
+>GtkAdjustment</a> *adj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-treeview-focus">vtod_treeview_focus</a>             (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventFocus"
+>GdkEventFocus</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-active-flag-data-func">vtod_active_flag_data_func</a>      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeViewColumn.html"
+>GtkTreeViewColumn</a> *col,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkCellRenderer.html"
+>GtkCellRenderer</a> *cr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html"
+>GtkTreeModel</a> *tm,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html#GtkTreeIter"
+>GtkTreeIter</a> *itr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vtod-active-flag-toggled">vtod_active_flag_toggled</a>        (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkCellRendererToggle.html"
+>GtkCellRendererToggle</a> *cr,
+                                             char *pszPath,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+void        <a href="QCADesigner-vector-table-options-dialog-callbacks.html#vector-actions-notify-sensitive">vector_actions_notify_sensitive</a> (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkActionGroup.html"
+>GtkActionGroup</a> *ag,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-GParamSpec.html#GParamSpec"
+>GParamSpec</a> *spec,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4851726"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4851742"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4851752"></a><h3>
+<a name="vtod-dialog-show"></a>vtod_dialog_show ()</h3>
+<a class="indexterm" name="id4851765"></a><pre class="programlisting">void        vtod_dialog_show                (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850475"></a><h3>
+<a name="vtod-actOpen-activate"></a>vtod_actOpen_activate ()</h3>
+<a class="indexterm" name="id4850486"></a><pre class="programlisting">void        vtod_actOpen_activate           (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>action</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850552"></a><h3>
+<a name="vtod-actSave-activate"></a>vtod_actSave_activate ()</h3>
+<a class="indexterm" name="id4850563"></a><pre class="programlisting">void        vtod_actSave_activate           (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>action</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850629"></a><h3>
+<a name="vtod-actAdd-activate"></a>vtod_actAdd_activate ()</h3>
+<a class="indexterm" name="id4850640"></a><pre class="programlisting">void        vtod_actAdd_activate            (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>action</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850706"></a><h3>
+<a name="vtod-actInsert-activate"></a>vtod_actInsert_activate ()</h3>
+<a class="indexterm" name="id4850717"></a><pre class="programlisting">void        vtod_actInsert_activate         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>action</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850783"></a><h3>
+<a name="vtod-actDelete-activate"></a>vtod_actDelete_activate ()</h3>
+<a class="indexterm" name="id4850794"></a><pre class="programlisting">void        vtod_actDelete_activate         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>action</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4850860"></a><h3>
+<a name="vtod-actClose-activate"></a>vtod_actClose_activate ()</h3>
+<a class="indexterm" name="id4861040"></a><pre class="programlisting">void        vtod_actClose_activate          (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAction.html"
+>GtkAction</a> *action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>action</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4861099"></a><h3>
+<a name="vtod-actSimType-changed"></a>vtod_actSimType_changed ()</h3>
+<a class="indexterm" name="id4861109"></a><pre class="programlisting">void        vtod_actSimType_changed         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioAction.html"
+>GtkRadioAction</a> *radio_action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkRadioAction.html"
+>GtkRadioAction</a> *current_action,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>radio_action</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>current_action</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4861187"></a><h3>
+<a name="vtod-treeview-size-allocate"></a>vtod_treeview_size_allocate ()</h3>
+<a class="indexterm" name="id4861197"></a><pre class="programlisting">void        vtod_treeview_size_allocate     (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html#GtkAllocation"
+>GtkAllocation</a> *allocation,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>allocation</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4861275"></a><h3>
+<a name="vtod-hadj-value-changed"></a>vtod_hadj_value_changed ()</h3>
+<a class="indexterm" name="id4861285"></a><pre class="programlisting">void        vtod_hadj_value_changed         (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkAdjustment.html"
+>GtkAdjustment</a> *adj,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>adj</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4861344"></a><h3>
+<a name="vtod-treeview-focus"></a>vtod_treeview_focus ()</h3>
+<a class="indexterm" name="id4861354"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    vtod_treeview_focus             (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *widget,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html#GdkEventFocus"
+>GdkEventFocus</a> *event,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>widget</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>event</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4861442"></a><h3>
+<a name="vtod-active-flag-data-func"></a>vtod_active_flag_data_func ()</h3>
+<a class="indexterm" name="id4861453"></a><pre class="programlisting">void        vtod_active_flag_data_func      (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeViewColumn.html"
+>GtkTreeViewColumn</a> *col,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkCellRenderer.html"
+>GtkCellRenderer</a> *cr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html"
+>GtkTreeModel</a> *tm,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html#GtkTreeIter"
+>GtkTreeIter</a> *itr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>col</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>tm</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>itr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4861569"></a><h3>
+<a name="vtod-active-flag-toggled"></a>vtod_active_flag_toggled ()</h3>
+<a class="indexterm" name="id4861579"></a><pre class="programlisting">void        vtod_active_flag_toggled        (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkCellRendererToggle.html"
+>GtkCellRendererToggle</a> *cr,
+                                             char *pszPath,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszPath</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4861658"></a><h3>
+<a name="vector-actions-notify-sensitive"></a>vector_actions_notify_sensitive ()</h3>
+<a class="indexterm" name="id4861668"></a><pre class="programlisting">void        vector_actions_notify_sensitive (<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkActionGroup.html"
+>GtkActionGroup</a> *ag,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-GParamSpec.html#GParamSpec"
+>GParamSpec</a> *spec,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>ag</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>spec</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

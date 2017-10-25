@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADUndoEntry</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="prev" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="next" href="QCADUndoEntryObjectState.html" title="QCADUndoEntryObjectState">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADUndoRedo.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADUndoRedo.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADUndoEntryObjectState.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4798186" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4821326" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4821241" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4821277" class="shortcut">Signals</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADUndoEntry"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4798186"></a><span class="refentrytitle">QCADUndoEntry</span>
+</h2>
+<p>QCADUndoEntry &#8212; Basic undo/redo functionality</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADUndoEntry.html#QCADUndoEntry-struct">QCADUndoEntry</a>;
+<a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a>* <a href="QCADUndoEntry.html#qcad-undo-entry-new">qcad_undo_entry_new</a>          ();
+<a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a>* <a href="QCADUndoEntry.html#qcad-undo-entry-new-with-callbacks">qcad_undo_entry_new_with_callbacks</a>
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Closures.html#GCallback"
+>GCallback</a> callback,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_data);
+void        <a href="QCADUndoEntry.html#qcad-undo-entry-signal-connect">qcad_undo_entry_signal_connect</a>  (<a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *entry,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Closures.html#GCallback"
+>GCallback</a> callback,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_data);
+void        <a href="QCADUndoEntry.html#qcad-undo-entry-fire">qcad_undo_entry_fire</a>            (<a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *undo_entry,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bUndo);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4821241"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----QCADUndoEntry
+         +----<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">QCADUndoEntryGroup</a>
+         +----<a href="QCADUndoEntryObjectState.html" title="QCADUndoEntryObjectState">QCADUndoEntryObjectState</a>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4821277"></a><h2>Signals</h2>
+<pre class="synopsis">
+
+"<a href="QCADUndoEntry.html#QCADUndoEntry-apply">apply</a>"     void        user_function      (<a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *entry,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>       bUndo,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>       user_data)      : Run first
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4821326"></a><h2>Description</h2>
+<p>
+This object incorporates the basic functionality necessary for undo/redo.
+</p>
+<p>
+You create a <a href="QCADUndoEntry.html" title="QCADUndoEntry"><span class="type">QCADUndoEntry</span></a> with <a href="QCADUndoEntry.html#qcad-undo-entry-new"><code class="function">qcad_undo_entry_new()</code></a>, connect to its
+"<a href="QCADUndoEntry.html#QCADUndoEntry-apply">apply</a>" signal, and push the <a href="QCADUndoEntry.html" title="QCADUndoEntry"><span class="type">QCADUndoEntry</span></a> into a 
+<a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup"><span class="type">QCADUndoEntryGroup</span></a> using <a href="QCADUndoEntryGroup.html#qcad-undo-entry-group-push-group"><code class="function">qcad_undo_entry_group_push_group()</code></a>.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4821964"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4821975"></a><h3>
+<a name="QCADUndoEntry-struct"></a>QCADUndoEntry</h3>
+<a class="indexterm" name="id4821987"></a><pre class="programlisting">typedef struct _QCADUndoEntry QCADUndoEntry;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4822003"></a><h3>
+<a name="qcad-undo-entry-new"></a>qcad_undo_entry_new ()</h3>
+<a class="indexterm" name="id4822016"></a><pre class="programlisting"><a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a>* qcad_undo_entry_new          ();</pre>
+<p>
+Creates a new <a href="QCADUndoEntry.html" title="QCADUndoEntry"><span class="type">QCADUndoEntry</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> A new entry
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4822062"></a><h3>
+<a name="qcad-undo-entry-new-with-callbacks"></a>qcad_undo_entry_new_with_callbacks ()</h3>
+<a class="indexterm" name="id4822074"></a><pre class="programlisting"><a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a>* qcad_undo_entry_new_with_callbacks
+                                            (<a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Closures.html#GCallback"
+>GCallback</a> callback,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_data);</pre>
+<p>
+Creates a new <a href="QCADUndoEntry.html" title="QCADUndoEntry"><span class="type">QCADUndoEntry</span></a> and attaches <em class="parameter"><code>callback</code></em> with <em class="parameter"><code>data</code></em> to its
+"<a href="QCADUndoEntry.html#QCADUndoEntry-apply">apply</a>" signal.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></td>
+<td> The callback function to attach
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td> The data to pass to the callback
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>destroy_data</code></em>&#160;:</span></td>
+<td> The function to use to destroy <em class="parameter"><code>data</code></em> when the entry is destroyed, or <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> A newly created undo entry with a handler connected
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4823150"></a><h3>
+<a name="qcad-undo-entry-signal-connect"></a>qcad_undo_entry_signal_connect ()</h3>
+<a class="indexterm" name="id4823161"></a><pre class="programlisting">void        qcad_undo_entry_signal_connect  (<a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *entry,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Closures.html#GCallback"
+>GCallback</a> callback,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> data,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Datasets.html#GDestroyNotify"
+>GDestroyNotify</a> destroy_data);</pre>
+<p>
+Connects <em class="parameter"><code>callback</code></em> with <em class="parameter"><code>data</code></em> to <em class="parameter"><code>entry</code></em>'s "<a href="QCADUndoEntry.html#QCADUndoEntry-apply">apply</a>" signal and 
+connects <em class="parameter"><code>destroy_data</code></em> such that it is called with <em class="parameter"><code>data</code></em> when <em class="parameter"><code>entry</code></em> is destroyed.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>entry</code></em>&#160;:</span></td>
+<td> The entry to connect to
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>callback</code></em>&#160;:</span></td>
+<td> The callback function to attach
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>data</code></em>&#160;:</span></td>
+<td> The data to pass to the callback
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>destroy_data</code></em>&#160;:</span></td>
+<td> The function to use to destroy <em class="parameter"><code>data</code></em> when the signal is disconnected, or <a
+href="http://developer.gnome.org/doc/API/2.0/liboil/liboil-liboiljunk.html#NULL:CAPS"
+><code class="literal">NULL</code></a>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4823329"></a><h3>
+<a name="qcad-undo-entry-fire"></a>qcad_undo_entry_fire ()</h3>
+<a class="indexterm" name="id4823341"></a><pre class="programlisting">void        qcad_undo_entry_fire            (<a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *undo_entry,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bUndo);</pre>
+<p>
+Causes the <a href="QCADUndoEntry.html" title="QCADUndoEntry"><span class="type">QCADUndoEntry</span></a> to "fire". In such a case, a <a href="QCADUndoEntry.html" title="QCADUndoEntry"><span class="type">QCADUndoEntry</span></a> will emit the
+"<a href="QCADUndoEntry.html#QCADUndoEntry-apply">apply</a>" signal, calling any attached handlers.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>undo_entry</code></em>&#160;:</span></td>
+<td> Entry to fire
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bUndo</code></em>&#160;:</span></td>
+<td> Whether to undo (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a>) or redo (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a>)
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4820258"></a><h2>Signal Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4820269"></a><h3>
+<a name="QCADUndoEntry-apply"></a>The "apply" signal</h3>
+<a class="indexterm" name="id4820278"></a><pre class="programlisting">void        user_function                  (<a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *entry,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>       bUndo,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>       user_data)      : Run first</pre>
+<p>
+This signal is emitted whenever <em class="parameter"><code>entry</code></em> is activated by a <a href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup"><span class="type">QCADUndoEntryGroup</span></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>entry</code></em>&#160;:</span></td>
+<td> Undo entry
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bUndo</code></em>&#160;:</span></td>
+<td> Whether to undo (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a>) or redo (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a>)
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

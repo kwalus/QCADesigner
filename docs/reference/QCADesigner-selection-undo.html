@@ -1,0 +1,482 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>selection_undo</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="prev" href="QCADUndoEntryGroup.html" title="QCADUndoEntryGroup">
+<link rel="next" href="QCADesigner-interface.html" title="interface">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADUndoEntryGroup.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADUndoRedo.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-interface.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4803703" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4822724" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-selection-undo"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4803703"></a><span class="refentrytitle">selection_undo</span>
+</h2>
+<p>selection_undo &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+void        <a href="QCADesigner-selection-undo.html#push-undo-selection-move">push_undo_selection_move</a>        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             double dxOffset,
+                                             double dyOffset);
+void        <a href="QCADesigner-selection-undo.html#push-undo-selection-transform">push_undo_selection_transform</a>   (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             double mtxFore[2][2],
+                                             double mtxBack[2][2]);
+void        <a href="QCADesigner-selection-undo.html#push-undo-selection-altered">push_undo_selection_altered</a>     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *objs,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bAdded);
+void        <a href="QCADesigner-selection-undo.html#push-undo-selection-existence">push_undo_selection_existence</a>   (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *objs,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bCreated);
+void        <a href="QCADesigner-selection-undo.html#push-undo-selection-clock">push_undo_selection_clock</a>       (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             int clock_new);
+void        <a href="QCADesigner-selection-undo.html#push-undo-selection-state">push_undo_selection_state</a>       (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *objs,
+                                             char *state,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *value);
+void        <a href="QCADesigner-selection-undo.html#track-undo-object-update">track_undo_object_update</a>        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *entry);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4822724"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4822740"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4822751"></a><h3>
+<a name="push-undo-selection-move"></a>push_undo_selection_move ()</h3>
+<a class="indexterm" name="id4822762"></a><pre class="programlisting">void        push_undo_selection_move        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             double dxOffset,
+                                             double dyOffset);</pre>
+<p>
+This function is responsible for recording the offset (<em class="parameter"><code>dxOffset</code></em>,<em class="parameter"><code>dyOffset</code></em>) the selection has moved for 
+later undo purposes. There is a subtle point to be made here: We do not remember all the objects that were 
+moved. Instead, we trust that the selection present at the time of the undo is identical to the selection
+present at the time this undo event was created. Thus, we must keep track of all selection alteration 
+events and add them to the undo stack.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td> The design whose selection this action refers to
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td> The <span class="type">SELECTION_RENDERER</span> responsible for drawing the selection
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td> The window to update when something needs drawing
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dxOffset</code></em>&#160;:</span></td>
+<td> The amount in the x-direction the selection has moved by
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dyOffset</code></em>&#160;:</span></td>
+<td> The amount in the y-direction the selection has moved by
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4826444"></a><h3>
+<a name="push-undo-selection-transform"></a>push_undo_selection_transform ()</h3>
+<a class="indexterm" name="id4826455"></a><pre class="programlisting">void        push_undo_selection_transform   (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             double mtxFore[2][2],
+                                             double mtxBack[2][2]);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>mtxFore</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>mtxBack</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4825398"></a><h3>
+<a name="push-undo-selection-altered"></a>push_undo_selection_altered ()</h3>
+<a class="indexterm" name="id4825410"></a><pre class="programlisting">void        push_undo_selection_altered     (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *objs,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bAdded);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>objs</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bAdded</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4825538"></a><h3>
+<a name="push-undo-selection-existence"></a>push_undo_selection_existence ()</h3>
+<a class="indexterm" name="id4825550"></a><pre class="programlisting">void        push_undo_selection_existence   (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *objs,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bCreated);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>objs</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bCreated</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4827726"></a><h3>
+<a name="push-undo-selection-clock"></a>push_undo_selection_clock ()</h3>
+<a class="indexterm" name="id4827737"></a><pre class="programlisting">void        push_undo_selection_clock       (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             int clock_new);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>clock_new</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4827833"></a><h3>
+<a name="push-undo-selection-state"></a>push_undo_selection_state ()</h3>
+<a class="indexterm" name="id4827844"></a><pre class="programlisting">void        push_undo_selection_state       (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a> *objs,
+                                             char *state,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Generic-values.html#GValue"
+>GValue</a> *value);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>objs</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>state</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>value</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4827978"></a><h3>
+<a name="track-undo-object-update"></a>track_undo_object_update ()</h3>
+<a class="indexterm" name="id4827988"></a><pre class="programlisting">void        track_undo_object_update        (<a href="QCADesigner-design.html#DESIGN:CAPS">DESIGN</a> *design,
+                                             SELECTION_RENDERER *sr,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Windows.html#GdkWindow"
+>GdkWindow</a> *dst,
+                                             <a href="QCADUndoEntry.html" title="QCADUndoEntry">QCADUndoEntry</a> *entry);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>design</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>sr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>entry</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

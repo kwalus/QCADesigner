@@ -1,0 +1,1138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>object_helpers</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-array.html" title="array">
+<link rel="next" href="QCADesigner-mouse-handlers.html" title="mouse_handlers">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-array.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-mouse-handlers.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4848920" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4869351" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-object-helpers"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4848920"></a><span class="refentrytitle">object_helpers</span>
+</h2>
+<p>object_helpers &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+#define     <a href="QCADesigner-object-helpers.html#NINT:CAPS">NINT</a>                            (d)
+#define     <a href="QCADesigner-object-helpers.html#PT-IN-RECT:CAPS">PT_IN_RECT</a>                      (x,y,xTop,yTop,cx,cy)
+#define     <a href="QCADesigner-object-helpers.html#RECT-IN-RECT:CAPS">RECT_IN_RECT</a>                    (xTop1,yTop1,cx1,cy1,xTop2,yTop2,cx2,cy2)
+#define     <a href="QCADesigner-object-helpers.html#RECT-INTERSECT-RECT:CAPS">RECT_INTERSECT_RECT</a>             (xTop1,yTop1,cx1,cy1,xTop2,yTop2,cx2,cy2)
+#define     <a href="QCADesigner-object-helpers.html#RECT-EQUALS-RECT:CAPS">RECT_EQUALS_RECT</a>                (xTop1,yTop1,cx1,cy1,xTop2,yTop2,cx2,cy2)
+int         <a href="QCADesigner-object-helpers.html#world-to-real-x">world_to_real_x</a>                 (double xWorld);
+int         <a href="QCADesigner-object-helpers.html#world-to-real-y">world_to_real_y</a>                 (double yWorld);
+int         <a href="QCADesigner-object-helpers.html#world-to-real-cx">world_to_real_cx</a>                (double cxWorld);
+int         <a href="QCADesigner-object-helpers.html#world-to-real-cy">world_to_real_cy</a>                (double cyWorld);
+double      <a href="QCADesigner-object-helpers.html#real-to-world-x">real_to_world_x</a>                 (int xReal);
+double      <a href="QCADesigner-object-helpers.html#real-to-world-y">real_to_world_y</a>                 (int yReal);
+double      <a href="QCADesigner-object-helpers.html#real-to-world-cx">real_to_world_cx</a>                (int cxReal);
+double      <a href="QCADesigner-object-helpers.html#real-to-world-cy">real_to_world_cy</a>                (int cyReal);
+void        <a href="QCADesigner-object-helpers.html#world-to-grid-pt">world_to_grid_pt</a>                (double *pxWorld,
+                                             double *pyWorld);
+void        <a href="QCADesigner-object-helpers.html#reset-zoom">reset_zoom</a>                      ();
+void        <a href="QCADesigner-object-helpers.html#zoom-in">zoom_in</a>                         ();
+void        <a href="QCADesigner-object-helpers.html#zoom-out">zoom_out</a>                        ();
+void        <a href="QCADesigner-object-helpers.html#zoom-window">zoom_window</a>                     (int top_x,
+                                             int top_y,
+                                             int bot_x,
+                                             int bot_y);
+void        <a href="QCADesigner-object-helpers.html#set-snap-source">set_snap_source</a>                 (void *new_snap_source);
+void        <a href="QCADesigner-object-helpers.html#pan">pan</a>                             (int cx,
+                                             int cy);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-object-helpers.html#is-real-point-visible">is_real_point_visible</a>           (int xReal,
+                                             int yReal);
+void        <a href="QCADesigner-object-helpers.html#set-client-dimension">set_client_dimension</a>            (int cxNew,
+                                             int cyNew);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-object-helpers.html#is-real-rect-visible">is_real_rect_visible</a>            (<a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rc);
+void        <a href="QCADesigner-object-helpers.html#get-world-viewport">get_world_viewport</a>              (double *pxMin,
+                                             double *pyMin,
+                                             double *pxMax,
+                                             double *pyMax);
+void        <a href="QCADesigner-object-helpers.html#push-transformation">push_transformation</a>             ();
+void        <a href="QCADesigner-object-helpers.html#set-transformation">set_transformation</a>              (TRANSFORMATION *xform);
+void        <a href="QCADesigner-object-helpers.html#pop-transformation">pop_transformation</a>              ();
+WorldRectangle* <a href="QCADesigner-object-helpers.html#real-to-world-rect">real_to_world_rect</a>          (WorldRectangle *rcWorld,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rcReal);
+<a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a>* <a href="QCADesigner-object-helpers.html#world-to-real-rect">world_to_real_rect</a>            (WorldRectangle *rcWorld,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rcReal);
+void        <a href="QCADesigner-object-helpers.html#world-rectangle-union">world_rectangle_union</a>           (WorldRectangle *rc1,
+                                             WorldRectangle *rc2,
+                                             WorldRectangle *rcDst);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-object-helpers.html#world-rectangle-intersect">world_rectangle_intersect</a>       (WorldRectangle *rc1,
+                                             WorldRectangle *rc2,
+                                             WorldRectangle *rcDst);
+int         <a href="QCADesigner-object-helpers.html#world-rectangle-subtract">world_rectangle_subtract</a>        (WorldRectangle *rc1,
+                                             WorldRectangle *rc2,
+                                             WorldRectangle new_rcs[4]);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4869351"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4869367"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4869377"></a><h3>
+<a name="NINT:CAPS"></a>NINT()</h3>
+<a class="indexterm" name="id4869389"></a><pre class="programlisting">#define     NINT(d)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>d</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4869424"></a><h3>
+<a name="PT-IN-RECT:CAPS"></a>PT_IN_RECT()</h3>
+<a class="indexterm" name="id4869436"></a><pre class="programlisting">#define     PT_IN_RECT(x,y,xTop,yTop,cx,cy)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xTop</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yTop</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cx</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cy</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4869542"></a><h3>
+<a name="RECT-IN-RECT:CAPS"></a>RECT_IN_RECT()</h3>
+<a class="indexterm" name="id4869554"></a><pre class="programlisting">#define     RECT_IN_RECT(xTop1,yTop1,cx1,cy1,xTop2,yTop2,cx2,cy2)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xTop1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yTop1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cx1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cy1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xTop2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yTop2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cx2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cy2</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4880752"></a><h3>
+<a name="RECT-INTERSECT-RECT:CAPS"></a>RECT_INTERSECT_RECT()</h3>
+<a class="indexterm" name="id4880763"></a><pre class="programlisting">#define     RECT_INTERSECT_RECT(xTop1,yTop1,cx1,cy1,xTop2,yTop2,cx2,cy2)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xTop1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yTop1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cx1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cy1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xTop2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yTop2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cx2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cy2</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4880883"></a><h3>
+<a name="RECT-EQUALS-RECT:CAPS"></a>RECT_EQUALS_RECT()</h3>
+<a class="indexterm" name="id4880894"></a><pre class="programlisting">#define     RECT_EQUALS_RECT(xTop1,yTop1,cx1,cy1,xTop2,yTop2,cx2,cy2)</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xTop1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yTop1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cx1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cy1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xTop2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yTop2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cx2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cy2</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881014"></a><h3>
+<a name="world-to-real-x"></a>world_to_real_x ()</h3>
+<a class="indexterm" name="id4881024"></a><pre class="programlisting">int         world_to_real_x                 (double xWorld);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xWorld</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881074"></a><h3>
+<a name="world-to-real-y"></a>world_to_real_y ()</h3>
+<a class="indexterm" name="id4881084"></a><pre class="programlisting">int         world_to_real_y                 (double yWorld);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yWorld</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881134"></a><h3>
+<a name="world-to-real-cx"></a>world_to_real_cx ()</h3>
+<a class="indexterm" name="id4881144"></a><pre class="programlisting">int         world_to_real_cx                (double cxWorld);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cxWorld</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881193"></a><h3>
+<a name="world-to-real-cy"></a>world_to_real_cy ()</h3>
+<a class="indexterm" name="id4881204"></a><pre class="programlisting">int         world_to_real_cy                (double cyWorld);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cyWorld</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881253"></a><h3>
+<a name="real-to-world-x"></a>real_to_world_x ()</h3>
+<a class="indexterm" name="id4881263"></a><pre class="programlisting">double      real_to_world_x                 (int xReal);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xReal</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881313"></a><h3>
+<a name="real-to-world-y"></a>real_to_world_y ()</h3>
+<a class="indexterm" name="id4881323"></a><pre class="programlisting">double      real_to_world_y                 (int yReal);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yReal</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881372"></a><h3>
+<a name="real-to-world-cx"></a>real_to_world_cx ()</h3>
+<a class="indexterm" name="id4881383"></a><pre class="programlisting">double      real_to_world_cx                (int cxReal);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cxReal</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881432"></a><h3>
+<a name="real-to-world-cy"></a>real_to_world_cy ()</h3>
+<a class="indexterm" name="id4881443"></a><pre class="programlisting">double      real_to_world_cy                (int cyReal);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cyReal</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881492"></a><h3>
+<a name="world-to-grid-pt"></a>world_to_grid_pt ()</h3>
+<a class="indexterm" name="id4881502"></a><pre class="programlisting">void        world_to_grid_pt                (double *pxWorld,
+                                             double *pyWorld);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pxWorld</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pyWorld</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881561"></a><h3>
+<a name="reset-zoom"></a>reset_zoom ()</h3>
+<a class="indexterm" name="id4881571"></a><pre class="programlisting">void        reset_zoom                      ();</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881589"></a><h3>
+<a name="zoom-in"></a>zoom_in ()</h3>
+<a class="indexterm" name="id4881600"></a><pre class="programlisting">void        zoom_in                         ();</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881617"></a><h3>
+<a name="zoom-out"></a>zoom_out ()</h3>
+<a class="indexterm" name="id4881628"></a><pre class="programlisting">void        zoom_out                        ();</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881646"></a><h3>
+<a name="zoom-window"></a>zoom_window ()</h3>
+<a class="indexterm" name="id4881657"></a><pre class="programlisting">void        zoom_window                     (int top_x,
+                                             int top_y,
+                                             int bot_x,
+                                             int bot_y);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>top_x</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>top_y</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bot_x</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bot_y</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881754"></a><h3>
+<a name="set-snap-source"></a>set_snap_source ()</h3>
+<a class="indexterm" name="id4881764"></a><pre class="programlisting">void        set_snap_source                 (void *new_snap_source);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>new_snap_source</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881805"></a><h3>
+<a name="pan"></a>pan ()</h3>
+<a class="indexterm" name="id4881815"></a><pre class="programlisting">void        pan                             (int cx,
+                                             int cy);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cx</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cy</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881875"></a><h3>
+<a name="is-real-point-visible"></a>is_real_point_visible ()</h3>
+<a class="indexterm" name="id4881885"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    is_real_point_visible           (int xReal,
+                                             int yReal);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>xReal</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>yReal</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4881954"></a><h3>
+<a name="set-client-dimension"></a>set_client_dimension ()</h3>
+<a class="indexterm" name="id4881964"></a><pre class="programlisting">void        set_client_dimension            (int cxNew,
+                                             int cyNew);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cxNew</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cyNew</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882024"></a><h3>
+<a name="is-real-rect-visible"></a>is_real_rect_visible ()</h3>
+<a class="indexterm" name="id4882034"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    is_real_rect_visible            (<a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rc);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rc</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882084"></a><h3>
+<a name="get-world-viewport"></a>get_world_viewport ()</h3>
+<a class="indexterm" name="id4882095"></a><pre class="programlisting">void        get_world_viewport              (double *pxMin,
+                                             double *pyMin,
+                                             double *pxMax,
+                                             double *pyMax);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pxMin</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pyMin</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pxMax</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pyMax</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882192"></a><h3>
+<a name="push-transformation"></a>push_transformation ()</h3>
+<a class="indexterm" name="id4882203"></a><pre class="programlisting">void        push_transformation             ();</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882221"></a><h3>
+<a name="set-transformation"></a>set_transformation ()</h3>
+<a class="indexterm" name="id4882232"></a><pre class="programlisting">void        set_transformation              (TRANSFORMATION *xform);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>xform</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882272"></a><h3>
+<a name="pop-transformation"></a>pop_transformation ()</h3>
+<a class="indexterm" name="id4882282"></a><pre class="programlisting">void        pop_transformation              ();</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882301"></a><h3>
+<a name="real-to-world-rect"></a>real_to_world_rect ()</h3>
+<a class="indexterm" name="id4882311"></a><pre class="programlisting">WorldRectangle* real_to_world_rect          (WorldRectangle *rcWorld,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rcReal);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcWorld</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcReal</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882380"></a><h3>
+<a name="world-to-real-rect"></a>world_to_real_rect ()</h3>
+<a class="indexterm" name="id4882390"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a>* world_to_real_rect            (WorldRectangle *rcWorld,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Points-Rectangles-and-Regions.html#GdkRectangle"
+>GdkRectangle</a> *rcReal);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcWorld</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcReal</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882458"></a><h3>
+<a name="world-rectangle-union"></a>world_rectangle_union ()</h3>
+<a class="indexterm" name="id4882469"></a><pre class="programlisting">void        world_rectangle_union           (WorldRectangle *rc1,
+                                             WorldRectangle *rc2,
+                                             WorldRectangle *rcDst);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rc1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rc2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcDst</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882547"></a><h3>
+<a name="world-rectangle-intersect"></a>world_rectangle_intersect ()</h3>
+<a class="indexterm" name="id4882558"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    world_rectangle_intersect       (WorldRectangle *rc1,
+                                             WorldRectangle *rc2,
+                                             WorldRectangle *rcDst);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rc1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rc2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rcDst</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4882646"></a><h3>
+<a name="world-rectangle-subtract"></a>world_rectangle_subtract ()</h3>
+<a class="indexterm" name="id4882656"></a><pre class="programlisting">int         world_rectangle_subtract        (WorldRectangle *rc1,
+                                             WorldRectangle *rc2,
+                                             WorldRectangle new_rcs[4]);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rc1</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rc2</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>new_rcs</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

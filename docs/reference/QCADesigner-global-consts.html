@@ -1,0 +1,719 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>global_consts</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-vector-table-options-dialog-callbacks.html" title="vector_table_options_dialog_callbacks">
+<link rel="next" href="QCADesigner-design.html" title="design">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-vector-table-options-dialog-callbacks.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-design.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4792913" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4860255" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-global-consts"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4792913"></a><span class="refentrytitle">global_consts</span>
+</h2>
+<p>global_consts &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+#define     <a href="QCADesigner-global-consts.html#FILEOP-NO-ACTION:CAPS">FILEOP_NO_ACTION</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-OPEN:CAPS">FILEOP_OPEN</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-SAVE-AS:CAPS">FILEOP_SAVE_AS</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-EXPORT:CAPS">FILEOP_EXPORT</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-IMPORT:CAPS">FILEOP_IMPORT</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-OPEN-RECENT:CAPS">FILEOP_OPEN_RECENT</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-SAVE:CAPS">FILEOP_SAVE</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-CMDLINE:CAPS">FILEOP_CMDLINE</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-AUTOSAVE:CAPS">FILEOP_AUTOSAVE</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-AUTOLOAD:CAPS">FILEOP_AUTOLOAD</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-NEW:CAPS">FILEOP_NEW</a>
+#define     <a href="QCADesigner-global-consts.html#FILEOP-CLOSE:CAPS">FILEOP_CLOSE</a>
+#define     <a href="QCADesigner-global-consts.html#PRINTED-OBJECTS-DIE:CAPS">PRINTED_OBJECTS_DIE</a>
+#define     <a href="QCADesigner-global-consts.html#PRINTED-OBJECTS-CELLS:CAPS">PRINTED_OBJECTS_CELLS</a>
+#define     <a href="QCADesigner-global-consts.html#PRINTED-OBJECTS-COLOURS:CAPS">PRINTED_OBJECTS_COLOURS</a>
+#define     <a href="QCADesigner-global-consts.html#GREEN:CAPS">GREEN</a>
+#define     <a href="QCADesigner-global-consts.html#GREEN1:CAPS">GREEN1</a>
+#define     <a href="QCADesigner-global-consts.html#GREEN2:CAPS">GREEN2</a>
+#define     <a href="QCADesigner-global-consts.html#GREEN3:CAPS">GREEN3</a>
+#define     <a href="QCADesigner-global-consts.html#RED:CAPS">RED</a>
+#define     <a href="QCADesigner-global-consts.html#BLUE:CAPS">BLUE</a>
+#define     <a href="QCADesigner-global-consts.html#YELLOW:CAPS">YELLOW</a>
+#define     <a href="QCADesigner-global-consts.html#WHITE:CAPS">WHITE</a>
+#define     <a href="QCADesigner-global-consts.html#ORANGE:CAPS">ORANGE</a>
+#define     <a href="QCADesigner-global-consts.html#BLACK:CAPS">BLACK</a>
+#define     <a href="QCADesigner-global-consts.html#HONEYCOMB-BACKGROUND:CAPS">HONEYCOMB_BACKGROUND</a>
+#define     <a href="QCADesigner-global-consts.html#BISTABLE:CAPS">BISTABLE</a>
+#define     <a href="QCADesigner-global-consts.html#DIGITAL-SIM:CAPS">DIGITAL_SIM</a>
+#define     <a href="QCADesigner-global-consts.html#SCQCA:CAPS">SCQCA</a>
+#define     <a href="QCADesigner-global-consts.html#COHERENCE-VECTOR:CAPS">COHERENCE_VECTOR</a>
+#define     <a href="QCADesigner-global-consts.html#TS-COHERENCE-VECTOR:CAPS">TS_COHERENCE_VECTOR</a>
+#define     <a href="QCADesigner-global-consts.html#EXHAUSTIVE-VERIFICATION:CAPS">EXHAUSTIVE_VERIFICATION</a>
+#define     <a href="QCADesigner-global-consts.html#VECTOR-TABLE:CAPS">VECTOR_TABLE</a>
+#define     <a href="QCADesigner-global-consts.html#RUNGE-KUTTA:CAPS">RUNGE_KUTTA</a>
+#define     <a href="QCADesigner-global-consts.html#EULER-METHOD:CAPS">EULER_METHOD</a>
+#define     <a href="QCADesigner-global-consts.html#ZONE-CLOCKING:CAPS">ZONE_CLOCKING</a>
+#define     <a href="QCADesigner-global-consts.html#ELECTRODE-CLOCKING:CAPS">ELECTRODE_CLOCKING</a>
+#define     <a href="QCADesigner-global-consts.html#QCHARGE-SQUAR-OVER-FOUR:CAPS">QCHARGE_SQUAR_OVER_FOUR</a>
+#define     <a href="QCADesigner-global-consts.html#QCHARGE:CAPS">QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#HALF-QCHARGE:CAPS">HALF_QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#OVER-QCHARGE:CAPS">OVER_QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#THIRD-QCHARGE:CAPS">THIRD_QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#TWO-THIRDS-QCHARGE:CAPS">TWO_THIRDS_QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#TWO-FIFTHS-QCHARGE:CAPS">TWO_FIFTHS_QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#ONE-FIFTHS-QCHARGE:CAPS">ONE_FIFTHS_QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#THREE-FIFTHS-QCHARGE:CAPS">THREE_FIFTHS_QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#FOUR-FIFTHS-QCHARGE:CAPS">FOUR_FIFTHS_QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#ONE-OVER-FOUR-HALF-QCHARGE:CAPS">ONE_OVER_FOUR_HALF_QCHARGE</a>
+#define     <a href="QCADesigner-global-consts.html#EPSILON:CAPS">EPSILON</a>
+#define     <a href="QCADesigner-global-consts.html#PI:CAPS">PI</a>
+#define     <a href="QCADesigner-global-consts.html#TWO-PI:CAPS">TWO_PI</a>
+#define     <a href="QCADesigner-global-consts.html#FOUR-PI:CAPS">FOUR_PI</a>
+#define     <a href="QCADesigner-global-consts.html#FOUR-PI-EPSILON:CAPS">FOUR_PI_EPSILON</a>
+#define     <a href="QCADesigner-global-consts.html#HBAR:CAPS">HBAR</a>
+#define     <a href="QCADesigner-global-consts.html#OVER-HBAR:CAPS">OVER_HBAR</a>
+#define     <a href="QCADesigner-global-consts.html#PRECISION:CAPS">PRECISION</a>
+#define     <a href="QCADesigner-global-consts.html#PATH-LENGTH:CAPS">PATH_LENGTH</a>
+#define     <a href="QCADesigner-global-consts.html#QCAD-GDKFONT:CAPS">QCAD_GDKFONT</a>
+#define     <a href="QCADesigner-global-consts.html#PS-FONT:CAPS">PS_FONT</a>
+#define     <a href="QCADesigner-global-consts.html#PAN-STEP:CAPS">PAN_STEP</a>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4860255"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4860271"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4860282"></a><h3>
+<a name="FILEOP-NO-ACTION:CAPS"></a>FILEOP_NO_ACTION</h3>
+<a class="indexterm" name="id4860293"></a><pre class="programlisting">#define FILEOP_NO_ACTION 0
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4860309"></a><h3>
+<a name="FILEOP-OPEN:CAPS"></a>FILEOP_OPEN</h3>
+<a class="indexterm" name="id4860321"></a><pre class="programlisting">#define FILEOP_OPEN 1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4860336"></a><h3>
+<a name="FILEOP-SAVE-AS:CAPS"></a>FILEOP_SAVE_AS</h3>
+<a class="indexterm" name="id4860349"></a><pre class="programlisting">#define FILEOP_SAVE_AS 2
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4860364"></a><h3>
+<a name="FILEOP-EXPORT:CAPS"></a>FILEOP_EXPORT</h3>
+<a class="indexterm" name="id4860376"></a><pre class="programlisting">#define FILEOP_EXPORT 3
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4860392"></a><h3>
+<a name="FILEOP-IMPORT:CAPS"></a>FILEOP_IMPORT</h3>
+<a class="indexterm" name="id4860404"></a><pre class="programlisting">#define FILEOP_IMPORT 4
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4860420"></a><h3>
+<a name="FILEOP-OPEN-RECENT:CAPS"></a>FILEOP_OPEN_RECENT</h3>
+<a class="indexterm" name="id4860431"></a><pre class="programlisting">#define FILEOP_OPEN_RECENT 5
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4860447"></a><h3>
+<a name="FILEOP-SAVE:CAPS"></a>FILEOP_SAVE</h3>
+<a class="indexterm" name="id4860460"></a><pre class="programlisting">#define FILEOP_SAVE 7
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4860474"></a><h3>
+<a name="FILEOP-CMDLINE:CAPS"></a>FILEOP_CMDLINE</h3>
+<a class="indexterm" name="id4860487"></a><pre class="programlisting">#define FILEOP_CMDLINE 9
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4860502"></a><h3>
+<a name="FILEOP-AUTOSAVE:CAPS"></a>FILEOP_AUTOSAVE</h3>
+<a class="indexterm" name="id4851793"></a><pre class="programlisting">#define FILEOP_AUTOSAVE 10
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4851809"></a><h3>
+<a name="FILEOP-AUTOLOAD:CAPS"></a>FILEOP_AUTOLOAD</h3>
+<a class="indexterm" name="id4851820"></a><pre class="programlisting">#define FILEOP_AUTOLOAD 11
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4851836"></a><h3>
+<a name="FILEOP-NEW:CAPS"></a>FILEOP_NEW</h3>
+<a class="indexterm" name="id4851848"></a><pre class="programlisting">#define FILEOP_NEW 6
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4851863"></a><h3>
+<a name="FILEOP-CLOSE:CAPS"></a>FILEOP_CLOSE</h3>
+<a class="indexterm" name="id4851876"></a><pre class="programlisting">#define FILEOP_CLOSE 8
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4851891"></a><h3>
+<a name="PRINTED-OBJECTS-DIE:CAPS"></a>PRINTED_OBJECTS_DIE</h3>
+<a class="indexterm" name="id4851903"></a><pre class="programlisting">#define PRINTED_OBJECTS_DIE     0
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4851918"></a><h3>
+<a name="PRINTED-OBJECTS-CELLS:CAPS"></a>PRINTED_OBJECTS_CELLS</h3>
+<a class="indexterm" name="id4851929"></a><pre class="programlisting">#define PRINTED_OBJECTS_CELLS   1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4851944"></a><h3>
+<a name="PRINTED-OBJECTS-COLOURS:CAPS"></a>PRINTED_OBJECTS_COLOURS</h3>
+<a class="indexterm" name="id4851956"></a><pre class="programlisting">#define PRINTED_OBJECTS_COLOURS 2
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4851971"></a><h3>
+<a name="GREEN:CAPS"></a>GREEN</h3>
+<a class="indexterm" name="id4851983"></a><pre class="programlisting">#define GREEN 0
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4851998"></a><h3>
+<a name="GREEN1:CAPS"></a>GREEN1</h3>
+<a class="indexterm" name="id4852010"></a><pre class="programlisting">#define GREEN1 5
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4852026"></a><h3>
+<a name="GREEN2:CAPS"></a>GREEN2</h3>
+<a class="indexterm" name="id4852038"></a><pre class="programlisting">#define GREEN2 6
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4852054"></a><h3>
+<a name="GREEN3:CAPS"></a>GREEN3</h3>
+<a class="indexterm" name="id4863215"></a><pre class="programlisting">#define GREEN3 7
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863229"></a><h3>
+<a name="RED:CAPS"></a>RED</h3>
+<a class="indexterm" name="id4863239"></a><pre class="programlisting">#define RED 1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863253"></a><h3>
+<a name="BLUE:CAPS"></a>BLUE</h3>
+<a class="indexterm" name="id4863263"></a><pre class="programlisting">#define BLUE 2
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863277"></a><h3>
+<a name="YELLOW:CAPS"></a>YELLOW</h3>
+<a class="indexterm" name="id4863287"></a><pre class="programlisting">#define YELLOW 3
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863301"></a><h3>
+<a name="WHITE:CAPS"></a>WHITE</h3>
+<a class="indexterm" name="id4863311"></a><pre class="programlisting">#define WHITE 4
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863324"></a><h3>
+<a name="ORANGE:CAPS"></a>ORANGE</h3>
+<a class="indexterm" name="id4863334"></a><pre class="programlisting">#define ORANGE 8
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863348"></a><h3>
+<a name="BLACK:CAPS"></a>BLACK</h3>
+<a class="indexterm" name="id4863358"></a><pre class="programlisting">#define BLACK 9
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863372"></a><h3>
+<a name="HONEYCOMB-BACKGROUND:CAPS"></a>HONEYCOMB_BACKGROUND</h3>
+<a class="indexterm" name="id4863382"></a><pre class="programlisting">#define HONEYCOMB_BACKGROUND 10
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863396"></a><h3>
+<a name="BISTABLE:CAPS"></a>BISTABLE</h3>
+<a class="indexterm" name="id4863406"></a><pre class="programlisting">#define BISTABLE 1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863420"></a><h3>
+<a name="DIGITAL-SIM:CAPS"></a>DIGITAL_SIM</h3>
+<a class="indexterm" name="id4863430"></a><pre class="programlisting">#define DIGITAL_SIM 2
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863444"></a><h3>
+<a name="SCQCA:CAPS"></a>SCQCA</h3>
+<a class="indexterm" name="id4863454"></a><pre class="programlisting">#define SCQCA 3
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863468"></a><h3>
+<a name="COHERENCE-VECTOR:CAPS"></a>COHERENCE_VECTOR</h3>
+<a class="indexterm" name="id4863478"></a><pre class="programlisting">#define COHERENCE_VECTOR 4
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863492"></a><h3>
+<a name="TS-COHERENCE-VECTOR:CAPS"></a>TS_COHERENCE_VECTOR</h3>
+<a class="indexterm" name="id4863502"></a><pre class="programlisting">#define TS_COHERENCE_VECTOR 5
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863516"></a><h3>
+<a name="EXHAUSTIVE-VERIFICATION:CAPS"></a>EXHAUSTIVE_VERIFICATION</h3>
+<a class="indexterm" name="id4863526"></a><pre class="programlisting">#define EXHAUSTIVE_VERIFICATION 0
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863540"></a><h3>
+<a name="VECTOR-TABLE:CAPS"></a>VECTOR_TABLE</h3>
+<a class="indexterm" name="id4863550"></a><pre class="programlisting">#define VECTOR_TABLE 1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863564"></a><h3>
+<a name="RUNGE-KUTTA:CAPS"></a>RUNGE_KUTTA</h3>
+<a class="indexterm" name="id4863574"></a><pre class="programlisting">#define RUNGE_KUTTA 1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863588"></a><h3>
+<a name="EULER-METHOD:CAPS"></a>EULER_METHOD</h3>
+<a class="indexterm" name="id4863598"></a><pre class="programlisting">#define EULER_METHOD 2
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863612"></a><h3>
+<a name="ZONE-CLOCKING:CAPS"></a>ZONE_CLOCKING</h3>
+<a class="indexterm" name="id4863622"></a><pre class="programlisting">#define ZONE_CLOCKING 1
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863636"></a><h3>
+<a name="ELECTRODE-CLOCKING:CAPS"></a>ELECTRODE_CLOCKING</h3>
+<a class="indexterm" name="id4863646"></a><pre class="programlisting">#define ELECTRODE_CLOCKING 2
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863660"></a><h3>
+<a name="QCHARGE-SQUAR-OVER-FOUR:CAPS"></a>QCHARGE_SQUAR_OVER_FOUR</h3>
+<a class="indexterm" name="id4863670"></a><pre class="programlisting">#define QCHARGE_SQUAR_OVER_FOUR    ((double)(6.41742353846709430467559076549e-39))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863685"></a><h3>
+<a name="QCHARGE:CAPS"></a>QCHARGE</h3>
+<a class="indexterm" name="id4863696"></a><pre class="programlisting">#define QCHARGE                    ((double)(1.60217646200000007055474082341e-19))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863711"></a><h3>
+<a name="HALF-QCHARGE:CAPS"></a>HALF_QCHARGE</h3>
+<a class="indexterm" name="id4863721"></a><pre class="programlisting">#define HALF_QCHARGE               ((double)(8.01088231000000035277370411706e-20))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863736"></a><h3>
+<a name="OVER-QCHARGE:CAPS"></a>OVER_QCHARGE</h3>
+<a class="indexterm" name="id4863747"></a><pre class="programlisting">#define OVER_QCHARGE               ((double)(6.24150974451152486400000000000e18))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863762"></a><h3>
+<a name="THIRD-QCHARGE:CAPS"></a>THIRD_QCHARGE</h3>
+<a class="indexterm" name="id4863772"></a><pre class="programlisting">#define THIRD_QCHARGE              ((double)(5.34058820666666650061373099737e-20))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863787"></a><h3>
+<a name="TWO-THIRDS-QCHARGE:CAPS"></a>TWO_THIRDS_QCHARGE</h3>
+<a class="indexterm" name="id4863798"></a><pre class="programlisting">#define TWO_THIRDS_QCHARGE         ((double)(1.06811764133333330012274619947e-19))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863813"></a><h3>
+<a name="TWO-FIFTHS-QCHARGE:CAPS"></a>TWO_FIFTHS_QCHARGE</h3>
+<a class="indexterm" name="id4863823"></a><pre class="programlisting">#define TWO_FIFTHS_QCHARGE         ((double)(6.40870584800000052296020634206e-20))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863838"></a><h3>
+<a name="ONE-FIFTHS-QCHARGE:CAPS"></a>ONE_FIFTHS_QCHARGE</h3>
+<a class="indexterm" name="id4863849"></a><pre class="programlisting">#define ONE_FIFTHS_QCHARGE         ((double)(3.20435292400000026148010317103e-20))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863864"></a><h3>
+<a name="THREE-FIFTHS-QCHARGE:CAPS"></a>THREE_FIFTHS_QCHARGE</h3>
+<a class="indexterm" name="id4863874"></a><pre class="programlisting">#define THREE_FIFTHS_QCHARGE       ((double)(9.61305877200000138629341713410e-20))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863889"></a><h3>
+<a name="FOUR-FIFTHS-QCHARGE:CAPS"></a>FOUR_FIFTHS_QCHARGE</h3>
+<a class="indexterm" name="id4863900"></a><pre class="programlisting">#define FOUR_FIFTHS_QCHARGE        ((double)(1.28174116960000010459204126841e-19))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863915"></a><h3>
+<a name="ONE-OVER-FOUR-HALF-QCHARGE:CAPS"></a>ONE_OVER_FOUR_HALF_QCHARGE</h3>
+<a class="indexterm" name="id4863925"></a><pre class="programlisting">#define ONE_OVER_FOUR_HALF_QCHARGE ((double)(3.12075487225576243200000000000e18))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863940"></a><h3>
+<a name="EPSILON:CAPS"></a>EPSILON</h3>
+<a class="indexterm" name="id4863950"></a><pre class="programlisting">#define EPSILON                    ((double)(8.85418781700000047157054854521e-12))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863966"></a><h3>
+<a name="PI:CAPS"></a>PI</h3>
+<a class="indexterm" name="id4863976"></a><pre class="programlisting">#define PI                          ((double)(3.141592653589793115997963468544))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4863991"></a><h3>
+<a name="TWO-PI:CAPS"></a>TWO_PI</h3>
+<a class="indexterm" name="id4864001"></a><pre class="programlisting">#define TWO_PI                      ((double)(6.283185307179586231995926937088))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4864016"></a><h3>
+<a name="FOUR-PI:CAPS"></a>FOUR_PI</h3>
+<a class="indexterm" name="id4864027"></a><pre class="programlisting">#define FOUR_PI                    ((double)(12.56637061435917246399185387418))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4864042"></a><h3>
+<a name="FOUR-PI-EPSILON:CAPS"></a>FOUR_PI_EPSILON</h3>
+<a class="indexterm" name="id4864052"></a><pre class="programlisting">#define FOUR_PI_EPSILON            ((double)(1.11265005597565794635320037482e-10))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4864067"></a><h3>
+<a name="HBAR:CAPS"></a>HBAR</h3>
+<a class="indexterm" name="id4864078"></a><pre class="programlisting">#define HBAR                       ((double)(1.05457159642078551348871563291e-34))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4864093"></a><h3>
+<a name="OVER-HBAR:CAPS"></a>OVER_HBAR</h3>
+<a class="indexterm" name="id4864103"></a><pre class="programlisting">#define OVER_HBAR                  ((double)(9.48252355168675613949607578855e33))
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4864118"></a><h3>
+<a name="PRECISION:CAPS"></a>PRECISION</h3>
+<a class="indexterm" name="id4864129"></a><pre class="programlisting">#define PRECISION 1e-5
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4864142"></a><h3>
+<a name="PATH-LENGTH:CAPS"></a>PATH_LENGTH</h3>
+<a class="indexterm" name="id4864153"></a><pre class="programlisting">#define     PATH_LENGTH</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4864166"></a><h3>
+<a name="QCAD-GDKFONT:CAPS"></a>QCAD_GDKFONT</h3>
+<a class="indexterm" name="id4864177"></a><pre class="programlisting">#define     QCAD_GDKFONT</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4864190"></a><h3>
+<a name="PS-FONT:CAPS"></a>PS_FONT</h3>
+<a class="indexterm" name="id4864201"></a><pre class="programlisting">#define PS_FONT "FuturaBT-Medium"
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4864214"></a><h3>
+<a name="PAN-STEP:CAPS"></a>PAN_STEP</h3>
+<a class="indexterm" name="id4864225"></a><pre class="programlisting">#define PAN_STEP 10
+</pre>
+<p>
+
+</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

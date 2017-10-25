@@ -1,0 +1,462 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADPrintDialog</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="prev" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="next" href="QCADFlexiCombo.html" title="QCADFlexiCombo">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADWidgets.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADWidgets.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADFlexiCombo.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4778167" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4814145" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4816006" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4816073" class="shortcut">Implemented Interfaces</a>
+                  &#160;|&#160;
+                  <a href="#id4816094" class="shortcut">Signals</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADPrintDialog"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4778167"></a><span class="refentrytitle">QCADPrintDialog</span>
+</h2>
+<p>QCADPrintDialog &#8212; QCADesigner's print dialog widget</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADPrintDialog.html#QCADPrintDialog-struct">QCADPrintDialog</a>;
+<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>*  <a href="QCADPrintDialog.html#qcad-print-dialog-new">qcad_print_dialog_new</a>           (<a href="QCADesigner-print.html#print-OP">print_OP</a> *pPO);
+void        <a href="QCADPrintDialog.html#qcad-print-dialog-add-page">qcad_print_dialog_add_page</a>      (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *contents,
+                                             char *pszLbl);
+void        <a href="QCADPrintDialog.html#qcad-print-dialog-get-options">qcad_print_dialog_get_options</a>   (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                             <a href="QCADesigner-print.html#print-OP">print_OP</a> *pPO);
+double      <a href="QCADPrintDialog.html#qcad-print-dialog-to-current-units">qcad_print_dialog_to_current_units</a>
+                                            (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                             double dPoints);
+double      <a href="QCADPrintDialog.html#qcad-print-dialog-from-current-units">qcad_print_dialog_from_current_units</a>
+                                            (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                             double dUnits);
+char*       <a href="QCADPrintDialog.html#qcad-print-dialog-get-units-short-string">qcad_print_dialog_get_units_short_string</a>
+                                            (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4816006"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----GInitiallyUnowned
+         +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkObject.html"
+>GtkObject</a>
+               +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>
+                     +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkContainer.html"
+>GtkContainer</a>
+                           +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkBin.html"
+>GtkBin</a>
+                                 +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWindow.html"
+>GtkWindow</a>
+                                       +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkDialog.html"
+>GtkDialog</a>
+                                             +----QCADPrintDialog
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4816073"></a><h2>Implemented Interfaces</h2>
+<p>
+QCADPrintDialog implements
+ AtkImplementorIface.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4816094"></a><h2>Signals</h2>
+<pre class="synopsis">
+
+"<a href="QCADPrintDialog.html#QCADPrintDialog-changed">changed</a>"   void        user_function      (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>         user_data)         : Run first
+"<a href="QCADPrintDialog.html#QCADPrintDialog-preview">preview</a>"   void        user_function      (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>         user_data)         : Run first
+"<a href="QCADPrintDialog.html#QCADPrintDialog-units-changed">units-changed</a>"
+            void        user_function      (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>          conversion_factor,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>         user_data)              : Run first
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4814145"></a><h2>Description</h2>
+<p>
+This dialog creates widgets necessary for manipulating a <a href="QCADesigner-print.html#print-OP"><span class="type">print_OP</span></a> structure and keeping its settings
+consistent. You can add more pages of widgets to it, and it will issue the
+"<a href="QCADPrintDialog.html#QCADPrintDialog-changed">changed</a>" and "<a href="QCADPrintDialog.html#QCADPrintDialog-units-changed">units-changed</a>"
+signals when your widgets need updating. It will also issue
+"<a href="QCADPrintDialog.html#QCADPrintDialog-preview">preview</a>" when the user asks for a preview.</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4814192"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4814203"></a><h3>
+<a name="QCADPrintDialog-struct"></a>QCADPrintDialog</h3>
+<a class="indexterm" name="id4818521"></a><pre class="programlisting">typedef struct _QCADPrintDialog QCADPrintDialog;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4818538"></a><h3>
+<a name="qcad-print-dialog-new"></a>qcad_print_dialog_new ()</h3>
+<a class="indexterm" name="id4818549"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>*  qcad_print_dialog_new           (<a href="QCADesigner-print.html#print-OP">print_OP</a> *pPO);</pre>
+<p>
+Creates a new print dialog widget displaying the settings inside <em class="parameter"><code>pPO</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pPO</code></em>&#160;:</span></td>
+<td> <a href="QCADesigner-print.html#print-OP"><span class="type">print_OP</span></a> structure to manipulate
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> A new <a href="QCADPrintDialog.html" title="QCADPrintDialog"><span class="type">QCADPrintDialog</span></a> widget.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4818629"></a><h3>
+<a name="qcad-print-dialog-add-page"></a>qcad_print_dialog_add_page ()</h3>
+<a class="indexterm" name="id4818640"></a><pre class="programlisting">void        qcad_print_dialog_add_page      (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *contents,
+                                             char *pszLbl);</pre>
+<p>
+Adds <em class="parameter"><code>contents</code></em> as a new page to <em class="parameter"><code>print_dialog</code></em> and names the tab <em class="parameter"><code>pszLbl</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>print_dialog</code></em>&#160;:</span></td>
+<td> The dialog to append the page to.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>contents</code></em>&#160;:</span></td>
+<td> Widget to display.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszLbl</code></em>&#160;:</span></td>
+<td> Label to display in page's tab.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4818749"></a><h3>
+<a name="qcad-print-dialog-get-options"></a>qcad_print_dialog_get_options ()</h3>
+<a class="indexterm" name="id4818761"></a><pre class="programlisting">void        qcad_print_dialog_get_options   (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                             <a href="QCADesigner-print.html#print-OP">print_OP</a> *pPO);</pre>
+<p>
+Retrieves the <a href="QCADesigner-print.html#print-OP"><span class="type">print_OP</span></a> settings from <em class="parameter"><code>print_dialog</code></em> and stores them in <em class="parameter"><code>pPO</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>print_dialog</code></em>&#160;:</span></td>
+<td> The dialog to retrieve the options from.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pPO</code></em>&#160;:</span></td>
+<td> The <a href="QCADesigner-print.html#print-OP"><span class="type">print_OP</span></a> structure to fill out.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4811661"></a><h3>
+<a name="qcad-print-dialog-to-current-units"></a>qcad_print_dialog_to_current_units ()</h3>
+<a class="indexterm" name="id4811674"></a><pre class="programlisting">double      qcad_print_dialog_to_current_units
+                                            (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                             double dPoints);</pre>
+<p>
+Converts <em class="parameter"><code>dPoints</code></em> to <em class="parameter"><code>print_dialog</code></em>'s current units.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>print_dialog</code></em>&#160;:</span></td>
+<td> The print dialog to convert with respect to.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dPoints</code></em>&#160;:</span></td>
+<td> Value (in points) to convert to current units.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> <em class="parameter"><code>dPoints</code></em> converted to <em class="parameter"><code>print_dialog</code></em>'s current units.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4811782"></a><h3>
+<a name="qcad-print-dialog-from-current-units"></a>qcad_print_dialog_from_current_units ()</h3>
+<a class="indexterm" name="id4811794"></a><pre class="programlisting">double      qcad_print_dialog_from_current_units
+                                            (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                             double dUnits);</pre>
+<p>
+Converts <em class="parameter"><code>dUnits</code></em>, in <em class="parameter"><code>print_dialog</code></em>'s current units, to points.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>print_dialog</code></em>&#160;:</span></td>
+<td> The print dialog to convert with respect to.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dUnits</code></em>&#160;:</span></td>
+<td> Value (in <em class="parameter"><code>print_dialog</code></em>'s current units) to convert to points.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> the number of points corresponding to <em class="parameter"><code>dUnits</code></em> in <em class="parameter"><code>print_dialog</code></em>'s current units.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4819646"></a><h3>
+<a name="qcad-print-dialog-get-units-short-string"></a>qcad_print_dialog_get_units_short_string ()</h3>
+<a class="indexterm" name="id4819659"></a><pre class="programlisting">char*       qcad_print_dialog_get_units_short_string
+                                            (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog);</pre>
+<p>
+Retrieves the string representing the current units used in the dialog (currently one of "cm", "in", or "pt").</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>print_dialog</code></em>&#160;:</span></td>
+<td> The print dialog.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> A string that should be freed with <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Memory-Allocation.html#g-free"
+><code class="function">g_free()</code></a> when no longer needed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4819726"></a><h2>Signal Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4819735"></a><h3>
+<a name="QCADPrintDialog-changed"></a>The "changed" signal</h3>
+<a class="indexterm" name="id4819742"></a><pre class="programlisting">void        user_function                  (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>         user_data)         : Run first</pre>
+<p>
+This signal is emitted whenever the user adjusts one of the widgets on one of the <a href="QCADPrintDialog.html" title="QCADPrintDialog"><span class="type">QCADPrintDialog</span></a>
+widget's pages. It allows you to update whatever widgets you may have added to the dialog to stay
+consistent with the new settings.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>print_dialog</code></em>&#160;:</span></td>
+<td> The dialog that has changed.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4819817"></a><h3>
+<a name="QCADPrintDialog-preview"></a>The "preview" signal</h3>
+<a class="indexterm" name="id4819824"></a><pre class="programlisting">void        user_function                  (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>         user_data)         : Run first</pre>
+<p>
+This signal is emitted whenever the user clicks the "Print Preview" button in the dialog.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>print_dialog</code></em>&#160;:</span></td>
+<td> The dialog wherein the user asked for a preview.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4819890"></a><h3>
+<a name="QCADPrintDialog-units-changed"></a>The "units-changed" signal</h3>
+<a class="indexterm" name="id4819900"></a><pre class="programlisting">void        user_function                  (<a href="QCADPrintDialog.html" title="QCADPrintDialog">QCADPrintDialog</a> *print_dialog,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>          conversion_factor,
+                                            <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gpointer"
+>gpointer</a>         user_data)              : Run first</pre>
+<p>
+This signal is emitted whenever the user changes the units to display in the dialog.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>print_dialog</code></em>&#160;:</span></td>
+<td> The dialog whose units have changed.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>conversion_factor</code></em>&#160;:</span></td>
+<td> The conversion factor from the old units to the new units.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>user_data</code></em>&#160;:</span></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADCell</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="prev" href="QCADDesignObject.html" title="QCADDesignObject">
+<link rel="next" href="QCADLayer.html" title="QCADLayer">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADDesignObject.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADObjects.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADLayer.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4779830" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4797258" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4781723" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4781759" class="shortcut">Implemented Interfaces</a>
+                  &#160;|&#160;
+                  <a href="#id4797144" class="shortcut">Properties</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADCell"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4779830"></a><span class="refentrytitle">QCADCell</span>
+</h2>
+<p>QCADCell &#8212; QCA Cell</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+#define     <a href="QCADCell.html#CLOCK-INC:CAPS">CLOCK_INC</a>                       (c)
+#define     <a href="QCADCell.html#CLOCK-DEC:CAPS">CLOCK_DEC</a>                       (c)
+            <a href="QCADCell.html#QCADCell-struct">QCADCell</a>;
+void        <a href="QCADCell.html#qcad-cell-drexp-array">qcad_cell_drexp_array</a>           (<a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Drawing-Primitives.html#GdkDrawable"
+>GdkDrawable</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/gtk-Standard-Enumerations.html#GtkOrientation"
+>GtkOrientation</a> orientation,
+                                             double dRangeBeg,
+                                             double dRangeEnd,
+                                             double dOtherCoord);
+<a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  <a href="QCADCell.html#qcad-cell-create-array">qcad_cell_create_array</a>          (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bHorizontal,
+                                             double dRangeBeg,
+                                             double dRangeEnd,
+                                             double dOtherCoord);
+double      <a href="QCADCell.html#qcad-cell-calculate-polarization">qcad_cell_calculate_polarization</a>
+                                            (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell);
+void        <a href="QCADCell.html#qcad-cell-set-polarization">qcad_cell_set_polarization</a>      (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             double dPolarization);
+void        <a href="QCADCell.html#qcad-cell-set-clock">qcad_cell_set_clock</a>             (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             int iClock);
+void        <a href="QCADCell.html#qcad-cell-set-function">qcad_cell_set_function</a>          (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             QCADCellFunction function);
+void        <a href="QCADCell.html#qcad-cell-set-label">qcad_cell_set_label</a>             (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             char *pszLabel);
+void        <a href="QCADCell.html#qcad-cell-rotate-dots">qcad_cell_rotate_dots</a>           (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             double angle);
+const char* <a href="QCADCell.html#qcad-cell-get-label">qcad_cell_get_label</a>             (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell);
+void        <a href="QCADCell.html#qcad-cell-scale">qcad_cell_scale</a>                 (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             double dScale,
+                                             double dxOrigin,
+                                             double dyOrigin);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4781723"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="QCADObject.html" title="QCADObject">QCADObject</a>
+         +----<a href="QCADDesignObject.html" title="QCADDesignObject">QCADDesignObject</a>
+               +----QCADCell
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4781759"></a><h2>Implemented Interfaces</h2>
+<p>
+QCADCell implements
+ <a href="QCADCompoundDO.html" title="QCADCompoundDO">QCADCompoundDO</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4797144"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a href="QCADCell.html#QCADCell--clock">clock</a>"                <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>                 : Read / Write
+  "<a href="QCADCell.html#QCADCell--dot-diameter">dot-diameter</a>"         <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADCell.html#QCADCell--function">function</a>"             QCADCellFunction      : Read / Write
+  "<a href="QCADCell.html#QCADCell--height">height</a>"               <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADCell.html#QCADCell--label">label</a>"                <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Standard-Parameter-and-Value-Types.html#gchararray"
+>gchararray</a>            : Read / Write
+  "<a href="QCADCell.html#QCADCell--mode">mode</a>"                 QCADCellMode          : Read / Write
+  "<a href="QCADCell.html#QCADCell--polarization">polarization</a>"         <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+  "<a href="QCADCell.html#QCADCell--width">width</a>"                <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4797258"></a><h2>Description</h2>
+<p>
+Implementation of the QCA cell. Every cell is assumed to have 4 dots, located either inside the cell's
+corners, or inside the midpoints of the cell's edges. Cells can serve 4 different functions
+(<code class="literal">QCAD_CELL_NORMAL</code>, <code class="literal">QCAD_CELL_INPUT</code>, <code class="literal">QCAD_CELL_OUTPUT</code>, <code class="literal">QCAD_CELL_FIXED</code>) and 3 different appearances
+(<code class="literal">QCAD_CELL_MODE_NORMAL</code>, <code class="literal">QCAD_CELL_MODE_CROSSOVER</code>, <code class="literal">QCAD_CELL_MODE_VERTICAL</code>).</p>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4797344"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4797355"></a><h3>
+<a name="CLOCK-INC:CAPS"></a>CLOCK_INC()</h3>
+<a class="indexterm" name="id4797367"></a><pre class="programlisting">#define CLOCK_INC(c) (((c)+1)%4)
+</pre>
+<p>
+Increments the clock (mod 4)</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>c</code></em>&#160;:</span></td>
+<td> clock value to increment
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4762055"></a><h3>
+<a name="CLOCK-DEC:CAPS"></a>CLOCK_DEC()</h3>
+<a class="indexterm" name="id4762068"></a><pre class="programlisting">#define CLOCK_DEC(c) (0==(c)?3:(c)-1)
+</pre>
+<p>
+Decrements the clock (mod 4)</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>c</code></em>&#160;:</span></td>
+<td> clock value to decrement
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4762105"></a><h3>
+<a name="QCADCell-struct"></a>QCADCell</h3>
+<a class="indexterm" name="id4762118"></a><pre class="programlisting">typedef struct _QCADCell QCADCell;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4762133"></a><h3>
+<a name="qcad-cell-drexp-array"></a>qcad_cell_drexp_array ()</h3>
+<a class="indexterm" name="id4762144"></a><pre class="programlisting">void        qcad_cell_drexp_array           (<a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Drawing-Primitives.html#GdkDrawable"
+>GdkDrawable</a> *dst,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+>GdkFunction</a> rop,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/gtk-Standard-Enumerations.html#GtkOrientation"
+>GtkOrientation</a> orientation,
+                                             double dRangeBeg,
+                                             double dRangeEnd,
+                                             double dOtherCoord);</pre>
+<p>
+Draws the outlines of a horizontal or vertical array of cells onto the surface <em class="parameter"><code>dst</code></em> using GDK drawing function
+<em class="parameter"><code>rop</code></em>, respecting grid-snap and assuring that the resulting cells do not overlap.
+</p>
+<p>
+If <em class="parameter"><code>orientation</code></em> is <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/gtk-Standard-Enumerations.html#GTK-ORIENTATION-HORIZONTAL:CAPS"
+><code class="literal">GTK_ORIENTATION_HORIZONTAL</code></a>, a horizontal cell array will be drawn: <em class="parameter"><code>dRangeBeg</code></em> and
+<em class="parameter"><code>dRangeEnd</code></em> refer to its beginning and ending world x-coordinates, respectively, and <em class="parameter"><code>dOtherCoord</code></em> refers to 
+its world y-coordinate.
+</p>
+<p>
+If <em class="parameter"><code>orientation</code></em> is <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/gtk-Standard-Enumerations.html#GTK-ORIENTATION-VERTICAL:CAPS"
+><code class="literal">GTK_ORIENTATION_VERTICAL</code></a>, a vertical cell array will be drawn: <em class="parameter"><code>dRangeBeg</code></em> and
+<em class="parameter"><code>dRangeEnd</code></em> refer to its beginning and ending world y-coordinates, respectively, and <em class="parameter"><code>dOtherCoord</code></em> refers to 
+its world x-coordinate.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dst</code></em>&#160;:</span></td>
+<td> Drawing surface
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>rop</code></em>&#160;:</span></td>
+<td> <a
+href="http://developer.gnome.org/doc/API/2.0/gdk/gdk-Graphics-Contexts.html#GdkFunction"
+><span class="type">GdkFunction</span></a> to draw with
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>orientation</code></em>&#160;:</span></td>
+<td> Orientation of the cell array
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dRangeBeg</code></em>&#160;:</span></td>
+<td> Beginning of the array
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dRangeEnd</code></em>&#160;:</span></td>
+<td> End of the array
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dOtherCoord</code></em>&#160;:</span></td>
+<td> "other" coordinate
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4803861"></a><h3>
+<a name="qcad-cell-create-array"></a>qcad_cell_create_array ()</h3>
+<a class="indexterm" name="id4803871"></a><pre class="programlisting"><a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS">EXP_ARRAY</a>*  qcad_cell_create_array          (<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bHorizontal,
+                                             double dRangeBeg,
+                                             double dRangeEnd,
+                                             double dOtherCoord);</pre>
+<p>
+Creates a horizontal or vertical array of cells based on the given world coordinates and the current default
+object for class <a href="QCADCell.html" title="QCADCell"><span class="type">QCADCell</span></a> and stores the resulting instances in the return <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS"><span class="type">EXP_ARRAY</span></a>.
+</p>
+<p>
+If <em class="parameter"><code>bHorizontal</code></em> is <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#TRUE:CAPS"
+><code class="literal">TRUE</code></a>, a horizontal cell array will be created: <em class="parameter"><code>dRangeBeg</code></em> and
+<em class="parameter"><code>dRangeEnd</code></em> refer to its beginning and ending world x-coordinates, respectively, and <em class="parameter"><code>dOtherCoord</code></em> refers to 
+its world y-coordinate.
+</p>
+<p>
+If <em class="parameter"><code>bHorizontal</code></em> is <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Standard-Macros.html#FALSE:CAPS"
+><code class="literal">FALSE</code></a>, a vertical cell array will be created: <em class="parameter"><code>dRangeBeg</code></em> and
+<em class="parameter"><code>dRangeEnd</code></em> refer to its beginning and ending world y-coordinates, respectively, and <em class="parameter"><code>dOtherCoord</code></em> refers to 
+its world x-coordinate.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bHorizontal</code></em>&#160;:</span></td>
+<td> Whether the array is to be a horizontal one
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dRangeBeg</code></em>&#160;:</span></td>
+<td> Beginning of the array
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dRangeEnd</code></em>&#160;:</span></td>
+<td> End of the array
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dOtherCoord</code></em>&#160;:</span></td>
+<td> "other" coordinate
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> An <a href="QCADesigner-exp-array.html#EXP-ARRAY:CAPS"><span class="type">EXP_ARRAY</span></a> containing <a href="QCADCell.html" title="QCADCell"><span class="type">QCADCell</span></a> instances.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804080"></a><h3>
+<a name="qcad-cell-calculate-polarization"></a>qcad_cell_calculate_polarization ()</h3>
+<a class="indexterm" name="id4804092"></a><pre class="programlisting">double      qcad_cell_calculate_polarization
+                                            (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804144"></a><h3>
+<a name="qcad-cell-set-polarization"></a>qcad_cell_set_polarization ()</h3>
+<a class="indexterm" name="id4804155"></a><pre class="programlisting">void        qcad_cell_set_polarization      (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             double dPolarization);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dPolarization</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804214"></a><h3>
+<a name="qcad-cell-set-clock"></a>qcad_cell_set_clock ()</h3>
+<a class="indexterm" name="id4804225"></a><pre class="programlisting">void        qcad_cell_set_clock             (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             int iClock);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>iClock</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804284"></a><h3>
+<a name="qcad-cell-set-function"></a>qcad_cell_set_function ()</h3>
+<a class="indexterm" name="id4804295"></a><pre class="programlisting">void        qcad_cell_set_function          (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             QCADCellFunction function);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>function</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804354"></a><h3>
+<a name="qcad-cell-set-label"></a>qcad_cell_set_label ()</h3>
+<a class="indexterm" name="id4804365"></a><pre class="programlisting">void        qcad_cell_set_label             (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             char *pszLabel);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>pszLabel</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804424"></a><h3>
+<a name="qcad-cell-rotate-dots"></a>qcad_cell_rotate_dots ()</h3>
+<a class="indexterm" name="id4804434"></a><pre class="programlisting">void        qcad_cell_rotate_dots           (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             double angle);</pre>
+<p>
+Rotates <em class="parameter"><code>cell</code></em>'s dots by <em class="parameter"><code>angle</code></em> radians. That is, the cell's four dots are rotated with respect to the center of the cell. So,
+for example, a rotation of &#960; / 4 will cause the dot in the top left corner to move below the midpoint of 
+the cell's top border.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell</code></em>&#160;:</span></td>
+<td> Cell whose dots to rotate.
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>angle</code></em>&#160;:</span></td>
+<td> Angle (in radians) to rotate the dots by (within the cell).
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804512"></a><h3>
+<a name="qcad-cell-get-label"></a>qcad_cell_get_label ()</h3>
+<a class="indexterm" name="id4804522"></a><pre class="programlisting">const char* qcad_cell_get_label             (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804574"></a><h3>
+<a name="qcad-cell-scale"></a>qcad_cell_scale ()</h3>
+<a class="indexterm" name="id4804584"></a><pre class="programlisting">void        qcad_cell_scale                 (<a href="QCADCell.html" title="QCADCell">QCADCell</a> *cell,
+                                             double dScale,
+                                             double dxOrigin,
+                                             double dyOrigin);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>cell</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dScale</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dxOrigin</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dyOrigin</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4804682"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4804692"></a><h3>
+<a name="QCADCell--clock"></a>The "<code class="literal">clock</code>" property</h3>
+<a class="indexterm" name="id4804704"></a><pre class="programlisting">  "clock"                <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#guint"
+>guint</a>                 : Read / Write</pre>
+<p>Cell Clock.</p>
+<p>Allowed values: &lt;= 3</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804730"></a><h3>
+<a name="QCADCell--dot-diameter"></a>The "<code class="literal">dot-diameter</code>" property</h3>
+<a class="indexterm" name="id4804743"></a><pre class="programlisting">  "dot-diameter"         <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Diameter of the quantum dot.</p>
+<p>Allowed values: [0.1,1e+09]</p>
+<p>Default value: 5</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804769"></a><h3>
+<a name="QCADCell--function"></a>The "<code class="literal">function</code>" property</h3>
+<a class="indexterm" name="id4804782"></a><pre class="programlisting">  "function"             QCADCellFunction      : Read / Write</pre>
+<p>
+The cell's function. One of <code class="literal">QCAD_CELL_NORMAL</code>, <code class="literal">QCAD_CELL_INPUT</code>, <code class="literal">QCAD_CELL_OUTPUT</code>, or <code class="literal">QCAD_CELL_FIXED</code></p>
+<p>
+
+</p>
+<p>Default value: QCAD_CELL_NORMAL</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804840"></a><h3>
+<a name="QCADCell--height"></a>The "<code class="literal">height</code>" property</h3>
+<a class="indexterm" name="id4804853"></a><pre class="programlisting">  "height"               <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Cell Height.</p>
+<p>Allowed values: [0.1,1e+09]</p>
+<p>Default value: 18</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804879"></a><h3>
+<a name="QCADCell--label"></a>The "<code class="literal">label</code>" property</h3>
+<a class="indexterm" name="id4804891"></a><pre class="programlisting">  "label"                <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-Standard-Parameter-and-Value-Types.html#gchararray"
+>gchararray</a>            : Read / Write</pre>
+<p>Cell Label.</p>
+<p>Default value: "Untitled"</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804913"></a><h3>
+<a name="QCADCell--mode"></a>The "<code class="literal">mode</code>" property</h3>
+<a class="indexterm" name="id4804926"></a><pre class="programlisting">  "mode"                 QCADCellMode          : Read / Write</pre>
+<p>Cell Drawing Mode.</p>
+<p>Default value: QCAD_CELL_MODE_NORMAL</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804948"></a><h3>
+<a name="QCADCell--polarization"></a>The "<code class="literal">polarization</code>" property</h3>
+<a class="indexterm" name="id4804961"></a><pre class="programlisting">  "polarization"         <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Cell Polarization.</p>
+<p>Allowed values: [-1,1]</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4804987"></a><h3>
+<a name="QCADCell--width"></a>The "<code class="literal">width</code>" property</h3>
+<a class="indexterm" name="id4804999"></a><pre class="programlisting">  "width"                <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gdouble"
+>gdouble</a>               : Read / Write</pre>
+<p>Cell Width.</p>
+<p>Allowed values: [0.1,1e+09]</p>
+<p>Default value: 18</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

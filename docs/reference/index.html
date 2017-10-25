@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADesigner Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="next" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book" lang="en">
+<div class="titlepage">
+<div><div><table class="navigation" id="top" width="100%" cellpadding="2" cellspacing="0"><tr><th valign="middle"><p class="title">QCADesigner Reference Manual</p></th></tr></table></div></div>
+<hr>
+</div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl>
+<dt><span class="part"><a href="QCADObjects.html">I. Design Objects</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="QCADObject.html">QCADObject</a></span><span class="refpurpose"> - QCADesigner's extensions to GObject</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADDesignObject.html">QCADDesignObject</a></span><span class="refpurpose"> - Common base class for all objects appearing in a design</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADCell.html">QCADCell</a></span><span class="refpurpose"> - QCA Cell</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADLayer.html">QCADLayer</a></span><span class="refpurpose"> - Layer containing QCADesigner design objects</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADClockingLayer.html">QCADClockingLayer</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADElectrode.html">QCADElectrode</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADRectangleElectrode.html">QCADRectangleElectrode</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADStretchyObject.html">QCADStretchyObject</a></span><span class="refpurpose"> - Base class for all resizable design objects</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADLabel.html">QCADLabel</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADRuler.html">QCADRuler</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADSubstrate.html">QCADSubstrate</a></span><span class="refpurpose"> - QCA substrate.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADCompoundDO.html">QCADCompoundDO</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADDOContainer.html">QCADDOContainer</a></span><span class="refpurpose"> - </span>
+</dt>
+</dl></dd>
+<dt><span class="part"><a href="QCADPropertyUIs.html">II. Property UIs</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-QCADParamSpecObjectList.html">QCADParamSpecObjectList</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-QCADParamSpecTypeList.html">QCADParamSpecTypeList</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUI.html">QCADPropertyUI</a></span><span class="refpurpose"> - Base class for property UIs.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUISingle.html">QCADPropertyUISingle</a></span><span class="refpurpose"> - Base class for "single" property UIs.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUINumeric.html">QCADPropertyUINumeric</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUIInt.html">QCADPropertyUIInt</a></span><span class="refpurpose"> - Property UI for exposing signed and unsigned integer properties</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUIDouble.html">QCADPropertyUIDouble</a></span><span class="refpurpose"> - Property UI for exposing single and double precision floating point properties</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUIText.html">QCADPropertyUIText</a></span><span class="refpurpose"> - Property UI for exposing string properties</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUIObjectList.html">QCADPropertyUIObjectList</a></span><span class="refpurpose"> - Property UI for a param of type QCADParamSpecObjectList</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUIBoolean.html">QCADPropertyUIBoolean</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUIEnum.html">QCADPropertyUIEnum</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADPropertyUIGroup.html">QCADPropertyUIGroup</a></span><span class="refpurpose"> - Property UI group.</span>
+</dt>
+</dl></dd>
+<dt><span class="part"><a href="QCADWidgets.html">III. GTK+ Widgets</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="QCADPrintDialog.html">QCADPrintDialog</a></span><span class="refpurpose"> - QCADesigner's print dialog widget</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADFlexiCombo.html">QCADFlexiCombo</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADLayersCombo.html">QCADLayersCombo</a></span><span class="refpurpose"> - QCADesigner layers combo box</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADCellRendererLayerList.html">QCADCellRendererLayerList</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADCellRendererVT.html">QCADCellRendererVT</a></span><span class="refpurpose"> - </span>
+</dt>
+</dl></dd>
+<dt><span class="part"><a href="QCADWorkaroundWidgets.html">IV. GTK+ Workaround Widgets</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="QCADRadioButton.html">QCADRadioButton</a></span><span class="refpurpose"> - QCADesigner workaround class for GtkRadioButton.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADComboBox.html">QCADComboBox</a></span><span class="refpurpose"> - QCADesigner workaround class for GtkComboBox.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADCellRendererText.html">QCADCellRendererText</a></span><span class="refpurpose"> - QCADesigner's workaround class for GtkCellRendererText.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADRadioToolButton.html">QCADRadioToolButton</a></span><span class="refpurpose"> - QCADesigner workaround class for GtkRadioToolButton</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADToggleToolButton.html">QCADToggleToolButton</a></span><span class="refpurpose"> - QCADesigner workaround class for GtkToggleToolButton</span>
+</dt>
+</dl></dd>
+<dt><span class="part"><a href="QCADUndoRedo.html">V. Undo/Redo</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="QCADUndoEntry.html">QCADUndoEntry</a></span><span class="refpurpose"> - Basic undo/redo functionality</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADUndoEntryObjectState.html">QCADUndoEntryObjectState</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADUndoEntryGroup.html">QCADUndoEntryGroup</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-selection-undo.html">selection_undo</a></span><span class="refpurpose"> - </span>
+</dt>
+</dl></dd>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-interface.html">interface</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-graph-dialog-callbacks.html">graph_dialog_callbacks</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-generic-utils.html">generic_utils</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-bistable-simulation.html">bistable_simulation</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-drag-rect.html">drag_rect</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-print-util.html">print_util</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-print-preview.html">print_preview</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-translate-selection-dialog.html">translate_selection_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-exp-pixmap.html">exp_pixmap</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-graph-dialog-data.html">graph_dialog_data</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-file-selection-window.html">file_selection_window</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-vector-table-options-dialog-interface.html">vector_table_options_dialog_interface</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-print-properties-dialog-callbacks.html">print_properties_dialog_callbacks</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-coherence-vector.html">coherence_vector</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-recent-files.html">recent_files</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-layer-order-dialog.html">layer_order_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-fileio.html">fileio</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-exp-array.html">exp_array</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-print-graph-properties-dialog.html">print_graph_properties_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-simulation.html">simulation</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-simulation-data.html">simulation_data</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-sim-type-setup-dialog.html">sim_type_setup_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-custom-widgets.html">custom_widgets</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-ts-coherence-vector-properties-dialog.html">ts_coherence_vector_properties_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-preamble.html">preamble</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-scale-dialog.html">scale_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-callbacks.html">callbacks</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-fileio-helpers.html">fileio_helpers</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-support.html">support</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-graph-dialog-interface.html">graph_dialog_interface</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-hsl2rgb.html">hsl2rgb</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-about.html">about</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-selection-renderer.html">selection_renderer</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-callback-helpers.html">callback_helpers</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-vector-table-options-dialog.html">vector_table_options_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-waveform-interpretation-dialog.html">waveform_interpretation_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-vector-table-options-dialog-callbacks.html">vector_table_options_dialog_callbacks</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-global-consts.html">global_consts</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-design.html">design</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-print-properties-dialog.html">print_properties_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-matrixlib-3x3.html">matrixlib_3x3</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-print-properties-dialog-interface.html">print_properties_dialog_interface</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-three-state-coherence.html">three_state_coherence</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-vector-table-options-dialog-callback-helpers.html">vector_table_options_dialog_callback_helpers</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-coherence-vector-properties-dialog.html">coherence_vector_properties_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-layer-mapping-dialog.html">layer_mapping_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-bus-layout-dialog.html">bus_layout_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-qcadstock.html">qcadstock</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-sim-engine-setup-dialog.html">sim_engine_setup_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-print.html">print</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-graph-dialog.html">graph_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-bistable-properties-dialog.html">bistable_properties_dialog</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-rotate.html">rotate</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-select.html">select</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-array.html">array</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-object-helpers.html">object_helpers</a></span><span class="refpurpose"> - </span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="QCADesigner-mouse-handlers.html">mouse_handlers</a></span><span class="refpurpose"> - </span>
+</dt>
+</dl>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div></body>
+</html>

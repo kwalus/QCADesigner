@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>QCADFlexiCombo</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="prev" href="QCADPrintDialog.html" title="QCADPrintDialog">
+<link rel="next" href="QCADLayersCombo.html" title="QCADLayersCombo">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADPrintDialog.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="QCADWidgets.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADLayersCombo.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4773808" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4817165" class="shortcut">Description</a>
+                  &#160;|&#160;
+                  <a href="#id4794326" class="shortcut">Object Hierarchy</a>
+                  &#160;|&#160;
+                  <a href="#id4817101" class="shortcut">Implemented Interfaces</a>
+                  &#160;|&#160;
+                  <a href="#id4817135" class="shortcut">Properties</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADFlexiCombo"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4773808"></a><span class="refentrytitle">QCADFlexiCombo</span>
+</h2>
+<p>QCADFlexiCombo &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+            <a href="QCADFlexiCombo.html#QCADFlexiCombo-struct">QCADFlexiCombo</a>;
+void        <a href="QCADFlexiCombo.html#qcad-flexi-combo-show-popup">qcad_flexi_combo_show_popup</a>     (<a href="QCADFlexiCombo.html" title="QCADFlexiCombo">QCADFlexiCombo</a> *flexi_combo,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bShow);
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4794326"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+
+  <a
+href="http://developer.gnome.org/doc/API/2.0/gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----GInitiallyUnowned
+         +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkObject.html"
+>GtkObject</a>
+               +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>
+                     +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkContainer.html"
+>GtkContainer</a>
+                           +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkBin.html"
+>GtkBin</a>
+                                 +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkComboBox.html"
+>GtkComboBox</a>
+                                       +----<a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkComboBoxEntry.html"
+>GtkComboBoxEntry</a>
+                                             +----QCADFlexiCombo
+                                                   +----<a href="QCADLayersCombo.html" title="QCADLayersCombo">QCADLayersCombo</a>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4817101"></a><h2>Implemented Interfaces</h2>
+<p>
+QCADFlexiCombo implements
+ AtkImplementorIface,  <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkCellLayout.html"
+>GtkCellLayout</a> and  <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkCellEditable.html"
+>GtkCellEditable</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4817135"></a><h2>Properties</h2>
+<pre class="synopsis">
+
+  "<a href="QCADFlexiCombo.html#QCADFlexiCombo--popup-widget">popup-widget</a>"         <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>             : Read / Write
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4817165"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4817180"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4817191"></a><h3>
+<a name="QCADFlexiCombo-struct"></a>QCADFlexiCombo</h3>
+<a class="indexterm" name="id4817203"></a><pre class="programlisting">typedef struct _QCADFlexiCombo QCADFlexiCombo;</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4817219"></a><h3>
+<a name="qcad-flexi-combo-show-popup"></a>qcad_flexi_combo_show_popup ()</h3>
+<a class="indexterm" name="id4816859"></a><pre class="programlisting">void        qcad_flexi_combo_show_popup     (<a href="QCADFlexiCombo.html" title="QCADFlexiCombo">QCADFlexiCombo</a> *flexi_combo,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> bShow);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>flexi_combo</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>bShow</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4816926"></a><h2>Property Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4816936"></a><h3>
+<a name="QCADFlexiCombo--popup-widget"></a>The "<code class="literal">popup-widget</code>" property</h3>
+<a class="indexterm" name="id4816950"></a><pre class="programlisting">  "popup-widget"         <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a>             : Read / Write</pre>
+<p>The widget to show when the user clicks the button.</p>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>graph_dialog_interface</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="QCADesigner Reference Manual">
+<link rel="up" href="index.html" title="QCADesigner Reference Manual">
+<link rel="prev" href="QCADesigner-support.html" title="support">
+<link rel="next" href="QCADesigner-hsl2rgb.html" title="hsl2rgb">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="QCADObjects.html" title="Part&#160;I.&#160;Design Objects">
+<link rel="part" href="QCADPropertyUIs.html" title="Part&#160;II.&#160;Property UIs">
+<link rel="part" href="QCADWidgets.html" title="Part&#160;III.&#160;GTK+ Widgets">
+<link rel="part" href="QCADWorkaroundWidgets.html" title="Part&#160;IV.&#160;GTK+ Workaround Widgets">
+<link rel="part" href="QCADUndoRedo.html" title="Part&#160;V.&#160;Undo/Redo">
+<link rel="shortcut icon" href="QCADesigner.ico" type="image/x-icon"></head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="QCADesigner-support.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">QCADesigner Reference Manual</th>
+<td><a accesskey="n" href="QCADesigner-hsl2rgb.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id4784373" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#id4847569" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="QCADesigner-graph-dialog-interface"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2>
+<a name="id4784373"></a><span class="refentrytitle">graph_dialog_interface</span>
+</h2>
+<p>graph_dialog_interface &#8212; </p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<pre class="synopsis">
+
+
+
+#define     <a href="QCADesigner-graph-dialog-interface.html#TRACE-TABLE-MIN-X:CAPS">TRACE_TABLE_MIN_X</a>
+#define     <a href="QCADesigner-graph-dialog-interface.html#TRACE-TABLE-MIN-Y:CAPS">TRACE_TABLE_MIN_Y</a>
+#define     <a href="QCADesigner-graph-dialog-interface.html#TRACE-MIN-CX:CAPS">TRACE_MIN_CX</a>
+#define     <a href="QCADesigner-graph-dialog-interface.html#TRACE-MIN-CY:CAPS">TRACE_MIN_CY</a>
+void        <a href="QCADesigner-graph-dialog-interface.html#create-graph-dialog">create_graph_dialog</a>             (graph_D *dialog);
+<a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    <a href="QCADesigner-graph-dialog-interface.html#create-graph-widgets">create_graph_widgets</a>            (GRAPH_DIALOG_DATA *graph_dialog_data,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html#GtkTreeIter"
+>GtkTreeIter</a> *itr);
+void        <a href="QCADesigner-graph-dialog-interface.html#attach-graph-widgets">attach_graph_widgets</a>            (graph_D *dialog,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *table,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *trace,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *ruler,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *ui,
+                                             int idx);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4847569"></a><h2>Description</h2>
+<p>
+
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id4847585"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id4847595"></a><h3>
+<a name="TRACE-TABLE-MIN-X:CAPS"></a>TRACE_TABLE_MIN_X</h3>
+<a class="indexterm" name="id4847606"></a><pre class="programlisting">#define TRACE_TABLE_MIN_X 0
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4847621"></a><h3>
+<a name="TRACE-TABLE-MIN-Y:CAPS"></a>TRACE_TABLE_MIN_Y</h3>
+<a class="indexterm" name="id4847632"></a><pre class="programlisting">#define TRACE_TABLE_MIN_Y 0
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4847647"></a><h3>
+<a name="TRACE-MIN-CX:CAPS"></a>TRACE_MIN_CX</h3>
+<a class="indexterm" name="id4847658"></a><pre class="programlisting">#define TRACE_MIN_CX 300
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4846587"></a><h3>
+<a name="TRACE-MIN-CY:CAPS"></a>TRACE_MIN_CY</h3>
+<a class="indexterm" name="id4846597"></a><pre class="programlisting">#define TRACE_MIN_CY 30
+</pre>
+<p>
+
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4846612"></a><h3>
+<a name="create-graph-dialog"></a>create_graph_dialog ()</h3>
+<a class="indexterm" name="id4846623"></a><pre class="programlisting">void        create_graph_dialog             (graph_D *dialog);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td>
+<span class="term"><em class="parameter"><code>dialog</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4846667"></a><h3>
+<a name="create-graph-widgets"></a>create_graph_widgets ()</h3>
+<a class="indexterm" name="id4846678"></a><pre class="programlisting"><a
+href="http://developer.gnome.org/doc/API/2.0/glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    create_graph_widgets            (GRAPH_DIALOG_DATA *graph_dialog_data,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkTreeModel.html#GtkTreeIter"
+>GtkTreeIter</a> *itr);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>graph_dialog_data</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>itr</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id4846778"></a><h3>
+<a name="attach-graph-widgets"></a>attach_graph_widgets ()</h3>
+<a class="indexterm" name="id4846790"></a><pre class="programlisting">void        attach_graph_widgets            (graph_D *dialog,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *table,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *trace,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *ruler,
+                                             <a
+href="http://developer.gnome.org/doc/API/2.0/gtk/GtkWidget.html"
+>GtkWidget</a> *ui,
+                                             int idx);</pre>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>dialog</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>table</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>trace</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>ruler</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>ui</code></em>&#160;:</span></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><em class="parameter"><code>idx</code></em>&#160;:</span></td>
+<td>
+
+
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<font size="-3"><!--#config timefmt="%Y-%m-%d %T" --><!--#set var="LastModifiedMsg" value="Last modified: ${LAST_MODIFIED}" --><!--#echo var="LastModifiedMsg" --></font></div>
+</body>
+</html>

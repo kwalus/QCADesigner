@@ -12,6 +12,7 @@ option and specify the path. For example if you are
 configuring QCADesigner for the first time, you can run:
 
 ./autogen.sh --prefix=<Your path>
+./configure
 make
 make install
 

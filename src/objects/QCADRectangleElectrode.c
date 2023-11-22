@@ -104,7 +104,7 @@ static inline double search_min_max(double *A, int min_or_max, int num_elements 
 static inline double interpolate(double *Grid, double x1, double y1, double z1, double x2, double y2, double z2, int Nx, int Ny, int Nz, double dx, double dy, double dz);
 
 double *pot_grid = NULL;
-int Nx, Ny, Nz;
+int GNx, GNy, GNz;
 
 GType qcad_rectangle_electrode_get_type ()
   {
@@ -789,9 +789,9 @@ void *create_grid(int N_x, int N_y, int N_z)
 	for (i = 0; i < N_x*N_y*N_z; i++) {
 		pot_grid[i] = 0;
 	}
-	Nx = N_x;
-	Ny = N_y;
-	Nz = N_z;
+	GNx = N_x;
+	GNy = N_y;
+	GNz = N_z;
 }
 
 static inline double search_min_max(double *A, int min_or_max, int num_elements )
